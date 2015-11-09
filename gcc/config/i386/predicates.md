@@ -1364,10 +1364,14 @@
 (define_predicate "absneg_operator"
   (match_code "abs,neg"))
 
-;; Return true if OP is misaligned memory operand
+;; Return true if OP is misaligned memory operand.  Use GET_MODE_BITSIZE
+;; instead of GET_MODE_ALIGNMENT for IA MCU psABI since the biggest
+;; alignment is 4 byte for IA MCU psABI.  */
 (define_predicate "misaligned_operand"
   (and (match_code "mem")
-       (match_test "MEM_ALIGN (op) < GET_MODE_ALIGNMENT (mode)")))
+       (match_test "MEM_ALIGN (op) < (TARGET_IAMCU
+				      ? GET_MODE_BITSIZE (mode)
+				      : GET_MODE_ALIGNMENT (mode))")))
 
 ;; Return true if OP is a emms operation, known to be a PARALLEL.
 (define_predicate "emms_operation"
