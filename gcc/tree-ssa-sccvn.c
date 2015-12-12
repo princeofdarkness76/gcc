@@ -750,8 +750,16 @@ copy_reference_ops_from_ref (tree ref, vec<vn_reference_op_s> *result)
 	case MEM_REF:
 	  /* The base address gets its own vn_reference_op_s structure.  */
 	  temp.op0 = TREE_OPERAND (ref, 1);
+<<<<<<< HEAD
 	  if (tree_fits_shwi_p (TREE_OPERAND (ref, 1)))
 	    temp.off = tree_to_shwi (TREE_OPERAND (ref, 1));
+=======
+	    {
+	      offset_int off = mem_ref_offset (ref);
+	      if (wi::fits_shwi_p (off))
+		temp.off = off.to_shwi ();
+	    }
+>>>>>>> gcc-mirror/master
 	  temp.clique = MR_DEPENDENCE_CLIQUE (ref);
 	  temp.base = MR_DEPENDENCE_BASE (ref);
 	  temp.reverse = REF_REVERSE_STORAGE_ORDER (ref);
@@ -1367,8 +1375,14 @@ fully_constant_vn_reference_p (vn_reference_t ref)
 	  else
 	    {
 	      unsigned char buf[MAX_BITSIZE_MODE_ANY_MODE / BITS_PER_UNIT];
+<<<<<<< HEAD
 	      if (native_encode_expr (ctor, buf, size, off) > 0)
 		return native_interpret_expr (ref->type, buf, size);
+=======
+	      int len = native_encode_expr (ctor, buf, size, off);
+	      if (len > 0)
+		return native_interpret_expr (ref->type, buf, len);
+>>>>>>> gcc-mirror/master
 	    }
 	}
     }
@@ -2789,6 +2803,7 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 	case 1:
 	  /* Single-arg PHIs are just copies.  */
 	  break;
+<<<<<<< HEAD
 
 	case 2:
 	  {
@@ -2852,6 +2867,71 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 	}
     }
 
+=======
+
+	case 2:
+	  {
+	    /* Rule out backedges into the PHI.  */
+	    if (vp1->block->loop_father->header == vp1->block
+		|| vp2->block->loop_father->header == vp2->block)
+	      return false;
+
+	    /* If the PHI nodes do not have compatible types
+	       they are not the same.  */
+	    if (!types_compatible_p (vp1->type, vp2->type))
+	      return false;
+
+	    basic_block idom1
+	      = get_immediate_dominator (CDI_DOMINATORS, vp1->block);
+	    basic_block idom2
+	      = get_immediate_dominator (CDI_DOMINATORS, vp2->block);
+	    /* If the immediate dominator end in switch stmts multiple
+	       values may end up in the same PHI arg via intermediate
+	       CFG merges.  */
+	    if (EDGE_COUNT (idom1->succs) != 2
+		|| EDGE_COUNT (idom2->succs) != 2)
+	      return false;
+
+	    /* Verify the controlling stmt is the same.  */
+	    gimple *last1 = last_stmt (idom1);
+	    gimple *last2 = last_stmt (idom2);
+	    if (gimple_code (last1) != GIMPLE_COND
+		|| gimple_code (last2) != GIMPLE_COND)
+	      return false;
+	    bool inverted_p;
+	    if (! cond_stmts_equal_p (as_a <gcond *> (last1),
+				      as_a <gcond *> (last2), &inverted_p))
+	      return false;
+
+	    /* Get at true/false controlled edges into the PHI.  */
+	    edge te1, te2, fe1, fe2;
+	    if (! extract_true_false_controlled_edges (idom1, vp1->block,
+						       &te1, &fe1)
+		|| ! extract_true_false_controlled_edges (idom2, vp2->block,
+							  &te2, &fe2))
+	      return false;
+
+	    /* Swap edges if the second condition is the inverted of the
+	       first.  */
+	    if (inverted_p)
+	      std::swap (te2, fe2);
+
+	    /* ???  Handle VN_TOP specially.  */
+	    if (! expressions_equal_p (vp1->phiargs[te1->dest_idx],
+				       vp2->phiargs[te2->dest_idx])
+		|| ! expressions_equal_p (vp1->phiargs[fe1->dest_idx],
+					  vp2->phiargs[fe2->dest_idx]))
+	      return false;
+
+	    return true;
+	  }
+
+	default:
+	  return false;
+	}
+    }
+
+>>>>>>> gcc-mirror/master
   /* If the PHI nodes do not have compatible types
      they are not the same.  */
   if (!types_compatible_p (vp1->type, vp2->type))
@@ -3516,6 +3596,7 @@ visit_use (tree use)
 	      fprintf (dump_file, " simplified to ");
 	      print_generic_expr (dump_file, simplified, 0);
 	      fprintf (dump_file, "\n");
+<<<<<<< HEAD
 	    }
 	}
       /* Setting value numbers to constants will occasionally
@@ -3582,6 +3663,74 @@ visit_use (tree use)
 		}
 	    }
 	}
+=======
+	    }
+	}
+      /* Setting value numbers to constants will occasionally
+	 screw up phi congruence because constants are not
+	 uniquely associated with a single ssa name that can be
+	 looked up.  */
+      if (simplified
+	  && is_gimple_min_invariant (simplified)
+	  && TREE_CODE (lhs) == SSA_NAME)
+	{
+	  changed = set_ssa_val_to (lhs, simplified);
+	  goto done;
+	}
+      else if (simplified
+	       && TREE_CODE (simplified) == SSA_NAME
+	       && TREE_CODE (lhs) == SSA_NAME)
+	{
+	  changed = visit_copy (lhs, simplified);
+	  goto done;
+	}
+
+      if ((TREE_CODE (lhs) == SSA_NAME
+	   /* We can substitute SSA_NAMEs that are live over
+	      abnormal edges with their constant value.  */
+	   && !(gimple_assign_copy_p (ass)
+		&& is_gimple_min_invariant (rhs1))
+	   && !(simplified
+		&& is_gimple_min_invariant (simplified))
+	   && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (lhs))
+	  /* Stores or copies from SSA_NAMEs that are live over
+	     abnormal edges are a problem.  */
+	  || (code == SSA_NAME
+	      && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (rhs1)))
+	changed = defs_to_varying (ass);
+      else if (REFERENCE_CLASS_P (lhs)
+	       || DECL_P (lhs))
+	changed = visit_reference_op_store (lhs, rhs1, ass);
+      else if (TREE_CODE (lhs) == SSA_NAME)
+	{
+	  if ((gimple_assign_copy_p (ass)
+	       && is_gimple_min_invariant (rhs1))
+	      || (simplified
+		  && is_gimple_min_invariant (simplified)))
+	    {
+	      if (simplified)
+		changed = set_ssa_val_to (lhs, simplified);
+	      else
+		changed = set_ssa_val_to (lhs, rhs1);
+	    }
+	  else
+	    {
+	      /* Visit the original statement.  */
+	      switch (vn_get_stmt_kind (ass))
+		{
+		case VN_NARY:
+		changed = visit_nary_op (lhs, ass);
+		break;
+		case VN_REFERENCE:
+		changed = visit_reference_op_load (lhs, rhs1, ass);
+		break;
+		default:
+		changed = defs_to_varying (ass);
+		break;
+		}
+	    }
+	}
+>>>>>>> gcc-mirror/master
       else
 	changed = defs_to_varying (ass);
     }
@@ -4204,10 +4353,17 @@ class sccvn_dom_walker : public dom_walker
 {
 public:
   sccvn_dom_walker ()
+<<<<<<< HEAD
     : dom_walker (CDI_DOMINATORS), fail (false), cond_stack (vNULL) {}
   ~sccvn_dom_walker ();
 
   virtual void before_dom_children (basic_block);
+=======
+    : dom_walker (CDI_DOMINATORS, true), fail (false), cond_stack (vNULL) {}
+  ~sccvn_dom_walker ();
+
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
   void record_cond (basic_block,
@@ -4310,13 +4466,18 @@ sccvn_dom_walker::after_dom_children (basic_block bb)
 
 /* Value number all statements in BB.  */
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 sccvn_dom_walker::before_dom_children (basic_block bb)
 {
   edge e;
   edge_iterator ei;
 
   if (fail)
+<<<<<<< HEAD
     return;
 
   /* If any of the predecessor edges that do not come from blocks dominated
@@ -4351,6 +4512,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 	}
       return;
     }
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Visiting BB %d\n", bb->index);
@@ -4411,7 +4575,11 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 	  && !DFS (res))
 	{
 	  fail = true;
+<<<<<<< HEAD
 	  return;
+=======
+	  return NULL;
+>>>>>>> gcc-mirror/master
 	}
     }
   for (gimple_stmt_iterator gsi = gsi_start_bb (bb);
@@ -4424,20 +4592,32 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 	    && !DFS (op))
 	  {
 	    fail = true;
+<<<<<<< HEAD
 	    return;
+=======
+	    return NULL;
+>>>>>>> gcc-mirror/master
 	  }
     }
 
   /* Finally look at the last stmt.  */
   gimple *stmt = last_stmt (bb);
   if (!stmt)
+<<<<<<< HEAD
     return;
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   enum gimple_code code = gimple_code (stmt);
   if (code != GIMPLE_COND
       && code != GIMPLE_SWITCH
       && code != GIMPLE_GOTO)
+<<<<<<< HEAD
     return;
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     {
@@ -4480,19 +4660,31 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
       gcc_unreachable ();
     }
   if (!val)
+<<<<<<< HEAD
     return;
 
   edge taken = find_taken_edge (bb, vn_valueize (val));
   if (!taken)
     return;
+=======
+    return NULL;
+
+  edge taken = find_taken_edge (bb, vn_valueize (val));
+  if (!taken)
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Marking all edges out of BB %d but (%d -> %d) as "
 	     "not executable\n", bb->index, bb->index, taken->dest->index);
 
+<<<<<<< HEAD
   FOR_EACH_EDGE (e, ei, bb->succs)
     if (e != taken)
       e->flags &= ~EDGE_EXECUTABLE;
+=======
+  return taken;
+>>>>>>> gcc-mirror/master
 }
 
 /* Do SCCVN.  Returns true if it finished, false if we bailed out
@@ -4532,6 +4724,7 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
 	}
     }
 
+<<<<<<< HEAD
   /* Mark all edges as possibly executable.  */
   FOR_ALL_BB_FN (bb, cfun)
     {
@@ -4551,6 +4744,18 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
       return false;
     }
 
+=======
+  /* Walk all blocks in dominator order, value-numbering stmts
+     SSA defs and decide whether outgoing edges are not executable.  */
+  sccvn_dom_walker walker;
+  walker.walk (ENTRY_BLOCK_PTR_FOR_FN (cfun));
+  if (walker.fail)
+    {
+      free_scc_vn ();
+      return false;
+    }
+
+>>>>>>> gcc-mirror/master
   /* Initialize the value ids and prune out remaining VN_TOPs
      from dead code.  */
   for (i = 1; i < num_ssa_names; ++i)

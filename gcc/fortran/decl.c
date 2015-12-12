@@ -742,6 +742,7 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 	{
 	  if (mpz_cmp_si ((*expr)->value.integer, 0) < 0)
 	    mpz_set_si ((*expr)->value.integer, 0);
+<<<<<<< HEAD
 	}
       else
 	goto syntax;
@@ -773,6 +774,39 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 
       gfc_free_expr (e);
     }
+=======
+	}
+      else
+	goto syntax;
+    }
+  else if ((*expr)->expr_type == EXPR_ARRAY)
+    goto syntax;
+  else if ((*expr)->expr_type == EXPR_VARIABLE)
+    {
+      gfc_expr *e;
+
+      e = gfc_copy_expr (*expr);
+
+      /* This catches the invalid code "[character(m(2:3)) :: 'x', 'y']",
+	 which causes an ICE if gfc_reduce_init_expr() is called.  */
+      if (e->ref && e->ref->type == REF_ARRAY
+	  && e->ref->u.ar.type == AR_UNKNOWN
+	  && e->ref->u.ar.dimen_type[0] == DIMEN_RANGE)
+	goto syntax;
+
+      gfc_reduce_init_expr (e);
+
+      if ((e->ref && e->ref->type == REF_ARRAY
+	   && e->ref->u.ar.type != AR_ELEMENT) 
+	  || (!e->ref && e->expr_type == EXPR_ARRAY))
+	{
+	  gfc_free_expr (e);
+	  goto syntax;
+	}
+
+      gfc_free_expr (e);
+    }
+>>>>>>> gcc-mirror/master
 
   return m;
 
@@ -1194,7 +1228,7 @@ gfc_verify_c_interop_param (gfc_symbol *sym)
 	  if (sym->as != NULL && sym->as->type == AS_ASSUMED_SHAPE
 	      && !gfc_notify_std (GFC_STD_F2008_TS, "Assumed-shape array %qs "
 				  "at %L as dummy argument to the BIND(C) "
-				  "procedure '%s' at %L", sym->name, 
+				  "procedure %qs at %L", sym->name,
 				  &(sym->declared_at), 
 				  sym->ns->proc_name->name, 
 				  &(sym->ns->proc_name->declared_at)))
@@ -2023,9 +2057,15 @@ variable_decl (int elem)
       if (sym != NULL && (sym->attr.dummy || sym->attr.result))
 	{
 	  m = MATCH_ERROR;
+<<<<<<< HEAD
 	  gfc_error ("'%s' at %C is a redefinition of the declaration "
 		     "in the corresponding interface for MODULE "
 		     "PROCEDURE '%s'", sym->name,
+=======
+	  gfc_error ("%qs at %C is a redefinition of the declaration "
+		     "in the corresponding interface for MODULE "
+		     "PROCEDURE %qs", sym->name,
+>>>>>>> gcc-mirror/master
 		     gfc_current_ns->proc_name->name);
 	  goto cleanup;
 	}
@@ -4817,14 +4857,36 @@ ok:
       goto cleanup;
     }
 
+<<<<<<< HEAD
   if (formal)
     {
+=======
+  /* gfc_error_now used in following and return with MATCH_YES because
+     doing otherwise results in a cascade of extraneous errors and in
+     some cases an ICE in symbol.c(gfc_release_symbol).  */
+  if (progname->attr.module_procedure && progname->attr.host_assoc)
+    {
+      bool arg_count_mismatch = false;
+
+      if (!formal && head)
+	arg_count_mismatch = true;
+
+      /* Abbreviated module procedure declaration is not meant to have any
+	 formal arguments!  */
+      if (!progname->abr_modproc_decl && formal && !head)
+	arg_count_mismatch = true;
+
+>>>>>>> gcc-mirror/master
       for (p = formal, q = head; p && q; p = p->next, q = q->next)
 	{
 	  if ((p->next != NULL && q->next == NULL)
 	      || (p->next == NULL && q->next != NULL))
+<<<<<<< HEAD
 	    gfc_error_now ("Mismatch in number of MODULE PROCEDURE "
 		           "formal arguments at %C");
+=======
+	    arg_count_mismatch = true;
+>>>>>>> gcc-mirror/master
 	  else if ((p->sym == NULL && q->sym == NULL)
 		    || strcmp (p->sym->name, q->sym->name) == 0)
 	    continue;
@@ -4833,6 +4895,13 @@ ok:
 			   "argument names (%s/%s) at %C",
 			   p->sym->name, q->sym->name);
 	}
+<<<<<<< HEAD
+=======
+
+      if (arg_count_mismatch)
+	gfc_error_now ("Mismatch in number of MODULE PROCEDURE "
+		       "formal arguments at %C");
+>>>>>>> gcc-mirror/master
     }
 
   return MATCH_YES;

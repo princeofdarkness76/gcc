@@ -3,3 +3,11 @@ LIBMPX_1.0
   local:
 	*;
 };
+<<<<<<< HEAD
+=======
+LIBMPX_2.0
+{
+  global:
+    get_bd;
+} LIBMPX_1.0;
+>>>>>>> gcc-mirror/master

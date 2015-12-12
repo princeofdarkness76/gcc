@@ -22,8 +22,14 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+<<<<<<< HEAD
 /** @file experimental/filesystem
  *  This is a TS C++ Library header.
+=======
+/** @file experimental/bits/fs_fwd.h
+ *  This is an internal header file, included by other library headers.
+ *  Do not attempt to use it directly. @headername{experimental/filesystem}
+>>>>>>> gcc-mirror/master
  */
 
 #ifndef _GLIBCXX_EXPERIMENTAL_FS_FWD_H
@@ -52,7 +58,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 
   /**
+<<<<<<< HEAD
    * @defgroup filesystem
+=======
+   * @defgroup filesystem Filesystem
+>>>>>>> gcc-mirror/master
    * @ingroup experimental
    *
    * Utilities for performing operations on file systems and their components,

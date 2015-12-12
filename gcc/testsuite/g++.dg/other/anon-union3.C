@@ -3,9 +3,13 @@
 class C
 {
   auto union      // { dg-error "storage class" "" { target { ! c++11 } } }
+<<<<<<< HEAD
     {
+=======
+    {		  // { dg-error "auto" "" { target c++11 } 5 }
+>>>>>>> gcc-mirror/master
       int a;
-    };            // { dg-error "multiple|specified" "" { target c++11 } }
+    };            // { dg-error "multiple types" "" { target c++11 } }
   register union  // { dg-error "storage class" }
     {
       int b;

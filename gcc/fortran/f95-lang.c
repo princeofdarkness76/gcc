@@ -93,6 +93,11 @@ static const struct attribute_spec gfc_attribute_table[] =
        affects_type_identity } */
   { "omp declare target", 0, 0, true,  false, false,
     gfc_handle_omp_declare_target_attribute, false },
+<<<<<<< HEAD
+=======
+  { "oacc function", 0, -1, true,  false, false,
+    gfc_handle_omp_declare_target_attribute, false },
+>>>>>>> gcc-mirror/master
   { NULL,		  0, 0, false, false, false, NULL, false }
 };
 
@@ -530,8 +535,14 @@ gfc_builtin_function (tree decl)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* So far we need just these 6 attribute types.  */
 #define ATTR_NULL			0
+=======
+/* So far we need just these 7 attribute types.  */
+#define ATTR_NULL			0
+#define ATTR_LEAF_LIST			(ECF_LEAF)
+>>>>>>> gcc-mirror/master
 =======
 /* So far we need just these 7 attribute types.  */
 #define ATTR_NULL			0
@@ -623,10 +634,13 @@ gfc_init_builtin_functions (void)
 #define DEF_FUNCTION_TYPE_4(NAME, RETURN, ARG1, ARG2, ARG3, ARG4) NAME,
 #define DEF_FUNCTION_TYPE_5(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5) NAME,
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) NAME,
 #define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) NAME,
 =======
+=======
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
@@ -639,6 +653,9 @@ gfc_init_builtin_functions (void)
 			     ARG6, ARG7, ARG8, ARG9, ARG10) NAME,
 #define DEF_FUNCTION_TYPE_11(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) NAME,
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(NAME, RETURN) NAME,
 #define DEF_FUNCTION_TYPE_VAR_1(NAME, RETURN, ARG1) NAME,
@@ -660,6 +677,12 @@ gfc_init_builtin_functions (void)
 #undef DEF_FUNCTION_TYPE_7
 #undef DEF_FUNCTION_TYPE_8
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef DEF_FUNCTION_TYPE_9
+#undef DEF_FUNCTION_TYPE_10
+#undef DEF_FUNCTION_TYPE_11
+>>>>>>> gcc-mirror/master
 =======
 #undef DEF_FUNCTION_TYPE_9
 #undef DEF_FUNCTION_TYPE_10
@@ -1100,7 +1123,10 @@ gfc_init_builtin_functions (void)
 				builtin_types[(int) ARG8],		\
 				NULL_TREE);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_9(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6, ARG7, ARG8, ARG9)			\
   builtin_types[(int) ENUM]						\
@@ -1146,6 +1172,9 @@ gfc_init_builtin_functions (void)
 				builtin_types[(int) ARG10],		\
 				builtin_types[(int) ARG11],		\
 				NULL_TREE);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(ENUM, RETURN)				\
   builtin_types[(int) ENUM]						\

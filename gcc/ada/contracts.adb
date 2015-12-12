@@ -58,7 +58,11 @@ package body Contracts is
    --  Analyze_Previous_Constracts. Analyze the contracts of all constructs in
    --  the list L. If Freeze_Nod is set, then the analysis stops when the node
    --  is reached. Freeze_Id is the entity of some related context which caused
+<<<<<<< HEAD
    --  freezing upto node Freeze_Nod.
+=======
+   --  freezing up to node Freeze_Nod.
+>>>>>>> gcc-mirror/master
 
    procedure Expand_Subprogram_Contract (Body_Id : Entity_Id);
    --  Expand the contracts of a subprogram body and its correspoding spec (if
@@ -1120,7 +1124,11 @@ package body Contracts is
          Par := Parent (Par);
       end loop;
 
+<<<<<<< HEAD
       --  Analyze the contracts of all eligible construct upto the body which
+=======
+      --  Analyze the contracts of all eligible construct up to the body which
+>>>>>>> gcc-mirror/master
       --  caused the "freezing".
 
       if Is_List_Member (Body_Decl) then

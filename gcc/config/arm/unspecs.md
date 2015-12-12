@@ -84,7 +84,10 @@
   UNSPEC_VRINTA         ; Represent a float to integral float rounding
                         ; towards nearest, ties away from zero.
   UNSPEC_PROBE_STACK    ; Probe stack memory reference
+<<<<<<< HEAD
   UNSPEC_PROBE_STACK_RANGE ; Probe stack range
+=======
+>>>>>>> gcc-mirror/master
 ])
 
 (define_c_enum "unspec" [
@@ -147,6 +150,10 @@
   VUNSPEC_STL		; Represent a store-register-release.
   VUNSPEC_GET_FPSCR	; Represent fetch of FPSCR content.
   VUNSPEC_SET_FPSCR	; Represent assign of FPSCR content.
+<<<<<<< HEAD
+=======
+  VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
+>>>>>>> gcc-mirror/master
 ])
 
 ;; Enumerators for NEON unspecs.

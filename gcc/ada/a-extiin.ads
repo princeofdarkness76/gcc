@@ -25,7 +25,12 @@ is
    function Clock (Interrupt : Ada.Interrupts.Interrupt_ID) return CPU_Time
    with
      Volatile_Function,
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
+=======
+     Global => Ada.Real_Time.Clock_Time,
+     Pre    => Separate_Interrupt_Clocks_Supported;
+>>>>>>> gcc-mirror/master
 
    function Supported (Interrupt : Ada.Interrupts.Interrupt_ID) return Boolean
    with

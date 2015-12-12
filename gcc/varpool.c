@@ -440,7 +440,11 @@ ctor_for_folding (tree decl)
       gcc_assert (!DECL_INITIAL (decl)
 		  || (node->alias && node->get_alias_target () == real_node)
 		  || DECL_INITIAL (decl) == error_mark_node);
+<<<<<<< HEAD
       if (node->weakref)
+=======
+      while (node->transparent_alias && node->analyzed)
+>>>>>>> gcc-mirror/master
 	{
 	  node = node->get_alias_target ();
 	  decl = node->decl;
@@ -486,6 +490,7 @@ varpool_node::get_availability (void)
   if (!definition)
     return AVAIL_NOT_AVAILABLE;
   if (!TREE_PUBLIC (decl))
+<<<<<<< HEAD
     return AVAIL_AVAILABLE;
   if (DECL_IN_CONSTANT_POOL (decl)
       || DECL_VIRTUAL_P (decl))
@@ -495,6 +500,17 @@ varpool_node::get_availability (void)
       enum availability avail;
 
       ultimate_alias_target (&avail)->get_availability ();
+=======
+    return AVAIL_AVAILABLE;
+  if (DECL_IN_CONSTANT_POOL (decl)
+      || DECL_VIRTUAL_P (decl))
+    return AVAIL_AVAILABLE;
+  if (transparent_alias && definition)
+    {
+      enum availability avail;
+
+      ultimate_alias_target (&avail);
+>>>>>>> gcc-mirror/master
       return avail;
     }
   /* If the variable can be overwritten, return OVERWRITABLE.  Takes
@@ -536,8 +552,14 @@ varpool_node::assemble_aliases (void)
   FOR_EACH_ALIAS (this, ref)
     {
       varpool_node *alias = dyn_cast <varpool_node *> (ref->referring);
+<<<<<<< HEAD
       do_assemble_alias (alias->decl,
 			 DECL_ASSEMBLER_NAME (decl));
+=======
+      if (!alias->transparent_alias)
+	do_assemble_alias (alias->decl,
+			   DECL_ASSEMBLER_NAME (decl));
+>>>>>>> gcc-mirror/master
       alias->assemble_aliases ();
     }
 }
@@ -665,7 +687,18 @@ symbol_table::remove_unreferenced_decls (void)
 	      && vnode->analyzed)
 	    enqueue_node (vnode, &first);
 	  else
+<<<<<<< HEAD
 	    referenced.add (node);
+=======
+	    {
+	      referenced.add (vnode);
+	      while (vnode && vnode->alias && vnode->definition)
+		{
+		  vnode = vnode->get_alias_target ();
+	          referenced.add (vnode);
+		}
+	    }
+>>>>>>> gcc-mirror/master
 	}
     }
   if (dump_file)
@@ -760,7 +793,11 @@ varpool_node::create_alias (tree alias, tree decl)
   alias_node->definition = true;
   alias_node->alias_target = decl;
   if (lookup_attribute ("weakref", DECL_ATTRIBUTES (alias)) != NULL)
+<<<<<<< HEAD
     alias_node->weakref = true;
+=======
+    alias_node->weakref = alias_node->transparent_alias = true;
+>>>>>>> gcc-mirror/master
   return alias_node;
 }
 

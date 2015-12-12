@@ -722,8 +722,13 @@ try_shrink_wrapping (edge *entry_edge, bitmap_head *bb_with,
 	{
 	  pro = get_immediate_dominator (CDI_DOMINATORS, pro);
 
+<<<<<<< HEAD
 	  bitmap_set_bit (bb_with, pro->index);
 	  vec.quick_push (pro);
+=======
+	  if (bitmap_set_bit (bb_with, pro->index))
+	    vec.quick_push (pro);
+>>>>>>> gcc-mirror/master
 	}
 
       basic_block bb = vec.pop ();
@@ -734,8 +739,13 @@ try_shrink_wrapping (edge *entry_edge, bitmap_head *bb_with,
 
 	    pro = get_immediate_dominator (CDI_DOMINATORS, pro);
 
+<<<<<<< HEAD
 	    bitmap_set_bit (bb_with, pro->index);
 	    vec.quick_push (pro);
+=======
+	    if (bitmap_set_bit (bb_with, pro->index))
+	      vec.quick_push (pro);
+>>>>>>> gcc-mirror/master
 	  }
 
       FOR_EACH_EDGE (e, ei, bb->succs)
@@ -744,27 +754,46 @@ try_shrink_wrapping (edge *entry_edge, bitmap_head *bb_with,
 	  vec.quick_push (e->dest);
     }
 
+<<<<<<< HEAD
   vec.release ();
 
+=======
+>>>>>>> gcc-mirror/master
   if (dump_file)
     fprintf (dump_file, "Avoiding non-duplicatable blocks, PRO is now %d\n",
 	     pro->index);
 
   /* If we can move PRO back without having to duplicate more blocks, do so.
+<<<<<<< HEAD
      We can move back to a block PRE if every path from PRE will eventually
      need a prologue, that is, PRO is a post-dominator of PRE.  */
+=======
+     We do this because putting the prologue earlier is better for scheduling.
+     We can move back to a block PRE if every path from PRE will eventually
+     need a prologue, that is, PRO is a post-dominator of PRE.  PRE needs
+     to dominate every block reachable from itself.  */
+>>>>>>> gcc-mirror/master
 
   if (pro != entry)
     {
       calculate_dominance_info (CDI_POST_DOMINATORS);
 
+<<<<<<< HEAD
       basic_block last_ok = pro;
+=======
+      bitmap bb_tmp = BITMAP_ALLOC (NULL);
+      bitmap_copy (bb_tmp, bb_with);
+      basic_block last_ok = pro;
+      vec.truncate (0);
+
+>>>>>>> gcc-mirror/master
       while (pro != entry)
 	{
 	  basic_block pre = get_immediate_dominator (CDI_DOMINATORS, pro);
 	  if (!dominated_by_p (CDI_POST_DOMINATORS, pre, pro))
 	    break;
 
+<<<<<<< HEAD
 	  pro = pre;
 	  if (can_get_prologue (pro, prologue_clobbered))
 	    last_ok = pro;
@@ -774,6 +803,43 @@ try_shrink_wrapping (edge *entry_edge, bitmap_head *bb_with,
       free_dominance_info (CDI_POST_DOMINATORS);
     }
 
+=======
+	  if (bitmap_set_bit (bb_tmp, pre->index))
+	    vec.quick_push (pre);
+
+	  bool ok = true;
+	  while (!vec.is_empty ())
+	    {
+	      basic_block bb = vec.pop ();
+	      bitmap_set_bit (bb_tmp, pre->index);
+
+	      if (!dominated_by_p (CDI_DOMINATORS, bb, pre))
+		{
+		  ok = false;
+		  break;
+		}
+
+	      FOR_EACH_EDGE (e, ei, bb->succs)
+		if (!bitmap_bit_p (bb_with, e->dest->index)
+		    && bitmap_set_bit (bb_tmp, e->dest->index))
+		  vec.quick_push (e->dest);
+	    }
+
+	  if (ok && can_get_prologue (pre, prologue_clobbered))
+	    last_ok = pre;
+
+	  pro = pre;
+	}
+
+      pro = last_ok;
+
+      BITMAP_FREE (bb_tmp);
+      free_dominance_info (CDI_POST_DOMINATORS);
+    }
+
+  vec.release ();
+
+>>>>>>> gcc-mirror/master
   if (dump_file)
     fprintf (dump_file, "Bumping back to anticipatable blocks, PRO is now %d\n",
 	     pro->index);

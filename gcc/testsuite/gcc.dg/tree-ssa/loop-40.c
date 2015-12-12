@@ -1,5 +1,9 @@
 /* { dg-do compile } */
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-ch-details" } */
+=======
+/* { dg-options "-O2 -fdump-tree-ch2-details" } */
+>>>>>>> gcc-mirror/master
 
 int mymax2(int *it, int *end)
 {
@@ -10,4 +14,8 @@ int mymax2(int *it, int *end)
   return max;
 }
 
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Duplicating header" "ch" } } */
+=======
+/* { dg-final { scan-tree-dump "Duplicating header" "ch2" } } */
+>>>>>>> gcc-mirror/master

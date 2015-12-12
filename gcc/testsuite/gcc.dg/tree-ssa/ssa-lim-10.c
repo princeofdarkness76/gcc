@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -fdump-tree-lim1-details" } */
+/* { dg-options "-O2 -fdump-tree-lim2-details" } */
 
 int *l, *r;
 int test_func(void)
@@ -27,4 +27,8 @@ int test_func(void)
   return i;
 }
 
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Executing store motion of pos" "lim1" } } */
+=======
+/* { dg-final { scan-tree-dump "Executing store motion of pos" "lim2" } } */
+>>>>>>> gcc-mirror/master

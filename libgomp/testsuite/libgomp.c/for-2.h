@@ -9,7 +9,10 @@ noreturn (void)
 }
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 #ifndef SC
 #define SC
 #endif
@@ -22,6 +25,9 @@ noreturn (void)
 #ifndef OMPFROM
 #define OMPFROM(v) do {} while (0)
 #endif
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 __attribute__((noinline, noclone)) void
@@ -29,6 +35,10 @@ N(f0) (void)
 {
   int i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -41,6 +51,10 @@ __attribute__((noinline, noclone)) void
 N(f1) (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -54,6 +68,10 @@ N(f2) (void)
 {
   unsigned long long i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -67,6 +85,10 @@ __attribute__((noinline, noclone)) void
 N(f3) (long long n1, long long n2, long long s3)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -80,6 +102,10 @@ N(f4) (void)
 {
   unsigned int i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -93,7 +119,12 @@ N(f5) (int n11, int n12, int n21, int n22, int n31, int n32,
        int s1, int s2, int s3)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   int v1, v2, v3;
+=======
+  SC int v1, v2, v3;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC int v1, v2, v3;
   OMPTGT
@@ -110,8 +141,14 @@ N(f6) (int n11, int n12, int n21, int n22, long long n31, long long n32,
        int s1, int s2, long long int s3)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   int v1, v2;
   long long v3;
+=======
+  SC int v1, v2;
+  SC long long v3;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC int v1, v2;
   SC long long v3;
@@ -128,8 +165,14 @@ __attribute__((noinline, noclone)) void
 N(f7) (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   unsigned int v1, v3;
   unsigned long long v2;
+=======
+  SC unsigned int v1, v3;
+  SC unsigned long long v2;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC unsigned int v1, v3;
   SC unsigned long long v2;
@@ -147,7 +190,12 @@ __attribute__((noinline, noclone)) void
 N(f8) (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   long long v1, v2, v3;
+=======
+  SC long long v1, v2, v3;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC long long v1, v2, v3;
   OMPTGT
@@ -164,6 +212,10 @@ N(f9) (void)
 {
   int i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -180,7 +232,12 @@ __attribute__((noinline, noclone)) void
 N(f10) (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   int i;
+=======
+  SC int i;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC int i;
   OMPTGT
@@ -201,6 +258,10 @@ N(f11) (int n)
 {
   int i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -217,7 +278,12 @@ __attribute__((noinline, noclone)) void
 N(f12) (int n)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   int i;
+=======
+  SC int i;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC int i;
   OMPTGT
@@ -238,6 +304,10 @@ N(f13) (void)
 {
   int *i;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -250,7 +320,12 @@ __attribute__((noinline, noclone)) void
 N(f14) (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   float *i;
+=======
+  SC float *i;
+  OMPTGT
+>>>>>>> gcc-mirror/master
 =======
   SC float *i;
   OMPTGT
@@ -270,7 +345,13 @@ N(test) (void)
   for (i = 0; i < 1500; i++)
     a[i] = i - 25;
 <<<<<<< HEAD
+<<<<<<< HEAD
   N(f0) ();
+=======
+  OMPTO (a);
+  N(f0) ();
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPTO (a);
   N(f0) ();
@@ -281,6 +362,10 @@ N(test) (void)
       return 1;
   N(f1) ();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -289,6 +374,10 @@ N(test) (void)
       return 1;
   N(f2) ();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -297,6 +386,10 @@ N(test) (void)
       return 1;
   N(f3) (1500LL - 1 - 23 - 48, -1LL + 25 - 48, 1LL);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -305,6 +398,10 @@ N(test) (void)
       return 1;
   N(f3) (1500LL - 1 - 23 - 48, 1500LL - 1, 7LL);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -313,6 +410,10 @@ N(test) (void)
       return 1;
   N(f4) ();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -324,7 +425,13 @@ N(test) (void)
       for (k = 0; k < 10; k++)
 	b[i][j][k] = i - 2.5 + 1.5 * j - 1.5 * k;
 <<<<<<< HEAD
+<<<<<<< HEAD
   N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
+=======
+  OMPTO (b);
+  N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPTO (b);
   N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
@@ -337,6 +444,10 @@ N(test) (void)
 	  return 1;
   N(f5) (0, 10, 30, 15, 0, 10, 4, 5, 6);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -347,6 +458,10 @@ N(test) (void)
 	  return 1;
   N(f6) (9, -1, 29, 0, 9, -1, -1, -2, -1);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -357,6 +472,10 @@ N(test) (void)
 	  return 1;
   N(f7) ();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -367,6 +486,10 @@ N(test) (void)
 	  return 1;
   N(f8) ();	  
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -380,6 +503,11 @@ N(test) (void)
   N(f11) (10);
   N(f12) (12);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
   OMPFROM (b);
@@ -395,6 +523,11 @@ N(test) (void)
   N(f13) ();
   N(f14) ();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  OMPFROM (a);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/master
 =======
   OMPFROM (a);
   OMPFROM (b);

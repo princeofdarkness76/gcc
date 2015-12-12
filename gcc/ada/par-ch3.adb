@@ -4449,6 +4449,12 @@ package body Ch3 is
                   Done := False;
                end if;
 
+               --  Assume that this is a misplaced aspect specification within
+               --  a declarative list. After discarding the misplaced aspects
+               --  we can continue the scan.
+
+               Done := False;
+
                declare
                   Dummy_Node : constant Node_Id :=
                                  New_Node (N_Package_Specification, Token_Ptr);

@@ -857,6 +857,10 @@ gimplify_cilk_spawn (tree *spawn_p)
 			    call2, build_empty_stmt (EXPR_LOCATION (call1)));
   append_to_statement_list (spawn_expr, spawn_p);
 
+<<<<<<< HEAD
+=======
+  free (arg_array);
+>>>>>>> gcc-mirror/master
   return GS_OK;
 }
 

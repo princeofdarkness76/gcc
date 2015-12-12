@@ -139,6 +139,35 @@
    the latter depends on the platform.
 */
 
+<<<<<<< HEAD
+=======
+#elif defined (__x86_64__)
+
+/* These are the cfi colunm numbers */
+
+#define REGNO_RAX 0
+#define REGNO_RDX 1
+#define REGNO_RCX 2
+#define REGNO_RBX 3
+#define REGNO_RSI 4
+#define REGNO_RDI 5
+#define REGNO_RBP 6
+#define REGNO_RSP 7
+#define REGNO_R8 8
+#define REGNO_R9 9
+#define REGNO_R10 10
+#define REGNO_R11 11
+#define REGNO_R12 12
+#define REGNO_R13 13
+#define REGNO_R14 14
+#define REGNO_R15 15
+#define REGNO_SET_PC 16 /* aka %rip */
+#define REGNO_EFLAGS 49
+#define REGNO_FS 54
+
+#define FUNCTION "@function"
+
+>>>>>>> gcc-mirror/master
 #else
 Not_implemented;
 #endif /* REGNO constants */
@@ -174,6 +203,14 @@ Not_implemented;
 
 #define CFA_REG 7
 
+<<<<<<< HEAD
+=======
+#elif defined (__x86_64__)
+
+/* R15 register */
+#define CFA_REG 15
+
+>>>>>>> gcc-mirror/master
 #else
 Not_implemented;
 #endif /* CFA setup block */
@@ -366,6 +403,56 @@ TCR("popl	%edi") \
 TCR("leave") \
 TCR("ret")
 
+<<<<<<< HEAD
+=======
+#elif defined (__x86_64__)
+
+#define COMMON_CFI(REG) \
+  ".cfi_offset " S(REGNO_##REG) "," S(REG_##REG)
+#define PC_CFI(REG) \
+  ".cfi_offset " S(REGNO_##REG) "," S(REG_##REG)
+
+#define CFI_COMMON_REGS \
+CR("# CFI for common registers\n") \
+TCR(COMMON_CFI(R15)) \
+TCR(COMMON_CFI(R14)) \
+TCR(COMMON_CFI(R13)) \
+TCR(COMMON_CFI(R12)) \
+TCR(COMMON_CFI(R11)) \
+TCR(COMMON_CFI(R10)) \
+TCR(COMMON_CFI(R9)) \
+TCR(COMMON_CFI(R8)) \
+TCR(COMMON_CFI(RDI)) \
+TCR(COMMON_CFI(RSI)) \
+TCR(COMMON_CFI(RBP)) \
+TCR(COMMON_CFI(RSP)) \
+TCR(COMMON_CFI(RBX)) \
+TCR(COMMON_CFI(RDX)) \
+TCR(COMMON_CFI(RCX)) \
+TCR(COMMON_CFI(RAX)) \
+TCR(COMMON_CFI(EFLAGS)) \
+TCR(COMMON_CFI(SET_PC)) \
+TCR(COMMON_CFI(FS)) \
+TCR(".cfi_return_column " S(REGNO_SET_PC))
+
+/* Trampoline body block
+   ---------------------  */
+
+#define SIGTRAMP_BODY \
+CR("") \
+TCR("# Allocate frame and save the non-volatile") \
+TCR("# registers we're going to modify") \
+TCR("subq	$8, %rsp") \
+TCR("# Setup CFA_REG = context, which we'll retrieve as our CFA value") \
+TCR("movq	%r8, %r15") \
+TCR("# Call the real handler. The signo, siginfo and sigcontext") \
+TCR("# arguments are the same as those we received") \
+TCR("call	*%rcx") \
+TCR("# This part should never be executed") \
+TCR("addq	$8, %rsp") \
+TCR("ret")
+
+>>>>>>> gcc-mirror/master
 #else
 Not_implemented;
 #endif /* CFI_COMMON_REGS and SIGTRAMP_BODY */

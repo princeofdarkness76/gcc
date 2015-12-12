@@ -186,9 +186,12 @@ struct GTY ((chain_next ("%h.next"))) loop {
   int safelen;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* True if we should try harder to vectorize this loop.  */
   bool force_vect;
 =======
+=======
+>>>>>>> gcc-mirror/master
   /* True if this loop should never be vectorized.  */
   bool dont_vectorize;
 
@@ -197,6 +200,9 @@ struct GTY ((chain_next ("%h.next"))) loop {
 
   /* True if the loop is part of an oacc kernels region.  */
   bool in_oacc_kernels_region;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
   /* For SIMD loops, this is a unique identifier of the loop, referenced

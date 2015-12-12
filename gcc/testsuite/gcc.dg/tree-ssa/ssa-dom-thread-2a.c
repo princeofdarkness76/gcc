@@ -1,5 +1,9 @@
 /* { dg-do compile } */ 
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom1-stats" } */
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom2-stats" } */
+>>>>>>> gcc-mirror/master
 
 void bla();
 
@@ -18,4 +22,8 @@ void thread_entry_through_header (void)
    jump threading pass.  */
 /* { dg-final { scan-tree-dump-times "Jumps threaded: 1" 1 "vrp1"} } */
 /* { dg-final { scan-tree-dump-times "Jumps threaded: 2" 0 "vrp1"} } */
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "Jumps threaded" "dom1"} } */
+=======
+/* { dg-final { scan-tree-dump-not "Jumps threaded" "dom2"} } */
+>>>>>>> gcc-mirror/master

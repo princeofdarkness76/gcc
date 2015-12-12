@@ -80,9 +80,15 @@
 
 (define_peephole2
   [(set (match_operand:GPF 0 "aarch64_mem_pair_operand" "")
+<<<<<<< HEAD
 	(match_operand:GPF 1 "register_operand" ""))
    (set (match_operand:GPF 2 "memory_operand" "")
 	(match_operand:GPF 3 "register_operand" ""))]
+=======
+	(match_operand:GPF 1 "aarch64_reg_or_fp_zero" ""))
+   (set (match_operand:GPF 2 "memory_operand" "")
+	(match_operand:GPF 3 "aarch64_reg_or_fp_zero" ""))]
+>>>>>>> gcc-mirror/master
   "aarch64_operands_ok_for_ldpstp (operands, false, <MODE>mode)"
   [(parallel [(set (match_dup 0) (match_dup 1))
 	      (set (match_dup 2) (match_dup 3))])]
@@ -349,6 +355,7 @@
 (define_peephole2
   [(match_scratch:DI 8 "r")
    (set (match_operand:GPF 0 "memory_operand" "")
+<<<<<<< HEAD
 	(match_operand:GPF 1 "aarch64_reg_or_zero" ""))
    (set (match_operand:GPF 2 "memory_operand" "")
 	(match_operand:GPF 3 "aarch64_reg_or_zero" ""))
@@ -356,6 +363,15 @@
 	(match_operand:GPF 5 "aarch64_reg_or_zero" ""))
    (set (match_operand:GPF 6 "memory_operand" "")
 	(match_operand:GPF 7 "aarch64_reg_or_zero" ""))
+=======
+	(match_operand:GPF 1 "aarch64_reg_or_fp_zero" ""))
+   (set (match_operand:GPF 2 "memory_operand" "")
+	(match_operand:GPF 3 "aarch64_reg_or_fp_zero" ""))
+   (set (match_operand:GPF 4 "memory_operand" "")
+	(match_operand:GPF 5 "aarch64_reg_or_fp_zero" ""))
+   (set (match_operand:GPF 6 "memory_operand" "")
+	(match_operand:GPF 7 "aarch64_reg_or_fp_zero" ""))
+>>>>>>> gcc-mirror/master
    (match_dup 8)]
   "aarch64_operands_adjust_ok_for_ldpstp (operands, false, <MODE>mode)"
   [(const_int 0)]

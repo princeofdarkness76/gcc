@@ -40,6 +40,7 @@ package body SPARK_Specific is
 
    SPARK_Entities : constant array (Entity_Kind) of Boolean :=
      (E_Constant         => True,
+      E_Entry            => True,
       E_Function         => True,
       E_In_Out_Parameter => True,
       E_In_Parameter     => True,
@@ -259,6 +260,10 @@ package body SPARK_Specific is
 
       case Ekind (E) is
          when E_Entry
+<<<<<<< HEAD
+=======
+            | E_Entry_Family
+>>>>>>> gcc-mirror/master
             | E_Function
             | E_Generic_Function
             | E_Generic_Package
@@ -268,7 +273,11 @@ package body SPARK_Specific is
          =>
             Typ := Xref_Entity_Letters (Ekind (E));
 
+<<<<<<< HEAD
          when E_Package_Body | E_Subprogram_Body =>
+=======
+         when E_Package_Body | E_Subprogram_Body | E_Task_Body =>
+>>>>>>> gcc-mirror/master
             Typ := Xref_Entity_Letters (Ekind (Unique_Entity (E)));
 
          when E_Void =>
@@ -329,7 +338,11 @@ package body SPARK_Specific is
 
       function Is_SPARK_Scope (E : Entity_Id) return Boolean;
       --  Return whether the entity or reference scope meets requirements for
+<<<<<<< HEAD
       --  being an SPARK scope.
+=======
+      --  being a SPARK scope.
+>>>>>>> gcc-mirror/master
 
       function Lt (Op1 : Natural; Op2 : Natural) return Boolean;
       --  Comparison function for Sort call
@@ -1006,6 +1019,7 @@ package body SPARK_Specific is
 
    procedure Detect_And_Add_SPARK_Scope (N : Node_Id) is
    begin
+<<<<<<< HEAD
       if Nkind_In (N, N_Entry_Body,
                       N_Entry_Declaration,
                       N_Package_Body,
@@ -1014,6 +1028,21 @@ package body SPARK_Specific is
                       N_Subprogram_Body,
                       N_Subprogram_Body_Stub,
                       N_Subprogram_Declaration)
+=======
+      if Nkind_In (N, N_Entry_Body,             --  entries
+                      N_Entry_Declaration)
+           or else
+         Nkind_In (N, N_Package_Body,           --  packages
+                      N_Package_Body_Stub,
+                      N_Package_Declaration)
+           or else
+         Nkind_In (N, N_Subprogram_Body,        --  subprograms
+                      N_Subprogram_Body_Stub,
+                      N_Subprogram_Declaration)
+           or else
+         Nkind_In (N, N_Task_Body,              --  tasks
+                      N_Task_Body_Stub)
+>>>>>>> gcc-mirror/master
       then
          Add_SPARK_Scope (N);
       end if;
@@ -1105,6 +1134,13 @@ package body SPARK_Specific is
                Result := Defining_Identifier (Result);
                exit;
 
+<<<<<<< HEAD
+=======
+            when N_Task_Body =>
+               Result := Defining_Identifier (Result);
+               exit;
+
+>>>>>>> gcc-mirror/master
             when others =>
                Result := Parent (Result);
          end case;

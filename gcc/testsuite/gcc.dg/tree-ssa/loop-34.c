@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -fdump-tree-lim1-details" } */
+/* { dg-options "-O2 -fdump-tree-lim2-details" } */
 
 int r[6];
 
@@ -17,4 +17,8 @@ void f (int n)
 }
 
 
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of r" 6 "lim1" } } */
+=======
+/* { dg-final { scan-tree-dump-times "Executing store motion of r" 6 "lim2" } } */
+>>>>>>> gcc-mirror/master

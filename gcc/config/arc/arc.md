@@ -128,6 +128,15 @@
    (VUNSPEC_UNIMP_S 28) ; blockage insn for unimp_s generation
    (VUNSPEC_NOP 29) ; volatile NOP
 
+<<<<<<< HEAD
+=======
+   (UNSPEC_ARC_MEMBAR 30)
+   (VUNSPEC_ARC_CAS 31)
+   (VUNSPEC_ARC_LL 32)
+   (VUNSPEC_ARC_SC 33)
+   (VUNSPEC_ARC_EX 34)
+
+>>>>>>> gcc-mirror/master
    (R0_REG 0)
    (R1_REG 1)
    (R2_REG 2)
@@ -5531,3 +5540,9 @@
 (include "fpx.md")
 
 (include "simdext.md")
+<<<<<<< HEAD
+=======
+
+;; include atomic extensions
+(include "atomic.md")
+>>>>>>> gcc-mirror/master

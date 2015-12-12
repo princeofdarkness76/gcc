@@ -614,8 +614,6 @@ fixup_noreturn_call (gimple *stmt)
 static bool
 cleanup_tree_cfg_bb (basic_block bb)
 {
-  bool retval = cleanup_control_flow_bb (bb);
-
   if (tree_forwarder_block_p (bb, false)
       && remove_forwarder_block (bb))
     return true;
@@ -640,7 +638,7 @@ cleanup_tree_cfg_bb (basic_block bb)
 	}
     }
 
-  return retval;
+  return false;
 }
 
 /* Iterate the cfg cleanups, while anything changes.  */
@@ -660,12 +658,38 @@ cleanup_tree_cfg_1 (void)
      recording of edge to CASE_LABEL_EXPR.  */
   start_recording_case_labels ();
 
+<<<<<<< HEAD
   /* Start by iterating over all basic blocks.  We cannot use FOR_EACH_BB_FN,
      since the basic blocks may get removed.  */
+=======
+  /* We cannot use FOR_EACH_BB_FN for the BB iterations below
+     since the basic blocks may get removed.  */
+
+  /* Start by iterating over all basic blocks looking for edge removal
+     opportunities.  Do this first because incoming SSA form may be
+     invalid and we want to avoid performing SSA related tasks such
+     as propgating out a PHI node during BB merging in that state.  */
+>>>>>>> gcc-mirror/master
   n = last_basic_block_for_fn (cfun);
   for (i = NUM_FIXED_BLOCKS; i < n; i++)
     {
       bb = BASIC_BLOCK_FOR_FN (cfun, i);
+<<<<<<< HEAD
+=======
+      if (bb)
+	retval |= cleanup_control_flow_bb (bb);
+    }
+
+  /* After doing the above SSA form should be valid (or an update SSA
+     should be required).  */
+
+  /* Continue by iterating over all basic blocks looking for BB merging
+     opportunities.  */
+  n = last_basic_block_for_fn (cfun);
+  for (i = NUM_FIXED_BLOCKS; i < n; i++)
+    {
+      bb = BASIC_BLOCK_FOR_FN (cfun, i);
+>>>>>>> gcc-mirror/master
       if (bb)
 	retval |= cleanup_tree_cfg_bb (bb);
     }
@@ -682,6 +706,7 @@ cleanup_tree_cfg_1 (void)
       if (!bb)
 	continue;
 
+      retval |= cleanup_control_flow_bb (bb);
       retval |= cleanup_tree_cfg_bb (bb);
     }
 
@@ -930,6 +955,7 @@ remove_forwarder_block_with_phi (basic_block bb)
 namespace {
 
 const pass_data pass_data_merge_phi =
+<<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
   "mergephi", /* name */
@@ -944,6 +970,22 @@ const pass_data pass_data_merge_phi =
 
 class pass_merge_phi : public gimple_opt_pass
 {
+=======
+{
+  GIMPLE_PASS, /* type */
+  "mergephi", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_MERGE_PHI, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_merge_phi : public gimple_opt_pass
+{
+>>>>>>> gcc-mirror/master
 public:
   pass_merge_phi (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_merge_phi, ctxt)
@@ -1050,6 +1092,7 @@ pass_merge_phi::execute (function *fun)
 
 gimple_opt_pass *
 make_pass_merge_phi (gcc::context *ctxt)
+<<<<<<< HEAD
 {
   return new pass_merge_phi (ctxt);
 }
@@ -1107,6 +1150,65 @@ namespace {
 
 const pass_data pass_data_cleanup_cfg_post_optimizing =
 {
+=======
+{
+  return new pass_merge_phi (ctxt);
+}
+
+/* Pass: cleanup the CFG just before expanding trees to RTL.
+   This is just a round of label cleanups and case node grouping
+   because after the tree optimizers have run such cleanups may
+   be necessary.  */
+
+static unsigned int
+execute_cleanup_cfg_post_optimizing (void)
+{
+  unsigned int todo = execute_fixup_cfg ();
+  if (cleanup_tree_cfg ())
+    {
+      todo &= ~TODO_cleanup_cfg;
+      todo |= TODO_update_ssa;
+    }
+  maybe_remove_unreachable_handlers ();
+  cleanup_dead_labels ();
+  group_case_labels ();
+  if ((flag_compare_debug_opt || flag_compare_debug)
+      && flag_dump_final_insns)
+    {
+      FILE *final_output = fopen (flag_dump_final_insns, "a");
+
+      if (!final_output)
+	{
+	  error ("could not open final insn dump file %qs: %m",
+		 flag_dump_final_insns);
+	  flag_dump_final_insns = NULL;
+	}
+      else
+	{
+	  int save_unnumbered = flag_dump_unnumbered;
+	  int save_noaddr = flag_dump_noaddr;
+
+	  flag_dump_noaddr = flag_dump_unnumbered = 1;
+	  fprintf (final_output, "\n");
+	  dump_enumerated_decls (final_output, dump_flags | TDF_NOUID);
+	  flag_dump_noaddr = save_noaddr;
+	  flag_dump_unnumbered = save_unnumbered;
+	  if (fclose (final_output))
+	    {
+	      error ("could not close final insn dump file %qs: %m",
+		     flag_dump_final_insns);
+	      flag_dump_final_insns = NULL;
+	    }
+	}
+    }
+  return todo;
+}
+
+namespace {
+
+const pass_data pass_data_cleanup_cfg_post_optimizing =
+{
+>>>>>>> gcc-mirror/master
   GIMPLE_PASS, /* type */
   "optimized", /* name */
   OPTGROUP_NONE, /* optinfo_flags */

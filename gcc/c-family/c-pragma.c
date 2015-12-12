@@ -814,7 +814,15 @@ handle_pragma_diagnostic(cpp_reader *ARG_UNUSED(dummy))
 
   struct cl_option_handlers handlers;
   set_default_handlers (&handlers);
+<<<<<<< HEAD
   control_warning_option (option_index, (int) kind, kind != DK_IGNORED,
+=======
+  const char *arg = NULL;
+  if (cl_options[option_index].flags & CL_JOINED)
+    arg = option_string + 1 + cl_options[option_index].opt_len;
+  control_warning_option (option_index, (int) kind,
+			  arg, kind != DK_IGNORED,
+>>>>>>> gcc-mirror/master
 			  loc, lang_mask, &handlers,
 			  &global_options, &global_options_set,
 			  global_dc);
@@ -1251,6 +1259,10 @@ static const struct omp_pragma_def oacc_pragmas[] = {
   { "declare", PRAGMA_OACC_DECLARE },
   { "enter", PRAGMA_OACC_ENTER_DATA },
   { "exit", PRAGMA_OACC_EXIT_DATA },
+<<<<<<< HEAD
+=======
+  { "host_data", PRAGMA_OACC_HOST_DATA },
+>>>>>>> gcc-mirror/master
   { "kernels", PRAGMA_OACC_KERNELS },
   { "loop", PRAGMA_OACC_LOOP },
   { "parallel", PRAGMA_OACC_PARALLEL },
@@ -1265,8 +1277,11 @@ static const struct omp_pragma_def omp_pragmas[] = {
   { "cancellation", PRAGMA_OMP_CANCELLATION_POINT },
   { "critical", PRAGMA_OMP_CRITICAL },
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "declare", PRAGMA_OMP_DECLARE_REDUCTION },
   { "distribute", PRAGMA_OMP_DISTRIBUTE },
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
   { "end", PRAGMA_OMP_END_DECLARE_TARGET },
@@ -1513,12 +1528,15 @@ init_pragma (void)
   if (flag_cilkplus)
     cpp_register_deferred_pragma (parse_in, NULL, "simd", PRAGMA_CILK_SIMD,
 				  true, false);
+<<<<<<< HEAD
 
   if (flag_enable_cilkplus && !flag_preprocess_only)
     {
       cpp_register_deferred_pragma (parse_in, NULL, "simd", 
 				    PRAGMA_CILK_SIMD, true, false);
     }
+=======
+>>>>>>> gcc-mirror/master
 
   if (!flag_preprocess_only)
     cpp_register_deferred_pragma (parse_in, "GCC", "pch_preprocess",

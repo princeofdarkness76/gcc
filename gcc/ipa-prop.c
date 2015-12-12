@@ -1646,6 +1646,10 @@ ipa_compute_jump_functions_for_edge (struct ipa_func_body_info *fbi,
 	      && align % BITS_PER_UNIT == 0
 	      && hwi_bitpos % BITS_PER_UNIT == 0)
 	    {
+<<<<<<< HEAD
+=======
+	      gcc_checking_assert (align != 0);
+>>>>>>> gcc-mirror/master
 	      jfunc->alignment.known = true;
 	      jfunc->alignment.align = align / BITS_PER_UNIT;
 	      jfunc->alignment.misalign = hwi_bitpos / BITS_PER_UNIT;
@@ -2245,17 +2249,29 @@ public:
   analysis_dom_walker (struct ipa_func_body_info *fbi)
     : dom_walker (CDI_DOMINATORS), m_fbi (fbi) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 
 private:
   struct ipa_func_body_info *m_fbi;
 };
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 analysis_dom_walker::before_dom_children (basic_block bb)
 {
   ipa_analyze_params_uses_in_bb (m_fbi, bb);
   ipa_compute_jump_functions_for_bb (m_fbi, bb);
+<<<<<<< HEAD
+=======
+  return NULL;
+>>>>>>> gcc-mirror/master
 }
 
 /* Release body info FBI.  */
@@ -5098,7 +5114,11 @@ public:
     : dom_walker (CDI_DOMINATORS), m_fbi (fbi), m_descriptors (descs),
       m_aggval (av), m_something_changed (sc), m_cfg_changed (cc) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 
 private:
   struct ipa_func_body_info *m_fbi;
@@ -5107,7 +5127,11 @@ private:
   bool *m_something_changed, *m_cfg_changed;
 };
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 ipcp_modif_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -5198,7 +5222,11 @@ ipcp_modif_dom_walker::before_dom_children (basic_block bb)
 	  && gimple_purge_dead_eh_edges (gimple_bb (stmt)))
 	*m_cfg_changed = true;
     }
+<<<<<<< HEAD
 
+=======
+  return NULL;
+>>>>>>> gcc-mirror/master
 }
 
 /* Update alignment of formal parameters as described in

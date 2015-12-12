@@ -22,7 +22,11 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+<<<<<<< HEAD
 /** @file experimental/fs_path.h
+=======
+/** @file experimental/bits/fs_path.h
+>>>>>>> gcc-mirror/master
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
  */
@@ -549,6 +553,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     std::string _M_what = _M_gen_what();
   };
 
+<<<<<<< HEAD
   struct path::_Cmpt : path
   {
     _Cmpt(string_type __s, _Type __t, size_t __pos)
@@ -559,6 +564,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     size_t _M_pos;
   };
 
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct path::__is_encoded_char<char> : std::true_type
     { using value_type = char; };
@@ -575,6 +582,19 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     struct path::__is_encoded_char<char32_t> : std::true_type
     { using value_type = char32_t; };
 
+<<<<<<< HEAD
+=======
+  struct path::_Cmpt : path
+  {
+    _Cmpt(string_type __s, _Type __t, size_t __pos)
+      : path(std::move(__s), __t), _M_pos(__pos) { }
+
+    _Cmpt() : _M_pos(-1) { }
+
+    size_t _M_pos;
+  };
+
+>>>>>>> gcc-mirror/master
   // specialize _Cvt for degenerate 'noconv' case
   template<>
     struct path::_Cvt<path::value_type>

@@ -2218,6 +2218,7 @@ execute_one_ipa_transform_pass (struct cgraph_node *node,
   pass_fini_dump_file (pass);
 
   current_pass = NULL;
+  redirect_edge_var_map_empty ();
 
   /* Signal this is a suitable GC collection point.  */
   if (!(todo_after & TODO_do_not_ggc_collect))
@@ -2370,6 +2371,24 @@ execute_one_pass (opt_pass *pass)
 		|| pass->type != RTL_PASS);
 
   current_pass = NULL;
+  redirect_edge_var_map_empty ();
+
+  if (todo_after & TODO_discard_function)
+    {
+      gcc_assert (cfun);
+      /* As cgraph_node::release_body expects release dominators info,
+	 we have to release it.  */
+      if (dom_info_available_p (CDI_DOMINATORS))
+	free_dominance_info (CDI_DOMINATORS);
+
+      if (dom_info_available_p (CDI_POST_DOMINATORS))
+	free_dominance_info (CDI_POST_DOMINATORS);
+
+      tree fn = cfun->decl;
+      pop_cfun ();
+      gcc_assert (!cfun);
+      cgraph_node::get (fn)->release_body ();
+    }
 
   if (todo_after & TODO_discard_function)
     {

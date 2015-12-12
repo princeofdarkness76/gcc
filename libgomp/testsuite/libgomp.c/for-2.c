@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-std=gnu99 -fopenmp" } */
+=======
+/* { dg-additional-options "-std=gnu99" } */
+>>>>>>> gcc-mirror/master
 =======
 /* { dg-additional-options "-std=gnu99" } */
 >>>>>>> gcc-mirror/master
@@ -26,6 +30,11 @@ extern void abort (void);
 #undef G
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef SC
+#define SC static
+>>>>>>> gcc-mirror/master
 =======
 #undef SC
 #define SC static
@@ -36,6 +45,10 @@ extern void abort (void);
 #undef F
 #undef G
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef SC
+>>>>>>> gcc-mirror/master
 =======
 #undef SC
 >>>>>>> gcc-mirror/master

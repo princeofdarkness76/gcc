@@ -1700,6 +1700,21 @@ inline bool
 vec<T, va_heap, vl_ptr>::using_auto_storage () const
 {
   return m_vec->m_vecpfx.m_using_auto_storage;
+<<<<<<< HEAD
+=======
+}
+
+/* Release VEC and call release of all element vectors.  */
+
+template<typename T>
+inline void
+release_vec_vec (vec<vec<T> > &vec)
+{
+  for (unsigned i = 0; i < vec.length (); i++)
+    vec[i].release ();
+
+  vec.release ();
+>>>>>>> gcc-mirror/master
 }
 
 #if (GCC_VERSION >= 3000)

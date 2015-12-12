@@ -259,6 +259,15 @@
 #endif
 
 
+<<<<<<< HEAD
+=======
+/* Define if your assembler supports architecture modifiers. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_ARCHITECTURE_MODIFIERS
+#endif
+
+
+>>>>>>> gcc-mirror/master
 /* Define if your avr assembler supports --mlink-relax option. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_AVR_MLINK_RELAX_OPTION
@@ -324,6 +333,12 @@
    preserves file table indices exactly as given. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_DWARF2_DEBUG_LINE
+#endif
+
+
+/* Define if your assembler supports the R_PPC64_ENTRY relocation. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_ENTRY_MARKERS
 #endif
 
 
@@ -502,6 +517,15 @@
 #endif
 
 
+<<<<<<< HEAD
+=======
+/* Define if your assembler supports .machine and .machinemode. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_MACHINE_MACHINEMODE
+#endif
+
+
+>>>>>>> gcc-mirror/master
 /* Define if your assembler supports mfcr field. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_MFCRF

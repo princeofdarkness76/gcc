@@ -35,6 +35,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-inline.h"
 #include "tree-scalar-evolution.h"
 #include "tree-vectorizer.h"
+#include "omp-low.h"
 
 
 /* A pass making sure loops are fixed up.  */
@@ -95,6 +96,45 @@ gate_loop (function *fn)
 {
   if (!flag_tree_loop_optimize)
     return false;
+<<<<<<< HEAD
+
+  /* For -fdump-passes which runs before loop discovery print the
+     state of -ftree-loop-optimize.  */
+  if (!loops_for_fn (fn))
+    return true;
+
+  return number_of_loops (fn) > 1;
+}
+
+/* The loop superpass.  */
+
+namespace {
+
+const pass_data pass_data_tree_loop =
+{
+  GIMPLE_PASS, /* type */
+  "loop", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_loop : public gimple_opt_pass
+{
+public:
+  pass_tree_loop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_loop, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_loop (fn); }
+
+}; // class pass_tree_loop
+=======
 
   /* For -fdump-passes which runs before loop discovery print the
      state of -ftree-loop-optimize.  */
@@ -141,6 +181,72 @@ make_pass_tree_loop (gcc::context *ctxt)
   return new pass_tree_loop (ctxt);
 }
 
+/* Gate for oacc kernels pass group.  */
+
+static bool
+gate_oacc_kernels (function *fn)
+{
+  if (flag_tree_parallelize_loops <= 1)
+    return false;
+
+  tree oacc_function_attr = get_oacc_fn_attrib (fn->decl);
+  if (oacc_function_attr == NULL_TREE)
+    return false;
+
+  tree val = TREE_VALUE (oacc_function_attr);
+  while (val != NULL_TREE && TREE_VALUE (val) == NULL_TREE)
+    val = TREE_CHAIN (val);
+
+  if (val != NULL_TREE)
+    return false;
+
+  struct loop *loop;
+  FOR_EACH_LOOP (loop, 0)
+    if (loop->in_oacc_kernels_region)
+      return true;
+
+  return false;
+}
+
+/* The oacc kernels superpass.  */
+
+namespace {
+
+const pass_data pass_data_oacc_kernels =
+{
+  GIMPLE_PASS, /* type */
+  "oacc_kernels", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_oacc_kernels : public gimple_opt_pass
+{
+public:
+  pass_oacc_kernels (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_oacc_kernels, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_oacc_kernels (fn); }
+
+}; // class pass_oacc_kernels
+>>>>>>> gcc-mirror/master
+
+} // anon namespace
+
+gimple_opt_pass *
+<<<<<<< HEAD
+make_pass_tree_loop (gcc::context *ctxt)
+{
+  return new pass_tree_loop (ctxt);
+}
+
 /* The no-loop superpass.  */
 
 namespace {
@@ -162,6 +268,56 @@ class pass_tree_no_loop : public gimple_opt_pass
 {
 <<<<<<< HEAD
   return flag_tree_vectorize || cfun->has_force_vect_loops;
+=======
+make_pass_oacc_kernels (gcc::context *ctxt)
+{
+  return new pass_oacc_kernels (ctxt);
+}
+
+namespace {
+
+const pass_data pass_data_oacc_kernels2 =
+{
+  GIMPLE_PASS, /* type */
+  "oacc_kernels2", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_oacc_kernels2 : public gimple_opt_pass
+{
+public:
+  pass_oacc_kernels2 (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_oacc_kernels2, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_oacc_kernels (fn); }
+  virtual unsigned int execute (function *fn)
+    {
+      /* Rather than having a copy of the previous dump, get some use out of
+	 this dump, and try to minimize differences with the following pass
+	 (pass_lim), which will initizalize the loop optimizer with
+	 LOOPS_NORMAL.  */
+      loop_optimizer_init (LOOPS_NORMAL);
+      loop_optimizer_finalize (fn);
+      return 0;
+    }
+
+}; // class pass_oacc_kernels2
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_oacc_kernels2 (gcc::context *ctxt)
+{
+  return new pass_oacc_kernels2 (ctxt);
+>>>>>>> gcc-mirror/master
 }
 =======
 public:
@@ -169,6 +325,73 @@ public:
     : gimple_opt_pass (pass_data_tree_no_loop, ctxt)
   {}
 >>>>>>> gcc-mirror/master
+
+<<<<<<< HEAD
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return !gate_loop (fn); }
+
+}; // class pass_tree_no_loop
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_tree_no_loop (gcc::context *ctxt)
+{
+  return new pass_tree_no_loop (ctxt);
+}
+
+
+/* Loop optimizer initialization.  */
+
+namespace {
+
+const pass_data pass_data_tree_loop_init =
+{
+  GIMPLE_PASS, /* type */
+  "loopinit", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_NONE, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_loop_init : public gimple_opt_pass
+{
+public:
+  pass_tree_loop_init (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_loop_init, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *);
+
+=======
+/* The no-loop superpass.  */
+
+namespace {
+
+const pass_data pass_data_tree_no_loop =
+{
+  GIMPLE_PASS, /* type */
+  "no_loop", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_NOLOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_no_loop : public gimple_opt_pass
+{
+public:
+  pass_tree_no_loop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_no_loop, ctxt)
+  {}
 
   /* opt_pass methods: */
   virtual bool gate (function *fn) { return !gate_loop (fn); }
@@ -211,6 +434,7 @@ public:
   /* opt_pass methods: */
   virtual unsigned int execute (function *);
 
+>>>>>>> gcc-mirror/master
 }; // class pass_tree_loop_init
 
 unsigned int
@@ -399,11 +623,19 @@ public:
   pass_iv_optimize (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_iv_optimize, ctxt)
   {}
+<<<<<<< HEAD
 
   /* opt_pass methods: */
   virtual bool gate (function *) { return flag_ivopts != 0; }
   virtual unsigned int execute (function *);
 
+=======
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_ivopts != 0; }
+  virtual unsigned int execute (function *);
+
+>>>>>>> gcc-mirror/master
 }; // class pass_iv_optimize
 
 unsigned int

@@ -2633,6 +2633,7 @@ gnat_stabilize_reference_1 (tree e, void *data)
    handle our own nodes and we take extra arguments.  FORCE says whether to
    force evaluation of everything in REF.  INIT is set to the first arm of
    a COMPOUND_EXPR present in REF, if any.  */
+<<<<<<< HEAD
 
 tree
 gnat_stabilize_reference (tree ref, bool force, tree *init)
@@ -2646,6 +2647,21 @@ gnat_stabilize_reference (tree ref, bool force, tree *init)
    arm of a COMPOUND_EXPR present in REF, if any.  */
 
 tree
+=======
+
+tree
+gnat_stabilize_reference (tree ref, bool force, tree *init)
+{
+  return
+    gnat_rewrite_reference (ref, gnat_stabilize_reference_1, &force, init);
+}
+
+/* Rewrite reference REF and call FUNC on each expression within REF in the
+   process.  DATA is passed unmodified to FUNC.  INIT is set to the first
+   arm of a COMPOUND_EXPR present in REF, if any.  */
+
+tree
+>>>>>>> gcc-mirror/master
 gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
 {
   tree type = TREE_TYPE (ref);
@@ -2733,7 +2749,12 @@ gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
       break;
 
     case ERROR_MARK:
+<<<<<<< HEAD
       return error_mark_node;
+=======
+    case NULL_EXPR:
+      return ref;
+>>>>>>> gcc-mirror/master
 
     default:
       gcc_unreachable ();
@@ -2813,6 +2834,55 @@ done:
   return exp;
 }
 
+<<<<<<< HEAD
+=======
+/* Return true if EXPR is the addition or the subtraction of a constant and,
+   if so, set *ADD to the addend, *CST to the constant and *MINUS_P to true
+   if this is a subtraction.  */
+
+bool
+is_simple_additive_expression (tree expr, tree *add, tree *cst, bool *minus_p)
+{
+  /* Skip overflow checks.  */
+  if (TREE_CODE (expr) == COND_EXPR
+      && TREE_CODE (COND_EXPR_THEN (expr)) == COMPOUND_EXPR
+      && TREE_CODE (TREE_OPERAND (COND_EXPR_THEN (expr), 0)) == CALL_EXPR
+      && get_callee_fndecl (TREE_OPERAND (COND_EXPR_THEN (expr), 0))
+         == gnat_raise_decls[CE_Overflow_Check_Failed])
+    expr = COND_EXPR_ELSE (expr);
+
+  if (TREE_CODE (expr) == PLUS_EXPR)
+    {
+      if (TREE_CONSTANT (TREE_OPERAND (expr, 0)))
+	{
+	  *add = TREE_OPERAND (expr, 1);
+	  *cst = TREE_OPERAND (expr, 0);
+	  *minus_p = false;
+	  return true;
+	}
+      else if (TREE_CONSTANT (TREE_OPERAND (expr, 1)))
+	{
+	  *add = TREE_OPERAND (expr, 0);
+	  *cst = TREE_OPERAND (expr, 1);
+	  *minus_p = false;
+	  return true;
+	}
+    }
+  else if (TREE_CODE (expr) == MINUS_EXPR)
+    {
+      if (TREE_CONSTANT (TREE_OPERAND (expr, 1)))
+	{
+	  *add = TREE_OPERAND (expr, 0);
+	  *cst = TREE_OPERAND (expr, 1);
+	  *minus_p = true;
+	  return true;
+	}
+    }
+
+  return false;
+}
+
+>>>>>>> gcc-mirror/master
 /* If EXPR is an expression that is invariant in the current function, in the
    sense that it can be evaluated anywhere in the function and any number of
    times, return EXPR or an equivalent expression.  Otherwise return NULL.  */
@@ -2821,6 +2891,11 @@ tree
 gnat_invariant_expr (tree expr)
 {
   const tree type = TREE_TYPE (expr);
+<<<<<<< HEAD
+=======
+  tree add, cst;
+  bool minus_p;
+>>>>>>> gcc-mirror/master
 
   expr = remove_conversions (expr, false);
 
@@ -2846,6 +2921,7 @@ gnat_invariant_expr (tree expr)
   if (TREE_CONSTANT (expr))
     return fold_convert (type, expr);
 
+<<<<<<< HEAD
   /* Skip overflow checks since they don't change the invariantness.  */
   if (TREE_CODE (expr) == COND_EXPR
       && TREE_CODE (COND_EXPR_THEN (expr)) == COMPOUND_EXPR
@@ -2861,6 +2937,16 @@ gnat_invariant_expr (tree expr)
       tree op1 = TREE_OPERAND (expr, 1);
       if (op0 && TREE_CONSTANT (op1))
 	return fold_build2 (TREE_CODE (expr), type, op0, op1);
+=======
+  /* Deal with addition or subtraction of constants.  */
+  if (is_simple_additive_expression (expr, &add, &cst, &minus_p))
+    {
+      add = gnat_invariant_expr (add);
+      if (add)
+	return
+	  fold_build2 (minus_p ? MINUS_EXPR : PLUS_EXPR, type,
+		       fold_convert (type, add), fold_convert (type, cst));
+>>>>>>> gcc-mirror/master
       else
 	return NULL_TREE;
     }

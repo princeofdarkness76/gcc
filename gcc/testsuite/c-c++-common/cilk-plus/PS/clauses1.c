@@ -74,10 +74,16 @@ void foo()
   for (int i=0; i < 1000; ++i)
     a[i] = b[j];
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 #pragma simd linear(j : k)
   for (int i=0; i < 1234; ++i)
     a[i] = b[j];
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 }

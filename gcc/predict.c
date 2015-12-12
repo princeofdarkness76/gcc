@@ -269,6 +269,16 @@ optimize_function_for_speed_p (struct function *fun)
   return !optimize_function_for_size_p (fun);
 }
 
+/* Return the optimization type that should be used for the function FUN.  */
+
+optimization_type
+function_optimization_type (struct function *fun)
+{
+  return (optimize_function_for_speed_p (fun)
+	  ? OPTIMIZE_FOR_SPEED
+	  : OPTIMIZE_FOR_SIZE);
+}
+
 /* Return TRUE when BB should be optimized for size.  */
 
 bool
@@ -284,6 +294,16 @@ bool
 optimize_bb_for_speed_p (const_basic_block bb)
 {
   return !optimize_bb_for_size_p (bb);
+}
+
+/* Return the optimization type that should be used for block BB.  */
+
+optimization_type
+bb_optimization_type (const_basic_block bb)
+{
+  return (optimize_bb_for_speed_p (bb)
+	  ? OPTIMIZE_FOR_SPEED
+	  : OPTIMIZE_FOR_SIZE);
 }
 
 /* Return TRUE when BB should be optimized for size.  */
@@ -1387,10 +1407,17 @@ predict_extra_loop_exits (edge exit_edge)
 
   last = last_stmt (exit_edge->src);
   if (!last)
+<<<<<<< HEAD
     return;
   cmp_stmt = dyn_cast <gcond *> (last);
   if (!cmp_stmt)
     return;
+=======
+    return;
+  cmp_stmt = dyn_cast <gcond *> (last);
+  if (!cmp_stmt)
+    return;
+>>>>>>> gcc-mirror/master
 
   cmp_rhs = gimple_cond_rhs (cmp_stmt);
   cmp_lhs = gimple_cond_lhs (cmp_stmt);

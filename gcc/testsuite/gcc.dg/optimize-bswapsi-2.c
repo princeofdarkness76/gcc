@@ -2,7 +2,11 @@
 /* { dg-require-effective-target bswap32 } */
 /* { dg-require-effective-target stdint_types } */
 /* { dg-options "-O2 -fdump-tree-bswap" } */
+<<<<<<< HEAD
 /* { dg-additional-options "-march=z900" { target s390-*-* } } */
+=======
+/* { dg-additional-options "-march=z900" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/master
 
 #include <stdint.h>
 

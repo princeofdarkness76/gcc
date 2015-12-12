@@ -58,10 +58,15 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 
 procedure GNATCmd is
    Gprbuild : constant String := "gprbuild";
+<<<<<<< HEAD
    Gnatmake : constant String := "gnatmake";
 
    Gprclean  : constant String := "gprclean";
    Gnatclean : constant String := "gnatclean";
+=======
+   Gprclean : constant String := "gprclean";
+   Gprname  : constant String := "gprname";
+>>>>>>> gcc-mirror/master
 
    Normal_Exit : exception;
    --  Raise this exception for normal program termination
@@ -1167,8 +1172,9 @@ begin
    end loop;
 
    declare
-      Program   : String_Access;
-      Exec_Path : String_Access;
+      Program    : String_Access;
+      Exec_Path  : String_Access;
+      Get_Target : Boolean := False;
 
    begin
       if The_Command = Stack then
@@ -1183,8 +1189,18 @@ begin
          --  If we want to invoke gnatmake/gnatclean with -P, then check if
          --  gprbuild/gprclean is available; if it is, use gprbuild/gprclean
          --  instead of gnatmake/gnatclean.
+<<<<<<< HEAD
 
          if Program.all = Gnatmake or else Program.all = Gnatclean then
+=======
+         --  Ditto for gnatname -> gprname.
+
+         if The_Command = Make
+            or else The_Command = Compile
+            or else The_Command = Clean
+            or else The_Command = Name
+         then
+>>>>>>> gcc-mirror/master
             declare
                Project_File_Used : Boolean := False;
                Switch            : String_Access;
@@ -1201,6 +1217,7 @@ begin
                end loop;
 
                if Project_File_Used then
+<<<<<<< HEAD
                   if Program.all = Gnatmake
                     and then Locate_Exec_On_Path (Gprbuild) /= null
                   then
@@ -1209,6 +1226,39 @@ begin
                     and then Locate_Exec_On_Path (Gprclean) /= null
                   then
                      Program := new String'(Gprclean);
+=======
+                  case The_Command is
+                     when Make | Compile =>
+                        if Locate_Exec_On_Path (Gprbuild) /= null  then
+                           Program := new String'(Gprbuild);
+                           Get_Target := True;
+                        end if;
+
+                     when Clean =>
+                        if Locate_Exec_On_Path (Gprclean) /= null then
+                           Program := new String'(Gprclean);
+                           Get_Target := True;
+                        end if;
+
+                     when Name =>
+                        if Locate_Exec_On_Path (Gprname) /= null then
+                           Program := new String'(Gprname);
+                           Get_Target := True;
+                        end if;
+
+                     when others =>
+                        null;
+                  end case;
+
+                  if Get_Target then
+                     Find_Program_Name;
+
+                     if Name_Len > 5 then
+                        First_Switches.Append
+                          (new String'
+                             ("--target=" & Name_Buffer (1 .. Name_Len - 5)));
+                     end if;
+>>>>>>> gcc-mirror/master
                   end if;
                end if;
             end;

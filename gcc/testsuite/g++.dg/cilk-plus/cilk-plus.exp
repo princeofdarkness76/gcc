@@ -18,6 +18,7 @@
 
 load_lib g++-dg.exp
 load_lib cilk-plus-dg.exp
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 dg-init
@@ -41,6 +42,12 @@ dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/AN/*.c]] " -g
 dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/AN/*.c]] " -O3 -ftree-vectorize -fcilkplus -g" " "
 dg-finish
 =======
+if { ![check_effective_target_cilkplus] } {
+    return;
+}
+>>>>>>> gcc-mirror/master
+=======
+
 if { ![check_effective_target_cilkplus] } {
     return;
 }

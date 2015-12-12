@@ -674,12 +674,15 @@ sra_deinitialize (void)
   assign_link_pool.release ();
   obstack_free (&name_obstack, NULL);
 
+<<<<<<< HEAD
   /* TODO: hash_map does not support traits that can release
      value type of the hash_map.  */
   for (hash_map<tree, auto_vec<access_p> >::iterator it =
        base_access_vec->begin (); it != base_access_vec->end (); ++it)
     (*it).second.release ();
 
+=======
+>>>>>>> gcc-mirror/master
   delete base_access_vec;
 }
 
@@ -2598,6 +2601,7 @@ analyze_all_variable_accesses (void)
   enum compiler_param param = optimize_speed_p
 			? PARAM_SRA_MAX_SCALARIZATION_SIZE_SPEED
 			: PARAM_SRA_MAX_SCALARIZATION_SIZE_SIZE;
+<<<<<<< HEAD
 
   /* If the user didn't set PARAM_SRA_MAX_SCALARIZATION_SIZE_<...>,
      fall back to a target default.  */
@@ -2606,6 +2610,16 @@ analyze_all_variable_accesses (void)
       ? PARAM_VALUE (param)
       : get_move_ratio (optimize_speed_p) * UNITS_PER_WORD;
 
+=======
+
+  /* If the user didn't set PARAM_SRA_MAX_SCALARIZATION_SIZE_<...>,
+     fall back to a target default.  */
+  unsigned HOST_WIDE_INT max_scalarization_size
+    = global_options_set.x_param_values[param]
+      ? PARAM_VALUE (param)
+      : get_move_ratio (optimize_speed_p) * UNITS_PER_WORD;
+
+>>>>>>> gcc-mirror/master
   max_scalarization_size *= BITS_PER_UNIT;
 
   EXECUTE_IF_SET_IN_BITMAP (candidate_bitmap, 0, i, bi)

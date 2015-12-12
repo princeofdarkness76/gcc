@@ -27,14 +27,20 @@ along with GCC; see the file COPYING3.  If not see
 #include "options.h"
 #include "c-common.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "c-pragma.h"
 #include "gimple.h"		/* For create_tmp_var_raw.  */
 #include "langhooks.h"
 =======
+=======
+>>>>>>> gcc-mirror/master
 #include "gimple-expr.h"
 #include "c-pragma.h"
 #include "omp-low.h"
 #include "gomp-constants.h"
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 
@@ -69,7 +75,10 @@ c_finish_oacc_wait (location_t loc, tree parms, tree clauses)
     }
 
   stmt = build_call_expr_loc_vec (loc, stmt, args);
+<<<<<<< HEAD
   add_stmt (stmt);
+=======
+>>>>>>> gcc-mirror/master
 
   vec_free (args);
 
@@ -185,7 +194,12 @@ tree
 c_finish_omp_atomic (location_t loc, enum tree_code code,
 		     enum tree_code opcode, tree lhs, tree rhs,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     tree v, tree lhs1, tree rhs1, bool swapped, bool seq_cst)
+=======
+		     tree v, tree lhs1, tree rhs1, bool swapped, bool seq_cst,
+		     bool test)
+>>>>>>> gcc-mirror/master
 =======
 		     tree v, tree lhs1, tree rhs1, bool swapped, bool seq_cst,
 		     bool test)
@@ -251,11 +265,14 @@ c_finish_omp_atomic (location_t loc, enum tree_code code,
   if (swapped)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
       rhs = build2_loc (loc, opcode, TREE_TYPE (lhs), rhs, lhs);
       opcode = NOP_EXPR;
     }
   x = build_modify_expr (loc, lhs, NULL_TREE, opcode, loc, rhs, NULL_TREE);
 =======
+=======
+>>>>>>> gcc-mirror/master
       rhs = build_binary_op (loc, opcode, rhs, lhs, 1);
       opcode = NOP_EXPR;
     }
@@ -263,6 +280,9 @@ c_finish_omp_atomic (location_t loc, enum tree_code code,
   in_late_binary_op = true;
   x = build_modify_expr (loc, lhs, NULL_TREE, opcode, loc, rhs, NULL_TREE);
   in_late_binary_op = save;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   if (x == error_mark_node)
     return error_mark_node;
@@ -467,7 +487,12 @@ c_omp_for_incr_canonicalize_ptr (location_t loc, tree decl, tree incr)
 tree
 c_finish_omp_for (location_t locus, enum tree_code code, tree declv,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		  tree initv, tree condv, tree incrv, tree body, tree pre_body)
+=======
+		  tree orig_declv, tree initv, tree condv, tree incrv,
+		  tree body, tree pre_body)
+>>>>>>> gcc-mirror/master
 =======
 		  tree orig_declv, tree initv, tree condv, tree incrv,
 		  tree body, tree pre_body)
@@ -774,6 +799,7 @@ c_omp_check_loop_iv_r (tree *tp, int *walk_subtrees, void *data)
       *walk_subtrees = 0;
       return walk_tree_1 (&TREE_OPERAND (*tp, 0), c_omp_check_loop_iv_r, data,
 			  d->ppset, d->lh);
+<<<<<<< HEAD
     }
 
   return NULL_TREE;
@@ -886,6 +912,116 @@ c_omp_check_loop_iv_exprs (location_t stmt_loc, tree declv, tree decl,
    #pragma acc kernels loop
    #pragma acc parallel loop  */
 
+=======
+    }
+
+  return NULL_TREE;
+}
+
+/* Diagnose invalid references to loop iterators in lb, b and incr
+   expressions.  */
+
+bool
+c_omp_check_loop_iv (tree stmt, tree declv, walk_tree_lh lh)
+{
+  hash_set<tree> pset;
+  struct c_omp_check_loop_iv_data data;
+  int i;
+
+  data.declv = declv;
+  data.fail = false;
+  data.stmt_loc = EXPR_LOCATION (stmt);
+  data.lh = lh;
+  data.ppset = &pset;
+  for (i = 0; i < TREE_VEC_LENGTH (OMP_FOR_INIT (stmt)); i++)
+    {
+      tree init = TREE_VEC_ELT (OMP_FOR_INIT (stmt), i);
+      gcc_assert (TREE_CODE (init) == MODIFY_EXPR);
+      tree decl = TREE_OPERAND (init, 0);
+      tree cond = TREE_VEC_ELT (OMP_FOR_COND (stmt), i);
+      gcc_assert (COMPARISON_CLASS_P (cond));
+      gcc_assert (TREE_OPERAND (cond, 0) == decl);
+      tree incr = TREE_VEC_ELT (OMP_FOR_INCR (stmt), i);
+      data.expr_loc = EXPR_LOCATION (TREE_OPERAND (init, 1));
+      data.kind = 0;
+      walk_tree_1 (&TREE_OPERAND (init, 1),
+		   c_omp_check_loop_iv_r, &data, &pset, lh);
+      /* Don't warn for C++ random access iterators here, the
+	 expression then involves the subtraction and always refers
+	 to the original value.  The C++ FE needs to warn on those
+	 earlier.  */
+      if (decl == TREE_VEC_ELT (declv, i))
+	{
+	  data.expr_loc = EXPR_LOCATION (cond);
+	  data.kind = 1;
+	  walk_tree_1 (&TREE_OPERAND (cond, 1),
+		       c_omp_check_loop_iv_r, &data, &pset, lh);
+	}
+      if (TREE_CODE (incr) == MODIFY_EXPR)
+	{
+	  gcc_assert (TREE_OPERAND (incr, 0) == decl);
+	  incr = TREE_OPERAND (incr, 1);
+	  data.kind = 2;
+	  if (TREE_CODE (incr) == PLUS_EXPR
+	      && TREE_OPERAND (incr, 1) == decl)
+	    {
+	      data.expr_loc = EXPR_LOCATION (TREE_OPERAND (incr, 0));
+	      walk_tree_1 (&TREE_OPERAND (incr, 0),
+			   c_omp_check_loop_iv_r, &data, &pset, lh);
+	    }
+	  else
+	    {
+	      data.expr_loc = EXPR_LOCATION (TREE_OPERAND (incr, 1));
+	      walk_tree_1 (&TREE_OPERAND (incr, 1),
+			   c_omp_check_loop_iv_r, &data, &pset, lh);
+	    }
+	}
+    }
+  return !data.fail;
+}
+
+/* Similar, but allows to check the init or cond expressions individually.  */
+
+bool
+c_omp_check_loop_iv_exprs (location_t stmt_loc, tree declv, tree decl,
+			   tree init, tree cond, walk_tree_lh lh)
+{
+  hash_set<tree> pset;
+  struct c_omp_check_loop_iv_data data;
+
+  data.declv = declv;
+  data.fail = false;
+  data.stmt_loc = stmt_loc;
+  data.lh = lh;
+  data.ppset = &pset;
+  if (init)
+    {
+      data.expr_loc = EXPR_LOCATION (init);
+      data.kind = 0;
+      walk_tree_1 (&init,
+		   c_omp_check_loop_iv_r, &data, &pset, lh);
+    }
+  if (cond)
+    {
+      gcc_assert (COMPARISON_CLASS_P (cond));
+      data.expr_loc = EXPR_LOCATION (init);
+      data.kind = 1;
+      if (TREE_OPERAND (cond, 0) == decl)
+	walk_tree_1 (&TREE_OPERAND (cond, 1),
+		     c_omp_check_loop_iv_r, &data, &pset, lh);
+      else
+	walk_tree_1 (&TREE_OPERAND (cond, 0),
+		     c_omp_check_loop_iv_r, &data, &pset, lh);
+    }
+  return !data.fail;
+}
+
+/* This function splits clauses for OpenACC combined loop
+   constructs.  OpenACC combined loop constructs are:
+   #pragma acc kernels loop
+   #pragma acc parallel loop  */
+
+>>>>>>> gcc-mirror/master
 tree
 c_oacc_split_loop_clauses (tree clauses, tree *not_loop_clauses)
 {
@@ -931,11 +1067,15 @@ c_oacc_split_loop_clauses (tree clauses, tree *not_loop_clauses)
 
 /* This function attempts to split or duplicate clauses for OpenMP
    combined/composite constructs.  Right now there are 21 different
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
    constructs.  CODE is the innermost construct in the combined construct,
    and MASK allows to determine which constructs are combined together,
    as every construct has at least one clause that no other construct
    has (except for OMP_SECTIONS, but that can be only combined with parallel).
+<<<<<<< HEAD
 <<<<<<< HEAD
    Combined constructs are:
    #pragma omp parallel for
@@ -953,6 +1093,8 @@ c_oacc_split_loop_clauses (tree clauses, tree *not_loop_clauses)
    #pragma omp target teams distribute parallel for
    #pragma omp target teams distribute parallel for simd  */
 =======
+=======
+>>>>>>> gcc-mirror/master
    OpenMP combined/composite constructs are:
    #pragma omp distribute parallel for
    #pragma omp distribute parallel for simd
@@ -975,6 +1117,9 @@ c_oacc_split_loop_clauses (tree clauses, tree *not_loop_clauses)
    #pragma omp teams distribute parallel for
    #pragma omp teams distribute parallel for simd
    #pragma omp teams distribute simd  */
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 void
@@ -990,7 +1135,11 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
   /* Add implicit nowait clause on
      #pragma omp parallel {for,for simd,sections}.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+=======
+  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS)) != 0)
+>>>>>>> gcc-mirror/master
 =======
   if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS)) != 0)
 >>>>>>> gcc-mirror/master
@@ -1019,6 +1168,11 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	case OMP_CLAUSE_DEVICE:
 	case OMP_CLAUSE_MAP:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_IS_DEVICE_PTR:
+	case OMP_CLAUSE_DEFAULTMAP:
+>>>>>>> gcc-mirror/master
 =======
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	case OMP_CLAUSE_DEFAULTMAP:
@@ -1036,6 +1190,7 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	case OMP_CLAUSE_NUM_THREADS:
 	case OMP_CLAUSE_PROC_BIND:
 	  s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	  break;
 	case OMP_CLAUSE_ORDERED:
@@ -1063,6 +1218,60 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	    {
 	      if (mask & (OMP_CLAUSE_MASK_1
 			  << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE))
+=======
+	  break;
+	case OMP_CLAUSE_ORDERED:
+	case OMP_CLAUSE_NOWAIT:
+	  s = C_OMP_CLAUSE_SPLIT_FOR;
+	  break;
+	case OMP_CLAUSE_SCHEDULE:
+	  s = C_OMP_CLAUSE_SPLIT_FOR;
+	  if (code != OMP_SIMD)
+	    OMP_CLAUSE_SCHEDULE_SIMD (clauses) = 0;
+	  break;
+	case OMP_CLAUSE_SAFELEN:
+	case OMP_CLAUSE_SIMDLEN:
+	case OMP_CLAUSE_ALIGNED:
+	  s = C_OMP_CLAUSE_SPLIT_SIMD;
+	  break;
+	case OMP_CLAUSE_GRAINSIZE:
+	case OMP_CLAUSE_NUM_TASKS:
+	case OMP_CLAUSE_FINAL:
+	case OMP_CLAUSE_UNTIED:
+	case OMP_CLAUSE_MERGEABLE:
+	case OMP_CLAUSE_NOGROUP:
+	case OMP_CLAUSE_PRIORITY:
+	  s = C_OMP_CLAUSE_SPLIT_TASKLOOP;
+	  break;
+	/* Duplicate this to all of taskloop, distribute, for and simd.  */
+	case OMP_CLAUSE_COLLAPSE:
+	  if (code == OMP_SIMD)
+	    {
+	      if ((mask & ((OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE)
+			   | (OMP_CLAUSE_MASK_1
+			      << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)
+			   | (OMP_CLAUSE_MASK_1
+			      << PRAGMA_OMP_CLAUSE_NOGROUP))) != 0)
+		{
+		  c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
+					OMP_CLAUSE_COLLAPSE);
+		  OMP_CLAUSE_COLLAPSE_EXPR (c)
+		    = OMP_CLAUSE_COLLAPSE_EXPR (clauses);
+		  OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_SIMD];
+		  cclauses[C_OMP_CLAUSE_SPLIT_SIMD] = c;
+		}
+	      else
+		{
+		  /* This must be #pragma omp target simd */
+		  s = C_OMP_CLAUSE_SPLIT_SIMD;
+		  break;
+		}
+	    }
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE)) != 0)
+	    {
+	      if ((mask & (OMP_CLAUSE_MASK_1
+			   << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)) != 0)
+>>>>>>> gcc-mirror/master
 		{
 		  c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
 					OMP_CLAUSE_COLLAPSE);
@@ -1075,10 +1284,20 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	      else
 		s = C_OMP_CLAUSE_SPLIT_FOR;
 	    }
+<<<<<<< HEAD
 	  else
 	    s = C_OMP_CLAUSE_SPLIT_DISTRIBUTE;
 	  break;
 	/* Private clause is supported on all constructs but target,
+=======
+	  else if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOGROUP))
+		   != 0)
+	    s = C_OMP_CLAUSE_SPLIT_TASKLOOP;
+	  else
+	    s = C_OMP_CLAUSE_SPLIT_DISTRIBUTE;
+	  break;
+	/* Private clause is supported on all constructs,
+>>>>>>> gcc-mirror/master
 	   it is enough to put it on the innermost one.  For
 	   #pragma omp {for,sections} put it on parallel though,
 	   as that's what we did for OpenMP 3.1.  */
@@ -1094,6 +1313,7 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	    }
 	  break;
 	/* Firstprivate clause is supported on all constructs but
+<<<<<<< HEAD
 	   target and simd.  Put it on the outermost of those and
 	   duplicate on parallel.  */
 	case OMP_CLAUSE_FIRSTPRIVATE:
@@ -1102,20 +1322,56 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	      if (mask & ((OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS)
 			  | (OMP_CLAUSE_MASK_1
 			     << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)))
+=======
+	   simd.  Put it on the outermost of those and duplicate on teams
+	   and parallel.  */
+	case OMP_CLAUSE_FIRSTPRIVATE:
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_MAP))
+	      != 0)
+	    {
+	      if (code == OMP_SIMD
+		  && (mask & ((OMP_CLAUSE_MASK_1
+			       << PRAGMA_OMP_CLAUSE_NUM_THREADS)
+			      | (OMP_CLAUSE_MASK_1
+				 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))) == 0)
+		{
+		  /* This must be #pragma omp target simd.  */
+		  s = C_OMP_CLAUSE_SPLIT_TARGET;
+		  break;
+		}
+	      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
+				    OMP_CLAUSE_FIRSTPRIVATE);
+	      OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
+	      OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_TARGET];
+	      cclauses[C_OMP_CLAUSE_SPLIT_TARGET] = c;
+	    }
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+	      != 0)
+	    {
+	      if ((mask & ((OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS)
+			   | (OMP_CLAUSE_MASK_1
+			      << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE))) != 0)
+>>>>>>> gcc-mirror/master
 		{
 		  c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
 					OMP_CLAUSE_FIRSTPRIVATE);
 		  OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
 		  OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_PARALLEL];
 		  cclauses[C_OMP_CLAUSE_SPLIT_PARALLEL] = c;
+<<<<<<< HEAD
 		  if (mask & (OMP_CLAUSE_MASK_1
 			      << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
+=======
+		  if ((mask & (OMP_CLAUSE_MASK_1
+			       << PRAGMA_OMP_CLAUSE_NUM_TEAMS)) != 0)
+>>>>>>> gcc-mirror/master
 		    s = C_OMP_CLAUSE_SPLIT_TEAMS;
 		  else
 		    s = C_OMP_CLAUSE_SPLIT_DISTRIBUTE;
 		}
 	      else
 		/* This must be
+<<<<<<< HEAD
 		   #pragma omp parallel{, for{, simd}, sections}.  */
 		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
 	    }
@@ -1131,6 +1387,38 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	      /* This must be #pragma omp distribute simd.  */
 	      gcc_assert (code == OMP_SIMD);
 	      s = C_OMP_CLAUSE_SPLIT_TEAMS;
+=======
+		   #pragma omp parallel{, for{, simd}, sections}
+		   or
+		   #pragma omp target parallel.  */
+		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+	    }
+	  else if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
+		   != 0)
+	    {
+	      /* This must be one of
+		 #pragma omp {,target }teams distribute
+		 #pragma omp target teams
+		 #pragma omp {,target }teams distribute simd.  */
+	      gcc_assert (code == OMP_DISTRIBUTE
+			  || code == OMP_TEAMS
+			  || code == OMP_SIMD);
+	      s = C_OMP_CLAUSE_SPLIT_TEAMS;
+	    }
+	  else if ((mask & (OMP_CLAUSE_MASK_1
+			    << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)) != 0)
+	    {
+	      /* This must be #pragma omp distribute simd.  */
+	      gcc_assert (code == OMP_SIMD);
+	      s = C_OMP_CLAUSE_SPLIT_DISTRIBUTE;
+	    }
+	  else if ((mask & (OMP_CLAUSE_MASK_1
+			    << PRAGMA_OMP_CLAUSE_NOGROUP)) != 0)
+	    {
+	      /* This must be #pragma omp taskloop simd.  */
+	      gcc_assert (code == OMP_SIMD);
+	      s = C_OMP_CLAUSE_SPLIT_TASKLOOP;
+>>>>>>> gcc-mirror/master
 	    }
 	  else
 	    {
@@ -1139,6 +1427,7 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	      s = C_OMP_CLAUSE_SPLIT_FOR;
 	    }
 	  break;
+<<<<<<< HEAD
 	/* Lastprivate is allowed on for, sections and simd.  In
 	   parallel {for{, simd},sections} we actually want to put it on
 	   parallel rather than for or sections.  */
@@ -1146,18 +1435,51 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	  if (code == OMP_FOR || code == OMP_SECTIONS)
 	    {
 	      if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+=======
+	/* Lastprivate is allowed on distribute, for, sections and simd.  In
+	   parallel {for{, simd},sections} we actually want to put it on
+	   parallel rather than for or sections.  */
+	case OMP_CLAUSE_LASTPRIVATE:
+	  if (code == OMP_DISTRIBUTE)
+	    {
+	      s = C_OMP_CLAUSE_SPLIT_DISTRIBUTE;
+	      break;
+	    }
+	  if ((mask & (OMP_CLAUSE_MASK_1
+		       << PRAGMA_OMP_CLAUSE_DIST_SCHEDULE)) != 0)
+	    {
+	      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
+				    OMP_CLAUSE_LASTPRIVATE);
+	      OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
+	      OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_DISTRIBUTE];
+	      cclauses[C_OMP_CLAUSE_SPLIT_DISTRIBUTE] = c;
+	    }
+	  if (code == OMP_FOR || code == OMP_SECTIONS)
+	    {
+	      if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+		  != 0)
+>>>>>>> gcc-mirror/master
 		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
 	      else
 		s = C_OMP_CLAUSE_SPLIT_FOR;
 	      break;
 	    }
 	  gcc_assert (code == OMP_SIMD);
+<<<<<<< HEAD
 	  if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE))
+=======
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE)) != 0)
+>>>>>>> gcc-mirror/master
 	    {
 	      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
 				    OMP_CLAUSE_LASTPRIVATE);
 	      OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
+<<<<<<< HEAD
 	      if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+=======
+	      if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+		  != 0)
+>>>>>>> gcc-mirror/master
 		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
 	      else
 		s = C_OMP_CLAUSE_SPLIT_FOR;
@@ -1166,6 +1488,7 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	    }
 	  s = C_OMP_CLAUSE_SPLIT_SIMD;
 	  break;
+<<<<<<< HEAD
 	/* Shared and default clauses are allowed on private and teams.  */
 	case OMP_CLAUSE_SHARED:
 	case OMP_CLAUSE_DEFAULT:
@@ -1176,6 +1499,27 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	    }
 	  if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
 	    {
+=======
+	/* Shared and default clauses are allowed on parallel, teams and
+	   taskloop.  */
+	case OMP_CLAUSE_SHARED:
+	case OMP_CLAUSE_DEFAULT:
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOGROUP))
+	      != 0)
+	    {
+	      s = C_OMP_CLAUSE_SPLIT_TASKLOOP;
+	      break;
+	    }
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
+	      != 0)
+	    {
+	      if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+		  == 0)
+		{
+		  s = C_OMP_CLAUSE_SPLIT_TEAMS;
+		  break;
+		}
+>>>>>>> gcc-mirror/master
 	      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
 				    OMP_CLAUSE_CODE (clauses));
 	      if (OMP_CLAUSE_CODE (clauses) == OMP_CLAUSE_SHARED)
@@ -1185,7 +1529,10 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 		  = OMP_CLAUSE_DEFAULT_KIND (clauses);
 	      OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_TEAMS];
 	      cclauses[C_OMP_CLAUSE_SPLIT_TEAMS] = c;
+<<<<<<< HEAD
 	      
+=======
+>>>>>>> gcc-mirror/master
 	    }
 	  s = C_OMP_CLAUSE_SPLIT_PARALLEL;
 	  break;
@@ -1193,6 +1540,7 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	   Duplicate it on all of them, but omit on for or sections if
 	   parallel is present.  */
 	case OMP_CLAUSE_REDUCTION:
+<<<<<<< HEAD
 	  if (code == OMP_SIMD)
 	    {
 	      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
@@ -1206,28 +1554,68 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	  if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE))
 	    {
 	      if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
+=======
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_SCHEDULE)) != 0)
+	    {
+	      if (code == OMP_SIMD)
 		{
 		  c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
 					OMP_CLAUSE_REDUCTION);
 		  OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
 		  OMP_CLAUSE_REDUCTION_CODE (c)
 		    = OMP_CLAUSE_REDUCTION_CODE (clauses);
+		  OMP_CLAUSE_REDUCTION_PLACEHOLDER (c)
+		    = OMP_CLAUSE_REDUCTION_PLACEHOLDER (clauses);
+		  OMP_CLAUSE_REDUCTION_DECL_PLACEHOLDER (c)
+		    = OMP_CLAUSE_REDUCTION_DECL_PLACEHOLDER (clauses);
+		  OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_SIMD];
+		  cclauses[C_OMP_CLAUSE_SPLIT_SIMD] = c;
+		}
+	      if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_TEAMS))
+		  != 0)
+>>>>>>> gcc-mirror/master
+		{
+		  c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
+					OMP_CLAUSE_REDUCTION);
+		  OMP_CLAUSE_DECL (c) = OMP_CLAUSE_DECL (clauses);
+		  OMP_CLAUSE_REDUCTION_CODE (c)
+		    = OMP_CLAUSE_REDUCTION_CODE (clauses);
+<<<<<<< HEAD
+=======
+		  OMP_CLAUSE_REDUCTION_PLACEHOLDER (c)
+		    = OMP_CLAUSE_REDUCTION_PLACEHOLDER (clauses);
+		  OMP_CLAUSE_REDUCTION_DECL_PLACEHOLDER (c)
+		    = OMP_CLAUSE_REDUCTION_DECL_PLACEHOLDER (clauses);
+>>>>>>> gcc-mirror/master
 		  OMP_CLAUSE_CHAIN (c) = cclauses[C_OMP_CLAUSE_SPLIT_PARALLEL];
 		  cclauses[C_OMP_CLAUSE_SPLIT_PARALLEL] = c;
 		  s = C_OMP_CLAUSE_SPLIT_TEAMS;
 		}
+<<<<<<< HEAD
 	      else if (mask & (OMP_CLAUSE_MASK_1
 			       << PRAGMA_OMP_CLAUSE_NUM_THREADS))
+=======
+	      else if ((mask & (OMP_CLAUSE_MASK_1
+				<< PRAGMA_OMP_CLAUSE_NUM_THREADS)) != 0)
+>>>>>>> gcc-mirror/master
 		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
 	      else
 		s = C_OMP_CLAUSE_SPLIT_FOR;
 	    }
+<<<<<<< HEAD
 	  else if (code == OMP_SECTIONS)
 	    s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+=======
+	  else if (code == OMP_SECTIONS || code == OMP_PARALLEL)
+	    s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+	  else if (code == OMP_SIMD)
+	    s = C_OMP_CLAUSE_SPLIT_SIMD;
+>>>>>>> gcc-mirror/master
 	  else
 	    s = C_OMP_CLAUSE_SPLIT_TEAMS;
 	  break;
 	case OMP_CLAUSE_IF:
+<<<<<<< HEAD
 	  /* FIXME: This is currently being discussed.  */
 	  if (mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NUM_THREADS))
 	    s = C_OMP_CLAUSE_SPLIT_PARALLEL;
@@ -1563,6 +1951,47 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	  else
 	    s = C_OMP_CLAUSE_SPLIT_TARGET;
 	  break;
+=======
+	  if ((mask & (OMP_CLAUSE_MASK_1 << PRAGMA_OMP_CLAUSE_NOGROUP))
+	      != 0)
+	    s = C_OMP_CLAUSE_SPLIT_TASKLOOP;
+	  else if ((mask & (OMP_CLAUSE_MASK_1
+			    << PRAGMA_OMP_CLAUSE_NUM_THREADS)) != 0)
+	    {
+	      if ((mask & (OMP_CLAUSE_MASK_1
+			   << PRAGMA_OMP_CLAUSE_MAP)) != 0)
+		{
+		  if (OMP_CLAUSE_IF_MODIFIER (clauses) == OMP_PARALLEL)
+		    s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+		  else if (OMP_CLAUSE_IF_MODIFIER (clauses) == OMP_TARGET)
+		    s = C_OMP_CLAUSE_SPLIT_TARGET;
+		  else if (OMP_CLAUSE_IF_MODIFIER (clauses) == ERROR_MARK)
+		    {
+		      c = build_omp_clause (OMP_CLAUSE_LOCATION (clauses),
+					    OMP_CLAUSE_IF);
+		      OMP_CLAUSE_IF_MODIFIER (c)
+			= OMP_CLAUSE_IF_MODIFIER (clauses);
+		      OMP_CLAUSE_IF_EXPR (c) = OMP_CLAUSE_IF_EXPR (clauses);
+		      OMP_CLAUSE_CHAIN (c)
+			= cclauses[C_OMP_CLAUSE_SPLIT_TARGET];
+		      cclauses[C_OMP_CLAUSE_SPLIT_TARGET] = c;
+		      s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+		    }
+		  else
+		    {
+		      error_at (OMP_CLAUSE_LOCATION (clauses),
+				"expected %<parallel%> or %<target%> %<if%> "
+				"clause modifier");
+		      continue;
+		    }
+		}
+	      else
+		s = C_OMP_CLAUSE_SPLIT_PARALLEL;
+	    }
+	  else
+	    s = C_OMP_CLAUSE_SPLIT_TARGET;
+	  break;
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_LINEAR:
 	  /* Linear clause is allowed on simd and for.  Put it on the
 	     innermost construct.  */
@@ -1570,6 +1999,9 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
 	    s = C_OMP_CLAUSE_SPLIT_SIMD;
 	  else
 	    s = C_OMP_CLAUSE_SPLIT_FOR;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  break;
 	default:
@@ -1578,7 +2010,10 @@ c_omp_split_clauses (location_t loc, enum tree_code code,
       OMP_CLAUSE_CHAIN (clauses) = cclauses[s];
       cclauses[s] = clauses;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
     }
 
   if (!flag_checking)
@@ -1684,6 +2119,7 @@ c_omp_declare_simd_clauses_to_numbers (tree parms, tree clauses)
       clauses = clvec[0];
       for (i = 0; i < len; i++)
 	OMP_CLAUSE_CHAIN (clvec[i]) = (i < len - 1) ? clvec[i + 1] : NULL_TREE;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
     }
   else
@@ -1794,6 +2230,11 @@ c_omp_declare_simd_clauses_to_numbers (tree fndecl, tree clauses)
       for (i = 0; i < len; i++)
 	OMP_CLAUSE_CHAIN (clvec[i]) = (i < len - 1) ? clvec[i + 1] : NULL_TREE;
     }
+=======
+    }
+  else
+    clauses = NULL_TREE;
+>>>>>>> gcc-mirror/master
   clvec.release ();
   return clauses;
 }
@@ -1810,7 +2251,11 @@ c_omp_declare_simd_clauses_to_decls (tree fndecl, tree clauses)
 	&& OMP_CLAUSE_CODE (c) != OMP_CLAUSE_INBRANCH
 	&& OMP_CLAUSE_CODE (c) != OMP_CLAUSE_NOTINBRANCH)
       {
+<<<<<<< HEAD
 	int idx = tree_low_cst (OMP_CLAUSE_DECL (c), 0), i;
+=======
+	int idx = tree_to_shwi (OMP_CLAUSE_DECL (c)), i;
+>>>>>>> gcc-mirror/master
 	tree arg;
 	for (arg = DECL_ARGUMENTS (fndecl), i = 0; arg;
 	     arg = TREE_CHAIN (arg), i++)
@@ -1818,6 +2263,20 @@ c_omp_declare_simd_clauses_to_decls (tree fndecl, tree clauses)
 	    break;
 	gcc_assert (arg);
 	OMP_CLAUSE_DECL (c) = arg;
+<<<<<<< HEAD
+=======
+	if (OMP_CLAUSE_CODE (c) == OMP_CLAUSE_LINEAR
+	    && OMP_CLAUSE_LINEAR_VARIABLE_STRIDE (c))
+	  {
+	    idx = tree_to_shwi (OMP_CLAUSE_LINEAR_STEP (c));
+	    for (arg = DECL_ARGUMENTS (fndecl), i = 0; arg;
+		 arg = TREE_CHAIN (arg), i++)
+	      if (i == idx)
+		break;
+	    gcc_assert (arg);
+	    OMP_CLAUSE_LINEAR_STEP (c) = arg;
+	  }
+>>>>>>> gcc-mirror/master
       }
 }
 

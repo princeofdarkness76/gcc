@@ -53,6 +53,7 @@ int t;
 int fn10 (int a);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma omp declare simd inbranch notinbranch
 int fn11 (int);		// { dg-error "clause is incompatible with" }
 
@@ -60,6 +61,8 @@ int fn11 (int);		// { dg-error "clause is incompatible with" }
 template <int N>
 int fn12 (int);
 =======
+=======
+>>>>>>> gcc-mirror/master
 #pragma omp declare simd inbranch notinbranch // { dg-error "clause is incompatible with" }
 int fn11 (int);
 
@@ -104,4 +107,7 @@ int f19 (int a);
 int f20 (int *a);
 
 // { dg-error "has no member" "" { target *-*-* } 61 }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

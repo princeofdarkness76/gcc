@@ -1,4 +1,8 @@
 /* { dg-require-effective-target vect_int } */
+<<<<<<< HEAD
+=======
+/* { dg-require-effective-target vect_perm } */
+>>>>>>> gcc-mirror/master
 /* PR tree-optimization/67682.  */
 
 #include "tree-vect.h"

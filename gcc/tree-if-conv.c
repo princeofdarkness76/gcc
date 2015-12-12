@@ -111,6 +111,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "dbgcnt.h"
 #include "tree-hash-traits.h"
 #include "varasm.h"
+<<<<<<< HEAD
+=======
+#include "builtins.h"
+#include "params.h"
+>>>>>>> gcc-mirror/master
 
 /* List of basic blocks in if-conversion-suitable order.  */
 static basic_block *ifc_bbs;
@@ -517,7 +522,7 @@ bb_with_exit_edge_p (struct loop *loop, basic_block bb)
    PHI is not if-convertible if:
    - it has more than 2 arguments.
 
-   When the flag_tree_loop_if_convert_stores is not set, PHI is not
+   When we didn't see if-convertible stores, PHI is not
    if-convertible if:
    - a virtual PHI is immediately used in another PHI node,
    - there is a virtual PHI in a BB other than the loop->header.
@@ -545,10 +550,14 @@ if_convertible_phi_p (struct loop *loop, basic_block bb, gphi *phi,
         }
     }
 
+<<<<<<< HEAD
   if (flag_tree_loop_if_convert_stores || any_mask_load_store)
+=======
+  if (any_mask_load_store)
+>>>>>>> gcc-mirror/master
     return true;
 
-  /* When the flag_tree_loop_if_convert_stores is not set, check
+  /* When there were no if-convertible stores, check
      that there are no memory writes in the branches of the loop to be
      if-converted.  */
   if (virtual_operand_p (gimple_phi_result (phi)))
@@ -582,18 +591,29 @@ if_convertible_phi_p (struct loop *loop, basic_block bb, gphi *phi,
    each DR->aux field.  */
 
 struct ifc_dr {
-  /* -1 when not initialized, 0 when false, 1 when true.  */
-  int written_at_least_once;
+  bool rw_unconditionally;
+  bool w_unconditionally;
+  bool written_at_least_once;
 
+<<<<<<< HEAD
   /* -1 when not initialized, 0 when false, 1 when true.  */
   int rw_unconditionally;
 
   tree predicate;
+=======
+  tree rw_predicate;
+  tree w_predicate;
+  tree base_w_predicate;
+>>>>>>> gcc-mirror/master
 };
 
 #define IFC_DR(DR) ((struct ifc_dr *) (DR)->aux)
-#define DR_WRITTEN_AT_LEAST_ONCE(DR) (IFC_DR (DR)->written_at_least_once)
+#define DR_BASE_W_UNCONDITIONALLY(DR) (IFC_DR (DR)->written_at_least_once)
 #define DR_RW_UNCONDITIONALLY(DR) (IFC_DR (DR)->rw_unconditionally)
+<<<<<<< HEAD
+=======
+#define DR_W_UNCONDITIONALLY(DR) (IFC_DR (DR)->w_unconditionally)
+>>>>>>> gcc-mirror/master
 
 /* Iterates over DR's and stores refs, DR and base refs, DR pairs in
    HASH tables.  While storing them in HASH table, it checks if the
@@ -614,6 +634,7 @@ hash_memrefs_baserefs_and_store_DRs_read_written_info (data_reference_p a)
   tree base_ref = DR_BASE_OBJECT (a);
   tree ca = bb_predicate (gimple_bb (DR_STMT (a)));
   bool exist1, exist2;
+<<<<<<< HEAD
 
   while (TREE_CODE (ref) == COMPONENT_REF
 	 || TREE_CODE (ref) == IMAGPART_EXPR
@@ -652,6 +673,43 @@ hash_memrefs_baserefs_and_store_DRs_read_written_info (data_reference_p a)
   if (DR_IS_WRITE (a)
       && (is_true_predicate (IFC_DR (*base_master_dr)->predicate)))
     DR_WRITTEN_AT_LEAST_ONCE (*base_master_dr) = 1;
+=======
+
+  while (TREE_CODE (ref) == COMPONENT_REF
+	 || TREE_CODE (ref) == IMAGPART_EXPR
+	 || TREE_CODE (ref) == REALPART_EXPR)
+    ref = TREE_OPERAND (ref, 0);
+
+  master_dr = &ref_DR_map->get_or_insert (ref, &exist1);
+  if (!exist1)
+    *master_dr = a;
+
+  if (DR_IS_WRITE (a))
+    {
+      IFC_DR (*master_dr)->w_predicate
+	= fold_or_predicates (UNKNOWN_LOCATION, ca,
+			      IFC_DR (*master_dr)->w_predicate);
+      if (is_true_predicate (IFC_DR (*master_dr)->w_predicate))
+	DR_W_UNCONDITIONALLY (*master_dr) = true;
+    }
+  IFC_DR (*master_dr)->rw_predicate
+    = fold_or_predicates (UNKNOWN_LOCATION, ca,
+			  IFC_DR (*master_dr)->rw_predicate);
+  if (is_true_predicate (IFC_DR (*master_dr)->rw_predicate))
+    DR_RW_UNCONDITIONALLY (*master_dr) = true;
+
+  if (DR_IS_WRITE (a))
+    {
+      base_master_dr = &baseref_DR_map->get_or_insert (base_ref, &exist2);
+      if (!exist2)
+	*base_master_dr = a;
+      IFC_DR (*base_master_dr)->base_w_predicate
+	= fold_or_predicates (UNKNOWN_LOCATION, ca,
+			      IFC_DR (*base_master_dr)->base_w_predicate);
+      if (is_true_predicate (IFC_DR (*base_master_dr)->base_w_predicate))
+	DR_BASE_W_UNCONDITIONALLY (*base_master_dr) = true;
+    }
+>>>>>>> gcc-mirror/master
 }
 
 /* Return true when the memory references of STMT won't trap in the
@@ -698,6 +756,7 @@ ifcvt_memrefs_wont_trap (gimple *stmt, vec<data_reference_p> drs)
   master_dr = ref_DR_map->get (ref_base_a);
   base_master_dr = baseref_DR_map->get (base);
 
+<<<<<<< HEAD
   gcc_assert (master_dr != NULL && base_master_dr != NULL);
 
   if (DR_RW_UNCONDITIONALLY (*master_dr) == 1)
@@ -711,24 +770,91 @@ ifcvt_memrefs_wont_trap (gimple *stmt, vec<data_reference_p> drs)
 	      && decl_binds_to_current_def_p (base_tree)
 	      && !TREE_READONLY (base_tree))
 	  return true;
+=======
+  gcc_assert (master_dr != NULL);
+
+  /* If a is unconditionally written to it doesn't trap.  */
+  if (DR_W_UNCONDITIONALLY (*master_dr))
+    return true;
+
+  /* If a is unconditionally accessed then ... */
+  if (DR_RW_UNCONDITIONALLY (*master_dr))
+    {
+      /* an unconditional read won't trap.  */
+      if (DR_IS_READ (a))
+	return true;
+
+      /* an unconditionaly write won't trap if the base is written
+         to unconditionally.  */
+      if (base_master_dr
+	  && DR_BASE_W_UNCONDITIONALLY (*base_master_dr))
+	return PARAM_VALUE (PARAM_ALLOW_STORE_DATA_RACES);
+      else
+	{
+	  /* or the base is know to be not readonly.  */
+	  tree base_tree = get_base_address (DR_REF (a));
+	  if (DECL_P (base_tree)
+	      && decl_binds_to_current_def_p (base_tree)
+	      && ! TREE_READONLY (base_tree))
+	    return PARAM_VALUE (PARAM_ALLOW_STORE_DATA_RACES);
+>>>>>>> gcc-mirror/master
 	}
     }
   return false;
 }
 
-/* Wrapper around gimple_could_trap_p refined for the needs of the
-   if-conversion.  Try to prove that the memory accesses of STMT could
-   not trap in the innermost loop containing STMT.  */
+/* Return true if STMT could be converted into a masked load or store
+   (conditional load or store based on a mask computed from bb predicate).  */
 
 static bool
+<<<<<<< HEAD
 ifcvt_could_trap_p (gimple *stmt, vec<data_reference_p> refs)
+=======
+ifcvt_can_use_mask_load_store (gimple *stmt)
+>>>>>>> gcc-mirror/master
 {
-  if (gimple_vuse (stmt)
-      && !gimple_could_trap_p_1 (stmt, false, false)
-      && ifcvt_memrefs_wont_trap (stmt, refs))
+  tree lhs, ref;
+  machine_mode mode;
+  basic_block bb = gimple_bb (stmt);
+  bool is_load;
+
+  if (!(flag_tree_loop_vectorize || bb->loop_father->force_vectorize)
+      || bb->loop_father->dont_vectorize
+      || !gimple_assign_single_p (stmt)
+      || gimple_has_volatile_ops (stmt))
     return false;
 
-  return gimple_could_trap_p (stmt);
+  /* Check whether this is a load or store.  */
+  lhs = gimple_assign_lhs (stmt);
+  if (gimple_store_p (stmt))
+    {
+      if (!is_gimple_val (gimple_assign_rhs1 (stmt)))
+	return false;
+      is_load = false;
+      ref = lhs;
+    }
+  else if (gimple_assign_load_p (stmt))
+    {
+      is_load = true;
+      ref = gimple_assign_rhs1 (stmt);
+    }
+  else
+    return false;
+
+  if (may_be_nonaddressable_p (ref))
+    return false;
+
+  /* Mask should be integer mode of the same size as the load/store
+     mode.  */
+  mode = TYPE_MODE (TREE_TYPE (lhs));
+  if (int_mode_for_mode (mode) == BLKmode
+      || VECTOR_MODE_P (mode))
+    return false;
+
+  if (can_vec_mask_load_store_p (mode, VOIDmode, is_load))
+    return true;
+
+  return false;
 }
 
 /* Return true if STMT could be converted into a masked load or store
@@ -794,7 +920,6 @@ if_convertible_gimple_assign_stmt_p (gimple *stmt,
 				     bool *any_mask_load_store)
 {
   tree lhs = gimple_assign_lhs (stmt);
-  basic_block bb;
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     {
@@ -822,10 +947,18 @@ if_convertible_gimple_assign_stmt_p (gimple *stmt,
      we can perform loop versioning.  */
   gimple_set_plf (stmt, GF_PLF_2, false);
 
+<<<<<<< HEAD
   if (flag_tree_loop_if_convert_stores)
+=======
+  if ((! gimple_vuse (stmt)
+       || gimple_could_trap_p_1 (stmt, false, false)
+       || ! ifcvt_memrefs_wont_trap (stmt, refs))
+      && gimple_could_trap_p (stmt))
+>>>>>>> gcc-mirror/master
     {
-      if (ifcvt_could_trap_p (stmt, refs))
+      if (ifcvt_can_use_mask_load_store (stmt))
 	{
+<<<<<<< HEAD
 	  if (ifcvt_can_use_mask_load_store (stmt))
 	    {
 	      gimple_set_plf (stmt, GF_PLF_2, true);
@@ -847,11 +980,18 @@ if_convertible_gimple_assign_stmt_p (gimple *stmt,
 	  *any_mask_load_store = true;
 	  return true;
 	}
+=======
+	  gimple_set_plf (stmt, GF_PLF_2, true);
+	  *any_mask_load_store = true;
+	  return true;
+	}
+>>>>>>> gcc-mirror/master
       if (dump_file && (dump_flags & TDF_DETAILS))
 	fprintf (dump_file, "tree could trap...\n");
       return false;
     }
 
+<<<<<<< HEAD
   bb = gimple_bb (stmt);
 
   if (TREE_CODE (lhs) != SSA_NAME
@@ -871,6 +1011,12 @@ if_convertible_gimple_assign_stmt_p (gimple *stmt,
 	}
       return false;
     }
+=======
+  /* When if-converting stores force versioning, likewise if we
+     ended up generating store data races.  */
+  if (gimple_vdef (stmt))
+    *any_mask_load_store = true;
+>>>>>>> gcc-mirror/master
 
   return true;
 }
@@ -1206,18 +1352,17 @@ predicate_bbs (loop_p loop)
 
 static bool
 if_convertible_loop_p_1 (struct loop *loop,
-			 vec<loop_p> *loop_nest,
 			 vec<data_reference_p> *refs,
+<<<<<<< HEAD
 			 vec<ddr_p> *ddrs, bool *any_mask_load_store)
+=======
+			 bool *any_mask_load_store)
+>>>>>>> gcc-mirror/master
 {
-  bool res;
   unsigned int i;
   basic_block exit_bb = NULL;
 
-  /* Don't if-convert the loop when the data dependences cannot be
-     computed: the loop won't be vectorized in that case.  */
-  res = compute_data_dependences_for_loop (loop, true, loop_nest, refs, ddrs);
-  if (!res)
+  if (find_data_references_in_loop (loop, refs) == chrec_dont_know)
     return false;
 
   calculate_dominance_info (CDI_DOMINATORS);
@@ -1273,8 +1418,17 @@ if_convertible_loop_p_1 (struct loop *loop,
   for (i = 0; refs->iterate (i, &dr); i++)
     {
       dr->aux = XNEW (struct ifc_dr);
+<<<<<<< HEAD
       DR_WRITTEN_AT_LEAST_ONCE (dr) = -1;
       DR_RW_UNCONDITIONALLY (dr) = -1;
+=======
+      DR_BASE_W_UNCONDITIONALLY (dr) = false;
+      DR_RW_UNCONDITIONALLY (dr) = false;
+      DR_W_UNCONDITIONALLY (dr) = false;
+      IFC_DR (dr)->rw_predicate = boolean_false_node;
+      IFC_DR (dr)->w_predicate = boolean_false_node;
+      IFC_DR (dr)->base_w_predicate = boolean_false_node;
+>>>>>>> gcc-mirror/master
       if (gimple_uid (DR_STMT (dr)) == 0)
 	gimple_set_uid (DR_STMT (dr), i + 1);
       hash_memrefs_baserefs_and_store_DRs_read_written_info (dr);
@@ -1330,7 +1484,10 @@ if_convertible_loop_p (struct loop *loop, bool *any_mask_load_store)
   edge_iterator ei;
   bool res = false;
   vec<data_reference_p> refs;
+<<<<<<< HEAD
   vec<ddr_p> ddrs;
+=======
+>>>>>>> gcc-mirror/master
 
   /* Handle only innermost loop.  */
   if (!loop || loop->inner)
@@ -1363,10 +1520,14 @@ if_convertible_loop_p (struct loop *loop, bool *any_mask_load_store)
       return false;
 
   refs.create (5);
+<<<<<<< HEAD
   ddrs.create (25);
   auto_vec<loop_p, 3> loop_nest;
   res = if_convertible_loop_p_1 (loop, &loop_nest, &refs, &ddrs,
 				 any_mask_load_store);
+=======
+  res = if_convertible_loop_p_1 (loop, &refs, any_mask_load_store);
+>>>>>>> gcc-mirror/master
 
   data_reference_p dr;
   unsigned int i;
@@ -1374,6 +1535,7 @@ if_convertible_loop_p (struct loop *loop, bool *any_mask_load_store)
     free (dr->aux);
 
   free_data_refs (refs);
+<<<<<<< HEAD
   free_dependence_relations (ddrs);
 
   delete ref_DR_map;
@@ -1509,6 +1671,142 @@ is_cond_scalar_reduction (gimple *phi, gimple **reduc, tree arg_0, tree arg_1,
   swapped.
   Returns rhs of resulting PHI assignment.  */
 
+=======
+
+  delete ref_DR_map;
+  ref_DR_map = NULL;
+
+  delete baseref_DR_map;
+  baseref_DR_map = NULL;
+
+  return res;
+}
+
+/* Returns true if def-stmt for phi argument ARG is simple increment/decrement
+   which is in predicated basic block.
+   In fact, the following PHI pattern is searching:
+      loop-header:
+	reduc_1 = PHI <..., reduc_2>
+      ...
+	if (...)
+	  reduc_3 = ...
+	reduc_2 = PHI <reduc_1, reduc_3>
+
+   ARG_0 and ARG_1 are correspondent PHI arguments.
+   REDUC, OP0 and OP1 contain reduction stmt and its operands.
+   EXTENDED is true if PHI has > 2 arguments.  */
+
+static bool
+is_cond_scalar_reduction (gimple *phi, gimple **reduc, tree arg_0, tree arg_1,
+			  tree *op0, tree *op1, bool extended)
+{
+  tree lhs, r_op1, r_op2;
+  gimple *stmt;
+  gimple *header_phi = NULL;
+  enum tree_code reduction_op;
+  basic_block bb = gimple_bb (phi);
+  struct loop *loop = bb->loop_father;
+  edge latch_e = loop_latch_edge (loop);
+  imm_use_iterator imm_iter;
+  use_operand_p use_p;
+  edge e;
+  edge_iterator ei;
+  bool result = false;
+  if (TREE_CODE (arg_0) != SSA_NAME || TREE_CODE (arg_1) != SSA_NAME)
+    return false;
+
+  if (!extended && gimple_code (SSA_NAME_DEF_STMT (arg_0)) == GIMPLE_PHI)
+    {
+      lhs = arg_1;
+      header_phi = SSA_NAME_DEF_STMT (arg_0);
+      stmt = SSA_NAME_DEF_STMT (arg_1);
+    }
+  else if (gimple_code (SSA_NAME_DEF_STMT (arg_1)) == GIMPLE_PHI)
+    {
+      lhs = arg_0;
+      header_phi = SSA_NAME_DEF_STMT (arg_1);
+      stmt = SSA_NAME_DEF_STMT (arg_0);
+    }
+  else
+    return false;
+  if (gimple_bb (header_phi) != loop->header)
+    return false;
+
+  if (PHI_ARG_DEF_FROM_EDGE (header_phi, latch_e) != PHI_RESULT (phi))
+    return false;
+
+  if (gimple_code (stmt) != GIMPLE_ASSIGN
+      || gimple_has_volatile_ops (stmt))
+    return false;
+
+  if (!flow_bb_inside_loop_p (loop, gimple_bb (stmt)))
+    return false;
+
+  if (!is_predicated (gimple_bb (stmt)))
+    return false;
+
+  /* Check that stmt-block is predecessor of phi-block.  */
+  FOR_EACH_EDGE (e, ei, gimple_bb (stmt)->succs)
+    if (e->dest == bb)
+      {
+	result = true;
+	break;
+      }
+  if (!result)
+    return false;
+
+  if (!has_single_use (lhs))
+    return false;
+
+  reduction_op = gimple_assign_rhs_code (stmt);
+  if (reduction_op != PLUS_EXPR && reduction_op != MINUS_EXPR)
+    return false;
+  r_op1 = gimple_assign_rhs1 (stmt);
+  r_op2 = gimple_assign_rhs2 (stmt);
+
+  /* Make R_OP1 to hold reduction variable.  */
+  if (r_op2 == PHI_RESULT (header_phi)
+      && reduction_op == PLUS_EXPR)
+    std::swap (r_op1, r_op2);
+  else if (r_op1 != PHI_RESULT (header_phi))
+    return false;
+
+  /* Check that R_OP1 is used in reduction stmt or in PHI only.  */
+  FOR_EACH_IMM_USE_FAST (use_p, imm_iter, r_op1)
+    {
+      gimple *use_stmt = USE_STMT (use_p);
+      if (is_gimple_debug (use_stmt))
+	continue;
+      if (use_stmt == stmt)
+	continue;
+      if (gimple_code (use_stmt) != GIMPLE_PHI)
+	return false;
+    }
+
+  *op0 = r_op1; *op1 = r_op2;
+  *reduc = stmt;
+  return true;
+}
+
+/* Converts conditional scalar reduction into unconditional form, e.g.
+     bb_4
+       if (_5 != 0) goto bb_5 else goto bb_6
+     end_bb_4
+     bb_5
+       res_6 = res_13 + 1;
+     end_bb_5
+     bb_6
+       # res_2 = PHI <res_13(4), res_6(5)>
+     end_bb_6
+
+   will be converted into sequence
+    _ifc__1 = _5 != 0 ? 1 : 0;
+    res_2 = res_13 + _ifc__1;
+  Argument SWAP tells that arguments of conditional expression should be
+  swapped.
+  Returns rhs of resulting PHI assignment.  */
+
+>>>>>>> gcc-mirror/master
 static tree
 convert_scalar_cond_reduction (gimple *reduc, gimple_stmt_iterator *gsi,
 			       tree cond, tree op0, tree op1, bool swap)
@@ -1669,6 +1967,7 @@ predicate_scalar_phi (gphi *phi, gimple_stmt_iterator *gsi)
 	{
 	  arg0 = gimple_phi_arg_def (phi, 0);
 	  arg1 = gimple_phi_arg_def (phi, 1);
+<<<<<<< HEAD
 	}
       if (is_cond_scalar_reduction (phi, &reduc, arg0, arg1,
 				    &op0, &op1, false))
@@ -1691,6 +1990,30 @@ predicate_scalar_phi (gphi *phi, gimple_stmt_iterator *gsi)
       return;
     }
 
+=======
+	}
+      if (is_cond_scalar_reduction (phi, &reduc, arg0, arg1,
+				    &op0, &op1, false))
+	/* Convert reduction stmt into vectorizable form.  */
+	rhs = convert_scalar_cond_reduction (reduc, gsi, cond, op0, op1,
+					     true_bb != gimple_bb (reduc));
+      else
+	/* Build new RHS using selected condition and arguments.  */
+	rhs = fold_build_cond_expr (TREE_TYPE (res), unshare_expr (cond),
+				    arg0, arg1);
+      new_stmt = gimple_build_assign (res, rhs);
+      gsi_insert_before (gsi, new_stmt, GSI_SAME_STMT);
+      update_stmt (new_stmt);
+
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  fprintf (dump_file, "new phi replacement stmt\n");
+	  print_gimple_stmt (dump_file, new_stmt, 0, TDF_SLIM);
+	}
+      return;
+    }
+
+>>>>>>> gcc-mirror/master
   /* Create hashmap for PHI node which contain vector of argument indexes
      having the same value.  */
   bool swap = false;
@@ -1704,6 +2027,7 @@ predicate_scalar_phi (gphi *phi, gimple_stmt_iterator *gsi)
   for (i = 0; i < num_args; i++)
     {
       tree arg;
+<<<<<<< HEAD
 
       arg = gimple_phi_arg_def (phi, i);
       if (!phi_arg_map.get (arg))
@@ -1725,6 +2049,29 @@ predicate_scalar_phi (gphi *phi, gimple_stmt_iterator *gsi)
 	}
     }
 
+=======
+
+      arg = gimple_phi_arg_def (phi, i);
+      if (!phi_arg_map.get (arg))
+	args.quick_push (arg);
+      phi_arg_map.get_or_insert (arg).safe_push (i);
+    }
+
+  /* Determine element with max number of occurrences.  */
+  max_ind = -1;
+  max = 1;
+  args_len = args.length ();
+  for (i = 0; i < args_len; i++)
+    {
+      unsigned int len;
+      if ((len = phi_arg_map.get (args[i])->length ()) > max)
+	{
+	  max_ind = (int) i;
+	  max = len;
+	}
+    }
+
+>>>>>>> gcc-mirror/master
   /* Put element with max number of occurences to the end of ARGS.  */
   if (max_ind != -1 && max_ind +1 != (int) args_len)
     std::swap (args[args_len - 1], args[max_ind]);
@@ -1861,8 +2208,12 @@ insert_gimplified_predicates (loop_p loop, bool any_mask_load_store)
       stmts = bb_predicate_gimplified_stmts (bb);
       if (stmts)
 	{
+<<<<<<< HEAD
 	  if (flag_tree_loop_if_convert_stores
 	      || any_mask_load_store)
+=======
+	  if (any_mask_load_store)
+>>>>>>> gcc-mirror/master
 	    {
 	      /* Insert the predicate of the BB just after the label,
 		 as the if-conversion of memory writes will use this
@@ -2087,7 +2438,12 @@ predicate_mem_writes (loop_p loop)
 	        vect_sizes.safe_push (bitsize);
 		vect_masks.safe_push (mask);
 	      }
+<<<<<<< HEAD
 	    ptr = build_int_cst (reference_alias_ptr_type (ref), 0);
+=======
+	    ptr = build_int_cst (reference_alias_ptr_type (ref),
+				 get_object_alignment (ref));
+>>>>>>> gcc-mirror/master
 	    /* Copy points-to info if possible.  */
 	    if (TREE_CODE (addr) == SSA_NAME && !SSA_NAME_PTR_INFO (addr))
 	      copy_ref_info (build2 (MEM_REF, TREE_TYPE (ref), addr, ptr),
@@ -2184,7 +2540,11 @@ combine_blocks (struct loop *loop, bool any_mask_load_store)
   insert_gimplified_predicates (loop, any_mask_load_store);
   predicate_all_scalar_phis (loop);
 
+<<<<<<< HEAD
   if (flag_tree_loop_if_convert_stores || any_mask_load_store)
+=======
+  if (any_mask_load_store)
+>>>>>>> gcc-mirror/master
     predicate_mem_writes (loop);
 
   /* Merge basic blocks: first remove all the edges in the loop,
@@ -2327,6 +2687,7 @@ version_loop_for_if_conversion (struct loop *loop)
 
 /* Performs splitting of critical edges if aggressive_if_conv is true.
    Returns false if loop won't be if converted and true otherwise.  */
+<<<<<<< HEAD
 
 static bool
 ifcvt_split_critical_edges (struct loop *loop)
@@ -2466,6 +2827,147 @@ ifcvt_walk_pattern_tree (tree var, vec<gimple *> *defuse_list,
    by vectorizer.  */
 
 static bool
+=======
+
+static bool
+ifcvt_split_critical_edges (struct loop *loop)
+{
+  basic_block *body;
+  basic_block bb;
+  unsigned int num = loop->num_nodes;
+  unsigned int i;
+  gimple *stmt;
+  edge e;
+  edge_iterator ei;
+
+  if (num <= 2)
+    return false;
+  if (loop->inner)
+    return false;
+  if (!single_exit (loop))
+    return false;
+
+  body = get_loop_body (loop);
+  for (i = 0; i < num; i++)
+    {
+      bb = body[i];
+      if (bb == loop->latch
+	  || bb_with_exit_edge_p (loop, bb))
+	continue;
+      stmt = last_stmt (bb);
+      /* Skip basic blocks not ending with conditional branch.  */
+      if (!(stmt && gimple_code (stmt) == GIMPLE_COND))
+	continue;
+      FOR_EACH_EDGE (e, ei, bb->succs)
+	if (EDGE_CRITICAL_P (e) && e->dest->loop_father == loop)
+	  split_edge (e);
+    }
+  free (body);
+  return true;
+}
+
+/* Assumes that lhs of DEF_STMT have multiple uses.
+   Delete one use by (1) creation of copy DEF_STMT with
+   unique lhs; (2) change original use of lhs in one
+   use statement with newly created lhs.  */
+
+static void
+ifcvt_split_def_stmt (gimple *def_stmt, gimple *use_stmt)
+{
+  tree var;
+  tree lhs;
+  gimple *copy_stmt;
+  gimple_stmt_iterator gsi;
+  use_operand_p use_p;
+  imm_use_iterator imm_iter;
+
+  var = gimple_assign_lhs (def_stmt);
+  copy_stmt = gimple_copy (def_stmt);
+  lhs = make_temp_ssa_name (TREE_TYPE (var), NULL, "_ifc_");
+  gimple_assign_set_lhs (copy_stmt, lhs);
+  SSA_NAME_DEF_STMT (lhs) = copy_stmt;
+  /* Insert copy of DEF_STMT.  */
+  gsi = gsi_for_stmt (def_stmt);
+  gsi_insert_after (&gsi, copy_stmt, GSI_SAME_STMT);
+  /* Change use of var to lhs in use_stmt.  */
+  if (dump_file && (dump_flags & TDF_DETAILS))
+    {
+      fprintf (dump_file, "Change use of var  ");
+      print_generic_expr (dump_file, var, TDF_SLIM);
+      fprintf (dump_file, " to ");
+      print_generic_expr (dump_file, lhs, TDF_SLIM);
+      fprintf (dump_file, "\n");
+    }
+  FOR_EACH_IMM_USE_FAST (use_p, imm_iter, var)
+    {
+      if (USE_STMT (use_p) != use_stmt)
+	continue;
+      SET_USE (use_p, lhs);
+      break;
+    }
+}
+
+/* Traverse bool pattern recursively starting from VAR.
+   Save its def and use statements to defuse_list if VAR does
+   not have single use.  */
+
+static void
+ifcvt_walk_pattern_tree (tree var, vec<gimple *> *defuse_list,
+			 gimple *use_stmt)
+{
+  tree rhs1, rhs2;
+  enum tree_code code;
+  gimple *def_stmt;
+
+  def_stmt = SSA_NAME_DEF_STMT (var);
+  if (gimple_code (def_stmt) != GIMPLE_ASSIGN)
+    return;
+  if (!has_single_use (var))
+    {
+      /* Put def and use stmts into defuse_list.  */
+      defuse_list->safe_push (def_stmt);
+      defuse_list->safe_push (use_stmt);
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  fprintf (dump_file, "Multiple lhs uses in stmt\n");
+	  print_gimple_stmt (dump_file, def_stmt, 0, TDF_SLIM);
+	}
+    }
+  rhs1 = gimple_assign_rhs1 (def_stmt);
+  code = gimple_assign_rhs_code (def_stmt);
+  switch (code)
+    {
+    case SSA_NAME:
+      ifcvt_walk_pattern_tree (rhs1, defuse_list, def_stmt);
+      break;
+    CASE_CONVERT:
+      if ((TYPE_PRECISION (TREE_TYPE (rhs1)) != 1
+	   || !TYPE_UNSIGNED (TREE_TYPE (rhs1)))
+	  && TREE_CODE (TREE_TYPE (rhs1)) != BOOLEAN_TYPE)
+	break;
+      ifcvt_walk_pattern_tree (rhs1, defuse_list, def_stmt);
+      break;
+    case BIT_NOT_EXPR:
+      ifcvt_walk_pattern_tree (rhs1, defuse_list, def_stmt);
+      break;
+    case BIT_AND_EXPR:
+    case BIT_IOR_EXPR:
+    case BIT_XOR_EXPR:
+      ifcvt_walk_pattern_tree (rhs1, defuse_list, def_stmt);
+      rhs2 = gimple_assign_rhs2 (def_stmt);
+      ifcvt_walk_pattern_tree (rhs2, defuse_list, def_stmt);
+      break;
+    default:
+      break;
+    }
+  return;
+}
+
+/* Returns true if STMT can be a root of bool pattern applied
+   by vectorizer.  */
+
+static bool
+>>>>>>> gcc-mirror/master
 stmt_is_root_of_bool_pattern (gimple *stmt)
 {
   enum tree_code code;
@@ -2560,7 +3062,11 @@ ifcvt_local_dce (basic_block bb)
   gimple *stmt1;
   gimple *phi;
   gimple_stmt_iterator gsi;
+<<<<<<< HEAD
   vec<gimple *> worklist;
+=======
+  auto_vec<gimple *> worklist;
+>>>>>>> gcc-mirror/master
   enum gimple_code code;
   use_operand_p use_p;
   imm_use_iterator imm_iter;
@@ -2670,11 +3176,19 @@ tree_if_conversion (struct loop *loop)
       if (outer_loop && outer_loop->force_vectorize)
 	aggressive_if_conv = true;
     }
+<<<<<<< HEAD
 
   if (aggressive_if_conv)
     if (!ifcvt_split_critical_edges (loop))
       goto cleanup;
 
+=======
+
+  if (aggressive_if_conv)
+    if (!ifcvt_split_critical_edges (loop))
+      goto cleanup;
+
+>>>>>>> gcc-mirror/master
   if (!if_convertible_loop_p (loop, &any_mask_load_store)
       || !dbg_cnt (if_conversion_tree))
     goto cleanup;
@@ -2701,7 +3215,11 @@ tree_if_conversion (struct loop *loop)
     }
 
   todo |= TODO_cleanup_cfg;
+<<<<<<< HEAD
   if (flag_tree_loop_if_convert_stores || any_mask_load_store)
+=======
+  if (any_mask_load_store)
+>>>>>>> gcc-mirror/master
     {
       mark_virtual_operands_for_renaming (cfun);
       todo |= TODO_update_ssa_only_virtuals;
@@ -2748,12 +3266,18 @@ public:
   {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   FOR_EACH_LOOP (li, loop, 0)
     if (flag_tree_loop_if_convert == 1
 	|| flag_tree_loop_if_convert_stores == 1
 	|| flag_tree_vectorize
 	|| loop->force_vect)
     changed |= tree_if_conversion (loop);
+=======
+  /* opt_pass methods: */
+  virtual bool gate (function *);
+  virtual unsigned int execute (function *);
+>>>>>>> gcc-mirror/master
 =======
   /* opt_pass methods: */
   virtual bool gate (function *);
@@ -2776,10 +3300,17 @@ pass_if_conversion::execute (function *fun)
 {
   struct loop *loop;
   unsigned todo = 0;
+<<<<<<< HEAD
 
   if (number_of_loops (fun) <= 1)
     return 0;
 
+=======
+
+  if (number_of_loops (fun) <= 1)
+    return 0;
+
+>>>>>>> gcc-mirror/master
   FOR_EACH_LOOP (loop, 0)
     if (flag_tree_loop_if_convert == 1
 	|| flag_tree_loop_if_convert_stores == 1
@@ -2803,10 +3334,14 @@ gimple_opt_pass *
 make_pass_if_conversion (gcc::context *ctxt)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (((flag_tree_vectorize || cfun->has_force_vect_loops)
 	   && flag_tree_loop_if_convert != 0)
 	  || flag_tree_loop_if_convert == 1
 	  || flag_tree_loop_if_convert_stores == 1);
+=======
+  return new pass_if_conversion (ctxt);
+>>>>>>> gcc-mirror/master
 =======
   return new pass_if_conversion (ctxt);
 >>>>>>> gcc-mirror/master

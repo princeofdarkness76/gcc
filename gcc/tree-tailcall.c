@@ -412,9 +412,10 @@ find_tail_calls (basic_block bb, struct tailcall **ret)
     {
       stmt = gsi_stmt (gsi);
 
-      /* Ignore labels, returns, clobbers and debug stmts.  */
+      /* Ignore labels, returns, nops, clobbers and debug stmts.  */
       if (gimple_code (stmt) == GIMPLE_LABEL
 	  || gimple_code (stmt) == GIMPLE_RETURN
+	  || gimple_code (stmt) == GIMPLE_NOP
 	  || gimple_clobber_p (stmt)
 	  || is_gimple_debug (stmt))
 	continue;
@@ -532,7 +533,8 @@ find_tail_calls (basic_block bb, struct tailcall **ret)
 
       stmt = gsi_stmt (agsi);
 
-      if (gimple_code (stmt) == GIMPLE_LABEL)
+      if (gimple_code (stmt) == GIMPLE_LABEL
+	  || gimple_code (stmt) == GIMPLE_NOP)
 	continue;
 
       if (gimple_code (stmt) == GIMPLE_RETURN)
@@ -1097,6 +1099,7 @@ const pass_data pass_data_tail_recursion =
 };
 
 class pass_tail_recursion : public gimple_opt_pass
+<<<<<<< HEAD
 {
 public:
   pass_tail_recursion (gcc::context *ctxt)
@@ -1118,6 +1121,29 @@ public:
 gimple_opt_pass *
 make_pass_tail_recursion (gcc::context *ctxt)
 {
+=======
+{
+public:
+  pass_tail_recursion (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tail_recursion, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  opt_pass * clone () { return new pass_tail_recursion (m_ctxt); }
+  virtual bool gate (function *) { return gate_tail_calls (); }
+  virtual unsigned int execute (function *)
+    {
+      return tree_optimize_tail_calls_1 (false);
+    }
+
+}; // class pass_tail_recursion
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_tail_recursion (gcc::context *ctxt)
+{
+>>>>>>> gcc-mirror/master
   return new pass_tail_recursion (ctxt);
 }
 

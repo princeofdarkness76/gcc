@@ -1072,6 +1072,10 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_SHARED:
 	case OMP_CLAUSE_TO_DECLARE:
 	case OMP_CLAUSE_LINK:
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	do_decl_clause:
@@ -1081,6 +1085,8 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	    break;
 	  if (decl_function_context (decl) != info->context)
 	    {
+	      if (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_SHARED)
+		OMP_CLAUSE_SHARED_READONLY (clause) = 0;
 	      bitmap_set_bit (new_suppress, DECL_UID (decl));
 	      OMP_CLAUSE_DECL (clause) = get_nonlocal_debug_decl (info, decl);
 	      if (OMP_CLAUSE_CODE (clause) != OMP_CLAUSE_PRIVATE)
@@ -1106,6 +1112,7 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_NUM_TASKS:
 	case OMP_CLAUSE_HINT:
 	case OMP_CLAUSE__CILK_FOR_COUNT_:
+<<<<<<< HEAD
 	  wi->val_only = true;
 	  wi->is_lhs = false;
 	  convert_nonlocal_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
@@ -1136,6 +1143,59 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	    goto do_decl_clause;
 	  wi->val_only = true;
 	  wi->is_lhs = false;
+=======
+	case OMP_CLAUSE_NUM_GANGS:
+	case OMP_CLAUSE_NUM_WORKERS:
+	case OMP_CLAUSE_VECTOR_LENGTH:
+	case OMP_CLAUSE_GANG:
+	case OMP_CLAUSE_WORKER:
+	case OMP_CLAUSE_VECTOR:
+	  /* Several OpenACC clauses have optional arguments.  Check if they
+	     are present.  */
+	  if (OMP_CLAUSE_OPERAND (clause, 0))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					     &dummy, wi);
+	    }
+
+	  /* The gang clause accepts two arguments.  */
+	  if (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_GANG
+	      && OMP_CLAUSE_GANG_STATIC_EXPR (clause))
+	    {
+		wi->val_only = true;
+		wi->is_lhs = false;
+		convert_nonlocal_reference_op
+		  (&OMP_CLAUSE_GANG_STATIC_EXPR (clause), &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_DIST_SCHEDULE:
+	  if (OMP_CLAUSE_DIST_SCHEDULE_CHUNK_EXPR (clause) != NULL)
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					     &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_MAP:
+	case OMP_CLAUSE_TO:
+	case OMP_CLAUSE_FROM:
+	  if (OMP_CLAUSE_SIZE (clause))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_SIZE (clause),
+					     &dummy, wi);
+	    }
+	  if (DECL_P (OMP_CLAUSE_DECL (clause)))
+	    goto do_decl_clause;
+	  wi->val_only = true;
+	  wi->is_lhs = false;
+>>>>>>> gcc-mirror/master
 	  walk_tree (&OMP_CLAUSE_DECL (clause), convert_nonlocal_reference_op,
 		     wi, NULL);
 	  break;
@@ -1173,6 +1233,10 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_THREADS:
 	case OMP_CLAUSE_SIMD:
 	case OMP_CLAUSE_DEFAULTMAP:
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_SEQ:
+>>>>>>> gcc-mirror/master
 	  break;
 
 	default:
@@ -1371,11 +1435,14 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 
     case GIMPLE_OMP_TARGET:
 <<<<<<< HEAD
+<<<<<<< HEAD
       save_suppress = info->suppress_expansion;
       convert_nonlocal_omp_clauses (gimple_omp_target_clauses_ptr (stmt), wi);
       walk_body (convert_nonlocal_reference_stmt, convert_nonlocal_reference_op,
 		 info, gimple_omp_body_ptr (stmt));
 =======
+=======
+>>>>>>> gcc-mirror/master
       if (!is_gimple_omp_offloaded (stmt))
 	{
 	  save_suppress = info->suppress_expansion;
@@ -1412,6 +1479,9 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 		      gimple_seq_first_stmt (gimple_omp_body (stmt)),
 		      false);
       info->new_local_var_chain = save_local_var_chain;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       info->suppress_expansion = save_suppress;
       break;
@@ -1726,6 +1796,10 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_SHARED:
 	case OMP_CLAUSE_TO_DECLARE:
 	case OMP_CLAUSE_LINK:
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	do_decl_clause:
@@ -1739,6 +1813,8 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	      tree field = lookup_field_for_decl (info, decl, NO_INSERT);
 	      if (field)
 		{
+		  if (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_SHARED)
+		    OMP_CLAUSE_SHARED_READONLY (clause) = 0;
 		  bitmap_set_bit (new_suppress, DECL_UID (decl));
 		  OMP_CLAUSE_DECL (clause)
 		    = get_local_debug_decl (info, decl, field);
@@ -1765,10 +1841,88 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_NUM_TASKS:
 	case OMP_CLAUSE_HINT:
 	case OMP_CLAUSE__CILK_FOR_COUNT_:
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_NUM_GANGS:
+	case OMP_CLAUSE_NUM_WORKERS:
+	case OMP_CLAUSE_VECTOR_LENGTH:
+	case OMP_CLAUSE_GANG:
+	case OMP_CLAUSE_WORKER:
+	case OMP_CLAUSE_VECTOR:
+	  /* Several OpenACC clauses have optional arguments.  Check if they
+	     are present.  */
+	  if (OMP_CLAUSE_OPERAND (clause, 0))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_local_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					  &dummy, wi);
+	    }
+
+	  /* The gang clause accepts two arguments.  */
+	  if (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_GANG
+	      && OMP_CLAUSE_GANG_STATIC_EXPR (clause))
+	    {
+		wi->val_only = true;
+		wi->is_lhs = false;
+		convert_nonlocal_reference_op
+		  (&OMP_CLAUSE_GANG_STATIC_EXPR (clause), &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_DIST_SCHEDULE:
+	  if (OMP_CLAUSE_DIST_SCHEDULE_CHUNK_EXPR (clause) != NULL)
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_local_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					  &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_MAP:
+	case OMP_CLAUSE_TO:
+	case OMP_CLAUSE_FROM:
+	  if (OMP_CLAUSE_SIZE (clause))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_local_reference_op (&OMP_CLAUSE_SIZE (clause),
+					  &dummy, wi);
+	    }
+	  if (DECL_P (OMP_CLAUSE_DECL (clause)))
+	    goto do_decl_clause;
+>>>>>>> gcc-mirror/master
 	  wi->val_only = true;
 	  wi->is_lhs = false;
-	  convert_local_reference_op (&OMP_CLAUSE_OPERAND (clause, 0), &dummy,
-				      wi);
+	  walk_tree (&OMP_CLAUSE_DECL (clause), convert_local_reference_op,
+		     wi, NULL);
+	  break;
+
+	case OMP_CLAUSE_ALIGNED:
+	  if (OMP_CLAUSE_ALIGNED_ALIGNMENT (clause))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_local_reference_op
+		(&OMP_CLAUSE_ALIGNED_ALIGNMENT (clause), &dummy, wi);
+	    }
+	  /* Like do_decl_clause, but don't add any suppression.  */
+	  decl = OMP_CLAUSE_DECL (clause);
+	  if (TREE_CODE (decl) == VAR_DECL
+	      && (TREE_STATIC (decl) || DECL_EXTERNAL (decl)))
+	    break;
+	  if (decl_function_context (decl) == info->context
+	      && !use_pointer_in_frame (decl))
+	    {
+	      tree field = lookup_field_for_decl (info, decl, NO_INSERT);
+	      if (field)
+		{
+		  OMP_CLAUSE_DECL (clause)
+		    = get_local_debug_decl (info, decl, field);
+		  need_frame = true;
+		}
+	    }
 	  break;
 
 	case OMP_CLAUSE_DIST_SCHEDULE:
@@ -1837,6 +1991,10 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_THREADS:
 	case OMP_CLAUSE_SIMD:
 	case OMP_CLAUSE_DEFAULTMAP:
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_SEQ:
+>>>>>>> gcc-mirror/master
 	  break;
 
 	default:
@@ -1966,11 +2124,14 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 
     case GIMPLE_OMP_TARGET:
 <<<<<<< HEAD
+<<<<<<< HEAD
       save_suppress = info->suppress_expansion;
       convert_local_omp_clauses (gimple_omp_target_clauses_ptr (stmt), wi);
       walk_body (convert_local_reference_stmt, convert_local_reference_op,
 		 info, gimple_omp_body_ptr (stmt));
 =======
+=======
+>>>>>>> gcc-mirror/master
       if (!is_gimple_omp_offloaded (stmt))
 	{
 	  save_suppress = info->suppress_expansion;
@@ -2003,6 +2164,9 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 	declare_vars (info->new_local_var_chain,
 		      gimple_seq_first_stmt (gimple_omp_body (stmt)), false);
       info->new_local_var_chain = save_local_var_chain;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       info->suppress_expansion = save_suppress;
       break;
@@ -2339,6 +2503,7 @@ convert_tramp_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 		   || OMP_CLAUSE_CODE (c) == OMP_CLAUSE_SHARED)
 		  && OMP_CLAUSE_DECL (c) == decl)
 		break;
+<<<<<<< HEAD
 	      if (c == NULL && gimple_code (stmt) != GIMPLE_OMP_TARGET)
 		{
 		  c = build_omp_clause (gimple_location (stmt),
@@ -2360,6 +2525,29 @@ convert_tramp_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 		  gimple_omp_target_set_clauses (as_a <gomp_target *> (stmt),
 						 c);
 		}
+=======
+	    if (c == NULL && gimple_code (stmt) != GIMPLE_OMP_TARGET)
+	      {
+		c = build_omp_clause (gimple_location (stmt),
+				      i ? OMP_CLAUSE_FIRSTPRIVATE
+				      : OMP_CLAUSE_SHARED);
+		OMP_CLAUSE_DECL (c) = decl;
+		OMP_CLAUSE_CHAIN (c) = gimple_omp_taskreg_clauses (stmt);
+		gimple_omp_taskreg_set_clauses (stmt, c);
+	      }
+	    else if (c == NULL)
+	      {
+		c = build_omp_clause (gimple_location (stmt),
+				      OMP_CLAUSE_MAP);
+		OMP_CLAUSE_DECL (c) = decl;
+		OMP_CLAUSE_SET_MAP_KIND (c,
+					 i ? GOMP_MAP_TO : GOMP_MAP_TOFROM);
+		OMP_CLAUSE_SIZE (c) = DECL_SIZE_UNIT (decl);
+		OMP_CLAUSE_CHAIN (c) = gimple_omp_target_clauses (stmt);
+		gimple_omp_target_set_clauses (as_a <gomp_target *> (stmt),
+					       c);
+	      }
+>>>>>>> gcc-mirror/master
 	  }
 	info->new_local_var_chain = save_local_var_chain;
 	info->static_chain_added |= save_static_chain_added;
@@ -2485,7 +2673,10 @@ convert_gimple_call (gimple_stmt_iterator *gsi, bool *handled_ops_p,
     case GIMPLE_OMP_SECTION:
     case GIMPLE_OMP_SINGLE:
 <<<<<<< HEAD
+<<<<<<< HEAD
     case GIMPLE_OMP_TARGET:
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
     case GIMPLE_OMP_TEAMS:
@@ -2736,10 +2927,10 @@ fold_mem_refs (tree *const &e, void *data ATTRIBUTE_UNUSED)
   return true;
 }
 
-/* Do "everything else" to clean up or complete state collected by the
-   various walking passes -- lay out the types and decls, generate code
-   to initialize the frame decl, store critical expressions in the
-   struct function for rtl to find.  */
+/* Do "everything else" to clean up or complete state collected by the various
+   walking passes -- create a field to hold the frame base address, lay out the
+   types and decls, generate code to initialize the frame decl, store critical
+   expressions in the struct function for rtl to find.  */
 
 static void
 finalize_nesting_tree_1 (struct nesting_info *root)
@@ -2755,20 +2946,70 @@ finalize_nesting_tree_1 (struct nesting_info *root)
      out at this time.  */
   if (root->frame_type)
     {
+      /* Debugging information needs to compute the frame base address of the
+	 parent frame out of the static chain from the nested frame.
+
+	 The static chain is the address of the FRAME record, so one could
+	 imagine it would be possible to compute the frame base address just
+	 adding a constant offset to this address.  Unfortunately, this is not
+	 possible: if the FRAME object has alignment constraints that are
+	 stronger than the stack, then the offset between the frame base and
+	 the FRAME object will be dynamic.
+
+	 What we do instead is to append a field to the FRAME object that holds
+	 the frame base address: then debug info just has to fetch this
+	 field.  */
+
+      /* Debugging information will refer to the CFA as the frame base
+	 address: we will do the same here.  */
+      const tree frame_addr_fndecl
+        = builtin_decl_explicit (BUILT_IN_DWARF_CFA);
+
+      /* Create a field in the FRAME record to hold the frame base address for
+	 this stack frame.  Since it will be used only by the debugger, put it
+	 at the end of the record in order not to shift all other offsets.  */
+      tree fb_decl = make_node (FIELD_DECL);
+
+      DECL_NAME (fb_decl) = get_identifier ("FRAME_BASE.PARENT");
+      TREE_TYPE (fb_decl) = ptr_type_node;
+      TREE_ADDRESSABLE (fb_decl) = 1;
+      DECL_CONTEXT (fb_decl) = root->frame_type;
+      TYPE_FIELDS (root->frame_type) = chainon (TYPE_FIELDS (root->frame_type),
+						fb_decl);
+
       /* In some cases the frame type will trigger the -Wpadded warning.
 	 This is not helpful; suppress it. */
       int save_warn_padded = warn_padded;
-      tree *adjust;
-
       warn_padded = 0;
       layout_type (root->frame_type);
       warn_padded = save_warn_padded;
       layout_decl (root->frame_decl, 0);
 
+      /* Initialize the frame base address field.  If the builtin we need is
+	 not available, set it to NULL so that debugging information does not
+	 reference junk.  */
+      tree fb_ref = build3 (COMPONENT_REF, TREE_TYPE (fb_decl),
+			    root->frame_decl, fb_decl, NULL_TREE);
+      tree fb_tmp;
+
+      if (frame_addr_fndecl != NULL_TREE)
+	{
+	  gcall *fb_gimple = gimple_build_call (frame_addr_fndecl, 1,
+						integer_zero_node);
+	  gimple_stmt_iterator gsi = gsi_last (stmt_list);
+
+	  fb_tmp = init_tmp_var_with_call (root, &gsi, fb_gimple);
+	}
+      else
+	fb_tmp = build_int_cst (TREE_TYPE (fb_ref), 0);
+      gimple_seq_add_stmt (&stmt_list,
+			   gimple_build_assign (fb_ref, fb_tmp));
+
       /* Remove root->frame_decl from root->new_local_var_chain, so
 	 that we can declare it also in the lexical blocks, which
 	 helps ensure virtual regs that end up appearing in its RTL
 	 expression get substituted in instantiate_virtual_regs().  */
+      tree *adjust;
       for (adjust = &root->new_local_var_chain;
 	   *adjust != root->frame_decl;
 	   adjust = &DECL_CHAIN (*adjust))

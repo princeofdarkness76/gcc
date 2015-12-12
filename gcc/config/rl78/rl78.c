@@ -610,6 +610,24 @@ rl78_force_nonfar_3 (rtx *operands, rtx (*gen)(rtx,rtx,rtx))
   return 1;
 }
 
+int
+rl78_one_far_p (rtx *operands, int n)
+{
+  rtx which = NULL;
+  int i, c = 0;
+
+  for (i = 0; i < n; i ++)
+    if (rl78_far_p (operands[i]))
+      {
+	if (which == NULL)
+	  which = operands[i];
+	else if (rtx_equal_p (operands[i], which))
+	  continue;
+	c ++;
+      }
+  return c <= 1;
+}
+
 #undef  TARGET_CAN_ELIMINATE
 #define TARGET_CAN_ELIMINATE		rl78_can_eliminate
 
@@ -1278,6 +1296,7 @@ rl78_expand_prologue (void)
 	int reg = i * 2;
 
 	if (TARGET_G10)
+<<<<<<< HEAD
 	  {
 	    if (reg >= 8)
 	      {
@@ -1295,12 +1314,41 @@ rl78_expand_prologue (void)
 		rb = need_bank;
 	      }
 	  }
+=======
+	  {
+	    if (reg >= 8)
+	      {
+		emit_move_insn (ax, gen_rtx_REG (HImode, reg));
+		reg = AX_REG;
+	      }
+	  }
+	else
+	  {
+	    int need_bank = i/4;
+
+	    if (need_bank != rb)
+	      {
+		emit_insn (gen_sel_rb (GEN_INT (need_bank)));
+		rb = need_bank;
+	      }
+	  }
+>>>>>>> gcc-mirror/master
 
 	F (emit_insn (gen_push (gen_rtx_REG (HImode, reg))));
       }
 
   if (rb != 0)
     emit_insn (gen_sel_rb (GEN_INT (0)));
+<<<<<<< HEAD
+
+  /* Save ES register inside interrupt functions if it is used.  */
+  if (is_interrupt_func (cfun->decl) && cfun->machine->uses_es)
+    {
+      emit_insn (gen_movqi_from_es (gen_rtx_REG (QImode, A_REG)));
+      F (emit_insn (gen_push (ax)));
+    }
+=======
+>>>>>>> gcc-mirror/master
 
   /* Save ES register inside interrupt functions if it is used.  */
   if (is_interrupt_func (cfun->decl) && cfun->machine->uses_es)
@@ -2267,6 +2315,7 @@ static unsigned char
 get_content_index (rtx loc)
 {
   machine_mode mode;
+<<<<<<< HEAD
 
   if (loc == NULL_RTX)
     return NOT_KNOWN;
@@ -2348,6 +2397,89 @@ update_content (unsigned char index, unsigned char val, machine_mode mode)
   if (val != NOT_KNOWN)
     content_memory [val] = index;
 
+=======
+
+  if (loc == NULL_RTX)
+    return NOT_KNOWN;
+
+  if (REG_P (loc))
+    {
+      if (REGNO (loc) < 32)
+	return REGNO (loc);
+      return NOT_KNOWN;
+    }
+
+  mode = GET_MODE (loc);
+
+  if (! rl78_stack_based_mem (loc, mode))
+    return NOT_KNOWN;
+
+  loc = XEXP (loc, 0);
+
+  if (REG_P (loc))
+    /* loc = MEM (SP) */
+    return 32;
+
+  /* loc = MEM (PLUS (SP, INT)).  */
+  loc = XEXP (loc, 1);
+
+  if (INTVAL (loc) < NUM_STACK_LOCS)
+    return 32 + INTVAL (loc);
+
+  return NOT_KNOWN;
+}
+
+/* Return a string describing content INDEX in mode MODE.
+   WARNING: Can return a pointer to a static buffer.  */
+static const char *
+get_content_name (unsigned char index, machine_mode mode)
+{
+  static char buffer [128];
+
+  if (index == NOT_KNOWN)
+    return "Unknown";
+
+  if (index > 31)
+    sprintf (buffer, "stack slot %d", index - 32);
+  else if (mode == HImode)
+    sprintf (buffer, "%s%s",
+	     reg_names [index + 1], reg_names [index]);
+  else
+    return reg_names [index];
+
+  return buffer;
+}
+
+#if DEBUG_ALLOC
+
+static void
+display_content_memory (FILE * file)
+{
+  unsigned int i;
+
+  fprintf (file, " Known memory contents:\n");
+
+  for (i = 0; i < sizeof content_memory; i++)
+    if (content_memory[i] != NOT_KNOWN)
+      {
+	fprintf (file, "   %s contains a copy of ", get_content_name (i, QImode));
+	fprintf (file, "%s\n", get_content_name (content_memory [i], QImode));
+      }
+}
+#endif
+
+static void
+update_content (unsigned char index, unsigned char val, machine_mode mode)
+{
+  unsigned int i;
+
+  gcc_assert (index < sizeof content_memory);
+
+  content_memory [index] = val;
+  if (val != NOT_KNOWN)
+    content_memory [val] = index;
+
+>>>>>>> gcc-mirror/master
   /* Make the entry in dump_file *before* VAL is increased below.  */
   if (dump_file)
     {

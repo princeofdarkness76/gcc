@@ -150,6 +150,7 @@
 
 #include "vtv-change-permission.h"
 
+<<<<<<< HEAD
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 // porting: fix link error to libc
 void __fortify_fail (const char * msg){
@@ -157,6 +158,13 @@ void __fortify_fail (const char * msg){
     abort();
 }
 #else
+=======
+#ifdef HAVE_GETEXECNAME
+const char *program_invocation_name;
+#endif
+
+#ifdef HAVE___FORTIFY_FAIL
+>>>>>>> gcc-mirror/master
 extern "C" {
 
   /* __fortify_fail is a function in glibc that calls __libc_message,
@@ -173,6 +181,23 @@ extern "C" {
   extern void __fortify_fail (const char *) __attribute__((noreturn));
 
 } /* extern "C" */
+<<<<<<< HEAD
+=======
+#else
+#if defined (__CYGWIN__) || defined (__MINGW32__)
+// porting: fix link error to libc
+void __fortify_fail (const char * msg){
+    OutputDebugString(msg);
+    abort();
+}
+#else
+// FIXME: Provide backtrace via libbacktrace?
+void __fortify_fail (const char *msg) {
+    write (2, msg, strlen (msg));
+    abort ();
+}
+#endif
+>>>>>>> gcc-mirror/master
 #endif
 
 /* The following variables are used only for debugging and performance
@@ -573,6 +598,12 @@ read_section_offset_and_length (struct dl_phdr_info *info,
   /* Get the name of the main executable.  This may or may not include
      arguments passed to the program.  Find the first space, assume it
      is the start of the argument list, and change it to a '\0'. */
+<<<<<<< HEAD
+=======
+#ifdef HAVE_GETEXECNAME
+  program_invocation_name = getexecname ();
+#endif
+>>>>>>> gcc-mirror/master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   /* Check to see if we already have the data for this file.  */
@@ -663,7 +694,14 @@ read_section_offset_and_length (struct dl_phdr_info *info,
                      size.  */
                   *sect_offset = sect_hdr.sh_addr;
 		  if (!is_libvtv)
+<<<<<<< HEAD
 		    *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
+=======
+		    {
+		      VTV_ASSERT (sect_hdr.sh_size - VTV_PAGE_SIZE >= 0);
+		      *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
+		    }
+>>>>>>> gcc-mirror/master
 		  else
 		    *sect_len = sect_hdr.sh_size;
                   found = true;
@@ -784,7 +822,11 @@ iterate_modules (void *data)
                       if (debug_functions)
                         {
                           snprintf (buffer, sizeof (buffer),
+<<<<<<< HEAD
                                     "Failed called to mprotect for %s error: ",
+=======
+                                    "Failed call to mprotect for %s error: ",
+>>>>>>> gcc-mirror/master
                                     (*mprotect_flags & PROT_WRITE) ?
                                     "READ/WRITE" : "READ-ONLY");
                           log_memory_protection_data (buffer);
@@ -804,9 +846,14 @@ iterate_modules (void *data)
                         }
                     }
                   increment_num_calls (&num_calls_to_mprotect);
+<<<<<<< HEAD
                   /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
                                             / VTV_PAGE_SIZE; */
                   num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
+=======
+                  num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
+		    / VTV_PAGE_SIZE;
+>>>>>>> gcc-mirror/master
                   continue;
                 }
             }
@@ -853,6 +900,12 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
   /* Get the name of the main executable.  This may or may not include
      arguments passed to the program.  Find the first space, assume it
      is the start of the argument list, and change it to a '\0'. */
+<<<<<<< HEAD
+=======
+#ifdef HAVE_GETEXECNAME
+  program_invocation_name = getexecname ();
+#endif
+>>>>>>> gcc-mirror/master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   read_section_offset_and_length (info, map_sect_name, *mprotect_flags,
@@ -896,7 +949,11 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
           if (debug_functions)
             {
               snprintf (buffer, sizeof (buffer),
+<<<<<<< HEAD
                         "Failed called to mprotect for %s error: ",
+=======
+                        "Failed call to mprotect for %s error: ",
+>>>>>>> gcc-mirror/master
                         (*mprotect_flags & PROT_WRITE) ?
                         "READ/WRITE" : "READ-ONLY");
               log_memory_protection_data (buffer);
@@ -916,8 +973,12 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
             }
         }
       increment_num_calls (&num_calls_to_mprotect);
+<<<<<<< HEAD
       /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE; */
       num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
+=======
+      num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE;
+>>>>>>> gcc-mirror/master
     }
 
   return 0;
@@ -1054,9 +1115,15 @@ __VLTChangePermission (int perm)
   if (debug_functions)
     {
       if (perm == __VLTP_READ_WRITE)
+<<<<<<< HEAD
 	fprintf (stdout, "Changing VLT permisisons to Read-Write.\n");
       else if (perm == __VLTP_READ_ONLY)
 	fprintf (stdout, "Changing VLT permissions to Read-only.\n");
+=======
+	fprintf (stdout, "Changing VLT permissions to Read-Write.\n");
+      else if (perm == __VLTP_READ_ONLY)
+	fprintf (stdout, "Changing VLT permissions to Read-Only.\n");
+>>>>>>> gcc-mirror/master
 
       else
 	fprintf (stdout, "Unrecognized permissions value: %d\n", perm);

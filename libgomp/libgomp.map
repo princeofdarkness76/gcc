@@ -135,7 +135,10 @@ OMP_4.0 {
 } OMP_3.1;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 OMP_4.5 {
   global:
 	omp_get_max_task_priority;
@@ -166,6 +169,9 @@ OMP_4.5 {
 	omp_target_disassociate_ptr;
 } OMP_4.0;
 
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 GOMP_1.0 {
   global:
@@ -242,13 +248,19 @@ GOMP_3.0 {
 GOMP_4.0 {
   global:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	GOMP_cancel;
 	GOMP_cancellation_point;
 =======
+=======
+>>>>>>> gcc-mirror/master
 	GOMP_barrier_cancel;
 	GOMP_cancel;
 	GOMP_cancellation_point;
 	GOMP_loop_end_cancel;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	GOMP_parallel_loop_dynamic;
 	GOMP_parallel_loop_guided;
@@ -257,10 +269,13 @@ GOMP_4.0 {
 	GOMP_parallel_sections;
 	GOMP_parallel;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	GOMP_taskgroup_start;
 	GOMP_taskgroup_end;
 } GOMP_3.0;
 =======
+=======
+>>>>>>> gcc-mirror/master
 	GOMP_sections_end_cancel;
 	GOMP_taskgroup_start;
 	GOMP_taskgroup_end;
@@ -407,6 +422,10 @@ GOACC_2.0.1 {
   global:
 	GOACC_declare;
 	GOACC_parallel_keyed;
+<<<<<<< HEAD
+=======
+	GOACC_host_data;
+>>>>>>> gcc-mirror/master
 } GOACC_2.0;
 
 GOMP_PLUGIN_1.0 {
@@ -425,4 +444,7 @@ GOMP_PLUGIN_1.1 {
   global:
 	GOMP_PLUGIN_target_task_completion;
 } GOMP_PLUGIN_1.0;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

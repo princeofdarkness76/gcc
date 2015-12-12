@@ -1,5 +1,9 @@
 /* { dg-do compile } */
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dce1 -fdelete-null-pointer-checks" } */
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dce2 -fdelete-null-pointer-checks" } */
+>>>>>>> gcc-mirror/master
 
 int
 foo (int *p)
@@ -18,5 +22,10 @@ foo (int *p)
 /* Target disabling -fdelete-null-pointer-checks should not fold checks */
 /* { dg-final { scan-tree-dump "Folding predicate " "vrp1" { target { ! keeps_null_pointer_checks } } } } */
 /* { dg-final { scan-tree-dump-times "Folding predicate " 0 "vrp1" { target {   keeps_null_pointer_checks } } } } */
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "b_. =" "dce1" { target { ! avr-*-* } } } } */
 /* { dg-final { scan-tree-dump "b_. =" "dce1" { target { avr-*-* } } } } */
+=======
+/* { dg-final { scan-tree-dump-not "b_. =" "dce2" { target { ! avr-*-* } } } } */
+/* { dg-final { scan-tree-dump "b_. =" "dce2" { target { avr-*-* } } } } */
+>>>>>>> gcc-mirror/master

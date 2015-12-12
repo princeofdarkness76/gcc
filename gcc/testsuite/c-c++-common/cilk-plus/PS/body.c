@@ -1,6 +1,10 @@
 /* { dg-do compile } */
 /* { dg-options "-fcilkplus -fopenmp" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+/* { dg-require-effective-target fopenmp } */
+>>>>>>> gcc-mirror/master
 =======
 /* { dg-require-effective-target fopenmp } */
 >>>>>>> gcc-mirror/master
@@ -17,7 +21,11 @@ void foo()
     {
       if (c == 6)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__builtin_setjmp (jmpbuf); /* { dg-error "calls to setjmp are not allowed" } */
+=======
+	__builtin_setjmp (jmpbuf); /* { dg-error "setjmp" } */
+>>>>>>> gcc-mirror/master
 =======
 	__builtin_setjmp (jmpbuf); /* { dg-error "setjmp" } */
 >>>>>>> gcc-mirror/master
@@ -29,7 +37,11 @@ void foo()
     {
       if (c==5)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	break; /* { dg-error "break statement within" } */
+=======
+	break; /* { dg-error "break statement " } */
+>>>>>>> gcc-mirror/master
 =======
 	break; /* { dg-error "break statement " } */
 >>>>>>> gcc-mirror/master
@@ -39,7 +51,11 @@ void foo()
   for (int i=0; i < 1000; ++i)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma omp for /* { dg-error "OpenMP statements are not allowed" } */
+=======
+#pragma omp for /* { dg-error "OpenMP constructs other than" } */
+>>>>>>> gcc-mirror/master
 =======
 #pragma omp for /* { dg-error "OpenMP constructs other than" } */
 >>>>>>> gcc-mirror/master

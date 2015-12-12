@@ -3823,6 +3823,7 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
     {
       /* Allow IFN_GOMP_SIMD_LANE in their own loops.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (gimple_call_internal_p (stmt)
 	  && gimple_call_internal_fn (stmt) == IFN_GOMP_SIMD_LANE)
 	{
@@ -3834,6 +3835,8 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 	    clobbers_memory = true;
 	}
 =======
+=======
+>>>>>>> gcc-mirror/master
       if (gimple_call_internal_p (stmt))
 	switch (gimple_call_internal_fn (stmt))
 	  {
@@ -3854,13 +3857,21 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 	    clobbers_memory = true;
 	    break;
 	  }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       else
 	clobbers_memory = true;
     }
   else if (stmt_code == GIMPLE_ASM
 <<<<<<< HEAD
+<<<<<<< HEAD
 	   && (gimple_asm_volatile_p (stmt) || gimple_vuse (stmt)))
+=======
+	   && (gimple_asm_volatile_p (as_a <gasm *> (stmt))
+	       || gimple_vuse (stmt)))
+>>>>>>> gcc-mirror/master
 =======
 	   && (gimple_asm_volatile_p (as_a <gasm *> (stmt))
 	       || gimple_vuse (stmt)))
@@ -3889,6 +3900,8 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
   else if (stmt_code == GIMPLE_CALL)
     {
       unsigned i, n;
+      tree ptr, type;
+      unsigned int align;
 
       ref.is_read = false;
       if (gimple_call_internal_p (stmt))
@@ -3899,12 +3912,25 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 	      break;
 	    ref.is_read = true;
 	  case IFN_MASK_STORE:
+<<<<<<< HEAD
 	    ref.ref = fold_build2 (MEM_REF,
 				   ref.is_read
 				   ? TREE_TYPE (gimple_call_lhs (stmt))
 				   : TREE_TYPE (gimple_call_arg (stmt, 3)),
 				   gimple_call_arg (stmt, 0),
 				   gimple_call_arg (stmt, 1));
+=======
+	    ptr = build_int_cst (TREE_TYPE (gimple_call_arg (stmt, 1)), 0);
+	    align = tree_to_shwi (gimple_call_arg (stmt, 1));
+	    if (ref.is_read)
+	      type = TREE_TYPE (gimple_call_lhs (stmt));
+	    else
+	      type = TREE_TYPE (gimple_call_arg (stmt, 3));
+	    if (TYPE_ALIGN (type) != align)
+	      type = build_aligned_type (type, align);
+	    ref.ref = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0),
+				   ptr);
+>>>>>>> gcc-mirror/master
 	    references->safe_push (ref);
 	    return false;
 	  default:

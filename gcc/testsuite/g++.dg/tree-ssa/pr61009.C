@@ -1,5 +1,9 @@
 /* { dg-do compile } */
+<<<<<<< HEAD
 /* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom1" } */
+=======
+/* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom2" } */
+>>>>>>> gcc-mirror/master
 
 #include <stdio.h>
 struct Field {
@@ -49,4 +53,8 @@ bool  Test(void) {
 // The block ending with cmp == 0 should not be threaded.  ie,
 // there should be a single == 0 comparison in the dump file.
 
+<<<<<<< HEAD
 // { dg-final { scan-tree-dump-times "== 0" 1 "dom1" } }
+=======
+// { dg-final { scan-tree-dump-times "== 0" 1 "dom2" } }
+>>>>>>> gcc-mirror/master

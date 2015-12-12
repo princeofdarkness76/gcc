@@ -1,6 +1,11 @@
 /* { dg-do compile } */
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-dom1-details" } */
 /* { dg-final { scan-tree-dump-times "FSM" 6 "dom1" } } */
+=======
+/* { dg-options "-O2 -fdump-tree-dom2-details" } */
+/* { dg-final { scan-tree-dump-times "FSM" 6 "dom2" } } */
+>>>>>>> gcc-mirror/master
 
 int sum0, sum1, sum2, sum3;
 int foo (char *s, char **ret)

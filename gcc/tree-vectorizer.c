@@ -73,14 +73,20 @@ along with GCC; see the file COPYING3.  If not see
 #include "cfgloop.h"
 #include "tree-vectorizer.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "tree-pass.h"
 #include "hash-table.h"
 #include "tree-ssa-propagate.h"
 =======
+=======
+>>>>>>> gcc-mirror/master
 #include "tree-ssa-propagate.h"
 #include "dbgcnt.h"
 #include "tree-scalar-evolution.h"
 
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 /* Loop or bb location.  */
@@ -88,23 +94,30 @@ source_location vect_location;
 
 /* Vector mapping GIMPLE stmt to stmt_vec_info. */
 <<<<<<< HEAD
+<<<<<<< HEAD
 vec<vec_void_p> stmt_vec_info_vec;
 
 /* For mapping simduid to vectorization factor.  */
 
 struct simduid_to_vf : typed_free_remove<simduid_to_vf>
 =======
+=======
+>>>>>>> gcc-mirror/master
 vec<stmt_vec_info> stmt_vec_info_vec;
 
 /* For mapping simduid to vectorization factor.  */
 
 struct simduid_to_vf : free_ptr_hash<simduid_to_vf>
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 {
   unsigned int simduid;
   int vf;
 
   /* hash_table support.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
   typedef simduid_to_vf value_type;
   typedef simduid_to_vf compare_type;
@@ -115,12 +128,17 @@ struct simduid_to_vf : free_ptr_hash<simduid_to_vf>
 inline hashval_t
 simduid_to_vf::hash (const value_type *p)
 =======
+=======
+>>>>>>> gcc-mirror/master
   static inline hashval_t hash (const simduid_to_vf *);
   static inline int equal (const simduid_to_vf *, const simduid_to_vf *);
 };
 
 inline hashval_t
 simduid_to_vf::hash (const simduid_to_vf *p)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 {
   return p->simduid;
@@ -128,7 +146,11 @@ simduid_to_vf::hash (const simduid_to_vf *p)
 
 inline int
 <<<<<<< HEAD
+<<<<<<< HEAD
 simduid_to_vf::equal (const value_type *p1, const value_type *p2)
+=======
+simduid_to_vf::equal (const simduid_to_vf *p1, const simduid_to_vf *p2)
+>>>>>>> gcc-mirror/master
 =======
 simduid_to_vf::equal (const simduid_to_vf *p1, const simduid_to_vf *p2)
 >>>>>>> gcc-mirror/master
@@ -137,10 +159,13 @@ simduid_to_vf::equal (const simduid_to_vf *p1, const simduid_to_vf *p2)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* For mapping decl to simduid.  */
 
 struct decl_to_simduid : typed_free_remove<decl_to_simduid>
 =======
+=======
+>>>>>>> gcc-mirror/master
 /* This hash maps the OMP simd array to the corresponding simduid used
    to index into it.  Like thus,
 
@@ -154,12 +179,16 @@ struct decl_to_simduid : typed_free_remove<decl_to_simduid>
    simduid.0.  */
 
 struct simd_array_to_simduid : free_ptr_hash<simd_array_to_simduid>
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 {
   tree decl;
   unsigned int simduid;
 
   /* hash_table support.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
   typedef decl_to_simduid value_type;
   typedef decl_to_simduid compare_type;
@@ -170,6 +199,8 @@ struct simd_array_to_simduid : free_ptr_hash<simd_array_to_simduid>
 inline hashval_t
 decl_to_simduid::hash (const value_type *p)
 =======
+=======
+>>>>>>> gcc-mirror/master
   static inline hashval_t hash (const simd_array_to_simduid *);
   static inline int equal (const simd_array_to_simduid *,
 			   const simd_array_to_simduid *);
@@ -177,6 +208,9 @@ decl_to_simduid::hash (const value_type *p)
 
 inline hashval_t
 simd_array_to_simduid::hash (const simd_array_to_simduid *p)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 {
   return DECL_UID (p->decl);
@@ -184,7 +218,12 @@ simd_array_to_simduid::hash (const simd_array_to_simduid *p)
 
 inline int
 <<<<<<< HEAD
+<<<<<<< HEAD
 decl_to_simduid::equal (const value_type *p1, const value_type *p2)
+=======
+simd_array_to_simduid::equal (const simd_array_to_simduid *p1,
+			      const simd_array_to_simduid *p2)
+>>>>>>> gcc-mirror/master
 =======
 simd_array_to_simduid::equal (const simd_array_to_simduid *p1,
 			      const simd_array_to_simduid *p2)
@@ -193,6 +232,7 @@ simd_array_to_simduid::equal (const simd_array_to_simduid *p1,
   return p1->decl == p2->decl;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /* Fold IFN_GOMP_SIMD_LANE, IFN_GOMP_SIMD_VF and IFN_GOMP_SIMD_LAST_LANE
    into their corresponding constants.  */
@@ -216,6 +256,8 @@ adjust_simduid_builtins (hash_table <simduid_to_vf> &htab)
 	      || !gimple_call_internal_p (stmt))
 	    continue;
 =======
+=======
+>>>>>>> gcc-mirror/master
 /* Fold IFN_GOMP_SIMD_LANE, IFN_GOMP_SIMD_VF, IFN_GOMP_SIMD_LAST_LANE,
    into their corresponding constants and remove
    IFN_GOMP_SIMD_ORDERED_{START,END}.  */
@@ -241,6 +283,9 @@ adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
 	      gsi_next (&i);
 	      continue;
 	    }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  ifn = gimple_call_internal_fn (stmt);
 	  switch (ifn)
@@ -250,8 +295,11 @@ adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
 	    case IFN_GOMP_SIMD_LAST_LANE:
 	      break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    default:
 =======
+=======
+>>>>>>> gcc-mirror/master
 	    case IFN_GOMP_SIMD_ORDERED_START:
 	    case IFN_GOMP_SIMD_ORDERED_END:
 	      if (integer_onep (gimple_call_arg (stmt, 0)))
@@ -274,6 +322,9 @@ adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
 	      continue;
 	    default:
 	      gsi_next (&i);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	      continue;
 	    }
@@ -283,17 +334,23 @@ adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
 	  simduid_to_vf *p = NULL, data;
 	  data.simduid = DECL_UID (SSA_NAME_VAR (arg));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (htab.is_created ())
 	    p = htab.find (&data);
 	  if (p)
 	    vf = p->vf;
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  if (htab)
 	    {
 	      p = htab->find (&data);
 	      if (p)
 		vf = p->vf;
 	    }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  switch (ifn)
 	    {
@@ -310,6 +367,7 @@ adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
 	      gcc_unreachable ();
 	    }
 	  update_call_from_tree (&i, t);
+<<<<<<< HEAD
 <<<<<<< HEAD
 	}
     }
@@ -363,6 +421,8 @@ note_simd_array_uses_cb (tree *tp, int *walk_subtrees, void *data)
 static void
 note_simd_array_uses (hash_table <decl_to_simduid> *htab)
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  gsi_next (&i);
 	}
     }
@@ -412,6 +472,7 @@ note_simd_array_uses_cb (tree *tp, int *walk_subtrees, void *data)
 
 /* Find "omp simd array" temporaries and map them to corresponding
    simduid.  */
+<<<<<<< HEAD
 
 static void
 note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
@@ -422,20 +483,37 @@ note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
   struct walk_stmt_info wi;
   struct note_simd_array_uses_struct ns;
 
+=======
+
+static void
+note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
+{
+  basic_block bb;
+  gimple_stmt_iterator gsi;
+  struct walk_stmt_info wi;
+  struct note_simd_array_uses_struct ns;
+
+>>>>>>> gcc-mirror/master
   memset (&wi, 0, sizeof (wi));
   wi.info = &ns;
   ns.htab = htab;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   FOR_EACH_BB (bb)
     for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
       {
 	gimple stmt = gsi_stmt (gsi);
 =======
+=======
+>>>>>>> gcc-mirror/master
   FOR_EACH_BB_FN (bb, cfun)
     for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
       {
 	gimple *stmt = gsi_stmt (gsi);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	if (!is_gimple_call (stmt) || !gimple_call_internal_p (stmt))
 	  continue;
@@ -453,7 +531,11 @@ note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
 	  continue;
 	imm_use_iterator use_iter;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	gimple use_stmt;
+=======
+	gimple *use_stmt;
+>>>>>>> gcc-mirror/master
 =======
 	gimple *use_stmt;
 >>>>>>> gcc-mirror/master
@@ -464,7 +546,10 @@ note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
       }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 /* Shrink arrays with "omp simd array" attribute to the corresponding
    vectorization factor.  */
@@ -497,6 +582,9 @@ shrink_simd_arrays
 
   delete simd_array_to_simduid_htab;
 }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 /* A helper function to free data refs.  */
@@ -647,13 +735,19 @@ vectorize_loops (void)
   unsigned int vect_loops_num;
   struct loop *loop;
 <<<<<<< HEAD
+<<<<<<< HEAD
   hash_table <simduid_to_vf> simduid_to_vf_htab;
   hash_table <decl_to_simduid> decl_to_simduid_htab;
 =======
+=======
+>>>>>>> gcc-mirror/master
   hash_table<simduid_to_vf> *simduid_to_vf_htab = NULL;
   hash_table<simd_array_to_simduid> *simd_array_to_simduid_htab = NULL;
   bool any_ifcvt_loops = false;
   unsigned ret = 0;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
   vect_loops_num = number_of_loops (cfun);
@@ -672,6 +766,9 @@ vectorize_loops (void)
   if (cfun->has_simduid_loops)
     note_simd_array_uses (&simd_array_to_simduid_htab);
 
+  if (cfun->has_simduid_loops)
+    note_simd_array_uses (&simd_array_to_simduid_htab);
+
   init_stmt_vec_info_vec ();
 
   /*  ----------- Analyze loops. -----------  */
@@ -680,16 +777,22 @@ vectorize_loops (void)
      than all previously defined loops.  This fact allows us to run
      only over initial loops skipping newly generated ones.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   FOR_EACH_LOOP (li, loop, 0)
     if ((flag_tree_vectorize && optimize_loop_nest_for_speed_p (loop))
 	|| loop->force_vect)
 =======
+=======
+>>>>>>> gcc-mirror/master
   FOR_EACH_LOOP (loop, 0)
     if (loop->dont_vectorize)
       any_ifcvt_loops = true;
     else if ((flag_tree_loop_vectorize
 	      && optimize_loop_nest_for_speed_p (loop))
 	     || loop->force_vectorize)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       {
 	loop_vec_info loop_vinfo;
@@ -707,7 +810,17 @@ vectorize_loops (void)
 	  continue;
 
         if (!dbg_cnt (vect_loop))
+<<<<<<< HEAD
 	  break;
+=======
+	  {
+	    /* We may miss some if-converted loops due to
+	       debug counter.  Set any_ifcvt_loops to visit
+	       them at finalization.  */
+	    any_ifcvt_loops = true;
+	    break;
+	  }
+>>>>>>> gcc-mirror/master
 
 	gimple *loop_vectorized_call = vect_loop_vectorized_call (loop);
 	if (loop_vectorized_call)
@@ -721,7 +834,11 @@ vectorize_loops (void)
 	/* Now that the loop has been vectorized, allow it to be unrolled
 	   etc.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	loop->force_vect = false;
+=======
+	loop->force_vectorize = false;
+>>>>>>> gcc-mirror/master
 =======
 	loop->force_vectorize = false;
 >>>>>>> gcc-mirror/master
@@ -729,6 +846,7 @@ vectorize_loops (void)
 	if (loop->simduid)
 	  {
 	    simduid_to_vf *simduid_to_vf_data = XNEW (simduid_to_vf);
+<<<<<<< HEAD
 <<<<<<< HEAD
 	    if (!simduid_to_vf_htab.is_created ())
 	      simduid_to_vf_htab.create (15);
@@ -738,6 +856,8 @@ vectorize_loops (void)
 	      = simduid_to_vf_data;
 	  }
 =======
+=======
+>>>>>>> gcc-mirror/master
 	    if (!simduid_to_vf_htab)
 	      simduid_to_vf_htab = new hash_table<simduid_to_vf> (15);
 	    simduid_to_vf_data->simduid = DECL_UID (loop->simduid);
@@ -751,6 +871,9 @@ vectorize_loops (void)
 	    fold_loop_vectorized_call (loop_vectorized_call, boolean_true_node);
 	    ret |= TODO_cleanup_cfg;
 	  }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       }
 
@@ -795,7 +918,11 @@ vectorize_loops (void)
   free_stmt_vec_info_vec ();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE} builtins.  */
+=======
+  /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE,ORDERED_{START,END}} builtins.  */
+>>>>>>> gcc-mirror/master
 =======
   /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE,ORDERED_{START,END}} builtins.  */
 >>>>>>> gcc-mirror/master
@@ -804,6 +931,7 @@ vectorize_loops (void)
 
   /* Shrink any "omp array simd" temporary arrays to the
      actual vectorization factors.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
   if (decl_to_simduid_htab.is_created ())
     {
@@ -833,10 +961,15 @@ vectorize_loops (void)
   if (simduid_to_vf_htab.is_created ())
     simduid_to_vf_htab.dispose ();
 =======
+=======
+>>>>>>> gcc-mirror/master
   if (simd_array_to_simduid_htab)
     shrink_simd_arrays (simd_array_to_simduid_htab, simduid_to_vf_htab);
   delete simduid_to_vf_htab;
   cfun->has_simduid_loops = false;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
   if (num_vectorized_loops > 0)
@@ -986,6 +1119,7 @@ pass_slp_vectorize::execute (function *fun)
 }
 
 } // anon namespace
+<<<<<<< HEAD
 
 gimple_opt_pass *
 make_pass_slp_vectorize (gcc::context *ctxt)
@@ -993,6 +1127,15 @@ make_pass_slp_vectorize (gcc::context *ctxt)
   return new pass_slp_vectorize (ctxt);
 }
 
+=======
+
+gimple_opt_pass *
+make_pass_slp_vectorize (gcc::context *ctxt)
+{
+  return new pass_slp_vectorize (ctxt);
+}
+
+>>>>>>> gcc-mirror/master
 
 /* Increase alignment of global arrays to improve vectorization potential.
    TODO:
@@ -1051,6 +1194,7 @@ const pass_data pass_data_ipa_increase_alignment =
   0, /* todo_flags_start */
   0, /* todo_flags_finish */
 };
+<<<<<<< HEAD
 
 class pass_ipa_increase_alignment : public simple_ipa_opt_pass
 {
@@ -1071,6 +1215,28 @@ public:
 
 } // anon namespace
 
+=======
+
+class pass_ipa_increase_alignment : public simple_ipa_opt_pass
+{
+public:
+  pass_ipa_increase_alignment (gcc::context *ctxt)
+    : simple_ipa_opt_pass (pass_data_ipa_increase_alignment, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return flag_section_anchors && flag_tree_loop_vectorize;
+    }
+
+  virtual unsigned int execute (function *) { return increase_alignment (); }
+
+}; // class pass_ipa_increase_alignment
+
+} // anon namespace
+
+>>>>>>> gcc-mirror/master
 simple_ipa_opt_pass *
 make_pass_ipa_increase_alignment (gcc::context *ctxt)
 {

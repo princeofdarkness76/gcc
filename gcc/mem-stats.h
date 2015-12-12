@@ -3,7 +3,12 @@
 
 /* Forward declaration.  */
 template<typename Key, typename Value,
+<<<<<<< HEAD
 	 typename Traits = simple_hashmap_traits<default_hash_traits<Key> > >
+=======
+	 typename Traits = simple_hashmap_traits<default_hash_traits<Key>,
+						 Value> >
+>>>>>>> gcc-mirror/master
 class hash_map;
 
 #define LOCATION_LINE_EXTRA_SPACE 30

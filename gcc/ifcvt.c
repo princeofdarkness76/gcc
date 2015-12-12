@@ -1230,6 +1230,7 @@ noce_try_inverse_constants (struct noce_if_info *if_info)
       if (target != if_info->x)
 	noce_emit_move_insn (if_info->x, target);
 
+<<<<<<< HEAD
 	seq = end_ifcvt_sequence (if_info);
 
 	if (!seq)
@@ -1238,6 +1239,16 @@ noce_try_inverse_constants (struct noce_if_info *if_info)
 	emit_insn_before_setloc (seq, if_info->jump,
 				 INSN_LOCATION (if_info->insn_a));
 	return true;
+=======
+      seq = end_ifcvt_sequence (if_info);
+
+      if (!seq)
+	return false;
+
+      emit_insn_before_setloc (seq, if_info->jump,
+			       INSN_LOCATION (if_info->insn_a));
+      return true;
+>>>>>>> gcc-mirror/master
     }
 
   end_sequence ();
@@ -1277,10 +1288,17 @@ noce_try_store_flag_constants (struct noce_if_info *if_info)
       a = XEXP (a, 1);
       b = XEXP (b, 1);
     }
+<<<<<<< HEAD
 
   if (!noce_simple_bbs (if_info))
     return FALSE;
 
+=======
+
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+>>>>>>> gcc-mirror/master
   if (CONST_INT_P (a)
       && CONST_INT_P (b))
     {
@@ -2159,6 +2177,7 @@ noce_try_cmove_arith (struct noce_if_info *if_info)
 	      b = tmp_b ? tmp_b : gen_reg_rtx (GET_MODE (b));
 	      rtx_insn *copy_of_b = as_a <rtx_insn *> (copy_rtx (insn_b));
 	      rtx set = single_set (copy_of_b);
+<<<<<<< HEAD
 
 	      SET_DEST (set) = b;
 	      emit_b = PATTERN (copy_of_b);
@@ -2218,6 +2237,71 @@ noce_try_cmove_arith (struct noce_if_info *if_info)
 	  goto end_seq_and_fail;
 
       }
+=======
+
+	      SET_DEST (set) = b;
+	      emit_b = PATTERN (copy_of_b);
+	    }
+	  else
+	    {
+	      rtx tmp_reg = tmp_b ? tmp_b : gen_reg_rtx (GET_MODE (b));
+	      emit_b = gen_rtx_SET (tmp_reg, b);
+	      b = tmp_reg;
+	  }
+	}
+    }
+
+  modified_in_a = emit_a != NULL_RTX && modified_in_p (orig_b, emit_a);
+  if (tmp_b && then_bb)
+    {
+      FOR_BB_INSNS (then_bb, tmp_insn)
+	/* Don't check inside insn_a.  We will have changed it to emit_a
+	   with a destination that doesn't conflict.  */
+	if (!(insn_a && tmp_insn == insn_a)
+	    && modified_in_p (orig_b, tmp_insn))
+	  {
+	    modified_in_a = true;
+	    break;
+	  }
+
+    }
+
+  modified_in_b = emit_b != NULL_RTX && modified_in_p (orig_a, emit_b);
+  if (tmp_a && else_bb)
+    {
+      FOR_BB_INSNS (else_bb, tmp_insn)
+      /* Don't check inside insn_b.  We will have changed it to emit_b
+	 with a destination that doesn't conflict.  */
+      if (!(insn_b && tmp_insn == insn_b)
+	  && modified_in_p (orig_a, tmp_insn))
+	{
+	  modified_in_b = true;
+	  break;
+	}
+    }
+
+  /* If insn to set up A clobbers any registers B depends on, try to
+     swap insn that sets up A with the one that sets up B.  If even
+     that doesn't help, punt.  */
+  if (modified_in_a && !modified_in_b)
+    {
+      if (!noce_emit_bb (emit_b, else_bb, b_simple))
+	goto end_seq_and_fail;
+
+      if (!noce_emit_bb (emit_a, then_bb, a_simple))
+	goto end_seq_and_fail;
+    }
+  else if (!modified_in_a)
+    {
+      if (!noce_emit_bb (emit_a, then_bb, a_simple))
+	goto end_seq_and_fail;
+
+      if (!noce_emit_bb (emit_b, else_bb, b_simple))
+	goto end_seq_and_fail;
+    }
+  else
+    goto end_seq_and_fail;
+>>>>>>> gcc-mirror/master
 
   target = noce_emit_cmove (if_info, x, code, XEXP (if_info->cond, 0),
 			    XEXP (if_info->cond, 1), a, b);
@@ -2597,9 +2681,15 @@ noce_try_abs (struct noce_if_info *if_info)
      Note that these rtx constants are known to be CONST_INT, and
      therefore imply integer comparisons.
      The one_cmpl case is more complicated, as we want to handle
+<<<<<<< HEAD
      only x < 0 ? ~x : x or x >= 0 ? ~x : x but not
      x <= 0 ? ~x : x or x > 0 ? ~x : x, as the latter two
      have different result for x == 0.  */
+=======
+     only x < 0 ? ~x : x or x >= 0 ? x : ~x to one_cmpl_abs (x)
+     and x < 0 ? x : ~x or x >= 0 ? ~x : x to ~one_cmpl_abs (x),
+     but not other cases (x > -1 is equivalent of x >= 0).  */
+>>>>>>> gcc-mirror/master
   if (c == constm1_rtx && GET_CODE (cond) == GT)
     {
       if (one_cmpl && negate)
@@ -2607,11 +2697,16 @@ noce_try_abs (struct noce_if_info *if_info)
     }
   else if (c == const1_rtx && GET_CODE (cond) == LT)
     {
+<<<<<<< HEAD
       if (one_cmpl && !negate)
+=======
+      if (one_cmpl)
+>>>>>>> gcc-mirror/master
 	return FALSE;
     }
   else if (c == CONST0_RTX (GET_MODE (b)))
     {
+<<<<<<< HEAD
       if (one_cmpl)
 	switch (GET_CODE (cond))
 	  {
@@ -2636,6 +2731,12 @@ noce_try_abs (struct noce_if_info *if_info)
 	  default:
 	    return FALSE;
 	  }
+=======
+      if (one_cmpl
+	  && GET_CODE (cond) != GE
+	  && GET_CODE (cond) != LT)
+	return FALSE;
+>>>>>>> gcc-mirror/master
     }
   else
     return FALSE;
@@ -2956,97 +3057,119 @@ noce_operand_ok (const_rtx op)
   return ! may_trap_p (op);
 }
 
-/* Return true if a write into MEM may trap or fault.  */
+/* Return true if X contains a MEM subrtx.  */
 
 static bool
-noce_mem_write_may_trap_or_fault_p (const_rtx mem)
+contains_mem_rtx_p (rtx x)
 {
-  rtx addr;
-
-  if (MEM_READONLY_P (mem))
-    return true;
-
-  if (may_trap_or_fault_p (mem))
-    return true;
-
-  addr = XEXP (mem, 0);
-
-  /* Call target hook to avoid the effects of -fpic etc....  */
-  addr = targetm.delegitimize_address (addr);
-
-  while (addr)
-    switch (GET_CODE (addr))
-      {
-      case CONST:
-      case PRE_DEC:
-      case PRE_INC:
-      case POST_DEC:
-      case POST_INC:
-      case POST_MODIFY:
-	addr = XEXP (addr, 0);
-	break;
-      case LO_SUM:
-      case PRE_MODIFY:
-	addr = XEXP (addr, 1);
-	break;
-      case PLUS:
-	if (CONST_INT_P (XEXP (addr, 1)))
-	  addr = XEXP (addr, 0);
-	else
-	  return false;
-	break;
-      case LABEL_REF:
-	return true;
-      case SYMBOL_REF:
-	if (SYMBOL_REF_DECL (addr)
-	    && decl_readonly_section (SYMBOL_REF_DECL (addr), 0))
-	  return true;
-	return false;
-      default:
-	return false;
-      }
+  subrtx_iterator::array_type array;
+  FOR_EACH_SUBRTX (iter, array, x, ALL)
+    if (MEM_P (*iter))
+      return true;
 
   return false;
 }
 
-/* Return whether we can use store speculation for MEM.  TOP_BB is the
-   basic block above the conditional block where we are considering
-   doing the speculative store.  We look for whether MEM is set
-   unconditionally later in the function.  */
+/* Return true iff basic block TEST_BB is valid for noce if-conversion.
+   The condition used in this if-conversion is in COND.
+   In practice, check that TEST_BB ends with a single set
+   x := a and all previous computations
+   in TEST_BB don't produce any values that are live after TEST_BB.
+   In other words, all the insns in TEST_BB are there only
+   to compute a value for x.  Put the rtx cost of the insns
+   in TEST_BB into COST.  Record whether TEST_BB is a single simple
+   set instruction in SIMPLE_P.  */
 
 static bool
-noce_can_store_speculate_p (basic_block top_bb, const_rtx mem)
+bb_valid_for_noce_process_p (basic_block test_bb, rtx cond,
+			      unsigned int *cost, bool *simple_p)
 {
-  basic_block dominator;
+  if (!test_bb)
+    return false;
 
-  for (dominator = get_immediate_dominator (CDI_POST_DOMINATORS, top_bb);
-       dominator != NULL;
-       dominator = get_immediate_dominator (CDI_POST_DOMINATORS, dominator))
+  rtx_insn *last_insn = last_active_insn (test_bb, FALSE);
+  rtx last_set = NULL_RTX;
+
+  rtx cc = cc_in_cond (cond);
+
+  if (!insn_valid_noce_process_p (last_insn, cc))
+    return false;
+  last_set = single_set (last_insn);
+
+  rtx x = SET_DEST (last_set);
+  rtx_insn *first_insn = first_active_insn (test_bb);
+  rtx first_set = single_set (first_insn);
+
+  if (!first_set)
+    return false;
+
+  /* We have a single simple set, that's okay.  */
+  bool speed_p = optimize_bb_for_speed_p (test_bb);
+
+  if (first_insn == last_insn)
     {
+<<<<<<< HEAD
       rtx_insn *insn;
+=======
+      *simple_p = noce_operand_ok (SET_DEST (first_set));
+      *cost = insn_rtx_cost (first_set, speed_p);
+      return *simple_p;
+    }
 
-      FOR_BB_INSNS (dominator, insn)
+  rtx_insn *prev_last_insn = PREV_INSN (last_insn);
+  gcc_assert (prev_last_insn);
+>>>>>>> gcc-mirror/master
+
+  /* For now, disallow setting x multiple times in test_bb.  */
+  if (REG_P (x) && reg_set_between_p (x, first_insn, prev_last_insn))
+    return false;
+
+  bitmap test_bb_temps = BITMAP_ALLOC (&reg_obstack);
+
+  /* The regs that are live out of test_bb.  */
+  bitmap test_bb_live_out = df_get_live_out (test_bb);
+
+  int potential_cost = insn_rtx_cost (last_set, speed_p);
+  rtx_insn *insn;
+  FOR_BB_INSNS (test_bb, insn)
+    {
+      if (insn != last_insn)
 	{
-	  /* If we see something that might be a memory barrier, we
-	     have to stop looking.  Even if the MEM is set later in
-	     the function, we still don't want to set it
-	     unconditionally before the barrier.  */
-	  if (INSN_P (insn)
-	      && (volatile_insn_p (PATTERN (insn))
-		  || (CALL_P (insn) && (!RTL_CONST_CALL_P (insn)))))
-	    return false;
+	  if (!active_insn_p (insn))
+	    continue;
 
-	  if (memory_must_be_modified_in_insn_p (mem, insn))
-	    return true;
-	  if (modified_in_p (XEXP (mem, 0), insn))
-	    return false;
+	  if (!insn_valid_noce_process_p (insn, cc))
+	    goto free_bitmap_and_fail;
 
+	  rtx sset = single_set (insn);
+	  gcc_assert (sset);
+
+	  if (contains_mem_rtx_p (SET_SRC (sset))
+	      || !REG_P (SET_DEST (sset))
+	      || reg_overlap_mentioned_p (SET_DEST (sset), cond))
+	    goto free_bitmap_and_fail;
+
+	  potential_cost += insn_rtx_cost (sset, speed_p);
+	  bitmap_set_bit (test_bb_temps, REGNO (SET_DEST (sset)));
 	}
     }
 
+  /* If any of the intermediate results in test_bb are live after test_bb
+     then fail.  */
+  if (bitmap_intersect_p (test_bb_live_out, test_bb_temps))
+    goto free_bitmap_and_fail;
+
+  BITMAP_FREE (test_bb_temps);
+  *cost = potential_cost;
+  *simple_p = false;
+  return true;
+
+ free_bitmap_and_fail:
+  BITMAP_FREE (test_bb_temps);
   return false;
 }
 
+<<<<<<< HEAD
 /* Return true if X contains a MEM subrtx.  */
 
 static bool
@@ -3155,6 +3278,8 @@ bb_valid_for_noce_process_p (basic_block test_bb, rtx cond,
   return false;
 }
 
+=======
+>>>>>>> gcc-mirror/master
 /* We have something like:
 
      if (x > y)
@@ -3576,30 +3701,12 @@ noce_process_if_block (struct noce_if_info *if_info)
     }
 
   if (!set_b && MEM_P (orig_x))
-    {
-      /* Disallow the "if (...) x = a;" form (implicit "else x = x;")
-	 for optimizations if writing to x may trap or fault,
-	 i.e. it's a memory other than a static var or a stack slot,
-	 is misaligned on strict aligned machines or is read-only.  If
-	 x is a read-only memory, then the program is valid only if we
-	 avoid the store into it.  If there are stores on both the
-	 THEN and ELSE arms, then we can go ahead with the conversion;
-	 either the program is broken, or the condition is always
-	 false such that the other memory is selected.  */
-      if (noce_mem_write_may_trap_or_fault_p (orig_x))
-	return FALSE;
-
-      /* Avoid store speculation: given "if (...) x = a" where x is a
-	 MEM, we only want to do the store if x is always set
-	 somewhere in the function.  This avoids cases like
-	   if (pthread_mutex_trylock(mutex))
-	     ++global_variable;
-	 where we only want global_variable to be changed if the mutex
-	 is held.  FIXME: This should ideally be expressed directly in
-	 RTL somehow.  */
-      if (!noce_can_store_speculate_p (test_bb, orig_x))
-	return FALSE;
-    }
+    /* We want to avoid store speculation to avoid cases like
+	 if (pthread_mutex_trylock(mutex))
+	   ++global_variable;
+       Rather than go to much effort here, we rely on the SSA optimizers,
+       which do a good enough job these days.  */
+    return FALSE;
 
   if (noce_try_move (if_info))
     goto success;

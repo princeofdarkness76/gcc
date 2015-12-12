@@ -37,6 +37,10 @@ along with GCC; see the file COPYING3.  If not see
 #include "langhooks.h"
 #include "cfganal.h"
 #include "rtl-iter.h"
+<<<<<<< HEAD
+=======
+#include "cgraph.h"
+>>>>>>> gcc-mirror/master
 
 /* The aliasing API provided here solves related but different problems:
 
@@ -404,6 +408,13 @@ bool
 alias_set_subset_of (alias_set_type set1, alias_set_type set2)
 {
   alias_set_entry *ase2;
+<<<<<<< HEAD
+=======
+
+  /* Disable TBAA oracle with !flag_strict_aliasing.  */
+  if (!flag_strict_aliasing)
+    return true;
+>>>>>>> gcc-mirror/master
 
   /* Everything is a subset of the "aliases everything" set.  */
   if (set2 == 0)
@@ -537,6 +548,12 @@ alias_sets_conflict_p (alias_set_type set1, alias_set_type set2)
 int
 alias_sets_must_conflict_p (alias_set_type set1, alias_set_type set2)
 {
+<<<<<<< HEAD
+=======
+  /* Disable TBAA oracle with !flag_strict_aliasing.  */
+  if (!flag_strict_aliasing)
+    return 1;
+>>>>>>> gcc-mirror/master
   if (set1 == 0 || set2 == 0)
     {
       ++alias_stats.num_alias_zero;
@@ -816,10 +833,12 @@ get_alias_set (tree t)
 {
   alias_set_type set;
 
-  /* If we're not doing any alias analysis, just assume everything
-     aliases everything else.  Also return 0 if this or its type is
-     an error.  */
-  if (! flag_strict_aliasing || t == error_mark_node
+  /* We can not give up with -fno-strict-aliasing because we need to build
+     proper type representation for possible functions which are build with
+     -fstirct-aliasing.  */
+
+  /* return 0 if this or its type is an error.  */
+  if (t == error_mark_node
       || (! TYPE_P (t)
 	  && (TREE_TYPE (t) == 0 || TREE_TYPE (t) == error_mark_node)))
     return 0;
@@ -869,11 +888,19 @@ get_alias_set (tree t)
       set = lang_hooks.get_alias_set (t);
       if (set != -1)
 	return set;
+<<<<<<< HEAD
       /* Handle structure type equality for pointer types.  This is easy
 	 to do, because the code bellow ignore canonical types on these anyway.
 	 This is important for LTO, where TYPE_CANONICAL for pointers can not
 	 be meaningfuly computed by the frotnend.  */
       if (!POINTER_TYPE_P (t))
+=======
+      /* Handle structure type equality for pointer types, arrays and vectors.
+	 This is easy to do, because the code bellow ignore canonical types on
+	 these anyway.  This is important for LTO, where TYPE_CANONICAL for
+	 pointers can not be meaningfuly computed by the frotnend.  */
+      if (canonical_type_used_p (t))
+>>>>>>> gcc-mirror/master
 	{
 	  /* In LTO we set canonical types for all types where it makes
 	     sense to do so.  Double check we did not miss some type.  */
@@ -888,6 +915,7 @@ get_alias_set (tree t)
     }
 
   /* If this is a type with a known alias set, return it.  */
+  gcc_checking_assert (t == TYPE_MAIN_VARIANT (t));
   if (TYPE_ALIAS_SET_KNOWN_P (t))
     return TYPE_ALIAS_SET (t);
 
@@ -929,7 +957,9 @@ get_alias_set (tree t)
      integer(kind=4)[4] the same alias set or not.
      Just be pragmatic here and make sure the array and its element
      type get the same alias set assigned.  */
-  else if (TREE_CODE (t) == ARRAY_TYPE && !TYPE_NONALIASED_COMPONENT (t))
+  else if (TREE_CODE (t) == ARRAY_TYPE
+	   && (!TYPE_NONALIASED_COMPONENT (t)
+	       || TYPE_STRUCTURAL_EQUALITY_P (t)))
     set = get_alias_set (TREE_TYPE (t));
 
   /* From the former common C and C++ langhook implementation:
@@ -971,10 +1001,28 @@ get_alias_set (tree t)
 	 We also want to make pointer to array/vector equivalent to pointer to
 	 its element (see the reasoning above). Skip all those types, too.  */
       for (p = t; POINTER_TYPE_P (p)
+<<<<<<< HEAD
 	   || (TREE_CODE (p) == ARRAY_TYPE && !TYPE_NONALIASED_COMPONENT (p))
 	   || TREE_CODE (p) == VECTOR_TYPE;
 	   p = TREE_TYPE (p))
 	{
+=======
+	   || (TREE_CODE (p) == ARRAY_TYPE
+	       && (!TYPE_NONALIASED_COMPONENT (p)
+		   || !COMPLETE_TYPE_P (p)
+		   || TYPE_STRUCTURAL_EQUALITY_P (p)))
+	   || TREE_CODE (p) == VECTOR_TYPE;
+	   p = TREE_TYPE (p))
+	{
+	  /* Ada supports recusive pointers.  Instead of doing recrusion check
+	     just give up once the preallocated space of 8 elements is up.
+	     In this case just punt to void * alias set.  */
+	  if (reference.length () == 8)
+	    {
+	      p = ptr_type_node;
+	      break;
+	    }
+>>>>>>> gcc-mirror/master
 	  if (TREE_CODE (p) == REFERENCE_TYPE)
 	    /* In LTO we want languages that use references to be compatible
  	       with languages that use pointers.  */
@@ -1025,6 +1073,10 @@ get_alias_set (tree t)
 	     We can not call get_alias_set (p) here as that would trigger
 	     infinite recursion when p == t.  In other cases it would just
 	     trigger unnecesary legwork of rebuilding the pointer again.  */
+<<<<<<< HEAD
+=======
+	  gcc_checking_assert (p == TYPE_MAIN_VARIANT (p));
+>>>>>>> gcc-mirror/master
 	  if (TYPE_ALIAS_SET_KNOWN_P (p))
 	    set = TYPE_ALIAS_SET (p);
 	  else
@@ -1078,6 +1130,7 @@ get_alias_set (tree t)
 alias_set_type
 new_alias_set (void)
 {
+<<<<<<< HEAD
   if (flag_strict_aliasing)
     {
       if (alias_sets == 0)
@@ -1087,6 +1140,12 @@ new_alias_set (void)
     }
   else
     return 0;
+=======
+  if (alias_sets == 0)
+    vec_safe_push (alias_sets, (alias_set_entry *) NULL);
+  vec_safe_push (alias_sets, (alias_set_entry *) NULL);
+  return alias_sets->length () - 1;
+>>>>>>> gcc-mirror/master
 }
 
 /* Indicate that things in SUBSET can alias things in SUPERSET, but that
@@ -1200,6 +1259,7 @@ record_component_aliases (tree type)
 		/* VECTOR_TYPE and ARRAY_TYPE share the alias set with their
 		   element type and that type has to be normalized to void *,
 		   too, in the case it is a pointer. */
+<<<<<<< HEAD
 		while ((TREE_CODE (t) == ARRAY_TYPE
 			&& (!COMPLETE_TYPE_P (t)
 			    || TYPE_NONALIASED_COMPONENT (t)))
@@ -1209,6 +1269,20 @@ record_component_aliases (tree type)
 		  t = ptr_type_node;
 	      }
 	   
+=======
+		while (!canonical_type_used_p (t) && !POINTER_TYPE_P (t))
+		  {
+		    gcc_checking_assert (TYPE_STRUCTURAL_EQUALITY_P (t));
+		    t = TREE_TYPE (t);
+		  }
+		if (POINTER_TYPE_P (t))
+		  t = ptr_type_node;
+		else if (flag_checking)
+		  gcc_checking_assert (get_alias_set (t)
+				       == get_alias_set (TREE_TYPE (field)));
+	      }
+
+>>>>>>> gcc-mirror/master
 	    record_alias_subset (superset, get_alias_set (t));
 	  }
       break;
@@ -1733,7 +1807,15 @@ rtx_equal_for_memref_p (const_rtx x, const_rtx y)
       return LABEL_REF_LABEL (x) == LABEL_REF_LABEL (y);
 
     case SYMBOL_REF:
-      return XSTR (x, 0) == XSTR (y, 0);
+      {
+	tree x_decl = SYMBOL_REF_DECL (x);
+	tree y_decl = SYMBOL_REF_DECL (y);
+
+	if (!x_decl || !y_decl)
+	  return XSTR (x, 0) == XSTR (y, 0);
+	else
+	  return compare_base_decls (x_decl, y_decl) == 1;
+      }
 
     case ENTRY_VALUE:
       /* This is magic, don't go through canonicalization et al.  */
@@ -1996,6 +2078,31 @@ may_be_sp_based_p (rtx x)
   return !base || base == static_reg_base_value[STACK_POINTER_REGNUM];
 }
 
+/* BASE1 and BASE2 are decls.  Return 1 if they refer to same object, 0
+   if they refer to different objects and -1 if we can not decide.  */
+
+int
+compare_base_decls (tree base1, tree base2)
+{
+  int ret;
+  gcc_checking_assert (DECL_P (base1) && DECL_P (base2));
+  if (base1 == base2)
+    return 1;
+
+  bool in_symtab1 = decl_in_symtab_p (base1);
+  bool in_symtab2 = decl_in_symtab_p (base2);
+
+  /* Declarations of non-automatic variables may have aliases.  All other
+     decls are unique.  */
+  if (in_symtab1 != in_symtab2 || !in_symtab1)
+    return 0;
+  ret = symtab_node::get_create (base1)->equal_address_to
+		 (symtab_node::get_create (base2), true);
+  if (ret == 2)
+    return -1;
+  return ret;
+}
+
 /* Return 0 if the addresses X and Y are known to point to different
    objects, 1 if they might be pointers to the same object.  */
 
@@ -2032,6 +2139,17 @@ base_alias_check (rtx x, rtx x_base, rtx y, rtx y_base,
   /* If the base addresses are equal nothing is known about aliasing.  */
   if (rtx_equal_p (x_base, y_base))
     return 1;
+
+  if (GET_CODE (x_base) == SYMBOL_REF && GET_CODE (y_base) == SYMBOL_REF)
+    {
+      tree x_decl = SYMBOL_REF_DECL (x_base);
+      tree y_decl = SYMBOL_REF_DECL (y_base);
+
+      /* We can assume that no stores are made to labels.  */
+      if (!x_decl || !y_decl)
+	return 0;
+      return compare_base_decls (x_decl, y_decl) != 0;
+    }
 
   /* The base addresses are different expressions.  If they are not accessed
      via AND, there is no conflict.  We can bring knowledge of object
@@ -2254,7 +2372,33 @@ memrefs_conflict_p (int xsize, rtx x, int ysize, rtx y, HOST_WIDE_INT c)
   else
     y = addr_side_effect_eval (y, abs (ysize), 0);
 
-  if (rtx_equal_for_memref_p (x, y))
+  if (GET_CODE (x) == SYMBOL_REF && GET_CODE (y) == SYMBOL_REF)
+    {
+      tree x_decl = SYMBOL_REF_DECL (x);
+      tree y_decl = SYMBOL_REF_DECL (y);
+      int cmp;
+
+      if (!x_decl || !y_decl)
+	{
+	  /* Label and normal symbol are never the same. */
+	  if (x_decl != y_decl)
+	    return 0;
+	  return offset_overlap_p (c, xsize, ysize);
+	}
+      else
+        cmp = compare_base_decls (x_decl, y_decl);
+
+      /* If both decls are the same, decide by offsets.  */
+      if (cmp == 1)
+        return offset_overlap_p (c, xsize, ysize);
+      /* If decls are different or we know by offsets that there is no overlap,
+	 we win.  */
+      if (!cmp || !offset_overlap_p (c, xsize, ysize))
+	return 0;
+      /* Decls may or may not be different and offsets overlap....*/
+      return -1;
+    }
+  else if (rtx_equal_for_memref_p (x, y))
     {
       return offset_overlap_p (c, xsize, ysize);
     }
@@ -2622,7 +2766,7 @@ nonoverlapping_memrefs_p (const_rtx x, const_rtx y, bool loop_invariant)
      are constants or if one is a constant and the other a pointer into the
      stack frame.  Otherwise a different base means we can't tell if they
      overlap or not.  */
-  if (! rtx_equal_p (basex, basey))
+  if (compare_base_decls (exprx, expry) == 0)
     return ((CONSTANT_P (basex) && CONSTANT_P (basey))
 	    || (CONSTANT_P (basex) && REG_P (basey)
 		&& REGNO_PTR_FRAME_P (REGNO (basey)))
@@ -2632,6 +2776,10 @@ nonoverlapping_memrefs_p (const_rtx x, const_rtx y, bool loop_invariant)
   /* Offset based disambiguation not appropriate for loop invariant */
   if (loop_invariant)
     return 0;              
+
+  /* Offset based disambiguation is OK even if we do not know that the
+     declarations are necessarily different
+    (i.e. compare_base_decls (exprx, expry) == -1)  */
 
   sizex = (!MEM_P (rtlx) ? (int) GET_MODE_SIZE (GET_MODE (rtlx))
 	   : MEM_SIZE_KNOWN_P (rtlx) ? MEM_SIZE (rtlx)
@@ -3020,30 +3168,6 @@ set_dest_equal_p (const_rtx set, const_rtx item)
 {
   rtx dest = SET_DEST (set);
   return rtx_equal_p (dest, item);
-}
-
-/* Like memory_modified_in_insn_p, but return TRUE if INSN will
-   *DEFINITELY* modify the memory contents of MEM.  */
-bool
-memory_must_be_modified_in_insn_p (const_rtx mem, const_rtx insn)
-{
-  if (!INSN_P (insn))
-    return false;
-  insn = PATTERN (insn);
-  if (GET_CODE (insn) == SET)
-    return set_dest_equal_p (insn, mem);
-  else if (GET_CODE (insn) == PARALLEL)
-    {
-      int i;
-      for (i = 0; i < XVECLEN (insn, 0); i++)
-	{
-	  rtx sub = XVECEXP (insn, 0, i);
-	  if (GET_CODE (sub) == SET
-	      &&  set_dest_equal_p (sub, mem))
-	    return true;
-	}
-    }
-  return false;
 }
 
 /* Initialize the aliasing machinery.  Initialize the REG_KNOWN_VALUE

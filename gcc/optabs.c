@@ -2223,6 +2223,58 @@ expand_doubleword_clz (machine_mode mode, rtx op0, rtx target)
   return 0;
 }
 
+/* Try calculating popcount of a double-word quantity as two popcount's of
+   word-sized quantities and summing up the results.  */
+static rtx
+expand_doubleword_popcount (machine_mode mode, rtx op0, rtx target)
+{
+  rtx t0, t1, t;
+  rtx_insn *seq;
+
+  start_sequence ();
+
+  t0 = expand_unop_direct (word_mode, popcount_optab,
+			   operand_subword_force (op0, 0, mode), NULL_RTX,
+			   true);
+  t1 = expand_unop_direct (word_mode, popcount_optab,
+			   operand_subword_force (op0, 1, mode), NULL_RTX,
+			   true);
+  if (!t0 || !t1)
+    {
+      end_sequence ();
+      return NULL_RTX;
+    }
+
+  /* If we were not given a target, use a word_mode register, not a
+     'mode' register.  The result will fit, and nobody is expecting
+     anything bigger (the return type of __builtin_popcount* is int).  */
+  if (!target)
+    target = gen_reg_rtx (word_mode);
+
+  t = expand_binop (word_mode, add_optab, t0, t1, target, 0, OPTAB_DIRECT);
+
+  seq = get_insns ();
+  end_sequence ();
+
+  add_equal_note (seq, t, POPCOUNT, op0, 0);
+  emit_insn (seq);
+  return t;
+}
+
+/* Try calculating
+	(parity:wide x)
+   as
+	(parity:narrow (low (x) ^ high (x))) */
+static rtx
+expand_doubleword_parity (machine_mode mode, rtx op0, rtx target)
+{
+  rtx t = expand_binop (word_mode, xor_optab,
+			operand_subword_force (op0, 0, mode),
+			operand_subword_force (op0, 1, mode),
+			NULL_RTX, 0, OPTAB_DIRECT);
+  return expand_unop (word_mode, parity_optab, t, target, true);
+}
+
 /* Try calculating
 	(bswap:narrow x)
    as
@@ -2582,7 +2634,11 @@ expand_absneg_bit (enum rtx_code code, machine_mode mode,
    different mode or with a libcall.  */
 static rtx
 expand_unop_direct (machine_mode mode, optab unoptab, rtx op0, rtx target,
+<<<<<<< HEAD
 	     int unsignedp)
+=======
+		    int unsignedp)
+>>>>>>> gcc-mirror/master
 {
   if (optab_handler (unoptab, mode) != CODE_FOR_nothing)
     {
@@ -2663,6 +2719,27 @@ expand_unop (machine_mode mode, optab unoptab, rtx op0, rtx target,
       if (temp)
 	return temp;
       goto try_libcall;
+    }
+
+  if (unoptab == popcount_optab
+      && GET_MODE_SIZE (mode) == 2 * UNITS_PER_WORD
+      && optab_handler (unoptab, word_mode) != CODE_FOR_nothing
+      && optimize_insn_for_speed_p ())
+    {
+      temp = expand_doubleword_popcount (mode, op0, target);
+      if (temp)
+	return temp;
+    }
+
+  if (unoptab == parity_optab
+      && GET_MODE_SIZE (mode) == 2 * UNITS_PER_WORD
+      && (optab_handler (unoptab, word_mode) != CODE_FOR_nothing
+	  || optab_handler (popcount_optab, word_mode) != CODE_FOR_nothing)
+      && optimize_insn_for_speed_p ())
+    {
+      temp = expand_doubleword_parity (mode, op0, target);
+      if (temp)
+	return temp;
     }
 
   /* Widening (or narrowing) bswap needs special treatment.  */
@@ -4404,9 +4481,52 @@ have_add2_insn (rtx x, rtx y)
 }
 
 /* Generate and return an insn body to add Y to X.  */
+<<<<<<< HEAD
 
 rtx_insn *
 gen_addptr3_insn (rtx x, rtx y, rtx z)
+{
+  enum insn_code icode = optab_handler (addptr3_optab, GET_MODE (x));
+
+  gcc_assert (insn_operand_matches (icode, 0, x));
+  gcc_assert (insn_operand_matches (icode, 1, y));
+  gcc_assert (insn_operand_matches (icode, 2, z));
+
+  return GEN_FCN (icode) (x, y, z);
+}
+
+/* Return true if the target implements an addptr pattern and X, Y,
+   and Z are valid for the pattern predicates.  */
+
+int
+have_addptr3_insn (rtx x, rtx y, rtx z)
+{
+  enum insn_code icode;
+
+  gcc_assert (GET_MODE (x) != VOIDmode);
+
+  icode = optab_handler (addptr3_optab, GET_MODE (x));
+
+  if (icode == CODE_FOR_nothing)
+    return 0;
+
+  if (!insn_operand_matches (icode, 0, x)
+      || !insn_operand_matches (icode, 1, y)
+      || !insn_operand_matches (icode, 2, z))
+    return 0;
+
+  return 1;
+}
+
+/* Generate and return an insn body to subtract Y from X.  */
+
+rtx_insn *
+gen_sub2_insn (rtx x, rtx y)
+=======
+
+rtx_insn *
+gen_addptr3_insn (rtx x, rtx y, rtx z)
+>>>>>>> gcc-mirror/master
 {
   enum insn_code icode = optab_handler (addptr3_optab, GET_MODE (x));
 
@@ -4974,6 +5094,7 @@ expand_fixed_convert (rtx to, rtx from, int uintp, int satp)
 /* Generate code to convert FROM to fixed point and store in TO.  FROM
    must be floating point, TO must be signed.  Use the conversion optab
    TAB to do the conversion.  */
+<<<<<<< HEAD
 
 bool
 expand_sfix_optab (rtx to, rtx from, convert_optab tab)
@@ -5013,6 +5134,47 @@ expand_sfix_optab (rtx to, rtx from, convert_optab tab)
 	  }
       }
 
+=======
+
+bool
+expand_sfix_optab (rtx to, rtx from, convert_optab tab)
+{
+  enum insn_code icode;
+  rtx target = to;
+  machine_mode fmode, imode;
+
+  /* We first try to find a pair of modes, one real and one integer, at
+     least as wide as FROM and TO, respectively, in which we can open-code
+     this conversion.  If the integer mode is wider than the mode of TO,
+     we can do the conversion either signed or unsigned.  */
+
+  for (fmode = GET_MODE (from); fmode != VOIDmode;
+       fmode = GET_MODE_WIDER_MODE (fmode))
+    for (imode = GET_MODE (to); imode != VOIDmode;
+	 imode = GET_MODE_WIDER_MODE (imode))
+      {
+	icode = convert_optab_handler (tab, imode, fmode);
+	if (icode != CODE_FOR_nothing)
+	  {
+	    rtx_insn *last = get_last_insn ();
+	    if (fmode != GET_MODE (from))
+	      from = convert_to_mode (fmode, from, 0);
+
+	    if (imode != GET_MODE (to))
+	      target = gen_reg_rtx (imode);
+
+	    if (!maybe_emit_unop_insn (icode, target, from, UNKNOWN))
+	      {
+	        delete_insns_since (last);
+		continue;
+	      }
+	    if (target != to)
+	      convert_move (to, target, 0);
+	    return true;
+	  }
+      }
+
+>>>>>>> gcc-mirror/master
   return false;
 }
 
@@ -5232,12 +5394,20 @@ shift_amt_for_vec_perm_mask (rtx sel)
     return NULL_RTX;
 
   first = INTVAL (CONST_VECTOR_ELT (sel, 0));
+<<<<<<< HEAD
   if (first >= 2*nelt)
+=======
+  if (first >= nelt)
+>>>>>>> gcc-mirror/master
     return NULL_RTX;
   for (i = 1; i < nelt; i++)
     {
       int idx = INTVAL (CONST_VECTOR_ELT (sel, i));
+<<<<<<< HEAD
       unsigned int expected = (i + first) & (2 * nelt - 1);
+=======
+      unsigned int expected = i + first;
+>>>>>>> gcc-mirror/master
       /* Indices into the second vector are all equivalent.  */
       if (idx < 0 || (MIN (nelt, (unsigned) idx) != MIN (nelt, expected)))
 	return NULL_RTX;
@@ -5326,6 +5496,44 @@ expand_vec_perm (machine_mode mode, rtx v0, rtx v1, rtx sel, rtx target)
   gcc_assert (GET_MODE_CLASS (GET_MODE (sel)) == MODE_VECTOR_INT);
   if (GET_CODE (sel) == CONST_VECTOR)
     {
+      /* See if this can be handled with a vec_shr.  We only do this if the
+	 second vector is all zeroes.  */
+      enum insn_code shift_code = optab_handler (vec_shr_optab, mode);
+      enum insn_code shift_code_qi = ((qimode != VOIDmode && qimode != mode)
+				      ? optab_handler (vec_shr_optab, qimode)
+				      : CODE_FOR_nothing);
+      rtx shift_amt = NULL_RTX;
+      if (v1 == CONST0_RTX (GET_MODE (v1))
+	  && (shift_code != CODE_FOR_nothing
+	      || shift_code_qi != CODE_FOR_nothing))
+	{
+	  shift_amt = shift_amt_for_vec_perm_mask (sel);
+	  if (shift_amt)
+	    {
+	      struct expand_operand ops[3];
+	      if (shift_code != CODE_FOR_nothing)
+		{
+		  create_output_operand (&ops[0], target, mode);
+		  create_input_operand (&ops[1], v0, mode);
+		  create_convert_operand_from_type (&ops[2], shift_amt,
+						    sizetype);
+		  if (maybe_expand_insn (shift_code, 3, ops))
+		    return ops[0].value;
+		}
+	      if (shift_code_qi != CODE_FOR_nothing)
+		{
+		  tmp = gen_reg_rtx (qimode);
+		  create_output_operand (&ops[0], tmp, qimode);
+		  create_input_operand (&ops[1], gen_lowpart (qimode, v0),
+					qimode);
+		  create_convert_operand_from_type (&ops[2], shift_amt,
+						    sizetype);
+		  if (maybe_expand_insn (shift_code_qi, 3, ops))
+		    return gen_lowpart (mode, ops[0].value);
+		}
+	    }
+	}
+
       icode = direct_optab_handler (vec_perm_const_optab, mode);
       if (icode != CODE_FOR_nothing)
 	{

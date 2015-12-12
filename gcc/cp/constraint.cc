@@ -1353,6 +1353,7 @@ finish_template_introduction (tree tmpl_decl, tree intro_list)
 }
 
 
+<<<<<<< HEAD
 /* Make a "constrained auto" type-specifier. This is an
    auto type with constraints that must be associated after
    deduction.  The constraint is formed from the given
@@ -1379,6 +1380,8 @@ make_constrained_auto (tree con, tree args)
   return decl;
 }
 
+=======
+>>>>>>> gcc-mirror/master
 /* Given the predicate constraint T from a constrained-type-specifier, extract
    its TMPL and ARGS.  FIXME why do we need two different forms of
    constrained-type-specifier?  */
@@ -1897,11 +1900,22 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   tree pattern = DEDUCT_CONSTR_PATTERN (t);
   tree placeholder = DEDUCT_CONSTR_PLACEHOLDER (t);
   tree constr = PLACEHOLDER_TYPE_CONSTRAINTS (placeholder);
+<<<<<<< HEAD
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
     = tsubst_constraint (constr, args, complain|tf_partial, in_decl);
   tree type = do_auto_deduction (pattern, init, placeholder,
                                  complain, adc_requirement);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
+=======
+  tree type_canonical = TYPE_CANONICAL (placeholder);
+  PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
+    = tsubst_constraint (constr, args, complain|tf_partial, in_decl);
+  TYPE_CANONICAL (placeholder) = NULL_TREE;
+  tree type = do_auto_deduction (pattern, init, placeholder,
+                                 complain, adc_requirement);
+  PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
+  TYPE_CANONICAL (placeholder) = type_canonical;
+>>>>>>> gcc-mirror/master
   if (type == error_mark_node)
     return boolean_false_node;
 
@@ -2340,6 +2354,18 @@ subsumes_constraints (tree a, tree b)
   return subsumes (a, b);
 }
 
+<<<<<<< HEAD
+=======
+/* Returns true when the the constraints in A subsume those in B, but
+   the constraints in B do not subsume the constraints in A.  */
+
+bool
+strictly_subsumes (tree a, tree b)
+{
+  return subsumes (a, b) && !subsumes (b, a);
+}
+
+>>>>>>> gcc-mirror/master
 /* Determines which of the declarations, A or B, is more constrained.
    That is, which declaration's constraints subsume but are not subsumed
    by the other's?

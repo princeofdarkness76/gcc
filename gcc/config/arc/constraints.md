@@ -421,3 +421,12 @@
    An unsigned 6-bit integer constant, up to 62."
   (and (match_code "const_int")
        (match_test "UNSIGNED_INT6 (ival - 1)")))
+<<<<<<< HEAD
+=======
+
+;; Memory constraint used for atomic ops.
+(define_memory_constraint "ATO"
+  "A memory with only a base register"
+  (match_operand 0 "mem_noofs_operand"))
+
+>>>>>>> gcc-mirror/master

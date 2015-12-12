@@ -66,8 +66,13 @@ arm_cpu_builtins (struct cpp_reader* pfile)
   def_or_undef_macro (pfile, "__ARM_FEATURE_SAT", TARGET_ARM_SAT);
   def_or_undef_macro (pfile, "__ARM_FEATURE_CRYPTO", TARGET_CRYPTO);
 
+<<<<<<< HEAD
   if (unaligned_access)
     builtin_define ("__ARM_FEATURE_UNALIGNED");
+=======
+  def_or_undef_macro (pfile, "__ARM_FEATURE_UNALIGNED", unaligned_access);
+
+>>>>>>> gcc-mirror/master
   if (TARGET_CRC32)
     builtin_define ("__ARM_FEATURE_CRC32");
 

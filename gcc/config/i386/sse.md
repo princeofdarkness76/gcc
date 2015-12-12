@@ -1051,7 +1051,11 @@
       sse_suffix = "<ssescalarsize>";
     }
 
+<<<<<<< HEAD
   if (misaligned_operand (operands[1], <MODE>mode))
+=======
+  if (misaligned_operand (operands[0], <MODE>mode))
+>>>>>>> gcc-mirror/master
     align = "u";
   else
     align = "a";
@@ -7237,6 +7241,7 @@
    (set_attr "length_immediate" "1")
    (set_attr "prefix" "evex")
    (set_attr "mode" "<sseinsnmode>")])
+<<<<<<< HEAD
 
 (define_insn "vec_extract_hi_<mode>_maskm"
   [(set (match_operand:<ssehalfvecmode> 0 "memory_operand" "=m")
@@ -7257,6 +7262,28 @@
    (set_attr "prefix" "evex")
    (set_attr "mode" "<sseinsnmode>")])
 
+=======
+
+(define_insn "vec_extract_hi_<mode>_maskm"
+  [(set (match_operand:<ssehalfvecmode> 0 "memory_operand" "=m")
+	(vec_merge:<ssehalfvecmode>
+	  (vec_select:<ssehalfvecmode>
+	    (match_operand:V8FI 1 "register_operand" "v")
+	    (parallel [(const_int 4) (const_int 5)
+	      (const_int 6) (const_int 7)]))
+	  (match_operand:<ssehalfvecmode> 2 "memory_operand" "0")
+	  (match_operand:QI 3 "register_operand" "Yk")))]
+  "TARGET_AVX512F
+   && rtx_equal_p (operands[2], operands[0])"
+  "vextract<shuffletype>64x4\t{$0x1, %1, %0%{%3%}|%0%{%3%}, %1, 0x1}"
+  [(set_attr "type" "sselog")
+   (set_attr "prefix_extra" "1")
+   (set_attr "length_immediate" "1")
+   (set_attr "memory" "store")
+   (set_attr "prefix" "evex")
+   (set_attr "mode" "<sseinsnmode>")])
+
+>>>>>>> gcc-mirror/master
 (define_insn "vec_extract_hi_<mode><mask_name>"
   [(set (match_operand:<ssehalfvecmode> 0 "<store_mask_predicate>" "=<store_mask_constraint>")
 	(vec_select:<ssehalfvecmode>
@@ -7534,11 +7561,15 @@
    && rtx_equal_p (operands[2], operands[0])"
   "vextract<shuffletype>32x4\t{$0x1, %1, %0%{%3%}|%0%{%3%}, %1, 0x1}"
   [(set_attr "type" "sselog1")
+<<<<<<< HEAD
    (set_attr "prefix_extra" "1")
+=======
+>>>>>>> gcc-mirror/master
    (set_attr "length_immediate" "1")
    (set_attr "prefix" "evex")
    (set_attr "mode" "<sseinsnmode>")])
 
+<<<<<<< HEAD
 (define_insn "vec_extract_hi_<mode><mask_name>"
   [(set (match_operand:<ssehalfvecmode> 0 "<store_mask_predicate>" "=<store_mask_constraint>")
 	(vec_select:<ssehalfvecmode>
@@ -7560,6 +7591,38 @@
        (match_test "TARGET_AVX512VL")
      (const_string "evex")
      (const_string "vex")))
+=======
+(define_insn "vec_extract_hi_<mode>_mask"
+  [(set (match_operand:<ssehalfvecmode> 0 "register_operand" "=v")
+	(vec_merge:<ssehalfvecmode>
+	  (vec_select:<ssehalfvecmode>
+	    (match_operand:VI4F_256 1 "register_operand" "v")
+	    (parallel [(const_int 4) (const_int 5)
+		       (const_int 6) (const_int 7)]))
+	  (match_operand:<ssehalfvecmode> 2 "vector_move_operand" "0C")
+	  (match_operand:<avx512fmaskmode> 3 "register_operand" "Yk")))]
+  "TARGET_AVX512VL"
+  "vextract<shuffletype>32x4\t{$0x1, %1, %0%{%3%}%N2|%0%{%3%}%N2, %1, 0x1}"
+  [(set_attr "type" "sselog1")
+   (set_attr "length_immediate" "1")
+   (set_attr "prefix" "evex")
+   (set_attr "mode" "<sseinsnmode>")])
+
+(define_insn "vec_extract_hi_<mode>"
+  [(set (match_operand:<ssehalfvecmode> 0 "nonimmediate_operand" "=xm, vm")
+	(vec_select:<ssehalfvecmode>
+	  (match_operand:VI4F_256 1 "register_operand" "x, v")
+	  (parallel [(const_int 4) (const_int 5)
+		     (const_int 6) (const_int 7)])))]
+  "TARGET_AVX"
+  "@
+    vextract<i128>\t{$0x1, %1, %0|%0, %1, 0x1}
+    vextract<shuffletype>32x4\t{$0x1, %1, %0|%0, %1, 0x1}"
+  [(set_attr "isa" "*, avx512vl")
+   (set_attr "prefix" "vex, evex")
+   (set_attr "type" "sselog1")
+   (set_attr "length_immediate" "1")
+>>>>>>> gcc-mirror/master
    (set_attr "mode" "<sseinsnmode>")])
 
 (define_insn_and_split "vec_extract_lo_v32hi"
@@ -9670,6 +9733,7 @@
   "vp<plusminus_mnemonic><ssemodesuffix>\t{%2, %1, %0%{%4%}%N3|%0%{%4%}%N3, %1, %2}"
   [(set_attr "type" "sseiadd")
    (set_attr "prefix" "evex")
+<<<<<<< HEAD
    (set_attr "mode" "<sseinsnmode>")])
 
 (define_insn "*<plusminus_insn><mode>3_mask"
@@ -9686,6 +9750,24 @@
    (set_attr "prefix" "evex")
    (set_attr "mode" "<sseinsnmode>")])
 
+=======
+   (set_attr "mode" "<sseinsnmode>")])
+
+(define_insn "*<plusminus_insn><mode>3_mask"
+  [(set (match_operand:VI12_AVX512VL 0 "register_operand" "=v")
+	(vec_merge:VI12_AVX512VL
+	  (plusminus:VI12_AVX512VL
+	    (match_operand:VI12_AVX512VL 1 "nonimmediate_operand" "<comm>v")
+	    (match_operand:VI12_AVX512VL 2 "nonimmediate_operand" "vm"))
+	  (match_operand:VI12_AVX512VL 3 "vector_move_operand" "0C")
+	  (match_operand:<avx512fmaskmode> 4 "register_operand" "Yk")))]
+  "TARGET_AVX512BW && ix86_binary_operator_ok (<CODE>, <MODE>mode, operands)"
+  "vp<plusminus_mnemonic><ssemodesuffix>\t{%2, %1, %0%{%4%}%N3|%0%{%4%}%N3, %1, %2}"
+  [(set_attr "type" "sseiadd")
+   (set_attr "prefix" "evex")
+   (set_attr "mode" "<sseinsnmode>")])
+
+>>>>>>> gcc-mirror/master
 (define_expand "<sse2_avx2>_<plusminus_insn><mode>3<mask_name>"
   [(set (match_operand:VI12_AVX2 0 "register_operand")
 	(sat_plusminus:VI12_AVX2
@@ -17215,8 +17297,14 @@
 	    (match_operand:VI_AVX512BW 1 "nonimmediate_operand" "v,m")
 	    (parallel [(const_int 0)]))))]
   "TARGET_AVX512F"
+<<<<<<< HEAD
   "vpbroadcast<ssemodesuffix>\t{%1, %0|%0, %<iptr>1}
    vpbroadcast<ssemodesuffix>\t{%x1, %0|%0, %x1}"
+=======
+  "@
+   vpbroadcast<ssemodesuffix>\t{%x1, %0|%0, %x1}
+   vpbroadcast<ssemodesuffix>\t{%x1, %0|%0, %<iptr>1}"
+>>>>>>> gcc-mirror/master
   [(set_attr "type" "ssemov")
    (set_attr "prefix" "evex")
    (set_attr "mode" "<sseinsnmode>")])
@@ -17377,20 +17465,35 @@
    (set_attr "mode" "<sseinsnmode>")])
 
 (define_insn "vec_dup<mode>"
+<<<<<<< HEAD
   [(set (match_operand:AVX_VEC_DUP_MODE 0 "register_operand" "=x,x,v,x")
 	(vec_duplicate:AVX_VEC_DUP_MODE
 	  (match_operand:<ssescalarmode> 1 "nonimmediate_operand" "m,m,v,?x")))]
+=======
+  [(set (match_operand:AVX_VEC_DUP_MODE 0 "register_operand" "=x,x,x,v,x")
+	(vec_duplicate:AVX_VEC_DUP_MODE
+	  (match_operand:<ssescalarmode> 1 "nonimmediate_operand" "m,m,x,v,?x")))]
+>>>>>>> gcc-mirror/master
   "TARGET_AVX"
   "@
    v<sseintprefix>broadcast<bcstscalarsuff>\t{%1, %0|%0, %1}
    vbroadcast<ssescalarmodesuffix>\t{%1, %0|%0, %1}
    v<sseintprefix>broadcast<bcstscalarsuff>\t{%x1, %0|%0, %x1}
+<<<<<<< HEAD
+=======
+   v<sseintprefix>broadcast<bcstscalarsuff>\t{%x1, %g0|%g0, %x1}
+>>>>>>> gcc-mirror/master
    #"
   [(set_attr "type" "ssemov")
    (set_attr "prefix_extra" "1")
    (set_attr "prefix" "maybe_evex")
+<<<<<<< HEAD
    (set_attr "isa" "avx2,noavx2,avx2,noavx2")
    (set_attr "mode" "<sseinsnmode>,V8SF,<sseinsnmode>,V8SF")])
+=======
+   (set_attr "isa" "avx2,noavx2,avx2,avx512f,noavx2")
+   (set_attr "mode" "<sseinsnmode>,V8SF,<sseinsnmode>,<sseinsnmode>,V8SF")])
+>>>>>>> gcc-mirror/master
 
 (define_split
   [(set (match_operand:AVX2_VEC_DUP_MODE 0 "register_operand")

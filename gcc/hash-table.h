@@ -361,7 +361,12 @@ class hash_table
   typedef typename Descriptor::compare_type compare_type;
 
 public:
+<<<<<<< HEAD
   explicit hash_table (size_t, bool ggc = false, bool gather_mem_stats = true,
+=======
+  explicit hash_table (size_t, bool ggc = false,
+		       bool gather_mem_stats = GATHER_STATISTICS,
+>>>>>>> gcc-mirror/master
 		       mem_alloc_origin origin = HASH_TABLE_ORIGIN
 		       CXX_MEM_STAT_INFO);
   ~hash_table ();
@@ -371,7 +376,12 @@ public:
   create_ggc (size_t n CXX_MEM_STAT_INFO)
   {
     hash_table *table = ggc_alloc<hash_table> ();
+<<<<<<< HEAD
     new (table) hash_table (n, true, true, HASH_TABLE_ORIGIN PASS_MEM_STAT);
+=======
+    new (table) hash_table (n, true, GATHER_STATISTICS,
+			    HASH_TABLE_ORIGIN PASS_MEM_STAT);
+>>>>>>> gcc-mirror/master
     return table;
   }
 

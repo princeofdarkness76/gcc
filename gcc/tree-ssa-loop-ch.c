@@ -165,6 +165,11 @@ public:
   /* Initialize and finalize loop structures, copying headers inbetween.  */
   virtual unsigned int execute (function *);
 
+<<<<<<< HEAD
+=======
+  opt_pass * clone () { return new pass_ch (m_ctxt); }
+
+>>>>>>> gcc-mirror/master
 protected:
   /* ch_base method: */
   virtual bool process_loop_p (struct loop *loop);

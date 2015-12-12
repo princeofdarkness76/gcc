@@ -50,10 +50,14 @@ void test02()
   // { dg-error "no type" "" { target *-*-* } 237 }
 }
 
+<<<<<<< HEAD
 // { dg-error "rvalue|const" "" { target *-*-* } 1024 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1038 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1052 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1066 }
+=======
+// { dg-excess-errors "reasons for deduction/substitution failures" }
+>>>>>>> gcc-mirror/master
 
 int main()
 {

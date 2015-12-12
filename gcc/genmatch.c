@@ -1397,7 +1397,12 @@ struct sinfo
   unsigned cnt;
 };
 
+<<<<<<< HEAD
 struct sinfo_hashmap_traits : simple_hashmap_traits <pointer_hash <dt_simplify> >
+=======
+struct sinfo_hashmap_traits : simple_hashmap_traits<pointer_hash<dt_simplify>,
+						    sinfo *>
+>>>>>>> gcc-mirror/master
 {
   static inline hashval_t hash (const key_type &);
   static inline bool equal_keys (const key_type &, const key_type &);
@@ -1850,7 +1855,12 @@ struct capture_info
       bool force_single_use;
       bool cond_expr_cond_p;
       unsigned long toplevel_msk;
+<<<<<<< HEAD
       int result_use_count;
+=======
+      unsigned match_use_count;
+      unsigned result_use_count;
+>>>>>>> gcc-mirror/master
       unsigned same_as;
       capture *c;
     };
@@ -1900,6 +1910,10 @@ capture_info::walk_match (operand *o, unsigned toplevel_arg,
   if (capture *c = dyn_cast <capture *> (o))
     {
       unsigned where = c->where;
+<<<<<<< HEAD
+=======
+      info[where].match_use_count++;
+>>>>>>> gcc-mirror/master
       info[where].toplevel_msk |= 1 << toplevel_arg;
       info[where].force_no_side_effects_p |= conditional_p;
       info[where].cond_expr_cond_p |= cond_expr_cond_p;
@@ -3105,6 +3119,7 @@ dt_simplify::gen_1 (FILE *f, int indent, bool gimple, operand *result)
 	  else if (is_a <predicate_id *> (opr))
 	    is_predicate = true;
 	  /* Search for captures used multiple times in the result expression
+<<<<<<< HEAD
 	     and dependent on TREE_SIDE_EFFECTS emit a SAVE_EXPR.  */
 	  if (!is_predicate)
 	    for (int i = 0; i < s->capture_max + 1; ++i)
@@ -3121,6 +3136,21 @@ dt_simplify::gen_1 (FILE *f, int indent, bool gimple, operand *result)
 				    "  captures[%d] = save_expr (captures[%d]);\n",
 				    i, i);
 		  }
+=======
+	     and wrap them in a SAVE_EXPR.  Allow as many uses as in the
+	     original expression.  */
+	  if (!is_predicate)
+	    for (int i = 0; i < s->capture_max + 1; ++i)
+	      {
+		if (cinfo.info[i].same_as != (unsigned)i
+		    || cinfo.info[i].cse_p)
+		  continue;
+		if (cinfo.info[i].result_use_count
+		    > cinfo.info[i].match_use_count)
+		  fprintf_indent (f, indent,
+				  "if (! tree_invariant_p (captures[%d])) "
+				  "return NULL_TREE;\n", i);
+>>>>>>> gcc-mirror/master
 	      }
 	  for (unsigned j = 0; j < e->ops.length (); ++j)
 	    {

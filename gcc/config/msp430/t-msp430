@@ -18,6 +18,13 @@
 # License along with GCC; see the file COPYING3.  If not see
 # <http://www.gnu.org/licenses/>.
 
+<<<<<<< HEAD
+=======
+driver-msp430.o: $(srcdir)/config/msp430/driver-msp430.c \
+  $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H)
+	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) $<
+
+>>>>>>> gcc-mirror/master
 # Enable multilibs:
 
 MULTILIB_OPTIONS    = mcpu=msp430 mlarge 
@@ -259,6 +266,7 @@ MULTILIB_MATCHES += mcpu?msp430=mmcu?msp430f4794
 MULTILIB_EXCEPTIONS = mcpu=msp430/mlarge
 
 
+<<<<<<< HEAD
 # Multilibs for different types of hardware multiply support:
 
 MULTILIB_OPTIONS   += mhwmult=none/mhwmult=32bit/mhwmult=f5series
@@ -789,6 +797,8 @@ MULTILIB_MATCHES   += mhwmult?f5series=mmcu?rf430f5175
 #  could be added here as well...
 
 
+=======
+>>>>>>> gcc-mirror/master
 MULTILIB_EXTRA_OPTS =
 
 msp430-c.o: $(srcdir)/config/msp430/msp430-c.c $(RTL_H) $(TREE_H) $(CONFIG_H) $(TM_H)

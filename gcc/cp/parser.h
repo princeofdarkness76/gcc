@@ -63,11 +63,17 @@ struct GTY (()) cp_token {
   location_t location;
   /* The value associated with this token, if any.  */
   union cp_token_value {
-    /* Used for CPP_NESTED_NAME_SPECIFIER and CPP_TEMPLATE_ID.  */
+    /* Used for compound tokens such as CPP_NESTED_NAME_SPECIFIER.  */
     struct tree_check* GTY((tag ("1"))) tree_check_value;
     /* Use for all other tokens.  */
     tree GTY((tag ("0"))) value;
+<<<<<<< HEAD
   } GTY((desc ("(%1.type == CPP_TEMPLATE_ID) || (%1.type == CPP_NESTED_NAME_SPECIFIER)"))) u;
+=======
+  } GTY((desc ("(%1.type == CPP_TEMPLATE_ID)"
+	       "|| (%1.type == CPP_NESTED_NAME_SPECIFIER)"
+	       "|| (%1.type == CPP_DECLTYPE)"))) u;
+>>>>>>> gcc-mirror/master
 };
 
 
@@ -304,7 +310,12 @@ struct GTY(()) cp_parser {
 #define IN_OMP_FOR		8
 #define IN_IF_STMT             16
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define IN_CILK_P_SIMD_FOR     32
+=======
+#define IN_CILK_SIMD_FOR       32
+#define IN_CILK_SPAWN          64
+>>>>>>> gcc-mirror/master
 =======
 #define IN_CILK_SIMD_FOR       32
 #define IN_CILK_SPAWN          64
@@ -366,6 +377,7 @@ struct GTY(()) cp_parser {
   unsigned num_template_parameter_lists;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* When parsing #pragma omp declare simd, this is a vector of
      the clauses, each tree is either NULL_TREE, or OMP_CLAUSE
      with optional chain of other clauses.  If error regarding
@@ -376,6 +388,8 @@ struct GTY(()) cp_parser {
   vec<tree, va_gc> *omp_declare_simd_clauses;
 } cp_parser;
 =======
+=======
+>>>>>>> gcc-mirror/master
   /* When parsing #pragma omp declare simd, this is a pointer to a
      data structure with everything needed for parsing the clauses.  */
   cp_omp_declare_simd_data * GTY((skip)) omp_declare_simd;
@@ -424,6 +438,9 @@ struct GTY(()) cp_parser {
   int prevent_constrained_type_specifiers;
 
 };
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 /* In parser.c  */

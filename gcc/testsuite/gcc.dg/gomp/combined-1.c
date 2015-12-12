@@ -22,6 +22,9 @@ int foo (void)
 
 /* { dg-final { scan-tree-dump-times "GOMP_parallel_loop_runtime" 3 "optimized" } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { cleanup-tree-dump "optimized" } } */
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master

@@ -1171,12 +1171,21 @@ check_redeclaration_exception_specification (tree new_decl,
 {
   tree new_exceptions = TYPE_RAISES_EXCEPTIONS (TREE_TYPE (new_decl));
   tree old_exceptions = TYPE_RAISES_EXCEPTIONS (TREE_TYPE (old_decl));
+<<<<<<< HEAD
 
   /* Two default specs are equivalent, don't force evaluation.  */
   if (UNEVALUATED_NOEXCEPT_SPEC_P (new_exceptions)
       && UNEVALUATED_NOEXCEPT_SPEC_P (old_exceptions))
     return;
 
+=======
+
+  /* Two default specs are equivalent, don't force evaluation.  */
+  if (UNEVALUATED_NOEXCEPT_SPEC_P (new_exceptions)
+      && UNEVALUATED_NOEXCEPT_SPEC_P (old_exceptions))
+    return;
+
+>>>>>>> gcc-mirror/master
   maybe_instantiate_noexcept (new_decl);
   maybe_instantiate_noexcept (old_decl);
   new_exceptions = TYPE_RAISES_EXCEPTIONS (TREE_TYPE (new_decl));
@@ -4555,8 +4564,9 @@ check_tag_decl (cp_decl_specifier_seq *declspecs,
     permerror (input_location, "declaration does not declare anything");
   else if (declared_type != NULL_TREE && type_uses_auto (declared_type))
     {
-      error ("%<auto%> can only be specified for variables "
-	     "or function declarations");
+      error_at (declspecs->locations[ds_type_spec],
+		"%<auto%> can only be specified for variables "
+		"or function declarations");
       return error_mark_node;
     }
   /* Check for an anonymous union.  */
@@ -8095,9 +8105,12 @@ grokfndecl (tree ctype,
     TREE_NOTHROW (decl) = 1;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (omp_declare_simd_clauses)
     finish_omp_declare_simd (decl, omp_declare_simd_clauses);
 =======
+=======
+>>>>>>> gcc-mirror/master
   if (flag_openmp || flag_openmp_simd || flag_cilkplus)
     {
       /* Adjust "omp declare simd" attributes.  */
@@ -8124,6 +8137,9 @@ grokfndecl (tree ctype,
 	    }
 	}
     }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
   /* Caller will do the rest of this.  */
@@ -14587,6 +14603,14 @@ finish_function (int flags)
      the NRV transformation.   */
   maybe_save_function_definition (fndecl);
 
+  /* Invoke the pre-genericize plugin before we start munging things.  */
+  if (!processing_template_decl)
+    invoke_plugin_callbacks (PLUGIN_PRE_GENERICIZE, fndecl);
+
+  /* Perform delayed folding before NRV transformation.  */
+  if (!processing_template_decl)
+    cp_fold_function (fndecl);
+
   /* Set up the named return value optimization, if we can.  Candidate
      variables are selected in check_return_expr.  */
   if (current_function_return_value)
@@ -14693,7 +14717,6 @@ finish_function (int flags)
   if (!processing_template_decl)
     {
       struct language_function *f = DECL_SAVED_FUNCTION_DATA (fndecl);
-      invoke_plugin_callbacks (PLUGIN_PRE_GENERICIZE, fndecl);
       cp_genericize (fndecl);
       /* Clear out the bits we don't need.  */
       f->x_current_class_ptr = NULL;

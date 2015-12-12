@@ -52,6 +52,7 @@
 #define CA53_ERR_835769_SPEC \
   " %{mfix-cortex-a53-835769:--fix-cortex-a53-835769}"
 #endif
+<<<<<<< HEAD
 
 #ifdef TARGET_FIX_ERR_A53_843419_DEFAULT
 #define CA53_ERR_843419_SPEC \
@@ -61,6 +62,17 @@
   " %{mfix-cortex-a53-843419:--fix-cortex-a53-843419}"
 #endif
 
+=======
+
+#ifdef TARGET_FIX_ERR_A53_843419_DEFAULT
+#define CA53_ERR_843419_SPEC \
+  " %{!mno-fix-cortex-a53-843419:--fix-cortex-a53-843419}"
+#else
+#define CA53_ERR_843419_SPEC \
+  " %{mfix-cortex-a53-843419:--fix-cortex-a53-843419}"
+#endif
+
+>>>>>>> gcc-mirror/master
 #define LINK_SPEC LINUX_TARGET_LINK_SPEC \
                   CA53_ERR_835769_SPEC \
                   CA53_ERR_843419_SPEC
@@ -88,4 +100,10 @@
 #undef TARGET_BINDS_LOCAL_P
 #define TARGET_BINDS_LOCAL_P default_binds_local_p_2
 
+<<<<<<< HEAD
+=======
+/* Define this to be nonzero if static stack checking is supported.  */
+#define STACK_CHECK_STATIC_BUILTIN 1
+
+>>>>>>> gcc-mirror/master
 #endif  /* GCC_AARCH64_LINUX_H */

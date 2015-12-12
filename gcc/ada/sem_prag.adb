@@ -358,7 +358,11 @@ package body Sem_Prag is
 
       Others_Seen : Boolean := False;
       --  This flag is set when an "others" choice is encountered. It is used
+<<<<<<< HEAD
       --  to detect multiple illegal occurences of "others".
+=======
+      --  to detect multiple illegal occurrences of "others".
+>>>>>>> gcc-mirror/master
 
       procedure Analyze_Contract_Case (CCase : Node_Id);
       --  Verify the legality of a single contract case
@@ -411,7 +415,11 @@ package body Sem_Prag is
                Preanalyze_Assert_Expression (Case_Guard, Standard_Boolean);
 
                --  Emit a clarification message when the case guard contains
+<<<<<<< HEAD
                --  at leat one undefined reference, possibly due to contract
+=======
+               --  at least one undefined reference, possibly due to contract
+>>>>>>> gcc-mirror/master
                --  "freezing".
 
                if Errors /= Serious_Errors_Detected
@@ -426,7 +434,11 @@ package body Sem_Prag is
             Preanalyze_Assert_Expression (Conseq, Standard_Boolean);
 
             --  Emit a clarification message when the consequence contains
+<<<<<<< HEAD
             --  at leat one undefined reference, possibly due to contract
+=======
+            --  at least one undefined reference, possibly due to contract
+>>>>>>> gcc-mirror/master
             --  "freezing".
 
             if Errors /= Serious_Errors_Detected
@@ -23230,8 +23242,13 @@ package body Sem_Prag is
       Errors := Serious_Errors_Detected;
       Preanalyze_Assert_Expression (Expr, Standard_Boolean);
 
+<<<<<<< HEAD
       --  Emit a clarification message when the expression contains at leat one
       --  undefined reference, possibly due to contract "freezing".
+=======
+      --  Emit a clarification message when the expression contains at least
+      --  one undefined reference, possibly due to contract "freezing".
+>>>>>>> gcc-mirror/master
 
       if Errors /= Serious_Errors_Detected
         and then Present (Freeze_Id)
@@ -26712,7 +26729,11 @@ package body Sem_Prag is
    begin
       Global_Seen := False;
 
+<<<<<<< HEAD
       --  Process all formal parameters of entries, [generic] subprograms and
+=======
+      --  Process all formal parameters of entries, [generic] subprograms, and
+>>>>>>> gcc-mirror/master
       --  their bodies.
 
       if Ekind_In (Subp_Id, E_Entry,
@@ -26744,7 +26765,11 @@ package body Sem_Prag is
                Append_New_Elmt (Formal, Subp_Outputs);
 
                --  Out parameters can act as inputs when the related type is
+<<<<<<< HEAD
                --  tagged, unconstrained array, unconstrained record or record
+=======
+               --  tagged, unconstrained array, unconstrained record, or record
+>>>>>>> gcc-mirror/master
                --  with unconstrained components.
 
                if Ekind (Formal) = E_Out_Parameter

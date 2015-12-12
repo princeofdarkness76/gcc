@@ -209,6 +209,7 @@ struct GTY(()) odr_type_d
   bool rtti_broken;
 };
 
+<<<<<<< HEAD
 /* Return true if T is a type with linkage defined.  */
 
 bool
@@ -296,6 +297,8 @@ odr_type_p (const_tree t)
   return false;
 }
 
+=======
+>>>>>>> gcc-mirror/master
 /* Return TRUE if all derived types of T are known and thus
    we may consider the walk of derived type complete.
 
@@ -1969,6 +1972,7 @@ add_type_duplicate (odr_type val, tree type)
       merge = false;
       odr_violation_reported = true;
       val->odr_violated = true;
+<<<<<<< HEAD
       if (symtab->dump_file)
 	{
 	  fprintf (symtab->dump_file, "ODR violation\n");
@@ -1978,6 +1982,8 @@ add_type_duplicate (odr_type val, tree type)
 	  print_node (symtab->dump_file, "", type, 0);
 	  putc ('\n',symtab->dump_file);
 	}
+=======
+>>>>>>> gcc-mirror/master
     }
   gcc_assert (val->odr_violated || !odr_must_violate);
   /* Sanity check that all bases will be build same way again.  */
@@ -2987,7 +2993,11 @@ struct decl_warn_count
 struct final_warning_record
 {
   gcov_type dyn_count;
+<<<<<<< HEAD
   vec<odr_type_warn_count> type_warnings;
+=======
+  auto_vec<odr_type_warn_count> type_warnings;
+>>>>>>> gcc-mirror/master
   hash_map<tree, decl_warn_count> decl_warnings;
 };
 struct final_warning_record *final_warning_records;
@@ -3609,7 +3619,10 @@ ipa_devirt (void)
   if (warn_suggest_final_methods || warn_suggest_final_types)
     {
       final_warning_records = new (final_warning_record);
+<<<<<<< HEAD
       final_warning_records->type_warnings = vNULL;
+=======
+>>>>>>> gcc-mirror/master
       final_warning_records->type_warnings.safe_grow_cleared (odr_types.length ());
       free_polymorphic_call_targets_hash ();
     }
@@ -3837,7 +3850,11 @@ ipa_devirt (void)
 
       if (warn_suggest_final_methods)
 	{
+<<<<<<< HEAD
 	  vec<const decl_warn_count*> decl_warnings_vec = vNULL;
+=======
+	  auto_vec<const decl_warn_count*> decl_warnings_vec;
+>>>>>>> gcc-mirror/master
 
 	  final_warning_records->decl_warnings.traverse
 	    <vec<const decl_warn_count *> *, add_decl_warning> (&decl_warnings_vec);
@@ -3887,7 +3904,11 @@ ipa_devirt (void)
 			      decl, count, dyn_count);
 	    }
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> gcc-mirror/master
       delete (final_warning_records);
       final_warning_records = 0;
     }

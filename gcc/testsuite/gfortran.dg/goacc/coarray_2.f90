@@ -2,7 +2,10 @@
 ! { dg-additional-options "-fcoarray=lib" }
 !
 ! PR fortran/63861
+<<<<<<< HEAD
 ! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
+=======
+>>>>>>> gcc-mirror/master
 
 module test
 contains
@@ -19,7 +22,11 @@ contains
     !$acc end parallel
     !$acc host_data use_device (a)
     !$acc end host_data
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -71,7 +78,11 @@ contains
     !$acc end parallel
     !$acc host_data use_device (a)
     !$acc end host_data
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -93,7 +104,11 @@ contains
     !$acc end data
     !$acc parallel private (a)
     !$acc end parallel
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -106,4 +121,7 @@ contains
     !$acc update self (a)
   end subroutine oacc4
 end module test
+<<<<<<< HEAD
 ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
+=======
+>>>>>>> gcc-mirror/master

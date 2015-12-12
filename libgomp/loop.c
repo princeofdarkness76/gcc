@@ -680,6 +680,7 @@ GOMP_parallel_loop_runtime (void (*fn) (void *), void *data,
 			    flags);
   fn (data);
   GOMP_parallel_end ();
+<<<<<<< HEAD
 }
 
 ialias_redirect (GOMP_parallel_end)
@@ -731,6 +732,8 @@ GOMP_parallel_loop_runtime (void (*fn) (void *), void *data,
 			    icv->run_sched_var, icv->run_sched_modifier);
   fn (data);
   GOMP_parallel_end ();
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* The GOMP_loop_end* routines are called after the thread is told that

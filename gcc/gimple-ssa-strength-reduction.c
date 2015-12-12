@@ -1649,12 +1649,20 @@ class find_candidates_dom_walker : public dom_walker
 public:
   find_candidates_dom_walker (cdi_direction direction)
     : dom_walker (direction) {}
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 };
 
 /* Find strength-reduction candidates in block BB.  */
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 find_candidates_dom_walker::before_dom_children (basic_block bb)
 {
   bool speed = optimize_bb_for_speed_p (bb);
@@ -1737,6 +1745,7 @@ find_candidates_dom_walker::before_dom_children (basic_block bb)
 	    }
 	}
     }
+  return NULL;
 }
 
 /* Dump a candidate for debug.  */
@@ -3576,6 +3585,7 @@ analyze_candidates_and_replace (void)
 namespace {
 
 const pass_data pass_data_strength_reduction =
+<<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
   "slsr", /* name */
@@ -3601,6 +3611,33 @@ public:
 
 }; // class pass_strength_reduction
 
+=======
+{
+  GIMPLE_PASS, /* type */
+  "slsr", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_GIMPLE_SLSR, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_strength_reduction : public gimple_opt_pass
+{
+public:
+  pass_strength_reduction (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_strength_reduction, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_slsr; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_strength_reduction
+
+>>>>>>> gcc-mirror/master
 unsigned
 pass_strength_reduction::execute (function *fun)
 {

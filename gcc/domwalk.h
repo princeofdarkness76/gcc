@@ -30,6 +30,7 @@ along with GCC; see the file COPYING3.  If not see
 class dom_walker
 {
 public:
+<<<<<<< HEAD
   dom_walker (cdi_direction direction) : m_dom_direction (direction) {}
 
   /* Walk the dominator tree.  */
@@ -37,6 +38,28 @@ public:
 
   /* Function to call before the recursive walk of the dominator children.  */
   virtual void before_dom_children (basic_block) {}
+=======
+  /* Use SKIP_UNREACHBLE_BLOCKS = true when your client can discover
+     that some edges are not executable.
+
+     If a client can discover that a COND, SWITCH or GOTO has a static
+     target in the before_dom_children callback, the taken edge should
+     be returned.  The generic walker will clear EDGE_EXECUTABLE on all
+     edges it can determine are not executable.  */
+  dom_walker (cdi_direction direction, bool skip_unreachable_blocks = false);
+
+  /* Walk the dominator tree.  */
+  void walk (basic_block);
+
+  /* Function to call before the recursive walk of the dominator children.
+
+     Return value is the always taken edge if the block has multiple outgoing
+     edges, NULL otherwise.  When skipping unreachable blocks, the walker
+     uses the taken edge information to clear EDGE_EXECUTABLE on the other
+     edges, exposing unreachable blocks.  A NULL return value means all
+     outgoing edges should still be considered executable.  */
+  virtual edge before_dom_children (basic_block) { return NULL; }
+>>>>>>> gcc-mirror/master
 
   /* Function to call after the recursive walk of the dominator children.  */
   virtual void after_dom_children (basic_block) {}
@@ -47,6 +70,21 @@ private:
      if it is set to CDI_POST_DOMINATORS, then we walk the post
      dominator tree.  */
   const ENUM_BITFIELD (cdi_direction) m_dom_direction : 2;
+<<<<<<< HEAD
+=======
+  bool m_skip_unreachable_blocks;
+  basic_block m_unreachable_dom;
+
+  /* Query whether or not the given block is reachable or not.  */
+  bool bb_reachable (struct function *, basic_block);
+
+  /* Given an unreachable block, propagate that property to outgoing
+     and possibly incoming edges for the block.  Typically called after
+     determining a block is unreachable in the before_dom_children
+     callback.  */
+  void propagate_unreachable_to_edges (basic_block, FILE *, int);
+
+>>>>>>> gcc-mirror/master
 };
 
 #endif

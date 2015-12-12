@@ -5,4 +5,8 @@
 
 #define _GNU_SOURCE 	/* { dg-warning "redefined" } */
 
+<<<<<<< HEAD
 /* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 }
+=======
+/* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master

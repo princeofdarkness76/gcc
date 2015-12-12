@@ -139,10 +139,13 @@ enum lto_builtin_type
 #define DEF_FUNCTION_TYPE_4(NAME, RETURN, ARG1, ARG2, ARG3, ARG4) NAME,
 #define DEF_FUNCTION_TYPE_5(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5) NAME,
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) NAME,
 #define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) NAME,
 =======
+=======
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
@@ -155,6 +158,9 @@ enum lto_builtin_type
 			     ARG6, ARG7, ARG8, ARG9, ARG10) NAME,
 #define DEF_FUNCTION_TYPE_11(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) NAME,
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(NAME, RETURN) NAME,
 #define DEF_FUNCTION_TYPE_VAR_1(NAME, RETURN, ARG1) NAME,
@@ -180,6 +186,12 @@ enum lto_builtin_type
 #undef DEF_FUNCTION_TYPE_7
 #undef DEF_FUNCTION_TYPE_8
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef DEF_FUNCTION_TYPE_9
+#undef DEF_FUNCTION_TYPE_10
+#undef DEF_FUNCTION_TYPE_11
+>>>>>>> gcc-mirror/master
 =======
 #undef DEF_FUNCTION_TYPE_9
 #undef DEF_FUNCTION_TYPE_10
@@ -666,7 +678,10 @@ lto_define_builtins (tree va_list_ref_type_node ATTRIBUTE_UNUSED,
   def_fn_type (ENUM, RETURN, 0, 8, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	\
 	       ARG7, ARG8);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_9(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6, ARG7, ARG8, ARG9)			\
   def_fn_type (ENUM, RETURN, 0, 9, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	\
@@ -679,6 +694,9 @@ lto_define_builtins (tree va_list_ref_type_node ATTRIBUTE_UNUSED,
 			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11)	 \
   def_fn_type (ENUM, RETURN, 0, 11, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	 \
 	       ARG7, ARG8, ARG9, ARG10, ARG11);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(ENUM, RETURN) \
   def_fn_type (ENUM, RETURN, 1, 0);
@@ -830,6 +848,35 @@ lto_post_options (const char **pfilename ATTRIBUTE_UNUSED)
 
   if (flag_wpa)
     flag_generate_lto = 1;
+
+  /* Initialize the codegen flags according to the output type.  */
+  switch (flag_lto_linker_output)
+    {
+    case LTO_LINKER_OUTPUT_REL: /* .o: incremental link producing LTO IL  */
+      flag_whole_program = 0;
+      flag_incremental_link = 1;
+      break;
+
+    case LTO_LINKER_OUTPUT_DYN: /* .so: PID library */
+      /* On some targets, like i386 it makes sense to build PIC library wihout
+	 -fpic for performance reasons.  So no need to adjust flags.  */
+      break;
+
+    case LTO_LINKER_OUTPUT_PIE: /* PIE binary */
+      /* If -fPIC or -fPIE was used at compile time, be sure that
+         flag_pie is 2.  */
+      flag_pie = MAX (flag_pie, flag_pic);
+      flag_pic = 0;
+      break;
+
+    case LTO_LINKER_OUTPUT_EXEC: /* Normal executable */
+      flag_pic = 0;
+      flag_pie = 0;
+      break;
+
+    case LTO_LINKER_OUTPUT_UNKNOWN:
+      break;
+    }
 
   /* Excess precision other than "fast" requires front-end
      support.  */

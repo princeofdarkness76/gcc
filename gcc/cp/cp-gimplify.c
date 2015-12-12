@@ -231,6 +231,7 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
   *walk_subtrees = 0;
 
   if (cond && TREE_CODE (cond) != INTEGER_CST)
+<<<<<<< HEAD
     {
       /* If COND is constant, don't bother building an exit.  If it's false,
 	 we won't build a loop.  If it's true, any exits are in the body.  */
@@ -261,6 +262,47 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
 				build_empty_stmt (start_locus));
       else
 	loop = stmt_list;
+=======
+    {
+      /* If COND is constant, don't bother building an exit.  If it's false,
+	 we won't build a loop.  If it's true, any exits are in the body.  */
+      location_t cloc = EXPR_LOC_OR_LOC (cond, start_locus);
+      exit = build1_loc (cloc, GOTO_EXPR, void_type_node,
+			 get_bc_label (bc_break));
+      exit = fold_build3_loc (cloc, COND_EXPR, void_type_node, cond,
+			      build_empty_stmt (cloc), exit);
+    }
+
+  if (exit && cond_is_first)
+    append_to_statement_list (exit, &stmt_list);
+  append_to_statement_list (body, &stmt_list);
+  finish_bc_block (&stmt_list, bc_continue, clab);
+  append_to_statement_list (incr, &stmt_list);
+  if (exit && !cond_is_first)
+    append_to_statement_list (exit, &stmt_list);
+
+  if (!stmt_list)
+    stmt_list = build_empty_stmt (start_locus);
+
+  tree loop;
+  if (cond && integer_zerop (cond))
+    {
+      if (cond_is_first)
+	loop = fold_build3_loc (start_locus, COND_EXPR,
+				void_type_node, cond, stmt_list,
+				build_empty_stmt (start_locus));
+      else
+	loop = stmt_list;
+    }
+  else
+    {
+      location_t loc = start_locus;
+      if (!cond || integer_nonzerop (cond))
+	loc = EXPR_LOCATION (expr_first (body));
+      if (loc == UNKNOWN_LOCATION)
+	loc = start_locus;
+      loop = build1_loc (loc, LOOP_EXPR, void_type_node, stmt_list);
+>>>>>>> gcc-mirror/master
     }
   else
     loop = build1_loc (start_locus, LOOP_EXPR, void_type_node, stmt_list);
@@ -707,8 +749,13 @@ cp_gimplify_expr (tree *expr_p, gimple_seq *pre_p, gimple_seq *post_p)
     case OMP_FOR:
     case OMP_SIMD:
 <<<<<<< HEAD
+<<<<<<< HEAD
     case CILK_SIMD:
     case OMP_DISTRIBUTE:
+=======
+    case OMP_DISTRIBUTE:
+    case OMP_TASKLOOP:
+>>>>>>> gcc-mirror/master
 =======
     case OMP_DISTRIBUTE:
     case OMP_TASKLOOP:
@@ -989,6 +1036,18 @@ cp_fold_r (tree *stmt_p, int *walk_subtrees, void *data)
   return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/* Fold ALL the trees!  FIXME we should be able to remove this, but
+   apparently that still causes optimization regressions.  */
+
+void
+cp_fold_function (tree fndecl)
+{
+  cp_walk_tree (&DECL_SAVED_TREE (fndecl), cp_fold_r, NULL, NULL);
+}
+
+>>>>>>> gcc-mirror/master
 /* Perform any pre-gimplification lowering of C++ front end trees to
    GENERIC.  */
 
@@ -1361,8 +1420,13 @@ cp_genericize_r (tree *stmt_p, int *walk_subtrees, void *data)
   else if (TREE_CODE (stmt) == OMP_FOR
 	   || TREE_CODE (stmt) == OMP_SIMD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	   || TREE_CODE (stmt) == CILK_SIMD
 	   || TREE_CODE (stmt) == OMP_DISTRIBUTE)
+=======
+	   || TREE_CODE (stmt) == OMP_DISTRIBUTE
+	   || TREE_CODE (stmt) == OMP_TASKLOOP)
+>>>>>>> gcc-mirror/master
 =======
 	   || TREE_CODE (stmt) == OMP_DISTRIBUTE
 	   || TREE_CODE (stmt) == OMP_TASKLOOP)
@@ -1886,6 +1950,44 @@ cp_fully_fold (tree x)
   return cp_fold (x);
 }
 
+<<<<<<< HEAD
+=======
+/* Fold expression X which is used as an rvalue if RVAL is true.  */
+
+static tree
+cp_fold_maybe_rvalue (tree x, bool rval)
+{
+  if (rval && DECL_P (x))
+    {
+      tree v = decl_constant_value (x);
+      if (v != error_mark_node)
+	x = v;
+    }
+  return cp_fold (x);
+}
+
+/* Fold expression X which is used as an rvalue.  */
+
+static tree
+cp_fold_rvalue (tree x)
+{
+  return cp_fold_maybe_rvalue (x, true);
+}
+
+/* c-common interface to cp_fold.  If IN_INIT, this is in a static initializer
+   and certain changes are made to the folding done.  Or should be (FIXME).  We
+   never touch maybe_const, as it is only used for the C front-end
+   C_MAYBE_CONST_EXPR.  */
+
+tree
+c_fully_fold (tree x, bool /*in_init*/, bool */*maybe_const*/)
+{
+  /* c_fully_fold is only used on rvalues, and we need to fold CONST_DECL to
+     INTEGER_CST.  */
+  return cp_fold_rvalue (x);
+}
+
+>>>>>>> gcc-mirror/master
 static GTY((cache, deletable)) cache_map fold_cache;
 
 /*  This function tries to fold an expression X.
@@ -1902,12 +2004,22 @@ cp_fold (tree x)
   tree org_x = x, r = NULL_TREE;
   enum tree_code code;
   location_t loc;
+<<<<<<< HEAD
 
   if (!x || error_operand_p (x))
     return x;
 
   if (processing_template_decl
       || (EXPR_P (x) && !TREE_TYPE (x)))
+=======
+  bool rval_ops = true;
+
+  if (!x || x == error_mark_node)
+    return x;
+
+  if (processing_template_decl
+      || (EXPR_P (x) && (!TREE_TYPE (x) || TREE_TYPE (x) == error_mark_node)))
+>>>>>>> gcc-mirror/master
     return x;
 
   /* Don't bother to cache DECLs or constants.  */
@@ -1925,6 +2037,10 @@ cp_fold (tree x)
       break;
 
     case VIEW_CONVERT_EXPR:
+<<<<<<< HEAD
+=======
+      rval_ops = false;
+>>>>>>> gcc-mirror/master
     case CONVERT_EXPR:
     case NOP_EXPR:
     case NON_LVALUE_EXPR:
@@ -1944,12 +2060,21 @@ cp_fold (tree x)
 	  && TREE_TYPE (x) == TREE_TYPE (op0))
 	return x;
 
+<<<<<<< HEAD
       op0 = cp_fold (op0);
 
       if (op0 != TREE_OPERAND (x, 0))
         x = build1_loc (loc, code, TREE_TYPE (x), op0);
 
       x = fold (x);
+=======
+      op0 = cp_fold_maybe_rvalue (op0, rval_ops);
+
+      if (op0 != TREE_OPERAND (x, 0))
+        x = fold_build1_loc (loc, code, TREE_TYPE (x), op0);
+      else
+	x = fold (x);
+>>>>>>> gcc-mirror/master
 
       /* Conversion of an out-of-range value has implementation-defined
 	 behavior; the language considers it different from arithmetic
@@ -1960,10 +2085,17 @@ cp_fold (tree x)
 
       break;
 
+<<<<<<< HEAD
     case SAVE_EXPR:
     case ADDR_EXPR:
     case REALPART_EXPR:
     case IMAGPART_EXPR:
+=======
+    case ADDR_EXPR:
+    case REALPART_EXPR:
+    case IMAGPART_EXPR:
+      rval_ops = false;
+>>>>>>> gcc-mirror/master
     case CONJ_EXPR:
     case FIX_TRUNC_EXPR:
     case FLOAT_EXPR:
@@ -1976,12 +2108,21 @@ cp_fold (tree x)
     case INDIRECT_REF:
 
       loc = EXPR_LOCATION (x);
+<<<<<<< HEAD
       op0 = cp_fold (TREE_OPERAND (x, 0));
 
       if (op0 != TREE_OPERAND (x, 0))
         x = build1_loc (loc, code, TREE_TYPE (x), op0);
 
       x = fold (x);
+=======
+      op0 = cp_fold_maybe_rvalue (TREE_OPERAND (x, 0), rval_ops);
+
+      if (op0 != TREE_OPERAND (x, 0))
+        x = fold_build1_loc (loc, code, TREE_TYPE (x), op0);
+      else
+	x = fold (x);
+>>>>>>> gcc-mirror/master
 
       gcc_assert (TREE_CODE (x) != COND_EXPR
 		  || !VOID_TYPE_P (TREE_TYPE (TREE_OPERAND (x, 0))));
@@ -1993,7 +2134,11 @@ cp_fold (tree x)
 
 	loc = EXPR_LOCATION (x);
 	op0 = cp_fold (TREE_OPERAND (x, 0));
+<<<<<<< HEAD
 	op1 = cp_fold (TREE_OPERAND (x, 1));
+=======
+	op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
+>>>>>>> gcc-mirror/master
 
 	if (TREE_OPERAND (x, 0) != op0 || TREE_OPERAND (x, 1) != op1)
 	  x = build2_loc (loc, code, TREE_TYPE (x), op0, op1);
@@ -2003,6 +2148,11 @@ cp_fold (tree x)
     case PREDECREMENT_EXPR:
     case PREINCREMENT_EXPR:
     case COMPOUND_EXPR:
+<<<<<<< HEAD
+=======
+    case MODIFY_EXPR:
+      rval_ops = false;
+>>>>>>> gcc-mirror/master
     case POINTER_PLUS_EXPR:
     case PLUS_EXPR:
     case MINUS_EXPR:
@@ -2038,11 +2188,18 @@ cp_fold (tree x)
     case UNGT_EXPR: case UNGE_EXPR:
     case UNEQ_EXPR: case LTGT_EXPR:
     case RANGE_EXPR: case COMPLEX_EXPR:
+<<<<<<< HEAD
     case MODIFY_EXPR:
 
       loc = EXPR_LOCATION (x);
       op0 = cp_fold (TREE_OPERAND (x, 0));
       op1 = cp_fold (TREE_OPERAND (x, 1));
+=======
+
+      loc = EXPR_LOCATION (x);
+      op0 = cp_fold_maybe_rvalue (TREE_OPERAND (x, 0), rval_ops);
+      op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
+>>>>>>> gcc-mirror/master
       if ((code == COMPOUND_EXPR || code == MODIFY_EXPR)
 	  && ((op1 && TREE_SIDE_EFFECTS (op1))
 	       || (op0 && TREE_SIDE_EFFECTS (op0))))
@@ -2051,9 +2208,15 @@ cp_fold (tree x)
 	op0 = build_empty_stmt (loc);
 
       if (op0 != TREE_OPERAND (x, 0) || op1 != TREE_OPERAND (x, 1))
+<<<<<<< HEAD
 	x = build2_loc (loc, code, TREE_TYPE (x), op0, op1);
 
       x = fold (x);
+=======
+	x = fold_build2_loc (loc, code, TREE_TYPE (x), op0, op1);
+      else
+	x = fold (x);
+>>>>>>> gcc-mirror/master
 
       if (TREE_CODE (x) == COMPOUND_EXPR && TREE_OPERAND (x, 0) == NULL_TREE
 	  && TREE_OPERAND (x, 1))
@@ -2064,7 +2227,11 @@ cp_fold (tree x)
     case COND_EXPR:
 
       loc = EXPR_LOCATION (x);
+<<<<<<< HEAD
       op0 = cp_fold (TREE_OPERAND (x, 0));
+=======
+      op0 = cp_fold_rvalue (TREE_OPERAND (x, 0));
+>>>>>>> gcc-mirror/master
 
       if (TREE_SIDE_EFFECTS (op0))
 	break;

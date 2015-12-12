@@ -856,7 +856,11 @@ gimple_build_omp_critical (gimple_seq body, tree name, tree clauses)
    PRE_BODY is the sequence of statements that are loop invariant.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 gimple
+=======
+gomp_for *
+>>>>>>> gcc-mirror/master
 =======
 gomp_for *
 >>>>>>> gcc-mirror/master
@@ -869,9 +873,15 @@ gimple_build_omp_for (gimple_seq body, int kind, tree clauses, size_t collapse,
   gimple_omp_for_set_clauses (p, clauses);
   gimple_omp_for_set_kind (p, kind);
 <<<<<<< HEAD
+<<<<<<< HEAD
   p->gimple_omp_for.collapse = collapse;
   p->gimple_omp_for.iter
       = ggc_alloc_cleared_vec_gimple_omp_for_iter (collapse);
+=======
+  p->collapse = collapse;
+  p->iter =  ggc_cleared_vec_alloc<gimple_omp_for_iter> (collapse);
+
+>>>>>>> gcc-mirror/master
 =======
   p->collapse = collapse;
   p->iter =  ggc_cleared_vec_alloc<gimple_omp_for_iter> (collapse);
@@ -1080,6 +1090,7 @@ gimple_build_omp_single (gimple_seq body, tree clauses)
 
    BODY is the sequence of statements that will be executed.
 <<<<<<< HEAD
+<<<<<<< HEAD
    CLAUSES are any of the OMP target construct's clauses.  */
 
 gimple
@@ -1087,6 +1098,8 @@ gimple_build_omp_target (gimple_seq body, int kind, tree clauses)
 {
   gimple p = gimple_alloc (GIMPLE_OMP_TARGET, 0);
 =======
+=======
+>>>>>>> gcc-mirror/master
    KIND is the kind of the region.
    CLAUSES are any of the construct's clauses.  */
 
@@ -1095,6 +1108,9 @@ gimple_build_omp_target (gimple_seq body, int kind, tree clauses)
 {
   gomp_target *p
     = as_a <gomp_target *> (gimple_alloc (GIMPLE_OMP_TARGET, 0));
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   if (body)
     gimple_omp_set_body (p, body);
@@ -1103,6 +1119,7 @@ gimple_build_omp_target (gimple_seq body, int kind, tree clauses)
 
   return p;
 }
+<<<<<<< HEAD
 
 
 /* Build a GIMPLE_OMP_TEAMS statement.
@@ -1131,6 +1148,29 @@ gimple_build_omp_teams (gimple_seq body, tree clauses)
 
 /* Build a GIMPLE_OMP_ATOMIC_LOAD statement.  */
 
+=======
+
+
+/* Build a GIMPLE_OMP_TEAMS statement.
+
+   BODY is the sequence of statements that will be executed.
+   CLAUSES are any of the OMP teams construct's clauses.  */
+
+gomp_teams *
+gimple_build_omp_teams (gimple_seq body, tree clauses)
+{
+  gomp_teams *p = as_a <gomp_teams *> (gimple_alloc (GIMPLE_OMP_TEAMS, 0));
+  if (body)
+    gimple_omp_set_body (p, body);
+  gimple_omp_teams_set_clauses (p, clauses);
+
+  return p;
+}
+
+
+/* Build a GIMPLE_OMP_ATOMIC_LOAD statement.  */
+
+>>>>>>> gcc-mirror/master
 gomp_atomic_load *
 gimple_build_omp_atomic_load (tree lhs, tree rhs)
 {
@@ -1494,6 +1534,7 @@ gimple_assign_copy_p (gimple *gs)
 
 /* Return true if GS is a SSA_NAME copy assignment.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       for (i = 0; i < gimple_call_num_args (stmt); i++)
 	{
@@ -2052,6 +2093,10 @@ gimple_assign_ssa_name_copy_p (gimple gs)
 bool
 gimple_assign_ssa_name_copy_p (gimple *gs)
 >>>>>>> gcc-mirror/master
+=======
+bool
+gimple_assign_ssa_name_copy_p (gimple *gs)
+>>>>>>> gcc-mirror/master
 {
   return (gimple_assign_single_p (gs)
 	  && TREE_CODE (gimple_assign_lhs (gs)) == SSA_NAME
@@ -2222,6 +2267,10 @@ gimple_set_lhs (gimple *stmt, tree lhs)
   else
     gcc_unreachable ();
 }
+<<<<<<< HEAD
+
+=======
+>>>>>>> gcc-mirror/master
 
 
 /* Return a deep copy of statement STMT.  All the operands from STMT
@@ -3174,6 +3223,7 @@ dump_decl_set (FILE *file, bitmap set)
     }
   else
     fprintf (file, "NIL");
+<<<<<<< HEAD
 }
 
 /* Return true when CALL is a call stmt that definitely doesn't
@@ -3216,6 +3266,62 @@ nonfreeing_call_p (gimple *call)
   if (!n || availability <= AVAIL_INTERPOSABLE)
     return false;
   return n->nonfreeing_fn;
+=======
+}
+
+/* Return true when CALL is a call stmt that definitely doesn't
+   free any memory or makes it unavailable otherwise.  */
+bool
+nonfreeing_call_p (gimple *call)
+{
+  if (gimple_call_builtin_p (call, BUILT_IN_NORMAL)
+      && gimple_call_flags (call) & ECF_LEAF)
+    switch (DECL_FUNCTION_CODE (gimple_call_fndecl (call)))
+      {
+	/* Just in case these become ECF_LEAF in the future.  */
+	case BUILT_IN_FREE:
+	case BUILT_IN_TM_FREE:
+	case BUILT_IN_REALLOC:
+	case BUILT_IN_STACK_RESTORE:
+	  return false;
+	default:
+	  return true;
+      }
+  else if (gimple_call_internal_p (call))
+    switch (gimple_call_internal_fn (call))
+      {
+      case IFN_ABNORMAL_DISPATCHER:
+        return true;
+      default:
+	if (gimple_call_flags (call) & ECF_LEAF)
+	  return true;
+	return false;
+      }
+
+  tree fndecl = gimple_call_fndecl (call);
+  if (!fndecl)
+    return false;
+  struct cgraph_node *n = cgraph_node::get (fndecl);
+  if (!n)
+    return false;
+  enum availability availability;
+  n = n->function_symbol (&availability);
+  if (!n || availability <= AVAIL_INTERPOSABLE)
+    return false;
+  return n->nonfreeing_fn;
+}
+
+/* Return true when CALL is a call stmt that definitely need not
+   be considered to be a memory barrier.  */
+bool
+nonbarrier_call_p (gimple *call)
+{
+  if (gimple_call_flags (call) & (ECF_PURE | ECF_CONST))
+    return true;
+  /* Should extend this to have a nonbarrier_fn flag, just as above in
+     the nonfreeing case.  */
+  return false;
+>>>>>>> gcc-mirror/master
 }
 
 /* Callback for walk_stmt_load_store_ops.
@@ -3361,6 +3467,7 @@ sort_case_labels (vec<tree> label_vec)
 }
 
 /* Prepare a vector of case labels to be used in a GIMPLE_SWITCH statement.
+<<<<<<< HEAD
 
    LABELS is a vector that contains all case labels to look at.
 
@@ -3375,6 +3482,22 @@ sort_case_labels (vec<tree> label_vec)
    case is returned pointing to one of the existing case labels.
    Otherwise DEFAULT_CASEP is set to NULL_TREE.
 
+=======
+
+   LABELS is a vector that contains all case labels to look at.
+
+   INDEX_TYPE is the type of the switch index expression.  Case labels
+   in LABELS are discarded if their values are not in the value range
+   covered by INDEX_TYPE.  The remaining case label values are folded
+   to INDEX_TYPE.
+
+   If a default case exists in LABELS, it is removed from LABELS and
+   returned in DEFAULT_CASEP.  If no default case exists, but the
+   case labels already cover the whole range of INDEX_TYPE, a default
+   case is returned pointing to one of the existing case labels.
+   Otherwise DEFAULT_CASEP is set to NULL_TREE.
+
+>>>>>>> gcc-mirror/master
    DEFAULT_CASEP may be NULL, in which case the above comment doesn't
    apply and no action is taken regardless of whether a default case is
    found or not.  */
@@ -3387,6 +3510,7 @@ preprocess_case_label_vec_for_gimple (vec<tree> labels,
   tree min_value, max_value;
   tree default_case = NULL_TREE;
   size_t i, len;
+<<<<<<< HEAD
 
   i = 0;
   min_value = TYPE_MIN_VALUE (index_type);
@@ -3533,6 +3657,154 @@ preprocess_case_label_vec_for_gimple (vec<tree> labels,
 
 /* Set the location of all statements in SEQ to LOC.  */
 
+=======
+
+  i = 0;
+  min_value = TYPE_MIN_VALUE (index_type);
+  max_value = TYPE_MAX_VALUE (index_type);
+  while (i < labels.length ())
+    {
+      tree elt = labels[i];
+      tree low = CASE_LOW (elt);
+      tree high = CASE_HIGH (elt);
+      bool remove_element = FALSE;
+
+      if (low)
+	{
+	  gcc_checking_assert (TREE_CODE (low) == INTEGER_CST);
+	  gcc_checking_assert (!high || TREE_CODE (high) == INTEGER_CST);
+
+	  /* This is a non-default case label, i.e. it has a value.
+
+	     See if the case label is reachable within the range of
+	     the index type.  Remove out-of-range case values.  Turn
+	     case ranges into a canonical form (high > low strictly)
+	     and convert the case label values to the index type.
+
+	     NB: The type of gimple_switch_index() may be the promoted
+	     type, but the case labels retain the original type.  */
+
+	  if (high)
+	    {
+	      /* This is a case range.  Discard empty ranges.
+		 If the bounds or the range are equal, turn this
+		 into a simple (one-value) case.  */
+	      int cmp = tree_int_cst_compare (high, low);
+	      if (cmp < 0)
+		remove_element = TRUE;
+	      else if (cmp == 0)
+		high = NULL_TREE;
+	    }
+
+	  if (! high)
+	    {
+	      /* If the simple case value is unreachable, ignore it.  */
+	      if ((TREE_CODE (min_value) == INTEGER_CST
+		   && tree_int_cst_compare (low, min_value) < 0)
+		  || (TREE_CODE (max_value) == INTEGER_CST
+		      && tree_int_cst_compare (low, max_value) > 0))
+		remove_element = TRUE;
+	      else
+		low = fold_convert (index_type, low);
+	    }
+	  else
+	    {
+	      /* If the entire case range is unreachable, ignore it.  */
+	      if ((TREE_CODE (min_value) == INTEGER_CST
+		   && tree_int_cst_compare (high, min_value) < 0)
+		  || (TREE_CODE (max_value) == INTEGER_CST
+		      && tree_int_cst_compare (low, max_value) > 0))
+		remove_element = TRUE;
+	      else
+		{
+		  /* If the lower bound is less than the index type's
+		     minimum value, truncate the range bounds.  */
+		  if (TREE_CODE (min_value) == INTEGER_CST
+		      && tree_int_cst_compare (low, min_value) < 0)
+		    low = min_value;
+		  low = fold_convert (index_type, low);
+
+		  /* If the upper bound is greater than the index type's
+		     maximum value, truncate the range bounds.  */
+		  if (TREE_CODE (max_value) == INTEGER_CST
+		      && tree_int_cst_compare (high, max_value) > 0)
+		    high = max_value;
+		  high = fold_convert (index_type, high);
+
+		  /* We may have folded a case range to a one-value case.  */
+		  if (tree_int_cst_equal (low, high))
+		    high = NULL_TREE;
+		}
+	    }
+
+	  CASE_LOW (elt) = low;
+	  CASE_HIGH (elt) = high;
+	}
+      else
+	{
+	  gcc_assert (!default_case);
+	  default_case = elt;
+	  /* The default case must be passed separately to the
+	     gimple_build_switch routine.  But if DEFAULT_CASEP
+	     is NULL, we do not remove the default case (it would
+	     be completely lost).  */
+	  if (default_casep)
+	    remove_element = TRUE;
+	}
+
+      if (remove_element)
+	labels.ordered_remove (i);
+      else
+	i++;
+    }
+  len = i;
+
+  if (!labels.is_empty ())
+    sort_case_labels (labels);
+
+  if (default_casep && !default_case)
+    {
+      /* If the switch has no default label, add one, so that we jump
+	 around the switch body.  If the labels already cover the whole
+	 range of the switch index_type, add the default label pointing
+	 to one of the existing labels.  */
+      if (len
+	  && TYPE_MIN_VALUE (index_type)
+	  && TYPE_MAX_VALUE (index_type)
+	  && tree_int_cst_equal (CASE_LOW (labels[0]),
+				 TYPE_MIN_VALUE (index_type)))
+	{
+	  tree low, high = CASE_HIGH (labels[len - 1]);
+	  if (!high)
+	    high = CASE_LOW (labels[len - 1]);
+	  if (tree_int_cst_equal (high, TYPE_MAX_VALUE (index_type)))
+	    {
+	      for (i = 1; i < len; i++)
+		{
+		  high = CASE_LOW (labels[i]);
+		  low = CASE_HIGH (labels[i - 1]);
+		  if (!low)
+		    low = CASE_LOW (labels[i - 1]);
+		  if (wi::add (low, 1) != high)
+		    break;
+		}
+	      if (i == len)
+		{
+		  tree label = CASE_LABEL (labels[0]);
+		  default_case = build_case_label (NULL_TREE, NULL_TREE,
+						   label);
+		}
+	    }
+	}
+    }
+
+  if (default_casep)
+    *default_casep = default_case;
+}
+
+/* Set the location of all statements in SEQ to LOC.  */
+
+>>>>>>> gcc-mirror/master
 void
 gimple_seq_set_location (gimple_seq seq, location_t loc)
 {

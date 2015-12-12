@@ -6398,6 +6398,7 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
   if (this->length_ != NULL)
     {
       Numeric_constant nc;
+<<<<<<< HEAD
       unsigned long val;
       if (!this->length_->numeric_constant_value(&nc)
 	  || nc.to_unsigned_long(&val) != Numeric_constant::NC_UL_VALID)
@@ -6409,11 +6410,23 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
 	    }
 	}
       else
+=======
+      if (!this->length_->numeric_constant_value(&nc))
+>>>>>>> gcc-mirror/master
 	{
-	  char buf[50];
-	  snprintf(buf, sizeof buf, "%lu", val);
-	  ret->append(buf);
+	  go_assert(saw_errors());
+	  return;
 	}
+      mpz_t val;
+      if (!nc.to_int(&val))
+	{
+	  go_assert(saw_errors());
+	  return;
+	}
+      char* s = mpz_get_str(NULL, 10, val);
+      ret->append(s);
+      free(s);
+      mpz_clear(val);
     }
   ret->push_back(']');
 
@@ -6544,6 +6557,7 @@ Array_type::do_mangled_name(Gogo* gogo, std::string* ret) const
   if (this->length_ != NULL)
     {
       Numeric_constant nc;
+<<<<<<< HEAD
       unsigned long val;
       if (!this->length_->numeric_constant_value(&nc)
 	  || nc.to_unsigned_long(&val) != Numeric_constant::NC_UL_VALID)
@@ -6555,11 +6569,23 @@ Array_type::do_mangled_name(Gogo* gogo, std::string* ret) const
 	    }
 	}
       else
+=======
+      if (!this->length_->numeric_constant_value(&nc))
+>>>>>>> gcc-mirror/master
 	{
-	  char buf[50];
-	  snprintf(buf, sizeof buf, "%lu", val);
-	  ret->append(buf);
+	  go_assert(saw_errors());
+	  return;
 	}
+      mpz_t val;
+      if (!nc.to_int(&val))
+	{
+	  go_assert(saw_errors());
+	  return;
+	}
+      char *s = mpz_get_str(NULL, 10, val);
+      ret->append(s);
+      free(s);
+      mpz_clear(val);
     }
   ret->push_back('e');
 }

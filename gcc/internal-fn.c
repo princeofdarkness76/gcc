@@ -1911,16 +1911,30 @@ static void
 expand_mask_load_optab_fn (internal_fn, gcall *stmt, convert_optab optab)
 {
   struct expand_operand ops[3];
+<<<<<<< HEAD
   tree type, lhs, rhs, maskt;
   rtx mem, target, mask;
+=======
+  tree type, lhs, rhs, maskt, ptr;
+  rtx mem, target, mask;
+  unsigned align;
+>>>>>>> gcc-mirror/master
 
   maskt = gimple_call_arg (stmt, 2);
   lhs = gimple_call_lhs (stmt);
   if (lhs == NULL_TREE)
     return;
   type = TREE_TYPE (lhs);
+<<<<<<< HEAD
   rhs = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0),
 		     gimple_call_arg (stmt, 1));
+=======
+  ptr = build_int_cst (TREE_TYPE (gimple_call_arg (stmt, 1)), 0);
+  align = tree_to_shwi (gimple_call_arg (stmt, 1));
+  if (TYPE_ALIGN (type) != align)
+    type = build_aligned_type (type, align);
+  rhs = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0), ptr);
+>>>>>>> gcc-mirror/master
 
   mem = expand_expr (rhs, NULL_RTX, VOIDmode, EXPAND_WRITE);
   gcc_assert (MEM_P (mem));
@@ -1940,14 +1954,28 @@ static void
 expand_mask_store_optab_fn (internal_fn, gcall *stmt, convert_optab optab)
 {
   struct expand_operand ops[3];
+<<<<<<< HEAD
   tree type, lhs, rhs, maskt;
   rtx mem, reg, mask;
+=======
+  tree type, lhs, rhs, maskt, ptr;
+  rtx mem, reg, mask;
+  unsigned align;
+>>>>>>> gcc-mirror/master
 
   maskt = gimple_call_arg (stmt, 2);
   rhs = gimple_call_arg (stmt, 3);
   type = TREE_TYPE (rhs);
+<<<<<<< HEAD
   lhs = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0),
 		     gimple_call_arg (stmt, 1));
+=======
+  ptr = build_int_cst (TREE_TYPE (gimple_call_arg (stmt, 1)), 0);
+  align = tree_to_shwi (gimple_call_arg (stmt, 1));
+  if (TYPE_ALIGN (type) != align)
+    type = build_aligned_type (type, align);
+  lhs = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0), ptr);
+>>>>>>> gcc-mirror/master
 
   mem = expand_expr (lhs, NULL_RTX, VOIDmode, EXPAND_WRITE);
   gcc_assert (MEM_P (mem));
@@ -1981,6 +2009,7 @@ expand_BUILTIN_EXPECT (internal_fn, gcall *stmt)
   rtx val = expand_expr (gimple_call_arg (stmt, 0), target, VOIDmode, EXPAND_NORMAL);
   if (lhs && val != target)
     emit_move_insn (target, val);
+<<<<<<< HEAD
 }
 
 <<<<<<< HEAD
@@ -2098,27 +2127,141 @@ expand_GOACC_DIM_POS (internal_fn, gcall *stmt)
 static void
 expand_GOACC_LOOP (internal_fn, gcall *)
 >>>>>>> gcc-mirror/master
-{
-  gcc_unreachable ();
+=======
 }
 
-<<<<<<< HEAD
-/* This should get expanded in adjust_simduid_builtins.  */
+/* IFN_VA_ARG is supposed to be expanded at pass_stdarg.  So this dummy function
+   should never be called.  */
 
 static void
-expand_GOMP_SIMD_LAST_LANE (gimple stmt ATTRIBUTE_UNUSED)
-=======
-/* This is expanded by oacc_device_lower pass.  */
-
-static void
-expand_GOACC_REDUCTION (internal_fn, gcall *)
+expand_VA_ARG (internal_fn, gcall *)
 >>>>>>> gcc-mirror/master
 {
   gcc_unreachable ();
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+/* This should get expanded in adjust_simduid_builtins.  */
+
+static void
+expand_GOMP_SIMD_LAST_LANE (gimple stmt ATTRIBUTE_UNUSED)
 =======
+=======
+/* Expand the IFN_UNIQUE function according to its first argument.  */
+
+static void
+expand_UNIQUE (internal_fn, gcall *stmt)
+{
+  rtx pattern = NULL_RTX;
+  enum ifn_unique_kind kind
+    = (enum ifn_unique_kind) TREE_INT_CST_LOW (gimple_call_arg (stmt, 0));
+
+  switch (kind)
+    {
+    default:
+      gcc_unreachable ();
+
+    case IFN_UNIQUE_UNSPEC:
+      if (targetm.have_unique ())
+	pattern = targetm.gen_unique ();
+      break;
+
+    case IFN_UNIQUE_OACC_FORK:
+    case IFN_UNIQUE_OACC_JOIN:
+      if (targetm.have_oacc_fork () && targetm.have_oacc_join ())
+	{
+	  tree lhs = gimple_call_lhs (stmt);
+	  rtx target = const0_rtx;
+
+	  if (lhs)
+	    target = expand_expr (lhs, NULL_RTX, VOIDmode, EXPAND_WRITE);
+
+	  rtx data_dep = expand_normal (gimple_call_arg (stmt, 1));
+	  rtx axis = expand_normal (gimple_call_arg (stmt, 2));
+
+	  if (kind == IFN_UNIQUE_OACC_FORK)
+	    pattern = targetm.gen_oacc_fork (target, data_dep, axis);
+	  else
+	    pattern = targetm.gen_oacc_join (target, data_dep, axis);
+	}
+      else
+	gcc_unreachable ();
+      break;
+    }
+
+  if (pattern)
+    emit_insn (pattern);
+}
+
+/* The size of an OpenACC compute dimension.  */
+
+static void
+expand_GOACC_DIM_SIZE (internal_fn, gcall *stmt)
+{
+  tree lhs = gimple_call_lhs (stmt);
+
+  if (!lhs)
+    return;
+
+  rtx target = expand_expr (lhs, NULL_RTX, VOIDmode, EXPAND_WRITE);
+  if (targetm.have_oacc_dim_size ())
+    {
+      rtx dim = expand_expr (gimple_call_arg (stmt, 0), NULL_RTX,
+			     VOIDmode, EXPAND_NORMAL);
+      emit_insn (targetm.gen_oacc_dim_size (target, dim));
+    }
+  else
+    emit_move_insn (target, GEN_INT (1));
+}
+
+/* The position of an OpenACC execution engine along one compute axis.  */
+
+static void
+expand_GOACC_DIM_POS (internal_fn, gcall *stmt)
+{
+  tree lhs = gimple_call_lhs (stmt);
+
+  if (!lhs)
+    return;
+
+  rtx target = expand_expr (lhs, NULL_RTX, VOIDmode, EXPAND_WRITE);
+  if (targetm.have_oacc_dim_pos ())
+    {
+      rtx dim = expand_expr (gimple_call_arg (stmt, 0), NULL_RTX,
+			     VOIDmode, EXPAND_NORMAL);
+      emit_insn (targetm.gen_oacc_dim_pos (target, dim));
+    }
+  else
+    emit_move_insn (target, const0_rtx);
+}
+
+/* This is expanded by oacc_device_lower pass.  */
+
+static void
+expand_GOACC_LOOP (internal_fn, gcall *)
+{
+  gcc_unreachable ();
+}
+
+>>>>>>> gcc-mirror/master
+/* This is expanded by oacc_device_lower pass.  */
+
+static void
+expand_GOACC_REDUCTION (internal_fn, gcall *)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/master
+{
+  gcc_unreachable ();
+}
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> gcc-mirror/master
 /* Set errno to EDOM.  */
 
 static void
@@ -2237,6 +2380,7 @@ direct_internal_fn_types (internal_fn fn, gcall *call)
 }
 
 /* Return true if OPTAB is supported for TYPES (whose modes should be
+<<<<<<< HEAD
    the same).  Used for simple direct optabs.  */
 
 static bool
@@ -2254,6 +2398,32 @@ static bool
 multi_vector_optab_supported_p (convert_optab optab, tree_pair types)
 {
   return get_multi_vector_move (types.first, optab) != CODE_FOR_nothing;
+=======
+   the same) when the optimization type is OPT_TYPE.  Used for simple
+   direct optabs.  */
+
+static bool
+direct_optab_supported_p (direct_optab optab, tree_pair types,
+			  optimization_type opt_type)
+{
+  machine_mode mode = TYPE_MODE (types.first);
+  gcc_checking_assert (mode == TYPE_MODE (types.second));
+  return direct_optab_handler (optab, mode, opt_type) != CODE_FOR_nothing;
+}
+
+/* Return true if load/store lanes optab OPTAB is supported for
+   array type TYPES.first when the optimization type is OPT_TYPE.  */
+
+static bool
+multi_vector_optab_supported_p (convert_optab optab, tree_pair types,
+				optimization_type opt_type)
+{
+  gcc_assert (TREE_CODE (types.first) == ARRAY_TYPE);
+  machine_mode imode = TYPE_MODE (types.first);
+  machine_mode vmode = TYPE_MODE (TREE_TYPE (types.first));
+  return (convert_optab_handler (optab, imode, vmode, opt_type)
+	  != CODE_FOR_nothing);
+>>>>>>> gcc-mirror/master
 }
 
 #define direct_unary_optab_supported_p direct_optab_supported_p
@@ -2263,12 +2433,23 @@ multi_vector_optab_supported_p (convert_optab optab, tree_pair types)
 #define direct_mask_store_optab_supported_p direct_optab_supported_p
 #define direct_store_lanes_optab_supported_p multi_vector_optab_supported_p
 
+<<<<<<< HEAD
 /* Return true if FN is supported for the types in TYPES.  The types
    are those associated with the "type0" and "type1" fields of FN's
    direct_internal_fn_info structure.  */
 
 bool
 direct_internal_fn_supported_p (internal_fn fn, tree_pair types)
+=======
+/* Return true if FN is supported for the types in TYPES when the
+   optimization type is OPT_TYPE.  The types are those associated with
+   the "type0" and "type1" fields of FN's direct_internal_fn_info
+   structure.  */
+
+bool
+direct_internal_fn_supported_p (internal_fn fn, tree_pair types,
+				optimization_type opt_type)
+>>>>>>> gcc-mirror/master
 {
   switch (fn)
     {
@@ -2276,7 +2457,12 @@ direct_internal_fn_supported_p (internal_fn fn, tree_pair types)
     case IFN_##CODE: break;
 #define DEF_INTERNAL_OPTAB_FN(CODE, FLAGS, OPTAB, TYPE) \
     case IFN_##CODE: \
+<<<<<<< HEAD
       return direct_##TYPE##_optab_supported_p (OPTAB##_optab, types);
+=======
+      return direct_##TYPE##_optab_supported_p (OPTAB##_optab, types, \
+						opt_type);
+>>>>>>> gcc-mirror/master
 #include "internal-fn.def"
 
     case IFN_LAST:
@@ -2285,6 +2471,7 @@ direct_internal_fn_supported_p (internal_fn fn, tree_pair types)
   gcc_unreachable ();
 }
 
+<<<<<<< HEAD
 /* Return true if FN is supported for type TYPE.  The caller knows that
    the "type0" and "type1" fields of FN's direct_internal_fn_info
    structure are the same.  */
@@ -2295,6 +2482,19 @@ direct_internal_fn_supported_p (internal_fn fn, tree type)
   const direct_internal_fn_info &info = direct_internal_fn (fn);
   gcc_checking_assert (info.type0 == info.type1);
   return direct_internal_fn_supported_p (fn, tree_pair (type, type));
+=======
+/* Return true if FN is supported for type TYPE when the optimization
+   type is OPT_TYPE.  The caller knows that the "type0" and "type1"
+   fields of FN's direct_internal_fn_info structure are the same.  */
+
+bool
+direct_internal_fn_supported_p (internal_fn fn, tree type,
+				optimization_type opt_type)
+{
+  const direct_internal_fn_info &info = direct_internal_fn (fn);
+  gcc_checking_assert (info.type0 == info.type1);
+  return direct_internal_fn_supported_p (fn, tree_pair (type, type), opt_type);
+>>>>>>> gcc-mirror/master
 }
 
 /* Return true if IFN_SET_EDOM is supported.  */
@@ -2317,6 +2517,9 @@ set_edom_supported_p (void)
   }
 #include "internal-fn.def"
 
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 /* Routines to expand each internal function, indexed by function number.
    Each routine has the prototype:

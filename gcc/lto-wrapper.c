@@ -1096,7 +1096,14 @@ run_gcc (unsigned argc, char *argv[])
   if (have_offload && !have_lto)
     {
       for (i = 1; i < argc; ++i)
+<<<<<<< HEAD
 	if (strncmp (argv[i], "-fresolution=", sizeof ("-fresolution=") - 1))
+=======
+	if (strncmp (argv[i], "-fresolution=",
+		     sizeof ("-fresolution=") - 1) != 0
+	    && strncmp (argv[i], "-flinker-output=",
+			sizeof ("-flinker-output=") - 1) != 0)
+>>>>>>> gcc-mirror/master
 	  {
 	    char *out_file;
 	    /* Can be ".o" or ".so".  */

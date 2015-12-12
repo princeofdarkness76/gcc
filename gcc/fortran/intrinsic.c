@@ -3164,6 +3164,13 @@ add_subroutines (void)
 	      GFC_STD_F95, gfc_check_cpu_time, NULL, gfc_resolve_cpu_time,
 	      tm, BT_REAL, dr, REQUIRED, INTENT_OUT);
 
+  add_sym_3s ("event_query", GFC_ISYM_EVENT_QUERY, CLASS_ATOMIC,
+	      BT_UNKNOWN, 0, GFC_STD_F2008_TS,
+	      gfc_check_event_query, NULL, gfc_resolve_event_query,
+	      "event", BT_INTEGER, di, REQUIRED, INTENT_IN,
+	      c, BT_INTEGER, di, OPTIONAL, INTENT_IN,
+	      stat, BT_INTEGER, di, OPTIONAL, INTENT_OUT);
+
   /* More G77 compatibility garbage.  */
   add_sym_2s ("ctime", GFC_ISYM_CTIME, CLASS_IMPURE, BT_UNKNOWN, 0, GFC_STD_GNU,
 	      gfc_check_ctime_sub, NULL, gfc_resolve_ctime_sub,
@@ -4579,6 +4586,7 @@ gfc_intrinsic_sub_interface (gfc_code *c, int error_flag)
     }
 
   if (gfc_do_concurrent_flag && !isym->pure)
+<<<<<<< HEAD
     {
       gfc_error ("Subroutine call to intrinsic %qs in DO CONCURRENT "
 		 "block at %L is not PURE", name, &c->loc);
@@ -4587,6 +4595,16 @@ gfc_intrinsic_sub_interface (gfc_code *c, int error_flag)
 
   if (!isym->pure && gfc_pure (NULL))
     {
+=======
+    {
+      gfc_error ("Subroutine call to intrinsic %qs in DO CONCURRENT "
+		 "block at %L is not PURE", name, &c->loc);
+      return MATCH_ERROR;
+    }
+
+  if (!isym->pure && gfc_pure (NULL))
+    {
+>>>>>>> gcc-mirror/master
       gfc_error ("Subroutine call to intrinsic %qs at %L is not PURE", name,
 		 &c->loc);
       return MATCH_ERROR;

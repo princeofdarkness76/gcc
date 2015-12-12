@@ -1,6 +1,9 @@
 // { dg-do run }
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-O2" }
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 // { dg-additional-options "-msse2" { target sse2_runtime } }

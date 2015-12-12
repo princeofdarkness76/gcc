@@ -1,5 +1,7 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -fdump-tree-dce1" } */
+/* { dg-options "-O2 -fdump-tree-dce2" } */
+
+void foo (void);
 
 void foo (void);
 
@@ -15,4 +17,8 @@ bar (int i, int partial, int args_addr)
 
 /* There should be only one IF conditional since the first does nothing
    useful.  */
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 1 "dce1"} } */
+=======
+/* { dg-final { scan-tree-dump-times "if " 1 "dce2"} } */
+>>>>>>> gcc-mirror/master

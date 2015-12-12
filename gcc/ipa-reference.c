@@ -167,13 +167,14 @@ set_reference_optimization_summary (struct cgraph_node *node,
   ipa_reference_opt_sum_vector[node->uid] = info;
 }
 
-/* Return a bitmap indexed by DECL_UID for the static variables that
-   are *not* read during the execution of the function FN.  Returns
+/* Return a bitmap indexed by ipa_reference_var_uid for the static variables
+   that are *not* read during the execution of the function FN.  Returns
    NULL if no data is available.  */
 
 bitmap
 ipa_reference_get_not_read_global (struct cgraph_node *fn)
 {
+<<<<<<< HEAD
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
       || !opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
@@ -182,54 +183,119 @@ ipa_reference_get_not_read_global (struct cgraph_node *fn)
   if (info)
     return info->statics_not_read;
   else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+=======
+  if (!opt_for_fn (current_function_decl, flag_ipa_reference))
+    return NULL;
+
+  enum availability avail;
+  struct cgraph_node *fn2 = fn->function_symbol (&avail);
+  ipa_reference_optimization_summary_t info =
+    get_reference_optimization_summary (fn2);
+
+  if (info
+      && (avail >= AVAIL_AVAILABLE
+	  || (avail == AVAIL_INTERPOSABLE
+	      && flags_from_decl_or_type (fn->decl) & ECF_LEAF))
+      && opt_for_fn (fn2->decl, flag_ipa_reference))
+    return info->statics_not_read;
+  else if (avail == AVAIL_NOT_AVAILABLE
+	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+>>>>>>> gcc-mirror/master
     return all_module_statics;
   else
     return NULL;
 }
 
-/* Return a bitmap indexed by DECL_UID for the static variables that
-   are *not* written during the execution of the function FN.  Note
+/* Return a bitmap indexed by ipa_reference_var_uid for the static variables
+   that are *not* written during the execution of the function FN.  Note
    that variables written may or may not be read during the function
    call.  Returns NULL if no data is available.  */
 
 bitmap
 ipa_reference_get_not_written_global (struct cgraph_node *fn)
 {
+<<<<<<< HEAD
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
       || !opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
+=======
+  if (!opt_for_fn (current_function_decl, flag_ipa_reference))
+    return NULL;
+
+  enum availability avail;
+  struct cgraph_node *fn2 = fn->function_symbol (&avail);
+>>>>>>> gcc-mirror/master
   ipa_reference_optimization_summary_t info =
-    get_reference_optimization_summary (fn);
-  if (info)
+    get_reference_optimization_summary (fn2);
+
+  if (info
+      && (avail >= AVAIL_AVAILABLE
+	  || (avail == AVAIL_INTERPOSABLE
+	      && flags_from_decl_or_type (fn->decl) & ECF_LEAF))
+      && opt_for_fn (fn2->decl, flag_ipa_reference))
     return info->statics_not_written;
+<<<<<<< HEAD
   else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+=======
+  else if (avail == AVAIL_NOT_AVAILABLE
+	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+>>>>>>> gcc-mirror/master
     return all_module_statics;
   else
     return NULL;
 }
-
 
+<<<<<<< HEAD
+/* Return true if the variable T is the right kind of static variable to
+   perform compilation unit scope escape analysis.  */
+
+static inline bool
+is_proper_for_analysis (tree t)
+=======
+
+/* Hepler for is_proper_for_analysis.  */
+static bool
+is_improper (symtab_node *n, void *v ATTRIBUTE_UNUSED)
+>>>>>>> gcc-mirror/master
+{
+  tree t = n->decl;
+  /* If the variable has the "used" attribute, treat it as if it had a
+     been touched by the devil.  */
+  if (DECL_PRESERVE_P (t))
+    return true;
+
+  /* Do not want to do anything with volatile except mark any
+     function that uses one to be not const or pure.  */
+  if (TREE_THIS_VOLATILE (t))
+    return true;
+
+  /* We do not need to analyze readonly vars, we already know they do not
+     alias.  */
+  if (TREE_READONLY (t))
+    return true;
+
+  /* We can not track variables with address taken.  */
+  if (TREE_ADDRESSABLE (t))
+    return true;
+
+  /* TODO: We could track public variables that are not addressable, but
+     currently frontends don't give us those.  */
+  if (TREE_PUBLIC (t))
+    return true;
+
+  return false;
+}
+
 /* Return true if the variable T is the right kind of static variable to
    perform compilation unit scope escape analysis.  */
 
 static inline bool
 is_proper_for_analysis (tree t)
 {
-  /* If the variable has the "used" attribute, treat it as if it had a
-     been touched by the devil.  */
-  if (DECL_PRESERVE_P (t))
+  if (bitmap_bit_p (ignore_module_statics, ipa_reference_var_uid (t)))
     return false;
 
-  /* Do not want to do anything with volatile except mark any
-     function that uses one to be not const or pure.  */
-  if (TREE_THIS_VOLATILE (t))
-    return false;
-
-  /* We do not need to analyze readonly vars, we already know they do not
-     alias.  */
-  if (TREE_READONLY (t))
-    return false;
-
+<<<<<<< HEAD
   /* We can not track variables with address taken.  */
   if (TREE_ADDRESSABLE (t))
     return false;
@@ -241,6 +307,10 @@ is_proper_for_analysis (tree t)
 
   /* TODO: Check aliases.  */
   if (bitmap_bit_p (ignore_module_statics, DECL_UID (t)))
+=======
+  if (symtab_node::get (t)
+	->call_for_symbol_and_aliases (is_improper, NULL, true))
+>>>>>>> gcc-mirror/master
     return false;
 
   return true;
@@ -452,21 +522,30 @@ analyze_function (struct cgraph_node *fn)
       /* This is a variable we care about.  Check if we have seen it
 	 before, and if not add it the set of variables we care about.  */
       if (all_module_statics
+<<<<<<< HEAD
 	  && bitmap_set_bit (all_module_statics, DECL_UID (var)))
 	{
 	  if (dump_file)
 	    splay_tree_insert (reference_vars_to_consider,
 			       DECL_UID (var), (splay_tree_value)var);
+=======
+	  && bitmap_set_bit (all_module_statics, ipa_reference_var_uid (var)))
+	{
+	  if (dump_file)
+	    splay_tree_insert (reference_vars_to_consider,
+			       ipa_reference_var_uid (var),
+			       (splay_tree_value)var);
+>>>>>>> gcc-mirror/master
 	}
       switch (ref->use)
 	{
 	case IPA_REF_LOAD:
-          bitmap_set_bit (local->statics_read, DECL_UID (var));
+          bitmap_set_bit (local->statics_read, ipa_reference_var_uid (var));
 	  break;
 	case IPA_REF_STORE:
 	  if (ref->cannot_lead_to_return ())
 	    break;
-          bitmap_set_bit (local->statics_written, DECL_UID (var));
+          bitmap_set_bit (local->statics_written, ipa_reference_var_uid (var));
 	  break;
 	case IPA_REF_ADDR:
 	  break;
@@ -547,7 +626,11 @@ generate_summary (void)
 	    var = ref->referred->decl;
 	    if (!is_proper_for_analysis (var))
 	      continue;
+<<<<<<< HEAD
 	    bitmap_set_bit (ignore_module_statics, DECL_UID (var));
+=======
+	    bitmap_set_bit (ignore_module_statics, ipa_reference_var_uid (var));
+>>>>>>> gcc-mirror/master
 	  }
       }
   FOR_EACH_DEFINED_FUNCTION (node)
@@ -975,13 +1058,23 @@ ipa_reference_write_optimization_summary (void)
       symtab_node *snode = lto_symtab_encoder_deref (encoder, i);
       varpool_node *vnode = dyn_cast <varpool_node *> (snode);
       if (vnode
+<<<<<<< HEAD
 	  && bitmap_bit_p (all_module_statics, DECL_UID (vnode->decl))
 	  && referenced_from_this_partition_p (vnode, encoder))
 	{
 	  tree decl = vnode->decl;
 	  bitmap_set_bit (ltrans_statics, DECL_UID (decl));
+=======
+	  && bitmap_bit_p (all_module_statics,
+			    ipa_reference_var_uid (vnode->decl))
+	  && referenced_from_this_partition_p (vnode, encoder))
+	{
+	  tree decl = vnode->decl;
+	  bitmap_set_bit (ltrans_statics, ipa_reference_var_uid (decl));
+>>>>>>> gcc-mirror/master
 	  splay_tree_insert (reference_vars_to_consider,
-			     DECL_UID (decl), (splay_tree_value)decl);
+			     ipa_reference_var_uid (decl),
+			     (splay_tree_value)decl);
 	  ltrans_statics_bitcount ++;
 	}
     }
@@ -1067,7 +1160,8 @@ ipa_reference_read_optimization_summary (void)
 	      unsigned int var_index = streamer_read_uhwi (ib);
 	      tree v_decl = lto_file_decl_data_get_var_decl (file_data,
 							     var_index);
-	      bitmap_set_bit (all_module_statics, DECL_UID (v_decl));
+	      bitmap_set_bit (all_module_statics,
+			      ipa_reference_var_uid (v_decl));
 	      if (dump_file)
 		fprintf (dump_file, " %s", fndecl_name (v_decl));
 	    }
@@ -1107,7 +1201,8 @@ ipa_reference_read_optimization_summary (void)
 		    unsigned int var_index = streamer_read_uhwi (ib);
 		    tree v_decl = lto_file_decl_data_get_var_decl (file_data,
 								   var_index);
-		    bitmap_set_bit (info->statics_not_read, DECL_UID (v_decl));
+		    bitmap_set_bit (info->statics_not_read,
+				    ipa_reference_var_uid (v_decl));
 		    if (dump_file)
 		      fprintf (dump_file, " %s", fndecl_name (v_decl));
 		  }
@@ -1129,7 +1224,8 @@ ipa_reference_read_optimization_summary (void)
 		    unsigned int var_index = streamer_read_uhwi (ib);
 		    tree v_decl = lto_file_decl_data_get_var_decl (file_data,
 								   var_index);
-		    bitmap_set_bit (info->statics_not_written, DECL_UID (v_decl));
+		    bitmap_set_bit (info->statics_not_written,
+				    ipa_reference_var_uid (v_decl));
 		    if (dump_file)
 		      fprintf (dump_file, " %s", fndecl_name (v_decl));
 		  }
@@ -1166,6 +1262,7 @@ const pass_data pass_data_ipa_reference =
 };
 
 class pass_ipa_reference : public ipa_opt_pass_d
+<<<<<<< HEAD
 {
 public:
   pass_ipa_reference (gcc::context *ctxt)
@@ -1200,6 +1297,42 @@ public:
 ipa_opt_pass_d *
 make_pass_ipa_reference (gcc::context *ctxt)
 {
+=======
+{
+public:
+  pass_ipa_reference (gcc::context *ctxt)
+    : ipa_opt_pass_d (pass_data_ipa_reference, ctxt,
+		      NULL, /* generate_summary */
+		      NULL, /* write_summary */
+		      NULL, /* read_summary */
+		      ipa_reference_write_optimization_summary, /*
+		      write_optimization_summary */
+		      ipa_reference_read_optimization_summary, /*
+		      read_optimization_summary */
+		      NULL, /* stmt_fixup */
+		      0, /* function_transform_todo_flags_start */
+		      NULL, /* function_transform */
+		      NULL) /* variable_transform */
+    {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return ((in_lto_p || flag_ipa_reference)
+	      /* Don't bother doing anything if the program has errors.  */
+	      && !seen_error ());
+    }
+
+  virtual unsigned int execute (function *) { return propagate (); }
+
+}; // class pass_ipa_reference
+
+} // anon namespace
+
+ipa_opt_pass_d *
+make_pass_ipa_reference (gcc::context *ctxt)
+{
+>>>>>>> gcc-mirror/master
   return new pass_ipa_reference (ctxt);
 }
 

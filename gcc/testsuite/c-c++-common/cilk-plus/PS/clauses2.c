@@ -16,6 +16,9 @@ void foo()
 /* { dg-final { scan-tree-dump-times "linear\\(k:1\\)" 1 "original" } } */
 /* { dg-final { scan-tree-dump-times "safelen\\(4\\)" 1 "original" } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { cleanup-tree-dump "original" } } */
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master

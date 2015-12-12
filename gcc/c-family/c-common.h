@@ -814,7 +814,6 @@ extern enum conversion_safety unsafe_conversion_p (location_t, tree, tree,
 						   bool);
 extern bool decl_with_nonnull_addr_p (const_tree);
 extern tree c_fully_fold (tree, bool, bool *);
-extern tree decl_constant_value_for_optimization (tree);
 extern tree c_wrap_maybe_const (tree, bool);
 extern tree c_save_expr (tree);
 extern tree c_common_truthvalue_conversion (location_t, tree);
@@ -871,7 +870,7 @@ extern tree pointer_int_sum (location_t, enum tree_code, tree, tree,
 			     bool = true);
 
 /* Add qualifiers to a type, in the fashion for C.  */
-extern tree c_build_qualified_type (tree, int);
+extern tree c_build_qualified_type (tree, int, tree = NULL_TREE, size_t = 0);
 
 /* Build tree nodes and builtin functions common to both C and C++ language
    frontends.  */
@@ -1126,6 +1125,7 @@ extern bool check_missing_format_attribute (tree, tree);
 
 /* In c-omp.c  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if HOST_BITS_PER_WIDE_INT >= 64
 typedef unsigned HOST_WIDE_INT omp_clause_mask;
 # define OMP_CLAUSE_MASK_1 ((omp_clause_mask) 1)
@@ -1137,11 +1137,16 @@ struct omp_clause_mask
   inline omp_clause_mask (unsigned HOST_WIDE_INT l,
 			  unsigned HOST_WIDE_INT h);
 =======
+=======
+>>>>>>> gcc-mirror/master
 struct omp_clause_mask
 {
   inline omp_clause_mask ();
   inline omp_clause_mask (uint64_t l);
   inline omp_clause_mask (uint64_t l, uint64_t h);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   inline omp_clause_mask &operator &= (omp_clause_mask);
   inline omp_clause_mask &operator |= (omp_clause_mask);
@@ -1152,7 +1157,12 @@ struct omp_clause_mask
   inline omp_clause_mask operator << (int);
   inline bool operator == (omp_clause_mask) const;
 <<<<<<< HEAD
+<<<<<<< HEAD
   unsigned HOST_WIDE_INT low, high;
+=======
+  inline bool operator != (omp_clause_mask) const;
+  uint64_t low, high;
+>>>>>>> gcc-mirror/master
 =======
   inline bool operator != (omp_clause_mask) const;
   uint64_t low, high;
@@ -1166,7 +1176,11 @@ omp_clause_mask::omp_clause_mask ()
 
 inline
 <<<<<<< HEAD
+<<<<<<< HEAD
 omp_clause_mask::omp_clause_mask (unsigned HOST_WIDE_INT l)
+=======
+omp_clause_mask::omp_clause_mask (uint64_t l)
+>>>>>>> gcc-mirror/master
 =======
 omp_clause_mask::omp_clause_mask (uint64_t l)
 >>>>>>> gcc-mirror/master
@@ -1176,8 +1190,12 @@ omp_clause_mask::omp_clause_mask (uint64_t l)
 
 inline
 <<<<<<< HEAD
+<<<<<<< HEAD
 omp_clause_mask::omp_clause_mask (unsigned HOST_WIDE_INT l,
 				  unsigned HOST_WIDE_INT h)
+=======
+omp_clause_mask::omp_clause_mask (uint64_t l, uint64_t h)
+>>>>>>> gcc-mirror/master
 =======
 omp_clause_mask::omp_clause_mask (uint64_t l, uint64_t h)
 >>>>>>> gcc-mirror/master
@@ -1227,15 +1245,21 @@ omp_clause_mask::operator << (int amount)
 {
   omp_clause_mask ret;
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (amount >= HOST_BITS_PER_WIDE_INT)
     {
       ret.low = 0;
       ret.high = low << (amount - HOST_BITS_PER_WIDE_INT);
 =======
+=======
+>>>>>>> gcc-mirror/master
   if (amount >= 64)
     {
       ret.low = 0;
       ret.high = low << (amount - 64);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
     }
   else if (amount == 0)
@@ -1244,8 +1268,12 @@ omp_clause_mask::operator << (int amount)
     {
       ret.low = low << amount;
 <<<<<<< HEAD
+<<<<<<< HEAD
       ret.high = (low >> (HOST_BITS_PER_WIDE_INT - amount))
 		 | (high << amount);
+=======
+      ret.high = (low >> (64 - amount)) | (high << amount);
+>>>>>>> gcc-mirror/master
 =======
       ret.high = (low >> (64 - amount)) | (high << amount);
 >>>>>>> gcc-mirror/master
@@ -1258,9 +1286,15 @@ omp_clause_mask::operator >> (int amount)
 {
   omp_clause_mask ret;
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (amount >= HOST_BITS_PER_WIDE_INT)
     {
       ret.low = high >> (amount - HOST_BITS_PER_WIDE_INT);
+=======
+  if (amount >= 64)
+    {
+      ret.low = high >> (amount - 64);
+>>>>>>> gcc-mirror/master
 =======
   if (amount >= 64)
     {
@@ -1273,8 +1307,12 @@ omp_clause_mask::operator >> (int amount)
   else
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
       ret.low = (high << (HOST_BITS_PER_WIDE_INT - amount))
 		 | (low >> amount);
+=======
+      ret.low = (high << (64 - amount)) | (low >> amount);
+>>>>>>> gcc-mirror/master
 =======
       ret.low = (high << (64 - amount)) | (low >> amount);
 >>>>>>> gcc-mirror/master
@@ -1290,9 +1328,12 @@ omp_clause_mask::operator == (omp_clause_mask b) const
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # define OMP_CLAUSE_MASK_1 omp_clause_mask (1)
 #endif
 =======
+=======
+>>>>>>> gcc-mirror/master
 inline bool
 omp_clause_mask::operator != (omp_clause_mask b) const
 {
@@ -1300,6 +1341,9 @@ omp_clause_mask::operator != (omp_clause_mask b) const
 }
 
 #define OMP_CLAUSE_MASK_1 omp_clause_mask (1)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 enum c_omp_clause_split
@@ -1312,7 +1356,12 @@ enum c_omp_clause_split
   C_OMP_CLAUSE_SPLIT_SIMD,
   C_OMP_CLAUSE_SPLIT_COUNT,
 <<<<<<< HEAD
+<<<<<<< HEAD
   C_OMP_CLAUSE_SPLIT_SECTIONS = C_OMP_CLAUSE_SPLIT_FOR
+=======
+  C_OMP_CLAUSE_SPLIT_SECTIONS = C_OMP_CLAUSE_SPLIT_FOR,
+  C_OMP_CLAUSE_SPLIT_TASKLOOP = C_OMP_CLAUSE_SPLIT_FOR
+>>>>>>> gcc-mirror/master
 =======
   C_OMP_CLAUSE_SPLIT_SECTIONS = C_OMP_CLAUSE_SPLIT_FOR,
   C_OMP_CLAUSE_SPLIT_TASKLOOP = C_OMP_CLAUSE_SPLIT_FOR
@@ -1326,7 +1375,12 @@ extern tree c_finish_omp_ordered (location_t, tree, tree);
 extern void c_finish_omp_barrier (location_t);
 extern tree c_finish_omp_atomic (location_t, enum tree_code, enum tree_code,
 <<<<<<< HEAD
+<<<<<<< HEAD
 				 tree, tree, tree, tree, tree, bool, bool);
+=======
+				 tree, tree, tree, tree, tree, bool, bool,
+				 bool = false);
+>>>>>>> gcc-mirror/master
 =======
 				 tree, tree, tree, tree, tree, bool, bool,
 				 bool = false);
@@ -1336,14 +1390,20 @@ extern void c_finish_omp_taskwait (location_t);
 extern void c_finish_omp_taskyield (location_t);
 extern tree c_finish_omp_for (location_t, enum tree_code, tree, tree, tree,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      tree, tree, tree);
 =======
+=======
+>>>>>>> gcc-mirror/master
 			      tree, tree, tree, tree);
 extern bool c_omp_check_loop_iv (tree, tree, walk_tree_lh);
 extern bool c_omp_check_loop_iv_exprs (location_t, tree, tree, tree, tree,
 				       walk_tree_lh);
 extern tree c_finish_oacc_wait (location_t, tree, tree);
 extern tree c_oacc_split_loop_clauses (tree, tree *);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 extern void c_omp_split_clauses (location_t, enum tree_code, omp_clause_mask,
 				 tree, tree *);
@@ -1438,10 +1498,16 @@ extern enum stv_conv scalar_to_vector (location_t loc, enum tree_code code,
 
 /* In c-cilkplus.c  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern tree c_finish_cilk_simd_loop (location_t, tree, tree, tree, tree,
 				     tree, tree);
 extern tree c_finish_cilk_clauses (tree);
 extern tree c_validate_cilk_plus_loop (tree *, int *, void *);
+=======
+extern tree c_finish_cilk_clauses (tree);
+extern tree c_validate_cilk_plus_loop (tree *, int *, void *);
+extern bool c_check_cilk_loop (location_t, tree);
+>>>>>>> gcc-mirror/master
 =======
 extern tree c_finish_cilk_clauses (tree);
 extern tree c_validate_cilk_plus_loop (tree *, int *, void *);

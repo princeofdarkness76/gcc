@@ -26,6 +26,33 @@ f4 (int x)
   return x <= 0 ? x : ~x;
 }
 
+<<<<<<< HEAD
+=======
+__attribute__((noinline, noclone)) int
+f5 (int x)
+{
+  return x >= 0 ? ~x : x;
+}
+
+__attribute__((noinline, noclone)) int
+f6 (int x)
+{
+  return x >= 0 ? x : ~x;
+}
+
+__attribute__((noinline, noclone)) int
+f7 (int x)
+{
+  return x > 0 ? ~x : x;
+}
+
+__attribute__((noinline, noclone)) int
+f8 (int x)
+{
+  return x > 0 ? x : ~x;
+}
+
+>>>>>>> gcc-mirror/master
 int
 main ()
 {
@@ -37,5 +64,16 @@ main ()
     abort ();
   if (f4 (5) != -6 || f4 (-5) != -5 || f4 (0) != 0)
     abort ();
+<<<<<<< HEAD
+=======
+  if (f5 (5) != -6 || f5 (-5) != -5 || f5 (0) != -1)
+    abort ();
+  if (f6 (5) != 5 || f6 (-5) != 4 || f6 (0) != 0)
+    abort ();
+  if (f7 (5) != -6 || f7 (-5) != -5 || f7 (0) != 0)
+    abort ();
+  if (f8 (5) != 5 || f8 (-5) != 4 || f8 (0) != -1)
+    abort ();
+>>>>>>> gcc-mirror/master
   return 0;
 }

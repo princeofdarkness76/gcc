@@ -653,10 +653,15 @@ extern tree c_finish_goto_ptr (location_t, tree);
 extern tree c_expr_to_decl (tree, bool *, bool *);
 extern tree c_finish_omp_construct (location_t, enum tree_code, tree, tree);
 extern tree c_finish_oacc_data (location_t, tree, tree);
+<<<<<<< HEAD
+=======
+extern tree c_finish_oacc_host_data (location_t, tree, tree);
+>>>>>>> gcc-mirror/master
 extern tree c_begin_omp_parallel (void);
 extern tree c_finish_omp_parallel (location_t, tree, tree);
 extern tree c_begin_omp_task (void);
 extern tree c_finish_omp_task (location_t, tree, tree);
+<<<<<<< HEAD
 <<<<<<< HEAD
 extern tree c_begin_omp_taskgroup (void);
 extern void c_finish_omp_taskgroup (location_t, tree);
@@ -672,10 +677,19 @@ extern void c_finish_omp_cancel (location_t, tree);
 extern void c_finish_omp_cancellation_point (location_t, tree);
 extern tree c_finish_omp_clauses (tree, bool, bool = false);
 extern tree c_build_va_arg (location_t, tree, tree);
+=======
+extern void c_finish_omp_cancel (location_t, tree);
+extern void c_finish_omp_cancellation_point (location_t, tree);
+extern tree c_finish_omp_clauses (tree, bool, bool = false);
+extern tree c_build_va_arg (location_t, tree, location_t, tree);
+>>>>>>> gcc-mirror/master
 extern tree c_finish_transaction (location_t, tree, int);
 extern bool c_tree_equal (tree, tree);
 extern tree c_build_function_call_vec (location_t, vec<location_t>, tree,
 				       vec<tree, va_gc> *, vec<tree, va_gc> *);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 /* Set to 0 at beginning of a function definition, set to 1 if
@@ -738,5 +752,11 @@ set_c_expr_source_range (c_expr *expr,
 extern void
 set_c_expr_source_range (c_expr *expr,
 			 source_range src_range);
+<<<<<<< HEAD
+=======
+
+/* In c-fold.c */
+extern tree decl_constant_value_for_optimization (tree);
+>>>>>>> gcc-mirror/master
 
 #endif /* ! GCC_C_TREE_H */

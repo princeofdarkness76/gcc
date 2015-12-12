@@ -93,6 +93,11 @@
 
 #include <mwaitxintrin.h>
 
+<<<<<<< HEAD
+=======
+#include <clzerointrin.h>
+
+>>>>>>> gcc-mirror/master
 #endif /* __iamcu__ */
 
 #endif /* _X86INTRIN_H_INCLUDED */

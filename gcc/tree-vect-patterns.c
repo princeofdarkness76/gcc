@@ -312,6 +312,12 @@ vect_recog_dot_prod_pattern (vec<gimple *> *stmts, tree *type_in,
     {
       gimple *def_stmt;
 
+<<<<<<< HEAD
+=======
+      if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
+	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
+	return NULL;
+>>>>>>> gcc-mirror/master
       oprnd0 = gimple_assign_rhs1 (last_stmt);
       oprnd1 = gimple_assign_rhs2 (last_stmt);
       if (!types_compatible_p (TREE_TYPE (oprnd0), type)
@@ -531,6 +537,12 @@ vect_recog_sad_pattern (vec<gimple *> *stmts, tree *type_in,
     {
       gimple *def_stmt;
 
+<<<<<<< HEAD
+=======
+      if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
+	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
+	return NULL;
+>>>>>>> gcc-mirror/master
       plus_oprnd0 = gimple_assign_rhs1 (last_stmt);
       plus_oprnd1 = gimple_assign_rhs2 (last_stmt);
       if (!types_compatible_p (TREE_TYPE (plus_oprnd0), sum_type)
@@ -1056,7 +1068,13 @@ vect_recog_pow_pattern (vec<gimple *> *stmts, tree *type_in,
       && real_equal (&TREE_REAL_CST (exp), &dconsthalf))
     {
       *type_in = get_vectype_for_scalar_type (TREE_TYPE (base));
+<<<<<<< HEAD
       if (*type_in && direct_internal_fn_supported_p (IFN_SQRT, *type_in))
+=======
+      if (*type_in
+	  && direct_internal_fn_supported_p (IFN_SQRT, *type_in,
+					     OPTIMIZE_FOR_SPEED))
+>>>>>>> gcc-mirror/master
 	{
 	  gcall *stmt = gimple_build_call_internal (IFN_SQRT, 1, base);
 	  var = vect_recog_temp_ssa_var (TREE_TYPE (base), stmt);
@@ -1150,6 +1168,13 @@ vect_recog_widen_sum_pattern (vec<gimple *> *stmts, tree *type_in,
   if (gimple_assign_rhs_code (last_stmt) != PLUS_EXPR)
     return NULL;
 
+<<<<<<< HEAD
+=======
+  if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
+      && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
+    return NULL;
+
+>>>>>>> gcc-mirror/master
   oprnd0 = gimple_assign_rhs1 (last_stmt);
   oprnd1 = gimple_assign_rhs2 (last_stmt);
   if (!types_compatible_p (TREE_TYPE (oprnd0), type)

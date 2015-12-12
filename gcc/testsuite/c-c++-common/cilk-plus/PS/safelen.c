@@ -12,6 +12,9 @@ void foo()
 
 /* { dg-final { scan-tree-dump-times "safelen\\(8\\)" 1 "gimple" } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { cleanup-tree-dump "gimple" } } */
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master

@@ -1457,7 +1457,11 @@ enum reg_class
 { 0x1ff1ffff,0xffffffe0,   0x1f },       /* FLOAT_INT_SSE_REGS */        \
        { 0x0,       0x0, 0x1fc0 },       /* MASK_EVEX_REGS */           \
        { 0x0,       0x0, 0x1fe0 },       /* MASK_REGS */                 \
+<<<<<<< HEAD
 { 0xffffffff,0xffffffff, 0x1fff }                                        \
+=======
+{ 0xffffffff,0xffffffff,0x1ffff }                                        \
+>>>>>>> gcc-mirror/master
 }
 
 /* The same information, inverted:

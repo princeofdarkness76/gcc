@@ -23,7 +23,10 @@ int fn5 (int a);
 #pragma omp declare simd inbranch notinbranch /* { dg-error "clause is incompatible with" } */
 int fn6 (int);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 #pragma omp declare simd aligned (a, b)
 int fn7 (int *a, int b[64]);
@@ -54,4 +57,7 @@ int f15 (int a);
 int f16 (int a);
 #pragma omp declare simd uniform(a) aligned (a: 32)
 int f17 (int *a);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

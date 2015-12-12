@@ -1157,6 +1157,62 @@ gfc_check_atomic_cas (gfc_expr *atom, gfc_expr *old, gfc_expr *compare,
   return true;
 }
 
+<<<<<<< HEAD
+=======
+bool
+gfc_check_event_query (gfc_expr *event, gfc_expr *count, gfc_expr *stat)
+{
+  if (event->ts.type != BT_DERIVED
+      || event->ts.u.derived->from_intmod != INTMOD_ISO_FORTRAN_ENV
+      || event->ts.u.derived->intmod_sym_id != ISOFORTRAN_EVENT_TYPE)
+    {
+      gfc_error ("EVENT argument at %L to the intrinsic EVENT_QUERY "
+		 "shall be of type EVENT_TYPE", &event->where);
+      return false;
+    }
+
+  if (!scalar_check (event, 0))
+    return false;
+
+  if (!gfc_check_vardef_context (count, false, false, false, NULL))
+    {
+      gfc_error ("COUNT argument of the EVENT_QUERY intrinsic function at %L "
+		 "shall be definable", &count->where);
+      return false;
+    }
+
+  if (!type_check (count, 1, BT_INTEGER))
+    return false;
+
+  int i = gfc_validate_kind (BT_INTEGER, count->ts.kind, false);
+  int j = gfc_validate_kind (BT_INTEGER, gfc_default_integer_kind, false);
+
+  if (gfc_integer_kinds[i].range < gfc_integer_kinds[j].range)
+    {
+      gfc_error ("COUNT argument of the EVENT_QUERY intrinsic function at %L "
+		 "shall have at least the range of the default integer",
+		 &count->where);
+      return false;
+    }
+
+  if (stat != NULL)
+    {
+      if (!type_check (stat, 2, BT_INTEGER))
+	return false;
+      if (!scalar_check (stat, 2))
+	return false;
+      if (!variable_check (stat, 2, false))
+	return false;
+
+      if (!gfc_notify_std (GFC_STD_F2008_TS, "STAT= argument to %s at %L",
+			   gfc_current_intrinsic, &stat->where))
+	return false;
+    }
+
+  return true;
+}
+
+>>>>>>> gcc-mirror/master
 
 bool
 gfc_check_atomic_fetch_op (gfc_expr *atom, gfc_expr *value, gfc_expr *old,
@@ -4937,6 +4993,7 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
     }
 
   if (distance)
+<<<<<<< HEAD
     {
       if (!type_check (distance, 0, BT_INTEGER))
 	return false;
@@ -4954,6 +5011,25 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
 
    if (failed)
     {
+=======
+    {
+      if (!type_check (distance, 0, BT_INTEGER))
+	return false;
+
+      if (!nonnegative_check ("DISTANCE", distance))
+	return false;
+
+      if (!scalar_check (distance, 0))
+	return false;
+
+      if (!gfc_notify_std (GFC_STD_F2008_TS, "DISTANCE= argument to "
+			   "NUM_IMAGES at %L", &distance->where))
+	return false;
+    }
+
+   if (failed)
+    {
+>>>>>>> gcc-mirror/master
       if (!type_check (failed, 1, BT_LOGICAL))
 	return false;
 

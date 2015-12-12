@@ -253,13 +253,21 @@ struct iv_common_cand
   tree base;
   tree step;
   /* IV uses from which this common candidate is derived.  */
+<<<<<<< HEAD
   vec<iv_use *> uses;
+=======
+  auto_vec<iv_use *> uses;
+>>>>>>> gcc-mirror/master
   hashval_t hash;
 };
 
 /* Hashtable helpers.  */
 
+<<<<<<< HEAD
 struct iv_common_cand_hasher : free_ptr_hash <iv_common_cand>
+=======
+struct iv_common_cand_hasher : delete_ptr_hash <iv_common_cand>
+>>>>>>> gcc-mirror/master
 {
   static inline hashval_t hash (const iv_common_cand *);
   static inline bool equal (const iv_common_cand *, const iv_common_cand *);
@@ -3127,7 +3135,11 @@ record_common_cand (struct ivopts_data *data, tree base,
   slot = data->iv_common_cand_tab->find_slot (&ent, INSERT);
   if (*slot == NULL)
     {
+<<<<<<< HEAD
       *slot = XNEW (struct iv_common_cand);
+=======
+      *slot = new iv_common_cand ();
+>>>>>>> gcc-mirror/master
       (*slot)->base = base;
       (*slot)->step = step;
       (*slot)->uses.create (8);

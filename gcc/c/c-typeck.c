@@ -10052,9 +10052,15 @@ c_finish_bc_stmt (location_t loc, tree *label_p, bool is_break)
     case 2:
       if (is_break) 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	error ("break statement within <#pragma simd> loop body");
       else 
 	error ("continue statement within <#pragma simd> loop loop");
+=======
+	error ("break statement within %<#pragma simd%> loop body");
+      else 
+	error ("continue statement within %<#pragma simd%> loop body");
+>>>>>>> gcc-mirror/master
 =======
 	error ("break statement within %<#pragma simd%> loop body");
       else 
@@ -11637,6 +11643,28 @@ c_finish_oacc_data (location_t loc, tree clauses, tree block)
   return add_stmt (stmt);
 }
 
+<<<<<<< HEAD
+=======
+/* Generate OACC_HOST_DATA, with CLAUSES and BLOCK as its compound
+   statement.  LOC is the location of the OACC_HOST_DATA.  */
+
+tree
+c_finish_oacc_host_data (location_t loc, tree clauses, tree block)
+{
+  tree stmt;
+
+  block = c_end_compound_stmt (loc, block, true);
+
+  stmt = make_node (OACC_HOST_DATA);
+  TREE_TYPE (stmt) = void_type_node;
+  OACC_HOST_DATA_CLAUSES (stmt) = clauses;
+  OACC_HOST_DATA_BODY (stmt) = block;
+  SET_EXPR_LOCATION (stmt, loc);
+
+  return add_stmt (stmt);
+}
+
+>>>>>>> gcc-mirror/master
 /* Like c_begin_compound_stmt, except force the retention of the BLOCK.  */
 
 tree
@@ -11702,6 +11730,7 @@ c_finish_omp_task (location_t loc, tree clauses, tree block)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Like c_begin_compound_stmt, except force the retention of the BLOCK.  */
 
 tree
@@ -11732,6 +11761,8 @@ c_finish_omp_taskgroup (location_t loc, tree block)
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/master
 /* Generate GOMP_cancel call for #pragma omp cancel.  */
 
 void
@@ -11755,6 +11786,7 @@ c_finish_omp_cancel (location_t loc, tree clauses)
       return;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree stmt = build_call_expr_loc (loc, fn, 1,
 				   build_int_cst (integer_type_node, mask));
   tree ifc = find_omp_clause (clauses, OMP_CLAUSE_IF);
@@ -11762,6 +11794,8 @@ c_finish_omp_cancel (location_t loc, tree clauses)
     stmt = build3 (COND_EXPR, void_type_node, OMP_CLAUSE_IF_EXPR (ifc),
 		   stmt, NULL_TREE);
 =======
+=======
+>>>>>>> gcc-mirror/master
   tree ifc = find_omp_clause (clauses, OMP_CLAUSE_IF);
   if (ifc != NULL_TREE)
     {
@@ -11775,6 +11809,9 @@ c_finish_omp_cancel (location_t loc, tree clauses)
   tree stmt = build_call_expr_loc (loc, fn, 2,
 				   build_int_cst (integer_type_node, mask),
 				   ifc);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   add_stmt (stmt);
 }
@@ -11808,8 +11845,11 @@ c_finish_omp_cancellation_point (location_t loc, tree clauses)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* For all elements of CLAUSES, validate them vs OpenMP constraints.
 =======
+=======
+>>>>>>> gcc-mirror/master
 /* Helper function for handle_omp_array_sections.  Called recursively
    to handle multiple array-section-subscripts.  C is the clause,
    T current expression (initially OMP_CLAUSE_DECL), which is either
@@ -12407,6 +12447,9 @@ c_find_omp_placeholder_r (tree *tp, int *, void *data)
 }
 
 /* For all elements of CLAUSES, validate them against their constraints.
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
    Remove any elements from the list that are invalid.  */
 
@@ -12415,11 +12458,14 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 {
   bitmap_head generic_head, firstprivate_head, lastprivate_head;
 <<<<<<< HEAD
+<<<<<<< HEAD
   bitmap_head aligned_head;
   tree c, t, *pc = &clauses;
   const char *name;
   bool branch_seen = false;
 =======
+=======
+>>>>>>> gcc-mirror/master
   bitmap_head aligned_head, map_head, map_field_head;
   tree c, t, type, *pc;
   tree simdlen = NULL_TREE, safelen = NULL_TREE;
@@ -12429,6 +12475,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
   tree *nowait_clause = NULL;
   bool ordered_seen = false;
   tree schedule_clause = NULL_TREE;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
   bitmap_obstack_initialize (NULL);
@@ -12437,6 +12486,11 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
   bitmap_initialize (&lastprivate_head, &bitmap_default_obstack);
   bitmap_initialize (&aligned_head, &bitmap_default_obstack);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  bitmap_initialize (&map_head, &bitmap_default_obstack);
+  bitmap_initialize (&map_field_head, &bitmap_default_obstack);
+>>>>>>> gcc-mirror/master
 =======
   bitmap_initialize (&map_head, &bitmap_default_obstack);
   bitmap_initialize (&map_field_head, &bitmap_default_obstack);
@@ -12471,9 +12525,58 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 		}
 
 	      t = OMP_CLAUSE_DECL (c);
+<<<<<<< HEAD
 	    }
 	  t = require_complete_type (t);
 	  if (t == error_mark_node)
+	    {
+	      remove = true;
+	      break;
+	    }
+	  type = TREE_TYPE (t);
+	  if (TREE_CODE (t) == MEM_REF)
+	    type = TREE_TYPE (type);
+	  if (TREE_CODE (type) == ARRAY_TYPE)
+	    {
+	      tree oatype = type;
+	      gcc_assert (TREE_CODE (t) != MEM_REF);
+	      while (TREE_CODE (type) == ARRAY_TYPE)
+		type = TREE_TYPE (type);
+	      if (integer_zerop (TYPE_SIZE_UNIT (type)))
+		{
+		  error_at (OMP_CLAUSE_LOCATION (c),
+			    "%qD in %<reduction%> clause is a zero size array",
+			    t);
+		  remove = true;
+		  break;
+		}
+	      tree size = size_binop (EXACT_DIV_EXPR, TYPE_SIZE_UNIT (oatype),
+				      TYPE_SIZE_UNIT (type));
+	      if (integer_zerop (size))
+		{
+		  error_at (OMP_CLAUSE_LOCATION (c),
+			    "%qD in %<reduction%> clause is a zero size array",
+			    t);
+		  remove = true;
+		  break;
+		}
+	      size = size_binop (MINUS_EXPR, size, size_one_node);
+	      tree index_type = build_index_type (size);
+	      tree atype = build_array_type (type, index_type);
+	      tree ptype = build_pointer_type (type);
+	      if (TREE_CODE (TREE_TYPE (t)) == ARRAY_TYPE)
+		t = build_fold_addr_expr (t);
+	      t = build2 (MEM_REF, atype, t, build_int_cst (ptype, 0));
+	      OMP_CLAUSE_DECL (c) = t;
+	    }
+	  if (OMP_CLAUSE_REDUCTION_PLACEHOLDER (c) == NULL_TREE
+	      && (FLOAT_TYPE_P (type)
+		  || TREE_CODE (type) == COMPLEX_TYPE))
+=======
+	    }
+	  t = require_complete_type (t);
+	  if (t == error_mark_node)
+>>>>>>> gcc-mirror/master
 	    {
 	      remove = true;
 	      break;
@@ -12688,7 +12791,70 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 			"%qE must be %<threadprivate%> for %<copyin%>", t);
 	      remove = true;
 	      break;
+<<<<<<< HEAD
+=======
 	    }
+	  goto check_dup_generic;
+
+	case OMP_CLAUSE_LINEAR:
+	  if (!declare_simd)
+	    need_implicitly_determined = true;
+	  t = OMP_CLAUSE_DECL (c);
+	  if (!declare_simd
+	      && OMP_CLAUSE_LINEAR_KIND (c) != OMP_CLAUSE_LINEAR_DEFAULT)
+	    {
+	      error_at (OMP_CLAUSE_LOCATION (c),
+			"modifier should not be specified in %<linear%> "
+			"clause on %<simd%> or %<for%> constructs");
+	      OMP_CLAUSE_LINEAR_KIND (c) = OMP_CLAUSE_LINEAR_DEFAULT;
+	    }
+	  if (!INTEGRAL_TYPE_P (TREE_TYPE (t))
+	      && TREE_CODE (TREE_TYPE (t)) != POINTER_TYPE)
+	    {
+	      error_at (OMP_CLAUSE_LOCATION (c),
+			"linear clause applied to non-integral non-pointer "
+			"variable with type %qT", TREE_TYPE (t));
+	      remove = true;
+	      break;
+	    }
+	  if (declare_simd)
+	    {
+	      tree s = OMP_CLAUSE_LINEAR_STEP (c);
+	      if (TREE_CODE (s) == PARM_DECL)
+		{
+		  OMP_CLAUSE_LINEAR_VARIABLE_STRIDE (c) = 1;
+		  /* map_head bitmap is used as uniform_head if
+		     declare_simd.  */
+		  if (!bitmap_bit_p (&map_head, DECL_UID (s)))
+		    linear_variable_step_check = true;
+		  goto check_dup_generic;
+		}
+	      if (TREE_CODE (s) != INTEGER_CST)
+		{
+		  error_at (OMP_CLAUSE_LOCATION (c),
+			    "%<linear%> clause step %qE is neither constant "
+			    "nor a parameter", s);
+		  remove = true;
+		  break;
+		}
+	    }
+	  if (TREE_CODE (TREE_TYPE (OMP_CLAUSE_DECL (c))) == POINTER_TYPE)
+	    {
+	      tree s = OMP_CLAUSE_LINEAR_STEP (c);
+	      s = pointer_int_sum (OMP_CLAUSE_LOCATION (c), PLUS_EXPR,
+				   OMP_CLAUSE_DECL (c), s);
+	      s = fold_build2_loc (OMP_CLAUSE_LOCATION (c), MINUS_EXPR,
+				   sizetype, fold_convert (sizetype, s),
+				   fold_convert
+				     (sizetype, OMP_CLAUSE_DECL (c)));
+	      if (s == error_mark_node)
+		s = size_one_node;
+	      OMP_CLAUSE_LINEAR_STEP (c) = s;
+>>>>>>> gcc-mirror/master
+	    }
+	  else
+	    OMP_CLAUSE_LINEAR_STEP (c)
+	      = fold_convert (TREE_TYPE (t), OMP_CLAUSE_LINEAR_STEP (c));
 	  goto check_dup_generic;
 
 	case OMP_CLAUSE_LINEAR:
@@ -12848,7 +13014,11 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	case OMP_CLAUSE_ALIGNED:
 	  t = OMP_CLAUSE_DECL (c);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (TREE_CODE (t) != VAR_DECL && TREE_CODE (t) != PARM_DECL)
+=======
+	  if (!VAR_P (t) && TREE_CODE (t) != PARM_DECL)
+>>>>>>> gcc-mirror/master
 =======
 	  if (!VAR_P (t) && TREE_CODE (t) != PARM_DECL)
 >>>>>>> gcc-mirror/master
@@ -12858,7 +13028,10 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	      remove = true;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  else if (!POINTER_TYPE_P (TREE_TYPE (t))
 		   && TREE_CODE (TREE_TYPE (t)) != ARRAY_TYPE)
 	    {
@@ -12867,6 +13040,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 			"an array", t);
 	      remove = true;
 	    }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  else if (bitmap_bit_p (&aligned_head, DECL_UID (t)))
 	    {
@@ -12882,9 +13058,12 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	case OMP_CLAUSE_DEPEND:
 	  t = OMP_CLAUSE_DECL (c);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  /* FIXME: depend clause argument may be also array section.  */
 	  if (TREE_CODE (t) != VAR_DECL && TREE_CODE (t) != PARM_DECL)
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  if (t == NULL_TREE)
 	    {
 	      gcc_assert (OMP_CLAUSE_DEPEND_KIND (c)
@@ -12928,6 +13107,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	  if (t == error_mark_node)
 	    remove = true;
 	  else if (!VAR_P (t) && TREE_CODE (t) != PARM_DECL)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	    {
 	      error_at (OMP_CLAUSE_LOCATION (c),
@@ -12935,6 +13117,11 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	      remove = true;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	  else if (!c_mark_addressable (t))
+	    remove = true;
+>>>>>>> gcc-mirror/master
 =======
 	  else if (!c_mark_addressable (t))
 	    remove = true;
@@ -12945,10 +13132,13 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	case OMP_CLAUSE_TO:
 	case OMP_CLAUSE_FROM:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  t = OMP_CLAUSE_DECL (c);
 	  /* FIXME: map clause argument may be also array section.  */
 	  if (TREE_CODE (t) != VAR_DECL && TREE_CODE (t) != PARM_DECL)
 =======
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE__CACHE_:
 	  t = OMP_CLAUSE_DECL (c);
 	  if (TREE_CODE (t) == TREE_LIST)
@@ -13038,6 +13228,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 		}
 	    }
 	  if (!VAR_P (t) && TREE_CODE (t) != PARM_DECL)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	    {
 	      error_at (OMP_CLAUSE_LOCATION (c),
@@ -13046,8 +13239,11 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	      remove = true;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  else if (TREE_CODE (t) == VAR_DECL && DECL_THREAD_LOCAL_P (t))
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  else if (VAR_P (t) && DECL_THREAD_LOCAL_P (t))
 	    {
 	      error_at (OMP_CLAUSE_LOCATION (c),
@@ -13134,6 +13330,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	      remove = true;
 	    }
 	  else if (DECL_THREAD_LOCAL_P (t))
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	    {
 	      error_at (OMP_CLAUSE_LOCATION (c),
@@ -13142,7 +13341,10 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	      remove = true;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 	  else if (!lang_hooks.types.omp_mappable_type (TREE_TYPE (t)))
 	    {
 	      error_at (OMP_CLAUSE_LOCATION (c),
@@ -13161,6 +13363,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	    }
 	  else
 	    bitmap_set_bit (&generic_head, DECL_UID (t));
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  break;
 
@@ -13176,15 +13381,22 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 			  "%qE is not an argument in %<uniform%> clause", t);
 	      remove = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    }
 	  break;
 =======
+=======
+>>>>>>> gcc-mirror/master
 	      break;
 	    }
 	  /* map_head bitmap is used as uniform_head if declare_simd.  */
 	  bitmap_set_bit (&map_head, DECL_UID (t));
 	  goto check_dup_generic;
 
+<<<<<<< HEAD
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	  t = OMP_CLAUSE_DECL (c);
@@ -13210,6 +13422,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	  nowait_clause = pc;
 	  pc = &OMP_CLAUSE_CHAIN (c);
 	  continue;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 	case OMP_CLAUSE_IF:
@@ -13222,8 +13437,11 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	case OMP_CLAUSE_FINAL:
 	case OMP_CLAUSE_MERGEABLE:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	case OMP_CLAUSE_SAFELEN:
 	case OMP_CLAUSE_SIMDLEN:
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_DEVICE:
@@ -13234,7 +13452,10 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	case OMP_CLAUSE_TASKGROUP:
 	case OMP_CLAUSE_PROC_BIND:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_PRIORITY:
 	case OMP_CLAUSE_GRAINSIZE:
 	case OMP_CLAUSE_NUM_TASKS:
@@ -13298,6 +13519,9 @@ c_finish_omp_clauses (tree clauses, bool is_omp, bool declare_simd)
 	  continue;
 	case OMP_CLAUSE_SIMDLEN:
 	  simdlen = c;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	  pc = &OMP_CLAUSE_CHAIN (c);
 	  continue;
@@ -13524,10 +13748,15 @@ c_finish_transaction (location_t loc, tree block, int flags)
 }
 
 /* Make a variant type in the proper way for C/C++, propagating qualifiers
-   down to the element type of an array.  */
+   down to the element type of an array.  If ORIG_QUAL_TYPE is not
+   NULL, then it should be used as the qualified type
+   ORIG_QUAL_INDIRECT levels down in array type derivation (to
+   preserve information about the typedef name from which an array
+   type was derived).  */
 
 tree
-c_build_qualified_type (tree type, int type_quals)
+c_build_qualified_type (tree type, int type_quals, tree orig_qual_type,
+			size_t orig_qual_indirect)
 {
   if (type == error_mark_node)
     return type;
@@ -13536,18 +13765,22 @@ c_build_qualified_type (tree type, int type_quals)
     {
       tree t;
       tree element_type = c_build_qualified_type (TREE_TYPE (type),
-						  type_quals);
+						  type_quals, orig_qual_type,
+						  orig_qual_indirect - 1);
 
       /* See if we already have an identically qualified type.  */
-      for (t = TYPE_MAIN_VARIANT (type); t; t = TYPE_NEXT_VARIANT (t))
-	{
-	  if (TYPE_QUALS (strip_array_types (t)) == type_quals
-	      && TYPE_NAME (t) == TYPE_NAME (type)
-	      && TYPE_CONTEXT (t) == TYPE_CONTEXT (type)
-	      && attribute_list_equal (TYPE_ATTRIBUTES (t),
-				       TYPE_ATTRIBUTES (type)))
-	    break;
-	}
+      if (orig_qual_type && orig_qual_indirect == 0)
+	t = orig_qual_type;
+      else
+	for (t = TYPE_MAIN_VARIANT (type); t; t = TYPE_NEXT_VARIANT (t))
+	  {
+	    if (TYPE_QUALS (strip_array_types (t)) == type_quals
+		&& TYPE_NAME (t) == TYPE_NAME (type)
+		&& TYPE_CONTEXT (t) == TYPE_CONTEXT (type)
+		&& attribute_list_equal (TYPE_ATTRIBUTES (t),
+					 TYPE_ATTRIBUTES (type)))
+	      break;
+	  }
       if (!t)
 	{
           tree domain = TYPE_DOMAIN (type);
@@ -13591,7 +13824,13 @@ c_build_qualified_type (tree type, int type_quals)
       type_quals &= ~TYPE_QUAL_RESTRICT;
     }
 
+<<<<<<< HEAD
   tree var_type = build_qualified_type (type, type_quals);
+=======
+  tree var_type = (orig_qual_type && orig_qual_indirect == 0
+		   ? orig_qual_type
+		   : build_qualified_type (type, type_quals));
+>>>>>>> gcc-mirror/master
   /* A variant type does not inherit the list of incomplete vars from the
      type main variant.  */
   if (RECORD_OR_UNION_TYPE_P (var_type))
@@ -13602,20 +13841,277 @@ c_build_qualified_type (tree type, int type_quals)
 /* Build a VA_ARG_EXPR for the C parser.  */
 
 tree
-c_build_va_arg (location_t loc, tree expr, tree type)
+c_build_va_arg (location_t loc1, tree expr, location_t loc2, tree type)
 {
   if (error_operand_p (type))
     return error_mark_node;
+<<<<<<< HEAD
   else if (!COMPLETE_TYPE_P (type))
     {
       error_at (loc, "second argument to %<va_arg%> is of incomplete "
+=======
+  /* VA_ARG_EXPR cannot be used for a scalar va_list with reverse storage
+     order because it takes the address of the expression.  */
+  else if (handled_component_p (expr)
+	   && reverse_storage_order_for_component_p (expr))
+    {
+      error_at (loc1, "cannot use %<va_arg%> with reverse storage order");
+      return error_mark_node;
+    }
+  else if (!COMPLETE_TYPE_P (type))
+    {
+      error_at (loc2, "second argument to %<va_arg%> is of incomplete "
+>>>>>>> gcc-mirror/master
 		"type %qT", type);
       return error_mark_node;
     }
   else if (warn_cxx_compat && TREE_CODE (type) == ENUMERAL_TYPE)
+<<<<<<< HEAD
     warning_at (loc, OPT_Wc___compat,
+=======
+    warning_at (loc2, OPT_Wc___compat,
+>>>>>>> gcc-mirror/master
 		"C++ requires promoted type, not enum type, in %<va_arg%>");
-  return build_va_arg (loc, expr, type);
+  return build_va_arg (loc2, expr, type);
+}
+
+/* Return truthvalue of whether T1 is the same tree structure as T2.
+   Return 1 if they are the same. Return 0 if they are different.  */
+
+bool
+c_tree_equal (tree t1, tree t2)
+{
+  enum tree_code code1, code2;
+
+  if (t1 == t2)
+    return true;
+  if (!t1 || !t2)
+    return false;
+
+  for (code1 = TREE_CODE (t1);
+       CONVERT_EXPR_CODE_P (code1)
+	 || code1 == NON_LVALUE_EXPR;
+       code1 = TREE_CODE (t1))
+    t1 = TREE_OPERAND (t1, 0);
+  for (code2 = TREE_CODE (t2);
+       CONVERT_EXPR_CODE_P (code2)
+	 || code2 == NON_LVALUE_EXPR;
+       code2 = TREE_CODE (t2))
+    t2 = TREE_OPERAND (t2, 0);
+
+  /* They might have become equal now.  */
+  if (t1 == t2)
+    return true;
+
+  if (code1 != code2)
+    return false;
+
+  switch (code1)
+    {
+    case INTEGER_CST:
+      return wi::eq_p (t1, t2);
+
+    case REAL_CST:
+      return real_equal (&TREE_REAL_CST (t1), &TREE_REAL_CST (t2));
+
+    case STRING_CST:
+      return TREE_STRING_LENGTH (t1) == TREE_STRING_LENGTH (t2)
+	&& !memcmp (TREE_STRING_POINTER (t1), TREE_STRING_POINTER (t2),
+		    TREE_STRING_LENGTH (t1));
+
+    case FIXED_CST:
+      return FIXED_VALUES_IDENTICAL (TREE_FIXED_CST (t1),
+				     TREE_FIXED_CST (t2));
+
+    case COMPLEX_CST:
+      return c_tree_equal (TREE_REALPART (t1), TREE_REALPART (t2))
+	     && c_tree_equal (TREE_IMAGPART (t1), TREE_IMAGPART (t2));
+
+    case VECTOR_CST:
+      return operand_equal_p (t1, t2, OEP_ONLY_CONST);
+
+    case CONSTRUCTOR:
+      /* We need to do this when determining whether or not two
+	 non-type pointer to member function template arguments
+	 are the same.  */
+      if (!comptypes (TREE_TYPE (t1), TREE_TYPE (t2))
+	  || CONSTRUCTOR_NELTS (t1) != CONSTRUCTOR_NELTS (t2))
+	return false;
+      {
+	tree field, value;
+	unsigned int i;
+	FOR_EACH_CONSTRUCTOR_ELT (CONSTRUCTOR_ELTS (t1), i, field, value)
+	  {
+	    constructor_elt *elt2 = CONSTRUCTOR_ELT (t2, i);
+	    if (!c_tree_equal (field, elt2->index)
+		|| !c_tree_equal (value, elt2->value))
+	      return false;
+	  }
+      }
+      return true;
+
+    case TREE_LIST:
+      if (!c_tree_equal (TREE_PURPOSE (t1), TREE_PURPOSE (t2)))
+	return false;
+      if (!c_tree_equal (TREE_VALUE (t1), TREE_VALUE (t2)))
+	return false;
+      return c_tree_equal (TREE_CHAIN (t1), TREE_CHAIN (t2));
+
+    case SAVE_EXPR:
+      return c_tree_equal (TREE_OPERAND (t1, 0), TREE_OPERAND (t2, 0));
+
+    case CALL_EXPR:
+      {
+	tree arg1, arg2;
+	call_expr_arg_iterator iter1, iter2;
+	if (!c_tree_equal (CALL_EXPR_FN (t1), CALL_EXPR_FN (t2)))
+	  return false;
+	for (arg1 = first_call_expr_arg (t1, &iter1),
+	       arg2 = first_call_expr_arg (t2, &iter2);
+	     arg1 && arg2;
+	     arg1 = next_call_expr_arg (&iter1),
+	       arg2 = next_call_expr_arg (&iter2))
+	  if (!c_tree_equal (arg1, arg2))
+	    return false;
+	if (arg1 || arg2)
+	  return false;
+	return true;
+      }
+
+    case TARGET_EXPR:
+      {
+	tree o1 = TREE_OPERAND (t1, 0);
+	tree o2 = TREE_OPERAND (t2, 0);
+
+	/* Special case: if either target is an unallocated VAR_DECL,
+	   it means that it's going to be unified with whatever the
+	   TARGET_EXPR is really supposed to initialize, so treat it
+	   as being equivalent to anything.  */
+	if (VAR_P (o1) && DECL_NAME (o1) == NULL_TREE
+	    && !DECL_RTL_SET_P (o1))
+	  /*Nop*/;
+	else if (VAR_P (o2) && DECL_NAME (o2) == NULL_TREE
+		 && !DECL_RTL_SET_P (o2))
+	  /*Nop*/;
+	else if (!c_tree_equal (o1, o2))
+	  return false;
+
+	return c_tree_equal (TREE_OPERAND (t1, 1), TREE_OPERAND (t2, 1));
+      }
+
+    case COMPONENT_REF:
+      if (TREE_OPERAND (t1, 1) != TREE_OPERAND (t2, 1))
+	return false;
+      return c_tree_equal (TREE_OPERAND (t1, 0), TREE_OPERAND (t2, 0));
+
+    case PARM_DECL:
+    case VAR_DECL:
+    case CONST_DECL:
+    case FIELD_DECL:
+    case FUNCTION_DECL:
+    case IDENTIFIER_NODE:
+    case SSA_NAME:
+      return false;
+
+    case TREE_VEC:
+      {
+	unsigned ix;
+	if (TREE_VEC_LENGTH (t1) != TREE_VEC_LENGTH (t2))
+	  return false;
+	for (ix = TREE_VEC_LENGTH (t1); ix--;)
+	  if (!c_tree_equal (TREE_VEC_ELT (t1, ix),
+			     TREE_VEC_ELT (t2, ix)))
+	    return false;
+	return true;
+      }
+
+    default:
+      break;
+    }
+
+  switch (TREE_CODE_CLASS (code1))
+    {
+    case tcc_unary:
+    case tcc_binary:
+    case tcc_comparison:
+    case tcc_expression:
+    case tcc_vl_exp:
+    case tcc_reference:
+    case tcc_statement:
+      {
+	int i, n = TREE_OPERAND_LENGTH (t1);
+
+	switch (code1)
+	  {
+	  case PREINCREMENT_EXPR:
+	  case PREDECREMENT_EXPR:
+	  case POSTINCREMENT_EXPR:
+	  case POSTDECREMENT_EXPR:
+	    n = 1;
+	    break;
+	  case ARRAY_REF:
+	    n = 2;
+	    break;
+	  default:
+	    break;
+	  }
+
+	if (TREE_CODE_CLASS (code1) == tcc_vl_exp
+	    && n != TREE_OPERAND_LENGTH (t2))
+	  return false;
+
+	for (i = 0; i < n; ++i)
+	  if (!c_tree_equal (TREE_OPERAND (t1, i), TREE_OPERAND (t2, i)))
+	    return false;
+
+	return true;
+      }
+
+    case tcc_type:
+      return comptypes (t1, t2);
+    default:
+      gcc_unreachable ();
+    }
+  /* We can get here with --disable-checking.  */
+  return false;
+}
+
+/* Inserts "cleanup" functions after the function-body of FNDECL.  FNDECL is a 
+   spawn-helper and BODY is the newly created body for FNDECL.  */
+
+void
+cilk_install_body_with_frame_cleanup (tree fndecl, tree body, void *w)
+{
+  tree list = alloc_stmt_list ();
+  tree frame = make_cilk_frame (fndecl);
+  tree dtor = create_cilk_function_exit (frame, false, true);
+  add_local_decl (cfun, frame);
+  
+  DECL_SAVED_TREE (fndecl) = list;
+  tree frame_ptr = build1 (ADDR_EXPR, build_pointer_type (TREE_TYPE (frame)), 
+			   frame);
+  tree body_list = cilk_install_body_pedigree_operations (frame_ptr);
+  gcc_assert (TREE_CODE (body_list) == STATEMENT_LIST);
+  
+  tree detach_expr = build_call_expr (cilk_detach_fndecl, 1, frame_ptr); 
+  append_to_statement_list (detach_expr, &body_list);
+
+  cilk_outline (fndecl, &body, (struct wrapper_data *) w);
+  body = fold_build_cleanup_point_expr (void_type_node, body);
+
+  append_to_statement_list (body, &body_list);
+  append_to_statement_list (build_stmt (EXPR_LOCATION (body), TRY_FINALLY_EXPR,
+				       	body_list, dtor), &list);
+}
+
+/* Returns true when the function declaration FNDECL is implicit,
+   introduced as a result of a call to an otherwise undeclared
+   function, and false otherwise.  */
+
+bool
+c_decl_implicit (const_tree fndecl)
+{
+  return C_DECL_IMPLICIT (fndecl);
 }
 
 /* Return truthvalue of whether T1 is the same tree structure as T2.

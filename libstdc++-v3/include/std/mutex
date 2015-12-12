@@ -87,7 +87,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
   };
 
+<<<<<<< HEAD
   /// recursive_mutex
+=======
+  /// The standard recursive mutex type.
+>>>>>>> gcc-mirror/master
   class recursive_mutex : private __recursive_mutex_base
   {
   public:
@@ -171,7 +175,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
     };
 
-  /// timed_mutex
+  /// The standard timed mutex type.
   class timed_mutex
   : private __mutex_base, public __timed_mutex_impl<timed_mutex>
   {

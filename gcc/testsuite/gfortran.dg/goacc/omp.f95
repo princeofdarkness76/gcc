@@ -63,4 +63,16 @@ contains
      !$omp end parallel
      !$acc end data
    end subroutine roku
+<<<<<<< HEAD
 end module test
+=======
+
+   subroutine nana
+     !$acc parallel &
+     !$omp do ! { dg-error "Wrong OpenACC continuation" }
+
+     !$omp parallel &
+     !$acc loop ! { dg-error "Wrong OpenMP continuation" }
+   end subroutine nana
+end module test
+>>>>>>> gcc-mirror/master

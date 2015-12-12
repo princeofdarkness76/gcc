@@ -731,7 +731,11 @@ DFS::DFS_write_tree_body (struct output_block *ob,
 
       /* Do not follow DECL_ABSTRACT_ORIGIN.  We cannot handle debug information
 	 for early inlining so drop it on the floor instead of ICEing in
-	 dwarf2out.c.  */
+	 dwarf2out.c.
+	 We however use DECL_ABSTRACT_ORIGIN == error_mark_node to mark
+	 declarations which should be eliminated by decl merging. Be sure none
+	 leaks to this point.  */
+      gcc_assert (DECL_ABSTRACT_ORIGIN (expr) != error_mark_node);
 
       if ((TREE_CODE (expr) == VAR_DECL
 	   || TREE_CODE (expr) == PARM_DECL)
@@ -1109,10 +1113,13 @@ hash_tree (struct streamer_tree_cache_d *cache, hash_map<tree, hashval_t> *map, 
       hstate.commit_flag ();
       hstate.add_int (TYPE_PRECISION (t));
       hstate.add_int (TYPE_ALIGN (t));
+<<<<<<< HEAD
       hstate.add_int ((TYPE_ALIAS_SET (t) == 0
 					 || (!in_lto_p
 					     && get_alias_set (t) == 0))
 					? 0 : -1);
+=======
+>>>>>>> gcc-mirror/master
     }
 
   if (CODE_CONTAINS_STRUCT (code, TS_TRANSLATION_UNIT_DECL))
@@ -2236,7 +2243,12 @@ wrap_refs (tree *tp, int *ws, void *)
 {
   tree t = *tp;
   if (handled_component_p (t)
+<<<<<<< HEAD
       && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL)
+=======
+      && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL
+      && TREE_PUBLIC (TREE_OPERAND (t, 0)))
+>>>>>>> gcc-mirror/master
     {
       tree decl = TREE_OPERAND (t, 0);
       tree ptrtype = build_pointer_type (TREE_TYPE (decl));

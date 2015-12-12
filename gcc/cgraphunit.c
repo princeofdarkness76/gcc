@@ -369,6 +369,10 @@ cgraph_node::reset (void)
   analyzed = false;
   definition = false;
   alias = false;
+<<<<<<< HEAD
+=======
+  transparent_alias = false;
+>>>>>>> gcc-mirror/master
   weakref = false;
   cpp_implicit_alias = false;
 
@@ -575,6 +579,10 @@ cgraph_node::analyze (void)
       cgraph_node *t = cgraph_node::get (thunk.alias);
 
       create_edge (t, NULL, 0, CGRAPH_FREQ_BASE);
+<<<<<<< HEAD
+=======
+      callees->can_throw_external = !TREE_NOTHROW (t->decl);
+>>>>>>> gcc-mirror/master
       /* Target code in expand_thunk may need the thunk's target
 	 to be analyzed, so recurse here.  */
       if (!t->analyzed)
@@ -593,7 +601,11 @@ cgraph_node::analyze (void)
       thunk.alias = NULL;
     }
   if (alias)
+<<<<<<< HEAD
     resolve_alias (cgraph_node::get (alias_target));
+=======
+    resolve_alias (cgraph_node::get (alias_target), transparent_alias);
+>>>>>>> gcc-mirror/master
   else if (dispatcher_function)
     {
       /* Generate the dispatcher body of multi-versioned functions.  */
@@ -821,6 +833,7 @@ varpool_node::finalize_decl (tree decl)
 
   if (DECL_INITIAL (decl))
     chkp_register_var_initializer (decl);
+<<<<<<< HEAD
 }
 
 /* EDGE is an polymorphic call.  Mark all possible targets as reachable
@@ -910,6 +923,97 @@ walk_polymorphic_call_targets (hash_set<void *> *reachable_call_targets,
     }
 }
 
+=======
+}
+
+/* EDGE is an polymorphic call.  Mark all possible targets as reachable
+   and if there is only one target, perform trivial devirtualization. 
+   REACHABLE_CALL_TARGETS collects target lists we already walked to
+   avoid udplicate work.  */
+
+static void
+walk_polymorphic_call_targets (hash_set<void *> *reachable_call_targets,
+			       cgraph_edge *edge)
+{
+  unsigned int i;
+  void *cache_token;
+  bool final;
+  vec <cgraph_node *>targets
+    = possible_polymorphic_call_targets
+	(edge, &final, &cache_token);
+
+  if (!reachable_call_targets->add (cache_token))
+    {
+      if (symtab->dump_file)
+	dump_possible_polymorphic_call_targets 
+	  (symtab->dump_file, edge);
+
+      for (i = 0; i < targets.length (); i++)
+	{
+	  /* Do not bother to mark virtual methods in anonymous namespace;
+	     either we will find use of virtual table defining it, or it is
+	     unused.  */
+	  if (targets[i]->definition
+	      && TREE_CODE
+		  (TREE_TYPE (targets[i]->decl))
+		   == METHOD_TYPE
+	      && !type_in_anonymous_namespace_p
+		   (TYPE_METHOD_BASETYPE (TREE_TYPE (targets[i]->decl))))
+	    enqueue_node (targets[i]);
+	}
+    }
+
+  /* Very trivial devirtualization; when the type is
+     final or anonymous (so we know all its derivation)
+     and there is only one possible virtual call target,
+     make the edge direct.  */
+  if (final)
+    {
+      if (targets.length () <= 1 && dbg_cnt (devirt))
+	{
+	  cgraph_node *target;
+	  if (targets.length () == 1)
+	    target = targets[0];
+	  else
+	    target = cgraph_node::create
+			(builtin_decl_implicit (BUILT_IN_UNREACHABLE));
+
+	  if (symtab->dump_file)
+	    {
+	      fprintf (symtab->dump_file,
+		       "Devirtualizing call: ");
+	      print_gimple_stmt (symtab->dump_file,
+				 edge->call_stmt, 0,
+				 TDF_SLIM);
+	    }
+          if (dump_enabled_p ())
+            {
+	      location_t locus = gimple_location_safe (edge->call_stmt);
+	      dump_printf_loc (MSG_OPTIMIZED_LOCATIONS, locus,
+			       "devirtualizing call in %s to %s\n",
+			       edge->caller->name (), target->name ());
+	    }
+
+	  edge->make_direct (target);
+	  edge->redirect_call_stmt_to_callee ();
+
+	  /* Call to __builtin_unreachable shouldn't be instrumented.  */
+	  if (!targets.length ())
+	    gimple_call_set_with_bounds (edge->call_stmt, false);
+
+	  if (symtab->dump_file)
+	    {
+	      fprintf (symtab->dump_file,
+		       "Devirtualized as: ");
+	      print_gimple_stmt (symtab->dump_file,
+				 edge->call_stmt, 0,
+				 TDF_SLIM);
+	    }
+	}
+    }
+}
+
+>>>>>>> gcc-mirror/master
 /* Issue appropriate warnings for the global declaration DECL.  */
 
 static void
@@ -956,7 +1060,11 @@ check_global_declaration (symtab_node *snode)
       && ! DECL_ABSTRACT_ORIGIN (decl)
       && ! TREE_PUBLIC (decl)
       /* A volatile variable might be used in some non-obvious way.  */
+<<<<<<< HEAD
       && ! TREE_THIS_VOLATILE (decl)
+=======
+      && (! VAR_P (decl) || ! TREE_THIS_VOLATILE (decl))
+>>>>>>> gcc-mirror/master
       /* Global register variables must be declared to reserve them.  */
       && ! (TREE_CODE (decl) == VAR_DECL && DECL_REGISTER (decl))
       /* Global ctors and dtors are called by the runtime.  */
@@ -1162,10 +1270,17 @@ analyze_functions (bool first_time)
       FOR_EACH_SYMBOL (snode)
 	check_global_declaration (snode);
     }
+<<<<<<< HEAD
 
   if (symtab->dump_file)
     fprintf (symtab->dump_file, "\nRemoving unused symbols:");
 
+=======
+
+  if (symtab->dump_file)
+    fprintf (symtab->dump_file, "\nRemoving unused symbols:");
+
+>>>>>>> gcc-mirror/master
   for (node = symtab->first_symbol ();
        node != first_handled
        && node != first_handled_var; node = next)
@@ -1253,6 +1368,10 @@ handle_alias_pairs (void)
 	      node->alias_target = p->target;
 	      node->weakref = true;
 	      node->alias = true;
+<<<<<<< HEAD
+=======
+	      node->transparent_alias = true;
+>>>>>>> gcc-mirror/master
 	    }
 	  alias_pairs->unordered_remove (i);
 	  continue;
@@ -1660,11 +1779,19 @@ cgraph_node::expand_thunk (bool output_asm_thunks, bool force_gimple_thunk)
       gcall *call;
       greturn *ret;
       bool alias_is_noreturn = TREE_THIS_VOLATILE (alias);
+<<<<<<< HEAD
 
       if (in_lto_p)
 	get_untransformed_body ();
       a = DECL_ARGUMENTS (thunk_fndecl);
 
+=======
+
+      if (in_lto_p)
+	get_untransformed_body ();
+      a = DECL_ARGUMENTS (thunk_fndecl);
+
+>>>>>>> gcc-mirror/master
       current_function_decl = thunk_fndecl;
 
       /* Ensure thunks are emitted in their correct sections.  */
@@ -1907,6 +2034,7 @@ cgraph_node::assemble_thunks_and_aliases (void)
   FOR_EACH_ALIAS (this, ref)
     {
       cgraph_node *alias = dyn_cast <cgraph_node *> (ref->referring);
+<<<<<<< HEAD
       bool saved_written = TREE_ASM_WRITTEN (decl);
 
       /* Force assemble_alias to really output the alias this time instead
@@ -1916,6 +2044,20 @@ cgraph_node::assemble_thunks_and_aliases (void)
 			 DECL_ASSEMBLER_NAME (decl));
       alias->assemble_thunks_and_aliases ();
       TREE_ASM_WRITTEN (decl) = saved_written;
+=======
+      if (!alias->transparent_alias)
+	{
+	  bool saved_written = TREE_ASM_WRITTEN (decl);
+
+	  /* Force assemble_alias to really output the alias this time instead
+	     of buffering it in same alias pairs.  */
+	  TREE_ASM_WRITTEN (decl) = 1;
+	  do_assemble_alias (alias->decl,
+			     DECL_ASSEMBLER_NAME (decl));
+	  alias->assemble_thunks_and_aliases ();
+	  TREE_ASM_WRITTEN (decl) = saved_written;
+	}
+>>>>>>> gcc-mirror/master
     }
 }
 
@@ -2105,11 +2247,19 @@ expand_all_functions (void)
     if (dump_file)
       fprintf (dump_file, "Expanded functions with time profile (%s):%u/%u\n",
                main_input_filename, profiled_func_count, expanded_func_count);
+<<<<<<< HEAD
 
   if (symtab->dump_file && flag_profile_reorder_functions)
     fprintf (symtab->dump_file, "Expanded functions with time profile:%u/%u\n",
              profiled_func_count, expanded_func_count);
 
+=======
+
+  if (symtab->dump_file && flag_profile_reorder_functions)
+    fprintf (symtab->dump_file, "Expanded functions with time profile:%u/%u\n",
+             profiled_func_count, expanded_func_count);
+
+>>>>>>> gcc-mirror/master
   symtab->process_new_functions ();
   free_gimplify_stack ();
 

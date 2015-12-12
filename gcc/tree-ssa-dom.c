@@ -99,7 +99,11 @@ struct opt_stats_d
 static struct opt_stats_d opt_stats;
 
 /* Local functions.  */
+<<<<<<< HEAD
 static void optimize_stmt (basic_block, gimple_stmt_iterator,
+=======
+static edge optimize_stmt (basic_block, gimple_stmt_iterator,
+>>>>>>> gcc-mirror/master
 			   class const_and_copies *,
 			   class avail_exprs_stack *);
 static tree lookup_avail_expr (gimple *, bool, class avail_exprs_stack *);
@@ -493,12 +497,20 @@ public:
   dom_opt_dom_walker (cdi_direction direction,
 		      class const_and_copies *const_and_copies,
 		      class avail_exprs_stack *avail_exprs_stack)
+<<<<<<< HEAD
     : dom_walker (direction),
+=======
+    : dom_walker (direction, true),
+>>>>>>> gcc-mirror/master
       m_const_and_copies (const_and_copies),
       m_avail_exprs_stack (avail_exprs_stack),
       m_dummy_cond (NULL) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
 private:
@@ -610,6 +622,39 @@ pass_dominator::execute (function *fun)
 			     const_and_copies,
 			     avail_exprs_stack);
   walker.walk (fun->cfg->x_entry_block_ptr);
+<<<<<<< HEAD
+=======
+
+  /* Look for blocks where we cleared EDGE_EXECUTABLE on an outgoing
+     edge.  When found, remove jump threads which contain any outgoing
+     edge from the affected block.  */
+  if (cfg_altered)
+    {
+      FOR_EACH_BB_FN (bb, fun)
+	{
+	  edge_iterator ei;
+	  edge e;
+
+	  /* First see if there are any edges without EDGE_EXECUTABLE
+	     set.  */
+	  bool found = false;
+	  FOR_EACH_EDGE (e, ei, bb->succs)
+	    {
+	      if ((e->flags & EDGE_EXECUTABLE) == 0)
+		{
+		  found = true;
+		  break;
+		}
+	    }
+
+	  /* If there were any such edges found, then remove jump threads
+	     containing any edge leaving BB.  */
+	  if (found)
+	    FOR_EACH_EDGE (e, ei, bb->succs)
+	      remove_jump_threads_including (e);
+	}
+    }
+>>>>>>> gcc-mirror/master
 
   {
     gimple_stmt_iterator gsi;
@@ -951,6 +996,14 @@ record_equivalences_from_phis (basic_block bb)
 	  if (lhs == t)
 	    continue;
 
+<<<<<<< HEAD
+=======
+	  /* If the associated edge is not marked as executable, then it
+	     can be ignored.  */
+	  if ((gimple_phi_arg_edge (phi, i)->flags & EDGE_EXECUTABLE) == 0)
+	    continue;
+
+>>>>>>> gcc-mirror/master
 	  t = dom_valueize (t);
 
 	  /* If we have not processed an alternative yet, then set
@@ -997,6 +1050,10 @@ single_incoming_edge_ignoring_loop_edges (basic_block bb)
       if (dominated_by_p (CDI_DOMINATORS, e->src, e->dest))
 	continue;
 
+      /* We can safely ignore edges that are not executable.  */
+      if ((e->flags & EDGE_EXECUTABLE) == 0)
+	continue;
+
       /* If we have already seen a non-loop edge, then we must have
 	 multiple incoming non-loop edges and thus we return NULL.  */
       if (retval)
@@ -1034,6 +1091,7 @@ record_equivalences_from_incoming_edge (basic_block bb,
   if (e && e->src == parent)
     record_temporary_equivalences (e, const_and_copies, avail_exprs_stack);
 }
+<<<<<<< HEAD
 
 /* Dump statistics for the hash table HTAB.  */
 
@@ -1059,6 +1117,33 @@ dump_dominator_optimization_stats (FILE *file,
 
   fprintf (file, "\nHash table statistics:\n");
 
+=======
+
+/* Dump statistics for the hash table HTAB.  */
+
+static void
+htab_statistics (FILE *file, const hash_table<expr_elt_hasher> &htab)
+{
+  fprintf (file, "size %ld, %ld elements, %f collision/search ratio\n",
+	   (long) htab.size (),
+	   (long) htab.elements (),
+	   htab.collisions ());
+}
+
+/* Dump SSA statistics on FILE.  */
+
+static void
+dump_dominator_optimization_stats (FILE *file,
+				   hash_table<expr_elt_hasher> *avail_exprs)
+{
+  fprintf (file, "Total number of statements:                   %6ld\n\n",
+	   opt_stats.num_stmts);
+  fprintf (file, "Exprs considered for dominator optimizations: %6ld\n",
+           opt_stats.num_exprs_considered);
+
+  fprintf (file, "\nHash table statistics:\n");
+
+>>>>>>> gcc-mirror/master
   fprintf (file, "    avail_exprs: ");
   htab_statistics (file, *avail_exprs);
 }
@@ -1294,7 +1379,11 @@ cprop_into_successor_phis (basic_block bb,
     }
 }
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 dom_opt_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -1322,12 +1411,22 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
 				      m_avail_exprs_stack);
   m_avail_exprs_stack->pop_to_marker ();
 
+  edge taken_edge = NULL;
   for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+<<<<<<< HEAD
     optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
+=======
+    taken_edge
+      = optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
+>>>>>>> gcc-mirror/master
 
   /* Now prepare to process dominated blocks.  */
   record_edge_info (bb);
   cprop_into_successor_phis (bb, m_const_and_copies);
+<<<<<<< HEAD
+=======
+  return taken_edge;
+>>>>>>> gcc-mirror/master
 }
 
 /* We have finished processing the dominator children of BB, perform
@@ -1694,7 +1793,11 @@ cprop_into_stmt (gimple *stmt)
       assignment is found, we map the value on the RHS of the assignment to
       the variable in the LHS in the CONST_AND_COPIES table.  */
 
+<<<<<<< HEAD
 static void
+=======
+static edge
+>>>>>>> gcc-mirror/master
 optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 	       class const_and_copies *const_and_copies,
 	       class avail_exprs_stack *avail_exprs_stack)
@@ -1703,6 +1806,10 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
   bool may_optimize_p;
   bool modified_p = false;
   bool was_noreturn;
+<<<<<<< HEAD
+=======
+  edge retval = NULL;
+>>>>>>> gcc-mirror/master
 
   old_stmt = stmt = gsi_stmt (si);
   was_noreturn = is_gimple_call (stmt) && gimple_call_noreturn_p (stmt);
@@ -1823,7 +1930,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 		    fprintf (dump_file, "  Flagged to clear EH edges.\n");
 		}
 	      release_defs (stmt);
-	      return;
+	      return retval;
 	    }
 	}
     }
@@ -1849,6 +1956,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 
       if (val && TREE_CODE (val) == INTEGER_CST)
 	{
+<<<<<<< HEAD
 	  edge taken_edge = find_taken_edge (bb, val);
 	  if (taken_edge)
 	    {
@@ -1869,6 +1977,22 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 		&= ~(EDGE_TRUE_VALUE | EDGE_FALSE_VALUE | EDGE_ABNORMAL);
 	      taken_edge->flags |= EDGE_FALLTHRU;
 
+=======
+	  retval = find_taken_edge (bb, val);
+	  if (retval)
+	    {
+	      /* Fix the condition to be either true or false.  */
+	      if (gimple_code (stmt) == GIMPLE_COND)
+		{
+		  if (integer_zerop (val))
+		    gimple_cond_make_false (as_a <gcond *> (stmt));
+		  else if (integer_onep (val))
+		    gimple_cond_make_true (as_a <gcond *> (stmt));
+		  else
+		    gcc_unreachable ();
+		}
+
+>>>>>>> gcc-mirror/master
 	      /* Further simplifications may be possible.  */
 	      cfg_altered = true;
 	    }
@@ -1887,6 +2011,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 	  && is_gimple_call (stmt) && gimple_call_noreturn_p (stmt))
 	need_noreturn_fixup.safe_push (stmt);
     }
+  return retval;
 }
 
 /* Helper for walk_non_aliased_vuses.  Determine if we arrived at

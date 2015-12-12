@@ -380,7 +380,11 @@
                                 arm1136jfs,cortexa5,cortexa7,cortexa8,\
                                 cortexa9,cortexa12,cortexa15,cortexa17,\
                                 cortexa53,cortexa57,cortexm4,cortexm7,\
+<<<<<<< HEAD
 				marvell_pj4,xgene1")
+=======
+				exynosm1,marvell_pj4,xgene1")
+>>>>>>> gcc-mirror/master
 	       (eq_attr "tune_cortexr4" "yes"))
           (const_string "no")
           (const_string "yes"))))
@@ -419,6 +423,7 @@
 (include "cortex-m7.md")
 (include "cortex-m4.md")
 (include "cortex-m4-fpu.md")
+(include "exynos-m1.md")
 (include "vfp11.md")
 (include "marvell-pj4.md")
 (include "xgene1.md")
@@ -7662,6 +7667,7 @@
 )
 
 
+<<<<<<< HEAD
 ;; Note: not used for armv5+ because the sequence used (ldr pc, ...) is not
 ;; considered a function call by the branch predictor of some cores (PR40887).
 ;; Falls back to blx rN (*call_reg_armv5).
@@ -7679,6 +7685,8 @@
    (set_attr "type" "call")]
 )
 
+=======
+>>>>>>> gcc-mirror/master
 (define_expand "call_value"
   [(parallel [(set (match_operand       0 "" "")
 	           (call (match_operand 1 "memory_operand" "")
@@ -7742,6 +7750,7 @@
    (set_attr "type" "call")]
 )
 
+<<<<<<< HEAD
 ;; Note: see *call_mem
 
 (define_insn "*call_value_mem"
@@ -7759,6 +7768,8 @@
    (set_attr "type" "call")]
 )
 
+=======
+>>>>>>> gcc-mirror/master
 ;; Allow calls to SYMBOL_REFs specially as they are not valid general addresses
 ;; The 'a' causes the operand to be treated as an address, i.e. no '#' output.
 
@@ -8183,7 +8194,11 @@
   [(set (match_operand:SI 0 "register_operand" "=r")
 	(unspec_volatile:SI [(match_operand:SI 1 "register_operand" "0")
 			     (match_operand:SI 2 "register_operand" "r")]
+<<<<<<< HEAD
 			     UNSPEC_PROBE_STACK_RANGE))]
+=======
+			     VUNSPEC_PROBE_STACK_RANGE))]
+>>>>>>> gcc-mirror/master
   "TARGET_32BIT"
 {
   return output_probe_stack_range (operands[0], operands[2]);

@@ -246,6 +246,7 @@ build_gimple_cfg (gimple_seq seq)
   cleanup_dead_labels ();
   delete discriminator_per_locus;
   discriminator_per_locus = NULL;
+<<<<<<< HEAD
 }
 
 /* Look for ANNOTATE calls with loop annotation kind in BB; if found, remove
@@ -344,6 +345,106 @@ replace_loop_annotate (void)
     }
 }
 
+=======
+}
+
+/* Look for ANNOTATE calls with loop annotation kind in BB; if found, remove
+   them and propagate the information to LOOP.  We assume that the annotations
+   come immediately before the condition in BB, if any.  */
+
+static void
+replace_loop_annotate_in_block (basic_block bb, struct loop *loop)
+{
+  gimple_stmt_iterator gsi = gsi_last_bb (bb);
+  gimple *stmt = gsi_stmt (gsi);
+
+  if (!(stmt && gimple_code (stmt) == GIMPLE_COND))
+    return;
+
+  for (gsi_prev_nondebug (&gsi); !gsi_end_p (gsi); gsi_prev (&gsi))
+    {
+      stmt = gsi_stmt (gsi);
+      if (gimple_code (stmt) != GIMPLE_CALL)
+	break;
+      if (!gimple_call_internal_p (stmt)
+	  || gimple_call_internal_fn (stmt) != IFN_ANNOTATE)
+	break;
+
+      switch ((annot_expr_kind) tree_to_shwi (gimple_call_arg (stmt, 1)))
+	{
+	case annot_expr_ivdep_kind:
+	  loop->safelen = INT_MAX;
+	  break;
+	case annot_expr_no_vector_kind:
+	  loop->dont_vectorize = true;
+	  break;
+	case annot_expr_vector_kind:
+	  loop->force_vectorize = true;
+	  cfun->has_force_vectorize_loops = true;
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+
+      stmt = gimple_build_assign (gimple_call_lhs (stmt),
+				  gimple_call_arg (stmt, 0));
+      gsi_replace (&gsi, stmt, true);
+    }
+}
+
+/* Look for ANNOTATE calls with loop annotation kind; if found, remove
+   them and propagate the information to the loop.  We assume that the
+   annotations come immediately before the condition of the loop.  */
+
+static void
+replace_loop_annotate (void)
+{
+  struct loop *loop;
+  basic_block bb;
+  gimple_stmt_iterator gsi;
+  gimple *stmt;
+
+  FOR_EACH_LOOP (loop, 0)
+    {
+      /* First look into the header.  */
+      replace_loop_annotate_in_block (loop->header, loop);
+
+      /* Then look into the latch, if any.  */
+      if (loop->latch)
+	replace_loop_annotate_in_block (loop->latch, loop);
+    }
+
+  /* Remove IFN_ANNOTATE.  Safeguard for the case loop->latch == NULL.  */
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      for (gsi = gsi_last_bb (bb); !gsi_end_p (gsi); gsi_prev (&gsi))
+	{
+	  stmt = gsi_stmt (gsi);
+	  if (gimple_code (stmt) != GIMPLE_CALL)
+	    continue;
+	  if (!gimple_call_internal_p (stmt)
+	      || gimple_call_internal_fn (stmt) != IFN_ANNOTATE)
+	    continue;
+
+	  switch ((annot_expr_kind) tree_to_shwi (gimple_call_arg (stmt, 1)))
+	    {
+	    case annot_expr_ivdep_kind:
+	    case annot_expr_no_vector_kind:
+	    case annot_expr_vector_kind:
+	      break;
+	    default:
+	      gcc_unreachable ();
+	    }
+
+	  warning_at (gimple_location (stmt), 0, "ignoring loop annotation");
+	  stmt = gimple_build_assign (gimple_call_lhs (stmt),
+				      gimple_call_arg (stmt, 0));
+	  gsi_replace (&gsi, stmt, true);
+	}
+    }
+}
+
+>>>>>>> gcc-mirror/master
 
 static unsigned int
 execute_build_cfg (void)
@@ -650,6 +751,7 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
       if (bb_to_omp_idx[for_bb->index] != 0)
 	inner = true;
     }
+<<<<<<< HEAD
 
   /* If the dispatcher has been created already, then there are basic
      blocks with abnormal edges to it, so just make a new edge to
@@ -729,11 +831,95 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
 	  gsi_insert_after (&gsi, g, GSI_NEW_STMT);
 
 	  /* Create predecessor edges of the dispatcher.  */
+=======
+
+  /* If the dispatcher has been created already, then there are basic
+     blocks with abnormal edges to it, so just make a new edge to
+     for_bb.  */
+  if (*dispatcher == NULL)
+    {
+      /* Check if there are any basic blocks that need to have
+	 abnormal edges to this dispatcher.  If there are none, return
+	 early.  */
+      if (bb_to_omp_idx == NULL)
+	{
+	  if (bbs->is_empty ())
+	    return;
+	}
+      else
+	{
+	  FOR_EACH_VEC_ELT (*bbs, idx, bb)
+	    if (bb_to_omp_idx[bb->index] == bb_to_omp_idx[for_bb->index])
+	      break;
+	  if (bb == NULL)
+	    return;
+	}
+
+      /* Create the dispatcher bb.  */
+      *dispatcher = create_basic_block (NULL, for_bb);
+      if (computed_goto)
+	{
+	  /* Factor computed gotos into a common computed goto site.  Also
+	     record the location of that site so that we can un-factor the
+	     gotos after we have converted back to normal form.  */
+	  gimple_stmt_iterator gsi = gsi_start_bb (*dispatcher);
+
+	  /* Create the destination of the factored goto.  Each original
+	     computed goto will put its desired destination into this
+	     variable and jump to the label we create immediately below.  */
+	  tree var = create_tmp_var (ptr_type_node, "gotovar");
+
+	  /* Build a label for the new block which will contain the
+	     factored computed goto.  */
+	  tree factored_label_decl
+	    = create_artificial_label (UNKNOWN_LOCATION);
+	  gimple *factored_computed_goto_label
+	    = gimple_build_label (factored_label_decl);
+	  gsi_insert_after (&gsi, factored_computed_goto_label, GSI_NEW_STMT);
+
+	  /* Build our new computed goto.  */
+	  gimple *factored_computed_goto = gimple_build_goto (var);
+	  gsi_insert_after (&gsi, factored_computed_goto, GSI_NEW_STMT);
+
+>>>>>>> gcc-mirror/master
 	  FOR_EACH_VEC_ELT (*bbs, idx, bb)
 	    {
 	      if (bb_to_omp_idx
 		  && bb_to_omp_idx[bb->index] != bb_to_omp_idx[for_bb->index])
 		continue;
+<<<<<<< HEAD
+=======
+
+	      gsi = gsi_last_bb (bb);
+	      gimple *last = gsi_stmt (gsi);
+
+	      gcc_assert (computed_goto_p (last));
+
+	      /* Copy the original computed goto's destination into VAR.  */
+	      gimple *assignment
+		= gimple_build_assign (var, gimple_goto_dest (last));
+	      gsi_insert_before (&gsi, assignment, GSI_SAME_STMT);
+
+	      edge e = make_edge (bb, *dispatcher, EDGE_FALLTHRU);
+	      e->goto_locus = gimple_location (last);
+	      gsi_remove (&gsi, true);
+	    }
+	}
+      else
+	{
+	  tree arg = inner ? boolean_true_node : boolean_false_node;
+	  gimple *g = gimple_build_call_internal (IFN_ABNORMAL_DISPATCHER,
+						 1, arg);
+	  gimple_stmt_iterator gsi = gsi_after_labels (*dispatcher);
+	  gsi_insert_after (&gsi, g, GSI_NEW_STMT);
+
+	  /* Create predecessor edges of the dispatcher.  */
+	  FOR_EACH_VEC_ELT (*bbs, idx, bb)
+	    {
+	      if (bb_to_omp_idx
+		  && bb_to_omp_idx[bb->index] != bb_to_omp_idx[for_bb->index])
+		continue;
+>>>>>>> gcc-mirror/master
 	      make_edge (bb, *dispatcher, EDGE_ABNORMAL);
 	    }
 	}
@@ -907,6 +1093,7 @@ make_edges (void)
       int count = n_basic_blocks_for_fn (cfun);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    case GIMPLE_OMP_PARALLEL:
 	    case GIMPLE_OMP_TASK:
 	    case GIMPLE_OMP_FOR:
@@ -920,6 +1107,10 @@ make_edges (void)
 	      cur_region = new_omp_region (bb, code, cur_region);
 	      fallthru = true;
 	      break;
+=======
+      if (bb_to_omp_idx)
+	dispatcher_bbs = XCNEWVEC (basic_block, 2 * count);
+>>>>>>> gcc-mirror/master
 =======
       if (bb_to_omp_idx)
 	dispatcher_bbs = XCNEWVEC (basic_block, 2 * count);
@@ -970,10 +1161,17 @@ make_edges (void)
     }
 
   XDELETE (bb_to_omp_idx);
+<<<<<<< HEAD
 
   free_omp_regions ();
 }
 
+=======
+
+  free_omp_regions ();
+}
+
+>>>>>>> gcc-mirror/master
 /* Add SEQ after GSI.  Start new bb after GSI, and created further bbs as
    needed.  Returns true if new bbs were created.
    Note: This is transitional code, and should not be used for new code.  We

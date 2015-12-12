@@ -2,9 +2,14 @@
    constructs within the C and C++ front ends.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright (C) 2011-2013  Free Software Foundation, Inc.
    Contributed by Balaji V. Iyer <balaji.v.iyer@intel.com>,
 		  Aldy Hernandez <aldyh@redhat.com>.
+=======
+   Copyright (C) 2013-2015 Free Software Foundation, Inc.
+   Contributed by Aldy Hernandez <aldyh@redhat.com>.
+>>>>>>> gcc-mirror/master
 =======
    Copyright (C) 2013-2015 Free Software Foundation, Inc.
    Contributed by Aldy Hernandez <aldyh@redhat.com>.
@@ -29,6 +34,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include "tree.h"
 #include "c-common.h"
@@ -179,11 +185,16 @@ c_validate_cilk_plus_loop (tree *tp, int *walk_subtrees, void *data)
 #include "c-common.h"
 
 >>>>>>> gcc-mirror/master
+=======
+#include "c-common.h"
+
+>>>>>>> gcc-mirror/master
 /* Validate the body of a _Cilk_for construct or a <#pragma simd> for
    loop.
 
    Returns true if there were no errors, false otherwise.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static bool
 c_check_cilk_loop_body (tree body)
@@ -367,6 +378,8 @@ c_finish_cilk_simd_loop (location_t loc,
 }
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 bool
 c_check_cilk_loop (location_t loc, tree decl)
 {
@@ -378,6 +391,9 @@ c_check_cilk_loop (location_t loc, tree decl)
   return true;
 }
 
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 /* Validate and emit code for <#pragma simd> clauses.  */
 
@@ -419,7 +435,11 @@ c_finish_cilk_clauses (tree clauses)
 			  "variable appears in more than one clause");
 		inform (OMP_CLAUSE_LOCATION (c),
 <<<<<<< HEAD
+<<<<<<< HEAD
 			"multiple clause defined here");
+=======
+			"other clause defined here");
+>>>>>>> gcc-mirror/master
 =======
 			"other clause defined here");
 >>>>>>> gcc-mirror/master
@@ -431,10 +451,13 @@ c_finish_cilk_clauses (tree clauses)
 	  }
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   return clauses;
 }
 =======
+=======
+>>>>>>> gcc-mirror/master
   return clauses;
 }
 
@@ -570,4 +593,7 @@ cilk_for_number_of_iterations (tree cilk_for)
 		       build_int_cst (itype, 0));
   return t;
 }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

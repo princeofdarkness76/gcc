@@ -190,3 +190,18 @@ void test_fixit_replace (void)
    { dg-end-multiline-output "" } */
 #endif
 }
+<<<<<<< HEAD
+=======
+
+/* Test of "%q+D" format code.  */
+
+int test_percent_q_plus_d (void)
+{
+  int local = 0; /* { dg-warning "example of plus in format code" } */
+/* { dg-begin-multiline-output "" }
+   int local = 0;
+       ^~~~~
+   { dg-end-multiline-output "" } */
+  return local;
+}
+>>>>>>> gcc-mirror/master

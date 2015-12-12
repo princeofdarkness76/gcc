@@ -2,9 +2,12 @@
 /* { dg-options "-O3 -fcilkplus" } */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Test storage classes in the initialization of a <#pragma simd> for
 // loop.
 
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 int *a, *b;
@@ -12,6 +15,7 @@ int *a, *b;
 void foo()
 {
 #pragma simd
+<<<<<<< HEAD
 <<<<<<< HEAD
   for (static int foo=5; foo < 10; ++foo)
     a[foo] = b[foo];
@@ -66,6 +70,9 @@ void foo()
 
 #pragma simd
   for (const int ci=0; ci<1000; ++ci) /* { dg-error "increment of read-only var" } */
+=======
+  for (const int ci=0; ci<1000; ++ci) /* { dg-error "increment of read-only var\|invalid controlling\|invalid increment\|assignment of read" } */
+>>>>>>> gcc-mirror/master
 =======
   for (const int ci=0; ci<1000; ++ci) /* { dg-error "increment of read-only var\|invalid controlling\|invalid increment\|assignment of read" } */
 >>>>>>> gcc-mirror/master

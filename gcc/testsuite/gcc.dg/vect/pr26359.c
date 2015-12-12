@@ -1,6 +1,10 @@
 /* { dg-do compile } */
 /* { dg-require-effective-target vect_int } */
+<<<<<<< HEAD
 /* { dg-additional-options "-fdump-tree-dce5-details" } */
+=======
+/* { dg-additional-options "-fdump-tree-dce6-details" } */
+>>>>>>> gcc-mirror/master
 
 int a[256], b[256], c[256];
 
@@ -13,4 +17,8 @@ foo () {
   }
 }
 
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Deleting : vect_" 0 "dce5" } } */
+=======
+/* { dg-final { scan-tree-dump-times "Deleting : vect_" 0 "dce6" } } */
+>>>>>>> gcc-mirror/master

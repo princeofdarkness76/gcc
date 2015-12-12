@@ -166,8 +166,15 @@ direct_internal_fn (internal_fn fn)
 
 extern tree_pair direct_internal_fn_types (internal_fn, tree, tree *);
 extern tree_pair direct_internal_fn_types (internal_fn, gcall *);
+<<<<<<< HEAD
 extern bool direct_internal_fn_supported_p (internal_fn, tree_pair);
 extern bool direct_internal_fn_supported_p (internal_fn, tree);
+=======
+extern bool direct_internal_fn_supported_p (internal_fn, tree_pair,
+					    optimization_type);
+extern bool direct_internal_fn_supported_p (internal_fn, tree,
+					    optimization_type);
+>>>>>>> gcc-mirror/master
 extern bool set_edom_supported_p (void);
 
 extern void expand_internal_call (gcall *);

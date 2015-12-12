@@ -3,7 +3,11 @@
 /* { dg-additional-options "-std=c99" { target c } } */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct S *p;	/* { dg-error "forward declaration" "" { target c++ } } */
+=======
+struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
+>>>>>>> gcc-mirror/master
 =======
 struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
 >>>>>>> gcc-mirror/master

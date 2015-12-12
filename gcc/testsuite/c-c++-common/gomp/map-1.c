@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-do compile { target c++ } } */
+=======
+/* { dg-do compile } */
+>>>>>>> gcc-mirror/master
 =======
 /* { dg-do compile } */
 >>>>>>> gcc-mirror/master
@@ -13,6 +17,11 @@ int *p;
 int **q;
 int r[4][4][4][4][4];
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+extern struct s s1;
+extern struct s s2[1]; /* { dg-error "array type has incomplete element type" "" { target c } } */
+>>>>>>> gcc-mirror/master
 =======
 extern struct s s1;
 extern struct s s2[1]; /* { dg-error "array type has incomplete element type" "" { target c } } */
@@ -42,15 +51,21 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
   #pragma omp target map(to: o[2:5]) /* { dg-error "does not have pointer or array type" } */
     ;
 <<<<<<< HEAD
+<<<<<<< HEAD
   #pragma omp target map(to: a[:][:]) /* { dg-error "array type length expression is not optional" } */
     bar (&a[0][0]);
 =======
+=======
+>>>>>>> gcc-mirror/master
   #pragma omp target map(alloc: s1) /* { dg-error "'s1' does not have a mappable type in 'map' clause" } */
     ;
   #pragma omp target map(alloc: s2) /* { dg-error "'s2' does not have a mappable type in 'map' clause" } */
     ;
   #pragma omp target map(to: a[:][:]) /* { dg-error "array type length expression must be specified" } */
     bar (&a[0][0]); /* { dg-error "referenced in target region does not have a mappable type" } */
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   #pragma omp target map(tofrom: b[-1:]) /* { dg-error "negative low bound in array section" } */
     bar (b);
@@ -63,7 +78,11 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
   #pragma omp target map(to: f[1:10]) /* { dg-error "high bound \[^\n\r]* above array section size" } */
     bar (f);
 <<<<<<< HEAD
+<<<<<<< HEAD
   #pragma omp target map(from: g[:][0:10]) /* { dg-error "for pointer type length expression is not optional" } */
+=======
+  #pragma omp target map(from: g[:][0:10]) /* { dg-error "for pointer type length expression must be specified" } */
+>>>>>>> gcc-mirror/master
 =======
   #pragma omp target map(from: g[:][0:10]) /* { dg-error "for pointer type length expression must be specified" } */
 >>>>>>> gcc-mirror/master

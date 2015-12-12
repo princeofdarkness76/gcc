@@ -23,7 +23,11 @@
 // <http://www.gnu.org/licenses/>.
 
 /** @file experimental/string_view
+<<<<<<< HEAD
  *  This is a Standard C++ Library header.
+=======
+ *  This is a TS C++ Library header.
+>>>>>>> gcc-mirror/master
  */
 
 //

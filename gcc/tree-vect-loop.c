@@ -1180,6 +1180,7 @@ destroy_loop_vec_info (loop_vec_info loop_vinfo, bool clean_stmts)
   free_dependence_relations (LOOP_VINFO_DDRS (loop_vinfo));
   LOOP_VINFO_LOOP_NEST (loop_vinfo).release ();
   LOOP_VINFO_MAY_MISALIGN_STMTS (loop_vinfo).release ();
+  LOOP_VINFO_COMP_ALIAS_DDRS (loop_vinfo).release ();
   LOOP_VINFO_MAY_ALIAS_DDRS (loop_vinfo).release ();
   slp_instances = LOOP_VINFO_SLP_INSTANCES (loop_vinfo);
   FOR_EACH_VEC_ELT (slp_instances, j, instance)
@@ -1891,6 +1892,17 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
       return false;
     }
 
+<<<<<<< HEAD
+=======
+  /* Compute the scalar iteration cost.  */
+  vect_compute_single_scalar_iteration_cost (loop_vinfo);
+
+  int saved_vectorization_factor = LOOP_VINFO_VECT_FACTOR (loop_vinfo);
+  HOST_WIDE_INT estimated_niter;
+  unsigned th;
+  int min_scalar_loop_bound;
+
+>>>>>>> gcc-mirror/master
   /* Check the SLP opportunities in the loop, analyze and build SLP trees.  */
   ok = vect_analyze_slp (loop_vinfo, n_stmts);
   if (!ok)
@@ -1907,6 +1919,12 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
       vect_update_vf_for_slp (loop_vinfo);
     }
 
+<<<<<<< HEAD
+=======
+  /* This is the point where we can re-start analysis with SLP forced off.  */
+start_over:
+
+>>>>>>> gcc-mirror/master
   /* Now the vectorization factor is final.  */
   unsigned vectorization_factor = LOOP_VINFO_VECT_FACTOR (loop_vinfo);
   gcc_assert (vectorization_factor != 0);
@@ -1926,9 +1944,12 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
     {
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+<<<<<<< HEAD
 			 "not vectorized: iteration count too small.\n");
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+=======
+>>>>>>> gcc-mirror/master
 			 "not vectorized: iteration count smaller than "
 			 "vectorization factor.\n");
       return false;
@@ -1966,7 +1987,6 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 
   /* This pass will decide on using loop versioning and/or loop peeling in
      order to enhance the alignment of data references in the loop.  */
-
   ok = vect_enhance_data_refs_alignment (loop_vinfo);
   if (!ok)
     {
@@ -1985,6 +2005,7 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
       vect_slp_analyze_operations (LOOP_VINFO_SLP_INSTANCES (loop_vinfo),
 				   LOOP_VINFO_TARGET_COST_DATA (loop_vinfo));
       if (LOOP_VINFO_SLP_INSTANCES (loop_vinfo).length () != old_size)
+<<<<<<< HEAD
 	return false;
     }
 
@@ -2022,6 +2043,45 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
   /* Use the cost model only if it is more conservative than user specified
      threshold.  */
   unsigned th = (unsigned) min_scalar_loop_bound;
+=======
+	goto again;
+    }
+
+  /* Scan all the remaining operations in the loop that are not subject
+     to SLP and make sure they are vectorizable.  */
+  ok = vect_analyze_loop_operations (loop_vinfo);
+  if (!ok)
+    {
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "bad operation or unsupported loop bound.\n");
+      return false;
+    }
+
+  /* Analyze cost.  Decide if worth while to vectorize.  */
+  int min_profitable_estimate, min_profitable_iters;
+  vect_estimate_min_profitable_iters (loop_vinfo, &min_profitable_iters,
+				      &min_profitable_estimate);
+
+  if (min_profitable_iters < 0)
+    {
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "not vectorized: vectorization not profitable.\n");
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "not vectorized: vector version will never be "
+			 "profitable.\n");
+      goto again;
+    }
+
+  min_scalar_loop_bound = ((PARAM_VALUE (PARAM_MIN_VECT_LOOP_BOUND)
+			    * vectorization_factor) - 1);
+
+  /* Use the cost model only if it is more conservative than user specified
+     threshold.  */
+  th = (unsigned) min_scalar_loop_bound;
+>>>>>>> gcc-mirror/master
   if (min_profitable_iters
       && (!min_scalar_loop_bound
           || min_profitable_iters > min_scalar_loop_bound))
@@ -2040,10 +2100,17 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 			 "not vectorized: iteration count smaller than user "
 			 "specified loop bound parameter or minimum profitable "
 			 "iterations (whichever is more conservative).\n");
+<<<<<<< HEAD
       return false;
     }
 
   HOST_WIDE_INT estimated_niter
+=======
+      goto again;
+    }
+
+  estimated_niter
+>>>>>>> gcc-mirror/master
     = estimated_stmt_executions_int (LOOP_VINFO_LOOP (loop_vinfo));
   if (estimated_niter != -1
       && ((unsigned HOST_WIDE_INT) estimated_niter
@@ -2059,7 +2126,11 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
                          "than specified loop bound parameter or minimum "
                          "profitable iterations (whichever is more "
                          "conservative).\n");
+<<<<<<< HEAD
       return false;
+=======
+      goto again;
+>>>>>>> gcc-mirror/master
     }
 
   /* Decide whether we need to create an epilogue loop to handle
@@ -2102,14 +2173,110 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 	    dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
 			     "not vectorized: can't create required "
 			     "epilog loop\n");
+<<<<<<< HEAD
           return false;
+=======
+          goto again;
+>>>>>>> gcc-mirror/master
         }
     }
 
   gcc_assert (vectorization_factor
 	      == (unsigned)LOOP_VINFO_VECT_FACTOR (loop_vinfo));
 
+<<<<<<< HEAD
+=======
+  /* Ok to vectorize!  */
+>>>>>>> gcc-mirror/master
   return true;
+
+again:
+  /* Try again with SLP forced off but if we didn't do any SLP there is
+     no point in re-trying.  */
+  if (!slp)
+    return false;
+
+  /* If there are reduction chains re-trying will fail anyway.  */
+  if (! LOOP_VINFO_REDUCTION_CHAINS (loop_vinfo).is_empty ())
+    return false;
+
+  /* Likewise if the grouped loads or stores in the SLP cannot be handled
+     via interleaving or lane instructions.  */
+  slp_instance instance;
+  slp_tree node;
+  unsigned i, j;
+  FOR_EACH_VEC_ELT (LOOP_VINFO_SLP_INSTANCES (loop_vinfo), i, instance)
+    {
+      stmt_vec_info vinfo;
+      vinfo = vinfo_for_stmt
+	  (SLP_TREE_SCALAR_STMTS (SLP_INSTANCE_TREE (instance))[0]);
+      if (! STMT_VINFO_GROUPED_ACCESS (vinfo))
+	continue;
+      vinfo = vinfo_for_stmt (STMT_VINFO_GROUP_FIRST_ELEMENT (vinfo));
+      unsigned int size = STMT_VINFO_GROUP_SIZE (vinfo);
+      tree vectype = STMT_VINFO_VECTYPE (vinfo);
+      if (! vect_store_lanes_supported (vectype, size)
+	  && ! vect_grouped_store_supported (vectype, size))
+	return false;
+      FOR_EACH_VEC_ELT (SLP_INSTANCE_LOADS (instance), j, node)
+	{
+	  vinfo = vinfo_for_stmt (SLP_TREE_SCALAR_STMTS (node)[0]);
+	  vinfo = vinfo_for_stmt (STMT_VINFO_GROUP_FIRST_ELEMENT (vinfo));
+	  size = STMT_VINFO_GROUP_SIZE (vinfo);
+	  vectype = STMT_VINFO_VECTYPE (vinfo);
+	  if (! vect_load_lanes_supported (vectype, size)
+	      && ! vect_grouped_load_supported (vectype, size))
+	    return false;
+	}
+    }
+
+  if (dump_enabled_p ())
+    dump_printf_loc (MSG_NOTE, vect_location,
+		     "re-trying with SLP disabled\n");
+
+  /* Roll back state appropriately.  No SLP this time.  */
+  slp = false;
+  /* Restore vectorization factor as it were without SLP.  */
+  LOOP_VINFO_VECT_FACTOR (loop_vinfo) = saved_vectorization_factor;
+  /* Free the SLP instances.  */
+  FOR_EACH_VEC_ELT (LOOP_VINFO_SLP_INSTANCES (loop_vinfo), j, instance)
+    vect_free_slp_instance (instance);
+  LOOP_VINFO_SLP_INSTANCES (loop_vinfo).release ();
+  /* Reset SLP type to loop_vect on all stmts.  */
+  for (i = 0; i < LOOP_VINFO_LOOP (loop_vinfo)->num_nodes; ++i)
+    {
+      basic_block bb = LOOP_VINFO_BBS (loop_vinfo)[i];
+      for (gimple_stmt_iterator si = gsi_start_bb (bb);
+	   !gsi_end_p (si); gsi_next (&si))
+	{
+	  stmt_vec_info stmt_info = vinfo_for_stmt (gsi_stmt (si));
+	  if (STMT_VINFO_IN_PATTERN_P (stmt_info))
+	    {
+	      gcc_assert (STMT_SLP_TYPE (stmt_info) == loop_vect);
+	      stmt_info = vinfo_for_stmt (STMT_VINFO_RELATED_STMT (stmt_info));
+	      for (gimple_stmt_iterator pi
+		     = gsi_start (STMT_VINFO_PATTERN_DEF_SEQ (stmt_info));
+		   !gsi_end_p (pi); gsi_next (&pi))
+		{
+		  gimple *pstmt = gsi_stmt (pi);
+		  STMT_SLP_TYPE (vinfo_for_stmt (pstmt)) = loop_vect;
+		}
+	    }
+	  STMT_SLP_TYPE (stmt_info) = loop_vect;
+	}
+    }
+  /* Free optimized alias test DDRS.  */
+  LOOP_VINFO_COMP_ALIAS_DDRS (loop_vinfo).release ();
+  /* Reset target cost data.  */
+  destroy_cost_data (LOOP_VINFO_TARGET_COST_DATA (loop_vinfo));
+  LOOP_VINFO_TARGET_COST_DATA (loop_vinfo)
+    = init_cost (LOOP_VINFO_LOOP (loop_vinfo));
+  /* Reset assorted flags.  */
+  LOOP_VINFO_PEELING_FOR_NITER (loop_vinfo) = false;
+  LOOP_VINFO_PEELING_FOR_GAPS (loop_vinfo) = false;
+  LOOP_VINFO_COST_MODEL_THRESHOLD (loop_vinfo) = 0;
+
+  goto start_over;
 }
 
 /* Function vect_analyze_loop.
@@ -6219,7 +6386,11 @@ bool
 vectorizable_live_operation (gimple *stmt,
 			     gimple_stmt_iterator *gsi ATTRIBUTE_UNUSED,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			     gimple *vec_stmt)
+=======
+			     gimple **vec_stmt)
+>>>>>>> gcc-mirror/master
 =======
 			     gimple **vec_stmt)
 >>>>>>> gcc-mirror/master
@@ -6255,9 +6426,15 @@ vectorizable_live_operation (gimple *stmt,
 	  FOR_EACH_IMM_USE_FAST (use_p, imm_iter, lhs)
 	    {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      gimple use_stmt = USE_STMT (use_p);
 	      if (gimple_code (use_stmt) == GIMPLE_PHI
 		  || gimple_bb (use_stmt) == merge_bb)
+=======
+	      gimple *use_stmt = USE_STMT (use_p);
+	      if (gimple_code (use_stmt) == GIMPLE_PHI
+		  && gimple_bb (use_stmt) == merge_bb)
+>>>>>>> gcc-mirror/master
 =======
 	      gimple *use_stmt = USE_STMT (use_p);
 	      if (gimple_code (use_stmt) == GIMPLE_PHI

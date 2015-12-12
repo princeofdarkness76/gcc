@@ -6837,7 +6837,13 @@ default_binds_local_p_3 (const_tree exp, bool shlib, bool weak_dominate,
     {
       if (node->in_other_partition)
 	defined_locally = true;
+<<<<<<< HEAD
       if (resolution_to_local_definition_p (node->resolution))
+=======
+      if (node->can_be_discarded_p ())
+	;
+      else if (resolution_to_local_definition_p (node->resolution))
+>>>>>>> gcc-mirror/master
 	defined_locally = resolved_locally = true;
       else if (resolution_local_p (node->resolution))
 	resolved_locally = true;
@@ -6881,6 +6887,7 @@ default_binds_local_p_3 (const_tree exp, bool shlib, bool weak_dominate,
      which is of necessity defined locally.  */
   return true;
 }
+<<<<<<< HEAD
 
 /* Assume ELF-ish defaults, since that's pretty much the most liberal
    wrt cross-module name binding.  */
@@ -6894,6 +6901,21 @@ default_binds_local_p (const_tree exp)
 /* Similar to default_binds_local_p, but common symbol may be local and
    extern protected data is non-local.  */
 
+=======
+
+/* Assume ELF-ish defaults, since that's pretty much the most liberal
+   wrt cross-module name binding.  */
+
+bool
+default_binds_local_p (const_tree exp)
+{
+  return default_binds_local_p_3 (exp, flag_shlib != 0, true, false, false);
+}
+
+/* Similar to default_binds_local_p, but common symbol may be local and
+   extern protected data is non-local.  */
+
+>>>>>>> gcc-mirror/master
 bool
 default_binds_local_p_2 (const_tree exp)
 {
@@ -6930,7 +6952,12 @@ decl_binds_to_current_def_p (const_tree decl)
   /* When resolution is available, just use it.  */
   if (symtab_node *node = symtab_node::get (decl))
     {
+<<<<<<< HEAD
       if (node->resolution != LDPR_UNKNOWN)
+=======
+      if (node->resolution != LDPR_UNKNOWN
+	  && !node->can_be_discarded_p ())
+>>>>>>> gcc-mirror/master
 	return resolution_to_local_definition_p (node->resolution);
     }
 
@@ -7599,8 +7626,10 @@ default_elf_asm_output_limited_string (FILE *f, const char *s)
 	  putc (c, f);
 	  break;
 	case 1:
-	  /* TODO: Print in hex with fast function, important for -flto. */
-	  fprintf (f, "\\%03o", c);
+	  putc ('\\', f);
+	  putc ('0'+((c>>6)&7), f);
+	  putc ('0'+((c>>3)&7), f);
+	  putc ('0'+(c&7), f);
 	  break;
 	default:
 	  putc ('\\', f);
@@ -7670,8 +7699,10 @@ default_elf_asm_output_ascii (FILE *f, const char *s, unsigned int len)
 	      bytes_in_chunk++;
 	      break;
 	    case 1:
-	      /* TODO: Print in hex with fast function, important for -flto. */
-	      fprintf (f, "\\%03o", c);
+	      putc ('\\', f);
+	      putc ('0'+((c>>6)&7), f);
+	      putc ('0'+((c>>3)&7), f);
+	      putc ('0'+(c&7), f);
 	      bytes_in_chunk += 4;
 	      break;
 	    default:

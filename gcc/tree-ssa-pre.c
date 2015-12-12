@@ -3906,7 +3906,11 @@ public:
   eliminate_dom_walker (cdi_direction direction, bool do_pre_)
       : dom_walker (direction), do_pre (do_pre_) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
   bool do_pre;
@@ -3914,7 +3918,11 @@ public:
 
 /* Perform elimination for the basic-block B during the domwalk.  */
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 eliminate_dom_walker::before_dom_children (basic_block b)
 {
   /* Mark new bb.  */
@@ -4423,6 +4431,7 @@ eliminate_dom_walker::before_dom_children (basic_block b)
 	    }
 	}
     }
+  return NULL;
 }
 
 /* Make no longer available leaders no longer available.  */

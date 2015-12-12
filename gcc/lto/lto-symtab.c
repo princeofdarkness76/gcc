@@ -30,6 +30,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "lto-streamer.h"
 #include "ipa-utils.h"
 #include "builtins.h"
+<<<<<<< HEAD
+=======
+#include "alias.h"
+#include "lto-symtab.h"
+>>>>>>> gcc-mirror/master
 
 /* Replace the cgraph node NODE with PREVAILING_NODE in the cgraph, merging
    all edges and removing the old node.  */
@@ -62,8 +67,14 @@ lto_cgraph_replace_node (struct cgraph_node *node,
       gcc_assert (!prevailing_node->global.inlined_to);
       prevailing_node->mark_address_taken ();
     }
+<<<<<<< HEAD
   if (node->definition && prevailing_node->definition)
     prevailing_node->merged = true;
+=======
+  if (node->definition && prevailing_node->definition
+      && DECL_COMDAT (node->decl) && DECL_COMDAT (prevailing_node->decl))
+    prevailing_node->merged_comdat = true;
+>>>>>>> gcc-mirror/master
 
   /* Redirect all incoming edges.  */
   compatible_p
@@ -97,7 +108,10 @@ lto_cgraph_replace_node (struct cgraph_node *node,
       node->instrumented_version = NULL;
     }
 
+<<<<<<< HEAD
   ipa_merge_profiles (prevailing_node, node);
+=======
+>>>>>>> gcc-mirror/master
   lto_free_function_in_decl_state_for_node (node);
 
   if (node->decl != prevailing_node->decl)
@@ -179,6 +193,7 @@ lto_varpool_replace_node (varpool_node *vnode,
 
 /* Return non-zero if we want to output waring about T1 and T2.
    Return value is a bitmask of reasons of violation:
+<<<<<<< HEAD
    Bit 0 indicates that types are not compatible of memory layout.
    Bit 1 indicates that types are not compatible because of C++ ODR rule.  */
 
@@ -212,6 +227,54 @@ warn_type_compatibility_p (tree prevailing_type, tree type)
       if (TREE_CODE (type) == METHOD_TYPE)
 	lev |= warn_type_compatibility_p (TYPE_METHOD_BASETYPE (prevailing_type),
 					  TYPE_METHOD_BASETYPE (type));
+=======
+   Bit 0 indicates that types are not compatible.
+   Bit 1 indicates that types are not compatible because of C++ ODR rule.
+   If COMMON_OR_EXTERN is true, do not warn on size mismatches of arrays.
+   Bit 2 indicates that types are not ODR compatible
+
+   The interoperability rules are language specific.  At present we do only
+   full checking for C++ ODR rule and for other languages we do basic check
+   that data structures are of same size and TBAA compatible.  Our TBAA
+   implementation should be coarse enough so all valid type transitions
+   across different languages are allowed.
+
+   In partiucular we thus allow almost arbitrary type changes with
+   -fno-strict-aliasing which may be tough of as a feature rather than bug
+   as it allows to implement dodgy tricks in the language runtimes.
+
+   Naturally this code can be strenghtened significantly if we could track
+   down the language of origin.  */
+
+static int
+warn_type_compatibility_p (tree prevailing_type, tree type,
+			   bool common_or_extern)
+{
+  int lev = 0;
+  bool odr_p = odr_or_derived_type_p (prevailing_type)
+	       && odr_or_derived_type_p (type);
+
+  if (prevailing_type == type)
+    return 0;
+
+  /* C++ provide a robust way to check for type compatibility via the ODR
+     rule.  */
+  if (odr_p && !odr_types_equivalent_p (prevailing_type, type))
+    lev |= 2;
+
+  /* Function types needs special care, because types_compatible_p never
+     thinks prototype is compatible to non-prototype.  */
+  if (TREE_CODE (type) == FUNCTION_TYPE || TREE_CODE (type) == METHOD_TYPE)
+    {
+      if (TREE_CODE (type) != TREE_CODE (prevailing_type))
+	lev |= 1;
+      lev |= warn_type_compatibility_p (TREE_TYPE (prevailing_type),
+				        TREE_TYPE (type), false);
+      if (TREE_CODE (type) == METHOD_TYPE
+	  && TREE_CODE (prevailing_type) == METHOD_TYPE)
+	lev |= warn_type_compatibility_p (TYPE_METHOD_BASETYPE (prevailing_type),
+					  TYPE_METHOD_BASETYPE (type), false);
+>>>>>>> gcc-mirror/master
       if (prototype_p (prevailing_type) && prototype_p (type)
 	  && TYPE_ARG_TYPES (prevailing_type) != TYPE_ARG_TYPES (type))
 	{
@@ -222,6 +285,7 @@ warn_type_compatibility_p (tree prevailing_type, tree type)
 	       parm1 = TREE_CHAIN (parm1),
 	       parm2 = TREE_CHAIN (parm2))
 	    lev |= warn_type_compatibility_p (TREE_VALUE (parm1),
+<<<<<<< HEAD
 					      TREE_VALUE (parm2));
 	  if (parm1 || parm2)
 	    lev = odr_p ? 3 : 1;
@@ -278,6 +342,56 @@ warn_type_compatibility_p (tree prevailing_type, tree type)
 	}
 
       /* Fallthru.  Compatible enough.  */
+=======
+					      TREE_VALUE (parm2), false);
+	  if (parm1 || parm2)
+	    lev |= odr_p ? 3 : 1;
+	}
+      if (comp_type_attributes (prevailing_type, type) == 0)
+	lev |= 1;
+      return lev;
+    }
+
+  /* Get complete type.  */
+  prevailing_type = TYPE_MAIN_VARIANT (prevailing_type);
+  type = TYPE_MAIN_VARIANT (type);
+
+  /* We can not use types_compatible_p because we permit some changes
+     across types.  For example unsigned size_t and "signed size_t" may be
+     compatible when merging C and Fortran types.  */
+  if (COMPLETE_TYPE_P (prevailing_type)
+      && COMPLETE_TYPE_P (type)
+      /* While global declarations are never variadic, we can recurse here
+	 for function parameter types.  */
+      && TREE_CODE (TYPE_SIZE (type)) == INTEGER_CST
+      && TREE_CODE (TYPE_SIZE (prevailing_type)) == INTEGER_CST
+      && !tree_int_cst_equal (TYPE_SIZE (type), TYPE_SIZE (prevailing_type)))
+    {
+       /* As a special case do not warn about merging
+	  int a[];
+	  and
+	  int a[]={1,2,3};
+	  here the first declaration is COMMON or EXTERN
+	  and sizeof(a) == sizeof (int).  */
+       if (!common_or_extern
+	   || TREE_CODE (type) != ARRAY_TYPE
+	   || TYPE_SIZE (type) != TYPE_SIZE (TREE_TYPE (type)))
+       lev |= 1;
+    }
+
+  /* Verify TBAA compatibility.  Take care of alias set 0 and the fact that
+     we make ptr_type_node to TBAA compatible with every other type.  */
+  if (type_with_alias_set_p (type) && type_with_alias_set_p (prevailing_type))
+    {
+      alias_set_type set1 = get_alias_set (type);
+      alias_set_type set2 = get_alias_set (prevailing_type);
+
+      if (set1 && set2 && set1 != set2 
+          && (!POINTER_TYPE_P (type) || !POINTER_TYPE_P (prevailing_type)
+	      || (set1 != TYPE_ALIAS_SET (ptr_type_node)
+		  && set2 != TYPE_ALIAS_SET (ptr_type_node))))
+        lev |= 5;
+>>>>>>> gcc-mirror/master
     }
 
   return lev;
@@ -312,14 +426,25 @@ lto_symtab_merge (symtab_node *prevailing, symtab_node *entry)
       DECL_POSSIBLY_INLINED (decl) |= DECL_POSSIBLY_INLINED (prevailing_decl);
 
       if (warn_type_compatibility_p (TREE_TYPE (prevailing_decl),
+<<<<<<< HEAD
 			             TREE_TYPE (decl)))
+=======
+			             TREE_TYPE (decl),
+				     DECL_COMMON (decl)
+				     || DECL_EXTERNAL (decl)))
+>>>>>>> gcc-mirror/master
 	return false;
 
       return true;
     }
 
   if (warn_type_compatibility_p (TREE_TYPE (prevailing_decl),
+<<<<<<< HEAD
 				 TREE_TYPE (decl)))
+=======
+				 TREE_TYPE (decl),
+				 DECL_COMMON (decl) || DECL_EXTERNAL (decl)))
+>>>>>>> gcc-mirror/master
     return false;
 
   /* There is no point in comparing too many details of the decls here.
@@ -334,6 +459,23 @@ lto_symtab_merge (symtab_node *prevailing, symtab_node *entry)
       && DECL_ALIGN (prevailing_decl) < DECL_ALIGN (decl))
     return false;
 
+<<<<<<< HEAD
+=======
+  if (DECL_SIZE (decl) && DECL_SIZE (prevailing_decl)
+      && !tree_int_cst_equal (DECL_SIZE (decl), DECL_SIZE (prevailing_decl))
+      /* As a special case do not warn about merging
+	 int a[];
+	 and
+	 int a[]={1,2,3};
+	 here the first declaration is COMMON
+	 and sizeof(a) == sizeof (int).  */
+      && ((!DECL_COMMON (decl) && !DECL_EXTERNAL (decl))
+	  || TREE_CODE (TREE_TYPE (decl)) != ARRAY_TYPE
+	  || TYPE_SIZE (TREE_TYPE (decl))
+	     != TYPE_SIZE (TREE_TYPE (TREE_TYPE (decl)))))
+    return false;
+
+>>>>>>> gcc-mirror/master
   return true;
 }
 
@@ -479,6 +621,73 @@ lto_symtab_resolve_symbols (symtab_node *first)
   return prevailing;
 }
 
+<<<<<<< HEAD
+=======
+/* Decide if it is OK to merge DECL into PREVAILING.
+   Because we wrap most of uses of declarations in MEM_REF, we can tolerate
+   some differences but other code may inspect directly the DECL.  */
+
+static bool
+lto_symtab_merge_p (tree prevailing, tree decl)
+{
+  if (TREE_CODE (prevailing) != TREE_CODE (decl))
+    {
+      if (symtab->dump_file)
+	fprintf (symtab->dump_file, "Not merging decls; "
+		 "TREE_CODE mismatch\n");
+      return false;
+    }
+  if (TREE_CODE (prevailing) == FUNCTION_DECL)
+    {
+      if (DECL_BUILT_IN (prevailing) != DECL_BUILT_IN (decl))
+	{
+          if (symtab->dump_file)
+	    fprintf (symtab->dump_file, "Not merging decls; "
+		     "DECL_BUILT_IN mismatch\n");
+	  return false;
+	}
+      if (DECL_BUILT_IN (prevailing)
+	  && (DECL_BUILT_IN_CLASS (prevailing) != DECL_BUILT_IN_CLASS (decl)
+	      || DECL_FUNCTION_CODE (prevailing) != DECL_FUNCTION_CODE (decl)))
+	{
+          if (symtab->dump_file)
+	    fprintf (symtab->dump_file, "Not merging decls; "
+		     "DECL_BUILT_IN_CLASS or CODE mismatch\n");
+	  return false;
+	}
+    }
+  if (DECL_ATTRIBUTES (prevailing) != DECL_ATTRIBUTES (decl))
+    {
+      tree prev_attr = lookup_attribute ("error", DECL_ATTRIBUTES (prevailing));
+      tree attr = lookup_attribute ("error", DECL_ATTRIBUTES (decl));
+      if ((prev_attr == NULL) != (attr == NULL)
+	  || (prev_attr
+	      && TREE_VALUE (TREE_VALUE (prev_attr))
+		 != TREE_VALUE (TREE_VALUE (attr))))
+	{
+          if (symtab->dump_file)
+	    fprintf (symtab->dump_file, "Not merging decls; "
+		     "error attribute mismatch\n");
+	  return false;
+	}
+
+      prev_attr = lookup_attribute ("warning", DECL_ATTRIBUTES (prevailing));
+      attr = lookup_attribute ("warning", DECL_ATTRIBUTES (decl));
+      if ((prev_attr == NULL) != (attr == NULL)
+	  || (prev_attr
+	      && TREE_VALUE (TREE_VALUE (prev_attr))
+		 != TREE_VALUE (TREE_VALUE (attr))))
+	{
+          if (symtab->dump_file)
+	    fprintf (symtab->dump_file, "Not merging decls; "
+		     "warning attribute mismatch\n");
+	  return false;
+	}
+    }
+  return true;
+}
+
+>>>>>>> gcc-mirror/master
 /* Merge all decls in the symbol table chain to the prevailing decl and
    issue diagnostics about type mismatches.  If DIAGNOSED_P is true
    do not issue further diagnostics.*/
@@ -491,6 +700,10 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
   vec<tree> mismatches = vNULL;
   unsigned i;
   tree decl;
+<<<<<<< HEAD
+=======
+  bool tbaa_p = false;
+>>>>>>> gcc-mirror/master
 
   /* Nothing to do for a single entry.  */
   prevailing = first;
@@ -498,6 +711,7 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
     return;
 
   /* Try to merge each entry with the prevailing one.  */
+<<<<<<< HEAD
   for (e = prevailing->next_sharing_asm_name;
        e; e = e->next_sharing_asm_name)
     if (TREE_PUBLIC (e->decl))
@@ -507,6 +721,62 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
 	    && !DECL_ARTIFICIAL (e->decl))
 	  mismatches.safe_push (e->decl);
       }
+=======
+  symtab_node *last_prevailing = prevailing, *next;
+  for (e = prevailing->next_sharing_asm_name; e; e = next)
+    {
+      next = e->next_sharing_asm_name;
+
+      /* Skip non-LTO symbols and symbols whose declaration we already
+	 visited.  */
+      if (lto_symtab_prevailing_decl (e->decl) != e->decl
+	  || !lto_symtab_symbol_p (e)
+          || e->decl == prevailing->decl)
+	continue;
+
+      if (!lto_symtab_merge (prevailing, e)
+	  && !diagnosed_p
+	  && !DECL_ARTIFICIAL (e->decl))
+	mismatches.safe_push (e->decl);
+
+      symtab_node *this_prevailing;
+      for (this_prevailing = prevailing; ;
+	   this_prevailing = this_prevailing->next_sharing_asm_name)
+	{
+	  if (this_prevailing->decl != e->decl
+	      && lto_symtab_merge_p (this_prevailing->decl, e->decl))
+	    break;
+	  if (this_prevailing == last_prevailing)
+	    {
+	      this_prevailing = NULL;
+	      break;
+	    }
+	}
+
+      if (this_prevailing)
+	lto_symtab_prevail_decl (this_prevailing->decl, e->decl);
+      /* Maintain LRU list: relink the new prevaililng symbol
+	 just after previaling node in the chain and update last_prevailing.
+	 Since the number of possible declarations of a given symbol is
+	 small, this should be faster than building a hash.  */
+      else if (e == prevailing->next_sharing_asm_name)
+	last_prevailing = e;
+      else
+	{
+	  if (e->next_sharing_asm_name)
+	    e->next_sharing_asm_name->previous_sharing_asm_name
+	      = e->previous_sharing_asm_name;
+	  e->previous_sharing_asm_name->next_sharing_asm_name
+	    = e->next_sharing_asm_name;
+	  e->previous_sharing_asm_name = prevailing;
+	  e->next_sharing_asm_name = prevailing->next_sharing_asm_name;
+	  prevailing->next_sharing_asm_name->previous_sharing_asm_name = e;
+	  prevailing->next_sharing_asm_name = e;
+	  if (last_prevailing == prevailing)
+	    last_prevailing = e;
+	}
+    }
+>>>>>>> gcc-mirror/master
   if (mismatches.is_empty ())
     return;
 
@@ -514,11 +784,20 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
   FOR_EACH_VEC_ELT (mismatches, i, decl)
     {
       int level = warn_type_compatibility_p (TREE_TYPE (prevailing->decl),
+<<<<<<< HEAD
 					     TREE_TYPE (decl));
       if (level)
 	{
 	  bool diag = false;
 	  if (level > 1)
+=======
+					     TREE_TYPE (decl),
+					     DECL_COMDAT (decl));
+      if (level)
+	{
+	  bool diag = false;
+	  if (level & 2)
+>>>>>>> gcc-mirror/master
 	    diag = warning_at (DECL_SOURCE_LOCATION (decl),
 			       OPT_Wodr,
 			       "%qD violates the C++ One Definition Rule ",
@@ -529,10 +808,22 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
 			       "type of %qD does not match original "
 			       "declaration", decl);
 	  if (diag)
+<<<<<<< HEAD
 	    warn_types_mismatch (TREE_TYPE (prevailing->decl),
 				 TREE_TYPE (decl),
 				 DECL_SOURCE_LOCATION (prevailing->decl),
 				 DECL_SOURCE_LOCATION (decl));
+=======
+	    {
+	      warn_types_mismatch (TREE_TYPE (prevailing->decl),
+				   TREE_TYPE (decl),
+				   DECL_SOURCE_LOCATION (prevailing->decl),
+				   DECL_SOURCE_LOCATION (decl));
+	      if ((level & 4)
+		  && !TREE_READONLY (prevailing->decl))
+		tbaa_p = true;
+	    }
+>>>>>>> gcc-mirror/master
 	  diagnosed_p |= diag;
 	}
       else if ((DECL_USER_ALIGN (prevailing->decl)
@@ -544,10 +835,25 @@ lto_symtab_merge_decls_2 (symtab_node *first, bool diagnosed_p)
 				     "alignment of %qD is bigger than "
 				     "original declaration", decl);
 	}
+<<<<<<< HEAD
+=======
+      else
+	diagnosed_p |= warning_at (DECL_SOURCE_LOCATION (decl),
+				   OPT_Wlto_type_mismatch,
+				   "size of %qD differ from the size of "
+				   "original declaration", decl);
+>>>>>>> gcc-mirror/master
     }
   if (diagnosed_p)
     inform (DECL_SOURCE_LOCATION (prevailing->decl),
 	    "%qD was previously declared here", prevailing->decl);
+<<<<<<< HEAD
+=======
+  if (tbaa_p)
+    inform (DECL_SOURCE_LOCATION (prevailing->decl),
+	    "code may be misoptimized unless "
+	    "-fno-strict-aliasing is used");
+>>>>>>> gcc-mirror/master
 
   mismatches.release ();
 }
@@ -601,7 +907,11 @@ lto_symtab_merge_decls_1 (symtab_node *first)
 		&& lto_symtab_symbol_p (e))
 	      prevailing = e;
 	}
+<<<<<<< HEAD
       /* For variables prefer the non-builtin if one is available.  */
+=======
+      /* For functions prefer the non-builtin if one is available.  */
+>>>>>>> gcc-mirror/master
       else if (TREE_CODE (prevailing->decl) == FUNCTION_DECL)
 	{
 	  for (e = first; e; e = e->next_sharing_asm_name)
@@ -689,6 +999,11 @@ lto_symtab_merge_symbols_1 (symtab_node *prevailing)
   symtab_node *e;
   symtab_node *next;
 
+<<<<<<< HEAD
+=======
+  prevailing->decl->decl_with_vis.symtab_node = prevailing;
+
+>>>>>>> gcc-mirror/master
   /* Replace the cgraph node of each entry with the prevailing one.  */
   for (e = prevailing->next_sharing_asm_name; e;
        e = next)
@@ -698,10 +1013,54 @@ lto_symtab_merge_symbols_1 (symtab_node *prevailing)
       if (!lto_symtab_symbol_p (e))
 	continue;
       cgraph_node *ce = dyn_cast <cgraph_node *> (e);
+<<<<<<< HEAD
       if (ce && !DECL_BUILT_IN (e->decl))
 	lto_cgraph_replace_node (ce, dyn_cast<cgraph_node *> (prevailing));
       if (varpool_node *ve = dyn_cast <varpool_node *> (e))
 	lto_varpool_replace_node (ve, dyn_cast<varpool_node *> (prevailing));
+=======
+      symtab_node *to = symtab_node::get (lto_symtab_prevailing_decl (e->decl));
+
+      /* No matter how we are going to deal with resolution, we will ultimately
+	 use prevailing definition.  */
+      if (ce)
+          ipa_merge_profiles (dyn_cast<cgraph_node *> (prevailing),
+			      dyn_cast<cgraph_node *> (e));
+
+      /* If we decided to replace the node by TO, do it.  */
+      if (e != to)
+	{
+	  if (ce)
+	    lto_cgraph_replace_node (ce, dyn_cast<cgraph_node *> (to));
+	  else if (varpool_node *ve = dyn_cast <varpool_node *> (e))
+	    lto_varpool_replace_node (ve, dyn_cast<varpool_node *> (to));
+	}
+      /* Watch out for duplicated symbols for a given declaration.  */
+      else if (!e->transparent_alias
+	       || !e->definition || e->get_alias_target () != to)
+	{
+	  /* We got a new declaration we do not want to merge.  In this case
+	     get rid of the existing definition and create a transparent
+	     alias.  */
+	  if (ce)
+	    {
+	      lto_free_function_in_decl_state_for_node (ce);
+	      if (!ce->weakref)
+	        ce->release_body ();
+	      ce->reset ();
+	      symtab->call_cgraph_removal_hooks (ce);
+	    }
+	  else
+	    {
+	      DECL_INITIAL (e->decl) = error_mark_node;
+	      symtab->call_varpool_removal_hooks (dyn_cast<varpool_node *> (e));
+	    }
+	  e->remove_all_references ();
+	  e->analyzed = e->body_removed = false;
+	  e->resolve_alias (prevailing, true);
+	  gcc_assert (e != prevailing);
+	}
+>>>>>>> gcc-mirror/master
     }
 
   return;
@@ -742,9 +1101,14 @@ lto_symtab_merge_symbols (void)
 	      symtab_node *tgt = symtab_node::get_for_asmname (node->alias_target);
 	      gcc_assert (node->weakref);
 	      if (tgt)
+<<<<<<< HEAD
 		node->resolve_alias (tgt);
 	    }
 	  node->aux = NULL;
+=======
+		node->resolve_alias (tgt, true);
+	    }
+>>>>>>> gcc-mirror/master
 
 	  if (!(cnode = dyn_cast <cgraph_node *> (node))
 	      || !cnode->clone_of
@@ -781,6 +1145,7 @@ lto_symtab_merge_symbols (void)
 	}
     }
 }
+<<<<<<< HEAD
 
 /* Given the decl DECL, return the prevailing decl with the same name. */
 
@@ -823,3 +1188,5 @@ lto_symtab_prevailing_decl (tree decl)
 
   return ret->decl;
 }
+=======
+>>>>>>> gcc-mirror/master

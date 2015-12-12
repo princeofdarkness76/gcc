@@ -364,7 +364,11 @@
                || satisfies_constraint_Cs1 (op)")
   )
 
+<<<<<<< HEAD
 (define_memory_constraint "Wfr"
+=======
+(define_constraint "Wfr"
+>>>>>>> gcc-mirror/master
   "ES/CS far pointer"
   (and (match_code "mem")
        (match_test "rl78_far_p (op)"))

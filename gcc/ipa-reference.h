@@ -25,6 +25,15 @@ along with GCC; see the file COPYING3.  If not see
 bitmap ipa_reference_get_not_read_global (struct cgraph_node *fn);
 bitmap ipa_reference_get_not_written_global (struct cgraph_node *fn);
 void ipa_reference_c_finalize (void);
+<<<<<<< HEAD
+=======
+
+inline int
+ipa_reference_var_uid (tree t)
+{
+  return DECL_UID (symtab_node::get (t)->ultimate_alias_target (NULL)->decl);
+}
+>>>>>>> gcc-mirror/master
 
 #endif  /* GCC_IPA_REFERENCE_H  */
 

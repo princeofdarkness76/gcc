@@ -2,16 +2,25 @@
 
 /* { dg-do compile } */
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-skip-if "" { arm*-*-* } } */
 
 int64x1x4_t
 f_vld4_lane_s64 (int64_t * p, int64x1x4_t v)
 {
   int64x1x4_t res;
+<<<<<<< HEAD
   /* { dg-error "lane 1 out of range 0 - 0" "" { xfail arm*-*-* } 0 } */
   res = vld4_lane_s64 (p, v, 1);
   /* { dg-error "lane -1 out of range 0 - 0" "" { xfail arm*-*-* } 0 } */
+=======
+  /* { dg-error "lane 1 out of range 0 - 0" "" { target *-*-* } 0 } */
+  res = vld4_lane_s64 (p, v, 1);
+  /* { dg-error "lane -1 out of range 0 - 0" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   res = vld4_lane_s64 (p, v, -1);
   return res;
 }

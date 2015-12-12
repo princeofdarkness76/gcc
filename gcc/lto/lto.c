@@ -49,6 +49,10 @@ along with GCC; see the file COPYING3.  If not see
 #include "params.h"
 #include "ipa-utils.h"
 #include "gomp-constants.h"
+<<<<<<< HEAD
+=======
+#include "lto-symtab.h"
+>>>>>>> gcc-mirror/master
 
 
 /* Number of parallel tasks to run, -1 if we want to use GNU Make jobserver.  */
@@ -389,9 +393,13 @@ iterative_hash_canonical_type (tree type, inchash::hash &hstate)
   /* All type variants have same TYPE_CANONICAL.  */
   type = TYPE_MAIN_VARIANT (type);
 
+<<<<<<< HEAD
   /* We do not compute TYPE_CANONICAl of POINTER_TYPE because the aliasing
      code never use it anyway.  */
   if (POINTER_TYPE_P (type))
+=======
+  if (!canonical_type_used_p (type))
+>>>>>>> gcc-mirror/master
     v = hash_canonical_type (type);
   /* An already processed type.  */
   else if (TYPE_CANONICAL (type))
@@ -444,7 +452,11 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
 
   gcc_checking_assert (TYPE_P (t) && !TYPE_CANONICAL (t)
 		       && type_with_alias_set_p (t)
+<<<<<<< HEAD
 		       && !POINTER_TYPE_P (t));
+=======
+		       && canonical_type_used_p (t));
+>>>>>>> gcc-mirror/master
 
   slot = htab_find_slot_with_hash (gimple_canonical_types, t, hash, INSERT);
   if (*slot)
@@ -477,7 +489,12 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
 static void
 gimple_register_canonical_type (tree t)
 {
+<<<<<<< HEAD
   if (TYPE_CANONICAL (t) || !type_with_alias_set_p (t) || POINTER_TYPE_P (t))
+=======
+  if (TYPE_CANONICAL (t) || !type_with_alias_set_p (t)
+      || !canonical_type_used_p (t))
+>>>>>>> gcc-mirror/master
     return;
 
   /* Canonical types are same among all complete variants.  */
@@ -1167,7 +1184,9 @@ compare_tree_sccs_1 (tree t1, tree t2, tree **map)
       compare_values (TYPE_READONLY);
       compare_values (TYPE_PRECISION);
       compare_values (TYPE_ALIGN);
-      compare_values (TYPE_ALIAS_SET);
+      /* Do not compare TYPE_ALIAS_SET.  Doing so introduce ordering issues
+         with calls to get_alias_set which may initialize it for streamed
+ 	 in types.  */
     }
 
   /* We don't want to compare locations, so there is nothing do compare
@@ -1626,10 +1645,14 @@ unify_scc (struct data_in *data_in, unsigned from,
 	      enum tree_code code;
 	      if (TYPE_P (scc->entries[i]))
 		num_merged_types++;
+<<<<<<< HEAD
 	      code = TREE_CODE (scc->entries[i]);
 	      if (CODE_CONTAINS_STRUCT (code, TS_CONSTRUCTOR))
 		vec_free (CONSTRUCTOR_ELTS (scc->entries[i]));
 	      ggc_free (scc->entries[i]);
+=======
+	      free_node (scc->entries[i]);
+>>>>>>> gcc-mirror/master
 	    }
 
 	  break;
@@ -2519,7 +2542,7 @@ lto_wpa_write_files (void)
 
 /* Ensure that TT isn't a replacable var of function decl.  */
 #define LTO_NO_PREVAIL(tt) \
-  gcc_assert (!(tt) || !VAR_OR_FUNCTION_DECL_P (tt))
+  gcc_checking_assert (!(tt) || !VAR_OR_FUNCTION_DECL_P (tt))
 
 /* Given a tree T replace all fields referring to variables or functions
    with their prevailing variant.  */
@@ -2531,7 +2554,10 @@ lto_fixup_prevailing_decls (tree t)
 
   gcc_checking_assert (code != TREE_BINFO);
   LTO_NO_PREVAIL (TREE_TYPE (t));
-  if (CODE_CONTAINS_STRUCT (code, TS_COMMON))
+  if (CODE_CONTAINS_STRUCT (code, TS_COMMON)
+      /* lto_symtab_prevail_decl use TREE_CHAIN to link to the prevailing decl.
+	 in the case T is a prevailed declaration we would ICE here. */
+      && !VAR_OR_FUNCTION_DECL_P (t))
     LTO_NO_PREVAIL (TREE_CHAIN (t));
   if (DECL_P (t))
     {

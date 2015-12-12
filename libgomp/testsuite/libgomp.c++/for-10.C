@@ -20,6 +20,11 @@ extern "C" void abort ();
 #undef G
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef SC
+#define SC static
+>>>>>>> gcc-mirror/master
 =======
 #undef SC
 #define SC static
@@ -30,6 +35,10 @@ extern "C" void abort ();
 #undef F
 #undef G
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#undef SC
+>>>>>>> gcc-mirror/master
 =======
 #undef SC
 >>>>>>> gcc-mirror/master

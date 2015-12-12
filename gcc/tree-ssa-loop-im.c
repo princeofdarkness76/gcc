@@ -43,6 +43,10 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-ssa-propagate.h"
 #include "trans-mem.h"
 #include "gimple-fold.h"
+<<<<<<< HEAD
+=======
+#include "tree-scalar-evolution.h"
+>>>>>>> gcc-mirror/master
 
 /* TODO:  Support for predicated code motion.  I.e.
 
@@ -871,10 +875,17 @@ rewrite_bittest (gimple_stmt_iterator *bsi)
   /* Verify that the single use of lhs is a comparison against zero.  */
   if (TREE_CODE (lhs) != SSA_NAME
       || !single_imm_use (lhs, &use, &use_stmt))
+<<<<<<< HEAD
     return stmt;
   cond_stmt = dyn_cast <gcond *> (use_stmt);
   if (!cond_stmt)
     return stmt;
+=======
+    return stmt;
+  cond_stmt = dyn_cast <gcond *> (use_stmt);
+  if (!cond_stmt)
+    return stmt;
+>>>>>>> gcc-mirror/master
   if (gimple_cond_lhs (cond_stmt) != lhs
       || (gimple_cond_code (cond_stmt) != NE_EXPR
 	  && gimple_cond_code (cond_stmt) != EQ_EXPR)
@@ -957,14 +968,22 @@ public:
   invariantness_dom_walker (cdi_direction direction)
     : dom_walker (direction) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 };
 
 /* Determine the outermost loops in that statements in basic block BB are
    invariant, and record them to the LIM_DATA associated with the statements.
    Callback for dom_walker.  */
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 invariantness_dom_walker::before_dom_children (basic_block bb)
 {
   enum move_pos pos;
@@ -975,7 +994,7 @@ invariantness_dom_walker::before_dom_children (basic_block bb)
   struct lim_aux_data *lim_data;
 
   if (!loop_outer (bb->loop_father))
-    return;
+    return NULL;
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Basic block %d (loop %d -- depth %d):\n\n",
@@ -1093,6 +1112,7 @@ invariantness_dom_walker::before_dom_children (basic_block bb)
       if (lim_data->cost >= LIM_EXPENSIVE)
 	set_profitable_level (stmt);
     }
+  return NULL;
 }
 
 class move_computations_dom_walker : public dom_walker
@@ -1101,7 +1121,11 @@ public:
   move_computations_dom_walker (cdi_direction direction)
     : dom_walker (direction), todo_ (0) {}
 
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 
   unsigned int todo_;
 };
@@ -1110,7 +1134,11 @@ public:
    data stored in LIM_DATA structures associated with each statement.  Callback
    for walk_dominator_tree.  */
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 move_computations_dom_walker::before_dom_children (basic_block bb)
 {
   struct loop *level;
@@ -1118,7 +1146,7 @@ move_computations_dom_walker::before_dom_children (basic_block bb)
   struct lim_aux_data *lim_data;
 
   if (!loop_outer (bb->loop_father))
-    return;
+    return NULL;
 
   for (gphi_iterator bsi = gsi_start_phis (bb); !gsi_end_p (bsi); )
     {
@@ -1264,6 +1292,7 @@ move_computations_dom_walker::before_dom_children (basic_block bb)
       else
 	gsi_insert_on_edge (e, stmt);
     }
+  return NULL;
 }
 
 /* Hoist the statements out of the loops prescribed by data stored in
@@ -2496,7 +2525,7 @@ tree_ssa_lim_finalize (void)
 /* Moves invariants from loops.  Only "expensive" invariants are moved out --
    i.e. those that are likely to be win regardless of the register pressure.  */
 
-unsigned int
+static unsigned int
 tree_ssa_lim (void)
 {
   unsigned int todo;
@@ -2560,10 +2589,24 @@ public:
 unsigned int
 pass_lim::execute (function *fun)
 {
+<<<<<<< HEAD
   if (number_of_loops (fun) <= 1)
     return 0;
 
   return tree_ssa_lim ();
+=======
+  bool in_loop_pipeline = scev_initialized_p ();
+  if (!in_loop_pipeline)
+    loop_optimizer_init (LOOPS_NORMAL | LOOPS_HAVE_RECORDED_EXITS);
+
+  if (number_of_loops (fun) <= 1)
+    return 0;
+  unsigned int todo = tree_ssa_lim ();
+
+  if (!in_loop_pipeline)
+    loop_optimizer_finalize ();
+  return todo;
+>>>>>>> gcc-mirror/master
 }
 
 } // anon namespace

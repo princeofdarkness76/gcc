@@ -184,6 +184,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     : _Weak_result_type_impl<typename remove_cv<_Functor>::type>
     { };
 
+<<<<<<< HEAD
   template<typename _Res, typename _Fn, typename... _Args>
     inline _Res
     __invoke_impl(__invoke_other, _Fn&& __f, _Args&&... __args)
@@ -246,6 +247,83 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if __cplusplus > 201402L
 # define __cpp_lib_invoke 201411
 
+=======
+  template<typename _Tp, typename _Up = typename decay<_Tp>::type>
+    struct _Unwrap
+    {
+      using type = _Tp&&;
+
+      // Equivalent to std::forward<_Tp>
+      static constexpr _Tp&&
+      _S_fwd(_Tp& __t) noexcept { return static_cast<_Tp&&>(__t); }
+    };
+
+  template<typename _Tp, typename _Up>
+    struct _Unwrap<_Tp, reference_wrapper<_Up>>
+    {
+      using type = _Up&;
+
+      // Get an lvalue-reference from a reference_wrapper.
+      static _Up&
+      _S_fwd(const _Tp& __t) noexcept { __t.get(); }
+    };
+
+  // Used by __invoke_impl instead of std::forward<_Tp> so that a
+  // reference_wrapper is converted to an lvalue-reference.
+  template<typename _Tp>
+    typename _Unwrap<_Tp>::type
+    __invfwd(typename remove_reference<_Tp>::type& __t) noexcept
+    { return _Unwrap<_Tp>::_S_fwd(__t); }
+
+  template<typename _Res, typename _Fn, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_other, _Fn&& __f, _Args&&... __args)
+    noexcept(noexcept(std::forward<_Fn>(__f)(std::forward<_Args>(__args)...)))
+    { return std::forward<_Fn>(__f)(std::forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memfun_ref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept((__invfwd<_Tp>(__t).*__f)(forward<_Args>(__args)...)))
+    { return (__invfwd<_Tp>(__t).*__f)(forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memfun_deref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept(((*forward<_Tp>(__t)).*__f)(forward<_Args>(__args)...)))
+    { return ((*forward<_Tp>(__t)).*__f)(forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memobj_ref, _MemFun&& __f, _Tp&& __t)
+    noexcept(noexcept(__invfwd<_Tp>(__t).*__f))
+    { return __invfwd<_Tp>(__t).*__f; }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memobj_deref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept((*forward<_Tp>(__t)).*__f))
+    { return (*forward<_Tp>(__t)).*__f; }
+
+  /// Invoke a callable object.
+  template<typename _Callable, typename... _Args>
+    inline typename result_of<_Callable&&(_Args&&...)>::type
+    __invoke(_Callable&& __fn, _Args&&... __args)
+    {
+      using __result_of = result_of<_Callable&&(_Args&&...)>;
+      using __type = typename __result_of::type;
+      using __tag = typename __result_of::__invoke_type;
+      return std::__invoke_impl<__type>(__tag{}, std::forward<_Callable>(__fn),
+					std::forward<_Args>(__args)...);
+    }
+
+#if __cplusplus > 201402L
+# define __cpp_lib_invoke 201411
+
+>>>>>>> gcc-mirror/master
   /// Invoke a callable object.
   template<typename _Callable, typename... _Args>
     inline result_of_t<_Callable&&(_Args&&...)>
@@ -551,6 +629,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {									\
       using __vararg = true_type;					\
     };
+<<<<<<< HEAD
 
 #define _GLIBCXX_MEM_FN_TRAITS(_REF, _LVAL, _RVAL)		\
   _GLIBCXX_MEM_FN_TRAITS2(		, _REF, _LVAL, _RVAL)	\
@@ -565,12 +644,29 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
 #undef _GLIBCXX_MEM_FN_TRAITS
 #undef _GLIBCXX_MEM_FN_TRAITS2
 
+=======
+
+#define _GLIBCXX_MEM_FN_TRAITS(_REF, _LVAL, _RVAL)		\
+  _GLIBCXX_MEM_FN_TRAITS2(		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(volatile	, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const volatile, _REF, _LVAL, _RVAL)
+
+_GLIBCXX_MEM_FN_TRAITS( , true_type, true_type)
+_GLIBCXX_MEM_FN_TRAITS(&, true_type, false_type)
+_GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
+
+#undef _GLIBCXX_MEM_FN_TRAITS
+#undef _GLIBCXX_MEM_FN_TRAITS2
+
+>>>>>>> gcc-mirror/master
   template<typename _MemFunPtr,
 	   bool __is_mem_fn = is_member_function_pointer<_MemFunPtr>::value>
     class _Mem_fn_base
     : public _Mem_fn_traits<_MemFunPtr>::__maybe_type
     {
       using _Traits = _Mem_fn_traits<_MemFunPtr>;
+<<<<<<< HEAD
 
       using _Arity = typename _Traits::__arity;
       using _Varargs = typename _Traits::__vararg;
@@ -584,6 +680,21 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
 
       using result_type = typename _Traits::__result_type;
 
+=======
+
+      using _Arity = typename _Traits::__arity;
+      using _Varargs = typename _Traits::__vararg;
+
+      template<typename _Func, typename... _BoundArgs>
+	friend struct _Bind_check_arity;
+
+      _MemFunPtr _M_pmf;
+
+    public:
+
+      using result_type = typename _Traits::__result_type;
+
+>>>>>>> gcc-mirror/master
       explicit constexpr
       _Mem_fn_base(_MemFunPtr __pmf) noexcept : _M_pmf(__pmf) { }
 

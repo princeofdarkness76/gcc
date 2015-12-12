@@ -228,7 +228,10 @@ install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
 link_libmpx = @link_libmpx@
+<<<<<<< HEAD
 link_mpx = @link_mpx@
+=======
+>>>>>>> gcc-mirror/master
 localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@

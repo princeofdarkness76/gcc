@@ -401,15 +401,21 @@ struct lto_header
    IPA passes.  */
 struct lto_simple_header : lto_header
 {
+<<<<<<< HEAD
   /* Size of main gimple body of function.  */
   int32_t main_size;
 };
 
 struct lto_simple_header_with_strings : lto_simple_header
 {
+=======
+>>>>>>> gcc-mirror/master
   /* Size of main gimple body of function.  */
   int32_t main_size;
+};
 
+struct lto_simple_header_with_strings : lto_simple_header
+{
   /* Size of the string table.  */
   int32_t string_size;
 };
@@ -923,14 +929,21 @@ void cl_target_option_stream_in (struct data_in *,
 				 struct cl_target_option *);
 
 void cl_optimization_stream_out (struct bitpack_d *, struct cl_optimization *);
+<<<<<<< HEAD
+
+void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
+=======
+>>>>>>> gcc-mirror/master
 
 void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
 
-
+<<<<<<< HEAD
 /* In lto-symtab.c.  */
 extern void lto_symtab_merge_decls (void);
 extern void lto_symtab_merge_symbols (void);
 extern tree lto_symtab_prevailing_decl (tree decl);
+=======
+>>>>>>> gcc-mirror/master
 
 
 /* In lto-opts.c.  */

@@ -34,3 +34,7 @@ int i27 = 0b1000000000000000000000000000 << 4; /* { dg-warning "requires 33 bits
 int i28 = 0b10000000000000000000000000000 << 3; /* { dg-warning "requires 33 bits to represent" } */
 int i29 = 0b100000000000000000000000000000 << 2; /* { dg-warning "requires 33 bits to represent" } */
 int i30 = 0b1000000000000000000000000000000 << 1; /* { dg-warning "requires 33 bits to represent" } */
+<<<<<<< HEAD
+=======
+int i31 = (int) 0b10000000000000000000000000000000u << 1; /* { dg-warning "requires 33 bits to represent" } */
+>>>>>>> gcc-mirror/master

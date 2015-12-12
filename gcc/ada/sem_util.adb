@@ -8368,13 +8368,15 @@ package body Sem_Util is
    ------------------------------
 
    function Has_Compatible_Alignment
-     (Obj  : Entity_Id;
-      Expr : Node_Id) return Alignment_Result
+     (Obj         : Entity_Id;
+      Expr        : Node_Id;
+      Layout_Done : Boolean) return Alignment_Result
    is
       function Has_Compatible_Alignment_Internal
-        (Obj     : Entity_Id;
-         Expr    : Node_Id;
-         Default : Alignment_Result) return Alignment_Result;
+        (Obj         : Entity_Id;
+         Expr        : Node_Id;
+         Layout_Done : Boolean;
+         Default     : Alignment_Result) return Alignment_Result;
       --  This is the internal recursive function that actually does the work.
       --  There is one additional parameter, which says what the result should
       --  be if no alignment information is found, and there is no definite
@@ -8387,9 +8389,10 @@ package body Sem_Util is
       ---------------------------------------
 
       function Has_Compatible_Alignment_Internal
-        (Obj     : Entity_Id;
-         Expr    : Node_Id;
-         Default : Alignment_Result) return Alignment_Result
+        (Obj         : Entity_Id;
+         Expr        : Node_Id;
+         Layout_Done : Boolean;
+         Default     : Alignment_Result) return Alignment_Result
       is
          Result : Alignment_Result := Known_Compatible;
          --  Holds the current status of the result. Note that once a value of
@@ -8439,14 +8442,14 @@ package body Sem_Util is
             then
                Set_Result
                  (Has_Compatible_Alignment_Internal
-                    (Obj, Prefix (Expr), Known_Compatible));
+                    (Obj, Prefix (Expr), Layout_Done, Known_Compatible));
 
             --  In all other cases, we need a full check on the prefix
 
             else
                Set_Result
                  (Has_Compatible_Alignment_Internal
-                    (Obj, Prefix (Expr), Unknown));
+                    (Obj, Prefix (Expr), Layout_Done, Unknown));
             end if;
          end Check_Prefix;
 
@@ -8465,14 +8468,14 @@ package body Sem_Util is
 
       begin
          --  If Expr is a selected component, we must make sure there is no
-         --  potentially troublesome component clause, and that the record is
-         --  not packed.
+         --  potentially troublesome component clause and that the record is
+         --  not packed if the layout is not done.
 
          if Nkind (Expr) = N_Selected_Component then
 
-            --  Packed record always generate unknown alignment
+            --  Packing generates unknown alignment if layout is not done
 
-            if Is_Packed (Etype (Prefix (Expr))) then
+            if Is_Packed (Etype (Prefix (Expr))) and then not Layout_Done then
                Set_Result (Unknown);
             end if;
 
@@ -8483,7 +8486,7 @@ package body Sem_Util is
 
          --  If Expr is an indexed component, we must make sure there is no
          --  potentially troublesome Component_Size clause and that the array
-         --  is not bit-packed.
+         --  is not bit-packed if the layout is not done.
 
          elsif Nkind (Expr) = N_Indexed_Component then
             declare
@@ -8491,9 +8494,9 @@ package body Sem_Util is
                Ind : constant Node_Id   := First_Index (Typ);
 
             begin
-               --  Bit packed array always generates unknown alignment
+               --  Packing generates unknown alignment if layout is not done
 
-               if Is_Bit_Packed_Array (Typ) then
+               if Is_Bit_Packed_Array (Typ) and then not Layout_Done then
                   Set_Result (Unknown);
                end if;
 
@@ -8622,6 +8625,417 @@ package body Sem_Util is
 
          elsif Etype (Obj) = Etype (Expr) then
 
+            --  Types are the same, but we have to check for possible size
+            --  and alignments on the Expr object that may make the alignment
+            --  different, even though the types are the same.
+
+            if Is_Entity_Name (Expr) then
+
+               --  First check alignment of the Expr object. Any alignment less
+               --  than Maximum_Alignment is worrisome since this is the case
+               --  where we do not know the alignment of Obj.
+
+               if Known_Alignment (Entity (Expr))
+                 and then UI_To_Int (Alignment (Entity (Expr))) <
+                                                    Ttypes.Maximum_Alignment
+               then
+                  Set_Result (Unknown);
+
+                  --  Now check size of Expr object. Any size that is not an
+                  --  even multiple of Maximum_Alignment is also worrisome
+                  --  since it may cause the alignment of the object to be less
+                  --  than the alignment of the type.
+
+               elsif Known_Static_Esize (Entity (Expr))
+                 and then
+                   (UI_To_Int (Esize (Entity (Expr))) mod
+                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
+                                                                        /= 0
+               then
+                  Set_Result (Unknown);
+
+                  --  Otherwise same type is decisive
+
+               else
+                  Set_Result (Known_Compatible);
+               end if;
+            end if;
+
+         --  Another case to deal with is when there is an explicit size or
+         --  alignment clause when the types are not the same. If so, then the
+         --  result is Unknown. We don't need to do this test if the Default is
+         --  Unknown, since that result will be set in any case.
+
+         elsif Default /= Unknown
+           and then (Has_Size_Clause      (Etype (Expr))
+                       or else
+                     Has_Alignment_Clause (Etype (Expr)))
+         then
+            Set_Result (Unknown);
+
+         --  If no indication found, set default
+
+         else
+            Set_Result (Default);
+         end if;
+
+         --  Return worst result found
+
+         return Result;
+      end Has_Compatible_Alignment_Internal;
+
+   --  Start of processing for Has_Compatible_Alignment
+
+   begin
+      --  If Obj has no specified alignment, then set alignment from the type
+      --  alignment. Perhaps we should always do this, but for sure we should
+      --  do it when there is an address clause since we can do more if the
+      --  alignment is known.
+
+      if Unknown_Alignment (Obj) then
+         Set_Alignment (Obj, Alignment (Etype (Obj)));
+      end if;
+
+      --  Now do the internal call that does all the work
+
+      return
+        Has_Compatible_Alignment_Internal (Obj, Expr, Layout_Done, Unknown);
+   end Has_Compatible_Alignment;
+
+   ----------------------
+   -- Has_Declarations --
+   ----------------------
+
+   function Has_Declarations (N : Node_Id) return Boolean is
+   begin
+      return Nkind_In (Nkind (N), N_Accept_Statement,
+                                  N_Block_Statement,
+                                  N_Compilation_Unit_Aux,
+                                  N_Entry_Body,
+                                  N_Package_Body,
+                                  N_Protected_Body,
+                                  N_Subprogram_Body,
+                                  N_Task_Body,
+                                  N_Package_Specification);
+   end Has_Declarations;
+
+   ---------------------------------
+   -- Has_Defaulted_Discriminants --
+   ---------------------------------
+
+   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
+   begin
+      return Has_Discriminants (Typ)
+       and then Present (First_Discriminant (Typ))
+       and then Present (Discriminant_Default_Value
+                           (First_Discriminant (Typ)));
+   end Has_Defaulted_Discriminants;
+
+   -------------------
+   -- Has_Denormals --
+   -------------------
+
+   function Has_Denormals (E : Entity_Id) return Boolean is
+   begin
+      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
+   end Has_Denormals;
+
+   -------------------------------------------
+   -- Has_Discriminant_Dependent_Constraint --
+   -------------------------------------------
+
+   function Has_Discriminant_Dependent_Constraint
+     (Comp : Entity_Id) return Boolean
+   is
+      Comp_Decl  : constant Node_Id := Parent (Comp);
+      Subt_Indic : Node_Id;
+      Constr     : Node_Id;
+      Assn       : Node_Id;
+
+   begin
+      --  Discriminants can't depend on discriminants
+
+      if Ekind (Comp) = E_Discriminant then
+         return False;
+
+      else
+         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
+
+         if Nkind (Subt_Indic) = N_Subtype_Indication then
+            Constr := Constraint (Subt_Indic);
+
+            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
+               Assn := First (Constraints (Constr));
+               while Present (Assn) loop
+                  case Nkind (Assn) is
+                     when N_Subtype_Indication |
+                          N_Range              |
+                          N_Identifier
+                       =>
+                        if Depends_On_Discriminant (Assn) then
+                           return True;
+                        end if;
+
+                     when N_Discriminant_Association =>
+                        if Depends_On_Discriminant (Expression (Assn)) then
+                           return True;
+                        end if;
+
+                     when others =>
+                        null;
+                  end case;
+
+                  Next (Assn);
+               end loop;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Has_Discriminant_Dependent_Constraint;
+
+   --------------------------------------
+   -- Has_Effectively_Volatile_Profile --
+   --------------------------------------
+
+   function Has_Effectively_Volatile_Profile
+     (Subp_Id : Entity_Id) return Boolean
+   is
+      Formal : Entity_Id;
+
+   begin
+      --  Inspect the formal parameters looking for an effectively volatile
+      --  type.
+
+      Formal := First_Formal (Subp_Id);
+      while Present (Formal) loop
+         if Is_Effectively_Volatile (Etype (Formal)) then
+            return True;
+         end if;
+
+         Next_Formal (Formal);
+      end loop;
+
+      --  Inspect the return type of functions
+
+      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
+        and then Is_Effectively_Volatile (Etype (Subp_Id))
+      then
+         return True;
+      end if;
+
+      return False;
+   end Has_Effectively_Volatile_Profile;
+
+   --------------------------
+   -- Has_Enabled_Property --
+   --------------------------
+
+   function Has_Enabled_Property
+     (Item_Id  : Entity_Id;
+      Property : Name_Id) return Boolean
+   is
+      function State_Has_Enabled_Property return Boolean;
+      --  Determine whether a state denoted by Item_Id has the property enabled
+
+      function Variable_Has_Enabled_Property return Boolean;
+      --  Determine whether a variable denoted by Item_Id has the property
+      --  enabled.
+
+      --------------------------------
+      -- State_Has_Enabled_Property --
+      --------------------------------
+
+      function State_Has_Enabled_Property return Boolean is
+         Decl     : constant Node_Id := Parent (Item_Id);
+         Opt      : Node_Id;
+         Opt_Nam  : Node_Id;
+         Prop     : Node_Id;
+         Prop_Nam : Node_Id;
+         Props    : Node_Id;
+
+      begin
+         --  The declaration of an external abstract state appears as an
+         --  extension aggregate. If this is not the case, properties can never
+         --  be set.
+
+         if Nkind (Decl) /= N_Extension_Aggregate then
+            return False;
+         end if;
+
+         --  When External appears as a simple option, it automatically enables
+         --  all properties.
+
+         Opt := First (Expressions (Decl));
+         while Present (Opt) loop
+            if Nkind (Opt) = N_Identifier
+              and then Chars (Opt) = Name_External
+            then
+               return True;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+         --  When External specifies particular properties, inspect those and
+         --  find the desired one (if any).
+
+         Opt := First (Component_Associations (Decl));
+         while Present (Opt) loop
+            Opt_Nam := First (Choices (Opt));
+
+            if Nkind (Opt_Nam) = N_Identifier
+              and then Chars (Opt_Nam) = Name_External
+            then
+               Props := Expression (Opt);
+
+               --  Multiple properties appear as an aggregate
+
+               if Nkind (Props) = N_Aggregate then
+
+                  --  Simple property form
+
+                  Prop := First (Expressions (Props));
+                  while Present (Prop) loop
+                     if Chars (Prop) = Property then
+                        return True;
+                     end if;
+
+                     Next (Prop);
+                  end loop;
+
+                  --  Property with expression form
+
+                  Prop := First (Component_Associations (Props));
+                  while Present (Prop) loop
+                     Prop_Nam := First (Choices (Prop));
+
+                     --  The property can be represented in two ways:
+                     --      others   => <value>
+                     --    <property> => <value>
+
+                     if Nkind (Prop_Nam) = N_Others_Choice
+                       or else (Nkind (Prop_Nam) = N_Identifier
+                                 and then Chars (Prop_Nam) = Property)
+                     then
+                        return Is_True (Expr_Value (Expression (Prop)));
+                     end if;
+
+                     Next (Prop);
+                  end loop;
+
+               --  Single property
+
+               else
+                  return Chars (Props) = Property;
+               end if;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+         return False;
+      end State_Has_Enabled_Property;
+
+      -----------------------------------
+      -- Variable_Has_Enabled_Property --
+      -----------------------------------
+
+      function Variable_Has_Enabled_Property return Boolean is
+         function Is_Enabled (Prag : Node_Id) return Boolean;
+         --  Determine whether property pragma Prag (if present) denotes an
+         --  enabled property.
+
+         ----------------
+         -- Is_Enabled --
+         ----------------
+
+         function Is_Enabled (Prag : Node_Id) return Boolean is
+            Arg1 : Node_Id;
+
+         begin
+            if Present (Prag) then
+               Arg1 := First (Pragma_Argument_Associations (Prag));
+
+               --  The pragma has an optional Boolean expression, the related
+               --  property is enabled only when the expression evaluates to
+               --  True.
+
+               if Present (Arg1) then
+                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
+
+               --  Otherwise the lack of expression enables the property by
+               --  default.
+
+               else
+                  return True;
+               end if;
+
+            --  The property was never set in the first place
+
+            else
+               return False;
+            end if;
+         end Is_Enabled;
+
+         --  Local variables
+
+         AR : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Readers);
+         AW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Writers);
+         ER : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Reads);
+         EW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Writes);
+
+      --  Start of processing for Variable_Has_Enabled_Property
+
+      begin
+         --  A non-effectively volatile object can never possess external
+         --  properties.
+
+         if not Is_Effectively_Volatile (Item_Id) then
+            return False;
+
+         --  External properties related to variables come in two flavors -
+         --  explicit and implicit. The explicit case is characterized by the
+         --  presence of a property pragma with an optional Boolean flag. The
+         --  property is enabled when the flag evaluates to True or the flag is
+         --  missing altogether.
+
+         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
+            return True;
+
+         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
+            return True;
+
+         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
+            return True;
+
+         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
+            return True;
+
+         --  The implicit case lacks all property pragmas
+
+         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Variable_Has_Enabled_Property;
+
+   --  Start of processing for Has_Enabled_Property
+
+   begin
+      --  Abstract states and variables have a flexible scheme of specifying
+      --  external properties.
+
+      if Ekind (Item_Id) = E_Abstract_State then
+         return State_Has_Enabled_Property;
+
+<<<<<<< HEAD
             --  Types are the same, but we have to check for possible size
             --  and alignments on the Expr object that may make the alignment
             --  different, even though the types are the same.
@@ -9031,6 +9445,8 @@ package body Sem_Util is
       if Ekind (Item_Id) = E_Abstract_State then
          return State_Has_Enabled_Property;
 
+=======
+>>>>>>> gcc-mirror/master
       elsif Ekind (Item_Id) = E_Variable then
          return Variable_Has_Enabled_Property;
 

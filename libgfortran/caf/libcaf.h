@@ -57,7 +57,13 @@ typedef enum caf_register_t {
   CAF_REGTYPE_COARRAY_ALLOC,
   CAF_REGTYPE_LOCK_STATIC,
   CAF_REGTYPE_LOCK_ALLOC,
+<<<<<<< HEAD
   CAF_REGTYPE_CRITICAL
+=======
+  CAF_REGTYPE_CRITICAL,
+  CAF_REGTYPE_EVENT_STATIC,
+  CAF_REGTYPE_EVENT_ALLOC
+>>>>>>> gcc-mirror/master
 }
 caf_register_t;
 
@@ -133,5 +139,11 @@ void _gfortran_caf_atomic_op (int, caf_token_t, size_t, int, void *, void *,
 
 void _gfortran_caf_lock (caf_token_t, size_t, int, int *, int *, char *, int);
 void _gfortran_caf_unlock (caf_token_t, size_t, int, int *, char *, int);
+<<<<<<< HEAD
+=======
+void _gfortran_caf_event_post (caf_token_t, size_t, int, int *, char *, int);
+void _gfortran_caf_event_wait (caf_token_t, size_t, int, int *, char *, int);
+void _gfortran_caf_event_query (caf_token_t, size_t, int, int *, int *);
+>>>>>>> gcc-mirror/master
 
 #endif  /* LIBCAF_H  */

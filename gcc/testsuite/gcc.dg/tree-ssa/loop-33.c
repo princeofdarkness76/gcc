@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -fdump-tree-lim1-details" } */
+/* { dg-options "-O2 -fdump-tree-lim2-details" } */
 
 int x;
 int a[100];
@@ -36,4 +36,8 @@ void test5(struct a *A, unsigned b)
     }
 }
 
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 4 "lim1" { xfail { lp64 || llp64 } } } } */
+=======
+/* { dg-final { scan-tree-dump-times "Executing store motion of" 4 "lim2" { xfail { lp64 || llp64 } } } } */
+>>>>>>> gcc-mirror/master

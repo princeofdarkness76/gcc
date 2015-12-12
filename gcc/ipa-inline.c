@@ -466,7 +466,11 @@ can_inline_edge_p (struct cgraph_edge *e, bool report,
          optimized with the optimization flags of module they are used in.
 	 Also do not care about mixing up size/speed optimization when
 	 DECL_DISREGARD_INLINE_LIMITS is set.  */
+<<<<<<< HEAD
       else if ((callee->merged
+=======
+      else if ((callee->merged_comdat
+>>>>>>> gcc-mirror/master
 	        && !lookup_attribute ("optimize",
 				      DECL_ATTRIBUTES (caller->decl)))
 	       || DECL_DISREGARD_INLINE_LIMITS (callee->decl))

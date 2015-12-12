@@ -49,13 +49,20 @@ is
    CPU_Time_Unit  : constant := 0.000001;
    CPU_Tick       : constant Ada.Real_Time.Time_Span;
 
+   use type Ada.Task_Identification.Task_Id;
+
    function Clock
      (T : Ada.Task_Identification.Task_Id :=
         Ada.Task_Identification.Current_Task)
       return CPU_Time
    with
      Volatile_Function,
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
+=======
+     Global => Ada.Real_Time.Clock_Time,
+     Pre    => T /= Ada.Task_Identification.Null_Task_Id;
+>>>>>>> gcc-mirror/master
 
    function "+"
      (Left  : CPU_Time;
@@ -105,9 +112,18 @@ is
    Interrupt_Clocks_Supported          : constant Boolean := False;
    Separate_Interrupt_Clocks_Supported : constant Boolean := False;
 
+<<<<<<< HEAD
    function Clock_For_Interrupts return CPU_Time with
      Volatile_Function,
      Global => Ada.Real_Time.Clock_Time;
+=======
+   pragma Warnings (Off, "check will fail at run time");
+   function Clock_For_Interrupts return CPU_Time with
+     Volatile_Function,
+     Global => Ada.Real_Time.Clock_Time,
+     Pre    => Interrupt_Clocks_Supported;
+   pragma Warnings (On, "check will fail at run time");
+>>>>>>> gcc-mirror/master
 
 private
    pragma SPARK_Mode (Off);

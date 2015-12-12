@@ -2284,8 +2284,11 @@ vect_create_cond_for_alias_checks (loop_vec_info loop_vinfo, tree * cond_expr)
     dump_printf_loc (MSG_NOTE, vect_location,
 		     "created %u versioning for alias checks.\n",
 		     comp_alias_ddrs.length ());
+<<<<<<< HEAD
 
   comp_alias_ddrs.release ();
+=======
+>>>>>>> gcc-mirror/master
 }
 
 

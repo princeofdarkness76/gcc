@@ -1,5 +1,9 @@
 /* { dg-do compile } */ 
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom1-stats" } */
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom2-stats" } */
+>>>>>>> gcc-mirror/master
 
 void foo();
 void bla();
@@ -25,5 +29,9 @@ void thread_latch_through_header (void)
 /* Threading the latch to a later point in the loop is safe in this
    case.  And we want to thread through the header as well.  These
    are both caught by threading in DOM.  */
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "Jumps threaded" "dom1"} } */
+=======
+/* { dg-final { scan-tree-dump-not "Jumps threaded" "dom2"} } */
+>>>>>>> gcc-mirror/master
 /* { dg-final { scan-tree-dump-times "Jumps threaded: 2" 1 "vrp1"} } */

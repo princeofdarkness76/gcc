@@ -35,6 +35,7 @@ static const char * const rtx_upname[] = {
 
 #undef DEF_RTL_EXPR
 
+<<<<<<< HEAD
 
 /* The entries in optabs.def are categorized:
      C: A "conversion" optab, which uses two modes; has libcall data.
@@ -241,10 +242,15 @@ match_pattern (pattern *p, const char *name, const char *pat)
 	}
     }
 }
+=======
+/* Vector in which to collect insns that match.  */
+static vec<optab_pattern> patterns;
+>>>>>>> gcc-mirror/master
 
 static void
 gen_insn (md_rtx_info *info)
 {
+<<<<<<< HEAD
   rtx insn = info->def;
   const char *name = XSTR (insn, 0);
   pattern p;
@@ -268,13 +274,18 @@ gen_insn (md_rtx_info *info)
 	  return;
 	}
     }
+=======
+  optab_pattern p;
+  if (find_optab (&p, XSTR (info->def, 0)))
+    patterns.safe_push (p);
+>>>>>>> gcc-mirror/master
 }
 
 static int
 pattern_cmp (const void *va, const void *vb)
 {
-  const pattern *a = (const pattern *)va;
-  const pattern *b = (const pattern *)vb;
+  const optab_pattern *a = (const optab_pattern *)va;
+  const optab_pattern *b = (const optab_pattern *)vb;
   return a->sort_num - b->sort_num;
 }
 
@@ -333,7 +344,7 @@ main (int argc, char **argv)
 {
   FILE *h_file, *s_file;
   unsigned int i, j, n, last_kind[5];
-  pattern *p;
+  optab_pattern *p;
 
   progname = "genopinit";
 
@@ -365,7 +376,7 @@ main (int argc, char **argv)
 
   /* Now that we've handled the "extra" patterns, eliminate them from
      the optabs array.  That way they don't get in the way below.  */
-  n = ARRAY_SIZE (optabs);
+  n = num_optabs;
   for (i = 0; i < n; )
     if (optabs[i].base == NULL)
       optabs[i] = optabs[--n];

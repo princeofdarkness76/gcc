@@ -104,14 +104,20 @@ static GTY(()) vec<tree, va_gc> *mangling_aliases;
 int at_eof;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* If non-zero, implicit "omp declare target" attribute is added into the
    attribute lists.  */
 int current_omp_declare_target_attribute;
 =======
+=======
+>>>>>>> gcc-mirror/master
 /* True if note_mangling_alias should enqueue mangling aliases for
    later generation, rather than emitting them right away.  */
 
 bool defer_mangling_aliases = true;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 
 
@@ -1170,24 +1176,36 @@ is_late_template_attribute (tree attr, tree decl)
     return false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* #pragma omp declare simd attribute needs to be always finalized.  */
 =======
+=======
+>>>>>>> gcc-mirror/master
   /* Attribute tls_model wants to modify the symtab.  */
   if (is_attribute_p ("tls_model", name))
     return true;
 
   /* #pragma omp declare simd attribute needs to be always deferred.  */
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   if (flag_openmp
       && is_attribute_p ("omp declare simd", name))
     return true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
   /* An attribute pack is clearly dependent.  */
   if (args && PACK_EXPANSION_P (args))
     return true;
 
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
   /* If any of the arguments are dependent expressions, we can't evaluate
      the attribute until instantiation time.  */
@@ -1437,7 +1455,11 @@ cp_omp_mappable_type (tree type)
       tree field;
       for (field = TYPE_FIELDS (type); field; field = DECL_CHAIN (field))
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (TREE_CODE (field) == VAR_DECL)
+=======
+	if (VAR_P (field))
+>>>>>>> gcc-mirror/master
 =======
 	if (VAR_P (field))
 >>>>>>> gcc-mirror/master
@@ -1461,6 +1483,7 @@ cplus_decl_attributes (tree *decl, tree attributes, int flags)
 
   /* Add implicit "omp declare target" attribute if requested.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (current_omp_declare_target_attribute
       && ((TREE_CODE (*decl) == VAR_DECL && TREE_STATIC (*decl))
 	  || TREE_CODE (*decl) == FUNCTION_DECL))
@@ -1477,6 +1500,8 @@ cplus_decl_attributes (tree *decl, tree attributes, int flags)
       else if (!processing_template_decl
 	       && TREE_CODE (*decl) == VAR_DECL
 =======
+=======
+>>>>>>> gcc-mirror/master
   if (scope_chain->omp_declare_target_attribute
       && ((VAR_P (*decl)
 	   && (TREE_STATIC (*decl) || DECL_EXTERNAL (*decl)))
@@ -1488,6 +1513,9 @@ cplus_decl_attributes (tree *decl, tree attributes, int flags)
 	       *decl);
       else if (!processing_template_decl
 	       && VAR_P (*decl)
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	       && !cp_omp_mappable_type (TREE_TYPE (*decl)))
 	error ("%q+D in declare target directive does not have mappable type",

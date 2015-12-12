@@ -955,7 +955,12 @@ backtrace_initialize (struct backtrace_state *state, int descriptor,
       if (found_sym)
 	backtrace_atomic_store_pointer (&state->syminfo_fn, elf_syminfo);
       else
+<<<<<<< HEAD
 	__sync_bool_compare_and_swap (&state->syminfo_fn, NULL, elf_nosyms);
+=======
+	(void) __sync_bool_compare_and_swap (&state->syminfo_fn, NULL,
+					     elf_nosyms);
+>>>>>>> gcc-mirror/master
     }
 
   if (!state->threaded)

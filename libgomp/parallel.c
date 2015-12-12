@@ -194,6 +194,7 @@ GOMP_cancellation_point (int which)
   if (team)
     return gomp_team_barrier_cancelled (&team->barrier);
   return false;
+<<<<<<< HEAD
 }
 <<<<<<< HEAD
 ialias (GOMP_parallel_end)
@@ -206,8 +207,21 @@ GOMP_parallel (void (*fn) (void *), void *data, unsigned num_threads, unsigned i
   gomp_team_start (fn, data, num_threads, gomp_new_team (num_threads));
   fn (data);
   ialias_call (GOMP_parallel_end) ();
+=======
+>>>>>>> gcc-mirror/master
 }
+ialias (GOMP_cancellation_point)
 
+bool
+GOMP_cancel (int which, bool do_cancel)
+{
+  if (!gomp_cancel_var)
+    return false;
+
+  if (!do_cancel)
+    return ialias_call (GOMP_cancellation_point) (which);
+
+<<<<<<< HEAD
 void
 GOMP_cancel (void)
 {
@@ -229,6 +243,8 @@ GOMP_cancel (int which, bool do_cancel)
   if (!do_cancel)
     return ialias_call (GOMP_cancellation_point) (which);
 
+=======
+>>>>>>> gcc-mirror/master
   struct gomp_thread *thr = gomp_thread ();
   struct gomp_team *team = thr->ts.team;
   if (which & (GOMP_CANCEL_LOOP | GOMP_CANCEL_SECTIONS))
@@ -252,6 +268,9 @@ GOMP_cancel (int which, bool do_cancel)
   team->team_cancelled = 1;
   gomp_team_barrier_cancel (team);
   return true;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 }
 

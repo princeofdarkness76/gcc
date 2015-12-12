@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-do compile { target c++ } } */
+=======
+/* { dg-do compile } */
+>>>>>>> gcc-mirror/master
 =======
 /* { dg-do compile } */
 >>>>>>> gcc-mirror/master

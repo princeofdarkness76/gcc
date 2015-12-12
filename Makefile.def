@@ -534,6 +534,10 @@ dependencies = { module=all-m4; on=all-build-texinfo; };
 // on libgcc and newlib/libgloss.
 lang_env_dependencies = { module=libjava; cxx=true; };
 lang_env_dependencies = { module=libitm; cxx=true; };
+<<<<<<< HEAD
+=======
+lang_env_dependencies = { module=libffi; cxx=true; };
+>>>>>>> gcc-mirror/master
 lang_env_dependencies = { module=libcilkrts; cxx=true; };
 lang_env_dependencies = { module=liboffloadmic; cxx=true; };
 lang_env_dependencies = { module=newlib; no_c=true; };

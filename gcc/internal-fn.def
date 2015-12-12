@@ -50,12 +50,15 @@ along with GCC; see the file COPYING3.  If not see
    - store_lanes: currently just vec_store_lanes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 DEF_INTERNAL_FN (LOAD_LANES, ECF_CONST | ECF_LEAF)
 DEF_INTERNAL_FN (STORE_LANES, ECF_CONST | ECF_LEAF)
 DEF_INTERNAL_FN (GOMP_SIMD_LANE, ECF_NOVOPS | ECF_LEAF | ECF_NOTHROW)
 DEF_INTERNAL_FN (GOMP_SIMD_VF, ECF_CONST | ECF_LEAF | ECF_NOTHROW)
 DEF_INTERNAL_FN (GOMP_SIMD_LAST_LANE, ECF_CONST | ECF_LEAF | ECF_NOTHROW)
 =======
+=======
+>>>>>>> gcc-mirror/master
    DEF_INTERNAL_FLT_FN is like DEF_INTERNAL_OPTAB_FN, but in addition,
    the function implements the computational part of a built-in math
    function BUILT_IN_<NAME>{F,,L}.  Unlike some built-in functions,
@@ -98,6 +101,11 @@ DEF_INTERNAL_OPTAB_FN (LOAD_LANES, ECF_CONST, vec_load_lanes, load_lanes)
 DEF_INTERNAL_OPTAB_FN (MASK_STORE, 0, maskstore, mask_store)
 DEF_INTERNAL_OPTAB_FN (STORE_LANES, ECF_CONST, vec_store_lanes, store_lanes)
 
+<<<<<<< HEAD
+=======
+DEF_INTERNAL_OPTAB_FN (RSQRT, ECF_CONST, rsqrt, unary)
+
+>>>>>>> gcc-mirror/master
 /* Unary math functions.  */
 DEF_INTERNAL_FLT_FN (ACOS, ECF_CONST, acos, unary)
 DEF_INTERNAL_FLT_FN (ASIN, ECF_CONST, asin, unary)
@@ -132,6 +140,11 @@ DEF_INTERNAL_FLT_FN (FMOD, ECF_CONST, fmod, binary)
 DEF_INTERNAL_FLT_FN (POW, ECF_CONST, pow, binary)
 DEF_INTERNAL_FLT_FN (REMAINDER, ECF_CONST, remainder, binary)
 DEF_INTERNAL_FLT_FN (SCALB, ECF_CONST, scalb, binary)
+<<<<<<< HEAD
+=======
+DEF_INTERNAL_FLT_FN (FMIN, ECF_CONST, fmin, binary)
+DEF_INTERNAL_FLT_FN (FMAX, ECF_CONST, fmax, binary)
+>>>>>>> gcc-mirror/master
 
 /* FP scales.  */
 DEF_INTERNAL_FLT_FN (LDEXP, ECF_CONST, ldexp, binary)
@@ -196,4 +209,7 @@ DEF_INTERNAL_FN (SET_EDOM, ECF_LEAF | ECF_NOTHROW, NULL)
 #undef DEF_INTERNAL_FLT_FN
 #undef DEF_INTERNAL_OPTAB_FN
 #undef DEF_INTERNAL_FN
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

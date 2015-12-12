@@ -1128,7 +1128,10 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	  kind = "";
 	  break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 	case GF_OMP_FOR_KIND_DISTRIBUTE:
 	  kind = " distribute";
 	  break;
@@ -1141,6 +1144,9 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	case GF_OMP_FOR_KIND_OACC_LOOP:
 	  kind = " oacc_loop";
 	  break;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	case GF_OMP_FOR_KIND_SIMD:
 	  kind = " simd";
@@ -1149,9 +1155,12 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	  kind = " cilksimd";
 	  break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	case GF_OMP_FOR_KIND_DISTRIBUTE:
 	  kind = " distribute";
 	  break;
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 	default:
@@ -1180,7 +1189,10 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	  pp_string (buffer, "#pragma omp for");
 	  break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 	case GF_OMP_FOR_KIND_DISTRIBUTE:
 	  pp_string (buffer, "#pragma omp distribute");
 	  break;
@@ -1192,6 +1204,9 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	case GF_OMP_FOR_KIND_OACC_LOOP:
 	  pp_string (buffer, "#pragma acc loop");
 	  break;
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	case GF_OMP_FOR_KIND_SIMD:
 	  pp_string (buffer, "#pragma omp simd");
@@ -1199,6 +1214,7 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	case GF_OMP_FOR_KIND_CILKSIMD:
 	  pp_string (buffer, "#pragma simd");
 	  break;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	case GF_OMP_FOR_KIND_DISTRIBUTE:
 	  pp_string (buffer, "#pragma omp distribute");
@@ -1208,11 +1224,16 @@ dump_gimple_omp_for (pretty_printer *buffer, gomp_for *gs, int spc, int flags)
 	}
       dump_omp_clauses (buffer, gimple_omp_for_clauses (gs), spc, flags);
 =======
+=======
+>>>>>>> gcc-mirror/master
 	default:
 	  gcc_unreachable ();
 	}
       if (gimple_omp_for_kind (gs) != GF_OMP_FOR_KIND_CILKFOR)
 	dump_omp_clauses (buffer, gimple_omp_for_clauses (gs), spc, flags);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       for (i = 0; i < gimple_omp_for_collapse (gs); i++)
 	{
@@ -1378,6 +1399,12 @@ dump_gimple_omp_target (pretty_printer *buffer, gomp_target *gs,
     case GF_OMP_TARGET_KIND_OACC_DECLARE:
       kind = " oacc_declare";
       break;
+<<<<<<< HEAD
+=======
+    case GF_OMP_TARGET_KIND_OACC_HOST_DATA:
+      kind = " oacc_host_data";
+      break;
+>>>>>>> gcc-mirror/master
     default:
       gcc_unreachable ();
     }
@@ -1446,6 +1473,7 @@ dump_gimple_omp_teams (pretty_printer *buffer, gomp_teams *gs, int spc,
       if (!gimple_seq_empty_p (gimple_omp_body (gs)))
 	{
 	  newline_and_indent (buffer, spc + 2);
+<<<<<<< HEAD
 	  pp_character (buffer, '{');
 	  pp_newline (buffer);
 	  dump_gimple_seq (buffer, gimple_omp_body (gs), spc + 4, flags);
@@ -1518,6 +1546,8 @@ dump_gimple_omp_teams (pretty_printer *buffer, gimple gs, int spc, int flags)
       if (!gimple_seq_empty_p (gimple_omp_body (gs)))
 	{
 	  newline_and_indent (buffer, spc + 2);
+=======
+>>>>>>> gcc-mirror/master
 	  pp_character (buffer, '{');
 	  pp_newline (buffer);
 	  dump_gimple_seq (buffer, gimple_omp_body (gs), spc + 4, flags);
@@ -2349,6 +2379,7 @@ pp_gimple_stmt_1 (pretty_printer *buffer, gimple *gs, int spc, int flags)
     case GIMPLE_OMP_TEAMS:
       dump_gimple_omp_teams (buffer, as_a <gomp_teams *> (gs), spc,
 			     flags);
+<<<<<<< HEAD
       break;
 
     case GIMPLE_OMP_TARGET:
@@ -2357,6 +2388,8 @@ pp_gimple_stmt_1 (pretty_printer *buffer, gimple *gs, int spc, int flags)
 
     case GIMPLE_OMP_TEAMS:
       dump_gimple_omp_teams (buffer, gs, spc, flags);
+=======
+>>>>>>> gcc-mirror/master
       break;
 
     case GIMPLE_OMP_RETURN:

@@ -1271,7 +1271,12 @@ lookup_member (tree xbasetype, tree name, int protect, bool want_type,
   /* Make sure we're looking for a member of the current instantiation in the
      right partial specialization.  */
   if (flag_concepts && dependent_type_p (type))
+<<<<<<< HEAD
     type = currently_open_class (type);
+=======
+    if (tree t = currently_open_class (type))
+      type = t;
+>>>>>>> gcc-mirror/master
 
   if (!basetype_path)
     basetype_path = TYPE_BINFO (type);

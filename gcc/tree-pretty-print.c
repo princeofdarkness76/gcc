@@ -316,6 +316,7 @@ dump_omp_clause (pretty_printer *pp, tree clause, int spc, int flags)
       name = "uniform";
       goto print_remap;
 <<<<<<< HEAD
+<<<<<<< HEAD
     case OMP_CLAUSE__LOOPTEMP_:
       name = "_looptemp_";
       goto print_remap;
@@ -371,11 +372,36 @@ dump_omp_clause (pretty_printer *pp, tree clause, int spc, int flags)
       name = "link";
       goto print_remap;
   print_remap:
+=======
+    case OMP_CLAUSE_USE_DEVICE_PTR:
+      name = "use_device_ptr";
+      goto print_remap;
+    case OMP_CLAUSE_IS_DEVICE_PTR:
+      name = "is_device_ptr";
+      goto print_remap;
+    case OMP_CLAUSE__LOOPTEMP_:
+      name = "_looptemp_";
+      goto print_remap;
+    case OMP_CLAUSE_DEVICE_RESIDENT:
+      name = "device_resident";
+      goto print_remap;
+    case OMP_CLAUSE_USE_DEVICE:
+      name = "use_device";
+      goto print_remap;
+    case OMP_CLAUSE_TO_DECLARE:
+      name = "to";
+      goto print_remap;
+    case OMP_CLAUSE_LINK:
+      name = "link";
+      goto print_remap;
+  print_remap:
+>>>>>>> gcc-mirror/master
       pp_string (pp, name);
       pp_left_paren (pp);
       dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
 			 spc, flags, false);
       pp_right_paren (pp);
+<<<<<<< HEAD
       break;
 
     case OMP_CLAUSE_REDUCTION:
@@ -1153,13 +1179,97 @@ dump_omp_clause (pretty_printer *pp, tree clause, int spc, int flags)
 	  break;
 	case OMP_CLAUSE_PROC_BIND_SPREAD:
 	  pp_string (buffer, "spread");
+=======
+      break;
+
+    case OMP_CLAUSE_REDUCTION:
+      pp_string (pp, "reduction(");
+      if (OMP_CLAUSE_REDUCTION_CODE (clause) != ERROR_MARK)
+	{
+	  pp_string (pp,
+		     op_symbol_code (OMP_CLAUSE_REDUCTION_CODE (clause)));
+	  pp_colon (pp);
+	}
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_IF:
+      pp_string (pp, "if(");
+      switch (OMP_CLAUSE_IF_MODIFIER (clause))
+	{
+	case ERROR_MARK: break;
+	case OMP_PARALLEL: pp_string (pp, "parallel:"); break;
+	case OMP_TASK: pp_string (pp, "task:"); break;
+	case OMP_TASKLOOP: pp_string (pp, "taskloop:"); break;
+	case OMP_TARGET_DATA: pp_string (pp, "target data:"); break;
+	case OMP_TARGET: pp_string (pp, "target:"); break;
+	case OMP_TARGET_UPDATE: pp_string (pp, "target update:"); break;
+	case OMP_TARGET_ENTER_DATA:
+	  pp_string (pp, "target enter data:"); break;
+	case OMP_TARGET_EXIT_DATA: pp_string (pp, "target exit data:"); break;
+	default: gcc_unreachable ();
+	}
+      dump_generic_node (pp, OMP_CLAUSE_IF_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_NUM_THREADS:
+      pp_string (pp, "num_threads(");
+      dump_generic_node (pp, OMP_CLAUSE_NUM_THREADS_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE__CILK_FOR_COUNT_:
+      pp_string (pp, "_Cilk_for_count_(");
+      dump_generic_node (pp, OMP_CLAUSE_OPERAND (clause, 0),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_NOWAIT:
+      pp_string (pp, "nowait");
+      break;
+    case OMP_CLAUSE_ORDERED:
+      pp_string (pp, "ordered");
+      if (OMP_CLAUSE_ORDERED_EXPR (clause))
+	{
+	  pp_left_paren (pp);
+	  dump_generic_node (pp, OMP_CLAUSE_ORDERED_EXPR (clause),
+			     spc, flags, false);
+	  pp_right_paren (pp);
+	}
+      break;
+
+    case OMP_CLAUSE_DEFAULT:
+      pp_string (pp, "default(");
+      switch (OMP_CLAUSE_DEFAULT_KIND (clause))
+	{
+	case OMP_CLAUSE_DEFAULT_UNSPECIFIED:
+	  break;
+	case OMP_CLAUSE_DEFAULT_SHARED:
+	  pp_string (pp, "shared");
+	  break;
+	case OMP_CLAUSE_DEFAULT_NONE:
+	  pp_string (pp, "none");
+	  break;
+	case OMP_CLAUSE_DEFAULT_PRIVATE:
+	  pp_string (pp, "private");
+	  break;
+	case OMP_CLAUSE_DEFAULT_FIRSTPRIVATE:
+	  pp_string (pp, "firstprivate");
+>>>>>>> gcc-mirror/master
 	  break;
 	default:
 	  gcc_unreachable ();
 	}
-      pp_character (buffer, ')');
+      pp_right_paren (pp);
       break;
 
+<<<<<<< HEAD
     case OMP_CLAUSE_SAFELEN:
       pp_string (buffer, "safelen(");
       dump_generic_node (buffer, OMP_CLAUSE_SAFELEN_EXPR (clause),
@@ -1170,10 +1280,71 @@ dump_omp_clause (pretty_printer *pp, tree clause, int spc, int flags)
     case OMP_CLAUSE_SIMDLEN:
       pp_string (buffer, "simdlen(");
       dump_generic_node (buffer, OMP_CLAUSE_SIMDLEN_EXPR (clause),
-			 spc, flags, false);
-      pp_character (buffer, ')');
+=======
+    case OMP_CLAUSE_SCHEDULE:
+      pp_string (pp, "schedule(");
+      if (OMP_CLAUSE_SCHEDULE_KIND (clause)
+	  & (OMP_CLAUSE_SCHEDULE_MONOTONIC
+	     | OMP_CLAUSE_SCHEDULE_NONMONOTONIC))
+	{
+	  if (OMP_CLAUSE_SCHEDULE_KIND (clause)
+	      & OMP_CLAUSE_SCHEDULE_MONOTONIC)
+	    pp_string (pp, "monotonic");
+	  else
+	    pp_string (pp, "nonmonotonic");
+	  if (OMP_CLAUSE_SCHEDULE_SIMD (clause))
+	    pp_comma (pp);
+	  else
+	    pp_colon (pp);
+	}
+      if (OMP_CLAUSE_SCHEDULE_SIMD (clause))
+	pp_string (pp, "simd:");
+
+      switch (OMP_CLAUSE_SCHEDULE_KIND (clause) & OMP_CLAUSE_SCHEDULE_MASK)
+	{
+	case OMP_CLAUSE_SCHEDULE_STATIC:
+	  pp_string (pp, "static");
+	  break;
+	case OMP_CLAUSE_SCHEDULE_DYNAMIC:
+	  pp_string (pp, "dynamic");
+	  break;
+	case OMP_CLAUSE_SCHEDULE_GUIDED:
+	  pp_string (pp, "guided");
+	  break;
+	case OMP_CLAUSE_SCHEDULE_RUNTIME:
+	  pp_string (pp, "runtime");
+	  break;
+	case OMP_CLAUSE_SCHEDULE_AUTO:
+	  pp_string (pp, "auto");
+	  break;
+	case OMP_CLAUSE_SCHEDULE_CILKFOR:
+	  pp_string (pp, "cilk-for grain");
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+      if (OMP_CLAUSE_SCHEDULE_CHUNK_EXPR (clause))
+	{
+	  pp_comma (pp);
+	  dump_generic_node (pp, OMP_CLAUSE_SCHEDULE_CHUNK_EXPR (clause),
+			     spc, flags, false);
+	}
+      pp_right_paren (pp);
       break;
 
+    case OMP_CLAUSE_UNTIED:
+      pp_string (pp, "untied");
+      break;
+
+    case OMP_CLAUSE_COLLAPSE:
+      pp_string (pp, "collapse(");
+      dump_generic_node (pp, OMP_CLAUSE_COLLAPSE_EXPR (clause),
+>>>>>>> gcc-mirror/master
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+<<<<<<< HEAD
     case OMP_CLAUSE__SIMDUID_:
       pp_string (buffer, "_simduid_(");
       dump_generic_node (buffer, OMP_CLAUSE__SIMDUID__DECL (clause),
@@ -1198,6 +1369,459 @@ dump_omp_clause (pretty_printer *pp, tree clause, int spc, int flags)
       break;
     case OMP_CLAUSE_TASKGROUP:
       pp_string (buffer, "taskgroup");
+=======
+    case OMP_CLAUSE_FINAL:
+      pp_string (pp, "final(");
+      dump_generic_node (pp, OMP_CLAUSE_FINAL_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_MERGEABLE:
+      pp_string (pp, "mergeable");
+      break;
+
+    case OMP_CLAUSE_LINEAR:
+      pp_string (pp, "linear(");
+      switch (OMP_CLAUSE_LINEAR_KIND (clause))
+	{
+	case OMP_CLAUSE_LINEAR_DEFAULT:
+	  break;
+	case OMP_CLAUSE_LINEAR_REF:
+	  pp_string (pp, "ref(");
+	  break;
+	case OMP_CLAUSE_LINEAR_VAL:
+	  pp_string (pp, "val(");
+	  break;
+	case OMP_CLAUSE_LINEAR_UVAL:
+	  pp_string (pp, "uval(");
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      if (OMP_CLAUSE_LINEAR_KIND (clause) != OMP_CLAUSE_LINEAR_DEFAULT)
+	pp_right_paren (pp);
+      pp_colon (pp);
+      dump_generic_node (pp, OMP_CLAUSE_LINEAR_STEP (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_ALIGNED:
+      pp_string (pp, "aligned(");
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      if (OMP_CLAUSE_ALIGNED_ALIGNMENT (clause))
+	{
+	  pp_colon (pp);
+	  dump_generic_node (pp, OMP_CLAUSE_ALIGNED_ALIGNMENT (clause),
+			     spc, flags, false);
+	}
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_DEPEND:
+      pp_string (pp, "depend(");
+      switch (OMP_CLAUSE_DEPEND_KIND (clause))
+	{
+	case OMP_CLAUSE_DEPEND_IN:
+	  pp_string (pp, "in");
+	  break;
+	case OMP_CLAUSE_DEPEND_OUT:
+	  pp_string (pp, "out");
+	  break;
+	case OMP_CLAUSE_DEPEND_INOUT:
+	  pp_string (pp, "inout");
+	  break;
+	case OMP_CLAUSE_DEPEND_SOURCE:
+	  pp_string (pp, "source)");
+	  return;
+	case OMP_CLAUSE_DEPEND_SINK:
+	  pp_string (pp, "sink:");
+	  for (tree t = OMP_CLAUSE_DECL (clause); t; t = TREE_CHAIN (t))
+	    if (TREE_CODE (t) == TREE_LIST)
+	      {
+		dump_generic_node (pp, TREE_VALUE (t), spc, flags, false);
+		if (TREE_PURPOSE (t) != integer_zero_node)
+		  {
+		    if (OMP_CLAUSE_DEPEND_SINK_NEGATIVE (t))
+		      pp_minus (pp);
+		    else
+		      pp_plus (pp);
+		    dump_generic_node (pp, TREE_PURPOSE (t), spc, flags,
+				       false);
+		  }
+		if (TREE_CHAIN (t))
+		  pp_comma (pp);
+	      }
+	    else
+	      gcc_unreachable ();
+	  pp_right_paren (pp);
+	  return;
+	default:
+	  gcc_unreachable ();
+	}
+      pp_colon (pp);
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_MAP:
+      pp_string (pp, "map(");
+      switch (OMP_CLAUSE_MAP_KIND (clause))
+	{
+	case GOMP_MAP_ALLOC:
+	case GOMP_MAP_POINTER:
+	  pp_string (pp, "alloc");
+	  break;
+	case GOMP_MAP_TO:
+	case GOMP_MAP_TO_PSET:
+	  pp_string (pp, "to");
+	  break;
+	case GOMP_MAP_FROM:
+	  pp_string (pp, "from");
+	  break;
+	case GOMP_MAP_TOFROM:
+	  pp_string (pp, "tofrom");
+	  break;
+	case GOMP_MAP_FORCE_ALLOC:
+	  pp_string (pp, "force_alloc");
+	  break;
+	case GOMP_MAP_FORCE_TO:
+	  pp_string (pp, "force_to");
+	  break;
+	case GOMP_MAP_FORCE_FROM:
+	  pp_string (pp, "force_from");
+	  break;
+	case GOMP_MAP_FORCE_TOFROM:
+	  pp_string (pp, "force_tofrom");
+	  break;
+	case GOMP_MAP_FORCE_PRESENT:
+	  pp_string (pp, "force_present");
+	  break;
+	case GOMP_MAP_FORCE_DEALLOC:
+	  pp_string (pp, "delete");
+	  break;
+	case GOMP_MAP_FORCE_DEVICEPTR:
+	  pp_string (pp, "force_deviceptr");
+	  break;
+	case GOMP_MAP_ALWAYS_TO:
+	  pp_string (pp, "always,to");
+	  break;
+	case GOMP_MAP_ALWAYS_FROM:
+	  pp_string (pp, "always,from");
+	  break;
+	case GOMP_MAP_ALWAYS_TOFROM:
+	  pp_string (pp, "always,tofrom");
+	  break;
+	case GOMP_MAP_RELEASE:
+	  pp_string (pp, "release");
+	  break;
+	case GOMP_MAP_FIRSTPRIVATE_POINTER:
+	  pp_string (pp, "firstprivate");
+	  break;
+	case GOMP_MAP_FIRSTPRIVATE_REFERENCE:
+	  pp_string (pp, "firstprivate ref");
+	  break;
+	case GOMP_MAP_STRUCT:
+	  pp_string (pp, "struct");
+	  break;
+	case GOMP_MAP_ALWAYS_POINTER:
+	  pp_string (pp, "always_pointer");
+	  break;
+	case GOMP_MAP_DEVICE_RESIDENT:
+	  pp_string (pp, "device_resident");
+	  break;
+	case GOMP_MAP_LINK:
+	  pp_string (pp, "link");
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+      pp_colon (pp);
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+     print_clause_size:
+      if (OMP_CLAUSE_SIZE (clause))
+	{
+	  switch (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_MAP
+		  ? OMP_CLAUSE_MAP_KIND (clause) : GOMP_MAP_TO)
+	    {
+	    case GOMP_MAP_POINTER:
+	    case GOMP_MAP_FIRSTPRIVATE_POINTER:
+	    case GOMP_MAP_FIRSTPRIVATE_REFERENCE:
+	    case GOMP_MAP_ALWAYS_POINTER:
+	      pp_string (pp, " [pointer assign, bias: ");
+	      break;
+	    case GOMP_MAP_TO_PSET:
+	      pp_string (pp, " [pointer set, len: ");
+	      break;
+	    default:
+	      pp_string (pp, " [len: ");
+	      break;
+	    }
+	  dump_generic_node (pp, OMP_CLAUSE_SIZE (clause),
+			     spc, flags, false);
+	  pp_right_bracket (pp);
+	}
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_FROM:
+      pp_string (pp, "from(");
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      goto print_clause_size;
+
+    case OMP_CLAUSE_TO:
+      pp_string (pp, "to(");
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      goto print_clause_size;
+
+    case OMP_CLAUSE__CACHE_:
+      pp_string (pp, "(");
+      dump_generic_node (pp, OMP_CLAUSE_DECL (clause),
+			 spc, flags, false);
+      goto print_clause_size;
+
+    case OMP_CLAUSE_NUM_TEAMS:
+      pp_string (pp, "num_teams(");
+      dump_generic_node (pp, OMP_CLAUSE_NUM_TEAMS_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_THREAD_LIMIT:
+      pp_string (pp, "thread_limit(");
+      dump_generic_node (pp, OMP_CLAUSE_THREAD_LIMIT_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_DEVICE:
+      pp_string (pp, "device(");
+      dump_generic_node (pp, OMP_CLAUSE_DEVICE_ID (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_DIST_SCHEDULE:
+      pp_string (pp, "dist_schedule(static");
+      if (OMP_CLAUSE_DIST_SCHEDULE_CHUNK_EXPR (clause))
+	{
+	  pp_comma (pp);
+	  dump_generic_node (pp,
+			     OMP_CLAUSE_DIST_SCHEDULE_CHUNK_EXPR (clause),
+			     spc, flags, false);
+	}
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_PROC_BIND:
+      pp_string (pp, "proc_bind(");
+      switch (OMP_CLAUSE_PROC_BIND_KIND (clause))
+	{
+	case OMP_CLAUSE_PROC_BIND_MASTER:
+	  pp_string (pp, "master");
+	  break;
+	case OMP_CLAUSE_PROC_BIND_CLOSE:
+	  pp_string (pp, "close");
+	  break;
+	case OMP_CLAUSE_PROC_BIND_SPREAD:
+	  pp_string (pp, "spread");
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_SAFELEN:
+      pp_string (pp, "safelen(");
+      dump_generic_node (pp, OMP_CLAUSE_SAFELEN_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_SIMDLEN:
+      pp_string (pp, "simdlen(");
+      dump_generic_node (pp, OMP_CLAUSE_SIMDLEN_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_PRIORITY:
+      pp_string (pp, "priority(");
+      dump_generic_node (pp, OMP_CLAUSE_PRIORITY_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_GRAINSIZE:
+      pp_string (pp, "grainsize(");
+      dump_generic_node (pp, OMP_CLAUSE_GRAINSIZE_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_NUM_TASKS:
+      pp_string (pp, "num_tasks(");
+      dump_generic_node (pp, OMP_CLAUSE_NUM_TASKS_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_HINT:
+      pp_string (pp, "hint(");
+      dump_generic_node (pp, OMP_CLAUSE_HINT_EXPR (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_DEFAULTMAP:
+      pp_string (pp, "defaultmap(tofrom:scalar)");
+      break;
+
+    case OMP_CLAUSE__SIMDUID_:
+      pp_string (pp, "_simduid_(");
+      dump_generic_node (pp, OMP_CLAUSE__SIMDUID__DECL (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_GANG:
+      pp_string (pp, "gang");
+      if (OMP_CLAUSE_GANG_EXPR (clause) != NULL_TREE)
+	{
+	  pp_string (pp, "(num: ");
+	  dump_generic_node (pp, OMP_CLAUSE_GANG_EXPR (clause),
+			     spc, flags, false);
+	}
+      if (OMP_CLAUSE_GANG_STATIC_EXPR (clause) != NULL_TREE)
+	{
+	  if (OMP_CLAUSE_GANG_EXPR (clause) == NULL_TREE)
+	    pp_left_paren (pp);
+	  else
+	    pp_space (pp);
+	  pp_string (pp, "static:");
+	  if (OMP_CLAUSE_GANG_STATIC_EXPR (clause)
+	      == integer_minus_one_node)
+	    pp_character (pp, '*');
+	  else
+	    dump_generic_node (pp, OMP_CLAUSE_GANG_STATIC_EXPR (clause),
+			       spc, flags, false);
+	}
+      if (OMP_CLAUSE_GANG_EXPR (clause) != NULL_TREE
+	  || OMP_CLAUSE_GANG_STATIC_EXPR (clause) != NULL_TREE)
+	pp_right_paren (pp);
+      break;
+
+    case OMP_CLAUSE_ASYNC:
+      pp_string (pp, "async");
+      if (OMP_CLAUSE_ASYNC_EXPR (clause))
+        {
+          pp_character(pp, '(');
+          dump_generic_node (pp, OMP_CLAUSE_ASYNC_EXPR (clause),
+                             spc, flags, false);
+          pp_character(pp, ')');
+        }
+      break;
+
+    case OMP_CLAUSE_AUTO:
+    case OMP_CLAUSE_SEQ:
+      pp_string (pp, omp_clause_code_name[OMP_CLAUSE_CODE (clause)]);
+      break;
+
+    case OMP_CLAUSE_WAIT:
+      pp_string (pp, "wait(");
+      dump_generic_node (pp, OMP_CLAUSE_WAIT_EXPR (clause),
+			 spc, flags, false);
+      pp_character(pp, ')');
+      break;
+
+    case OMP_CLAUSE_WORKER:
+      pp_string (pp, "worker");
+      if (OMP_CLAUSE_WORKER_EXPR (clause) != NULL_TREE)
+	{
+	  pp_left_paren (pp);
+	  dump_generic_node (pp, OMP_CLAUSE_WORKER_EXPR (clause),
+			     spc, flags, false);
+	  pp_right_paren (pp);
+	}
+      break;
+
+    case OMP_CLAUSE_VECTOR:
+      pp_string (pp, "vector");
+      if (OMP_CLAUSE_VECTOR_EXPR (clause) != NULL_TREE)
+	{
+	  pp_left_paren (pp);
+	  dump_generic_node (pp, OMP_CLAUSE_VECTOR_EXPR (clause),
+			     spc, flags, false);
+	  pp_right_paren (pp);
+	}
+      break;
+
+    case OMP_CLAUSE_NUM_GANGS:
+      pp_string (pp, "num_gangs(");
+      dump_generic_node (pp, OMP_CLAUSE_NUM_GANGS_EXPR (clause),
+                         spc, flags, false);
+      pp_character (pp, ')');
+      break;
+
+    case OMP_CLAUSE_NUM_WORKERS:
+      pp_string (pp, "num_workers(");
+      dump_generic_node (pp, OMP_CLAUSE_NUM_WORKERS_EXPR (clause),
+                         spc, flags, false);
+      pp_character (pp, ')');
+      break;
+
+    case OMP_CLAUSE_VECTOR_LENGTH:
+      pp_string (pp, "vector_length(");
+      dump_generic_node (pp, OMP_CLAUSE_VECTOR_LENGTH_EXPR (clause),
+                         spc, flags, false);
+      pp_character (pp, ')');
+      break;
+
+    case OMP_CLAUSE_INBRANCH:
+      pp_string (pp, "inbranch");
+      break;
+    case OMP_CLAUSE_NOTINBRANCH:
+      pp_string (pp, "notinbranch");
+      break;
+    case OMP_CLAUSE_FOR:
+      pp_string (pp, "for");
+      break;
+    case OMP_CLAUSE_PARALLEL:
+      pp_string (pp, "parallel");
+      break;
+    case OMP_CLAUSE_SECTIONS:
+      pp_string (pp, "sections");
+      break;
+    case OMP_CLAUSE_TASKGROUP:
+      pp_string (pp, "taskgroup");
+      break;
+    case OMP_CLAUSE_NOGROUP:
+      pp_string (pp, "nogroup");
+      break;
+    case OMP_CLAUSE_THREADS:
+      pp_string (pp, "threads");
+      break;
+    case OMP_CLAUSE_SIMD:
+      pp_string (pp, "simd");
+      break;
+    case OMP_CLAUSE_INDEPENDENT:
+      pp_string (pp, "independent");
+      break;
+    case OMP_CLAUSE_TILE:
+      pp_string (pp, "tile(");
+      dump_generic_node (pp, OMP_CLAUSE_TILE_LIST (clause),
+			 spc, flags, false);
+      pp_right_paren (pp);
+>>>>>>> gcc-mirror/master
       break;
 
     default:
@@ -3025,6 +3649,7 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
 
     case OMP_FOR:
 <<<<<<< HEAD
+<<<<<<< HEAD
       pp_string (buffer, "#pragma omp for");
       goto dump_omp_loop;
 
@@ -3064,6 +3689,8 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
     dump_omp_loop:
       dump_omp_clauses (buffer, OMP_FOR_CLAUSES (node), spc, flags);
 =======
+=======
+>>>>>>> gcc-mirror/master
       pp_string (pp, "#pragma omp for");
       goto dump_omp_loop;
 
@@ -3114,6 +3741,7 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
       dump_omp_clauses (pp, OMP_TARGET_EXIT_DATA_CLAUSES (node), spc, flags);
       is_expr = false;
       break;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 
     case OMP_TARGET:
@@ -3130,6 +3758,23 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
     dump_omp_loop:
       dump_omp_clauses (pp, OMP_FOR_CLAUSES (node), spc, flags);
 
+=======
+
+    case OMP_TARGET:
+      pp_string (pp, "#pragma omp target");
+      dump_omp_clauses (pp, OMP_TARGET_CLAUSES (node), spc, flags);
+      goto dump_omp_body;
+
+    case OMP_TARGET_UPDATE:
+      pp_string (pp, "#pragma omp target update");
+      dump_omp_clauses (pp, OMP_TARGET_UPDATE_CLAUSES (node), spc, flags);
+      is_expr = false;
+      break;
+
+    dump_omp_loop:
+      dump_omp_clauses (pp, OMP_FOR_CLAUSES (node), spc, flags);
+
+>>>>>>> gcc-mirror/master
     dump_omp_loop_cilk_for:
       if (!(flags & TDF_SLIM))
 	{
@@ -3154,6 +3799,7 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
 		{
 		  spc += 2;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		  newline_and_indent (buffer, spc);
 		  pp_string (buffer, "for (");
 		  dump_generic_node (buffer,
@@ -3170,6 +3816,8 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
 		  pp_string (buffer, ")");
 		}
 =======
+=======
+>>>>>>> gcc-mirror/master
 		  if (TREE_CODE (node) != CILK_FOR || OMP_FOR_PRE_BODY (node))
 		    newline_and_indent (pp, spc);
 		  if (TREE_CODE (node) == CILK_FOR)
@@ -3191,6 +3839,9 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
 		}
 	      if (TREE_CODE (node) == CILK_FOR)
 		dump_omp_clauses (pp, OMP_FOR_CLAUSES (node), spc, flags);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 	    }
 	  if (OMP_FOR_BODY (node))
@@ -3252,6 +3903,7 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
 
     case OMP_ATOMIC:
 <<<<<<< HEAD
+<<<<<<< HEAD
       pp_string (buffer, "#pragma omp atomic");
       if (OMP_ATOMIC_SEQ_CST (node))
 	pp_string (buffer, " seq_cst");
@@ -3283,17 +3935,35 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
       break;
 
     case OMP_ATOMIC_READ:
+=======
+      pp_string (pp, "#pragma omp atomic");
+      if (OMP_ATOMIC_SEQ_CST (node))
+	pp_string (pp, " seq_cst");
+      newline_and_indent (pp, spc + 2);
+      dump_generic_node (pp, TREE_OPERAND (node, 0), spc, flags, false);
+      pp_space (pp);
+      pp_equal (pp);
+      pp_space (pp);
+      dump_generic_node (pp, TREE_OPERAND (node, 1), spc, flags, false);
+      break;
+
+    case OMP_ATOMIC_READ:
+>>>>>>> gcc-mirror/master
       pp_string (pp, "#pragma omp atomic read");
       if (OMP_ATOMIC_SEQ_CST (node))
 	pp_string (pp, " seq_cst");
       newline_and_indent (pp, spc + 2);
       dump_generic_node (pp, TREE_OPERAND (node, 0), spc, flags, false);
       pp_space (pp);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       break;
 
     case OMP_ATOMIC_CAPTURE_OLD:
     case OMP_ATOMIC_CAPTURE_NEW:
+<<<<<<< HEAD
 <<<<<<< HEAD
       pp_string (buffer, "#pragma omp atomic capture");
       if (OMP_ATOMIC_SEQ_CST (node))
@@ -3305,6 +3975,8 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
       pp_space (buffer);
       dump_generic_node (buffer, TREE_OPERAND (node, 1), spc, flags, false);
 =======
+=======
+>>>>>>> gcc-mirror/master
       pp_string (pp, "#pragma omp atomic capture");
       if (OMP_ATOMIC_SEQ_CST (node))
 	pp_string (pp, " seq_cst");
@@ -3314,6 +3986,9 @@ dump_generic_node (pretty_printer *pp, tree node, int spc, int flags,
       pp_equal (pp);
       pp_space (pp);
       dump_generic_node (pp, TREE_OPERAND (node, 1), spc, flags, false);
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
       break;
 

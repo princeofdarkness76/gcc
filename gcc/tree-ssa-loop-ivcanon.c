@@ -1266,7 +1266,11 @@ tree_unroll_loops_completely_1 (bool may_increase_size, bool unroll_outer,
   /* Don't unroll #pragma omp simd loops until the vectorizer
      attempts to vectorize those.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (loop->force_vect)
+=======
+  if (loop->force_vectorize)
+>>>>>>> gcc-mirror/master
 =======
   if (loop->force_vectorize)
 >>>>>>> gcc-mirror/master

@@ -2,9 +2,14 @@
    This file contains routines to handle Cilk Plus specific
    routines for the C++ Compiler.
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright (C) 2013  Free Software Foundation, Inc.
    Contributed by Balaji V. Iyer <balaji.v.iyer@intel.com>,
 		  Aldy Hernandez <aldyh@redhat.com>.
+=======
+   Copyright (C) 2013-2015 Free Software Foundation, Inc.
+   Contributed by Aldy Hernandez <aldyh@redhat.com>.
+>>>>>>> gcc-mirror/master
 =======
    Copyright (C) 2013-2015 Free Software Foundation, Inc.
    Contributed by Aldy Hernandez <aldyh@redhat.com>.
@@ -31,8 +36,13 @@
 #include "coretypes.h"
 #include "cp-tree.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "diagnostic-core.h"
 
+=======
+#include "tree-iterator.h"
+#include "cilk.h"
+>>>>>>> gcc-mirror/master
 =======
 #include "tree-iterator.h"
 #include "cilk.h"
@@ -51,8 +61,11 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
 {
   bool *valid = (bool *) data;
 <<<<<<< HEAD
+<<<<<<< HEAD
   location_t loc = EXPR_HAS_LOCATION (*tp) ? EXPR_LOCATION (*tp) :
     UNKNOWN_LOCATION;
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 
@@ -60,6 +73,10 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
     return NULL_TREE;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  location_t loc = EXPR_LOCATION (*tp);
+>>>>>>> gcc-mirror/master
 =======
   location_t loc = EXPR_LOCATION (*tp);
 >>>>>>> gcc-mirror/master
@@ -94,7 +111,10 @@ cpp_validate_cilk_plus_loop (tree body)
   return valid;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 /* Sets the EXCEPTION bit (0x10) in the FRAME.flags field.  */
 
@@ -159,4 +179,7 @@ cilk_install_body_with_frame_cleanup (tree fndecl, tree orig_body, void *wd)
   append_to_statement_list (build_stmt (loc, TRY_FINALLY_EXPR, body, dtor),
 			    &list);
 }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master

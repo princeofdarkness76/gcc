@@ -1,5 +1,6 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O3 -fcilkplus" } */
 
 // Test storage classes in the initialization of a <#pragma simd> for
@@ -25,6 +26,8 @@ void foo()
   for (volatile int vj=0; vj<1000; ++vj) /* { dg-error "induction variable cannot be volatile" } */
     a[vj] = b[vj];
 =======
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-options "-fcilkplus" } */
 
 int *p;
@@ -66,5 +69,8 @@ void foobar3(int a)
     extern int bar();
     j += bar();
     }
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/master
+=======
 >>>>>>> gcc-mirror/master
 }

@@ -78,7 +78,13 @@ CXX_AND_OBJCXX_OBJS = cp/call.o cp/decl.o cp/expr.o cp/pt.o cp/typeck2.o \
  cp/mangle.o cp/cp-objcp-common.o cp/name-lookup.o cp/cxx-pretty-print.o \
  cp/cp-cilkplus.o \
 <<<<<<< HEAD
+<<<<<<< HEAD
  cp/cp-gimplify.o cp/cp-array-notation.o $(CXX_C_OBJS)
+=======
+ cp/cp-gimplify.o cp/cp-array-notation.o cp/lambda.o \
+ cp/vtable-class-hierarchy.o cp/constexpr.o cp/cp-ubsan.o \
+ cp/constraint.o cp/logic.o $(CXX_C_OBJS)
+>>>>>>> gcc-mirror/master
 =======
  cp/cp-gimplify.o cp/cp-array-notation.o cp/lambda.o \
  cp/vtable-class-hierarchy.o cp/constexpr.o cp/cp-ubsan.o \
@@ -149,9 +155,15 @@ c++.srcman: doc/g++.1
 # check targets.  However, our DejaGNU framework requires 'check-g++' as its
 # entry point.  We feed the former to the latter here.
 check-c++ : check-g++
-# Run the testsute in C++0x mode.
-check-c++0x:
-	@echo Normal 'make check' now runs the testsuite in C++11 mode as well as C++98.
+
+# Run the testsuite in C++1z mode.
+check-c++1z:
+	$(MAKE) GXX_TESTSUITE_STDS=1z check-g++
+
+# Run the testsuite in all standard conformance levels.
+check-c++-all:
+	$(MAKE) RUNTESTFLAGS="$(RUNTESTFLAGS) --stds=98,11,14,1z" check-g++
+
 # Run the testsuite with garbage collection at every opportunity.
 check-g++-strict-gc:
 	$(MAKE) RUNTESTFLAGS="$(RUNTESTFLAGS) --extra_opts,--param,ggc-min-heapsize=0,--param,ggc-min-expand=0" \
@@ -248,6 +260,7 @@ c++.stageprofile: stageprofile-start
 	-mv cp/*$(objext) stageprofile/cp
 c++.stagefeedback: stagefeedback-start
 	-mv cp/*$(objext) stagefeedback/cp
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 #
@@ -346,5 +359,7 @@ cp/cxx-pretty-print.o: cp/cxx-pretty-print.c $(CXX_PRETTY_PRINT_H) \
   $(CONFIG_H) $(SYSTEM_H) $(TM_H) coretypes.h $(CXX_TREE_H) tree-pretty-print.h
 cp/cp-cilkplus.o: cp/cp-cilkplus.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
     $(CXX_TREE_H) $(DIAGNOSTIC_CORE_H)
+=======
+>>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
