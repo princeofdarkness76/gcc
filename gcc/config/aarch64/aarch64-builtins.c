@@ -554,6 +554,7 @@ aarch64_simd_builtin_type (enum machine_mode mode,
     return aarch64_lookup_simd_builtin_type (mode, qualifier_none);
 }
  
+<<<<<<< HEAD
 static void
 aarch64_init_simd_builtin_types (void)
 {
@@ -641,6 +642,95 @@ aarch64_init_simd_builtin_types (void)
 static void
 aarch64_init_simd_builtin_scalar_types (void)
 {
+=======
+static void
+aarch64_init_simd_builtin_types (void)
+{
+  int i;
+  int nelts = sizeof (aarch64_simd_types) / sizeof (aarch64_simd_types[0]);
+  tree tdecl;
+
+  /* Init all the element types built by the front-end.  */
+  aarch64_simd_types[Int8x8_t].eltype = intQI_type_node;
+  aarch64_simd_types[Int8x16_t].eltype = intQI_type_node;
+  aarch64_simd_types[Int16x4_t].eltype = intHI_type_node;
+  aarch64_simd_types[Int16x8_t].eltype = intHI_type_node;
+  aarch64_simd_types[Int32x2_t].eltype = intSI_type_node;
+  aarch64_simd_types[Int32x4_t].eltype = intSI_type_node;
+  aarch64_simd_types[Int64x1_t].eltype = intDI_type_node;
+  aarch64_simd_types[Int64x2_t].eltype = intDI_type_node;
+  aarch64_simd_types[Uint8x8_t].eltype = unsigned_intQI_type_node;
+  aarch64_simd_types[Uint8x16_t].eltype = unsigned_intQI_type_node;
+  aarch64_simd_types[Uint16x4_t].eltype = unsigned_intHI_type_node;
+  aarch64_simd_types[Uint16x8_t].eltype = unsigned_intHI_type_node;
+  aarch64_simd_types[Uint32x2_t].eltype = unsigned_intSI_type_node;
+  aarch64_simd_types[Uint32x4_t].eltype = unsigned_intSI_type_node;
+  aarch64_simd_types[Uint64x1_t].eltype = unsigned_intDI_type_node;
+  aarch64_simd_types[Uint64x2_t].eltype = unsigned_intDI_type_node;
+
+  /* Poly types are a world of their own.  */
+  aarch64_simd_types[Poly8_t].eltype = aarch64_simd_types[Poly8_t].itype =
+    build_distinct_type_copy (unsigned_intQI_type_node);
+  aarch64_simd_types[Poly16_t].eltype = aarch64_simd_types[Poly16_t].itype =
+    build_distinct_type_copy (unsigned_intHI_type_node);
+  aarch64_simd_types[Poly64_t].eltype = aarch64_simd_types[Poly64_t].itype =
+    build_distinct_type_copy (unsigned_intDI_type_node);
+  aarch64_simd_types[Poly128_t].eltype = aarch64_simd_types[Poly128_t].itype =
+    build_distinct_type_copy (unsigned_intTI_type_node);
+  /* Init poly vector element types with scalar poly types.  */
+  aarch64_simd_types[Poly8x8_t].eltype = aarch64_simd_types[Poly8_t].itype;
+  aarch64_simd_types[Poly8x16_t].eltype = aarch64_simd_types[Poly8_t].itype;
+  aarch64_simd_types[Poly16x4_t].eltype = aarch64_simd_types[Poly16_t].itype;
+  aarch64_simd_types[Poly16x8_t].eltype = aarch64_simd_types[Poly16_t].itype;
+  aarch64_simd_types[Poly64x1_t].eltype = aarch64_simd_types[Poly64_t].itype;
+  aarch64_simd_types[Poly64x2_t].eltype = aarch64_simd_types[Poly64_t].itype;
+
+  /* Continue with standard types.  */
+  aarch64_simd_types[Float16x4_t].eltype = aarch64_fp16_type_node;
+  aarch64_simd_types[Float16x8_t].eltype = aarch64_fp16_type_node;
+  aarch64_simd_types[Float32x2_t].eltype = float_type_node;
+  aarch64_simd_types[Float32x4_t].eltype = float_type_node;
+  aarch64_simd_types[Float64x1_t].eltype = double_type_node;
+  aarch64_simd_types[Float64x2_t].eltype = double_type_node;
+
+  for (i = 0; i < nelts; i++)
+    {
+      tree eltype = aarch64_simd_types[i].eltype;
+      enum machine_mode mode = aarch64_simd_types[i].mode;
+
+      if (aarch64_simd_types[i].itype == NULL)
+	aarch64_simd_types[i].itype =
+	  build_distinct_type_copy
+	    (build_vector_type (eltype, GET_MODE_NUNITS (mode)));
+
+      tdecl = add_builtin_type (aarch64_simd_types[i].name,
+				aarch64_simd_types[i].itype);
+      TYPE_NAME (aarch64_simd_types[i].itype) = tdecl;
+      SET_TYPE_STRUCTURAL_EQUALITY (aarch64_simd_types[i].itype);
+    }
+
+#define AARCH64_BUILD_SIGNED_TYPE(mode)  \
+  make_signed_type (GET_MODE_PRECISION (mode));
+  aarch64_simd_intOI_type_node = AARCH64_BUILD_SIGNED_TYPE (OImode);
+  aarch64_simd_intCI_type_node = AARCH64_BUILD_SIGNED_TYPE (CImode);
+  aarch64_simd_intXI_type_node = AARCH64_BUILD_SIGNED_TYPE (XImode);
+#undef AARCH64_BUILD_SIGNED_TYPE
+
+  tdecl = add_builtin_type
+	    ("__builtin_aarch64_simd_oi" , aarch64_simd_intOI_type_node);
+  TYPE_NAME (aarch64_simd_intOI_type_node) = tdecl;
+  tdecl = add_builtin_type
+	    ("__builtin_aarch64_simd_ci" , aarch64_simd_intCI_type_node);
+  TYPE_NAME (aarch64_simd_intCI_type_node) = tdecl;
+  tdecl = add_builtin_type
+	    ("__builtin_aarch64_simd_xi" , aarch64_simd_intXI_type_node);
+  TYPE_NAME (aarch64_simd_intXI_type_node) = tdecl;
+}
+
+static void
+aarch64_init_simd_builtin_scalar_types (void)
+{
+>>>>>>> master
   /* Define typedefs for all the standard scalar types.  */
   (*lang_hooks.types.register_builtin_type) (intQI_type_node,
 					     "__builtin_aarch64_simd_qi");
@@ -1014,6 +1104,7 @@ constant_arg:
       pat = GEN_FCN (icode) (op[0]);
       break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     case 2:
       pat = GEN_FCN (icode) (op[0], op[1]);
@@ -1058,6 +1149,29 @@ constant_arg:
       break;
 
 >>>>>>> gcc-mirror/master
+=======
+
+    case 2:
+      pat = GEN_FCN (icode) (op[0], op[1]);
+      break;
+
+    case 3:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2]);
+      break;
+
+    case 4:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3]);
+      break;
+
+    case 5:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3], op[4]);
+      break;
+
+    case 6:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3], op[4], op[5]);
+      break;
+
+>>>>>>> master
     default:
       gcc_unreachable ();
     }
@@ -1105,9 +1219,15 @@ aarch64_simd_expand_builtin (int fcode, tree exp, rtx target)
   int k;
 
   is_void = !!(d->qualifiers[0] & qualifier_void);
+<<<<<<< HEAD
 
   num_args += is_void;
 
+=======
+
+  num_args += is_void;
+
+>>>>>>> master
   for (k = 1; k < num_args; k++)
     {
       /* We have four arrays of data, each indexed in a different fashion.
@@ -1201,6 +1321,9 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
     {
       case AARCH64_BUILTIN_RSQRT_DF:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	gen = gen_aarch64_rsqrt_df2;
 	break;
       case AARCH64_BUILTIN_RSQRT_SF:
@@ -1214,6 +1337,7 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
 	break;
       case AARCH64_BUILTIN_RSQRT_V4SF:
 	gen = gen_aarch64_rsqrt_v4sf2;
+<<<<<<< HEAD
 =======
 	gen = gen_rsqrtdf2;
 	break;
@@ -1229,6 +1353,8 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
       case AARCH64_BUILTIN_RSQRT_V4SF:
 	gen = gen_rsqrtv4sf2;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	break;
       default: gcc_unreachable ();
     }
@@ -1255,6 +1381,7 @@ aarch64_expand_builtin (tree exp,
   int icode;
   rtx pat, op0;
   tree arg0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   switch (fcode)
@@ -1285,6 +1412,8 @@ aarch64_expand_builtin (tree exp,
     }
 
 =======
+=======
+>>>>>>> master
 
   switch (fcode)
     {
@@ -1313,11 +1442,15 @@ aarch64_expand_builtin (tree exp,
       return target;
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (fcode >= AARCH64_SIMD_BUILTIN_BASE && fcode <= AARCH64_SIMD_BUILTIN_MAX)
     return aarch64_simd_expand_builtin (fcode, exp, target);
   else if (fcode >= AARCH64_CRC32_BUILTIN_BASE && fcode <= AARCH64_CRC32_BUILTIN_MAX)
     return aarch64_crc32_expand_builtin (fcode, exp, target);
+<<<<<<< HEAD
 
   if (fcode == AARCH64_BUILTIN_RSQRT_DF
       || fcode == AARCH64_BUILTIN_RSQRT_SF
@@ -1326,6 +1459,16 @@ aarch64_expand_builtin (tree exp,
       || fcode == AARCH64_BUILTIN_RSQRT_V4SF)
     return aarch64_expand_builtin_rsqrt (fcode, exp, target);
 
+=======
+
+  if (fcode == AARCH64_BUILTIN_RSQRT_DF
+      || fcode == AARCH64_BUILTIN_RSQRT_SF
+      || fcode == AARCH64_BUILTIN_RSQRT_V2DF
+      || fcode == AARCH64_BUILTIN_RSQRT_V2SF
+      || fcode == AARCH64_BUILTIN_RSQRT_V4SF)
+    return aarch64_expand_builtin_rsqrt (fcode, exp, target);
+
+>>>>>>> master
   gcc_unreachable ();
 }
 
@@ -1408,6 +1551,7 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	  builtin = AARCH64_SIMD_BUILTIN_UNOP_lfloorv2sfv2si;
 	else
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  return NULL_TREE;
 
@@ -1475,12 +1619,49 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	else if (AARCH64_CHECK_BUILTIN_MODE (2, S))
 	  builtin =	AARCH64_SIMD_BUILTIN_UNOP_lroundv2sfv2si;
 	else
+=======
+>>>>>>> master
 	  return NULL_TREE;
 
 	return aarch64_builtin_decls[builtin];
       }
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+    CASE_CFN_ICEIL:
+    CASE_CFN_LCEIL:
+    CASE_CFN_LLCEIL:
+      {
+	enum aarch64_builtins builtin;
+	if (AARCH64_CHECK_BUILTIN_MODE (2, D))
+	  builtin = AARCH64_SIMD_BUILTIN_UNOP_lceilv2dfv2di;
+	else if (AARCH64_CHECK_BUILTIN_MODE (4, S))
+	  builtin = AARCH64_SIMD_BUILTIN_UNOP_lceilv4sfv4si;
+	else if (AARCH64_CHECK_BUILTIN_MODE (2, S))
+	  builtin = AARCH64_SIMD_BUILTIN_UNOP_lceilv2sfv2si;
+	else
+	  return NULL_TREE;
+
+	return aarch64_builtin_decls[builtin];
+      }
+    CASE_CFN_IROUND:
+    CASE_CFN_LROUND:
+    CASE_CFN_LLROUND:
+      {
+	enum aarch64_builtins builtin;
+	if (AARCH64_CHECK_BUILTIN_MODE (2, D))
+	  builtin =	AARCH64_SIMD_BUILTIN_UNOP_lroundv2dfv2di;
+	else if (AARCH64_CHECK_BUILTIN_MODE (4, S))
+	  builtin =	AARCH64_SIMD_BUILTIN_UNOP_lroundv4sfv4si;
+	else if (AARCH64_CHECK_BUILTIN_MODE (2, S))
+	  builtin =	AARCH64_SIMD_BUILTIN_UNOP_lroundv2sfv2si;
+	else
+	  return NULL_TREE;
+
+	return aarch64_builtin_decls[builtin];
+      }
+>>>>>>> master
     case CFN_BUILT_IN_BSWAP16:
 #undef AARCH64_CHECK_BUILTIN_MODE
 #define AARCH64_CHECK_BUILTIN_MODE(C, N) \
@@ -1515,6 +1696,9 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 
 tree
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 aarch64_builtin_rsqrt (unsigned int fn, bool md_fn)
 {
   if (md_fn)
@@ -1533,6 +1717,7 @@ aarch64_builtin_rsqrt (unsigned int fn, bool md_fn)
       if (fn == BUILT_IN_SQRTF)
 	return aarch64_builtin_decls[AARCH64_BUILTIN_RSQRT_SF];
     }
+<<<<<<< HEAD
 =======
 aarch64_builtin_rsqrt (unsigned int fn)
 {
@@ -1543,6 +1728,8 @@ aarch64_builtin_rsqrt (unsigned int fn)
   if (fn == AARCH64_SIMD_BUILTIN_UNOP_sqrtv4sf)
     return aarch64_builtin_decls[AARCH64_BUILTIN_RSQRT_V4SF];
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return NULL_TREE;
 }
 

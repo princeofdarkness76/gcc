@@ -586,10 +586,13 @@ GOMP_PLUGIN_target_task_completion (void *data)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static void gomp_task_run_post_handle_depend_hash (struct gomp_task *);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Called for nowait target tasks.  */
 
 bool
@@ -710,9 +713,12 @@ gomp_create_target_task (struct gomp_device_descr *devicep,
   if (state == GOMP_TARGET_TASK_DATA)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       gomp_task_run_post_handle_depend_hash (task);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       gomp_mutex_unlock (&team->task_lock);
       gomp_finish_task (task);
       free (task);
@@ -1663,9 +1669,12 @@ GOMP_taskgroup_start (void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   struct gomp_thread *thr = gomp_thread ();
   struct gomp_team *team = thr->ts.team;
   struct gomp_task *task = thr->task;
@@ -1686,9 +1695,12 @@ GOMP_taskgroup_start (void)
   gomp_sem_init (&taskgroup->taskgroup_sem, 0);
   task->taskgroup = taskgroup;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 void
@@ -1696,9 +1708,12 @@ GOMP_taskgroup_end (void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   struct gomp_thread *thr = gomp_thread ();
   struct gomp_team *team = thr->ts.team;
   struct gomp_task *task = thr->task;
@@ -1857,9 +1872,12 @@ GOMP_taskgroup_end (void)
   gomp_sem_destroy (&taskgroup->taskgroup_sem);
   free (taskgroup);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 int

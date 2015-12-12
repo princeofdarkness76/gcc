@@ -3,6 +3,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma simd		/* { dg-error "must be inside a function" } */
 
 void foo()
@@ -10,6 +11,8 @@ void foo()
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 int *a, *c;
 
 void foo()
@@ -21,7 +24,10 @@ void foo()
   for (int *i=c; i < c; ++i)
     *a = '5';
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }

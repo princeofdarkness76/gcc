@@ -1264,10 +1264,14 @@ package body Checks is
 
          --  If our parent is a conversion node then there is no point in
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  generating a conversion to Result_Type, we will let the parent
 =======
          --  generating a conversion to Result_Type. Instead, we let the parent
 >>>>>>> gcc-mirror/master
+=======
+         --  generating a conversion to Result_Type, we will let the parent
+>>>>>>> master
          --  handle this. Note that this special case is not just about
          --  optimization. Consider
 
@@ -2379,6 +2383,7 @@ package body Checks is
          --  Ada 2012, but an actual that is an aggregate cannot overlap with
          --  another actual.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
          if Nkind (Original_Actual (Actual_1)) = N_Aggregate
            or else
@@ -2390,6 +2395,9 @@ package body Checks is
 
 =======
 
+=======
+
+>>>>>>> master
          if Nkind (Original_Actual (Actual_1)) = N_Aggregate
            or else
              (Nkind (Original_Actual (Actual_1)) = N_Qualified_Expression
@@ -2398,7 +2406,10 @@ package body Checks is
          then
             null;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
          elsif Is_Object_Reference (Original_Actual (Actual_1))
            and then not Is_Elementary_Type (Etype (Original_Actual (Actual_1)))
          then

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-02  Ian Lance Taylor  <iant@google.com>
 
@@ -19,6 +20,8 @@
 	symbols.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-20  Tristan Gingold  <gingold@adacore.com>
 
 	Sync with binutils-gdb:
@@ -381,10 +384,14 @@
 
 2015-02-06  Diego Novillo  <dnovillo@google.com>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 1
 >>>>>>> gcc-mirror/master
+=======
+
+>>>>>>> master
 	* MAINTAINERS (Global Reviewers, Plugin, LTO, tree-ssa,
 	middle-end, docstring): Remove myself.
 	(Write After Approval): Add myself.

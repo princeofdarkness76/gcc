@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-02  Matthias Klose  <doko@ubuntu.com>
 
@@ -34,6 +35,8 @@
 	(__VLTChangePermission): Fix typos.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-09  Alan Modra  <amodra@gmail.com>
 
 	* vtv_malloc.cc (obstack_chunk_free): Correct param type.

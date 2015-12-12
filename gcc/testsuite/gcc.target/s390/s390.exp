@@ -25,6 +25,7 @@ if ![istarget s390*-*-*] then {
 load_lib gcc-dg.exp
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # Return 1 if the the assembler understands .machine and .machinemode.  The
 # target attribute needs that feature to work.
@@ -42,6 +43,8 @@ proc check_effective_target_target_attribute { } {
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 # Return 1 if htm (etnd - extract nesting depth) instructions are
 # understood by the assembler and can be executed.
 proc check_effective_target_htm { } {
@@ -80,6 +83,7 @@ if ![info exists DEFAULT_CFLAGS] then {
 dg-init
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 set hotpatch_tests $srcdir/$subdir/hotpatch-\[0-9\]*.c
 
 # Main loop.
@@ -113,6 +117,15 @@ dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/md/*.\[cS\]]] \
 torture-init
 set-torture-options [list -Os -O0 -O1 -O2 -O3]
 gcc-dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/hotpatch-\[0-9\]*.c]] \
+=======
+set hotpatch_tests $srcdir/$subdir/hotpatch-\[0-9\]*.c
+
+# Main loop.
+dg-runtest [lsort [prune [glob -nocomplain $srcdir/$subdir/*.\[cS\]] \
+			 $hotpatch_tests]] "" $DEFAULT_CFLAGS
+
+dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/*vector*/*.\[cS\]]] \
+>>>>>>> master
 	"" $DEFAULT_CFLAGS
 torture-finish
 
@@ -127,6 +140,13 @@ set MD_TEST_OPTS [list \
 set-torture-options $MD_TEST_OPTS
 gcc-dg-runtest [lsort [glob -nocomplain $md_tests]] "" $DEFAULT_CFLAGS
 >>>>>>> gcc-mirror/master
+torture-finish
+
+# Additional hotpatch torture tests.
+torture-init
+set HOTPATCH_TEST_OPTS [list -Os -O0 -O1 -O2 -O3]
+set-torture-options $HOTPATCH_TEST_OPTS
+gcc-dg-runtest [lsort [glob -nocomplain $hotpatch_tests]] "" $DEFAULT_CFLAGS
 torture-finish
 
 # All done.

@@ -51,12 +51,16 @@ along with GCC; see the file COPYING3.  If not see
 #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
 #include <isl/schedule_node.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #endif
 
 #include "graphite-poly.h"
 
 #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
 
+<<<<<<< HEAD
 =======
 #include <isl/ast_build.h>
 #endif
@@ -66,6 +70,8 @@ along with GCC; see the file COPYING3.  If not see
 #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* get_schedule_for_node_st - Improve schedule for the schedule node.
    Only Simple loop tiling is considered.  */
 
@@ -74,6 +80,7 @@ get_schedule_for_node_st (__isl_take isl_schedule_node *node, void *user)
 {
   if (user)
     return node;
+<<<<<<< HEAD
 
   if (isl_schedule_node_get_type (node) != isl_schedule_node_band
       || isl_schedule_node_n_children (node) != 1)
@@ -113,6 +120,36 @@ get_schedule_for_node_st (__isl_take isl_schedule_node *node, void *user)
   long tile_size = PARAM_VALUE (PARAM_LOOP_BLOCK_TILE_SIZE);
   isl_ctx *ctx = isl_schedule_node_get_ctx (node);
 
+=======
+
+  if (isl_schedule_node_get_type (node) != isl_schedule_node_band
+      || isl_schedule_node_n_children (node) != 1)
+    return node;
+
+  isl_space *space = isl_schedule_node_band_get_space (node);
+  unsigned dims = isl_space_dim (space, isl_dim_set);
+  isl_schedule_node *child = isl_schedule_node_get_child (node, 0);
+  isl_schedule_node_type type = isl_schedule_node_get_type (child);
+  isl_space_free (space);
+  isl_schedule_node_free (child);
+
+  if (type != isl_schedule_node_leaf)
+    return node;
+
+  if (dims <= 1 || !isl_schedule_node_band_get_permutable (node))
+    {
+      if (dump_file && dump_flags)
+	fprintf (dump_file, "not tiled\n");
+      return node;
+    }
+
+  /* Tile loops.  */
+  space = isl_schedule_node_band_get_space (node);
+  isl_multi_val *sizes = isl_multi_val_zero (space);
+  long tile_size = PARAM_VALUE (PARAM_LOOP_BLOCK_TILE_SIZE);
+  isl_ctx *ctx = isl_schedule_node_get_ctx (node);
+
+>>>>>>> master
   for (unsigned i = 0; i < dims; i++)
     {
       sizes = isl_multi_val_set_val (sizes, i,
@@ -264,6 +301,7 @@ get_schedule_for_band (isl_band *band, int *dimensions)
 	fprintf (dump_file, "not tiled\n");
       return partial_schedule;
     }
+<<<<<<< HEAD
 
   if (dump_file && dump_flags)
     fprintf (dump_file, "tiled by %d\n",
@@ -288,6 +326,22 @@ get_schedule_for_band (isl_band *band, int *dimensions)
   *dimensions = 2 * *dimensions;
 
 >>>>>>> gcc-mirror/master
+=======
+
+  if (dump_file && dump_flags)
+    fprintf (dump_file, "tiled by %d\n",
+	     PARAM_VALUE (PARAM_LOOP_BLOCK_TILE_SIZE));
+
+  ctx = isl_union_map_get_ctx (partial_schedule);
+  space = isl_union_map_get_space (partial_schedule);
+
+  tile_map = get_tile_map (ctx, *dimensions,
+			   PARAM_VALUE (PARAM_LOOP_BLOCK_TILE_SIZE));
+  tile_umap = isl_union_map_from_map (isl_map_from_basic_map (tile_map));
+  tile_umap = isl_union_map_align_params (tile_umap, space);
+  *dimensions = 2 * *dimensions;
+
+>>>>>>> master
   return isl_union_map_apply_range (partial_schedule, tile_umap);
 }
 
@@ -391,10 +445,14 @@ scop_get_domains (scop_p scop ATTRIBUTE_UNUSED)
     res = isl_union_set_add_set (res, isl_set_copy (pbb->domain));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     return res;
 =======
   return res;
 >>>>>>> gcc-mirror/master
+=======
+    return res;
+>>>>>>> master
 }
 
 static const int CONSTANT_BOUND = 20;
@@ -441,6 +499,7 @@ optimize_isl (scop_p scop)
 #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
   /* ISL-0.15 or later.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   isl_options_set_schedule_maximize_band_depth (scop->isl_context, 1);
 =======
   isl_options_set_schedule_serialize_sccs (scop->isl_context, 0);
@@ -452,6 +511,9 @@ optimize_isl (scop_p scop)
   isl_options_set_ast_build_exploit_nested_bounds (scop->isl_context, 1);
   isl_options_set_ast_build_atomic_upper_bound (scop->isl_context, 1);
 >>>>>>> gcc-mirror/master
+=======
+  isl_options_set_schedule_maximize_band_depth (scop->isl_context, 1);
+>>>>>>> master
 #else
   isl_options_set_schedule_fuse (scop->isl_context, ISL_SCHEDULE_FUSE_MIN);
 #endif
@@ -473,10 +535,14 @@ optimize_isl (scop_p scop)
     {
       if (dump_file && dump_flags)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fprintf (dump_file, "ISL timed out at %d operations\n",
 =======
 	fprintf (dump_file, "ISL timed out --param max-isl-operations=%d\n",
 >>>>>>> gcc-mirror/master
+=======
+	fprintf (dump_file, "ISL timed out at %d operations\n",
+>>>>>>> master
 		 max_operations);
       if (schedule)
 	isl_schedule_free (schedule);
@@ -492,6 +558,7 @@ optimize_isl (scop_p scop)
 #else
   isl_union_map *schedule_map = get_schedule_map (schedule);
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   if (isl_union_map_is_equal (scop->original_schedule, schedule_map))
@@ -517,6 +584,25 @@ optimize_isl (scop_p scop)
   isl_union_map_free (schedule_map);
   return true;
 >>>>>>> gcc-mirror/master
+=======
+
+  if (isl_union_map_is_equal (scop->original_schedule, schedule_map))
+    {
+      if (dump_file && dump_flags)
+	fprintf (dump_file, "\nISL schedule same as original schedule\n");
+
+      isl_schedule_free (schedule);
+      isl_union_map_free (schedule_map);
+      return false;
+    }
+  else
+    {
+      apply_schedule_map_to_scop (scop, schedule_map);
+      isl_schedule_free (schedule);
+      isl_union_map_free (schedule_map);
+      return true;
+    }
+>>>>>>> master
 }
 
 #endif /* HAVE_isl */

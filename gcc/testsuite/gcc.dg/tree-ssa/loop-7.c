@@ -33,6 +33,9 @@ int xxx (void)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 2 "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Moving statement" 2 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

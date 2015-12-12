@@ -3,6 +3,7 @@
    routines for the C++ Compiler.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright (C) 2013  Free Software Foundation, Inc.
    Contributed by Balaji V. Iyer <balaji.v.iyer@intel.com>,
 		  Aldy Hernandez <aldyh@redhat.com>.
@@ -14,6 +15,10 @@
    Copyright (C) 2013-2015 Free Software Foundation, Inc.
    Contributed by Aldy Hernandez <aldyh@redhat.com>.
 >>>>>>> gcc-mirror/master
+=======
+   Copyright (C) 2013-2015 Free Software Foundation, Inc.
+   Contributed by Aldy Hernandez <aldyh@redhat.com>.
+>>>>>>> master
 
    This file is part of GCC.
 
@@ -37,6 +42,7 @@
 #include "cp-tree.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "diagnostic-core.h"
 
 =======
@@ -47,6 +53,10 @@
 #include "tree-iterator.h"
 #include "cilk.h"
 >>>>>>> gcc-mirror/master
+=======
+#include "tree-iterator.h"
+#include "cilk.h"
+>>>>>>> master
 
 /* Callback for cp_walk_tree to validate the body of a pragma simd loop
    or _cilk_for loop.
@@ -62,24 +72,31 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
   bool *valid = (bool *) data;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   location_t loc = EXPR_HAS_LOCATION (*tp) ? EXPR_LOCATION (*tp) :
     UNKNOWN_LOCATION;
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   if (!tp || !*tp)
     return NULL_TREE;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   location_t loc = EXPR_LOCATION (*tp);
 >>>>>>> gcc-mirror/master
 =======
   location_t loc = EXPR_LOCATION (*tp);
 >>>>>>> gcc-mirror/master
+=======
+  location_t loc = EXPR_LOCATION (*tp);
+>>>>>>> master
   if (TREE_CODE (*tp) == THROW_EXPR)
     {
       error_at (loc, "throw expressions are not allowed inside loops "
@@ -112,9 +129,12 @@ cpp_validate_cilk_plus_loop (tree body)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Sets the EXCEPTION bit (0x10) in the FRAME.flags field.  */
 
@@ -180,6 +200,9 @@ cilk_install_body_with_frame_cleanup (tree fndecl, tree orig_body, void *wd)
 			    &list);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

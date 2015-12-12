@@ -185,10 +185,14 @@ set_rtl (tree t, rtx x)
 				  && (REG_P (XEXP (x, 1))
 				      || SUBREG_P (XEXP (x, 1))))
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 			      || (GET_CODE (x) == PARALLEL
 				  && SSAVAR (t)
 				  && TREE_CODE (SSAVAR (t)) == RESULT_DECL
 				  && !flag_tree_coalesce_vars))
+<<<<<<< HEAD
 =======
 			      /* We need to accept PARALLELs for RESUT_DECLs
 				 because of vector types with BLKmode returned
@@ -200,6 +204,8 @@ set_rtl (tree t, rtx x)
 				  && (GET_MODE (x) == BLKmode
 				      || !flag_tree_coalesce_vars)))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			   : (MEM_P (x) || x == pc_rtx
 			      || (GET_CODE (x) == CONCAT
 				  && MEM_P (XEXP (x, 0))
@@ -211,11 +217,15 @@ set_rtl (tree t, rtx x)
      set_parm_rtl, which will give us the default def, so we don't
      have to compute it ourselves.  For RESULT_DECLs, we accept mode
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
      mismatches too, as long as we're not coalescing across variables,
      so that we don't reject BLKmode PARALLELs or unpromoted REGs.  */
   gcc_checking_assert (!x || x == pc_rtx || TREE_CODE (t) != SSA_NAME
 		       || (SSAVAR (t) && TREE_CODE (SSAVAR (t)) == RESULT_DECL
 			   && !flag_tree_coalesce_vars)
+<<<<<<< HEAD
 =======
      mismatches too, as long as we have BLKmode or are not coalescing
      across variables, so that we don't reject BLKmode PARALLELs or
@@ -226,6 +236,8 @@ set_rtl (tree t, rtx x)
 			   && (promote_ssa_mode (t, NULL) == BLKmode
 			       || !flag_tree_coalesce_vars))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		       || !use_register_for_decl (t)
 		       || GET_MODE (x) == promote_ssa_mode (t, NULL));
 
@@ -4225,6 +4237,830 @@ expand_return (tree retval, tree bounds)
 
   if (retval == error_mark_node)
     {
+<<<<<<< HEAD
+=======
+      expand_internal_call (stmt);
+      return;
+    }
+
+  /* If this is a call to a built-in function and it has no effect other
+     than setting the lhs, try to implement it using an internal function
+     instead.  */
+  decl = gimple_call_fndecl (stmt);
+  if (gimple_call_lhs (stmt)
+      && !gimple_has_side_effects (stmt)
+      && (optimize || (decl && called_as_built_in (decl))))
+    {
+      internal_fn ifn = replacement_internal_fn (stmt);
+      if (ifn != IFN_LAST)
+	{
+	  expand_internal_call (ifn, stmt);
+	  return;
+	}
+    }
+
+  exp = build_vl_exp (CALL_EXPR, gimple_call_num_args (stmt) + 3);
+
+  CALL_EXPR_FN (exp) = gimple_call_fn (stmt);
+  builtin_p = decl && DECL_BUILT_IN (decl);
+
+  /* If this is not a builtin function, the function type through which the
+     call is made may be different from the type of the function.  */
+  if (!builtin_p)
+    CALL_EXPR_FN (exp)
+      = fold_convert (build_pointer_type (gimple_call_fntype (stmt)),
+		      CALL_EXPR_FN (exp));
+
+  TREE_TYPE (exp) = gimple_call_return_type (stmt);
+  CALL_EXPR_STATIC_CHAIN (exp) = gimple_call_chain (stmt);
+
+  for (i = 0; i < gimple_call_num_args (stmt); i++)
+    {
+      tree arg = gimple_call_arg (stmt, i);
+      gimple *def;
+      /* TER addresses into arguments of builtin functions so we have a
+	 chance to infer more correct alignment information.  See PR39954.  */
+      if (builtin_p
+	  && TREE_CODE (arg) == SSA_NAME
+	  && (def = get_gimple_for_ssa_name (arg))
+	  && gimple_assign_rhs_code (def) == ADDR_EXPR)
+	arg = gimple_assign_rhs1 (def);
+      CALL_EXPR_ARG (exp, i) = arg;
+    }
+
+  if (gimple_has_side_effects (stmt))
+    TREE_SIDE_EFFECTS (exp) = 1;
+
+  if (gimple_call_nothrow_p (stmt))
+    TREE_NOTHROW (exp) = 1;
+
+  CALL_EXPR_TAILCALL (exp) = gimple_call_tail_p (stmt);
+  CALL_EXPR_RETURN_SLOT_OPT (exp) = gimple_call_return_slot_opt_p (stmt);
+  if (decl
+      && DECL_BUILT_IN_CLASS (decl) == BUILT_IN_NORMAL
+      && (DECL_FUNCTION_CODE (decl) == BUILT_IN_ALLOCA
+	  || DECL_FUNCTION_CODE (decl) == BUILT_IN_ALLOCA_WITH_ALIGN))
+    CALL_ALLOCA_FOR_VAR_P (exp) = gimple_call_alloca_for_var_p (stmt);
+  else
+    CALL_FROM_THUNK_P (exp) = gimple_call_from_thunk_p (stmt);
+  CALL_EXPR_VA_ARG_PACK (exp) = gimple_call_va_arg_pack_p (stmt);
+  SET_EXPR_LOCATION (exp, gimple_location (stmt));
+  CALL_WITH_BOUNDS_P (exp) = gimple_call_with_bounds_p (stmt);
+
+  /* Ensure RTL is created for debug args.  */
+  if (decl && DECL_HAS_DEBUG_ARGS_P (decl))
+    {
+      vec<tree, va_gc> **debug_args = decl_debug_args_lookup (decl);
+      unsigned int ix;
+      tree dtemp;
+
+      if (debug_args)
+	for (ix = 1; (*debug_args)->iterate (ix, &dtemp); ix += 2)
+	  {
+	    gcc_assert (TREE_CODE (dtemp) == DEBUG_EXPR_DECL);
+	    expand_debug_expr (dtemp);
+	  }
+    }
+
+  lhs = gimple_call_lhs (stmt);
+  if (lhs)
+    expand_assignment (lhs, exp, false);
+  else
+    expand_expr (exp, const0_rtx, VOIDmode, EXPAND_NORMAL);
+
+  mark_transaction_restart_calls (stmt);
+}
+
+
+/* Generate RTL for an asm statement (explicit assembler code).
+   STRING is a STRING_CST node containing the assembler code text,
+   or an ADDR_EXPR containing a STRING_CST.  VOL nonzero means the
+   insn is volatile; don't optimize it.  */
+
+static void
+expand_asm_loc (tree string, int vol, location_t locus)
+{
+  rtx body;
+
+  if (TREE_CODE (string) == ADDR_EXPR)
+    string = TREE_OPERAND (string, 0);
+
+  body = gen_rtx_ASM_INPUT_loc (VOIDmode,
+				ggc_strdup (TREE_STRING_POINTER (string)),
+				locus);
+
+  MEM_VOLATILE_P (body) = vol;
+
+  emit_insn (body);
+}
+
+/* Return the number of times character C occurs in string S.  */
+static int
+n_occurrences (int c, const char *s)
+{
+  int n = 0;
+  while (*s)
+    n += (*s++ == c);
+  return n;
+}
+
+/* A subroutine of expand_asm_operands.  Check that all operands have
+   the same number of alternatives.  Return true if so.  */
+
+static bool
+check_operand_nalternatives (const vec<const char *> &constraints)
+{
+  unsigned len = constraints.length();
+  if (len > 0)
+    {
+      int nalternatives = n_occurrences (',', constraints[0]);
+
+      if (nalternatives + 1 > MAX_RECOG_ALTERNATIVES)
+	{
+	  error ("too many alternatives in %<asm%>");
+	  return false;
+	}
+
+      for (unsigned i = 1; i < len; ++i)
+	if (n_occurrences (',', constraints[i]) != nalternatives)
+	  {
+	    error ("operand constraints for %<asm%> differ "
+		   "in number of alternatives");
+	    return false;
+	  }
+    }
+  return true;
+}
+
+/* Check for overlap between registers marked in CLOBBERED_REGS and
+   anything inappropriate in T.  Emit error and return the register
+   variable definition for error, NULL_TREE for ok.  */
+
+static bool
+tree_conflicts_with_clobbers_p (tree t, HARD_REG_SET *clobbered_regs)
+{
+  /* Conflicts between asm-declared register variables and the clobber
+     list are not allowed.  */
+  tree overlap = tree_overlaps_hard_reg_set (t, clobbered_regs);
+
+  if (overlap)
+    {
+      error ("asm-specifier for variable %qE conflicts with asm clobber list",
+	     DECL_NAME (overlap));
+
+      /* Reset registerness to stop multiple errors emitted for a single
+	 variable.  */
+      DECL_REGISTER (overlap) = 0;
+      return true;
+    }
+
+  return false;
+}
+
+/* Generate RTL for an asm statement with arguments.
+   STRING is the instruction template.
+   OUTPUTS is a list of output arguments (lvalues); INPUTS a list of inputs.
+   Each output or input has an expression in the TREE_VALUE and
+   a tree list in TREE_PURPOSE which in turn contains a constraint
+   name in TREE_VALUE (or NULL_TREE) and a constraint string
+   in TREE_PURPOSE.
+   CLOBBERS is a list of STRING_CST nodes each naming a hard register
+   that is clobbered by this insn.
+
+   LABELS is a list of labels, and if LABELS is non-NULL, FALLTHRU_BB
+   should be the fallthru basic block of the asm goto.
+
+   Not all kinds of lvalue that may appear in OUTPUTS can be stored directly.
+   Some elements of OUTPUTS may be replaced with trees representing temporary
+   values.  The caller should copy those temporary values to the originally
+   specified lvalues.
+
+   VOL nonzero means the insn is volatile; don't optimize it.  */
+
+static void
+expand_asm_stmt (gasm *stmt)
+{
+  class save_input_location
+  {
+    location_t old;
+
+  public:
+    explicit save_input_location(location_t where)
+    {
+      old = input_location;
+      input_location = where;
+    }
+
+    ~save_input_location()
+    {
+      input_location = old;
+    }
+  };
+
+  location_t locus = gimple_location (stmt);
+
+  if (gimple_asm_input_p (stmt))
+    {
+      const char *s = gimple_asm_string (stmt);
+      tree string = build_string (strlen (s), s);
+      expand_asm_loc (string, gimple_asm_volatile_p (stmt), locus);
+      return;
+    }
+
+  /* There are some legacy diagnostics in here, and also avoids a
+     sixth parameger to targetm.md_asm_adjust.  */
+  save_input_location s_i_l(locus);
+
+  unsigned noutputs = gimple_asm_noutputs (stmt);
+  unsigned ninputs = gimple_asm_ninputs (stmt);
+  unsigned nlabels = gimple_asm_nlabels (stmt);
+  unsigned i;
+
+  /* ??? Diagnose during gimplification?  */
+  if (ninputs + noutputs + nlabels > MAX_RECOG_OPERANDS)
+    {
+      error ("more than %d operands in %<asm%>", MAX_RECOG_OPERANDS);
+      return;
+    }
+
+  auto_vec<tree, MAX_RECOG_OPERANDS> output_tvec;
+  auto_vec<tree, MAX_RECOG_OPERANDS> input_tvec;
+  auto_vec<const char *, MAX_RECOG_OPERANDS> constraints;
+
+  /* Copy the gimple vectors into new vectors that we can manipulate.  */
+
+  output_tvec.safe_grow (noutputs);
+  input_tvec.safe_grow (ninputs);
+  constraints.safe_grow (noutputs + ninputs);
+
+  for (i = 0; i < noutputs; ++i)
+    {
+      tree t = gimple_asm_output_op (stmt, i);
+      output_tvec[i] = TREE_VALUE (t);
+      constraints[i] = TREE_STRING_POINTER (TREE_VALUE (TREE_PURPOSE (t)));
+    }
+  for (i = 0; i < ninputs; i++)
+    {
+      tree t = gimple_asm_input_op (stmt, i);
+      input_tvec[i] = TREE_VALUE (t);
+      constraints[i + noutputs]
+	= TREE_STRING_POINTER (TREE_VALUE (TREE_PURPOSE (t)));
+    }
+
+  /* ??? Diagnose during gimplification?  */
+  if (! check_operand_nalternatives (constraints))
+    return;
+
+  /* Count the number of meaningful clobbered registers, ignoring what
+     we would ignore later.  */
+  auto_vec<rtx> clobber_rvec;
+  HARD_REG_SET clobbered_regs;
+  CLEAR_HARD_REG_SET (clobbered_regs);
+
+  if (unsigned n = gimple_asm_nclobbers (stmt))
+    {
+      clobber_rvec.reserve (n);
+      for (i = 0; i < n; i++)
+	{
+	  tree t = gimple_asm_clobber_op (stmt, i);
+          const char *regname = TREE_STRING_POINTER (TREE_VALUE (t));
+	  int nregs, j;
+
+	  j = decode_reg_name_and_count (regname, &nregs);
+	  if (j < 0)
+	    {
+	      if (j == -2)
+		{
+		  /* ??? Diagnose during gimplification?  */
+		  error ("unknown register name %qs in %<asm%>", regname);
+		}
+	      else if (j == -4)
+		{
+		  rtx x = gen_rtx_MEM (BLKmode, gen_rtx_SCRATCH (VOIDmode));
+		  clobber_rvec.safe_push (x);
+		}
+	      else
+		{
+		  /* Otherwise we should have -1 == empty string
+		     or -3 == cc, which is not a register.  */
+		  gcc_assert (j == -1 || j == -3);
+		}
+	    }
+	  else
+	    for (int reg = j; reg < j + nregs; reg++)
+	      {
+		/* Clobbering the PIC register is an error.  */
+		if (reg == (int) PIC_OFFSET_TABLE_REGNUM)
+		  {
+		    /* ??? Diagnose during gimplification?  */
+		    error ("PIC register clobbered by %qs in %<asm%>",
+			   regname);
+		    return;
+		  }
+
+	        SET_HARD_REG_BIT (clobbered_regs, reg);
+	        rtx x = gen_rtx_REG (reg_raw_mode[reg], reg);
+		clobber_rvec.safe_push (x);
+	      }
+	}
+    }
+  unsigned nclobbers = clobber_rvec.length();
+
+  /* First pass over inputs and outputs checks validity and sets
+     mark_addressable if needed.  */
+  /* ??? Diagnose during gimplification?  */
+
+  for (i = 0; i < noutputs; ++i)
+    {
+      tree val = output_tvec[i];
+      tree type = TREE_TYPE (val);
+      const char *constraint;
+      bool is_inout;
+      bool allows_reg;
+      bool allows_mem;
+
+      /* Try to parse the output constraint.  If that fails, there's
+	 no point in going further.  */
+      constraint = constraints[i];
+      if (!parse_output_constraint (&constraint, i, ninputs, noutputs,
+				    &allows_mem, &allows_reg, &is_inout))
+	return;
+
+      if (! allows_reg
+	  && (allows_mem
+	      || is_inout
+	      || (DECL_P (val)
+		  && REG_P (DECL_RTL (val))
+		  && GET_MODE (DECL_RTL (val)) != TYPE_MODE (type))))
+	mark_addressable (val);
+    }
+
+  for (i = 0; i < ninputs; ++i)
+    {
+      bool allows_reg, allows_mem;
+      const char *constraint;
+
+      constraint = constraints[i + noutputs];
+      if (! parse_input_constraint (&constraint, i, ninputs, noutputs, 0,
+				    constraints.address (),
+				    &allows_mem, &allows_reg))
+	return;
+
+      if (! allows_reg && allows_mem)
+	mark_addressable (input_tvec[i]);
+    }
+
+  /* Second pass evaluates arguments.  */
+
+  /* Make sure stack is consistent for asm goto.  */
+  if (nlabels > 0)
+    do_pending_stack_adjust ();
+  int old_generating_concat_p = generating_concat_p;
+
+  /* Vector of RTX's of evaluated output operands.  */
+  auto_vec<rtx, MAX_RECOG_OPERANDS> output_rvec;
+  auto_vec<int, MAX_RECOG_OPERANDS> inout_opnum;
+  rtx_insn *after_rtl_seq = NULL, *after_rtl_end = NULL;
+
+  output_rvec.safe_grow (noutputs);
+
+  for (i = 0; i < noutputs; ++i)
+    {
+      tree val = output_tvec[i];
+      tree type = TREE_TYPE (val);
+      bool is_inout, allows_reg, allows_mem, ok;
+      rtx op;
+
+      ok = parse_output_constraint (&constraints[i], i, ninputs,
+				    noutputs, &allows_mem, &allows_reg,
+				    &is_inout);
+      gcc_assert (ok);
+
+      /* If an output operand is not a decl or indirect ref and our constraint
+	 allows a register, make a temporary to act as an intermediate.
+	 Make the asm insn write into that, then we will copy it to
+	 the real output operand.  Likewise for promoted variables.  */
+
+      generating_concat_p = 0;
+
+      if ((TREE_CODE (val) == INDIRECT_REF
+	   && allows_mem)
+	  || (DECL_P (val)
+	      && (allows_mem || REG_P (DECL_RTL (val)))
+	      && ! (REG_P (DECL_RTL (val))
+		    && GET_MODE (DECL_RTL (val)) != TYPE_MODE (type)))
+	  || ! allows_reg
+	  || is_inout)
+	{
+	  op = expand_expr (val, NULL_RTX, VOIDmode,
+			    !allows_reg ? EXPAND_MEMORY : EXPAND_WRITE);
+	  if (MEM_P (op))
+	    op = validize_mem (op);
+
+	  if (! allows_reg && !MEM_P (op))
+	    error ("output number %d not directly addressable", i);
+	  if ((! allows_mem && MEM_P (op))
+	      || GET_CODE (op) == CONCAT)
+	    {
+	      rtx old_op = op;
+	      op = gen_reg_rtx (GET_MODE (op));
+
+	      generating_concat_p = old_generating_concat_p;
+
+	      if (is_inout)
+		emit_move_insn (op, old_op);
+
+	      push_to_sequence2 (after_rtl_seq, after_rtl_end);
+	      emit_move_insn (old_op, op);
+	      after_rtl_seq = get_insns ();
+	      after_rtl_end = get_last_insn ();
+	      end_sequence ();
+	    }
+	}
+      else
+	{
+	  op = assign_temp (type, 0, 1);
+	  op = validize_mem (op);
+	  if (!MEM_P (op) && TREE_CODE (val) == SSA_NAME)
+	    set_reg_attrs_for_decl_rtl (SSA_NAME_VAR (val), op);
+
+	  generating_concat_p = old_generating_concat_p;
+
+	  push_to_sequence2 (after_rtl_seq, after_rtl_end);
+	  expand_assignment (val, make_tree (type, op), false);
+	  after_rtl_seq = get_insns ();
+	  after_rtl_end = get_last_insn ();
+	  end_sequence ();
+	}
+      output_rvec[i] = op;
+
+      if (is_inout)
+	inout_opnum.safe_push (i);
+    }
+
+  auto_vec<rtx, MAX_RECOG_OPERANDS> input_rvec;
+  auto_vec<machine_mode, MAX_RECOG_OPERANDS> input_mode;
+
+  input_rvec.safe_grow (ninputs);
+  input_mode.safe_grow (ninputs);
+
+  generating_concat_p = 0;
+
+  for (i = 0; i < ninputs; ++i)
+    {
+      tree val = input_tvec[i];
+      tree type = TREE_TYPE (val);
+      bool allows_reg, allows_mem, ok;
+      const char *constraint;
+      rtx op;
+
+      constraint = constraints[i + noutputs];
+      ok = parse_input_constraint (&constraint, i, ninputs, noutputs, 0,
+				   constraints.address (),
+				   &allows_mem, &allows_reg);
+      gcc_assert (ok);
+
+      /* EXPAND_INITIALIZER will not generate code for valid initializer
+	 constants, but will still generate code for other types of operand.
+	 This is the behavior we want for constant constraints.  */
+      op = expand_expr (val, NULL_RTX, VOIDmode,
+			allows_reg ? EXPAND_NORMAL
+			: allows_mem ? EXPAND_MEMORY
+			: EXPAND_INITIALIZER);
+
+      /* Never pass a CONCAT to an ASM.  */
+      if (GET_CODE (op) == CONCAT)
+	op = force_reg (GET_MODE (op), op);
+      else if (MEM_P (op))
+	op = validize_mem (op);
+
+      if (asm_operand_ok (op, constraint, NULL) <= 0)
+	{
+	  if (allows_reg && TYPE_MODE (type) != BLKmode)
+	    op = force_reg (TYPE_MODE (type), op);
+	  else if (!allows_mem)
+	    warning (0, "asm operand %d probably doesn%'t match constraints",
+		     i + noutputs);
+	  else if (MEM_P (op))
+	    {
+	      /* We won't recognize either volatile memory or memory
+		 with a queued address as available a memory_operand
+		 at this point.  Ignore it: clearly this *is* a memory.  */
+	    }
+	  else
+	    gcc_unreachable ();
+	}
+      input_rvec[i] = op;
+      input_mode[i] = TYPE_MODE (type);
+    }
+
+  /* For in-out operands, copy output rtx to input rtx.  */
+  unsigned ninout = inout_opnum.length();
+  for (i = 0; i < ninout; i++)
+    {
+      int j = inout_opnum[i];
+      rtx o = output_rvec[j];
+
+      input_rvec.safe_push (o);
+      input_mode.safe_push (GET_MODE (o));
+
+      char buffer[16];
+      sprintf (buffer, "%d", j);
+      constraints.safe_push (ggc_strdup (buffer));
+    }
+  ninputs += ninout;
+
+  /* Sometimes we wish to automatically clobber registers across an asm.
+     Case in point is when the i386 backend moved from cc0 to a hard reg --
+     maintaining source-level compatibility means automatically clobbering
+     the flags register.  */
+  rtx_insn *after_md_seq = NULL;
+  if (targetm.md_asm_adjust)
+    after_md_seq = targetm.md_asm_adjust (output_rvec, input_rvec,
+					  constraints, clobber_rvec,
+					  clobbered_regs);
+
+  /* Do not allow the hook to change the output and input count,
+     lest it mess up the operand numbering.  */
+  gcc_assert (output_rvec.length() == noutputs);
+  gcc_assert (input_rvec.length() == ninputs);
+  gcc_assert (constraints.length() == noutputs + ninputs);
+
+  /* But it certainly can adjust the clobbers.  */
+  nclobbers = clobber_rvec.length();
+
+  /* Third pass checks for easy conflicts.  */
+  /* ??? Why are we doing this on trees instead of rtx.  */
+
+  bool clobber_conflict_found = 0;
+  for (i = 0; i < noutputs; ++i)
+    if (tree_conflicts_with_clobbers_p (output_tvec[i], &clobbered_regs))
+	clobber_conflict_found = 1;
+  for (i = 0; i < ninputs - ninout; ++i)
+    if (tree_conflicts_with_clobbers_p (input_tvec[i], &clobbered_regs))
+	clobber_conflict_found = 1;
+
+  /* Make vectors for the expression-rtx, constraint strings,
+     and named operands.  */
+
+  rtvec argvec = rtvec_alloc (ninputs);
+  rtvec constraintvec = rtvec_alloc (ninputs);
+  rtvec labelvec = rtvec_alloc (nlabels);
+
+  rtx body = gen_rtx_ASM_OPERANDS ((noutputs == 0 ? VOIDmode
+				    : GET_MODE (output_rvec[0])),
+				   ggc_strdup (gimple_asm_string (stmt)),
+				   empty_string, 0, argvec, constraintvec,
+				   labelvec, locus);
+  MEM_VOLATILE_P (body) = gimple_asm_volatile_p (stmt);
+
+  for (i = 0; i < ninputs; ++i)
+    {
+      ASM_OPERANDS_INPUT (body, i) = input_rvec[i];
+      ASM_OPERANDS_INPUT_CONSTRAINT_EXP (body, i)
+	= gen_rtx_ASM_INPUT_loc (input_mode[i],
+				 constraints[i + noutputs],
+				 locus);
+    }
+
+  /* Copy labels to the vector.  */
+  rtx_code_label *fallthru_label = NULL;
+  if (nlabels > 0)
+    {
+      basic_block fallthru_bb = NULL;
+      edge fallthru = find_fallthru_edge (gimple_bb (stmt)->succs);
+      if (fallthru)
+	fallthru_bb = fallthru->dest;
+
+      for (i = 0; i < nlabels; ++i)
+	{
+	  tree label = TREE_VALUE (gimple_asm_label_op (stmt, i));
+	  rtx_insn *r;
+	  /* If asm goto has any labels in the fallthru basic block, use
+	     a label that we emit immediately after the asm goto.  Expansion
+	     may insert further instructions into the same basic block after
+	     asm goto and if we don't do this, insertion of instructions on
+	     the fallthru edge might misbehave.  See PR58670.  */
+	  if (fallthru_bb && label_to_block_fn (cfun, label) == fallthru_bb)
+	    {
+	      if (fallthru_label == NULL_RTX)
+	        fallthru_label = gen_label_rtx ();
+	      r = fallthru_label;
+	    }
+	  else
+	    r = label_rtx (label);
+	  ASM_OPERANDS_LABEL (body, i) = gen_rtx_LABEL_REF (Pmode, r);
+	}
+    }
+
+  /* Now, for each output, construct an rtx
+     (set OUTPUT (asm_operands INSN OUTPUTCONSTRAINT OUTPUTNUMBER
+			       ARGVEC CONSTRAINTS OPNAMES))
+     If there is more than one, put them inside a PARALLEL.  */
+
+  if (nlabels > 0 && nclobbers == 0)
+    {
+      gcc_assert (noutputs == 0);
+      emit_jump_insn (body);
+    }
+  else if (noutputs == 0 && nclobbers == 0)
+    {
+      /* No output operands: put in a raw ASM_OPERANDS rtx.  */
+      emit_insn (body);
+    }
+  else if (noutputs == 1 && nclobbers == 0)
+    {
+      ASM_OPERANDS_OUTPUT_CONSTRAINT (body) = constraints[0];
+      emit_insn (gen_rtx_SET (output_rvec[0], body));
+    }
+  else
+    {
+      rtx obody = body;
+      int num = noutputs;
+
+      if (num == 0)
+	num = 1;
+
+      body = gen_rtx_PARALLEL (VOIDmode, rtvec_alloc (num + nclobbers));
+
+      /* For each output operand, store a SET.  */
+      for (i = 0; i < noutputs; ++i)
+	{
+	  rtx src, o = output_rvec[i];
+	  if (i == 0)
+	    {
+	      ASM_OPERANDS_OUTPUT_CONSTRAINT (obody) = constraints[0];
+	      src = obody;
+	    }
+	  else
+	    {
+	      src = gen_rtx_ASM_OPERANDS (GET_MODE (o),
+					  ASM_OPERANDS_TEMPLATE (obody),
+					  constraints[i], i, argvec,
+					  constraintvec, labelvec, locus);
+	      MEM_VOLATILE_P (src) = gimple_asm_volatile_p (stmt);
+	    }
+	  XVECEXP (body, 0, i) = gen_rtx_SET (o, src);
+	}
+
+      /* If there are no outputs (but there are some clobbers)
+	 store the bare ASM_OPERANDS into the PARALLEL.  */
+      if (i == 0)
+	XVECEXP (body, 0, i++) = obody;
+
+      /* Store (clobber REG) for each clobbered register specified.  */
+      for (unsigned j = 0; j < nclobbers; ++j)
+	{
+	  rtx clobbered_reg = clobber_rvec[j];
+
+	  /* Do sanity check for overlap between clobbers and respectively
+	     input and outputs that hasn't been handled.  Such overlap
+	     should have been detected and reported above.  */
+	  if (!clobber_conflict_found && REG_P (clobbered_reg))
+	    {
+	      /* We test the old body (obody) contents to avoid
+		 tripping over the under-construction body.  */
+	      for (unsigned k = 0; k < noutputs; ++k)
+		if (reg_overlap_mentioned_p (clobbered_reg, output_rvec[k]))
+		  internal_error ("asm clobber conflict with output operand");
+
+	      for (unsigned k = 0; k < ninputs - ninout; ++k)
+		if (reg_overlap_mentioned_p (clobbered_reg, input_rvec[k]))
+		  internal_error ("asm clobber conflict with input operand");
+	    }
+
+	  XVECEXP (body, 0, i++) = gen_rtx_CLOBBER (VOIDmode, clobbered_reg);
+	}
+
+      if (nlabels > 0)
+	emit_jump_insn (body);
+      else
+	emit_insn (body);
+    }
+
+  generating_concat_p = old_generating_concat_p;
+
+  if (fallthru_label)
+    emit_label (fallthru_label);
+
+  if (after_md_seq)
+    emit_insn (after_md_seq);
+  if (after_rtl_seq)
+    emit_insn (after_rtl_seq);
+
+  free_temp_slots ();
+  crtl->has_asm_statement = 1;
+}
+
+/* Emit code to jump to the address
+   specified by the pointer expression EXP.  */
+
+static void
+expand_computed_goto (tree exp)
+{
+  rtx x = expand_normal (exp);
+
+  do_pending_stack_adjust ();
+  emit_indirect_jump (x);
+}
+
+/* Generate RTL code for a `goto' statement with target label LABEL.
+   LABEL should be a LABEL_DECL tree node that was or will later be
+   defined with `expand_label'.  */
+
+static void
+expand_goto (tree label)
+{
+  if (flag_checking)
+    {
+      /* Check for a nonlocal goto to a containing function.  Should have
+	 gotten translated to __builtin_nonlocal_goto.  */
+      tree context = decl_function_context (label);
+      gcc_assert (!context || context == current_function_decl);
+    }
+
+  emit_jump (jump_target_rtx (label));
+}
+
+/* Output a return with no value.  */
+
+static void
+expand_null_return_1 (void)
+{
+  clear_pending_stack_adjust ();
+  do_pending_stack_adjust ();
+  emit_jump (return_label);
+}
+
+/* Generate RTL to return from the current function, with no value.
+   (That is, we do not do anything about returning any value.)  */
+
+void
+expand_null_return (void)
+{
+  /* If this function was declared to return a value, but we
+     didn't, clobber the return registers so that they are not
+     propagated live to the rest of the function.  */
+  clobber_return_register ();
+
+  expand_null_return_1 ();
+}
+
+/* Generate RTL to return from the current function, with value VAL.  */
+
+static void
+expand_value_return (rtx val)
+{
+  /* Copy the value to the return location unless it's already there.  */
+
+  tree decl = DECL_RESULT (current_function_decl);
+  rtx return_reg = DECL_RTL (decl);
+  if (return_reg != val)
+    {
+      tree funtype = TREE_TYPE (current_function_decl);
+      tree type = TREE_TYPE (decl);
+      int unsignedp = TYPE_UNSIGNED (type);
+      machine_mode old_mode = DECL_MODE (decl);
+      machine_mode mode;
+      if (DECL_BY_REFERENCE (decl))
+        mode = promote_function_mode (type, old_mode, &unsignedp, funtype, 2);
+      else
+        mode = promote_function_mode (type, old_mode, &unsignedp, funtype, 1);
+
+      if (mode != old_mode)
+	val = convert_modes (mode, old_mode, val, unsignedp);
+
+      if (GET_CODE (return_reg) == PARALLEL)
+	emit_group_load (return_reg, val, type, int_size_in_bytes (type));
+      else
+	emit_move_insn (return_reg, val);
+    }
+
+  expand_null_return_1 ();
+}
+
+/* Generate RTL to evaluate the expression RETVAL and return it
+   from the current function.  */
+
+static void
+expand_return (tree retval, tree bounds)
+{
+  rtx result_rtl;
+  rtx val = 0;
+  tree retval_rhs;
+  rtx bounds_rtl;
+
+  /* If function wants no value, give it none.  */
+  if (TREE_CODE (TREE_TYPE (TREE_TYPE (current_function_decl))) == VOID_TYPE)
+    {
+      expand_normal (retval);
+      expand_null_return ();
+      return;
+    }
+
+  if (retval == error_mark_node)
+    {
+>>>>>>> master
       /* Treat this like a return of no value from a function that
 	 returns a value.  */
       expand_null_return ();
@@ -4237,7 +5073,10 @@ expand_return (tree retval, tree bounds)
   else
     retval_rhs = retval;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   result_rtl = DECL_RTL (DECL_RESULT (current_function_decl));
 
   /* Put returned bounds to the right place.  */
@@ -4391,6 +5230,7 @@ expand_gimple_stmt_1 (gimple *stmt)
 	if (op0 && op0 != error_mark_node)
 	  {
 	    tree result = DECL_RESULT (current_function_decl);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -4425,6 +5265,30 @@ expand_gimple_stmt_1 (gimple *stmt)
 >>>>>>> gcc-mirror/master
 	  }
 
+=======
+
+	    /* If we are not returning the current function's RESULT_DECL,
+	       build an assignment to it.  */
+	    if (op0 != result)
+	      {
+		/* I believe that a function's RESULT_DECL is unique.  */
+		gcc_assert (TREE_CODE (op0) != RESULT_DECL);
+
+		/* ??? We'd like to use simply expand_assignment here,
+		   but this fails if the value is of BLKmode but the return
+		   decl is a register.  expand_return has special handling
+		   for this combination, which eventually should move
+		   to common code.  See comments there.  Until then, let's
+		   build a modify expression :-/  */
+		op0 = build2 (MODIFY_EXPR, TREE_TYPE (result),
+			      result, op0);
+	      }
+	    /* Mark we have return statement with missing bounds.  */
+	    if (!bnd && chkp_function_instrumented_p (cfun->decl))
+	      bnd = error_mark_node;
+	  }
+
+>>>>>>> master
 	if (!op0)
 	  expand_null_return ();
 	else
@@ -7162,10 +8026,14 @@ pass_expand::execute (function *fun)
 
   /* Release any stale SSA redirection data.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   redirect_edge_var_map_destroy ();
 =======
   redirect_edge_var_map_empty ();
 >>>>>>> gcc-mirror/master
+=======
+  redirect_edge_var_map_destroy ();
+>>>>>>> master
 
   /* Register rtl specific functions for cfg.  */
   rtl_register_cfg_hooks ();

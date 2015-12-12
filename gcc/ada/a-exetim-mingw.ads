@@ -58,11 +58,15 @@ is
    with
      Volatile_Function,
 <<<<<<< HEAD
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
 =======
      Global => Ada.Real_Time.Clock_Time,
      Pre    => T /= Ada.Task_Identification.Null_Task_Id;
 >>>>>>> gcc-mirror/master
+=======
+     Global => Ada.Real_Time.Clock_Time;
+>>>>>>> master
 
    function "+"
      (Left  : CPU_Time;
@@ -113,6 +117,7 @@ is
    Separate_Interrupt_Clocks_Supported : constant Boolean := False;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    function Clock_For_Interrupts return CPU_Time with
      Volatile_Function,
      Global => Ada.Real_Time.Clock_Time;
@@ -124,6 +129,11 @@ is
      Pre    => Interrupt_Clocks_Supported;
    pragma Warnings (On, "check will fail at run time");
 >>>>>>> gcc-mirror/master
+=======
+   function Clock_For_Interrupts return CPU_Time with
+     Volatile_Function,
+     Global => Ada.Real_Time.Clock_Time;
+>>>>>>> master
 
 private
    pragma SPARK_Mode (Off);

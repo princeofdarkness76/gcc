@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-11-27  Pedro Alves  <palves@redhat.com>
 
@@ -25,6 +26,8 @@
 	* testsuite/demangle-expected: Add tests.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-12  Mike Stump  <mikestump@comcast.net>
 
 	* Makefile.in (etags tags TAGS): Use && instead of ;.

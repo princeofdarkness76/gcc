@@ -332,6 +332,9 @@ combine_set_extension (ext_cand *cand, rtx_insn *curr_insn, rtx *orig_set)
   else
     new_reg = gen_rtx_REG (cand->mode, REGNO (SET_DEST (*orig_set)));
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 #if 0
   /* Rethinking test.  Temporarily disabled.  */
@@ -342,8 +345,11 @@ combine_set_extension (ext_cand *cand, rtx_insn *curr_insn, rtx *orig_set)
 			   GET_MODE (SET_DEST (*orig_set))))
 	return false;
 #endif
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* Merge constants by directly moving the constant into the register under
      some conditions.  Recall that RTL constants are sign-extended.  */
@@ -774,6 +780,7 @@ combine_reaching_defs (ext_cand *cand, const_rtx set_pat, ext_state *state)
 	return false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       /* We don't have the structure described above if there are
 	 conditional moves in between the def and the candidate,
@@ -782,6 +789,8 @@ combine_reaching_defs (ext_cand *cand, const_rtx set_pat, ext_state *state)
 	return false;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       /* We require the candidate not already be modified.  It may,
 	 for example have been changed from a (sign_extend (reg))
 	 into (zero_extend (sign_extend (reg))).
@@ -1092,6 +1101,7 @@ add_removable_extension (const_rtx expr, rtx_insn *insn,
 	      }
 	  }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
       /* Fourth, if the extended version occupies more registers than the
@@ -1106,6 +1116,8 @@ add_removable_extension (const_rtx expr, rtx_insn *insn,
 	  && REGNO (dest) == REGNO (reg))
 	return;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
       /* Then add the candidate to the list and insert the reaching definitions
          into the definition map.  */
@@ -1130,6 +1142,7 @@ find_removable_extensions (void)
   rtx set;
   unsigned *def_map = XCNEWVEC (unsigned, max_insn_uid);
   bitmap_head init, kill, gen, tmp;
+<<<<<<< HEAD
 
   bitmap_initialize (&init, NULL);
   bitmap_initialize (&kill, NULL);
@@ -1152,6 +1165,20 @@ find_removable_extensions (void)
       bitmap_clear (&gen);
 
 >>>>>>> gcc-mirror/master
+=======
+
+  bitmap_initialize (&init, NULL);
+  bitmap_initialize (&kill, NULL);
+  bitmap_initialize (&gen, NULL);
+  bitmap_initialize (&tmp, NULL);
+
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      bitmap_copy (&init, DF_MIR_IN (bb));
+      bitmap_clear (&kill);
+      bitmap_clear (&gen);
+
+>>>>>>> master
       FOR_BB_INSNS (bb, insn)
 	{
 	  if (NONDEBUG_INSN_P (insn))

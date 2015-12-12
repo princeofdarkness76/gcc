@@ -91,10 +91,14 @@ msp430_init_machine_status (void)
 
 /* This is a copy of the same data structure found in gas/config/tc-msp430.c
 <<<<<<< HEAD
+<<<<<<< HEAD
    Also another (sort-of) copy can be found in gcc/config/msp430/t-msp430.
 =======
    Also another (sort-of) copy can be found in gcc/config/msp430/devices-msp430.c
 >>>>>>> gcc-mirror/master
+=======
+   Also another (sort-of) copy can be found in gcc/config/msp430/t-msp430.
+>>>>>>> master
    Keep these three structures in sync.
    The data in this structure has been extracted from the devices.csv file
    released by TI, updated as of 8 October 2015.  */
@@ -722,6 +726,7 @@ msp430_mcu_name (void)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static const char *
 hwmult_name (unsigned int val)
@@ -738,6 +743,8 @@ hwmult_name (unsigned int val)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 static void
 msp430_option_override (void)
 {
@@ -746,16 +753,22 @@ msp430_option_override (void)
   if (target_cpu)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       /* gcc/common/config/msp430-common.c will have
 	 already canonicalised the string in target_cpu.  */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       if (strcasecmp (target_cpu, "msp430x") == 0)
 	msp430x = true;
       else /* target_cpu == "msp430" - already handled by the front end.  */
 	msp430x = false;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   /* Note - the front end has already ensured at most
      one of target_cpu and target_mcu will be set.  */
   else if (target_mcu)
@@ -782,6 +795,7 @@ msp430_option_override (void)
 	}
     }
 
+<<<<<<< HEAD
 =======
 
   if (target_mcu)
@@ -861,6 +875,8 @@ msp430_option_override (void)
     msp430x = true;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (TARGET_LARGE && !msp430x)
     error ("-mlarge requires a 430X-compatible -mmcu=");
 
@@ -1062,11 +1078,15 @@ static machine_mode
 msp430_unwind_word_mode (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   return TARGET_LARGE ? PSImode : HImode;
 =======
   /* This needs to match msp430_init_dwarf_reg_sizes_extra (below).  */
   return msp430x ? PSImode : HImode;
 >>>>>>> gcc-mirror/master
+=======
+  return TARGET_LARGE ? PSImode : HImode;
+>>>>>>> master
 }
 
 /* Determine if one named address space is a subset of another.  */
@@ -2042,10 +2062,14 @@ const struct attribute_spec msp430_attribute_table[] =
   { ATTR_PERSIST,     0, 0, true,  false, false, msp430_data_attr, false },
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   { NULL,             0, 0, false, false, false, NULL,        false }
 =======
   { NULL,             0, 0, false, false, false, NULL, false }
 >>>>>>> gcc-mirror/master
+=======
+  { NULL,             0, 0, false, false, false, NULL,        false }
+>>>>>>> master
 };
 
 #undef  TARGET_ASM_FUNCTION_PROLOGUE
@@ -2911,9 +2935,12 @@ msp430_init_dwarf_reg_sizes_extra (tree address)
   rtx mem = gen_rtx_MEM (BLKmode, addr);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* This needs to match msp430_unwind_word_mode (above).  */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (!msp430x)
     return;
 
@@ -3209,12 +3236,17 @@ static const struct
   { "__divdi3", "__mspabi_divlli" },
   { "__udivhi3", "__mspabi_divu" },
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "__udivsi3", "__mspabi_divlu" },
   { "__udivdi3", "__mspabi_divllu" },
 =======
   { "__udivsi3", "__mspabi_divul" },
   { "__udivdi3", "__mspabi_divull" },
 >>>>>>> gcc-mirror/master
+=======
+  { "__udivsi3", "__mspabi_divlu" },
+  { "__udivdi3", "__mspabi_divllu" },
+>>>>>>> master
   { "__modhi3", "__mspabi_remi" },
   { "__modsi3", "__mspabi_remli" },
   { "__moddi3", "__mspabi_remlli" },
@@ -3311,6 +3343,7 @@ msp430_no_hwmult (void)
     return true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (target_mcu == NULL || msp430_hwmult_type != AUTO)
     return false;
 
@@ -3322,6 +3355,11 @@ msp430_no_hwmult (void)
     return true;
 
 >>>>>>> gcc-mirror/master
+=======
+  if (target_mcu == NULL || msp430_hwmult_type != AUTO)
+    return false;
+
+>>>>>>> master
   if (target_mcu == cached_match)
     return cached_result;
 

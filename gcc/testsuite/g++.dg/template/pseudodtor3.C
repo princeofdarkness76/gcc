@@ -12,10 +12,14 @@ template <typename T> struct B
 {
   T &foo ();
 <<<<<<< HEAD
+<<<<<<< HEAD
   B () { foo.~T (); }	// { dg-error "10:invalid use of member" }
 =======
   B () { foo.~T (); }	// { dg-error "15:invalid use of member" }
 >>>>>>> gcc-mirror/master
+=======
+  B () { foo.~T (); }	// { dg-error "10:invalid use of member" }
+>>>>>>> master
 };
 
 B<int> b;
@@ -24,10 +28,14 @@ template <typename T, typename S> struct C
 {
   T t;
 <<<<<<< HEAD
+<<<<<<< HEAD
   C () { t.~S (); }	// { dg-error "10:is not of type" }
 =======
   C () { t.~S (); }	// { dg-error "13:is not of type" }
 >>>>>>> gcc-mirror/master
+=======
+  C () { t.~S (); }	// { dg-error "10:is not of type" }
+>>>>>>> master
 };
 
 C<int, long int> c;

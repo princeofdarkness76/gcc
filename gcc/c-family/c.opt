@@ -436,10 +436,14 @@ This switch is deprecated; use -Werror=implicit-function-declaration instead.
 
 Wfloat-conversion
 <<<<<<< HEAD
+<<<<<<< HEAD
 C ObjC C++ ObjC++ Var(warn_float_conversion) LangEnabledBy(C ObjC C++ ObjC++,Wconversion)
 =======
 C ObjC C++ ObjC++ Var(warn_float_conversion) Warning LangEnabledBy(C ObjC C++ ObjC++,Wconversion)
 >>>>>>> gcc-mirror/master
+=======
+C ObjC C++ ObjC++ Var(warn_float_conversion) LangEnabledBy(C ObjC C++ ObjC++,Wconversion)
+>>>>>>> master
 Warn for implicit type conversions that cause loss of floating point precision.
 
 Wfloat-equal
@@ -567,10 +571,14 @@ Warn about suspicious calls to memset where the third argument is constant liter
 
 Wmisleading-indentation
 <<<<<<< HEAD
+<<<<<<< HEAD
 C C++ Common Var(warn_misleading_indentation) Warning
 =======
 C C++ Common Var(warn_misleading_indentation) Warning LangEnabledBy(C C++,Wall)
 >>>>>>> gcc-mirror/master
+=======
+C C++ Common Var(warn_misleading_indentation) Warning
+>>>>>>> master
 Warn when the indentation of the code does not reflect the block structure.
 
 Wmissing-braces
@@ -847,9 +855,12 @@ C ObjC C++ ObjC++ EnabledBy(Wextra)
 Wsign-conversion
 <<<<<<< HEAD
 C ObjC C++ ObjC++ Var(warn_sign_conversion) LangEnabledBy(C ObjC,Wconversion)
+<<<<<<< HEAD
 =======
 C ObjC C++ ObjC++ Var(warn_sign_conversion) Warning LangEnabledBy(C ObjC,Wconversion)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 Warn for implicit type conversions between signed and unsigned integers.
 
 Wsign-promo

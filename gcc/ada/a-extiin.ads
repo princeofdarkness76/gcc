@@ -26,11 +26,15 @@ is
    with
      Volatile_Function,
 <<<<<<< HEAD
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
 =======
      Global => Ada.Real_Time.Clock_Time,
      Pre    => Separate_Interrupt_Clocks_Supported;
 >>>>>>> gcc-mirror/master
+=======
+     Global => Ada.Real_Time.Clock_Time;
+>>>>>>> master
 
    function Supported (Interrupt : Ada.Interrupts.Interrupt_ID) return Boolean
    with

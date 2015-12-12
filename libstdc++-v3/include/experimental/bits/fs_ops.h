@@ -23,6 +23,7 @@
 // <http://www.gnu.org/licenses/>.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/filesystem
  *  This is a TS C++ Library header.
 =======
@@ -30,6 +31,10 @@
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
 >>>>>>> gcc-mirror/master
+=======
+/** @file experimental/filesystem
+ *  This is a TS C++ Library header.
+>>>>>>> master
  */
 
 #ifndef _GLIBCXX_EXPERIMENTAL_FS_OPS_H

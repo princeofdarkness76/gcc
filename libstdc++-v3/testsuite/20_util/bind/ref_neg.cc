@@ -51,13 +51,19 @@ void test02()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 // { dg-error "rvalue|const" "" { target *-*-* } 1024 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1038 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1052 }
 // { dg-error "rvalue|const" "" { target *-*-* } 1066 }
+<<<<<<< HEAD
 =======
 // { dg-excess-errors "reasons for deduction/substitution failures" }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 int main()
 {

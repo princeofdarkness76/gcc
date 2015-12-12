@@ -191,6 +191,7 @@ void test_fixit_replace (void)
 #endif
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Test of "%q+D" format code.  */
@@ -205,3 +206,5 @@ int test_percent_q_plus_d (void)
   return local;
 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

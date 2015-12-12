@@ -637,10 +637,13 @@ cilkplus_extract_an_triplets (vec<tree, va_gc> *list, size_t size, size_t rank,
 			   ARRAY_NOTATION_STRIDE (ii_tree));
 	  }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   release_vec_vec (array_exprs);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Replaces all the __sec_implicit_arg functions in LIST with the induction

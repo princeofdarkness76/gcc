@@ -28,10 +28,14 @@ public:
   typedef typename Traits::value_type Key;
   explicit hash_set (size_t n = 13, bool ggc = false CXX_MEM_STAT_INFO)
 <<<<<<< HEAD
+<<<<<<< HEAD
     : m_table (n, ggc, true, HASH_SET_ORIGIN PASS_MEM_STAT) {}
 =======
     : m_table (n, ggc, GATHER_STATISTICS, HASH_SET_ORIGIN PASS_MEM_STAT) {}
 >>>>>>> gcc-mirror/master
+=======
+    : m_table (n, ggc, true, HASH_SET_ORIGIN PASS_MEM_STAT) {}
+>>>>>>> master
 
   /* Create a hash_set in gc memory with space for at least n elements.  */
 

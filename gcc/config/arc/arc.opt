@@ -415,8 +415,11 @@ mmac_
 Target Joined
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 matomic
 Target Report Mask(ATOMIC)
 Enable atomic instructions.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

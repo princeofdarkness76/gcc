@@ -223,9 +223,13 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 link_libmpx = @link_libmpx@
 <<<<<<< HEAD
+<<<<<<< HEAD
 link_mpx = @link_mpx@
 =======
 >>>>>>> gcc-mirror/master
+=======
+link_mpx = @link_mpx@
+>>>>>>> master
 localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
@@ -261,12 +265,16 @@ ACLOCAL_AMFLAGS = -I $(top_srcdir) -I $(top_srcdir)/config
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_CFLAGS = -fPIC
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_DEPENDENCIES = libmpx.map
 <<<<<<< HEAD
+<<<<<<< HEAD
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
 =======
 @LIBMPX_SUPPORTED_TRUE@libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
 @LIBMPX_SUPPORTED_TRUE@                    -version-info `grep -v '^\#' $(srcdir)/libtool-version`
 
 >>>>>>> gcc-mirror/master
+=======
+@LIBMPX_SUPPORTED_TRUE@libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
+>>>>>>> master
 
 # Work around what appears to be a GNU make bug handling MAKEFLAGS
 # values defined in terms of make variables, as is the case for CC and

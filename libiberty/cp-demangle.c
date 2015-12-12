@@ -1811,11 +1811,15 @@ d_operator_name (struct d_info *di)
       struct demangle_component *type;
       int was_conversion = di->is_conversion;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
       di->is_conversion = ! di->is_expression;
       type = cplus_demangle_type (di);
       di->is_conversion = was_conversion;
       return d_make_comp (di, DEMANGLE_COMPONENT_CAST, type, NULL);
+<<<<<<< HEAD
 =======
       struct demangle_component *res;
 
@@ -1828,6 +1832,8 @@ d_operator_name (struct d_info *di)
       di->is_conversion = was_conversion;
       return res;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
   else
     {
@@ -3948,9 +3954,12 @@ d_count_templates_scopes (int *num_templates, int *num_scopes,
     case DEMANGLE_COMPONENT_INITIALIZER_LIST:
     case DEMANGLE_COMPONENT_CAST:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case DEMANGLE_COMPONENT_CONVERSION:
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     case DEMANGLE_COMPONENT_NULLARY:
     case DEMANGLE_COMPONENT_UNARY:
     case DEMANGLE_COMPONENT_BINARY:
@@ -4128,6 +4137,7 @@ cplus_demangle_print_callback (int options,
   struct d_print_info dpi;
 
   d_print_init (&dpi, callback, opaque, dc);
+<<<<<<< HEAD
 
   {
 #ifdef CP_DYNAMIC_ARRAYS
@@ -4143,6 +4153,23 @@ cplus_demangle_print_callback (int options,
 				 * sizeof (*dpi.copy_templates));
 #endif
 
+=======
+
+  {
+#ifdef CP_DYNAMIC_ARRAYS
+    __extension__ struct d_saved_scope scopes[dpi.num_saved_scopes];
+    __extension__ struct d_print_template temps[dpi.num_copy_templates];
+
+    dpi.saved_scopes = scopes;
+    dpi.copy_templates = temps;
+#else
+    dpi.saved_scopes = alloca (dpi.num_saved_scopes
+			       * sizeof (*dpi.saved_scopes));
+    dpi.copy_templates = alloca (dpi.num_copy_templates
+				 * sizeof (*dpi.copy_templates));
+#endif
+
+>>>>>>> master
     d_print_comp (&dpi, options, dc);
   }
 
@@ -5831,6 +5858,7 @@ d_print_cast (struct d_print_info *dpi, int options,
 		    const struct demangle_component *dc)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   struct d_print_template dpt;
 
   /* For a cast operator, we need the template parameters from
@@ -5848,6 +5876,11 @@ d_print_conversion (struct d_print_info *dpi, int options,
 
   /* For a conversion operator, we need the template parameters from
 >>>>>>> gcc-mirror/master
+=======
+  struct d_print_template dpt;
+
+  /* For a cast operator, we need the template parameters from
+>>>>>>> master
      the enclosing template in scope for processing the type.  */
   if (dpi->current_template != NULL)
     {

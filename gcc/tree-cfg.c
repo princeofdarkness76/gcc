@@ -247,6 +247,7 @@ build_gimple_cfg (gimple_seq seq)
   delete discriminator_per_locus;
   discriminator_per_locus = NULL;
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 /* Look for ANNOTATE calls with loop annotation kind in BB; if found, remove
@@ -445,6 +446,106 @@ replace_loop_annotate (void)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+}
+
+/* Look for ANNOTATE calls with loop annotation kind in BB; if found, remove
+   them and propagate the information to LOOP.  We assume that the annotations
+   come immediately before the condition in BB, if any.  */
+
+static void
+replace_loop_annotate_in_block (basic_block bb, struct loop *loop)
+{
+  gimple_stmt_iterator gsi = gsi_last_bb (bb);
+  gimple *stmt = gsi_stmt (gsi);
+
+  if (!(stmt && gimple_code (stmt) == GIMPLE_COND))
+    return;
+
+  for (gsi_prev_nondebug (&gsi); !gsi_end_p (gsi); gsi_prev (&gsi))
+    {
+      stmt = gsi_stmt (gsi);
+      if (gimple_code (stmt) != GIMPLE_CALL)
+	break;
+      if (!gimple_call_internal_p (stmt)
+	  || gimple_call_internal_fn (stmt) != IFN_ANNOTATE)
+	break;
+
+      switch ((annot_expr_kind) tree_to_shwi (gimple_call_arg (stmt, 1)))
+	{
+	case annot_expr_ivdep_kind:
+	  loop->safelen = INT_MAX;
+	  break;
+	case annot_expr_no_vector_kind:
+	  loop->dont_vectorize = true;
+	  break;
+	case annot_expr_vector_kind:
+	  loop->force_vectorize = true;
+	  cfun->has_force_vectorize_loops = true;
+	  break;
+	default:
+	  gcc_unreachable ();
+	}
+
+      stmt = gimple_build_assign (gimple_call_lhs (stmt),
+				  gimple_call_arg (stmt, 0));
+      gsi_replace (&gsi, stmt, true);
+    }
+}
+
+/* Look for ANNOTATE calls with loop annotation kind; if found, remove
+   them and propagate the information to the loop.  We assume that the
+   annotations come immediately before the condition of the loop.  */
+
+static void
+replace_loop_annotate (void)
+{
+  struct loop *loop;
+  basic_block bb;
+  gimple_stmt_iterator gsi;
+  gimple *stmt;
+
+  FOR_EACH_LOOP (loop, 0)
+    {
+      /* First look into the header.  */
+      replace_loop_annotate_in_block (loop->header, loop);
+
+      /* Then look into the latch, if any.  */
+      if (loop->latch)
+	replace_loop_annotate_in_block (loop->latch, loop);
+    }
+
+  /* Remove IFN_ANNOTATE.  Safeguard for the case loop->latch == NULL.  */
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      for (gsi = gsi_last_bb (bb); !gsi_end_p (gsi); gsi_prev (&gsi))
+	{
+	  stmt = gsi_stmt (gsi);
+	  if (gimple_code (stmt) != GIMPLE_CALL)
+	    continue;
+	  if (!gimple_call_internal_p (stmt)
+	      || gimple_call_internal_fn (stmt) != IFN_ANNOTATE)
+	    continue;
+
+	  switch ((annot_expr_kind) tree_to_shwi (gimple_call_arg (stmt, 1)))
+	    {
+	    case annot_expr_ivdep_kind:
+	    case annot_expr_no_vector_kind:
+	    case annot_expr_vector_kind:
+	      break;
+	    default:
+	      gcc_unreachable ();
+	    }
+
+	  warning_at (gimple_location (stmt), 0, "ignoring loop annotation");
+	  stmt = gimple_build_assign (gimple_call_lhs (stmt),
+				      gimple_call_arg (stmt, 0));
+	  gsi_replace (&gsi, stmt, true);
+	}
+    }
+}
+
+>>>>>>> master
 
 static unsigned int
 execute_build_cfg (void)
@@ -711,6 +812,7 @@ create_bb (void *h, void *e, basic_block after)
 
 basic_block
 get_abnormal_succ_dispatcher (basic_block bb)
+<<<<<<< HEAD
 {
   edge e;
   edge_iterator ei;
@@ -740,6 +842,37 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
 		       basic_block for_bb, int *bb_to_omp_idx,
 		       auto_vec<basic_block> *bbs, bool computed_goto)
 {
+=======
+{
+  edge e;
+  edge_iterator ei;
+
+  FOR_EACH_EDGE (e, ei, bb->succs)
+    if ((e->flags & (EDGE_ABNORMAL | EDGE_EH)) == EDGE_ABNORMAL)
+      {
+	gimple_stmt_iterator gsi
+	  = gsi_start_nondebug_after_labels_bb (e->dest);
+	gimple *g = gsi_stmt (gsi);
+	if (g
+	    && is_gimple_call (g)
+	    && gimple_call_internal_p (g)
+	    && gimple_call_internal_fn (g) == IFN_ABNORMAL_DISPATCHER)
+	  return e->dest;
+      }
+  return NULL;
+}
+
+/* Helper function for make_edges.  Create a basic block with
+   with ABNORMAL_DISPATCHER internal call in it if needed, and
+   create abnormal edges from BBS to it and from it to FOR_BB
+   if COMPUTED_GOTO is false, otherwise factor the computed gotos.  */
+
+static void
+handle_abnormal_edges (basic_block *dispatcher_bbs,
+		       basic_block for_bb, int *bb_to_omp_idx,
+		       auto_vec<basic_block> *bbs, bool computed_goto)
+{
+>>>>>>> master
   basic_block *dispatcher = dispatcher_bbs + (computed_goto ? 1 : 0);
   unsigned int idx = 0;
   basic_block bb;
@@ -751,6 +884,7 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
       if (bb_to_omp_idx[for_bb->index] != 0)
 	inner = true;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   /* If the dispatcher has been created already, then there are basic
@@ -779,6 +913,35 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
       *dispatcher = create_basic_block (NULL, for_bb);
       if (computed_goto)
 	{
+=======
+
+  /* If the dispatcher has been created already, then there are basic
+     blocks with abnormal edges to it, so just make a new edge to
+     for_bb.  */
+  if (*dispatcher == NULL)
+    {
+      /* Check if there are any basic blocks that need to have
+	 abnormal edges to this dispatcher.  If there are none, return
+	 early.  */
+      if (bb_to_omp_idx == NULL)
+	{
+	  if (bbs->is_empty ())
+	    return;
+	}
+      else
+	{
+	  FOR_EACH_VEC_ELT (*bbs, idx, bb)
+	    if (bb_to_omp_idx[bb->index] == bb_to_omp_idx[for_bb->index])
+	      break;
+	  if (bb == NULL)
+	    return;
+	}
+
+      /* Create the dispatcher bb.  */
+      *dispatcher = create_basic_block (NULL, for_bb);
+      if (computed_goto)
+	{
+>>>>>>> master
 	  /* Factor computed gotos into a common computed goto site.  Also
 	     record the location of that site so that we can un-factor the
 	     gotos after we have converted back to normal form.  */
@@ -820,6 +983,7 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
 	      edge e = make_edge (bb, *dispatcher, EDGE_FALLTHRU);
 	      e->goto_locus = gimple_location (last);
 	      gsi_remove (&gsi, true);
+<<<<<<< HEAD
 	    }
 	}
       else
@@ -904,6 +1068,26 @@ handle_abnormal_edges (basic_block *dispatcher_bbs,
 	      e->goto_locus = gimple_location (last);
 	      gsi_remove (&gsi, true);
 	    }
+=======
+	    }
+	}
+      else
+	{
+	  tree arg = inner ? boolean_true_node : boolean_false_node;
+	  gimple *g = gimple_build_call_internal (IFN_ABNORMAL_DISPATCHER,
+						 1, arg);
+	  gimple_stmt_iterator gsi = gsi_after_labels (*dispatcher);
+	  gsi_insert_after (&gsi, g, GSI_NEW_STMT);
+
+	  /* Create predecessor edges of the dispatcher.  */
+	  FOR_EACH_VEC_ELT (*bbs, idx, bb)
+	    {
+	      if (bb_to_omp_idx
+		  && bb_to_omp_idx[bb->index] != bb_to_omp_idx[for_bb->index])
+		continue;
+	      make_edge (bb, *dispatcher, EDGE_ABNORMAL);
+	    }
+>>>>>>> master
 	}
       else
 	{
@@ -1028,6 +1212,112 @@ make_edges_bb (basic_block bb, struct omp_region **pcur_region, int *pomp_index)
       break;
     }
 
+<<<<<<< HEAD
+=======
+  make_edge (*dispatcher, for_bb, EDGE_ABNORMAL);
+}
+
+/* Creates outgoing edges for BB.  Returns 1 when it ends with an
+   computed goto, returns 2 when it ends with a statement that
+   might return to this function via an nonlocal goto, otherwise
+   return 0.  Updates *PCUR_REGION with the OMP region this BB is in.  */
+
+static int
+make_edges_bb (basic_block bb, struct omp_region **pcur_region, int *pomp_index)
+{
+  gimple *last = last_stmt (bb);
+  bool fallthru = false;
+  int ret = 0;
+
+  if (!last)
+    return ret;
+
+  switch (gimple_code (last))
+    {
+    case GIMPLE_GOTO:
+      if (make_goto_expr_edges (bb))
+	ret = 1;
+      fallthru = false;
+      break;
+    case GIMPLE_RETURN:
+      {
+	edge e = make_edge (bb, EXIT_BLOCK_PTR_FOR_FN (cfun), 0);
+	e->goto_locus = gimple_location (last);
+	fallthru = false;
+      }
+      break;
+    case GIMPLE_COND:
+      make_cond_expr_edges (bb);
+      fallthru = false;
+      break;
+    case GIMPLE_SWITCH:
+      make_gimple_switch_edges (as_a <gswitch *> (last), bb);
+      fallthru = false;
+      break;
+    case GIMPLE_RESX:
+      make_eh_edges (last);
+      fallthru = false;
+      break;
+    case GIMPLE_EH_DISPATCH:
+      fallthru = make_eh_dispatch_edges (as_a <geh_dispatch *> (last));
+      break;
+
+    case GIMPLE_CALL:
+      /* If this function receives a nonlocal goto, then we need to
+	 make edges from this call site to all the nonlocal goto
+	 handlers.  */
+      if (stmt_can_make_abnormal_goto (last))
+	ret = 2;
+
+      /* If this statement has reachable exception handlers, then
+	 create abnormal edges to them.  */
+      make_eh_edges (last);
+
+      /* BUILTIN_RETURN is really a return statement.  */
+      if (gimple_call_builtin_p (last, BUILT_IN_RETURN))
+	{
+	  make_edge (bb, EXIT_BLOCK_PTR_FOR_FN (cfun), 0);
+	  fallthru = false;
+	}
+      /* Some calls are known not to return.  */
+      else
+	fallthru = !(gimple_call_flags (last) & ECF_NORETURN);
+      break;
+
+    case GIMPLE_ASSIGN:
+      /* A GIMPLE_ASSIGN may throw internally and thus be considered
+	 control-altering.  */
+      if (is_ctrl_altering_stmt (last))
+	make_eh_edges (last);
+      fallthru = true;
+      break;
+
+    case GIMPLE_ASM:
+      make_gimple_asm_edges (bb);
+      fallthru = true;
+      break;
+
+    CASE_GIMPLE_OMP:
+      fallthru = make_gimple_omp_edges (bb, pcur_region, pomp_index);
+      break;
+
+    case GIMPLE_TRANSACTION:
+      {
+	tree abort_label
+	  = gimple_transaction_label (as_a <gtransaction *> (last));
+	if (abort_label)
+	  make_edge (bb, label_to_block (abort_label), EDGE_TM_ABORT);
+	fallthru = true;
+      }
+      break;
+
+    default:
+      gcc_assert (!stmt_ends_bb_p (last));
+      fallthru = true;
+      break;
+    }
+
+>>>>>>> master
   if (fallthru)
     make_edge (bb, bb->next_bb, EDGE_FALLTHRU);
 
@@ -1094,6 +1384,7 @@ make_edges (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    case GIMPLE_OMP_PARALLEL:
 	    case GIMPLE_OMP_TASK:
 	    case GIMPLE_OMP_FOR:
@@ -1123,6 +1414,18 @@ make_edges (void)
 	      glabel *label_stmt = dyn_cast <glabel *> (gsi_stmt (gsi));
 	      tree target;
 
+=======
+      if (bb_to_omp_idx)
+	dispatcher_bbs = XCNEWVEC (basic_block, 2 * count);
+
+      FOR_EACH_BB_FN (bb, cfun)
+	{
+	  for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+	    {
+	      glabel *label_stmt = dyn_cast <glabel *> (gsi_stmt (gsi));
+	      tree target;
+
+>>>>>>> master
 	      if (!label_stmt)
 		break;
 
@@ -1162,16 +1465,22 @@ make_edges (void)
 
   XDELETE (bb_to_omp_idx);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   free_omp_regions ();
 }
 
+<<<<<<< HEAD
 =======
 
   free_omp_regions ();
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Add SEQ after GSI.  Start new bb after GSI, and created further bbs as
    needed.  Returns true if new bbs were created.
    Note: This is transitional code, and should not be used for new code.  We

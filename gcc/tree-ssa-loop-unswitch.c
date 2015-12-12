@@ -445,10 +445,14 @@ tree_unswitch_outer_loop (struct loop *loop)
 	fprintf (dump_file, ";; Not unswitching, loop is not expected"
 		 " to iterate\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return false;
 =======
       return false;
 >>>>>>> gcc-mirror/master
+=======
+	return false;
+>>>>>>> master
     }
 
   guard = find_loop_guard (loop);

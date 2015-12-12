@@ -814,9 +814,12 @@
   (and (match_operand 0 "const_int_operand")
        (match_test "satisfies_constraint_C16 (op)")))
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 (define_predicate "mem_noofs_operand"
   (and (match_code "mem")
        (match_code "reg" "0")))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

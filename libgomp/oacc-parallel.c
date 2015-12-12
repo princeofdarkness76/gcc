@@ -491,6 +491,7 @@ GOACC_wait (int async, int num_waits, ...)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 void
 GOACC_host_data (int device, size_t mapnum,
@@ -533,6 +534,8 @@ GOACC_host_data (int device, size_t mapnum,
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 int
 GOACC_get_num_threads (void)
 {

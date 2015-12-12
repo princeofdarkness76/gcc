@@ -22,6 +22,7 @@ foo64b ()
 /* { dg-final { scan-assembler-times "lrvg\t%r2,0\\(%r\[0-9\]*\\)" 1 { target lp64 } } } */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 uint32_t
 foo32 ()
 =======
@@ -44,18 +45,26 @@ foo32a (uint32_t a)
 uint32_t
 foo32b ()
 >>>>>>> gcc-mirror/master
+=======
+uint32_t
+foo32 ()
+>>>>>>> master
 {
   return __builtin_bswap32 (u32);
 }
 /* { dg-final { scan-assembler-times "lrv\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 uint16_t
 foo16 ()
 {
   return __builtin_bswap16 (u16);
 }
 /* { dg-final { scan-assembler-times "lrvh\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
+<<<<<<< HEAD
 =======
 void
 foo32c (uint32_t a)
@@ -64,3 +73,5 @@ foo32c (uint32_t a)
 }
 /* { dg-final { scan-assembler-times "strv\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

@@ -68,6 +68,9 @@
 
 (define_insn "vec_gather_element<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V_HW_32_64                     0 "register_operand" "=v")
 	(unspec:V_HW_32_64 [(match_operand:V_HW_32_64 1 "register_operand"  "0")
 			    (match_operand:<tointvec> 2 "register_operand"  "v")
@@ -75,6 +78,7 @@
 			    (match_operand:QI         4 "immediate_operand" "C")]
 			   UNSPEC_VEC_GATHER))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
   [(set (match_operand:V_HW_32_64                     0 "register_operand"  "=v")
 	(unspec:V_HW_32_64 [(match_operand:V_HW_32_64 1 "register_operand"   "0")
@@ -84,11 +88,14 @@
 			   UNSPEC_VEC_GATHER))]
   "TARGET_VX && UINTVAL (operands[4]) < GET_MODE_NUNITS (<V_HW_32_64:MODE>mode)"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vge<bhfgq>\t%0,%O3(%v2,%R3),%b4"
   [(set_attr "op_type" "VRV")])
 
 (define_expand "vec_genmask<mode>"
   [(match_operand:VI_HW 0 "register_operand" "=v")
+<<<<<<< HEAD
 <<<<<<< HEAD
    (match_operand:QI    1 "immediate_operand" "C")
    (match_operand:QI    2 "immediate_operand" "C")]
@@ -96,6 +103,10 @@
    (match_operand:QI    1 "const_int_operand" "C")
    (match_operand:QI    2 "const_int_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+   (match_operand:QI    1 "immediate_operand" "C")
+   (match_operand:QI    2 "immediate_operand" "C")]
+>>>>>>> master
   "TARGET_VX"
 {
   int nunits = GET_MODE_NUNITS (<VI_HW:MODE>mode);
@@ -136,12 +147,17 @@
 (define_expand "vec_genbytemaskv16qi"
   [(match_operand:V16QI 0 "register_operand"  "")
 <<<<<<< HEAD
+<<<<<<< HEAD
    (match_operand       1 "immediate_operand" "")]
   "TARGET_VX && CONST_OK_FOR_CONSTRAINT_P (INTVAL (operands[1]), 'K', \"K\")"
 =======
    (match_operand:HI    1 "const_int_operand" "")]
   "TARGET_VX"
 >>>>>>> gcc-mirror/master
+=======
+   (match_operand       1 "immediate_operand" "")]
+  "TARGET_VX && CONST_OK_FOR_CONSTRAINT_P (INTVAL (operands[1]), 'K', \"K\")"
+>>>>>>> master
 {
   int i;
   unsigned mask = 0x8000;
@@ -198,11 +214,15 @@
 
 (define_insn "vlbb"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V16QI              0 "register_operand"  "=v")
 	(unspec:V16QI [(match_operand:BLK 1 "memory_operand"    "QR")
 		       (match_operand:HI  2 "immediate_operand" " K")]
 		      UNSPEC_VEC_LOAD_BNDRY))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
   [(set (match_operand:V16QI              0 "register_operand"   "=v")
 	(unspec:V16QI [(match_operand:BLK 1 "memory_operand"     "QR")
@@ -210,6 +230,8 @@
 		      UNSPEC_VEC_LOAD_BNDRY))]
   "TARGET_VX && UINTVAL (operands[2]) < 7"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vlbb\t%v0,%1,%2"
   [(set_attr "op_type" "VRX")])
 
@@ -380,16 +402,22 @@
 
 (define_expand "vec_permi<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V_HW_64                  0 "register_operand"  "")
 	(unspec:V_HW_64 [(match_operand:V_HW_64 1 "register_operand"  "")
 			 (match_operand:V_HW_64 2 "register_operand"  "")
 			 (match_operand:QI      3 "immediate_operand" "")]
+<<<<<<< HEAD
 =======
   [(set (match_operand:V_HW_64                  0 "register_operand"   "")
 	(unspec:V_HW_64 [(match_operand:V_HW_64 1 "register_operand"   "")
 			 (match_operand:V_HW_64 2 "register_operand"   "")
 			 (match_operand:QI      3 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			UNSPEC_VEC_PERMI))]
   "TARGET_VX"
 {
@@ -399,12 +427,16 @@
 
 (define_insn "*vec_permi<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V_HW_64                  0 "register_operand" "=v")
 	(unspec:V_HW_64 [(match_operand:V_HW_64 1 "register_operand"  "v")
 			 (match_operand:V_HW_64 2 "register_operand"  "v")
 			 (match_operand:QI      3 "immediate_operand" "C")]
 			UNSPEC_VEC_PERMI))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
   [(set (match_operand:V_HW_64                  0 "register_operand"  "=v")
 	(unspec:V_HW_64 [(match_operand:V_HW_64 1 "register_operand"   "v")
@@ -413,6 +445,8 @@
 			UNSPEC_VEC_PERMI))]
   "TARGET_VX && (UINTVAL (operands[3]) & 10) == 0"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vpdi\t%v0,%v1,%v2,%b3"
   [(set_attr "op_type" "VRR")])
 
@@ -427,10 +461,14 @@
 			     (match_operand:V_HW 1 "register_operand"  "")
 			     (parallel
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      [(match_operand:QI 2 "immediate_operand" "")]))))]
 =======
 			      [(match_operand:QI 2 "const_mask_operand" "")]))))]
 >>>>>>> gcc-mirror/master
+=======
+			      [(match_operand:QI 2 "immediate_operand" "")]))))]
+>>>>>>> master
   "TARGET_VX")
 
 ; Vector scatter element
@@ -442,6 +480,9 @@
   [(set (mem:SI
 	 (plus:DI (zero_extend:DI
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		   (unspec:SI [(match_operand:V4SI 1 "register_operand"  "v")
 			       (match_operand:DI   3 "immediate_operand" "I")]
 			      UNSPEC_VEC_EXTRACT))
@@ -449,6 +490,7 @@
 	(unspec:SI [(match_operand:V4SI            0 "register_operand"  "v")
 		    (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX && TARGET_64BIT"
+<<<<<<< HEAD
 =======
 		   (unspec:SI [(match_operand:V4SI 1 "register_operand"   "v")
 			       (match_operand:QI   3 "const_mask_operand" "C")]
@@ -458,6 +500,8 @@
 		    (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX && TARGET_64BIT && UINTVAL (operands[3]) < 4"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vscef\t%v0,%O2(%v1,%R2),%3"
   [(set_attr "op_type" "VRV")])
 
@@ -466,6 +510,9 @@
   [(set (mem:<non_vec>
 	 (plus:SI (subreg:SI
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		   (unspec:<non_vec_int> [(match_operand:V_HW_64 1 "register_operand"  "v")
 					  (match_operand:DI      3 "immediate_operand" "I")]
 					 UNSPEC_VEC_EXTRACT) 4)
@@ -473,6 +520,7 @@
 	(unspec:<non_vec> [(match_operand:V_HW_64                0 "register_operand"  "v")
 			   (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX && !TARGET_64BIT"
+<<<<<<< HEAD
 =======
 		   (unspec:<non_vec_int> [(match_operand:V_HW_64 1 "register_operand"   "v")
 					  (match_operand:QI      3 "const_mask_operand" "C")]
@@ -482,6 +530,8 @@
 			   (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX && !TARGET_64BIT && UINTVAL (operands[3]) < GET_MODE_NUNITS (<V_HW_64:MODE>mode)"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vsce<V_HW_64:bhfgq>\t%v0,%O2(%v1,%R2),%3"
   [(set_attr "op_type" "VRV")])
 
@@ -490,6 +540,9 @@
   [(set (mem:<non_vec>
 	 (plus:<non_vec_int> (unspec:<non_vec_int>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 			      [(match_operand:<tointvec> 1 "register_operand"  "v")
 			       (match_operand:DI         3 "immediate_operand" "I")]
 			      UNSPEC_VEC_EXTRACT)
@@ -497,6 +550,7 @@
 	(unspec:<non_vec> [(match_operand:V_HW_32_64     0 "register_operand"  "v")
 			   (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
 			      [(match_operand:<tointvec> 1 "register_operand"   "v")
 			       (match_operand:QI         3 "const_mask_operand" "C")]
@@ -506,6 +560,8 @@
 			   (match_dup 3)] UNSPEC_VEC_EXTRACT))]
   "TARGET_VX && UINTVAL (operands[3]) < GET_MODE_NUNITS (<V_HW_32_64:MODE>mode)"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vsce<bhfgq>\t%v0,%O2(%v1,%R2),%3"
   [(set_attr "op_type" "VRV")])
 
@@ -517,10 +573,14 @@
    (match_operand:<tointvec> 1 "register_operand" "")
    (match_operand 2 "address_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
    (match_operand:DI 3 "immediate_operand" "")]
 =======
    (match_operand:QI 3 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+   (match_operand:DI 3 "immediate_operand" "")]
+>>>>>>> master
   "TARGET_VX"
 {
   if (TARGET_64BIT)
@@ -1125,10 +1185,14 @@
 		       (match_operand:VI_HW 2 "register_operand"  "v")
 		       (match_operand:VI_HW 3 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       (match_operand:SI    4 "immediate_operand" "I")]
 =======
 		       (match_operand:QI    4 "const_int_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+		       (match_operand:SI    4 "immediate_operand" "I")]
+>>>>>>> master
 		      UNSPEC_VEC_RL_MASK))]
   "TARGET_VX"
   "verim<bhfgq>\t%v0,%v2,%v3,%b4"
@@ -1166,10 +1230,14 @@
 	(unspec:V_HW [(match_operand:V_HW 1 "register_operand" "v")
 		      (match_operand:V_HW 2 "register_operand" "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      (match_operand:DI 3 "immediate_operand" "C")]
 =======
 		      (match_operand:QI 3 "const_int_operand"  "C")]
 >>>>>>> gcc-mirror/master
+=======
+		      (match_operand:DI 3 "immediate_operand" "C")]
+>>>>>>> master
 		     UNSPEC_VEC_SLDB))]
   "TARGET_VX"
   "vsldb\t%v0,%v1,%v2,%b3"
@@ -1180,10 +1248,14 @@
 	(unspec:V_HW [(match_operand:V_HW 1 "register_operand" "")
 		      (match_operand:V_HW 2 "register_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      (match_operand:DI 3 "immediate_operand"  "")]
 =======
 		      (match_operand:QI 3 "const_int_operand"  "")]
 >>>>>>> gcc-mirror/master
+=======
+		      (match_operand:DI 3 "immediate_operand"  "")]
+>>>>>>> master
 		     UNSPEC_VEC_SLDB))]
   "TARGET_VX"
 {
@@ -1357,10 +1429,14 @@
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   (match_operand:SI        3 "immediate_operand" "C")]
 =======
 			   (match_operand:QI        3 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+			   (match_operand:SI        3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFAE))]
   "TARGET_VX"
 {
@@ -1381,6 +1457,7 @@
 (define_insn "*vfaes<mode>"
   [(set (match_operand:VI_HW_QHS 0 "register_operand" "=v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
 			   (match_operand:SI        3 "immediate_operand" "C")]
@@ -1389,6 +1466,11 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand"   "v")
 			   (match_operand:QI        3 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
+			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
+			   (match_operand:SI        3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFAE))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1412,6 +1494,7 @@
 (define_expand "vfaez<mode>"
   [(set (match_operand:VI_HW_QHS 0 "register_operand" "=v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
 			   (match_operand:SI        3 "immediate_operand" "C")]
@@ -1420,6 +1503,11 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand"  "")
 			   (match_operand:QI        3 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
+			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
+			   (match_operand:SI        3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFAE))]
   "TARGET_VX"
 {
@@ -1430,6 +1518,7 @@
   [(parallel
     [(set (match_operand:VI_HW_QHS 0 "register_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "")
 			   (match_operand:SI        3 "immediate_operand" "C")]
@@ -1438,6 +1527,11 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand"  "")
 			   (match_operand:QI        3 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "")
+			   (match_operand:VI_HW_QHS 2 "register_operand" "")
+			   (match_operand:SI        3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFAE))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1455,6 +1549,7 @@
   [(parallel
     [(set (match_operand:VI_HW_QHS 0 "register_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "")
 			   (match_operand:SI        3 "immediate_operand" "C")]
@@ -1463,6 +1558,11 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand"  "")
 			   (match_operand:SI        3 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "")
+			   (match_operand:VI_HW_QHS 2 "register_operand" "")
+			   (match_operand:SI        3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFAE))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1486,10 +1586,14 @@
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   (match_operand:QI 3 "immediate_operand" "C")]
 =======
 			   (match_operand:QI 3 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+			   (match_operand:QI 3 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VFEE))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1668,11 +1772,15 @@
 ; vstrczb, vstrczh, vstrczf
 (define_insn "vstrc<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:VI_HW_QHS                    0 "register_operand" "=v")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand"  "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand"  "v")
 			   (match_operand:VI_HW_QHS 3 "register_operand"  "v")
 			   (match_operand:SI        4 "immediate_operand" "C")]
+<<<<<<< HEAD
 =======
   [(set (match_operand:VI_HW_QHS                    0 "register_operand"  "=v")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand"   "v")
@@ -1680,6 +1788,8 @@
 			   (match_operand:VI_HW_QHS 3 "register_operand"   "v")
 			   (match_operand:QI        4 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			  UNSPEC_VEC_VSTRC))]
   "TARGET_VX"
 {
@@ -1699,11 +1809,15 @@
 ; vstrczbs, vstrczhs, vstrczfs
 (define_insn "*vstrcs<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:VI_HW_QHS                    0 "register_operand" "=v")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand"  "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand"  "v")
 			   (match_operand:VI_HW_QHS 3 "register_operand"  "v")
 			   (match_operand:SI        4 "immediate_operand" "C")]
+<<<<<<< HEAD
 =======
   [(set (match_operand:VI_HW_QHS                    0 "register_operand"  "=v")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand"   "v")
@@ -1711,6 +1825,8 @@
 			   (match_operand:VI_HW_QHS 3 "register_operand"   "v")
 			   (match_operand:QI        4 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			  UNSPEC_VEC_VSTRC))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1734,11 +1850,15 @@
 
 (define_expand "vstrcz<mode>"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:VI_HW_QHS 0 "register_operand" "=v")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 2 "register_operand" "v")
 			   (match_operand:VI_HW_QHS 3 "register_operand" "v")
 			   (match_operand:SI        4 "immediate_operand" "C")]
+<<<<<<< HEAD
 =======
   [(set (match_operand:VI_HW_QHS 0 "register_operand" "")
 	(unspec:VI_HW_QHS [(match_operand:VI_HW_QHS 1 "register_operand"   "")
@@ -1746,6 +1866,8 @@
 			   (match_operand:VI_HW_QHS 3 "register_operand"   "")
 			   (match_operand:QI        4 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			  UNSPEC_VEC_VSTRC))]
   "TARGET_VX"
 {
@@ -1759,10 +1881,14 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand" "")
 			   (match_operand:VI_HW_QHS 3 "register_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   (match_operand:SI        4 "immediate_operand" "C")]
 =======
 			   (match_operand:QI        4 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+			   (match_operand:SI        4 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VSTRC))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1784,10 +1910,14 @@
 			   (match_operand:VI_HW_QHS 2 "register_operand" "")
 			   (match_operand:VI_HW_QHS 3 "register_operand" "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   (match_operand:SI        4 "immediate_operand" "C")]
 =======
 			   (match_operand:QI        4 "const_mask_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+			   (match_operand:SI        4 "immediate_operand" "C")]
+>>>>>>> master
 			  UNSPEC_VEC_VSTRC))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)
@@ -1806,11 +1936,15 @@
 ; Signed V2DI -> V2DF conversion - inexact exception disabled
 (define_insn "vec_di_to_df_s64"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V2DF 0 "register_operand"               "=v")
 	(unspec:V2DF [(match_operand:V2DI 1 "register_operand"  "v")
 		      (match_operand:QI   2 "immediate_operand" "C")]
 		     UNSPEC_VEC_VCDGB))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
   [(set (match_operand:V2DF 0 "register_operand"                "=v")
 	(unspec:V2DF [(match_operand:V2DI 1 "register_operand"   "v")
@@ -1818,6 +1952,8 @@
 		     UNSPEC_VEC_VCDGB))]
   "TARGET_VX && UINTVAL (operands[2]) != 2 && UINTVAL (operands[2]) <= 7"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vcdgb\t%v0,%v1,4,%b2"
   [(set_attr "op_type" "VRR")])
 
@@ -1828,10 +1964,14 @@
 		      (const_int 0)] ; According to current BFP rounding mode
 		     UNSPEC_VEC_VCDGB))
 <<<<<<< HEAD
+<<<<<<< HEAD
    (use (match_operand:QI 2 "immediate_operand" ""))
 =======
    (use (match_operand:QI 2 "const_int_operand" ""))
 >>>>>>> gcc-mirror/master
+=======
+   (use (match_operand:QI 2 "immediate_operand" ""))
+>>>>>>> master
    (set (match_dup 0) (mult:V2DF (match_dup 0) (match_dup 3)))]
   "TARGET_VX"
 {
@@ -1850,10 +1990,14 @@
   [(set (match_operand:V2DF 0 "register_operand"               "=v")
 	(unspec:V2DF [(match_operand:V2DI 1 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      (match_operand:QI   2 "immediate_operand" "C")]
 =======
 		      (match_operand:QI   2 "const_int_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+		      (match_operand:QI   2 "immediate_operand" "C")]
+>>>>>>> master
 		     UNSPEC_VEC_VCDLGB))]
   "TARGET_VX"
   "vcdlgb\t%v0,%v1,4,%b2"
@@ -1866,10 +2010,14 @@
 		      (const_int 0)] ; According to current BFP rounding mode
 		     UNSPEC_VEC_VCDLGB))
 <<<<<<< HEAD
+<<<<<<< HEAD
    (use (match_operand:QI 2 "immediate_operand" ""))
 =======
    (use (match_operand:QI 2 "const_int_operand" ""))
 >>>>>>> gcc-mirror/master
+=======
+   (use (match_operand:QI 2 "immediate_operand" ""))
+>>>>>>> master
    (set (match_dup 0) (mult:V2DF (match_dup 0) (match_dup 3)))]
   "TARGET_VX"
 {
@@ -1889,10 +2037,14 @@
   [(set (match_operand:V2DI 0 "register_operand"               "=v")
 	(unspec:V2DI [(match_operand:V2DF 1 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      (match_operand:QI   2 "immediate_operand" "C")]
 =======
 		      (match_operand:QI   2 "const_int_operand" "C")]
 >>>>>>> gcc-mirror/master
+=======
+		      (match_operand:QI   2 "immediate_operand" "C")]
+>>>>>>> master
 		     UNSPEC_VEC_VCGDB))]
   "TARGET_VX"
   "vcgdb\t%v0,%v1,4,%b2"
@@ -1901,10 +2053,14 @@
 ; The input needs to be multiplied with 2**op2
 (define_expand "vec_ctsl"
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(use (match_operand:QI 2 "immediate_operand" ""))
 =======
   [(use (match_operand:QI 2 "const_int_operand" ""))
 >>>>>>> gcc-mirror/master
+=======
+  [(use (match_operand:QI 2 "immediate_operand" ""))
+>>>>>>> master
    (set (match_dup 4) (mult:V2DF (match_operand:V2DF 1 "register_operand" "")
 				 (match_dup 3)))
    (set (match_operand:V2DI 0 "register_operand" "")
@@ -1928,6 +2084,7 @@
   [(set (match_operand:V2DI 0 "register_operand"               "=v")
 	(unspec:V2DI [(match_operand:V2DF 1 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      (match_operand:QI   2 "immediate_operand" "C")]
 		     UNSPEC_VEC_VCLGDB))]
   "TARGET_VX"
@@ -1936,16 +2093,25 @@
 		     UNSPEC_VEC_VCLGDB))]
   "TARGET_VX && UINTVAL (operands[2]) <= 7"
 >>>>>>> gcc-mirror/master
+=======
+		      (match_operand:QI   2 "immediate_operand" "C")]
+		     UNSPEC_VEC_VCLGDB))]
+  "TARGET_VX"
+>>>>>>> master
   "vclgdb\t%v0,%v1,4,%b2"
   [(set_attr "op_type" "VRR")])
 
 ; The input needs to be multiplied with 2**op2
 (define_expand "vec_ctul"
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(use (match_operand:QI 2 "immediate_operand" ""))
 =======
   [(use (match_operand:QI 2 "const_int_operand" ""))
 >>>>>>> gcc-mirror/master
+=======
+  [(use (match_operand:QI 2 "immediate_operand" ""))
+>>>>>>> master
    (set (match_dup 4) (mult:V2DF (match_operand:V2DF 1 "register_operand" "")
 				 (match_dup 3)))
    (set (match_operand:V2DI 0 "register_operand" "")
@@ -1967,12 +2133,16 @@
 ; Vector load fp integer - IEEE inexact exception is suppressed
 (define_insn "vfidb"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   [(set (match_operand:V2DI               0 "register_operand" "=v")
 	(unspec:V2DI [(match_operand:V2DF 1 "register_operand"  "v")
 		      (match_operand:QI   2 "immediate_operand" "C")
 		      (match_operand:QI   3 "immediate_operand" "C")]
 		     UNSPEC_VEC_VFIDB))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
   [(set (match_operand:V2DI               0 "register_operand"  "=v")
 	(unspec:V2DI [(match_operand:V2DF 1 "register_operand"   "v")
@@ -1981,6 +2151,8 @@
 		     UNSPEC_VEC_VFIDB))]
   "TARGET_VX && !(UINTVAL (operands[2]) & 3) && UINTVAL (operands[3]) <= 7"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vfidb\t%v0,%v1,%b2,%b3"
   [(set_attr "op_type" "VRR")])
 
@@ -2093,11 +2265,15 @@
   [(set (match_operand:V2DF 0 "register_operand"  "=v")
 	(unspec:V2DF [(match_operand:V2DF 1 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		      (match_operand:SI   2 "immediate_operand" "J")]
 		     UNSPEC_VEC_VFTCIDB))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1) (match_dup 2)] UNSPEC_VEC_VFTCIDBCC))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
 		      (match_operand:HI   2 "const_int_operand" "J")]
 		     UNSPEC_VEC_VFTCIDB))
@@ -2105,6 +2281,8 @@
 	(unspec:CCRAW [(match_dup 1) (match_dup 2)] UNSPEC_VEC_VFTCIDBCC))]
   "TARGET_VX && CONST_OK_FOR_CONSTRAINT_P (INTVAL (operands[2]), 'J', \"J\")"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vftcidb\t%v0,%v1,%x2"
   [(set_attr "op_type" "VRR")])
 
@@ -2112,16 +2290,22 @@
   [(set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_operand:V2DF 1 "register_operand"  "v")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		       (match_operand:SI   2 "immediate_operand" "J")]
 		      UNSPEC_VEC_VFTCIDBCC))
    (clobber (match_scratch:V2DI 0 "=v"))]
   "TARGET_VX"
+<<<<<<< HEAD
 =======
 		       (match_operand:HI   2 "const_int_operand" "J")]
 		      UNSPEC_VEC_VFTCIDBCC))
    (clobber (match_scratch:V2DI 0 "=v"))]
   "TARGET_VX && CONST_OK_FOR_CONSTRAINT_P (INTVAL (operands[2]), 'J', \"J\")"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "vftcidb\t%v0,%v1,%x2"
   [(set_attr "op_type" "VRR")])
 
@@ -2130,20 +2314,28 @@
     [(set (match_operand:V2DF               0 "register_operand"  "")
 	  (unspec:V2DF [(match_operand:V2DF 1 "register_operand"  "")
 <<<<<<< HEAD
+<<<<<<< HEAD
 			(match_operand:SI   2 "immediate_operand" "")]
 =======
 			(match_operand:HI   2 "const_int_operand" "")]
 >>>>>>> gcc-mirror/master
+=======
+			(match_operand:SI   2 "immediate_operand" "")]
+>>>>>>> master
 		       UNSPEC_VEC_VFTCIDB))
      (set (reg:CCRAW CC_REGNUM)
 	  (unspec:CCRAW [(match_dup 1) (match_dup 2)] UNSPEC_VEC_VFTCIDBCC))])
    (set (match_operand:SI 3 "memory_operand" "")
 	(unspec:SI [(reg:CCRAW CC_REGNUM)] UNSPEC_CC_TO_INT))]
 <<<<<<< HEAD
+<<<<<<< HEAD
   "TARGET_VX")
 =======
   "TARGET_VX && CONST_OK_FOR_CONSTRAINT_P (INTVAL (operands[2]), 'J', \"J\")")
 >>>>>>> gcc-mirror/master
+=======
+  "TARGET_VX")
+>>>>>>> master
 
 ;;
 ;; Integer compares

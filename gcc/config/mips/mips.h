@@ -3274,6 +3274,7 @@ struct GTY(())  machine_function {
      stack space allocated for their arguments.  */
   bool optimize_call_stack;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* True if one of the functions calling this function may not allocate
@@ -3283,6 +3284,8 @@ struct GTY(())  machine_function {
   /* True if GCC stored callee saved registers in the frame header.  */
   bool use_frame_header_for_callee_saved_regs;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 };
 #endif
 

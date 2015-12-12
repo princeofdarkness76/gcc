@@ -24,9 +24,12 @@ int fn5 (int a);
 int fn6 (int);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #pragma omp declare simd aligned (a, b)
 int fn7 (int *a, int b[64]);
@@ -58,6 +61,9 @@ int f16 (int a);
 #pragma omp declare simd uniform(a) aligned (a: 32)
 int f17 (int *a);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

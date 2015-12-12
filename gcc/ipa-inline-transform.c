@@ -323,6 +323,7 @@ inline_call (struct cgraph_edge *e, bool update_original,
     DECL_FUNCTION_PERSONALITY (to->decl)
       = DECL_FUNCTION_PERSONALITY (callee->decl);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (!opt_for_fn (callee->decl, flag_strict_aliasing)
       && opt_for_fn (to->decl, flag_strict_aliasing))
@@ -340,6 +341,8 @@ inline_call (struct cgraph_edge *e, bool update_original,
 	 = build_optimization_node (&opts);
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* If aliases are involved, redirect edge to the actual destination and
      possibly remove the aliases.  */

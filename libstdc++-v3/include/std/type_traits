@@ -297,6 +297,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     : public true_type { };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   template<>
     struct __is_integral_helper<unsigned __GLIBCXX_TYPE_INT_N_2>
     : public true_type { };
@@ -311,6 +312,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if defined(__GLIBCXX_TYPE_INT_N_3)
   template<>
 >>>>>>> gcc-mirror/master
+=======
+  template<>
+    struct __is_integral_helper<unsigned __GLIBCXX_TYPE_INT_N_2>
+    : public true_type { };
+#endif
+#if defined(__GLIBCXX_TYPE_INT_N_3)
+  template<>
+>>>>>>> master
     struct __is_integral_helper<__GLIBCXX_TYPE_INT_N_3>
     : public true_type { };
 
@@ -1371,6 +1380,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     template <typename _Tp>
     static void __helper(const _Tp&);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
     template <typename _Tp>
     static true_type __test(const _Tp&,
@@ -1390,6 +1402,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __is_implicitly_default_constructible_safe
       : public __is_implicitly_default_constructible_impl<_Tp>::type
   { };
+<<<<<<< HEAD
 
 =======
 
@@ -1413,6 +1426,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { };
 
 >>>>>>> gcc-mirror/master
+=======
+
+>>>>>>> master
   template <typename _Tp>
     struct __is_implicitly_default_constructible
       : public __and_<is_default_constructible<_Tp>,
@@ -1777,6 +1793,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #if defined(_GLIBCXX_USE_WCHAR_T) && !defined(__WCHAR_UNSIGNED__)
 <<<<<<< HEAD
+<<<<<<< HEAD
   template<>
     struct __make_unsigned<wchar_t> : __make_unsigned<__WCHAR_TYPE__>
     { };
@@ -1801,6 +1818,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<>
 =======
   template<>
+=======
+  template<>
+>>>>>>> master
     struct __make_unsigned<wchar_t> : __make_unsigned<__WCHAR_TYPE__>
     { };
 #endif
@@ -1822,7 +1842,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_3)
   template<>
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     struct __make_unsigned<__GLIBCXX_TYPE_INT_N_3>
     { typedef unsigned __GLIBCXX_TYPE_INT_N_3 __type; };
 #endif
@@ -1911,6 +1934,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { typedef signed long long __type; };
 
 #if defined(_GLIBCXX_USE_WCHAR_T) && defined(__WCHAR_UNSIGNED__)
+<<<<<<< HEAD
   template<>
     struct __make_signed<wchar_t> : __make_signed<__WCHAR_TYPE__>
     { };
@@ -1945,12 +1969,43 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<>
 =======
   template<>
+=======
+  template<>
+    struct __make_signed<wchar_t> : __make_signed<__WCHAR_TYPE__>
+    { };
+#endif
+
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+  template<>
+    struct __make_signed<char16_t> : __make_signed<uint_least16_t>
+    { };
+  template<>
+    struct __make_signed<char32_t> : __make_signed<uint_least32_t>
+    { };
+#endif
+
+#if defined(__GLIBCXX_TYPE_INT_N_0)
+  template<>
+    struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_0>
+    { typedef __GLIBCXX_TYPE_INT_N_0 __type; };
+#endif
+#if defined(__GLIBCXX_TYPE_INT_N_1)
+  template<>
+    struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_1>
+    { typedef __GLIBCXX_TYPE_INT_N_1 __type; };
+#endif
+#if defined(__GLIBCXX_TYPE_INT_N_2)
+  template<>
+>>>>>>> master
     struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_2>
     { typedef __GLIBCXX_TYPE_INT_N_2 __type; };
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_3)
   template<>
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_3>
     { typedef __GLIBCXX_TYPE_INT_N_3 __type; };
 #endif
@@ -2458,6 +2513,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // 2219.  INVOKE-ing a pointer to member with a reference_wrapper
   //        as the object expression
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   template<typename> struct reference_wrapper;
 
   template<typename _Res, typename _Class, typename _Arg>
@@ -2471,6 +2529,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Res, typename _Class, typename _Arg>
     struct __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>&>
     : __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
+<<<<<<< HEAD
 =======
 
   template<typename _Res, typename _Class, typename _Arg>
@@ -2487,10 +2546,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __result_of_memobj<_Res _Class::*, const reference_wrapper<_Arg>&>
     : __result_of_memobj_ref<_Res _Class::*, _Arg&>
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     { };
 
   template<typename _Res, typename _Class, typename _Arg>
     struct __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>&&>
+<<<<<<< HEAD
 <<<<<<< HEAD
     : __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
 =======
@@ -2501,24 +2563,34 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __result_of_memobj<_Res _Class::*, const reference_wrapper<_Arg>&&>
     : __result_of_memobj_ref<_Res _Class::*, _Arg&>
 >>>>>>> gcc-mirror/master
+=======
+    : __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
+>>>>>>> master
     { };
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
     struct __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     : __result_of_memfun<_Res _Class::*, _Arg&, _Args...>
     {
       typedef typename
 	__result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>::type type;
     };
+<<<<<<< HEAD
 =======
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
     { };
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
     struct __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>&,
 			      _Args...>
+<<<<<<< HEAD
 <<<<<<< HEAD
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 =======
@@ -2530,11 +2602,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      _Args...>
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
 >>>>>>> gcc-mirror/master
+=======
+    : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
+>>>>>>> master
     { };
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
     struct __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>&&,
 			      _Args...>
+<<<<<<< HEAD
 <<<<<<< HEAD
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 =======
@@ -2546,6 +2622,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      _Args...>
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
 >>>>>>> gcc-mirror/master
+=======
+    : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
+>>>>>>> master
     { };
 
   template<bool, bool, typename _Functor, typename... _ArgTypes>

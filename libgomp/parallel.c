@@ -157,6 +157,7 @@ GOMP_parallel_end (void)
     }
   else
     gomp_team_end ();
+<<<<<<< HEAD
 }
 ialias (GOMP_parallel_end)
 
@@ -245,6 +246,57 @@ GOMP_cancel (int which, bool do_cancel)
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+}
+ialias (GOMP_parallel_end)
+
+void
+GOMP_parallel (void (*fn) (void *), void *data, unsigned num_threads, unsigned int flags)
+{
+  num_threads = gomp_resolve_num_threads (num_threads, 0);
+  gomp_team_start (fn, data, num_threads, flags, gomp_new_team (num_threads));
+  fn (data);
+  ialias_call (GOMP_parallel_end) ();
+}
+
+bool
+GOMP_cancellation_point (int which)
+{
+  if (!gomp_cancel_var)
+    return false;
+
+  struct gomp_thread *thr = gomp_thread ();
+  struct gomp_team *team = thr->ts.team;
+  if (which & (GOMP_CANCEL_LOOP | GOMP_CANCEL_SECTIONS))
+    {
+      if (team == NULL)
+	return false;
+      return team->work_share_cancelled != 0;
+    }
+  else if (which & GOMP_CANCEL_TASKGROUP)
+    {
+      if (thr->task->taskgroup && thr->task->taskgroup->cancelled)
+	return true;
+      /* FALLTHRU into the GOMP_CANCEL_PARALLEL case,
+	 as #pragma omp cancel parallel also cancels all explicit
+	 tasks.  */
+    }
+  if (team)
+    return gomp_team_barrier_cancelled (&team->barrier);
+  return false;
+}
+ialias (GOMP_cancellation_point)
+
+bool
+GOMP_cancel (int which, bool do_cancel)
+{
+  if (!gomp_cancel_var)
+    return false;
+
+  if (!do_cancel)
+    return ialias_call (GOMP_cancellation_point) (which);
+
+>>>>>>> master
   struct gomp_thread *thr = gomp_thread ();
   struct gomp_team *team = thr->ts.team;
   if (which & (GOMP_CANCEL_LOOP | GOMP_CANCEL_SECTIONS))
@@ -269,9 +321,12 @@ GOMP_cancel (int which, bool do_cancel)
   gomp_team_barrier_cancel (team);
   return true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* The public OpenMP API for thread and team related inquiries.  */

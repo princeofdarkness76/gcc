@@ -431,10 +431,13 @@ lra_eliminate_regs_1 (rtx_insn *insn, rtx x, machine_mode mem_mode,
 					 update_sp_offset, full_p);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	new0 = move_plus_up (new0);
 	new1 = move_plus_up (new1);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	if (new0 != XEXP (x, 0) || new1 != XEXP (x, 1))
 	  return form_sum (new0, new1);
       }

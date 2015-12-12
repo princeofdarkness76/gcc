@@ -503,6 +503,9 @@ special_function_p (const_tree fndecl, int flags)
 	 makes no sense to pass it as a pointer-to-function to
 	 anything that does not understand its behavior.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       if (((IDENTIFIER_LENGTH (name_decl) == 6
 	    && name[0] == 'a'
 	    && ! strcmp (name, "alloca"))

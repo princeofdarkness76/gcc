@@ -390,6 +390,9 @@ unpack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
     TYPE_ALIGN (expr) = targetm.absolute_biggest_alignment;
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   TYPE_ALIAS_SET (expr) = bp_unpack_var_len_int (bp);
 =======
 >>>>>>> gcc-mirror/master

@@ -954,10 +954,14 @@ dump_global_iord (cxx_pretty_printer *pp, tree t)
     gcc_unreachable ();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   pp_printf (pp, p, LOCATION_FILE (input_location));
 =======
   pp_printf (pp, p, DECL_SOURCE_FILE (t));
 >>>>>>> gcc-mirror/master
+=======
+  pp_printf (pp, p, LOCATION_FILE (input_location));
+>>>>>>> master
 }
 
 static void

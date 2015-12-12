@@ -144,11 +144,15 @@ namespace std
       static void _S_rethrow(const _Tp& __t)
       {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (auto __tp = dynamic_cast<const nested_exception*>(&__t))
 =======
 	if (auto __tp =
             dynamic_cast<const nested_exception*>(std::__addressof(__t)))
 >>>>>>> gcc-mirror/master
+=======
+	if (auto __tp = dynamic_cast<const nested_exception*>(&__t))
+>>>>>>> master
 	  __tp->rethrow_nested();
       }
     };

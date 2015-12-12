@@ -27,10 +27,13 @@
 #include "string.h"
 #include <sys/mman.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <stdint.h>
 #include "mpxrt/mpxrt.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 void *
 __mpx_wrapper_malloc (size_t size)
@@ -94,6 +97,9 @@ __mpx_wrapper_bzero (void *dst, size_t len)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 void *
 __mpx_wrapper_memmove (void *dst, const void *src, size_t n)
 {
@@ -163,6 +169,7 @@ __mpx_wrapper_memmove (void *dst, const void *src, size_t n)
 	}
     }
   return ret;
+<<<<<<< HEAD
 =======
 /* The mpx_pointer type is used for getting bits
    for bt_index (index in bounds table) and
@@ -565,6 +572,8 @@ __mpx_wrapper_memmove (void *dst, const void *src, size_t n)
 
   return dst;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 

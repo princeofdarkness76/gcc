@@ -1,10 +1,14 @@
 /* Testcase derived from gcc.c-torture/execute 20050826-2.c
    which showed jump threading profile insanities.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-Ofast -fdump-tree-dom1-all" } */
 =======
 /* { dg-options "-Ofast -fdump-tree-dom2-all" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-Ofast -fdump-tree-dom1-all" } */
+>>>>>>> master
 
 struct rtattr
 {
@@ -77,7 +81,11 @@ main (void)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom1"} } */
 =======
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom1"} } */
+>>>>>>> master

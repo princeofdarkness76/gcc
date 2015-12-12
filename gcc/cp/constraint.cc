@@ -1354,6 +1354,9 @@ finish_template_introduction (tree tmpl_decl, tree intro_list)
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* Make a "constrained auto" type-specifier. This is an
    auto type with constraints that must be associated after
    deduction.  The constraint is formed from the given
@@ -1380,8 +1383,11 @@ make_constrained_auto (tree con, tree args)
   return decl;
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Given the predicate constraint T from a constrained-type-specifier, extract
    its TMPL and ARGS.  FIXME why do we need two different forms of
    constrained-type-specifier?  */
@@ -1901,11 +1907,15 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   tree placeholder = DEDUCT_CONSTR_PLACEHOLDER (t);
   tree constr = PLACEHOLDER_TYPE_CONSTRAINTS (placeholder);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
     = tsubst_constraint (constr, args, complain|tf_partial, in_decl);
   tree type = do_auto_deduction (pattern, init, placeholder,
                                  complain, adc_requirement);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
+<<<<<<< HEAD
 =======
   tree type_canonical = TYPE_CANONICAL (placeholder);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
@@ -1916,6 +1926,8 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
   TYPE_CANONICAL (placeholder) = type_canonical;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (type == error_mark_node)
     return boolean_false_node;
 
@@ -2355,6 +2367,7 @@ subsumes_constraints (tree a, tree b)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Returns true when the the constraints in A subsume those in B, but
    the constraints in B do not subsume the constraints in A.  */
@@ -2366,6 +2379,8 @@ strictly_subsumes (tree a, tree b)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Determines which of the declarations, A or B, is more constrained.
    That is, which declaration's constraints subsume but are not subsumed
    by the other's?

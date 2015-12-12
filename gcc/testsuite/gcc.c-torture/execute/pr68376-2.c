@@ -27,6 +27,7 @@ f4 (int x)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 __attribute__((noinline, noclone)) int
 f5 (int x)
@@ -53,6 +54,8 @@ f8 (int x)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 int
 main ()
 {
@@ -65,6 +68,7 @@ main ()
   if (f4 (5) != -6 || f4 (-5) != -5 || f4 (0) != 0)
     abort ();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (f5 (5) != -6 || f5 (-5) != -5 || f5 (0) != -1)
     abort ();
@@ -75,5 +79,7 @@ main ()
   if (f8 (5) != 5 || f8 (-5) != 4 || f8 (0) != -1)
     abort ();
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return 0;
 }

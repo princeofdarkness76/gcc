@@ -60,8 +60,11 @@ extern tree chkp_insert_retbnd_call (tree bndval, tree retval,
 extern gcall *chkp_copy_call_skip_bounds (gcall *call);
 extern bool chkp_redirect_edge (cgraph_edge *e);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern void chkp_fixup_inlined_call (tree lhs, tree rhs);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #endif /* GCC_TREE_CHKP_H */

@@ -296,12 +296,15 @@ val_ssa_equiv_hash_traits::remove (T &elt)
    to a list of SSA_NAMEs which have the same value.  We might be
    able to reuse tree-vn for this code.  */
 static hash_map<tree, vec<tree>, val_ssa_equiv_hash_traits> *val_ssa_equiv;
+<<<<<<< HEAD
 =======
 /* Global hash table implementing a mapping from invariant values
    to a list of SSA_NAMEs which have the same value.  We might be
    able to reuse tree-vn for this code.  */
 static hash_map<tree, auto_vec<tree> > *val_ssa_equiv;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 static void uncprop_into_successor_phis (basic_block);
 
@@ -327,10 +330,14 @@ public:
   uncprop_dom_walker (cdi_direction direction) : dom_walker (direction) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
   virtual void after_dom_children (basic_block);
 
 private:
@@ -461,10 +468,14 @@ single_incoming_edge_ignoring_loop_edges (basic_block bb)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 uncprop_dom_walker::before_dom_children (basic_block bb)
 {
   basic_block parent;
@@ -499,6 +510,7 @@ uncprop_dom_walker::before_dom_children (basic_block bb)
 namespace {
 
 const pass_data pass_data_uncprop =
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
@@ -591,5 +603,78 @@ pass_uncprop::execute (function *fun)
 gimple_opt_pass *
 make_pass_uncprop (gcc::context *ctxt)
 {
+=======
+{
+  GIMPLE_PASS, /* type */
+  "uncprop", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_SSA_UNCPROP, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_uncprop : public gimple_opt_pass
+{
+public:
+  pass_uncprop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_uncprop, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  opt_pass * clone () { return new pass_uncprop (m_ctxt); }
+  virtual bool gate (function *) { return flag_tree_dom != 0; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_uncprop
+
+unsigned int
+pass_uncprop::execute (function *fun)
+{
+  basic_block bb;
+
+  associate_equivalences_with_edges ();
+
+  /* Create our global data structures.  */
+  val_ssa_equiv
+    = new hash_map<tree, vec<tree>, val_ssa_equiv_hash_traits> (1024);
+
+  /* We're going to do a dominator walk, so ensure that we have
+     dominance information.  */
+  calculate_dominance_info (CDI_DOMINATORS);
+
+  /* Recursively walk the dominator tree undoing unprofitable
+     constant/copy propagations.  */
+  uncprop_dom_walker (CDI_DOMINATORS).walk (fun->cfg->x_entry_block_ptr);
+
+  /* we just need to empty elements out of the hash table, and cleanup the
+    AUX field on the edges.  */
+  delete val_ssa_equiv;
+  val_ssa_equiv = NULL;
+  FOR_EACH_BB_FN (bb, fun)
+    {
+      edge e;
+      edge_iterator ei;
+
+      FOR_EACH_EDGE (e, ei, bb->succs)
+	{
+	  if (e->aux)
+	    {
+	      free (e->aux);
+	      e->aux = NULL;
+	    }
+	}
+    }
+  return 0;
+}
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_uncprop (gcc::context *ctxt)
+{
+>>>>>>> master
   return new pass_uncprop (ctxt);
 }

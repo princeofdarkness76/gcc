@@ -13745,6 +13745,9 @@ label:
 (define_insn "rsqrtsf2"
   [(set (match_operand:SF 0 "fp_arith_reg_operand" "=f")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	(div:SF (match_operand:SF 1 "immediate_operand" "i")
 		(sqrt:SF (match_operand:SF 2 "fp_arith_reg_operand" "0"))))
    (clobber (reg:SI FPSCR_STAT_REG))

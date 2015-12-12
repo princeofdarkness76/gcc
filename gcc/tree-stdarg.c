@@ -1049,6 +1049,7 @@ expand_ifn_va_arg_1 (function *fun)
 	    gcc_assert (useless_type_conversion_p (TREE_TYPE (lhs), type));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    /* We replace call with a new expr.  This may require
 	       corresponding bndret call fixup.  */
@@ -1056,6 +1057,8 @@ expand_ifn_va_arg_1 (function *fun)
 	      chkp_fixup_inlined_call (lhs, expr);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    if (nargs == 3)
 	      {
 		/* We've transported the size of with WITH_SIZE_EXPR here as

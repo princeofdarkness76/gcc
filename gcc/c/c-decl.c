@@ -5541,6 +5541,13 @@ grokdeclarator (const struct c_declarator *declarator,
   if (atomicp && TREE_CODE (type) == ARRAY_TYPE)
     error_at (loc, "%<_Atomic%>-qualified array type");
 
+  /* Applying the _Atomic qualifier to an array type (through the use
+     of typedefs or typeof) must be detected here.  If the qualifier
+     is introduced later, any appearance of applying it to an array is
+     actually applying it to an element of that array.  */
+  if (atomicp && TREE_CODE (type) == ARRAY_TYPE)
+    error_at (loc, "%<_Atomic%>-qualified array type");
+
   /* Warn about storage classes that are invalid for certain
      kinds of declarations (parameters, typenames, etc.).  */
 
@@ -6525,6 +6532,9 @@ grokdeclarator (const struct c_declarator *declarator,
 						   NULL_TREE);
 	  }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	type = c_build_qualified_type (type, type_quals);
 =======
 	type = c_build_qualified_type (type, type_quals, orig_qual_type,
@@ -7027,20 +7037,28 @@ get_parm_info (bool ellipsis, tree expr)
 	      if (b->id)
 		/* The %s will be one of 'struct', 'union', or 'enum'.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
 >>>>>>> gcc-mirror/master
+=======
+		warning_at (input_location, 0,
+>>>>>>> master
 			    "%<%s %E%> declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword, b->id);
 	      else
 		/* The %s will be one of 'struct', 'union', or 'enum'.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
 >>>>>>> gcc-mirror/master
+=======
+		warning_at (input_location, 0,
+>>>>>>> master
 			    "anonymous %s declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword);

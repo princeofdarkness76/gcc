@@ -2981,10 +2981,14 @@ package body Sem_Ch6 is
       --  A [generic] subprogram body "freezes" the contract of the nearest
       --  enclosing package body and all other contracts encountered in the
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  same declarative part upto and excluding the subprogram body:
 =======
       --  same declarative part up to and excluding the subprogram body:
 >>>>>>> gcc-mirror/master
+=======
+      --  same declarative part upto and excluding the subprogram body:
+>>>>>>> master
 
       --    package body Nearest_Enclosing_Package
       --      with Refined_State => (State => Constit)

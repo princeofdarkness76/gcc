@@ -9,16 +9,22 @@ template<int> struct A // { dg-error "has been parsed" }
 template<int N> struct B
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   B* p = new B<N>;
 };
 
 B<1> x; // { dg-error "recursive instantiation of non-static data" }
+<<<<<<< HEAD
 =======
   B* p = new B<N>; // { dg-error "recursive instantiation of non-static data" }
 };
 
 B<1> x;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 struct C
 {

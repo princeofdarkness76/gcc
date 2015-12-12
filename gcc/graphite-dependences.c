@@ -46,10 +46,14 @@ along with GCC; see the file COPYING3.  If not see
 #include <isl/constraint.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 =======
 #include "graphite.h"
 >>>>>>> gcc-mirror/master
+=======
+#include "graphite-poly.h"
+>>>>>>> master
 
 
 /* Add the constraints from the set S to the domain of MAP.  */
@@ -329,6 +333,7 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
   isl_space *space = isl_union_map_get_space (all_writes);
   isl_union_map *empty = isl_union_map_empty (space);
   isl_union_map *original = scop_get_original_schedule (scop, pbbs);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   isl_union_map_compute_flow (isl_union_map_copy (reads),
@@ -397,6 +402,26 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
 }
 
 >>>>>>> gcc-mirror/master
+=======
+
+  isl_union_map_compute_flow (isl_union_map_copy (reads),
+			      isl_union_map_copy (must_writes),
+			      isl_union_map_copy (may_writes),
+			      isl_union_map_copy (original),
+			      must_raw, may_raw, must_raw_no_source,
+			      may_raw_no_source);
+  isl_union_map_compute_flow (isl_union_map_copy (all_writes),
+			      reads, empty,
+			      isl_union_map_copy (original),
+			      must_war, may_war, must_war_no_source,
+			      may_war_no_source);
+  isl_union_map_compute_flow (all_writes, must_writes, may_writes,
+			      original,
+			      must_waw, may_waw, must_waw_no_source,
+			      may_waw_no_source);
+}
+
+>>>>>>> master
 isl_union_map *
 scop_get_dependences (scop_p scop)
 {

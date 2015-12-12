@@ -29,6 +29,7 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
     ;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #pragma omp task depend(out: a[:][2:4]) // { dg-error "array type length expression is not optional" }
 =======
   #pragma omp task depend(out: a[:][2:4]) // { dg-error "array type length expression must be specified" }
@@ -36,6 +37,9 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
 =======
   #pragma omp task depend(out: a[:][2:4]) // { dg-error "array type length expression must be specified" }
 >>>>>>> gcc-mirror/master
+=======
+  #pragma omp task depend(out: a[:][2:4]) // { dg-error "array type length expression must be specified" }
+>>>>>>> master
     ;
   #pragma omp task depend(in: d[11:]) // { dg-error "low bound \[^\n\r]* above array section size" }
     ;
@@ -45,6 +49,7 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
     ;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #pragma omp task depend(in: g[:][2:4]) // { dg-error "for pointer type length expression is not optional" }
 =======
   #pragma omp task depend(in: g[:][2:4]) // { dg-error "for pointer type length expression must be specified" }
@@ -52,6 +57,9 @@ foo (int g[3][10], int h[4][8], int i[2][10], int j[][9],
 =======
   #pragma omp task depend(in: g[:][2:4]) // { dg-error "for pointer type length expression must be specified" }
 >>>>>>> gcc-mirror/master
+=======
+  #pragma omp task depend(in: g[:][2:4]) // { dg-error "for pointer type length expression must be specified" }
+>>>>>>> master
     ;
   #pragma omp task depend(out: i[:1][11:]) // { dg-error "low bound \[^\n\r]* above array section size" }
     ;

@@ -23,10 +23,14 @@
 // <http://www.gnu.org/licenses/>.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/fs_dir.h
 =======
 /** @file experimental/bits/fs_dir.h
 >>>>>>> gcc-mirror/master
+=======
+/** @file experimental/fs_dir.h
+>>>>>>> master
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
  */

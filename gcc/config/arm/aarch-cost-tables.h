@@ -332,6 +332,7 @@ const struct cpu_cost_table cortexa57_extra_costs =
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 const struct cpu_cost_table exynosm1_extra_costs =
 {
@@ -437,6 +438,8 @@ const struct cpu_cost_table exynosm1_extra_costs =
 };
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 const struct cpu_cost_table xgene1_extra_costs =
 {
   /* ALU */

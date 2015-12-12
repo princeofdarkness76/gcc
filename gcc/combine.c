@@ -2513,11 +2513,15 @@ is_parallel_of_n_reg_sets (rtx pat, int n)
       return false;
   for ( ; i < len; i++)
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER)
 =======
     if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER
 	|| XEXP (XVECEXP (pat, 0, i), 0) == const0_rtx)
 >>>>>>> gcc-mirror/master
+=======
+    if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER)
+>>>>>>> master
       return false;
 
   return true;
@@ -2928,6 +2932,7 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
 			 XVECEXP (PATTERN (i2), 0, 1), INSN_LOCATION (i2),
 			 -1, NULL_RTX);
       INSN_UID (i1) = INSN_UID (i2);
+<<<<<<< HEAD
 
       SUBST (PATTERN (i2), XVECEXP (PATTERN (i2), 0, 0));
       SUBST (XEXP (SET_SRC (PATTERN (i2)), 0),
@@ -2949,6 +2954,29 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
       /* If there is no I1, there is no I0 either.  */
       i0 = i1;
 
+=======
+
+      SUBST (PATTERN (i2), XVECEXP (PATTERN (i2), 0, 0));
+      SUBST (XEXP (SET_SRC (PATTERN (i2)), 0),
+	     SET_DEST (PATTERN (i1)));
+      unsigned int regno = REGNO (SET_DEST (PATTERN (i1)));
+      SUBST_LINK (LOG_LINKS (i2),
+		  alloc_insn_link (i1, regno, LOG_LINKS (i2)));
+    }
+
+  /* If I2 is a PARALLEL of two SETs of REGs (and perhaps some CLOBBERs),
+     make those two SETs separate I1 and I2 insns, and make an I0 that is
+     the original I1.  */
+  if (!HAVE_cc0 && i0 == 0
+      && is_parallel_of_n_reg_sets (PATTERN (i2), 2)
+      && can_split_parallel_of_n_reg_sets (i2, 2)
+      && !reg_used_between_p (SET_DEST (XVECEXP (PATTERN (i2), 0, 0)), i2, i3)
+      && !reg_used_between_p (SET_DEST (XVECEXP (PATTERN (i2), 0, 1)), i2, i3))
+    {
+      /* If there is no I1, there is no I0 either.  */
+      i0 = i1;
+
+>>>>>>> master
       /* We make I1 with the same INSN_UID as I2.  This gives it
 	 the same DF_INSN_LUID for value tracking.  Our fake I1 will
 	 never appear in the insn stream so giving it the same INSN_UID
@@ -3441,12 +3469,21 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
 
   /* We have recognized nothing yet.  */
   insn_code_number = -1;
+<<<<<<< HEAD
 
   /* See if this is a PARALLEL of two SETs where one SET's destination is
      a register that is unused and this isn't marked as an instruction that
      might trap in an EH region.  In that case, we just need the other SET.
      We prefer this over the PARALLEL.
 
+=======
+
+  /* See if this is a PARALLEL of two SETs where one SET's destination is
+     a register that is unused and this isn't marked as an instruction that
+     might trap in an EH region.  In that case, we just need the other SET.
+     We prefer this over the PARALLEL.
+
+>>>>>>> master
      This can occur when simplifying a divmod insn.  We *must* test for this
      case here because the code below that splits two independent SETs doesn't
      handle this case correctly when it updates the register status.
@@ -5290,10 +5327,14 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 	fmt = "ie";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* Substituting into the operands of a widening MULT is not likely
 =======
       /* Trying to simplify the operands of a widening MULT is not likely
 >>>>>>> gcc-mirror/master
+=======
+      /* Substituting into the operands of a widening MULT is not likely
+>>>>>>> master
 	 to create RTL matching a machine insn.  */
       if (code == MULT
 	  && (GET_CODE (XEXP (x, 0)) == ZERO_EXTEND
@@ -5302,6 +5343,9 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 	      || GET_CODE (XEXP (x, 1)) == SIGN_EXTEND)
 	  && REG_P (XEXP (XEXP (x, 0), 0))
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  && REG_P (XEXP (XEXP (x, 1), 0)))
 	{
 	  if (from == to)
@@ -5309,12 +5353,15 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 	  else
 	    return gen_rtx_CLOBBER (GET_MODE (x), const0_rtx);
 	}
+<<<<<<< HEAD
 =======
 	  && REG_P (XEXP (XEXP (x, 1), 0))
 	  && from == to)
 	return x;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
       /* Get the mode of operand 0 in case X is now a SIGN_EXTEND of a
 	 constant.  */

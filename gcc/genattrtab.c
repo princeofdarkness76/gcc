@@ -744,10 +744,14 @@ attr_copy_rtx (rtx orig)
 
 static rtx
 <<<<<<< HEAD
+<<<<<<< HEAD
 check_attr_test (rtx exp, int is_const, file_location loc)
 =======
 check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 >>>>>>> gcc-mirror/master
+=======
+check_attr_test (rtx exp, int is_const, file_location loc)
+>>>>>>> master
 {
   struct attr_value *av;
   const char *name_ptr, *p;
@@ -763,10 +767,14 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 					  attr_eq (XSTR (exp, 0),
 						   &XSTR (exp, 1)[1])),
 <<<<<<< HEAD
+<<<<<<< HEAD
 				is_const, loc);
 =======
 				attr);
 >>>>>>> gcc-mirror/master
+=======
+				is_const, loc);
+>>>>>>> master
 
       else if (n_comma_elts (XSTR (exp, 1)) == 1)
 	{
@@ -777,6 +785,9 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 		return mk_attr_alt (((uint64_t) 1) << atoi (XSTR (exp, 1)));
 	      else
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		fatal_at (loc, "unknown attribute `%s' in EQ_ATTR",
 			  XSTR (exp, 0));
 	    }
@@ -784,6 +795,7 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 	  if (is_const && ! attr->is_const)
 	    fatal_at (loc, "constant expression uses insn attribute `%s'"
 		      " in EQ_ATTR", XSTR (exp, 0));
+<<<<<<< HEAD
 =======
 		fatal_at (loc, "unknown attribute `%s' in definition of"
 			  " attribute `%s'", XSTR (exp, 0), attr->name);
@@ -793,6 +805,8 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 	    fatal_at (loc, "constant attribute `%s' cannot test non-constant"
 		      " attribute `%s'", attr->name, attr2->name);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 	  /* Copy this just to make it permanent,
 	     so expressions using it can be permanent too.  */
@@ -810,10 +824,14 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 		if (! ISDIGIT (*p))
 		  fatal_at (loc, "attribute `%s' takes only numeric values",
 <<<<<<< HEAD
+<<<<<<< HEAD
 			    XSTR (exp, 0));
 =======
 			    attr2->name);
 >>>>>>> gcc-mirror/master
+=======
+			    XSTR (exp, 0));
+>>>>>>> master
 	    }
 	  else
 	    {
@@ -824,12 +842,17 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 
 	      if (av == NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
 		fatal_at (loc, "unknown value `%s' for `%s' attribute",
 			  XSTR (exp, 1), XSTR (exp, 0));
 =======
 		fatal_at (loc, "unknown value `%s' for attribute `%s'",
 			  XSTR (exp, 1), attr2->name);
 >>>>>>> gcc-mirror/master
+=======
+		fatal_at (loc, "unknown value `%s' for `%s' attribute",
+			  XSTR (exp, 1), XSTR (exp, 0));
+>>>>>>> master
 	    }
 	}
       else
@@ -856,10 +879,14 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 		}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      return check_attr_test (orexp, is_const, loc);
 =======
 	      return check_attr_test (loc, orexp, attr);
 >>>>>>> gcc-mirror/master
+=======
+	      return check_attr_test (orexp, is_const, loc);
+>>>>>>> master
 	    }
 	}
       break;
@@ -877,12 +904,16 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
     case IOR:
     case AND:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       XEXP (exp, 0) = check_attr_test (XEXP (exp, 0), is_const, loc);
       XEXP (exp, 1) = check_attr_test (XEXP (exp, 1), is_const, loc);
       break;
 
     case NOT:
       XEXP (exp, 0) = check_attr_test (XEXP (exp, 0), is_const, loc);
+<<<<<<< HEAD
 =======
       XEXP (exp, 0) = check_attr_test (loc, XEXP (exp, 0), attr);
       XEXP (exp, 1) = check_attr_test (loc, XEXP (exp, 1), attr);
@@ -891,6 +922,8 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
     case NOT:
       XEXP (exp, 0) = check_attr_test (loc, XEXP (exp, 0), attr);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       break;
 
     case MATCH_TEST:
@@ -903,12 +936,15 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
       if (is_const)
 	fatal_at (loc, "RTL operator \"%s\" not valid in constant attribute"
 		  " test", GET_RTX_NAME (GET_CODE (exp)));
+<<<<<<< HEAD
 =======
       if (attr->is_const)
 	fatal_at (loc, "invalid operator `%s' in definition of constant"
 		  " attribute `%s'", GET_RTX_NAME (GET_CODE (exp)),
 		  attr->name);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       /* These cases can't be simplified.  */
       ATTR_IND_SIMPLIFIED_P (exp) = 1;
       break;
@@ -936,12 +972,17 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 	}
     default:
 <<<<<<< HEAD
+<<<<<<< HEAD
       fatal_at (loc, "RTL operator \"%s\" not valid in attribute test",
 		GET_RTX_NAME (GET_CODE (exp)));
 =======
       fatal_at (loc, "invalid operator `%s' in definition of attribute"
 		" `%s'", GET_RTX_NAME (GET_CODE (exp)), attr->name);
 >>>>>>> gcc-mirror/master
+=======
+      fatal_at (loc, "RTL operator \"%s\" not valid in attribute test",
+		GET_RTX_NAME (GET_CODE (exp)));
+>>>>>>> master
     }
 
   return exp;
@@ -951,11 +992,14 @@ check_attr_test (file_location loc, rtx exp, attr_desc *attr)
 /* Given an expression, ensure that it is validly formed and that all named
    attribute values are valid for the given attribute.  Issue a fatal error
    if not.
+<<<<<<< HEAD
 =======
 /* Given an expression EXP, ensure that it is validly formed and that
    all named attribute values are valid for ATTR.  Issue an error if not.
    LOC is the location of the .md construct that contains EXP.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
    Return a perhaps modified replacement expression for the value.  */
 
@@ -972,12 +1016,17 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
       if (!attr->is_numeric)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error_at (attr->loc,
 		    "CONST_INT not valid for non-numeric attribute %s",
 =======
 	  error_at (loc,
 		    "CONST_INT not valid for non-numeric attribute `%s'",
 >>>>>>> gcc-mirror/master
+=======
+	  error_at (attr->loc,
+		    "CONST_INT not valid for non-numeric attribute %s",
+>>>>>>> master
 		    attr->name);
 	  break;
 	}
@@ -985,12 +1034,17 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
       if (INTVAL (exp) < 0)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error_at (attr->loc,
 		    "negative numeric value specified for attribute %s",
 =======
 	  error_at (loc,
 		    "negative numeric value specified for attribute `%s'",
 >>>>>>> gcc-mirror/master
+=======
+	  error_at (attr->loc,
+		    "negative numeric value specified for attribute %s",
+>>>>>>> master
 		    attr->name);
 	  break;
 	}
@@ -1007,6 +1061,7 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 	    if (! ISDIGIT (*p))
 	      {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		error_at (attr->loc,
 			  "non-numeric value for numeric attribute %s",
 			  attr->name);
@@ -1015,6 +1070,11 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 			  "non-numeric value specified for numeric"
 			  " attribute `%s'", attr->name);
 >>>>>>> gcc-mirror/master
+=======
+		error_at (attr->loc,
+			  "non-numeric value for numeric attribute %s",
+			  attr->name);
+>>>>>>> master
 		break;
 	      }
 	  break;
@@ -1027,15 +1087,22 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 
       if (av == NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	error_at (attr->loc, "unknown value `%s' for `%s' attribute",
 =======
 	error_at (loc, "unknown value `%s' for attribute `%s'",
 >>>>>>> gcc-mirror/master
+=======
+	error_at (attr->loc, "unknown value `%s' for `%s' attribute",
+>>>>>>> master
 		  XSTR (exp, 0), attr->name);
       break;
 
     case IF_THEN_ELSE:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       XEXP (exp, 0) = check_attr_test (XEXP (exp, 0), attr->is_const,
 				       attr->loc);
       XEXP (exp, 1) = check_attr_value (XEXP (exp, 1), attr);
@@ -1055,6 +1122,7 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
       if (!attr->is_numeric)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error_at (attr->loc, "invalid operation `%s' for non-numeric"
 		    " attribute value", GET_RTX_NAME (GET_CODE (exp)));
 =======
@@ -1062,6 +1130,10 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 		    " attribute `%s'", GET_RTX_NAME (GET_CODE (exp)),
 		    attr->name);
 >>>>>>> gcc-mirror/master
+=======
+	  error_at (attr->loc, "invalid operation `%s' for non-numeric"
+		    " attribute value", GET_RTX_NAME (GET_CODE (exp)));
+>>>>>>> master
 	  break;
 	}
       /* Fall through.  */
@@ -1085,10 +1157,14 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
       if (XVECLEN (exp, 0) % 2 != 0)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error_at (attr->loc, "first operand of COND must have even length");
 =======
 	  error_at (loc, "first operand of COND must have even length");
 >>>>>>> gcc-mirror/master
+=======
+	  error_at (attr->loc, "first operand of COND must have even length");
+>>>>>>> master
 	  break;
 	}
 
@@ -1097,11 +1173,14 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 <<<<<<< HEAD
 	  XVECEXP (exp, 0, i) = check_attr_test (XVECEXP (exp, 0, i),
 						 attr->is_const, attr->loc);
+<<<<<<< HEAD
 =======
 	  XVECEXP (exp, 0, i) = check_attr_test (attr->loc,
 						 XVECEXP (exp, 0, i),
 						 attr);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  XVECEXP (exp, 0, i + 1)
 	    = check_attr_value (loc, XVECEXP (exp, 0, i + 1), attr);
 	}
@@ -1114,6 +1193,9 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 	struct attr_desc *attr2 = find_attr (&XSTR (exp, 0), 0);
 	if (attr2 == NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  error_at (attr->loc, "unknown attribute `%s' in ATTR",
 		    XSTR (exp, 0));
 	else if (attr->is_const && ! attr2->is_const)
@@ -1124,6 +1206,7 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 	  error_at (attr->loc,
 		    "numeric attribute mismatch calling `%s' from `%s'",
 		    XSTR (exp, 0), attr->name);
+<<<<<<< HEAD
 =======
 	  error_at (loc, "unknown attribute `%s' in ATTR",
 		    XSTR (exp, 0));
@@ -1136,6 +1219,8 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 		    "numeric attribute mismatch calling `%s' from `%s'",
 		    attr2->name, attr->name);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       }
       break;
 
@@ -1147,12 +1232,17 @@ check_attr_value (file_location loc, rtx exp, struct attr_desc *attr)
 
     default:
 <<<<<<< HEAD
+<<<<<<< HEAD
       error_at (attr->loc, "invalid operation `%s' for attribute value",
 		GET_RTX_NAME (GET_CODE (exp)));
 =======
       error_at (loc, "invalid operator `%s' in definition of attribute `%s'",
 		GET_RTX_NAME (GET_CODE (exp)), attr->name);
 >>>>>>> gcc-mirror/master
+=======
+      error_at (attr->loc, "invalid operation `%s' for attribute value",
+		GET_RTX_NAME (GET_CODE (exp)));
+>>>>>>> master
       break;
     }
 
@@ -3304,10 +3394,14 @@ gen_attr (md_rtx_info *info)
 
   /* Set up the default value.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   XEXP (def, 2) = check_attr_value (XEXP (def, 2), attr);
 =======
   XEXP (def, 2) = check_attr_value (info->loc, XEXP (def, 2), attr);
 >>>>>>> gcc-mirror/master
+=======
+  XEXP (def, 2) = check_attr_value (XEXP (def, 2), attr);
+>>>>>>> master
   attr->default_val = get_attr_value (info->loc, XEXP (def, 2), attr, -2);
 }
 
@@ -4876,6 +4970,7 @@ gen_insn_reserv (md_rtx_info *info)
   struct insn_reserv *decl = oballoc (struct insn_reserv);
   rtx def = info->def;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   decl->name            = DEF_ATTR_STRING (XSTR (def, 0));
   decl->default_latency = XINT (def, 1);
@@ -4891,6 +4986,12 @@ gen_insn_reserv (md_rtx_info *info)
   decl->default_latency = XINT (def, 1);
   decl->condexp         = check_attr_test (info->loc, XEXP (def, 2), &attr);
 >>>>>>> gcc-mirror/master
+=======
+
+  decl->name            = DEF_ATTR_STRING (XSTR (def, 0));
+  decl->default_latency = XINT (def, 1);
+  decl->condexp         = check_attr_test (XEXP (def, 2), 0, info->loc);
+>>>>>>> master
   decl->insn_num        = n_insn_reservs;
   decl->bypassed	= false;
   decl->next            = 0;

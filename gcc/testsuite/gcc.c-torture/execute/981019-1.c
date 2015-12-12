@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-skip-if "ptxas seg faults" { nvptx-*-* } { "-O2" "-O3*" } { "" } } */
 =======
 /* { dg-skip-if "ptxas seg faults" { nvptx-*-* } { "-O3*" } { "" } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-skip-if "ptxas seg faults" { nvptx-*-* } { "-O2" "-O3*" } { "" } } */
+>>>>>>> master
 
 extern int f2(void);
 extern int f3(void);

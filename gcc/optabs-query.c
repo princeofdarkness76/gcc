@@ -36,6 +36,7 @@ struct target_optabs *this_target_optabs = &default_target_optabs;
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Return the insn used to perform conversion OP from mode FROM_MODE
    to mode TO_MODE; return CODE_FOR_nothing if the target does not have
@@ -68,6 +69,8 @@ direct_optab_handler (convert_optab optab, machine_mode mode,
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Enumerates the possible types of structure operand to an
    extraction_insn.  */
 enum extraction_type { ET_unaligned_mem, ET_reg };

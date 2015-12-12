@@ -486,11 +486,15 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
   if (group)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       if (node->same_comdat_group && !boundary_p)
 	{
 	  ref = lto_symtab_encoder_lookup (encoder,
 					   node->same_comdat_group);
 	  gcc_assert (ref != LCC_NOT_FOUND);
+<<<<<<< HEAD
 =======
       if (node->same_comdat_group)
 	{
@@ -499,6 +503,8 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 	       ref == LCC_NOT_FOUND && n != node; n = n->same_comdat_group)
 	    ref = lto_symtab_encoder_lookup (encoder, n);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	}
       else
 	ref = LCC_NOT_FOUND;
@@ -533,9 +539,12 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
   bp_pack_value (&bp, in_other_partition, 1);
   bp_pack_value (&bp, node->alias, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   bp_pack_value (&bp, node->transparent_alias, 1);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->frequency, 2);
   bp_pack_value (&bp, node->only_called_at_startup, 1);
@@ -613,6 +622,7 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 		 1);
   bp_pack_value (&bp, node->alias, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->analyzed && !boundary_p, 1);
 =======
@@ -620,6 +630,10 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->analyzed && (!boundary_p || node->alias), 1);
 >>>>>>> gcc-mirror/master
+=======
+  bp_pack_value (&bp, node->weakref, 1);
+  bp_pack_value (&bp, node->analyzed && !boundary_p, 1);
+>>>>>>> master
   gcc_assert (node->definition || !node->analyzed);
   /* Constant pool initializers can be de-unified into individual ltrans units.
      FIXME: Alternatively at -Os we may want to avoid generating for them the local
@@ -652,11 +666,15 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
   if (group)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       if (node->same_comdat_group && !boundary_p)
 	{
 	  ref = lto_symtab_encoder_lookup (encoder,
 					   node->same_comdat_group);
 	  gcc_assert (ref != LCC_NOT_FOUND);
+<<<<<<< HEAD
 =======
       if (node->same_comdat_group)
 	{
@@ -665,6 +683,8 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 	       ref == LCC_NOT_FOUND && n != node; n = n->same_comdat_group)
 	    ref = lto_symtab_encoder_lookup (encoder, n);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	}
       else
 	ref = LCC_NOT_FOUND;
@@ -790,6 +810,7 @@ output_refs (lto_symtab_encoder_t encoder)
   for (int i = 0; i < lto_symtab_encoder_size (encoder); i++)
     {
       symtab_node *node = lto_symtab_encoder_deref (encoder, i);
+<<<<<<< HEAD
 
       /* IPA_REF_ALIAS and IPA_REF_CHKP references are always preserved
 	 in the boundary.  Alias node can't have other references and
@@ -819,6 +840,37 @@ output_refs (lto_symtab_encoder_t encoder)
 	  continue;
 	}
 
+=======
+
+      /* IPA_REF_ALIAS and IPA_REF_CHKP references are always preserved
+	 in the boundary.  Alias node can't have other references and
+	 can be always handled as if it's not in the boundary.  */
+      if (!node->alias && !lto_symtab_encoder_in_partition_p (encoder, node))
+	{
+	  cgraph_node *cnode = dyn_cast <cgraph_node *> (node);
+	  /* Output IPA_REF_CHKP reference.  */
+	  if (cnode
+	      && cnode->instrumented_version
+	      && !cnode->instrumentation_clone)
+	    {
+	      for (int i = 0; node->iterate_reference (i, ref); i++)
+		if (ref->use == IPA_REF_CHKP)
+		  {
+		    if (lto_symtab_encoder_lookup (encoder, ref->referred)
+			!= LCC_NOT_FOUND)
+		      {
+			int nref = lto_symtab_encoder_lookup (encoder, node);
+			streamer_write_gcov_count_stream (ob->main_stream, 1);
+			streamer_write_uhwi_stream (ob->main_stream, nref);
+			lto_output_ref (ob, ref, encoder);
+		      }
+		    break;
+		  }
+	    }
+	  continue;
+	}
+
+>>>>>>> master
       count = node->ref_list.nreferences ();
       if (count)
 	{
@@ -984,6 +1036,7 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 		}
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
   /* Be sure to also insert alias targert and thunk callees.  These needs
      to stay to aid local calling conventions.  */
@@ -1023,6 +1076,22 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 	}
     }
 >>>>>>> gcc-mirror/master
+=======
+    }
+  /* Be sure to also insert alias targert and thunk callees.  These needs
+     to stay to aid local calling conventions.  */
+  for (i = 0; i < lto_symtab_encoder_size (encoder); i++)
+    {
+      symtab_node *node = lto_symtab_encoder_deref (encoder, i);
+      cgraph_node *cnode = dyn_cast <cgraph_node *> (node);
+
+      if (node->alias && node->analyzed)
+	create_references (encoder, node);
+      if (cnode
+	  && cnode->thunk.thunk_p)
+	add_node_to (encoder, cnode->callees->callee, false);
+    }
+>>>>>>> master
   lto_symtab_encoder_delete (in_encoder);
   return encoder;
 }
@@ -1225,9 +1294,12 @@ input_overwrite_node (struct lto_file_decl_data *file_data,
     }
   node->alias = bp_unpack_value (bp, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   node->transparent_alias = bp_unpack_value (bp, 1);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   node->weakref = bp_unpack_value (bp, 1);
   node->frequency = (enum node_frequency)bp_unpack_value (bp, 2);
   node->only_called_at_startup = bp_unpack_value (bp, 1);
@@ -1366,6 +1438,9 @@ input_node (struct lto_file_decl_data *file_data,
       node->thunk.virtual_offset_p = (type & 4);
       node->thunk.add_pointer_bounds_args = (type & 8);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     }
   if (node->alias && !node->analyzed && node->weakref)
     node->alias_target = get_alias_symbol (node->decl);
@@ -1380,6 +1455,7 @@ input_node (struct lto_file_decl_data *file_data,
       decl_index = streamer_read_uhwi (ib);
       fn_decl = lto_file_decl_data_get_fn_decl (file_data, decl_index);
       node->orig_decl = fn_decl;
+<<<<<<< HEAD
     }
 =======
     }
@@ -1398,6 +1474,9 @@ input_node (struct lto_file_decl_data *file_data,
       node->orig_decl = fn_decl;
     }
 >>>>>>> gcc-mirror/master
+=======
+    }
+>>>>>>> master
 
   return node;
 }
@@ -1446,9 +1525,12 @@ input_varpool_node (struct lto_file_decl_data *file_data,
   node->definition = bp_unpack_value (&bp, 1);
   node->alias = bp_unpack_value (&bp, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   node->transparent_alias = bp_unpack_value (&bp, 1);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   node->weakref = bp_unpack_value (&bp, 1);
   node->analyzed = bp_unpack_value (&bp, 1);
   node->used_from_other_partition = bp_unpack_value (&bp, 1);

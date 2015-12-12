@@ -3062,6 +3062,7 @@ needs_barrier_p (rtx x)
 	  && GET_CODE (SET_SRC (x)) == LABEL_REF);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 #define NS "NULL"
@@ -3222,3 +3223,5 @@ find_optab (optab_pattern *p, const char *name)
   return false;
 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

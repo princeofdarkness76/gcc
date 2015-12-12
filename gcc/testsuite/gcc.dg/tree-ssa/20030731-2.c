@@ -5,6 +5,8 @@ void foo (void);
 
 void foo (void);
 
+void foo (void);
+
 void
 bar (int i, int partial, int args_addr)
 {
@@ -19,6 +21,9 @@ bar (int i, int partial, int args_addr)
    useful.  */
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 1 "dce1"} } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "if " 1 "dce2"} } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

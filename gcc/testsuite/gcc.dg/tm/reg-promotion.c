@@ -22,6 +22,9 @@ void func()
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Cannot hoist conditional load of count because it is in a transaction" 1 "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Cannot hoist conditional load of count because it is in a transaction" 1 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

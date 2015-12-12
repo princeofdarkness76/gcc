@@ -2463,6 +2463,9 @@ identical versions.",
 DEFHOOK
 (builtin_reciprocal,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
  "This hook should return the DECL of a function that implements reciprocal of\n\
 the builtin function with builtin function code @var{fn}, or\n\
 @code{NULL_TREE} if such a function is not available.  @var{md_fn} is true\n\
@@ -3446,6 +3449,7 @@ move would be greater than that of a library call.",
  default_use_by_pieces_infrastructure_p)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 DEFHOOK
 (optab_supported_p,
@@ -3465,6 +3469,8 @@ The default hook returns true for all inputs.",
  default_optab_supported_p)
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* True for MODE if the target expects that registers in this mode will
    be allocated to registers in a small register class.  The compiler is
    allowed to use registers explicitly used in the rtl as spill registers

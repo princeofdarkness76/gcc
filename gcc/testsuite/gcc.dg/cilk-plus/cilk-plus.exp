@@ -28,6 +28,7 @@ if { ![check_effective_target_cilkplus] } {
 dg-init
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # Run the tests that are shared with C++.
 dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/PS/*.c]] " -ftree-vectorize -fcilkplus -std=c99" " "
@@ -60,6 +61,8 @@ dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/AN/*.c]] " -O
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 if [cilkplus_init] {
     # Run the tests that are shared with C++.
     dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/PS/*.c]] " -ftree-vectorize -fcilkplus -std=c99" " "
@@ -95,7 +98,10 @@ if [cilkplus_init] {
 }
 cilkplus_finish
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 dg-finish

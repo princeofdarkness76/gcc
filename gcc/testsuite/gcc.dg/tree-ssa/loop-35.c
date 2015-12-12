@@ -70,7 +70,10 @@ void test4(struct a *A, unsigned LONG b)
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 8 "lim1" { xfail { "avr-*-*" } } } } */
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 6 "lim1" { target { "avr-*-*" } } } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 8 "lim2" { xfail { "avr-*-*" } } } } */
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 6 "lim2" { target { "avr-*-*" } } } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

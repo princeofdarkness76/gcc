@@ -1,9 +1,12 @@
 /* { dg-do compile } */
 /* { dg-options "-Wframe-address" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-additional-options "-mbackchain" { target { s390*-*-* } } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 void* __attribute__ ((noclone, noinline))
 test_builtin_frame_address (unsigned i)

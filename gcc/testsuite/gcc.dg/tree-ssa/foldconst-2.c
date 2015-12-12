@@ -58,6 +58,9 @@ emit_support_tinfos (void)
    known value.  */
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "fundamentals.0" "ch"} } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-not "fundamentals.0" "ch2"} } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

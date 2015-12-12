@@ -55,7 +55,10 @@ int		rl78_sfr_p (rtx x);
 void		rl78_output_aligned_common (FILE *, tree, const char *,
 					    int, int, int);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 int		rl78_one_far_p (rtx *operands, int num_operands);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

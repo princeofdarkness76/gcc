@@ -561,10 +561,14 @@ cgraph_node::create_alias (tree alias, tree target)
   alias_node->alias = true;
   if (lookup_attribute ("weakref", DECL_ATTRIBUTES (alias)) != NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
     alias_node->weakref = true;
 =======
     alias_node->transparent_alias = alias_node->weakref = true;
 >>>>>>> gcc-mirror/master
+=======
+    alias_node->weakref = true;
+>>>>>>> master
   return alias_node;
 }
 
@@ -1999,10 +2003,13 @@ cgraph_node::dump (FILE *f)
   if (icf_merged)
     fprintf (f, " icf_merged");
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (merged_comdat)
     fprintf (f, " merged_comdat");
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (nonfreeing_fn)
     fprintf (f, " nonfreeing_fn");
   if (DECL_STATIC_CONSTRUCTOR (decl))
@@ -2155,10 +2162,14 @@ cgraph_node::get_availability (void)
   else if (local.local)
     avail = AVAIL_LOCAL;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (alias && weakref)
 =======
   else if (transparent_alias)
 >>>>>>> gcc-mirror/master
+=======
+  else if (alias && weakref)
+>>>>>>> master
     ultimate_alias_target (&avail);
   else if (lookup_attribute ("ifunc", DECL_ATTRIBUTES (decl)))
     avail = AVAIL_INTERPOSABLE;
@@ -2267,6 +2278,7 @@ cgraph_node::make_local (cgraph_node *node, void *)
       node->local.local = true;
       node->set_section (NULL);
 <<<<<<< HEAD
+<<<<<<< HEAD
       node->unique_name = (node->resolution == LDPR_PREVAILING_DEF_IRONLY
 				  || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP);
 =======
@@ -2274,6 +2286,10 @@ cgraph_node::make_local (cgraph_node *node, void *)
 			   || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP)
 			   && !flag_incremental_link);
 >>>>>>> gcc-mirror/master
+=======
+      node->unique_name = (node->resolution == LDPR_PREVAILING_DEF_IRONLY
+				  || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP);
+>>>>>>> master
       node->resolution = LDPR_PREVAILING_DEF_IRONLY;
       gcc_assert (node->get_availability () == AVAIL_LOCAL);
     }

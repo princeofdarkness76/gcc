@@ -365,6 +365,9 @@
   )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 (define_memory_constraint "Wfr"
 =======
 (define_constraint "Wfr"

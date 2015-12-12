@@ -305,12 +305,15 @@
     UNSPEC_REV_REGLIST  ; Used in aarch64-simd.md.
     UNSPEC_VEC_SHR      ; Used in aarch64-simd.md.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     UNSPEC_SQRDMLAH     ; Used in aarch64-simd.md.
     UNSPEC_SQRDMLSH     ; Used in aarch64-simd.md.
     UNSPEC_FMAXNM       ; Used in aarch64-simd.md.
     UNSPEC_FMINNM       ; Used in aarch64-simd.md.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 ])
 
 ;; ------------------------------------------------------------------
@@ -486,6 +489,7 @@
 			 (V4SF "V2SF")  (V4HF "V2HF")
 			 (V8HF "V4HF")  (V2DF  "DF")])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ;; Half modes of all vector modes, in lower-case.
@@ -495,6 +499,8 @@
 			 (V2DI "di")    (V2SF  "sf")
 			 (V4SF "v2sf")  (V2DF  "df")])
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 ;; Double modes of vector modes.
 (define_mode_attr VDBL [(V8QI "V16QI") (V4HI "V8HI")
@@ -1170,7 +1176,10 @@
 
 (define_int_attr sha256_op [(UNSPEC_SHA256H "") (UNSPEC_SHA256H2 "2")])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 (define_int_attr rdma_as [(UNSPEC_SQRDMLAH "a") (UNSPEC_SQRDMLSH "s")])
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

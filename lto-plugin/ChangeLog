@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-11-25  Jan Hubicka  <jh@suse.cz>
 
@@ -8,6 +9,8 @@
 	(onload): Record linker_output info.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-07-02  Uros Bizjak  <ubizjak@gmail.com>
 
 	* configure.ac: Add AC_USE_SYSTEM_EXTENSIONS.

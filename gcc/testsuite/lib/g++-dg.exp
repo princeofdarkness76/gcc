@@ -44,6 +44,7 @@ proc g++-dg-runtest { testcases flags default-extra-flags } {
 	if ![search_for $test "-std=*++"] {
 	    if [search_for $test "dg-options"] {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		set option_list { -std=gnu++98 -std=gnu++11 -std=gnu++14 }
 	    } else {
 		set option_list { -std=c++98 -std=c++11 -std=c++14 }
@@ -63,6 +64,11 @@ proc g++-dg-runtest { testcases flags default-extra-flags } {
 	    foreach x $std_list {
 		lappend option_list "${std_prefix}$x"
 >>>>>>> gcc-mirror/master
+=======
+		set option_list { -std=gnu++98 -std=gnu++11 -std=gnu++14 }
+	    } else {
+		set option_list { -std=c++98 -std=c++11 -std=c++14 }
+>>>>>>> master
 	    }
 	} else {
 	    set option_list { "" }

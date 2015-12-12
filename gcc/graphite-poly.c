@@ -58,6 +58,9 @@ extern "C" {
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #include "graphite-poly.h"
 =======
 #include "graphite.h"
@@ -127,6 +130,9 @@ apply_poly_transforms (scop_p scop)
     transform_done = true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   if (flag_loop_optimize_isl)
 =======
   if (flag_loop_nest_optimize)
@@ -315,9 +321,13 @@ new_scop (edge entry, edge exit)
   scop->may_waw_no_source = NULL;
   scop_set_region (scop, region);
 <<<<<<< HEAD
+<<<<<<< HEAD
   scop->original_schedule = NULL;
 =======
 >>>>>>> gcc-mirror/master
+=======
+  scop->original_schedule = NULL;
+>>>>>>> master
   scop->pbbs.create (3);
   scop->drs.create (3);
 
@@ -355,9 +365,13 @@ free_scop (scop_p scop)
   isl_union_map_free (scop->must_waw_no_source);
   isl_union_map_free (scop->may_waw_no_source);
 <<<<<<< HEAD
+<<<<<<< HEAD
   isl_union_map_free (scop->original_schedule);
 =======
 >>>>>>> gcc-mirror/master
+=======
+  isl_union_map_free (scop->original_schedule);
+>>>>>>> master
   XDELETE (scop);
 }
 

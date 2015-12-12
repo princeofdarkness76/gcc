@@ -1210,6 +1210,7 @@ proc check_effective_target_nonpic { } {
     return [check_no_compiler_messages nonpic assembly {
 	#if __PIC__
 	#error __PIC__
+<<<<<<< HEAD
 	#endif
     }]
 }
@@ -1220,10 +1221,25 @@ proc check_effective_target_pie_enabled { } {
     return [check_no_compiler_messages pie_enabled assembly {
 	#ifndef __PIE__
 	#error unsupported
+=======
+>>>>>>> master
 	#endif
     }]
 }
 
+<<<<<<< HEAD
+=======
+# Return 1 if the current multilib generates PIE by default.
+
+proc check_effective_target_pie_enabled { } {
+    return [check_no_compiler_messages pie_enabled assembly {
+	#ifndef __PIE__
+	#error unsupported
+	#endif
+    }]
+}
+
+>>>>>>> master
 # Return 1 if the target generates -fstack-protector by default.
 
 proc check_effective_target_fstack_protector_enabled {} {
@@ -2592,7 +2608,10 @@ proc check_effective_target_aarch64_big_endian { } {
 	#if !defined(__aarch64__) || !defined(__AARCH64EB__)
 	#error !__aarch64__ || !__AARCH64EB__
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
 	#endif
     }]
 }
@@ -2610,6 +2629,7 @@ proc check_effective_target_aarch64_little_endian { } {
     }]
 }
 
+<<<<<<< HEAD
 # Return 1 if this is a compiler supporting ARC atomic operations
 proc check_effective_target_arc_atomic { } {
     return [check_no_compiler_messages arc_atomic assembly {
@@ -2636,6 +2656,8 @@ proc check_effective_target_aarch64_little_endian { } {
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 # Return 1 if this is an arm target using 32-bit instructions
 proc check_effective_target_arm32 { } {
     if { ![istarget arm*-*-*] } {
@@ -2845,6 +2867,7 @@ proc add_options_for_arm_v8_neon { flags } {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # Add the options needed for ARMv8.1 Adv.SIMD.
 
@@ -2857,6 +2880,8 @@ proc add_options_for_arm_v8_1a_neon { flags } {
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 proc add_options_for_arm_crc { flags } {
     if { ! [check_effective_target_arm_crc_ok] } {
         return "$flags"
@@ -5444,9 +5469,12 @@ proc check_effective_target_sync_long_long { } {
 	 || [istarget alpha*-*-*]
 	 || ([istarget sparc*-*-*] && [check_effective_target_lp64])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	 || [istarget s390*-*-*]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	 || [istarget spu-*-*] } {
 	return 1
     } else {
@@ -5580,10 +5608,13 @@ proc check_effective_target_bswap32 { } {
 
 # Return 1 if the target supports 64-bit byte swap instructions.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #
 # Note: 32bit s390 targets require -mzarch in dg-options.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 proc check_effective_target_bswap64 { } {
     global et_bswap64_saved
@@ -5619,9 +5650,12 @@ proc check_effective_target_sync_int_long { } {
 	     || ([istarget sparc*-*-*] && [check_effective_target_sparc_v9])
 	     || [istarget spu-*-*]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	     || [check_effective_target_mips_llsc] } {
            set et_sync_int_long_saved 1
         }
@@ -5654,9 +5688,12 @@ proc check_effective_target_sync_char_short { } {
 	     || ([istarget sparc*-*-*] && [check_effective_target_sparc_v9])
 	     || [istarget spu-*-*]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	     || [check_effective_target_mips_llsc] } {
            set et_sync_char_short_saved 1
         }

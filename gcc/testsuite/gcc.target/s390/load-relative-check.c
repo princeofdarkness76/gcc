@@ -1,12 +1,16 @@
 /* Check if load-relative instructions are created */
 /* { dg-do compile { target { s390*-*-* } } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* { dg-options "-O2 -march=z10" } */
 
 /* { dg-final { scan-assembler "lgfrl\t%r.?,b.4" } } */
 /* { dg-final { scan-assembler "lgfrl\t%r.?,s.12" } } */
 /* { dg-final { scan-assembler "lgrl\t%r.?,s" } } */
 /* { dg-final { scan-assembler "larl\t%r.?,.L.?" } } */
+<<<<<<< HEAD
 =======
 /* { dg-options "-O2 -march=z10 -mzarch" } */
 
@@ -18,6 +22,8 @@
 /* { dg-final { scan-assembler "lrl\t%r.?,s.8" { target { ! lp64 } } } } */
 /* { dg-final { scan-assembler "lrl\t%r.?,s" { target { ! lp64 } } } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 int b[20];
 

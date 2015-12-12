@@ -148,8 +148,11 @@ GCC_CFLAGS = $(INTERNAL_CFLAGS) $(T_CFLAGS) $(CFLAGS)
 
 # We don't use cross-make.  Instead we use the tools from the build tree,
 # if they are available.
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 # program_transform_name and objdir are set by configure.ac.
 program_transform_name =
 objdir = .
@@ -277,11 +280,15 @@ TOOLS_LIBS += @NO_PIE_FLAG@
 # so that tm.h and config.h will be found in the compilation
 # subdirectory rather than in the source directory.
 <<<<<<< HEAD
+<<<<<<< HEAD
 INCLUDES = -I- -I. -I.. -I$(srcdir)/ada -I$(srcdir) -I$(ftop_srcdir)/include $(GMPINC)
 =======
 INCLUDES = -iquote . -iquote .. -iquote $(srcdir)/ada -iquote $(srcdir) \
 	   -I $(ftop_srcdir)/include $(GMPINC)
 >>>>>>> gcc-mirror/master
+=======
+INCLUDES = -I- -I. -I.. -I$(srcdir)/ada -I$(srcdir) -I$(ftop_srcdir)/include $(GMPINC)
+>>>>>>> master
 
 ADA_INCLUDES = -I- -I. -I$(srcdir)/ada
 
@@ -1890,10 +1897,13 @@ endif
 
 # Mips64/el Linux
 ifeq ($(strip $(filter-out mips64el linux%,$(target_cpu) $(target_os))),)
+<<<<<<< HEAD
 =======
 # Mips/el and Mips64/el Linux
 ifeq ($(strip $(filter-out mipsel mips64el linux%,$(target_cpu) $(target_os))),)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-intnam.ads<a-intnam-linux.ads \
   s-inmaop.adb<s-inmaop-posix.adb \

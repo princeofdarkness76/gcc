@@ -2620,6 +2620,9 @@ package body Sem_Type is
 
       if Ekind (Target_Typ) = E_Incomplete_Type then
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
          --  We must have either a full view or a non-limited view of the type
          --  to locate the list of ancestors.
@@ -2630,8 +2633,11 @@ package body Sem_Type is
             pragma Assert (Present (Non_Limited_View (Target_Typ)));
             Target_Typ := Non_Limited_View (Target_Typ);
          end if;
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
          --  We must have either a full view or a nonlimited view of the type
          --  to locate the list of ancestors.

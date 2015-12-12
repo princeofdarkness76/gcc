@@ -225,6 +225,7 @@ test_show_locus (function *fun)
       src_range.m_start = get_loc (line, 12);
       src_range.m_finish = get_loc (line, 20);
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
@@ -235,6 +236,11 @@ test_show_locus (function *fun)
 						       NULL);
       warning_at (combined_loc, 0, "test");
 >>>>>>> gcc-mirror/master
+=======
+      rich_location richloc (line_table, caret);
+      richloc.set_range (0, src_range, true, false);
+      warning_at_rich_loc (&richloc, 0, "test");
+>>>>>>> master
     }
 
   /* Example of a very wide line, where the information of interest
@@ -247,6 +253,7 @@ test_show_locus (function *fun)
       src_range.m_start = get_loc (line, 90);
       src_range.m_finish = get_loc (line, 98);
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
@@ -257,6 +264,11 @@ test_show_locus (function *fun)
 						       NULL);
       warning_at (combined_loc, 0, "test");
 >>>>>>> gcc-mirror/master
+=======
+      rich_location richloc (line_table, caret);
+      richloc.set_range (0, src_range, true, false);
+      warning_at_rich_loc (&richloc, 0, "test");
+>>>>>>> master
     }
 
   /* Example of multiple carets.  */
@@ -330,6 +342,7 @@ test_show_locus (function *fun)
       global_dc->caret_chars[1] = '^';
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* Example of using the "%q+D" format code, which as well as printing
@@ -343,6 +356,8 @@ test_show_locus (function *fun)
 		  "example of plus in format code for %q+D", local);
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 unsigned int

@@ -1054,6 +1054,7 @@ maybe_add_lambda_conv_op (tree type)
     fn = add_inherited_template_parms (fn, DECL_TI_TEMPLATE (callop));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (flag_sanitize & SANITIZE_NULL)
     {
@@ -1065,6 +1066,8 @@ maybe_add_lambda_conv_op (tree type)
     }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   add_method (type, fn, NULL_TREE);
 
   if (nested)

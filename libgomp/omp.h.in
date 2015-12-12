@@ -64,9 +64,12 @@ typedef enum omp_proc_bind_t
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 typedef enum omp_lock_hint_t
 {
   omp_lock_hint_none = 0,
@@ -77,9 +80,12 @@ typedef enum omp_lock_hint_t
 } omp_lock_hint_t;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #ifdef __cplusplus
 extern "C" {
 # define __GOMP_NOTHROW throw ()
@@ -136,9 +142,12 @@ extern int omp_get_cancellation (void) __GOMP_NOTHROW;
 extern omp_proc_bind_t omp_get_proc_bind (void) __GOMP_NOTHROW;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 extern int omp_get_num_places (void) __GOMP_NOTHROW;
 extern int omp_get_place_num_procs (int) __GOMP_NOTHROW;
 extern void omp_get_place_proc_ids (int, int *) __GOMP_NOTHROW;
@@ -146,9 +155,12 @@ extern int omp_get_place_num (void) __GOMP_NOTHROW;
 extern int omp_get_partition_num_places (void) __GOMP_NOTHROW;
 extern void omp_get_partition_place_nums (int *) __GOMP_NOTHROW;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 extern void omp_set_default_device (int) __GOMP_NOTHROW;
 extern int omp_get_default_device (void) __GOMP_NOTHROW;
@@ -159,9 +171,12 @@ extern int omp_get_team_num (void) __GOMP_NOTHROW;
 extern int omp_is_initial_device (void) __GOMP_NOTHROW;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 extern int omp_get_initial_device (void) __GOMP_NOTHROW;
 extern int omp_get_max_task_priority (void) __GOMP_NOTHROW;
 
@@ -181,9 +196,12 @@ extern int omp_target_associate_ptr (void *, void *, __SIZE_TYPE__,
 				     __SIZE_TYPE__, int) __GOMP_NOTHROW;
 extern int omp_target_disassociate_ptr (void *, int) __GOMP_NOTHROW;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #ifdef __cplusplus
 }

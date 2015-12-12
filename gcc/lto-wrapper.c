@@ -1097,6 +1097,7 @@ run_gcc (unsigned argc, char *argv[])
     {
       for (i = 1; i < argc; ++i)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (strncmp (argv[i], "-fresolution=", sizeof ("-fresolution=") - 1))
 =======
 	if (strncmp (argv[i], "-fresolution=",
@@ -1104,6 +1105,9 @@ run_gcc (unsigned argc, char *argv[])
 	    && strncmp (argv[i], "-flinker-output=",
 			sizeof ("-flinker-output=") - 1) != 0)
 >>>>>>> gcc-mirror/master
+=======
+	if (strncmp (argv[i], "-fresolution=", sizeof ("-fresolution=") - 1))
+>>>>>>> master
 	  {
 	    char *out_file;
 	    /* Can be ".o" or ".so".  */

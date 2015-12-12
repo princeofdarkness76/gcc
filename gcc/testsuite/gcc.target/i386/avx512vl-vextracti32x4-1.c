@@ -1,10 +1,14 @@
 /* { dg-do compile } */
 /* { dg-options "-mavx512vl -O2" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-assembler-times "vextracti32x4\[ \\t\]+\[^\{\n\]*%xmm\[0-9\]+(?:\n|\[ \\t\]+#)"  1 } } */
 =======
 /* { dg-final { scan-assembler-times "vextracti\(?:128|32x4\)\[ \\t\]+\[^\{\n\]*%xmm\[0-9\]+(?:\n|\[ \\t\]+#)"  1 } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-assembler-times "vextracti32x4\[ \\t\]+\[^\{\n\]*%xmm\[0-9\]+(?:\n|\[ \\t\]+#)"  1 } } */
+>>>>>>> master
 /* { dg-final { scan-assembler-times "vextracti32x4\[ \\t\]+\[^\{\n\]*%xmm\[0-9\]+\{%k\[1-7\]\}(?:\n|\[ \\t\]+#)" 1 } } */
 /* { dg-final { scan-assembler-times "vextracti32x4\[ \\t\]+\[^\{\n\]*%xmm\[0-9\]+\{%k\[1-7\]\}\{z\}(?:\n|\[ \\t\]+#)" 1 } } */
 

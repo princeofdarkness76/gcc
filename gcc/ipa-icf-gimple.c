@@ -982,11 +982,14 @@ func_checker::compare_gimple_asm (const gasm *g1, const gasm *g2)
     return false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (gimple_asm_input_p (g1) != gimple_asm_input_p (g2))
     return false;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   if (gimple_asm_ninputs (g1) != gimple_asm_ninputs (g2))
     return false;
 

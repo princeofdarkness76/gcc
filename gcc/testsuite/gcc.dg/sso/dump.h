@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef __nvptx__
 /* Force function call.  NVPTX's IO is extremely limited.  */
@@ -6,6 +7,8 @@
 #endif
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 void dump (void *p, unsigned int len)
 {
   const char digits[17] = "0123456789abcdef";
@@ -23,12 +26,16 @@ void dump (void *p, unsigned int len)
 void put (const char s[])
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   fputs (s, stdout);
 =======
   int i;
   for (i = 0; s[i]; i++)
     putchar (s[i]);
 >>>>>>> gcc-mirror/master
+=======
+  fputs (s, stdout);
+>>>>>>> master
 }
 
 void new_line (void)

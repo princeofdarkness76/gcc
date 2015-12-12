@@ -38,6 +38,9 @@ struct text_info
   rich_location *m_richloc;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   inline void set_location (unsigned int idx, location_t loc, bool caret_p)
   {
     source_range src_range;
@@ -46,9 +49,12 @@ struct text_info
     set_range (idx, src_range, caret_p);
   }
   void set_range (unsigned int idx, source_range range, bool caret_p);
+<<<<<<< HEAD
 =======
   void set_location (unsigned int idx, location_t loc, bool caret_p);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   location_t get_location (unsigned int index_of_location) const;
 };
 

@@ -1,9 +1,13 @@
 /* { dg-do compile } */ 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -w -fdump-tree-dom1-details" } */
 =======
 /* { dg-options "-O2 -w -fdump-tree-dom2-details" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O2 -w -fdump-tree-dom1-details" } */
+>>>>>>> master
 
 typedef struct rtx_def *rtx;
 struct rtx_def
@@ -26,16 +30,24 @@ try_combine (rtx i1, rtx newpat)
 /* There should be three tests against i1.  Two from the hash table
    dumps, one in the code itself.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom1"} } */
+>>>>>>> master
 
 /* There should be no actual jump threads realized by DOM.  The
    legitimize jump threads are handled in VRP and those discovered
    by DOM are subsumed by collapsing a conditional.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "Threaded" "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-not "Threaded" "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-not "Threaded" "dom1"} } */
+>>>>>>> master

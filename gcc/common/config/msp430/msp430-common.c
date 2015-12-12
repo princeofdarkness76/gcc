@@ -28,6 +28,7 @@
 #include "flags.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Handle -mcpu= and -mmcu= here.  We want to ensure that only one
    of these two options - the last specified on the command line -
    is passed on to the msp430 backend.  */
@@ -36,6 +37,11 @@
    convert to a baseline cpu name.  Otherwise we allow the option to
    be passed on to the backend where it can be checked more fully.  */
 >>>>>>> gcc-mirror/master
+=======
+/* Handle -mcpu= and -mmcu= here.  We want to ensure that only one
+   of these two options - the last specified on the command line -
+   is passed on to the msp430 backend.  */
+>>>>>>> master
 
 static bool
 msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
@@ -53,18 +59,26 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 	{
 	  target_cpu = "msp430x";
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  target_mcu = NULL;
 =======
 >>>>>>> gcc-mirror/master
+=======
+	  target_mcu = NULL;
+>>>>>>> master
 	}
       else if (strcasecmp (decoded->arg, "msp430") == 0
 	       || strcasecmp (decoded->arg, "430") == 0)
 	{
 	  target_cpu = "msp430";
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  target_mcu = NULL;
 =======
 >>>>>>> gcc-mirror/master
+=======
+	  target_mcu = NULL;
+>>>>>>> master
 	}
       else
 	{
@@ -90,10 +104,15 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 	  target_mcu = NULL;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
       else
 	target_cpu = NULL;
 =======
 >>>>>>> gcc-mirror/master
+=======
+      else
+	target_cpu = NULL;
+>>>>>>> master
       break;
     }
       

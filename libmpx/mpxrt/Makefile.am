@@ -14,11 +14,15 @@ libmpx_la_SOURCES = mpxrt.c mpxrt-utils.c
 libmpx_la_CFLAGS = -fPIC
 libmpx_la_DEPENDENCIES = libmpx.map
 <<<<<<< HEAD
+<<<<<<< HEAD
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
 =======
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
                     -version-info `grep -v '^\#' $(srcdir)/libtool-version`
 >>>>>>> gcc-mirror/master
+=======
+libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
+>>>>>>> master
 
 mpxrt.lo: mpxrt-utils.h
 mpxrt-utils.lo: mpxrt-utils.h

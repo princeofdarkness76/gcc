@@ -63,6 +63,7 @@ set plugin_test_list [list \
     { header_plugin.c header-plugin-test.C } \
     { decl_plugin.c decl-plugin-test.C } \
 <<<<<<< HEAD
+<<<<<<< HEAD
     { def_plugin.c def-plugin-test.C } ]
 =======
     { def_plugin.c def-plugin-test.C } \
@@ -70,6 +71,9 @@ set plugin_test_list [list \
 	  diagnostic-test-expressions-1.C } \
 ]
 >>>>>>> gcc-mirror/master
+=======
+    { def_plugin.c def-plugin-test.C } ]
+>>>>>>> master
 
 foreach plugin_test $plugin_test_list {
     # Replace each source file with its full-path name

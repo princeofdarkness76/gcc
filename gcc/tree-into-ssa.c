@@ -1392,10 +1392,14 @@ public:
   rewrite_dom_walker (cdi_direction direction) : dom_walker (direction) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
   virtual void after_dom_children (basic_block);
 };
 
@@ -1405,10 +1409,14 @@ public:
    block.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 rewrite_dom_walker::before_dom_children (basic_block bb)
 {
   if (dump_file && (dump_flags & TDF_DETAILS))
@@ -2066,10 +2074,14 @@ public:
   rewrite_update_dom_walker (cdi_direction direction) : dom_walker (direction) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
   virtual void after_dom_children (basic_block);
 };
 
@@ -2079,10 +2091,14 @@ public:
    new definitions for every PHI node in the block.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 rewrite_update_dom_walker::before_dom_children (basic_block bb)
 {
   bool is_abnormal_phi;
@@ -2231,10 +2247,14 @@ public:
   ~mark_def_dom_walker ();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
 
 private:
   /* Notice that this bitmap is indexed using variable UIDs, so it must be
@@ -2257,10 +2277,14 @@ mark_def_dom_walker::~mark_def_dom_walker ()
    at the start of each block, and call mark_def_sites for each statement.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 mark_def_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -2269,9 +2293,12 @@ mark_def_dom_walker::before_dom_children (basic_block bb)
   for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
     mark_def_sites (bb, gsi_stmt (gsi), m_kills);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Initialize internal data needed during renaming.  */

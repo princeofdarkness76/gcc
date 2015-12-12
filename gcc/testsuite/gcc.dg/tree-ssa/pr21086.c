@@ -1,9 +1,13 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dce1 -fdelete-null-pointer-checks" } */
 =======
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dce2 -fdelete-null-pointer-checks" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dce1 -fdelete-null-pointer-checks" } */
+>>>>>>> master
 
 int
 foo (int *p)
@@ -25,7 +29,10 @@ foo (int *p)
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "b_. =" "dce1" { target { ! avr-*-* } } } } */
 /* { dg-final { scan-tree-dump "b_. =" "dce1" { target { avr-*-* } } } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-not "b_. =" "dce2" { target { ! avr-*-* } } } } */
 /* { dg-final { scan-tree-dump "b_. =" "dce2" { target { avr-*-* } } } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

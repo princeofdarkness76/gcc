@@ -140,6 +140,7 @@
 */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #elif defined (__x86_64__)
 
@@ -168,6 +169,8 @@
 #define FUNCTION "@function"
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #else
 Not_implemented;
 #endif /* REGNO constants */
@@ -204,6 +207,7 @@ Not_implemented;
 #define CFA_REG 7
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #elif defined (__x86_64__)
 
@@ -211,6 +215,8 @@ Not_implemented;
 #define CFA_REG 15
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #else
 Not_implemented;
 #endif /* CFA setup block */
@@ -404,6 +410,7 @@ TCR("leave") \
 TCR("ret")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #elif defined (__x86_64__)
 
@@ -453,6 +460,8 @@ TCR("addq	$8, %rsp") \
 TCR("ret")
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #else
 Not_implemented;
 #endif /* CFI_COMMON_REGS and SIGTRAMP_BODY */

@@ -85,9 +85,13 @@
                         ; towards nearest, ties away from zero.
   UNSPEC_PROBE_STACK    ; Probe stack memory reference
 <<<<<<< HEAD
+<<<<<<< HEAD
   UNSPEC_PROBE_STACK_RANGE ; Probe stack range
 =======
 >>>>>>> gcc-mirror/master
+=======
+  UNSPEC_PROBE_STACK_RANGE ; Probe stack range
+>>>>>>> master
 ])
 
 (define_c_enum "unspec" [
@@ -151,9 +155,12 @@
   VUNSPEC_GET_FPSCR	; Represent fetch of FPSCR content.
   VUNSPEC_SET_FPSCR	; Represent assign of FPSCR content.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 ])
 
 ;; Enumerators for NEON unspecs.

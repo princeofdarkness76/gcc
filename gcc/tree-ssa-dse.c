@@ -317,16 +317,22 @@ public:
   dse_dom_walker (cdi_direction direction) : dom_walker (direction) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   virtual void before_dom_children (basic_block);
 };
 
 void
+<<<<<<< HEAD
 =======
   virtual edge before_dom_children (basic_block);
 };
 
 edge
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 dse_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -343,6 +349,7 @@ dse_dom_walker::before_dom_children (basic_block bb)
 }
 
 namespace {
+<<<<<<< HEAD
 
 const pass_data pass_data_dse =
 {
@@ -371,6 +378,36 @@ public:
 
 }; // class pass_dse
 
+=======
+
+const pass_data pass_data_dse =
+{
+  GIMPLE_PASS, /* type */
+  "dse", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_DSE, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_dse : public gimple_opt_pass
+{
+public:
+  pass_dse (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_dse, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  opt_pass * clone () { return new pass_dse (m_ctxt); }
+  virtual bool gate (function *) { return flag_tree_dse != 0; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_dse
+
+>>>>>>> master
 unsigned int
 pass_dse::execute (function *fun)
 {

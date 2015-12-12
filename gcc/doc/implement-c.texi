@@ -267,6 +267,9 @@ immediately above the highest-value value bit.  Signed @samp{>>} acts
 on negative numbers by sign extension.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 GCC does not use the latitude given in C99 and C11 only to treat certain
 aspects of signed @samp{<<} as undefined, but this is subject to
 change.

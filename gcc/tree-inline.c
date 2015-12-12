@@ -1770,6 +1770,7 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 	  if (gimple_nop_p (stmt))
 	      continue;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  gimple_duplicate_stmt_histograms (cfun, stmt, id->src_cfun,
 					    orig_stmt);
@@ -1802,6 +1803,12 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 	  gimple_duplicate_stmt_histograms (cfun, stmt, id->src_cfun,
 					    orig_stmt);
 
+=======
+
+	  gimple_duplicate_stmt_histograms (cfun, stmt, id->src_cfun,
+					    orig_stmt);
+
+>>>>>>> master
 	  /* With return slot optimization we can end up with
 	     non-gimple (foo *)&this->m, fix that here.  */
 	  if (is_gimple_assign (stmt)
@@ -1821,11 +1828,18 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 
 	  if (id->regimplify)
 	    gimple_regimplify_operands (stmt, &seq_gsi);
+<<<<<<< HEAD
 
 	  stmt_added = true;
 	}
 
 >>>>>>> gcc-mirror/master
+=======
+
+	  stmt_added = true;
+	}
+
+>>>>>>> master
       if (!stmt_added)
 	continue;
 
@@ -2003,6 +2017,7 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 		      /* Speculative calls consist of two edges - direct and indirect.
 			 Duplicate the whole thing and distribute frequencies accordingly.  */
 		      if (edge->speculative)
+<<<<<<< HEAD
 			{
 			  struct cgraph_edge *direct, *indirect;
 			  struct ipa_ref *ref;
@@ -2026,6 +2041,31 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 			}
 		      else
 			{
+=======
+			{
+			  struct cgraph_edge *direct, *indirect;
+			  struct ipa_ref *ref;
+
+			  gcc_assert (!edge->indirect_unknown_callee);
+			  old_edge->speculative_call_info (direct, indirect, ref);
+			  indirect = indirect->clone (id->dst_node, call_stmt,
+						      gimple_uid (stmt),
+						      REG_BR_PROB_BASE, CGRAPH_FREQ_BASE,
+						      true);
+			  if (old_edge->frequency + indirect->frequency)
+			    {
+			      edge->frequency = MIN (RDIV ((gcov_type)new_freq * old_edge->frequency,
+						           (old_edge->frequency + indirect->frequency)),
+						     CGRAPH_FREQ_MAX);
+			      indirect->frequency = MIN (RDIV ((gcov_type)new_freq * indirect->frequency,
+							       (old_edge->frequency + indirect->frequency)),
+							 CGRAPH_FREQ_MAX);
+			    }
+			  id->dst_node->clone_reference (ref, stmt);
+			}
+		      else
+			{
+>>>>>>> master
 			  edge->frequency = new_freq;
 			  if (dump_file
 			      && profile_status_for_fn (cfun) != PROFILE_ABSENT
@@ -5587,9 +5627,15 @@ delete_unreachable_blocks_update_callgraph (copy_body_data *id)
 	    {
 	      struct cgraph_edge *e;
 	      struct cgraph_node *node;
+<<<<<<< HEAD
 
 	      id->dst_node->remove_stmt_references (gsi_stmt (bsi));
 
+=======
+
+	      id->dst_node->remove_stmt_references (gsi_stmt (bsi));
+
+>>>>>>> master
 	      if (gimple_code (gsi_stmt (bsi)) == GIMPLE_CALL
 		  &&(e = id->dst_node->get_edge (gsi_stmt (bsi))) != NULL)
 		{

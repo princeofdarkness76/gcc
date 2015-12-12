@@ -57,11 +57,15 @@
   "Any VSX register if the -mvsx option was used or NO_REGS.")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;; wb is not currently used
 =======
 (define_register_constraint "wb" "rs6000_constraints[RS6000_CONSTRAINT_wb]"
   "Altivec register if the -mpower9-dform option was used or NO_REGS.")
 >>>>>>> gcc-mirror/master
+=======
+;; wb is not currently used
+>>>>>>> master
 
 ;; NOTE: For compatibility, "wc" is reserved to represent individual CR bits.
 ;; It is currently used for that purpose in LLVM.

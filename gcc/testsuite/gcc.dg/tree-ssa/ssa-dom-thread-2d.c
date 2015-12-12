@@ -1,9 +1,13 @@
 /* { dg-do compile } */ 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom1-stats" } */
 =======
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom2-stats" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom1-stats" } */
+>>>>>>> master
 
 void foo();
 void bla();
@@ -31,7 +35,11 @@ void dont_thread_2 (int first)
    the loop latch safe, but we don't do that currently.  */
 /* { dg-final { scan-tree-dump-not "Jumps threaded" "vrp1"} } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "Jumps threaded" "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-not "Jumps threaded" "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-not "Jumps threaded" "dom1"} } */
+>>>>>>> master

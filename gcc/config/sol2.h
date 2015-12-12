@@ -151,10 +151,14 @@ along with GCC; see the file COPYING3.  If not see
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #undef STARTFILE_ARCH_SPEC
 #define STARTFILE_ARCH_SPEC "%{ansi:values-Xc.o%s} \
 			    %{!ansi:values-Xa.o%s}"
 
+<<<<<<< HEAD
 =======
 /* Enable constructor priorities if the configured linker supports it.  */
 #undef SUPPORTS_INIT_PRIORITY
@@ -165,6 +169,8 @@ along with GCC; see the file COPYING3.  If not see
 			    %{!ansi:values-Xa.o%s}"
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #if defined(HAVE_LD_PIE) && defined(HAVE_SOLARIS_CRTS)
 #define STARTFILE_CRTBEGIN_SPEC "%{shared:crtbeginS.o%s} \
 				 %{" PIE_SPEC ":crtbeginS.o%s} \
@@ -172,6 +178,7 @@ along with GCC; see the file COPYING3.  If not see
 #else
 #define STARTFILE_CRTBEGIN_SPEC	"crtbegin.o%s"
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -191,6 +198,8 @@ along with GCC; see the file COPYING3.  If not see
 #define ENDFILE_VTV_SPEC ""
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* We don't use the standard svr4 STARTFILE_SPEC because it's wrong for us.  */
 #undef STARTFILE_SPEC
@@ -203,22 +212,30 @@ along with GCC; see the file COPYING3.  If not see
 			    pg:crtpg.o%s gmon.o%s; \
 			      :crtp.o%s}}} \
 <<<<<<< HEAD
-			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
-=======
-			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
-			%(startfile_vtv)"
->>>>>>> gcc-mirror/master
-#else
-#define STARTFILE_SPEC "%{!shared:%{!symbolic: \
-			  %{p:mcrt1.o%s; \
-                            pg:gcrt1.o%s gmon.o%s; \
-                              :crt1.o%s}}} \
 <<<<<<< HEAD
 			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
 =======
 			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
 			%(startfile_vtv)"
 >>>>>>> gcc-mirror/master
+=======
+			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
+>>>>>>> master
+#else
+#define STARTFILE_SPEC "%{!shared:%{!symbolic: \
+			  %{p:mcrt1.o%s; \
+                            pg:gcrt1.o%s gmon.o%s; \
+                              :crt1.o%s}}} \
+<<<<<<< HEAD
+<<<<<<< HEAD
+			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
+=======
+			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
+			%(startfile_vtv)"
+>>>>>>> gcc-mirror/master
+=======
+			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
+>>>>>>> master
 #endif
 
 #if defined(HAVE_LD_PIE) && defined(HAVE_SOLARIS_CRTS)
@@ -233,10 +250,14 @@ along with GCC; see the file COPYING3.  If not see
 #define ENDFILE_SPEC \
   "%{Ofast|ffast-math|funsafe-math-optimizations:crtfastmath.o%s} \
 <<<<<<< HEAD
+<<<<<<< HEAD
    %(endfile_arch) %(endfile_crtend) crtn.o%s"
 =======
    %(endfile_arch) %(endfile_vtv) %(endfile_crtend) crtn.o%s"
 >>>>>>> gcc-mirror/master
+=======
+   %(endfile_arch) %(endfile_crtend) crtn.o%s"
+>>>>>>> master
 
 #undef LINK_ARCH32_SPEC_BASE
 #define LINK_ARCH32_SPEC_BASE \
@@ -312,20 +333,27 @@ along with GCC; see the file COPYING3.  If not see
   { "startfile_arch",	 	STARTFILE_ARCH_SPEC },		\
   { "startfile_crtbegin",	STARTFILE_CRTBEGIN_SPEC },	\
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   { "startfile_vtv",		STARTFILE_VTV_SPEC },		\
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   { "link_arch32",       	LINK_ARCH32_SPEC },		\
   { "link_arch64",       	LINK_ARCH64_SPEC },		\
   { "link_arch_default", 	LINK_ARCH_DEFAULT_SPEC },	\
   { "link_arch",	 	LINK_ARCH_SPEC },		\
   { "endfile_arch",	 	ENDFILE_ARCH_SPEC },		\
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "endfile_crtend",		ENDFILE_CRTEND_SPEC },	\
 =======
   { "endfile_crtend",		ENDFILE_CRTEND_SPEC },		\
   { "endfile_vtv",		ENDFILE_VTV_SPEC },		\
 >>>>>>> gcc-mirror/master
+=======
+  { "endfile_crtend",		ENDFILE_CRTEND_SPEC },	\
+>>>>>>> master
   SUBTARGET_CPU_EXTRA_SPECS
 
 /* C++11 programs need -lrt for nanosleep.  */
@@ -452,6 +480,9 @@ along with GCC; see the file COPYING3.  If not see
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* Enable constructor priorities if the configured linker supports it.  */
 #undef SUPPORTS_INIT_PRIORITY
 #define SUPPORTS_INIT_PRIORITY HAVE_INITFINI_ARRAY_SUPPORT

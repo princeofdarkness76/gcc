@@ -5,6 +5,9 @@ int
 __mulhi3 (int x, int y)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   volatile int rv = 0;
 
   while (y > 0)
@@ -13,6 +16,7 @@ __mulhi3 (int x, int y)
       y --;
     }
   return rv;
+<<<<<<< HEAD
 =======
   char bit;
   int neg = 0;
@@ -34,4 +38,6 @@ __mulhi3 (int x, int y)
 
   return neg ? - rv : rv;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }

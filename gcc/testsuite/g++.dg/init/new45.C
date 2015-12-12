@@ -24,6 +24,7 @@ struct POD {
 enum { N = 123 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #if defined (__arm__) && defined (__ARM_EABI__)
 // On ARM EABI the cookie is always 8 bytes as per Section 3.2.2 of
@@ -37,6 +38,8 @@ static const size_t cookie_size = sizeof (size_t);
 #endif
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 inline __attribute__ ((always_inline))
 void* operator new[] (size_t n)
 {
@@ -44,11 +47,15 @@ void* operator new[] (size_t n)
     // for the array and a size_t cookie to store the number of elements.
     // (This holds for classes with user-defined types but not POD types).
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (n != N * sizeof (UDClass) + sizeof n) abort ();
 =======
  
   if (n != N * sizeof (UDClass) + cookie_size) abort ();
 >>>>>>> gcc-mirror/master
+=======
+    if (n != N * sizeof (UDClass) + sizeof n) abort ();
+>>>>>>> master
     return malloc (n);
 }
 
@@ -80,10 +87,14 @@ void* operator new[] (size_t n, UDClass *p)
     // a user-defined ctor and dtor is invoked with an argument large
     // enough for the array and a cookie.
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (n != N * sizeof (UDClass) + sizeof n) abort ();
 =======
     if (n != N * sizeof (UDClass) + cookie_size) abort ();
 >>>>>>> gcc-mirror/master
+=======
+    if (n != N * sizeof (UDClass) + sizeof n) abort ();
+>>>>>>> master
     return p;
 }
 

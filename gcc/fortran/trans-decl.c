@@ -146,11 +146,14 @@ tree gfor_fndecl_caf_atomic_op;
 tree gfor_fndecl_caf_lock;
 tree gfor_fndecl_caf_unlock;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 tree gfor_fndecl_caf_event_post;
 tree gfor_fndecl_caf_event_wait;
 tree gfor_fndecl_caf_event_query;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 tree gfor_fndecl_co_broadcast;
 tree gfor_fndecl_co_max;
 tree gfor_fndecl_co_min;
@@ -1312,6 +1315,7 @@ add_attributes_to_decl (symbol_attribute sym_attr, tree list)
 		      NULL_TREE, list);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (sym_attr.oacc_function)
     {
@@ -1328,6 +1332,8 @@ add_attributes_to_decl (symbol_attribute sym_attr, tree list)
     }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return list;
 }
 
@@ -3569,6 +3575,7 @@ gfc_build_builtin_function_decls (void)
 	pint_type, pchar_type_node, integer_type_node);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       gfor_fndecl_caf_event_post = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("caf_event_post")), "R..WW",
@@ -3586,6 +3593,8 @@ gfc_build_builtin_function_decls (void)
 	pint_type, pint_type);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       gfor_fndecl_co_broadcast = gfc_build_library_function_decl_with_spec (
 	get_identifier (PREFIX("caf_co_broadcast")), "W.WW",
 	void_type_node, 5, pvoid_type_node, integer_type_node,
@@ -4882,10 +4891,14 @@ generate_coarray_sym_init (gfc_symbol *sym)
 {
   tree tmp, size, decl, token;
 <<<<<<< HEAD
+<<<<<<< HEAD
   bool is_lock_type;
 =======
   bool is_lock_type, is_event_type;
 >>>>>>> gcc-mirror/master
+=======
+  bool is_lock_type;
+>>>>>>> master
   int reg_type;
 
   if (sym->attr.dummy || sym->attr.allocatable || !sym->attr.codimension
@@ -4902,12 +4915,15 @@ generate_coarray_sym_init (gfc_symbol *sym)
 		 && sym->ts.u.derived->intmod_sym_id == ISOFORTRAN_LOCK_TYPE;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   is_event_type = sym->ts.type == BT_DERIVED
 		  && sym->ts.u.derived->from_intmod == INTMOD_ISO_FORTRAN_ENV
 		  && sym->ts.u.derived->intmod_sym_id == ISOFORTRAN_EVENT_TYPE;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* FIXME: Workaround for PR middle-end/49106, cf. also PR middle-end/49108
      to make sure the variable is not optimized away.  */
   DECL_PRESERVE_P (DECL_CONTEXT (decl)) = 1;
@@ -4915,10 +4931,14 @@ generate_coarray_sym_init (gfc_symbol *sym)
   /* For lock types, we pass the array size as only the library knows the
      size of the variable.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (is_lock_type)
 =======
   if (is_lock_type || is_event_type)
 >>>>>>> gcc-mirror/master
+=======
+  if (is_lock_type)
+>>>>>>> master
     size = gfc_index_one_node;
   else
     size = TYPE_SIZE_UNIT (gfc_get_element_type (TREE_TYPE (decl)));
@@ -4941,10 +4961,13 @@ generate_coarray_sym_init (gfc_symbol *sym)
   if (is_lock_type)
     reg_type = sym->attr.artificial ? GFC_CAF_CRITICAL : GFC_CAF_LOCK_STATIC;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   else if (is_event_type)
     reg_type = GFC_CAF_EVENT_STATIC;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   else
     reg_type = GFC_CAF_COARRAY_STATIC;
   tmp = build_call_expr_loc (input_location, gfor_fndecl_caf_register, 6, size,

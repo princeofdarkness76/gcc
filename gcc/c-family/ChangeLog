@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-10  David Malcolm  <dmalcolm@redhat.com>
 
@@ -109,6 +110,8 @@
 	(print_ada_struct_decl): Likewise.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-23  Igor Zamyatin  <igor.zamyatin@intel.com>
 
 	PR c++/68001
@@ -288,12 +291,17 @@
 
 	PR c++-common/67882
 <<<<<<< HEAD
+<<<<<<< HEAD
 	* c-family/c-common.h (fold_offsetof_1): Add argument.
 	* c-family/c-common.c (fold_offsetof_1): Diagnose more invalid
 =======
 	* c-common.h (fold_offsetof_1): Add argument.
 	* c-common.c (fold_offsetof_1): Diagnose more invalid
 >>>>>>> gcc-mirror/master
+=======
+	* c-family/c-common.h (fold_offsetof_1): Add argument.
+	* c-family/c-common.c (fold_offsetof_1): Diagnose more invalid
+>>>>>>> master
 	offsetof expressions that reference elements past the end of
 	an array.
 
@@ -608,12 +616,15 @@
 	* c.opt (fconcepts): New.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-08-02  Martin Sebor  <msebor@redhat.com>
 
 	* c.opt (-Wframe-address): New warning option.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-08-02  Patrick Palka  <ppalka@gcc.gnu.org>
 
 	* c-indentation.c (should_warn_for_misleading_indentation):
@@ -764,11 +775,15 @@
 
 	Implement N4197 - Adding u8 character literals
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	* c-family/c-ada-spec.c (print_ada_macros): Treat CPP_UTF8CHAR like
 	CPP_CHAR.
 	* c-family/c-common.c (c_parse_error): Print CPP_UTF8CHAR and
 	CPP_UTF8CHAR_USERDEF tokens.
 	* c-family/c-lex.c (c_lex_with_flags): Treat CPP_UTF8CHAR_USERDEF
+<<<<<<< HEAD
 =======
 	* c-ada-spec.c (print_ada_macros): Treat CPP_UTF8CHAR like
 	CPP_CHAR.
@@ -776,6 +791,8 @@
 	CPP_UTF8CHAR_USERDEF tokens.
 	* c-lex.c (c_lex_with_flags): Treat CPP_UTF8CHAR_USERDEF
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	and CPP_UTF8CHAR tokens.
 	(lex_charconst): Treat CPP_UTF8CHAR token.
 
@@ -934,6 +951,7 @@
 	* c-opts.c (c_common_parse_file): Call c_parse_final_cleanups.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-06-04  Sriraman Tallam  <tmsriram@google.com>
 
@@ -941,6 +959,8 @@
 	(handle_noplt_attribute): New handler.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-06-04  Andrew MacLeod  <amacleod@redhat.com>
 
 	* array-notation-common.c: Adjust includes for restructured coretypes.h.

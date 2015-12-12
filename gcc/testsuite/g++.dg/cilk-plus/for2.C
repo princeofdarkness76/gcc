@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O3 -fcilkplus" } */
 
 // Test storage classes in the initialization of a <#pragma simd> for
@@ -28,6 +29,8 @@ void foo()
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* { dg-options "-fcilkplus" } */
 
 int *p;
@@ -70,7 +73,10 @@ void foobar3(int a)
     j += bar();
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }

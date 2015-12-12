@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-11-26  Torvald Riegel  <triegel@redhat.com>
 
@@ -7,6 +8,8 @@
 	(ml_wt_dispatch::pre_load): Likewise.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-22  Torvald Riegel  <triegel@redhat.com>
 
 	* libitm_i.h (gtm_alloc_action): Remove union.

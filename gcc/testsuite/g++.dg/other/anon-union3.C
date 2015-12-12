@@ -4,6 +4,9 @@ class C
 {
   auto union      // { dg-error "storage class" "" { target { ! c++11 } } }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     {
 =======
     {		  // { dg-error "auto" "" { target c++11 } 5 }

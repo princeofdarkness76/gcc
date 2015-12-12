@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-07  David Malcolm  <dmalcolm@redhat.com>
 
@@ -9,6 +10,8 @@
 	"overwrite_loc_p" were true, and getting range from the location.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-20  David Malcolm  <dmalcolm@redhat.com>
 
 	PR 62314

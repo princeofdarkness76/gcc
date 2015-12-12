@@ -627,10 +627,14 @@ all_symbols_read_handler (void)
   unsigned i;
   unsigned num_lto_args
 <<<<<<< HEAD
+<<<<<<< HEAD
     = num_claimed_files + num_offload_files + lto_wrapper_num_args + 1;
 =======
     = num_claimed_files + num_offload_files + lto_wrapper_num_args + 2;
 >>>>>>> gcc-mirror/master
+=======
+    = num_claimed_files + num_offload_files + lto_wrapper_num_args + 1;
+>>>>>>> master
   char **lto_argv;
   const char *linker_output_str;
   const char **lto_arg_ptr;

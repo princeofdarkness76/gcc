@@ -24,6 +24,7 @@ case "${target}" in
   *-*-*android*)
 	;;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   *-*-solaris2.1[1-9]*)
         # Vtable verification requires constructor priority support and
@@ -32,6 +33,8 @@ case "${target}" in
 	VTV_SUPPORTED=yes
 	;;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   x86_64-*-linux* | i?86-*-linux*)
 	VTV_SUPPORTED=yes
 	;;

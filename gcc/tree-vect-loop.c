@@ -1893,6 +1893,7 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* Compute the scalar iteration cost.  */
   vect_compute_single_scalar_iteration_cost (loop_vinfo);
@@ -1903,6 +1904,8 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
   int min_scalar_loop_bound;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Check the SLP opportunities in the loop, analyze and build SLP trees.  */
   ok = vect_analyze_slp (loop_vinfo, n_stmts);
   if (!ok)
@@ -1920,11 +1923,14 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* This is the point where we can re-start analysis with SLP forced off.  */
 start_over:
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Now the vectorization factor is final.  */
   unsigned vectorization_factor = LOOP_VINFO_VECT_FACTOR (loop_vinfo);
   gcc_assert (vectorization_factor != 0);
@@ -1945,11 +1951,17 @@ start_over:
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			 "not vectorized: iteration count too small.\n");
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
 =======
 >>>>>>> gcc-mirror/master
+=======
+			 "not vectorized: iteration count too small.\n");
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+>>>>>>> master
 			 "not vectorized: iteration count smaller than "
 			 "vectorization factor.\n");
       return false;
@@ -2006,6 +2018,9 @@ start_over:
 				   LOOP_VINFO_TARGET_COST_DATA (loop_vinfo));
       if (LOOP_VINFO_SLP_INSTANCES (loop_vinfo).length () != old_size)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	return false;
     }
 
@@ -2018,6 +2033,7 @@ start_over:
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
 			 "bad operation or unsupported loop bound.\n");
       return false;
+<<<<<<< HEAD
     }
 
   /* Analyze cost.  Decide if worth while to vectorize.  */
@@ -2082,6 +2098,33 @@ start_over:
      threshold.  */
   th = (unsigned) min_scalar_loop_bound;
 >>>>>>> gcc-mirror/master
+=======
+    }
+
+  /* Analyze cost.  Decide if worth while to vectorize.  */
+  int min_profitable_estimate, min_profitable_iters;
+  vect_estimate_min_profitable_iters (loop_vinfo, &min_profitable_iters,
+				      &min_profitable_estimate);
+
+  if (min_profitable_iters < 0)
+    {
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "not vectorized: vectorization not profitable.\n");
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "not vectorized: vector version will never be "
+			 "profitable.\n");
+      return false;
+    }
+
+  int min_scalar_loop_bound = ((PARAM_VALUE (PARAM_MIN_VECT_LOOP_BOUND)
+				* vectorization_factor) - 1);
+
+  /* Use the cost model only if it is more conservative than user specified
+     threshold.  */
+  unsigned th = (unsigned) min_scalar_loop_bound;
+>>>>>>> master
   if (min_profitable_iters
       && (!min_scalar_loop_bound
           || min_profitable_iters > min_scalar_loop_bound))
@@ -2101,16 +2144,22 @@ start_over:
 			 "specified loop bound parameter or minimum profitable "
 			 "iterations (whichever is more conservative).\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       return false;
     }
 
   HOST_WIDE_INT estimated_niter
+<<<<<<< HEAD
 =======
       goto again;
     }
 
   estimated_niter
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     = estimated_stmt_executions_int (LOOP_VINFO_LOOP (loop_vinfo));
   if (estimated_niter != -1
       && ((unsigned HOST_WIDE_INT) estimated_niter
@@ -2127,10 +2176,14 @@ start_over:
                          "profitable iterations (whichever is more "
                          "conservative).\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
       return false;
 =======
       goto again;
 >>>>>>> gcc-mirror/master
+=======
+      return false;
+>>>>>>> master
     }
 
   /* Decide whether we need to create an epilogue loop to handle
@@ -2174,10 +2227,14 @@ start_over:
 			     "not vectorized: can't create required "
 			     "epilog loop\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
           return false;
 =======
           goto again;
 >>>>>>> gcc-mirror/master
+=======
+          return false;
+>>>>>>> master
         }
     }
 
@@ -2185,9 +2242,12 @@ start_over:
 	      == (unsigned)LOOP_VINFO_VECT_FACTOR (loop_vinfo));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* Ok to vectorize!  */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return true;
 
 again:
@@ -6387,6 +6447,7 @@ vectorizable_live_operation (gimple *stmt,
 			     gimple_stmt_iterator *gsi ATTRIBUTE_UNUSED,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			     gimple *vec_stmt)
 =======
 			     gimple **vec_stmt)
@@ -6394,6 +6455,9 @@ vectorizable_live_operation (gimple *stmt,
 =======
 			     gimple **vec_stmt)
 >>>>>>> gcc-mirror/master
+=======
+			     gimple **vec_stmt)
+>>>>>>> master
 {
   stmt_vec_info stmt_info = vinfo_for_stmt (stmt);
   loop_vec_info loop_vinfo = STMT_VINFO_LOOP_VINFO (stmt_info);
@@ -6427,6 +6491,7 @@ vectorizable_live_operation (gimple *stmt,
 	    {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      gimple use_stmt = USE_STMT (use_p);
 	      if (gimple_code (use_stmt) == GIMPLE_PHI
 		  || gimple_bb (use_stmt) == merge_bb)
@@ -6440,6 +6505,11 @@ vectorizable_live_operation (gimple *stmt,
 	      if (gimple_code (use_stmt) == GIMPLE_PHI
 		  && gimple_bb (use_stmt) == merge_bb)
 >>>>>>> gcc-mirror/master
+=======
+	      gimple *use_stmt = USE_STMT (use_p);
+	      if (gimple_code (use_stmt) == GIMPLE_PHI
+		  && gimple_bb (use_stmt) == merge_bb)
+>>>>>>> master
 		{
 		  if (vec_stmt)
 		    {

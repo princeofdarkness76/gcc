@@ -3328,6 +3328,7 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 	{
 	  gfc_error ("Procedure %qs called at %L is not explicitly declared",
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     sym->name, where);
 	  return false;
 	}
@@ -3336,6 +3337,8 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 		     "Procedure %qs called with an implicit interface at %L",
 		     sym->name, where);
 =======
+=======
+>>>>>>> master
 		     sym->name, where);
 	  return false;
 	}
@@ -3343,7 +3346,10 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 	gfc_warning (OPT_Wimplicit_interface,
 		     "Procedure %qs called with an implicit interface at %L",
 		     sym->name, where);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       else if (warn_implicit_procedure && sym->attr.proc == PROC_UNKNOWN)
 	gfc_warning (OPT_Wimplicit_procedure,
 		     "Procedure %qs called at %L is not explicitly declared",
@@ -3408,6 +3414,7 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 			 "component at %L requires an explicit interface for "
 			 "procedure %qs", &a->expr->where, sym->name);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      break;
 	    }
@@ -3423,6 +3430,8 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 			 "component at %L requires an explicit interface for "
 			 "procedure %qs", &a->expr->where, sym->name);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	      break;
 	    }
 
@@ -3950,11 +3959,19 @@ gfc_extend_assign (gfc_code *c, gfc_namespace *ns)
   actual->next->expr = rhs;
 
   /* TODO: Ambiguity-check, see above for gfc_extend_expr.  */
+<<<<<<< HEAD
 
   /* See if we find a matching type-bound assignment.  */
   tbo = matching_typebound_op (&tb_base, actual, INTRINSIC_ASSIGN,
 			       NULL, &gname);
 
+=======
+
+  /* See if we find a matching type-bound assignment.  */
+  tbo = matching_typebound_op (&tb_base, actual, INTRINSIC_ASSIGN,
+			       NULL, &gname);
+
+>>>>>>> master
   if (tbo)
     {
       /* Success: Replace the expression with a type-bound call.  */

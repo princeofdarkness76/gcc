@@ -23,6 +23,7 @@
 // <http://www.gnu.org/licenses/>.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/filesystem
  *  This is a TS C++ Library header.
 =======
@@ -30,6 +31,10 @@
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
 >>>>>>> gcc-mirror/master
+=======
+/** @file experimental/filesystem
+ *  This is a TS C++ Library header.
+>>>>>>> master
  */
 
 #ifndef _GLIBCXX_EXPERIMENTAL_FS_FWD_H
@@ -59,10 +64,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * @defgroup filesystem
 =======
    * @defgroup filesystem Filesystem
 >>>>>>> gcc-mirror/master
+=======
+   * @defgroup filesystem
+>>>>>>> master
    * @ingroup experimental
    *
    * Utilities for performing operations on file systems and their components,

@@ -3871,10 +3871,14 @@ execution of this erroneous program:
   execution speed. Note however, that `gnatmem` is not supported on all
   platforms (currently, it is supported on AIX, HP-UX, GNU/Linux, Solaris and
 <<<<<<< HEAD
+<<<<<<< HEAD
   Windows.
 =======
   Windows).
 >>>>>>> gcc-mirror/master
+=======
+  Windows.
+>>>>>>> master
 
   The `gnatmem` command has the form
 

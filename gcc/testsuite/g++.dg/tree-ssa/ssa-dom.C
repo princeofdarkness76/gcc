@@ -101,7 +101,10 @@ gimple_return_set_retval (gimple gs, tree retval)
 }
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "gss_for_code_.10." 1 "dom1"} } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "gss_for_code_.10." 1 "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 

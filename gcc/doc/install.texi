@@ -384,10 +384,14 @@ installed but it is not in your default library search path, the
 @option{--with-mpc-lib} and @option{--with-mpc-include}.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @item ISL Library version 0.15, 0.14, 0.13, or 0.12.2
 =======
 @item ISL Library version 0.15 or 0.14.
 >>>>>>> gcc-mirror/master
+=======
+@item ISL Library version 0.15, 0.14, 0.13, or 0.12.2
+>>>>>>> master
 
 Necessary to build GCC with the Graphite loop optimizations.
 It can be downloaded from @uref{ftp://gcc.gnu.org/pub/gcc/infrastructure/}.
@@ -4303,6 +4307,7 @@ This configuration is intended for embedded systems.
 @heading nds32le-*-elf
 Andes NDS32 target in little endian mode.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 @html
@@ -4320,12 +4325,24 @@ Andes NDS32 target in big endian mode.
 @anchor{nds32be-x-elf}
 @heading nds32be-*-elf
 Andes NDS32 target in big endian mode.
+=======
+>>>>>>> master
 
 @html
 <hr />
 @end html
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+@anchor{nds32be-x-elf}
+@heading nds32be-*-elf
+Andes NDS32 target in big endian mode.
+
+@html
+<hr />
+@end html
+>>>>>>> master
 @anchor{nvptx-x-none}
 @heading nvptx-*-none
 Nvidia PTX target.

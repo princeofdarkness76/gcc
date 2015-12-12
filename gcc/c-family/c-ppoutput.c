@@ -260,18 +260,25 @@ scan_translation_unit (cpp_reader *pfile)
 <<<<<<< HEAD
 	      linemap_dump_location (line_table, token->src_loc,
 				     print.outf);
+<<<<<<< HEAD
 =======
 	    linemap_dump_location (line_table, token->src_loc, print.outf);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 	  if (do_line_adjustments
 	      && !in_pragma
 	      && !line_marker_emitted
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      && print.prev_was_system_token != !!in_system_header_at(loc)
 =======
 	      && print.prev_was_system_token != !!in_system_header_at (loc)
 >>>>>>> gcc-mirror/master
+=======
+	      && print.prev_was_system_token != !!in_system_header_at(loc)
+>>>>>>> master
 	      && !is_location_from_builtin_token (loc))
 	    /* The system-ness of this token is different from the one
 	       of the previous token.  Let's emit a line change to
@@ -279,10 +286,14 @@ scan_translation_unit (cpp_reader *pfile)
 	    {
 	      do_line_change (pfile, token, loc, false);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	      print.prev_was_system_token = !!in_system_header_at(loc);
 	    }
 	  cpp_output_token (token, print.outf);
 	  line_marker_emitted = false;
+<<<<<<< HEAD
 =======
 	      print.prev_was_system_token = !!in_system_header_at (loc);
 	    }
@@ -290,6 +301,8 @@ scan_translation_unit (cpp_reader *pfile)
 	  line_marker_emitted = false;
 	  print.printed = true;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	}
 
       /* CPP_COMMENT tokens and raw-string literal tokens can

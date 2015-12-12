@@ -87,6 +87,7 @@ enum processor_flags
         (s390_arch_flags & PF_Z13)
 #define TARGET_CPU_VX \
         (s390_arch_flags & PF_VX)
+<<<<<<< HEAD
 =======
 	(s390_arch_flags & PF_TX)
 #define TARGET_CPU_HTM_P(opts) \
@@ -102,6 +103,8 @@ enum processor_flags
 
 #define TARGET_HARD_FLOAT_P(opts) (!TARGET_SOFT_FLOAT_P(opts))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* These flags indicate that the generated code should run on a cpu
    providing the respective hardware facility when run in
@@ -137,6 +140,7 @@ enum processor_flags
        (TARGET_ZARCH && TARGET_CPU_Z13)
 #define TARGET_VX \
        (TARGET_ZARCH && TARGET_CPU_VX && TARGET_OPT_VX && TARGET_HARD_FLOAT)
+<<<<<<< HEAD
 
 =======
 	(TARGET_ZARCH && TARGET_CPU_ZEC12)
@@ -175,6 +179,9 @@ enum processor_flags
 #define TARGET_SUPPORTS_WIDE_INT 1
 
 >>>>>>> gcc-mirror/master
+=======
+
+>>>>>>> master
 /* Use the ABI introduced with IBM z13:
    - pass vector arguments <= 16 bytes in VRs
    - align *all* vector types to 8 bytes  */
@@ -1019,6 +1026,7 @@ do {									\
 #define ASM_OUTPUT_FUNCTION_LABEL(FILE, NAME, DECL) \
   s390_asm_output_function_label (FILE, NAME, DECL)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 #if S390_USE_TARGET_ATTRIBUTE
@@ -1031,6 +1039,8 @@ do {									\
 #define ASM_DECLARE_FUNCTION_SIZE s390_asm_declare_function_size
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Miscellaneous parameters.  */
 

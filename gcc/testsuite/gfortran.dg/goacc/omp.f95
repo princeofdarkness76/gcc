@@ -64,6 +64,7 @@ contains
      !$acc end data
    end subroutine roku
 <<<<<<< HEAD
+<<<<<<< HEAD
 end module test
 =======
 
@@ -76,3 +77,6 @@ end module test
    end subroutine nana
 end module test
 >>>>>>> gcc-mirror/master
+=======
+end module test
+>>>>>>> master

@@ -659,6 +659,7 @@ cleanup_tree_cfg_1 (void)
   start_recording_case_labels ();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Start by iterating over all basic blocks.  We cannot use FOR_EACH_BB_FN,
      since the basic blocks may get removed.  */
 =======
@@ -670,10 +671,15 @@ cleanup_tree_cfg_1 (void)
      invalid and we want to avoid performing SSA related tasks such
      as propgating out a PHI node during BB merging in that state.  */
 >>>>>>> gcc-mirror/master
+=======
+  /* Start by iterating over all basic blocks.  We cannot use FOR_EACH_BB_FN,
+     since the basic blocks may get removed.  */
+>>>>>>> master
   n = last_basic_block_for_fn (cfun);
   for (i = NUM_FIXED_BLOCKS; i < n; i++)
     {
       bb = BASIC_BLOCK_FOR_FN (cfun, i);
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
       if (bb)
@@ -690,6 +696,8 @@ cleanup_tree_cfg_1 (void)
     {
       bb = BASIC_BLOCK_FOR_FN (cfun, i);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       if (bb)
 	retval |= cleanup_tree_cfg_bb (bb);
     }
@@ -956,6 +964,7 @@ namespace {
 
 const pass_data pass_data_merge_phi =
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
   "mergephi", /* name */
@@ -972,6 +981,9 @@ class pass_merge_phi : public gimple_opt_pass
 {
 =======
 {
+=======
+{
+>>>>>>> master
   GIMPLE_PASS, /* type */
   "mergephi", /* name */
   OPTGROUP_NONE, /* optinfo_flags */
@@ -985,7 +997,10 @@ class pass_merge_phi : public gimple_opt_pass
 
 class pass_merge_phi : public gimple_opt_pass
 {
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 public:
   pass_merge_phi (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_merge_phi, ctxt)
@@ -1093,6 +1108,9 @@ pass_merge_phi::execute (function *fun)
 gimple_opt_pass *
 make_pass_merge_phi (gcc::context *ctxt)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 {
   return new pass_merge_phi (ctxt);
 }
@@ -1150,6 +1168,7 @@ namespace {
 
 const pass_data pass_data_cleanup_cfg_post_optimizing =
 {
+<<<<<<< HEAD
 =======
 {
   return new pass_merge_phi (ctxt);
@@ -1209,6 +1228,8 @@ namespace {
 const pass_data pass_data_cleanup_cfg_post_optimizing =
 {
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   GIMPLE_PASS, /* type */
   "optimized", /* name */
   OPTGROUP_NONE, /* optinfo_flags */

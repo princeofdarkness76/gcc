@@ -651,12 +651,17 @@ cp_convert_and_check (tree type, tree expr, tsubst_flags_t complain)
       if (!TREE_OVERFLOW_P (folded)
 	  && folded_result != error_mark_node)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	warnings_for_convert_and_check (input_location, type, folded,
 					folded_result);
 =======
 	warnings_for_convert_and_check (EXPR_LOC_OR_LOC (expr, input_location),
 					type, folded, folded_result);
 >>>>>>> gcc-mirror/master
+=======
+	warnings_for_convert_and_check (input_location, type, folded,
+					folded_result);
+>>>>>>> master
     }
 
   return result;

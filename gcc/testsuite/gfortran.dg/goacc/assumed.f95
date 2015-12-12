@@ -46,8 +46,11 @@ contains
   end subroutine assumed_rank
 end module test
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 18 }
 ! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 39 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

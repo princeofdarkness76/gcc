@@ -1,10 +1,14 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -fpic -fdump-rtl-loop2_invariant" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-skip-if "Load/Store hoisted by RTL PRE already" { aarch64-*-* }  { "-mcmodel=tiny" "-mcmodel=large" } { "" } } */
 =======
 /* { dg-skip-if "Load/Store hoisted by RTL PRE already" { aarch64*-*-* }  { "-mcmodel=tiny" "-mcmodel=large" } { "" } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-skip-if "Load/Store hoisted by RTL PRE already" { aarch64-*-* }  { "-mcmodel=tiny" "-mcmodel=large" } { "" } } */
+>>>>>>> master
 
 int bar (int);
 int cal (void *);

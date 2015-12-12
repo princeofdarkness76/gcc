@@ -1100,6 +1100,9 @@ replace_phi_args_in (gphi *phi, ssa_prop_get_value_fn get_value)
 
   return replaced;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 }
 
 
@@ -1123,6 +1126,8 @@ public:
       stmts_to_fixup.release ();
       BITMAP_FREE (need_eh_cleanup);
     }
+<<<<<<< HEAD
+=======
 
     virtual void before_dom_children (basic_block);
     virtual void after_dom_children (basic_block) {}
@@ -1212,6 +1217,193 @@ substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
       bool was_noreturn = (is_gimple_call (stmt)
 			   && gimple_call_noreturn_p (stmt));
 
+      /* Some statements may be simplified using propagator
+	 specific information.  Do this before propagating
+	 into the stmt to not disturb pass specific information.  */
+      if (fold_fn
+	  && (*fold_fn)(&i))
+	{
+	  did_replace = true;
+	  prop_stats.num_stmts_folded++;
+	  stmt = gsi_stmt (i);
+	  update_stmt (stmt);
+	}
+
+      /* Replace real uses in the statement.  */
+      did_replace |= replace_uses_in (stmt, get_value_fn);
+
+      /* If we made a replacement, fold the statement.  */
+      if (did_replace)
+	{
+	  fold_stmt (&i, follow_single_use_edges);
+	  stmt = gsi_stmt (i);
+	}
+
+      /* If this is a control statement the propagator left edges
+         unexecuted on force the condition in a way consistent with
+	 that.  See PR66945 for cases where the propagator can end
+	 up with a different idea of a taken edge than folding
+	 (once undefined behavior is involved).  */
+      if (gimple_code (stmt) == GIMPLE_COND)
+	{
+	  if ((EDGE_SUCC (bb, 0)->flags & EDGE_EXECUTABLE)
+	      ^ (EDGE_SUCC (bb, 1)->flags & EDGE_EXECUTABLE))
+	    {
+	      if (((EDGE_SUCC (bb, 0)->flags & EDGE_TRUE_VALUE) != 0)
+		  == ((EDGE_SUCC (bb, 0)->flags & EDGE_EXECUTABLE) != 0))
+		gimple_cond_make_true (as_a <gcond *> (stmt));
+	      else
+		gimple_cond_make_false (as_a <gcond *> (stmt));
+	      did_replace = true;
+	    }
+	}
+
+      /* Now cleanup.  */
+      if (did_replace)
+	{
+	  /* If we cleaned up EH information from the statement,
+	     remove EH edges.  */
+	  if (maybe_clean_or_replace_eh_stmt (old_stmt, stmt))
+	    bitmap_set_bit (need_eh_cleanup, bb->index);
+
+	  /* If we turned a not noreturn call into a noreturn one
+	     schedule it for fixup.  */
+	  if (!was_noreturn
+	      && is_gimple_call (stmt)
+	      && gimple_call_noreturn_p (stmt))
+	    stmts_to_fixup.safe_push (stmt);
+
+	  if (gimple_assign_single_p (stmt))
+	    {
+	      tree rhs = gimple_assign_rhs1 (stmt);
+
+	      if (TREE_CODE (rhs) == ADDR_EXPR)
+		recompute_tree_invariant_for_addr_expr (rhs);
+	    }
+
+	  /* Determine what needs to be done to update the SSA form.  */
+	  update_stmt (stmt);
+	  if (!is_gimple_debug (stmt))
+	    something_changed = true;
+	}
+
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  if (did_replace)
+	    {
+	      fprintf (dump_file, "Folded into: ");
+	      print_gimple_stmt (dump_file, stmt, 0, TDF_SLIM);
+	      fprintf (dump_file, "\n");
+	    }
+	  else
+	    fprintf (dump_file, "Not folded\n");
+	}
+    }
+}
+
+
+
+/* Perform final substitution and folding of propagated values.
+>>>>>>> master
+
+    virtual void before_dom_children (basic_block);
+    virtual void after_dom_children (basic_block) {}
+
+    ssa_prop_get_value_fn get_value_fn;
+    ssa_prop_fold_stmt_fn fold_fn;
+    bool do_dce;
+    bool something_changed;
+    vec<gimple *> stmts_to_remove;
+    vec<gimple *> stmts_to_fixup;
+    bitmap need_eh_cleanup;
+};
+
+void
+substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
+{
+  /* Propagate known values into PHI nodes.  */
+  for (gphi_iterator i = gsi_start_phis (bb);
+       !gsi_end_p (i);
+       gsi_next (&i))
+    {
+      gphi *phi = i.phi ();
+      tree res = gimple_phi_result (phi);
+      if (virtual_operand_p (res))
+	continue;
+      if (do_dce
+	  && res && TREE_CODE (res) == SSA_NAME)
+	{
+	  tree sprime = get_value_fn (res);
+	  if (sprime
+	      && sprime != res
+	      && may_propagate_copy (res, sprime))
+	    {
+	      stmts_to_remove.safe_push (phi);
+	      continue;
+	    }
+	}
+      something_changed |= replace_phi_args_in (phi, get_value_fn);
+    }
+
+  /* Propagate known values into stmts.  In some case it exposes
+     more trivially deletable stmts to walk backward.  */
+  for (gimple_stmt_iterator i = gsi_start_bb (bb);
+       !gsi_end_p (i);
+       gsi_next (&i))
+    {
+      bool did_replace;
+      gimple *stmt = gsi_stmt (i);
+      enum gimple_code code = gimple_code (stmt);
+
+      /* Ignore ASSERT_EXPRs.  They are used by VRP to generate
+	 range information for names and they are discarded
+	 afterwards.  */
+
+<<<<<<< HEAD
+      if (code == GIMPLE_ASSIGN
+	  && TREE_CODE (gimple_assign_rhs1 (stmt)) == ASSERT_EXPR)
+	continue;
+
+      /* No point propagating into a stmt we have a value for we
+         can propagate into all uses.  Mark it for removal instead.  */
+      tree lhs = gimple_get_lhs (stmt);
+      if (do_dce
+	  && lhs && TREE_CODE (lhs) == SSA_NAME)
+	{
+	  tree sprime = get_value_fn (lhs);
+	  if (sprime
+	      && sprime != lhs
+	      && may_propagate_copy (lhs, sprime)
+	      && !stmt_could_throw_p (stmt)
+	      && !gimple_has_side_effects (stmt))
+	    {
+	      stmts_to_remove.safe_push (stmt);
+	      continue;
+	    }
+	}
+=======
+bool
+substitute_and_fold (ssa_prop_get_value_fn get_value_fn,
+		     ssa_prop_fold_stmt_fn fold_fn,
+		     bool do_dce)
+{
+  gcc_assert (get_value_fn);
+>>>>>>> master
+
+      /* Replace the statement with its folded version and mark it
+	 folded.  */
+      did_replace = false;
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  fprintf (dump_file, "Folding statement: ");
+	  print_gimple_stmt (dump_file, stmt, 0, TDF_SLIM);
+	}
+
+      gimple *old_stmt = stmt;
+      bool was_noreturn = (is_gimple_call (stmt)
+			   && gimple_call_noreturn_p (stmt));
+
+<<<<<<< HEAD
       /* Some statements may be simplified using propagator
 	 specific information.  Do this before propagating
 	 into the stmt to not disturb pass specific information.  */
@@ -1703,6 +1895,185 @@ replace_exp_1 (use_operand_p op_p, tree val,
 		  && !may_propagate_copy (op, val)));
     }
 
+=======
+  calculate_dominance_info (CDI_DOMINATORS);
+  substitute_and_fold_dom_walker walker(CDI_DOMINATORS,
+					get_value_fn, fold_fn, do_dce);
+  walker.walk (ENTRY_BLOCK_PTR_FOR_FN (cfun));
+
+  /* We cannot remove stmts during the BB walk, especially not release
+     SSA names there as that destroys the lattice of our callers.
+     Remove stmts in reverse order to make debug stmt creation possible.  */
+  while (!walker.stmts_to_remove.is_empty ())
+    {
+      gimple *stmt = walker.stmts_to_remove.pop ();
+      if (dump_file && dump_flags & TDF_DETAILS)
+	{
+	  fprintf (dump_file, "Removing dead stmt ");
+	  print_gimple_stmt (dump_file, stmt, 0, 0);
+	  fprintf (dump_file, "\n");
+	}
+      prop_stats.num_dce++;
+      gimple_stmt_iterator gsi = gsi_for_stmt (stmt);
+      if (gimple_code (stmt) == GIMPLE_PHI)
+	remove_phi_node (&gsi, true);
+      else
+	{
+	  unlink_stmt_vdef (stmt);
+	  gsi_remove (&gsi, true);
+	  release_defs (stmt);
+	}
+    }
+
+  if (!bitmap_empty_p (walker.need_eh_cleanup))
+    gimple_purge_all_dead_eh_edges (walker.need_eh_cleanup);
+
+  /* Fixup stmts that became noreturn calls.  This may require splitting
+     blocks and thus isn't possible during the dominator walk.  Do this
+     in reverse order so we don't inadvertedly remove a stmt we want to
+     fixup by visiting a dominating now noreturn call first.  */
+  while (!walker.stmts_to_fixup.is_empty ())
+    {
+      gimple *stmt = walker.stmts_to_fixup.pop ();
+      if (dump_file && dump_flags & TDF_DETAILS)
+	{
+	  fprintf (dump_file, "Fixing up noreturn call ");
+	  print_gimple_stmt (dump_file, stmt, 0, 0);
+	  fprintf (dump_file, "\n");
+	}
+      fixup_noreturn_call (stmt);
+    }
+
+  statistics_counter_event (cfun, "Constants propagated",
+			    prop_stats.num_const_prop);
+  statistics_counter_event (cfun, "Copies propagated",
+			    prop_stats.num_copy_prop);
+  statistics_counter_event (cfun, "Statements folded",
+			    prop_stats.num_stmts_folded);
+  statistics_counter_event (cfun, "Statements deleted",
+			    prop_stats.num_dce);
+
+  return walker.something_changed;
+}
+
+
+/* Return true if we may propagate ORIG into DEST, false otherwise.  */
+
+bool
+may_propagate_copy (tree dest, tree orig)
+{
+  tree type_d = TREE_TYPE (dest);
+  tree type_o = TREE_TYPE (orig);
+
+  /* If ORIG is a default definition which flows in from an abnormal edge
+     then the copy can be propagated.  It is important that we do so to avoid
+     uninitialized copies.  */
+  if (TREE_CODE (orig) == SSA_NAME
+      && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (orig)
+      && SSA_NAME_IS_DEFAULT_DEF (orig)
+      && (SSA_NAME_VAR (orig) == NULL_TREE
+	  || TREE_CODE (SSA_NAME_VAR (orig)) == VAR_DECL))
+    ;
+  /* Otherwise if ORIG just flows in from an abnormal edge then the copy cannot
+     be propagated.  */
+  else if (TREE_CODE (orig) == SSA_NAME
+	   && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (orig))
+    return false;
+  /* Similarly if DEST flows in from an abnormal edge then the copy cannot be
+     propagated.  */
+  else if (TREE_CODE (dest) == SSA_NAME
+	   && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (dest))
+    return false;
+
+  /* Do not copy between types for which we *do* need a conversion.  */
+  if (!useless_type_conversion_p (type_d, type_o))
+    return false;
+
+  /* Generally propagating virtual operands is not ok as that may
+     create overlapping life-ranges.  */
+  if (TREE_CODE (dest) == SSA_NAME && virtual_operand_p (dest))
+    return false;
+
+  /* Anything else is OK.  */
+  return true;
+}
+
+/* Like may_propagate_copy, but use as the destination expression
+   the principal expression (typically, the RHS) contained in
+   statement DEST.  This is more efficient when working with the
+   gimple tuples representation.  */
+
+bool
+may_propagate_copy_into_stmt (gimple *dest, tree orig)
+{
+  tree type_d;
+  tree type_o;
+
+  /* If the statement is a switch or a single-rhs assignment,
+     then the expression to be replaced by the propagation may
+     be an SSA_NAME.  Fortunately, there is an explicit tree
+     for the expression, so we delegate to may_propagate_copy.  */
+
+  if (gimple_assign_single_p (dest))
+    return may_propagate_copy (gimple_assign_rhs1 (dest), orig);
+  else if (gswitch *dest_swtch = dyn_cast <gswitch *> (dest))
+    return may_propagate_copy (gimple_switch_index (dest_swtch), orig);
+
+  /* In other cases, the expression is not materialized, so there
+     is no destination to pass to may_propagate_copy.  On the other
+     hand, the expression cannot be an SSA_NAME, so the analysis
+     is much simpler.  */
+
+  if (TREE_CODE (orig) == SSA_NAME
+      && SSA_NAME_OCCURS_IN_ABNORMAL_PHI (orig))
+    return false;
+
+  if (is_gimple_assign (dest))
+    type_d = TREE_TYPE (gimple_assign_lhs (dest));
+  else if (gimple_code (dest) == GIMPLE_COND)
+    type_d = boolean_type_node;
+  else if (is_gimple_call (dest)
+           && gimple_call_lhs (dest) != NULL_TREE)
+    type_d = TREE_TYPE (gimple_call_lhs (dest));
+  else
+    gcc_unreachable ();
+
+  type_o = TREE_TYPE (orig);
+
+  if (!useless_type_conversion_p (type_d, type_o))
+    return false;
+
+  return true;
+}
+
+/* Similarly, but we know that we're propagating into an ASM_EXPR.  */
+
+bool
+may_propagate_copy_into_asm (tree dest ATTRIBUTE_UNUSED)
+{
+  return true;
+}
+
+
+/* Common code for propagate_value and replace_exp.
+
+   Replace use operand OP_P with VAL.  FOR_PROPAGATION indicates if the
+   replacement is done to propagate a value or not.  */
+
+static void
+replace_exp_1 (use_operand_p op_p, tree val,
+    	       bool for_propagation ATTRIBUTE_UNUSED)
+{
+  if (flag_checking)
+    {
+      tree op = USE_FROM_PTR (op_p);
+      gcc_assert (!(for_propagation
+		  && TREE_CODE (op) == SSA_NAME
+		  && TREE_CODE (val) == SSA_NAME
+		  && !may_propagate_copy (op, val)));
+    }
+
+>>>>>>> master
   if (TREE_CODE (val) == SSA_NAME)
     SET_USE (op_p, val);
   else

@@ -66,6 +66,7 @@ extern bool msp430x;
 #define LINK_SPEC "%{mrelax:--relax} %{mlarge:%{!r:%{!g:--gc-sections}}}"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #undef  LIB_SPEC
 #define LIB_SPEC "					\
 --start-group						\
@@ -97,14 +98,22 @@ extern const char * msp430_select_hwmult_lib (int, const char **);
   mmcu=*:%:msp430_hwmult_lib(mcu %{mmcu=*:%*});		\
   :%:msp430_hwmult_lib(default)}			\
 >>>>>>> gcc-mirror/master
+=======
+#undef  LIB_SPEC
+#define LIB_SPEC "					\
+--start-group						\
+>>>>>>> master
 -lc							\
 -lgcc							\
 -lcrt							\
 %{msim:-lsim}						\
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 %{!msim:-lnosys}					\
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 --end-group					   	\
 %{!T*:%{!msim:%{mmcu=*:--script=%*.ld}}}		\
 %{!T*:%{!msim:%{!mmcu=*:%Tmsp430.ld}}}			\

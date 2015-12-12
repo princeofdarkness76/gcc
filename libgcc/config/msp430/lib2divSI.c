@@ -41,6 +41,7 @@ typedef int           word_type     __attribute__ ((mode (__word__)));
 
 #include "msp430-divmod.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* ---------------------------------------------------------------------*/
@@ -72,3 +73,5 @@ asm (".global __mspabi_divllu\n\
            BR #__mspabi_divull");
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

@@ -648,6 +648,7 @@ expand_an_in_modify_expr (location_t location, tree lhs,
       goto error;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree rhs_len = ((rhs_list_size > 0 && rhs_rank > 0) ?
     rhs_an_info[0][0].length : NULL_TREE);
   tree lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
@@ -656,6 +657,11 @@ expand_an_in_modify_expr (location_t location, tree lhs,
     rhs_an_info[0][0].length : NULL_TREE);
   lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
 >>>>>>> gcc-mirror/master
+=======
+  tree rhs_len = ((rhs_list_size > 0 && rhs_rank > 0) ?
+    rhs_an_info[0][0].length : NULL_TREE);
+  tree lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
+>>>>>>> master
     lhs_an_info[0][0].length : NULL_TREE);
   if (lhs_list_size > 0 && rhs_list_size > 0 && lhs_rank > 0 && rhs_rank > 0
       && TREE_CODE (lhs_len) == INTEGER_CST && rhs_len
@@ -665,10 +671,14 @@ expand_an_in_modify_expr (location_t location, tree lhs,
       error_at (location, "length mismatch between LHS and RHS"); 
       pop_stmt_list (an_init); 
 <<<<<<< HEAD
+<<<<<<< HEAD
       return error_mark_node;
 =======
       goto error;
 >>>>>>> gcc-mirror/master
+=======
+      return error_mark_node;
+>>>>>>> master
     }
    for (ii = 0; ii < lhs_rank; ii++) 
      {

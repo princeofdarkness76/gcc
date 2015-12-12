@@ -18,6 +18,9 @@ foo (double a, int x)
 // if it may throw an exception.
 <<<<<<< HEAD
 // { dg-final { scan-tree-dump-times "invariant up to" 0 "lim1" } }
+<<<<<<< HEAD
 =======
 // { dg-final { scan-tree-dump-times "invariant up to" 0 "lim2" } }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

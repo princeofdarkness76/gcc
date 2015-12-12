@@ -13,6 +13,9 @@ void foo (int *srcdata, int *dstdata)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Moving statement" "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump "Moving statement" "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

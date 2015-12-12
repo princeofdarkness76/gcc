@@ -72,6 +72,7 @@ main()
 
   // PR 67440
 <<<<<<< HEAD
+<<<<<<< HEAD
   const std::set<int> const_intset = {2, 3};
 =======
   std::set<int> intset;
@@ -79,6 +80,9 @@ main()
   intset.insert(3);
   const std::set<int> const_intset = intset;
 >>>>>>> gcc-mirror/master
+=======
+  const std::set<int> const_intset = {2, 3};
+>>>>>>> master
 // { dg-final { note-test const_intset {std::__debug::set with 2 elements = {[0] = 2, [1] = 3}} } }
 
   std::set<std::string> sp;

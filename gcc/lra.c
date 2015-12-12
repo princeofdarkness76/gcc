@@ -383,10 +383,14 @@ lra_emit_add (rtx x, rtx y, rtx z)
 	  index = a2;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (! (REG_P (base) || GET_CODE (base) == SUBREG)
 =======
       if ((base != NULL_RTX && ! (REG_P (base) || GET_CODE (base) == SUBREG))
 >>>>>>> gcc-mirror/master
+=======
+      if (! (REG_P (base) || GET_CODE (base) == SUBREG)
+>>>>>>> master
 	  || (index != NULL_RTX
 	      && ! (REG_P (index) || GET_CODE (index) == SUBREG))
 	  || (disp != NULL_RTX && ! CONSTANT_P (disp))
@@ -447,6 +451,9 @@ lra_emit_add (rtx x, rtx y, rtx z)
 		  if (insn != NULL_RTX)
 		    {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		      insn = emit_add2_insn (x, base);
 		      if (insn != NULL_RTX)
 =======
@@ -469,6 +476,9 @@ lra_emit_add (rtx x, rtx y, rtx z)
 		  /* Generate x = disp; x = x + base; x = x + index_scale.  */
 		  emit_move_insn (x, disp);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		  rtx_insn *insn = emit_add2_insn (x, base);
 		  lra_assert (insn != NULL_RTX);
 =======
@@ -1767,7 +1777,94 @@ lra_process_new_insns (rtx_insn *insn, rtx_insn *before, rtx_insn *after,
       emit_insn_after (after, insn);
       push_insns (last, insn);
       setup_sp_offset (after, last);
+<<<<<<< HEAD
     }
+}
+
+
+
+/* Replace all references to register OLD_REGNO in *LOC with pseudo
+   register NEW_REG.  Try to simplify subreg of constant if SUBREG_P.
+   Return true if any change was made.  */
+bool
+lra_substitute_pseudo (rtx *loc, int old_regno, rtx new_reg, bool subreg_p)
+{
+  rtx x = *loc;
+  bool result = false;
+  enum rtx_code code;
+  const char *fmt;
+  int i, j;
+
+  if (x == NULL_RTX)
+    return false;
+
+  code = GET_CODE (x);
+  if (code == SUBREG && subreg_p)
+    {
+      rtx subst, inner = SUBREG_REG (x);
+      /* Transform subreg of constant while we still have inner mode
+	 of the subreg.  The subreg internal should not be an insn
+	 operand.  */
+      if (REG_P (inner) && (int) REGNO (inner) == old_regno
+	  && CONSTANT_P (new_reg)
+	  && (subst = simplify_subreg (GET_MODE (x), new_reg, GET_MODE (inner),
+				       SUBREG_BYTE (x))) != NULL_RTX)
+	{
+	  *loc = subst;
+	  return true;
+	}
+      
+    }
+  else if (code == REG && (int) REGNO (x) == old_regno)
+    {
+      machine_mode mode = GET_MODE (x);
+      machine_mode inner_mode = GET_MODE (new_reg);
+
+      if (mode != inner_mode
+	  && ! (CONST_INT_P (new_reg) && SCALAR_INT_MODE_P (mode)))
+	{
+	  if (GET_MODE_SIZE (mode) >= GET_MODE_SIZE (inner_mode)
+	      || ! SCALAR_INT_MODE_P (inner_mode))
+	    new_reg = gen_rtx_SUBREG (mode, new_reg, 0);
+	  else
+	    new_reg = gen_lowpart_SUBREG (mode, new_reg);
+	}
+      *loc = new_reg;
+      return true;
+    }
+
+  /* Scan all the operand sub-expressions.  */
+  fmt = GET_RTX_FORMAT (code);
+  for (i = GET_RTX_LENGTH (code) - 1; i >= 0; i--)
+    {
+      if (fmt[i] == 'e')
+	{
+	  if (lra_substitute_pseudo (&XEXP (x, i), old_regno,
+				     new_reg, subreg_p))
+	    result = true;
+	}
+      else if (fmt[i] == 'E')
+	{
+	  for (j = XVECLEN (x, i) - 1; j >= 0; j--)
+	    if (lra_substitute_pseudo (&XVECEXP (x, i, j), old_regno,
+				       new_reg, subreg_p))
+	      result = true;
+	}
+=======
+>>>>>>> master
+    }
+  return result;
+}
+
+/* Call lra_substitute_pseudo within an insn.  Try to simplify subreg
+   of constant if SUBREG_P.  This won't update the insn ptr, just the
+   contents of the insn.  */
+bool
+lra_substitute_pseudo_within_insn (rtx_insn *insn, int old_regno,
+				   rtx new_reg, bool subreg_p)
+{
+  rtx loc = insn;
+  return lra_substitute_pseudo (&loc, old_regno, new_reg, subreg_p);
 }
 
 

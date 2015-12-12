@@ -39,6 +39,7 @@ typed_free_remove <Type>::remove (Type *p)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Helpful type for removing with delete.  */
 
@@ -58,6 +59,8 @@ typed_delete_remove <Type>::remove (Type *p)
   delete p;
 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Helpful type for a no-op remove.  */
 
@@ -281,6 +284,7 @@ template <typename T>
 struct free_ptr_hash : pointer_hash <T>, typed_free_remove <T> {};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Traits for pointer elements that should be freed via delete operand when an
    element is deleted.  */
@@ -289,6 +293,8 @@ template <typename T>
 struct delete_ptr_hash : pointer_hash <T>, typed_delete_remove <T> {};
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Traits for elements that point to gc memory.  The pointed-to data
    must be kept across collections.  */
 

@@ -8940,6 +8940,7 @@ mips_dwarf_register_span (rtx reg)
       && TARGET_FLOATXX
       && GET_MODE_SIZE (mode) > UNITS_PER_FPREG)
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       return gen_rtx_PARALLEL (VOIDmode, gen_rtvec (1, reg));
     }
@@ -8952,6 +8953,8 @@ mips_dwarf_register_span (rtx reg)
 	   && GET_MODE_SIZE (mode) > UNITS_PER_FPREG)
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     {
       return gen_rtx_PARALLEL (VOIDmode, gen_rtvec (1, reg));
     }
@@ -9288,6 +9291,38 @@ mips_file_start (void)
   else
     fputs ("\t.module\tnooddspreg\n", asm_out_file);
 
+<<<<<<< HEAD
+=======
+  /* Record the NaN encoding.  */
+  if (HAVE_AS_NAN || mips_nan != MIPS_IEEE_754_DEFAULT)
+    fprintf (asm_out_file, "\t.nan\t%s\n",
+	     mips_nan == MIPS_IEEE_754_2008 ? "2008" : "legacy");
+
+#ifdef HAVE_AS_DOT_MODULE
+  /* Record the FP ABI.  See below for comments.  */
+  if (TARGET_NO_FLOAT)
+#ifdef HAVE_AS_GNU_ATTRIBUTE
+    fputs ("\t.gnu_attribute 4, 0\n", asm_out_file);
+#else
+    ;
+#endif
+  else if (!TARGET_HARD_FLOAT_ABI)
+    fputs ("\t.module\tsoftfloat\n", asm_out_file);
+  else if (!TARGET_DOUBLE_FLOAT)
+    fputs ("\t.module\tsinglefloat\n", asm_out_file);
+  else if (TARGET_FLOATXX)
+    fputs ("\t.module\tfp=xx\n", asm_out_file);
+  else if (TARGET_FLOAT64)
+    fputs ("\t.module\tfp=64\n", asm_out_file);
+  else
+    fputs ("\t.module\tfp=32\n", asm_out_file);
+
+  if (TARGET_ODD_SPREG)
+    fputs ("\t.module\toddspreg\n", asm_out_file);
+  else
+    fputs ("\t.module\tnooddspreg\n", asm_out_file);
+
+>>>>>>> master
 #else
 #ifdef HAVE_AS_GNU_ATTRIBUTE
   {
@@ -11629,6 +11664,9 @@ mips_expand_prologue (void)
 	  else
 	    {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	      rtx insn = gen_add3_insn (stack_pointer_rtx,
 					stack_pointer_rtx,
 					GEN_INT (-step1));

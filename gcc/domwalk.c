@@ -25,9 +25,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "cfganal.h"
 #include "domwalk.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "dumpfile.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* This file implements a generic walker for dominator trees.
 
@@ -147,6 +150,7 @@ cmp_bb_postorder (const void *a, const void *b)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Constructor for a dom walker.
 
@@ -234,6 +238,8 @@ dom_walker::propagate_unreachable_to_edges (basic_block bb,
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Recursively walk the dominator tree.
    BB is the basic block we are currently visiting.  */
 
@@ -264,6 +270,7 @@ dom_walker::walk (basic_block bb)
 	  || bb == EXIT_BLOCK_PTR_FOR_FN (cfun))
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
 	  before_dom_children (bb);
@@ -286,6 +293,11 @@ dom_walker::walk (basic_block bb)
 	  else
 	    propagate_unreachable_to_edges (bb, dump_file, dump_flags);
 >>>>>>> gcc-mirror/master
+=======
+	  /* Callback for subclasses to do custom things before we have walked
+	     the dominator children, but before we walk statements.  */
+	  before_dom_children (bb);
+>>>>>>> master
 
 	  /* Mark the current BB to be popped out of the recursion stack
 	     once children are processed.  */
@@ -316,6 +328,7 @@ dom_walker::walk (basic_block bb)
 	  /* Callback allowing subclasses to do custom things after we have
 	     walked dominator children, but before we walk statements.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  after_dom_children (bb);
 =======
 	  if (bb_reachable (cfun, bb))
@@ -323,6 +336,9 @@ dom_walker::walk (basic_block bb)
 	  else if (m_unreachable_dom == bb)
 	    m_unreachable_dom = NULL;
 >>>>>>> gcc-mirror/master
+=======
+	  after_dom_children (bb);
+>>>>>>> master
 	}
       if (sp)
 	bb = worklist[--sp];

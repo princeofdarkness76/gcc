@@ -519,6 +519,7 @@ void test_builtin_offsetof (int i)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 void test_builtin_choose_expr (int i)
 {
@@ -598,6 +599,8 @@ void test_alignof (int param)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Examples of non-trivial expressions.  ****************************/
 
 extern double sqrt (double x);

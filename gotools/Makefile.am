@@ -31,10 +31,14 @@ LIBGODEP = $(libgodir)/libgo.la
 if NATIVE
 # Use the compiler we just built.
 <<<<<<< HEAD
+<<<<<<< HEAD
 GOCOMPILER = $(GOC_FOR_TARGET)
 =======
 GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
 >>>>>>> gcc-mirror/master
+=======
+GOCOMPILER = $(GOC_FOR_TARGET)
+>>>>>>> master
 else
 GOCOMPILER = $(GOC)
 endif

@@ -588,6 +588,7 @@ typedef struct _stmt_vec_info {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* For loads only, true if this is a gather load.  */
   bool gather_p;
   bool stride_load_p;
@@ -597,6 +598,8 @@ typedef struct _stmt_vec_info {
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* For loads if this is a gather, for stores if this is a scatter.  */
   bool gather_scatter_p;
 
@@ -610,9 +613,12 @@ typedef struct _stmt_vec_info {
   enum vect_reduction_type v_reduc_type;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 } *stmt_vec_info;
 
 /* Access Functions.  */
@@ -640,20 +646,26 @@ STMT_VINFO_BB_VINFO (stmt_vec_info stmt_vinfo)
 #define STMT_VINFO_DATA_REF(S)             (S)->data_ref_info
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define STMT_VINFO_GATHER_P(S)		   (S)->gather_p
 #define STMT_VINFO_STRIDE_LOAD_P(S)	   (S)->stride_load_p
 #define STMT_VINFO_SIMD_LANE_ACCESS_P(S)   (S)->simd_lane_access_p
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define STMT_VINFO_GATHER_SCATTER_P(S)	   (S)->gather_scatter_p
 #define STMT_VINFO_STRIDED_P(S)	   	   (S)->strided_p
 #define STMT_VINFO_SIMD_LANE_ACCESS_P(S)   (S)->simd_lane_access_p
 #define STMT_VINFO_VEC_REDUCTION_TYPE(S)   (S)->v_reduc_type
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #define STMT_VINFO_DR_BASE_ADDRESS(S)      (S)->dr_base_address
 #define STMT_VINFO_DR_INIT(S)              (S)->dr_init
@@ -743,6 +755,7 @@ set_vinfo_for_stmt (gimple *stmt, stmt_vec_info info)
     }
   else
 <<<<<<< HEAD
+<<<<<<< HEAD
     stmt_vec_info_vec[uid - 1] = info;
 =======
     {
@@ -750,6 +763,9 @@ set_vinfo_for_stmt (gimple *stmt, stmt_vec_info info)
       stmt_vec_info_vec[uid - 1] = info;
     }
 >>>>>>> gcc-mirror/master
+=======
+    stmt_vec_info_vec[uid - 1] = info;
+>>>>>>> master
 }
 
 /* Return the earlier statement between STMT1 and STMT2.  */

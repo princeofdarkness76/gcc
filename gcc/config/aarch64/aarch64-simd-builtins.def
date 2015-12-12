@@ -432,6 +432,7 @@
   VAR1 (TERNOP, qtbx4, 0, v8qi)
   VAR1 (TERNOP, qtbx4, 0, v16qi)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* Builtins for ARMv8.1 Adv.SIMD instructions.  */
@@ -448,3 +449,5 @@
   BUILTIN_VSDQ_HSI (QUADOP_LANE, sqrdmlah_laneq, 0)
   BUILTIN_VSDQ_HSI (QUADOP_LANE, sqrdmlsh_laneq, 0)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

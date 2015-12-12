@@ -5,6 +5,9 @@
    this.  */
 /* { dg-do compile { target { ! { logical_op_short_circuit || { s390*-*-* mn10300-*-* hppa*-*-* } } } } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dom1 -fdump-tree-vrp2" } */
 =======
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dom2 -fdump-tree-vrp2" } */

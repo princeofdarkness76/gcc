@@ -31,29 +31,39 @@ typedef unsigned int  uint08_type   __attribute__ ((mode (QI)));
 #define C3(a,b,c) C3B(a,b,c)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 #define UINT_TYPE	uint16_type
 #define BITS_MINUS_1	15
 #define NAME_MODE	hi
 
 #include "msp430-mul.h"
+<<<<<<< HEAD
 =======
 #if defined MUL_NONE
 
 /* The software multiply library needs __mspabi_mpyll.  */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #undef UINT_TYPE
 #undef BITS_MINUS_1
 #undef NAME_MODE
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #define UINT_TYPE	uint08_type
 #define BITS_MINUS_1	7
 #define NAME_MODE	qi
 
 #include "msp430-mul.h"
 
+<<<<<<< HEAD
 =======
 #define UINT_TYPE	uint32_type
 #define BITS_MINUS_1	31
@@ -78,16 +88,22 @@ __mspabi_mpyull (unsigned long a, unsigned long b)
 #else
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #undef UINT_TYPE
 #undef BITS_MINUS_1
 #undef NAME_MODE
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #define UINT_TYPE	uint32_type
 #define BITS_MINUS_1	31
 #define NAME_MODE	si
 
 #include "msp430-mul.h"
+<<<<<<< HEAD
 =======
 #define UINT_TYPE	uint08_type
 #define BITS_MINUS_1	7
@@ -97,3 +113,5 @@ __mspabi_mpyull (unsigned long a, unsigned long b)
 
 #endif /* MUL_NONE */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

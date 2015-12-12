@@ -3907,10 +3907,14 @@ public:
       : dom_walker (direction), do_pre (do_pre_) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
   virtual void after_dom_children (basic_block);
 
   bool do_pre;
@@ -3919,10 +3923,14 @@ public:
 /* Perform elimination for the basic-block B during the domwalk.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 eliminate_dom_walker::before_dom_children (basic_block b)
 {
   /* Mark new bb.  */

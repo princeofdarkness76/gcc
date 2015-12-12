@@ -217,18 +217,24 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       virtual void _M_run() = 0;
     };
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   private:
     void
     _M_start_thread(__shared_base_type, void (*)());
 
 =======
+=======
+>>>>>>> master
 
   private:
     void
     _M_start_thread(__shared_base_type, void (*)());
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     void
     _M_start_thread(__shared_base_type);
 #endif

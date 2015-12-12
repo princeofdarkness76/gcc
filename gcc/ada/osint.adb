@@ -2644,12 +2644,16 @@ package body Osint is
             Name : String renames Name_Buffer (1 .. Name_Len);
             Inc  : String renames Include_Dir_Default_Prefix.all;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
             Part_Of_Runtimes : constant Boolean :=
               Inc /= ""
                 and then Inc'Length < Name_Len
                 and then Name_Buffer (1 .. Inc'Length) = Inc;
 
+<<<<<<< HEAD
 =======
 
             Part_Of_Runtimes : constant Boolean :=
@@ -2663,6 +2667,13 @@ package body Osint is
                Write_Line (Name);
             end if;
 
+=======
+         begin
+            if Debug.Debug_Flag_Dot_N then
+               Write_Line (Name);
+            end if;
+
+>>>>>>> master
             if not Part_Of_Runtimes then
                File_Name_Chars.Append_All (File_Name_Chars.Table_Type (Name));
                File_Name_Chars.Append (ASCII.LF);

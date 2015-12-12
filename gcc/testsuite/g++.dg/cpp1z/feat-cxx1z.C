@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-do compile }
 // { dg-options "-std=c++1z" }
 =======
@@ -306,6 +307,10 @@
 #  error "__cpp_unicode_characters != 201411"
 #endif
 >>>>>>> gcc-mirror/master
+=======
+// { dg-do compile }
+// { dg-options "-std=c++1z" }
+>>>>>>> master
 
 #ifndef __cpp_static_assert
 #  error "__cpp_static_assert"
@@ -320,6 +325,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifndef __cpp_enumerator_attributes
 #  error "__cpp_enumerator_attributes"
@@ -328,11 +334,14 @@
 #endif
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #ifndef __cpp_nested_namespace_definitions
 #  error "__cpp_nested_namespace_definitions"
 #elif __cpp_nested_namespace_definitions != 201411
 #  error "__cpp_nested_namespace_definitions != 201411"
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -348,3 +357,5 @@
 #  error "__cpp_nontype_template_args != 201411"
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

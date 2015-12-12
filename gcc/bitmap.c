@@ -488,6 +488,7 @@ bitmap_find_bit (bitmap head, unsigned int bit)
     return NULL;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    /* Usage can be NULL due to allocated bitmaps for which we do not
       call initialize function.  */
    bitmap_usage *usage = bitmap_mem_desc.get_descriptor_for_instance (head);
@@ -498,6 +499,11 @@ bitmap_find_bit (bitmap head, unsigned int bit)
   if (GATHER_STATISTICS)
     usage = bitmap_mem_desc.get_descriptor_for_instance (head);
 >>>>>>> gcc-mirror/master
+=======
+   /* Usage can be NULL due to allocated bitmaps for which we do not
+      call initialize function.  */
+   bitmap_usage *usage = bitmap_mem_desc.get_descriptor_for_instance (head);
+>>>>>>> master
 
   /* This bitmap has more than one element, and we're going to look
      through the elements list.  Count that as a search.  */

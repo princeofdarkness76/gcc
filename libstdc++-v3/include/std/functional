@@ -185,6 +185,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   template<typename _Res, typename _Fn, typename... _Args>
     inline _Res
     __invoke_impl(__invoke_other, _Fn&& __f, _Args&&... __args)
@@ -246,6 +249,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #if __cplusplus > 201402L
 # define __cpp_lib_invoke 201411
+<<<<<<< HEAD
 
 =======
   template<typename _Tp, typename _Up = typename decay<_Tp>::type>
@@ -324,6 +328,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 # define __cpp_lib_invoke 201411
 
 >>>>>>> gcc-mirror/master
+=======
+
+>>>>>>> master
   /// Invoke a callable object.
   template<typename _Callable, typename... _Args>
     inline result_of_t<_Callable&&(_Args&&...)>
@@ -606,6 +613,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _Signature>
     struct _Mem_fn_traits;
+<<<<<<< HEAD
 
   template<typename _Res, typename _Class, typename... _ArgTypes>
     struct _Mem_fn_traits_base
@@ -688,13 +696,68 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
       template<typename _Func, typename... _BoundArgs>
 	friend struct _Bind_check_arity;
 
+=======
+
+  template<typename _Res, typename _Class, typename... _ArgTypes>
+    struct _Mem_fn_traits_base
+    {
+      using __result_type = _Res;
+      using __maybe_type
+	= _Maybe_unary_or_binary_function<_Res, _Class*, _ArgTypes...>;
+      using __arity = integral_constant<size_t, sizeof...(_ArgTypes)>;
+    };
+
+#define _GLIBCXX_MEM_FN_TRAITS2(_CV, _REF, _LVAL, _RVAL)		\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = false_type;					\
+    };									\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes... ...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = true_type;					\
+    };
+
+#define _GLIBCXX_MEM_FN_TRAITS(_REF, _LVAL, _RVAL)		\
+  _GLIBCXX_MEM_FN_TRAITS2(		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(volatile	, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const volatile, _REF, _LVAL, _RVAL)
+
+_GLIBCXX_MEM_FN_TRAITS( , true_type, true_type)
+_GLIBCXX_MEM_FN_TRAITS(&, true_type, false_type)
+_GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
+
+#undef _GLIBCXX_MEM_FN_TRAITS
+#undef _GLIBCXX_MEM_FN_TRAITS2
+
+  template<typename _MemFunPtr,
+	   bool __is_mem_fn = is_member_function_pointer<_MemFunPtr>::value>
+    class _Mem_fn_base
+    : public _Mem_fn_traits<_MemFunPtr>::__maybe_type
+    {
+      using _Traits = _Mem_fn_traits<_MemFunPtr>;
+
+      using _Arity = typename _Traits::__arity;
+      using _Varargs = typename _Traits::__vararg;
+
+      template<typename _Func, typename... _BoundArgs>
+	friend struct _Bind_check_arity;
+
+>>>>>>> master
       _MemFunPtr _M_pmf;
 
     public:
 
       using result_type = typename _Traits::__result_type;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       explicit constexpr
       _Mem_fn_base(_MemFunPtr __pmf) noexcept : _M_pmf(__pmf) { }
 

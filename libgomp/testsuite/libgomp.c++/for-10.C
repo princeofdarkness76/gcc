@@ -21,6 +21,7 @@ extern "C" void abort ();
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef SC
 #define SC static
@@ -29,6 +30,10 @@ extern "C" void abort ();
 #undef SC
 #define SC static
 >>>>>>> gcc-mirror/master
+=======
+#undef SC
+#define SC static
+>>>>>>> master
 #define F for simd
 #define G f_simd
 #include "../libgomp.c/for-1.h"
@@ -36,12 +41,16 @@ extern "C" void abort ();
 #undef G
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef SC
 >>>>>>> gcc-mirror/master
 =======
 #undef SC
 >>>>>>> gcc-mirror/master
+=======
+#undef SC
+>>>>>>> master
 
 int
 main ()

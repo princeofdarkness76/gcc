@@ -29,6 +29,9 @@ int foo(Object&o)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times " = \[^\n\]*;" 2 "dce2" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times " = \[^\n\]*;" 2 "dce3" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

@@ -127,9 +127,12 @@ aarch64_update_cpp_builtins (cpp_reader *pfile)
 
   aarch64_def_or_undef (TARGET_CRYPTO, "__ARM_FEATURE_CRYPTO", pfile);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   aarch64_def_or_undef (TARGET_SIMD_RDMA, "__ARM_FEATURE_QRDMX", pfile);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Implement TARGET_CPU_CPP_BUILTINS.  */

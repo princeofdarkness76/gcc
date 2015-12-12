@@ -545,10 +545,14 @@ sem_function::param_used_p (unsigned int i)
 {
   if (ipa_node_params_sum == NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
     return true;
 >>>>>>> gcc-mirror/master
+=======
+    return false;
+>>>>>>> master
 
   struct ipa_node_params *parms_info = IPA_NODE_REF (get_node ());
 
@@ -1357,10 +1361,14 @@ sem_function::merge (sem_item *alias_item)
   original->icf_merged = true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   /* Inform the inliner about cross-module merging.  */
   if ((original->lto_file_data || alias->lto_file_data)
       && original->lto_file_data != alias->lto_file_data)
     local_original->merged = original->merged = true;
+<<<<<<< HEAD
 =======
   /* We use merged flag to track cases where COMDAT function is known to be
      compatible its callers.  If we merged in non-COMDAT, we need to give up
@@ -1374,6 +1382,8 @@ sem_function::merge (sem_item *alias_item)
       original->merged_comdat = false;
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   if (remove)
     {

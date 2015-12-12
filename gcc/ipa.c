@@ -544,9 +544,12 @@ symbol_table::remove_unreachable_nodes (FILE *file)
 	      node->cpp_implicit_alias = false;
 	      node->alias = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      node->transparent_alias = false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	      node->thunk.thunk_p = false;
 	      node->weakref = false;
 	      /* After early inlining we drop always_inline attributes on

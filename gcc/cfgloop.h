@@ -187,11 +187,14 @@ struct GTY ((chain_next ("%h.next"))) loop {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* True if we should try harder to vectorize this loop.  */
   bool force_vect;
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* True if this loop should never be vectorized.  */
   bool dont_vectorize;
 
@@ -201,9 +204,12 @@ struct GTY ((chain_next ("%h.next"))) loop {
   /* True if the loop is part of an oacc kernels region.  */
   bool in_oacc_kernels_region;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* For SIMD loops, this is a unique identifier of the loop, referenced
      by IFN_GOMP_SIMD_VF, IFN_GOMP_SIMD_LANE and IFN_GOMP_SIMD_LAST_LANE
@@ -680,6 +686,7 @@ loop_iterator::loop_iterator (function *fn, loop_p *loop, unsigned flags)
     }
 
   *loop = this->next ();
+<<<<<<< HEAD
 }
 
 inline
@@ -688,6 +695,16 @@ loop_iterator::~loop_iterator ()
   this->to_visit.release ();
 }
 
+=======
+}
+
+inline
+loop_iterator::~loop_iterator ()
+{
+  this->to_visit.release ();
+}
+
+>>>>>>> master
 #define FOR_EACH_LOOP(LOOP, FLAGS) \
   for (loop_iterator li(cfun, &(LOOP), FLAGS); \
        (LOOP); \
@@ -778,6 +795,7 @@ extern HOST_WIDE_INT get_max_loop_iterations_int (struct loop *);
 extern bool get_estimated_loop_iterations (struct loop *loop, widest_int *nit);
 extern bool get_max_loop_iterations (struct loop *loop, widest_int *nit);
 extern int bb_loop_depth (const_basic_block);
+<<<<<<< HEAD
 
 /* Converts VAL to widest_int.  */
 
@@ -793,6 +811,23 @@ gcov_type_to_wide_int (gcov_type val)
   val >>= 1;
   a[1] = (unsigned HOST_WIDE_INT) val;
 
+=======
+
+/* Converts VAL to widest_int.  */
+
+static inline widest_int
+gcov_type_to_wide_int (gcov_type val)
+{
+  HOST_WIDE_INT a[2];
+
+  a[0] = (unsigned HOST_WIDE_INT) val;
+  /* If HOST_BITS_PER_WIDE_INT == HOST_BITS_PER_WIDEST_INT, avoid shifting by
+     the size of type.  */
+  val >>= HOST_BITS_PER_WIDE_INT - 1;
+  val >>= 1;
+  a[1] = (unsigned HOST_WIDE_INT) val;
+
+>>>>>>> master
   return widest_int::from_array (a, 2);
 }
 #endif /* GCC_CFGLOOP_H */

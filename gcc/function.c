@@ -76,9 +76,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "rtl-chkp.h"
 #include "tree-dfa.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "tree-ssa.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* So we can assign to cfun in this file.  */
 #undef cfun
@@ -3067,6 +3070,7 @@ assign_parm_setup_block (struct assign_parm_data_all *all,
 	}
       else if (!MEM_P (mem))
 <<<<<<< HEAD
+<<<<<<< HEAD
 	emit_move_insn (mem, entry_parm);
 =======
 	{
@@ -3079,6 +3083,9 @@ assign_parm_setup_block (struct assign_parm_data_all *all,
 	  emit_move_insn (mem, entry_parm);
 	}
 >>>>>>> gcc-mirror/master
+=======
+	emit_move_insn (mem, entry_parm);
+>>>>>>> master
       else
 	move_block_from_reg (REGNO (entry_parm), mem,
 			     size_stored / UNITS_PER_WORD);
@@ -4191,6 +4198,9 @@ locate_and_pad_parm (machine_mode passed_mode, tree type, int in_regs,
 					      initial_offset_ptr->var);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	{
 	  tree s2 = sizetree;
 	  if (where_pad != none
@@ -4199,6 +4209,7 @@ locate_and_pad_parm (machine_mode passed_mode, tree type, int in_regs,
 	    s2 = round_up (s2, round_boundary / BITS_PER_UNIT);
 	  SUB_PARM_SIZE (locate->slot_offset, s2);
 	}
+<<<<<<< HEAD
 =======
       {
 	tree s2 = sizetree;
@@ -4209,12 +4220,28 @@ locate_and_pad_parm (machine_mode passed_mode, tree type, int in_regs,
 	SUB_PARM_SIZE (locate->slot_offset, s2);
       }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
       locate->slot_offset.constant += part_size_in_regs;
 
       if (!in_regs || reg_parm_stack_space > 0)
 	pad_to_arg_alignment (&locate->slot_offset, boundary,
 			      &locate->alignment_pad);
+<<<<<<< HEAD
+
+      locate->size.constant = (-initial_offset_ptr->constant
+			       - locate->slot_offset.constant);
+      if (initial_offset_ptr->var)
+	locate->size.var = size_binop (MINUS_EXPR,
+				       size_binop (MINUS_EXPR,
+						   ssize_int (0),
+						   initial_offset_ptr->var),
+				       locate->slot_offset.var);
+
+      /* Pad_below needs the pre-rounded size to know how much to pad
+	 below.  */
+=======
 
       locate->size.constant = (-initial_offset_ptr->constant
 			       - locate->slot_offset.constant);
@@ -4246,6 +4273,27 @@ locate_and_pad_parm (machine_mode passed_mode, tree type, int in_regs,
 
       /* Pad_below needs the pre-rounded size to know how much to pad below
 	 so this must be done before rounding up.  */
+>>>>>>> master
+      locate->offset = locate->slot_offset;
+      if (where_pad == downward)
+	pad_below (&locate->offset, passed_mode, sizetree);
+
+<<<<<<< HEAD
+    }
+  else
+    {
+      if (!in_regs || reg_parm_stack_space > 0)
+	pad_to_arg_alignment (initial_offset_ptr, boundary,
+			      &locate->alignment_pad);
+      locate->slot_offset = *initial_offset_ptr;
+
+#ifdef PUSH_ROUNDING
+      if (passed_mode != BLKmode)
+	sizetree = size_int (PUSH_ROUNDING (TREE_INT_CST_LOW (sizetree)));
+#endif
+
+      /* Pad_below needs the pre-rounded size to know how much to pad below
+	 so this must be done before rounding up.  */
       locate->offset = locate->slot_offset;
       if (where_pad == downward)
 	pad_below (&locate->offset, passed_mode, sizetree);
@@ -4257,6 +4305,15 @@ locate_and_pad_parm (machine_mode passed_mode, tree type, int in_regs,
 
       ADD_PARM_SIZE (locate->size, sizetree);
 
+=======
+      if (where_pad != none
+	  && (!tree_fits_uhwi_p (sizetree)
+	      || (tree_to_uhwi (sizetree) * BITS_PER_UNIT) % round_boundary))
+	sizetree = round_up (sizetree, round_boundary / BITS_PER_UNIT);
+
+      ADD_PARM_SIZE (locate->size, sizetree);
+
+>>>>>>> master
       locate->size.constant -= part_size_in_regs;
     }
 
@@ -5169,6 +5226,9 @@ expand_function_start (tree subr)
 	 into the true return register after the cleanups are done.  */
       tree return_type = TREE_TYPE (res);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       /* If we may coalesce this result, make sure it has the expected
 	 mode.  */
       if (flag_tree_coalesce_vars && is_gimple_reg (res))
@@ -5178,6 +5238,7 @@ expand_function_start (tree subr)
 	  machine_mode mode = promote_ssa_mode (def, NULL);
 	  set_parm_rtl (res, gen_reg_rtx (mode));
 	}
+<<<<<<< HEAD
 =======
 
       /* If we may coalesce this result, make sure it has the expected mode
@@ -5190,6 +5251,8 @@ expand_function_start (tree subr)
       if (promoted_mode != BLKmode)
 	set_parm_rtl (res, gen_reg_rtx (promoted_mode));
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       else if (TYPE_MODE (return_type) != BLKmode
 	       && targetm.calls.return_in_msb (return_type))
 	/* expand_function_end will insert the appropriate padding in

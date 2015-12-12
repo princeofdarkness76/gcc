@@ -32,6 +32,9 @@ along with GCC; see the file COPYING3.  If not see
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* Overwrite the range within this text_info's rich_location.
    For use e.g. when implementing "+" in client format decoders.  */
 
@@ -40,6 +43,7 @@ text_info::set_range (unsigned int idx, source_range range, bool caret_p)
 {
   gcc_checking_assert (m_richloc);
   m_richloc->set_range (idx, range, caret_p, true);
+<<<<<<< HEAD
 =======
 /* Overwrite the given location/range within this text_info's rich_location.
    For use e.g. when implementing "+" in client format decoders.  */
@@ -50,6 +54,8 @@ text_info::set_location (unsigned int idx, location_t loc, bool show_caret_p)
   gcc_checking_assert (m_richloc);
   m_richloc->set_range (line_table, idx, loc, show_caret_p);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 location_t
@@ -816,6 +822,7 @@ pretty_printer::pretty_printer (const char *p, int l)
     need_newline (),
     translate_identifiers (true),
     show_color ()
+<<<<<<< HEAD
 {
   pp_line_cutoff (this) = l;
   /* By default, we emit prefixes once per message.  */
@@ -825,6 +832,17 @@ pretty_printer::pretty_printer (const char *p, int l)
 
 pretty_printer::~pretty_printer ()
 {
+=======
+{
+  pp_line_cutoff (this) = l;
+  /* By default, we emit prefixes once per message.  */
+  pp_prefixing_rule (this) = DIAGNOSTICS_SHOW_PREFIX_ONCE;
+  pp_set_prefix (this, p);
+}
+
+pretty_printer::~pretty_printer ()
+{
+>>>>>>> master
   buffer->~output_buffer ();
   XDELETE (buffer);
 }

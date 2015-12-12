@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-std=gnu++1y" }
 =======
 // { dg-options "-std=gnu++14" }
 >>>>>>> gcc-mirror/master
+=======
+// { dg-options "-std=gnu++1y" }
+>>>>>>> master
 
 // Copyright (C) 2015 Free Software Foundation, Inc.
 //

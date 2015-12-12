@@ -17,6 +17,7 @@ void foo()
 #pragma simd
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   for (; i < 5; ++i)		// { dg-error "expected iteration decl" }
 =======
   for (; i < 5; ++i)		// { dg-error "expected iteration" }
@@ -24,10 +25,14 @@ void foo()
 =======
   for (; i < 5; ++i)		// { dg-error "expected iteration" }
 >>>>>>> gcc-mirror/master
+=======
+  for (; i < 5; ++i)		// { dg-error "expected iteration" }
+>>>>>>> master
     a[i] = i;
 
   // Empty condition is not allowed.
 #pragma simd
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   for (int i=0; ; ++i)		/* { dg-error "missing condition" } */
@@ -37,6 +42,9 @@ void foo()
 =======
   for (int i=0; ; ++i)		/* { dg-error "missing controlling" } */
 >>>>>>> gcc-mirror/master
+=======
+  for (int i=0; ; ++i)		/* { dg-error "missing controlling" } */
+>>>>>>> master
     a[i] = i;
 
   // Empty increment is not allowed.
@@ -54,6 +62,7 @@ void foo()
 #pragma simd
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   for (struct S ss = { 0 }; ss.i <= 1000; ++ss.i) /* { dg-error "initialization variable must be of integral or pointer type" } */
     a[ss.i] = b[ss.i];
 
@@ -62,15 +71,20 @@ void foo()
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   for (struct S ss = { 0 }; ss.i <= 1000; ++ss.i) /* { dg-error "invalid controlling\|invalid type for iteration\|invalid increment" } */
     a[ss.i] = b[ss.i];
 
   #pragma simd
   for (float f=0.0; f < 15.0; ++f) /* { dg-error "invalid type" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     a[(int)f] = (int) f;
 
   // Pointers are OK.
@@ -110,6 +124,7 @@ void foo()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   // This condition gets folded into "i != 0" by
   // c_parser_cilk_for_statement().  This is allowed as per the "!="
   // allowance above.
@@ -121,6 +136,8 @@ void foo()
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #pragma simd
   for (int i=100; i != 5; i += something)
     a[i] = b[i];

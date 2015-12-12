@@ -245,6 +245,7 @@ struct iv_cand
 			   biv.  */
   struct iv *orig_iv;	/* The original iv if this cand is added from biv with
 			   smaller type.  */
+<<<<<<< HEAD
 };
 
 /* Hashtable entry for common candidate derived from iv uses.  */
@@ -273,6 +274,28 @@ struct iv_common_cand_hasher : delete_ptr_hash <iv_common_cand>
   static inline bool equal (const iv_common_cand *, const iv_common_cand *);
 };
 
+=======
+};
+
+/* Hashtable entry for common candidate derived from iv uses.  */
+struct iv_common_cand
+{
+  tree base;
+  tree step;
+  /* IV uses from which this common candidate is derived.  */
+  vec<iv_use *> uses;
+  hashval_t hash;
+};
+
+/* Hashtable helpers.  */
+
+struct iv_common_cand_hasher : free_ptr_hash <iv_common_cand>
+{
+  static inline hashval_t hash (const iv_common_cand *);
+  static inline bool equal (const iv_common_cand *, const iv_common_cand *);
+};
+
+>>>>>>> master
 /* Hash function for possible common candidates.  */
 
 inline hashval_t
@@ -1154,6 +1177,7 @@ find_bivs (struct ivopts_data *data)
 	continue;
 
       if (virtual_operand_p (PHI_RESULT (phi)))
+<<<<<<< HEAD
 	continue;
 
       if (!simple_iv (loop, loop, PHI_RESULT (phi), &iv, true))
@@ -1162,6 +1186,16 @@ find_bivs (struct ivopts_data *data)
       if (integer_zerop (iv.step))
 	continue;
 
+=======
+	continue;
+
+      if (!simple_iv (loop, loop, PHI_RESULT (phi), &iv, true))
+	continue;
+
+      if (integer_zerop (iv.step))
+	continue;
+
+>>>>>>> master
       step = iv.step;
       base = PHI_ARG_DEF_FROM_EDGE (phi, loop_preheader_edge (loop));
       /* Stop expanding iv base at the first ssa var referred by iv step.
@@ -1691,10 +1725,17 @@ find_deriving_biv_for_expr (struct ivopts_data *data, tree expr)
 
   if (expr == NULL_TREE)
     return NULL;
+<<<<<<< HEAD
 
   if (is_gimple_min_invariant (expr))
     return NULL;
 
+=======
+
+  if (is_gimple_min_invariant (expr))
+    return NULL;
+
+>>>>>>> master
   code = TREE_CODE (expr);
   if (IS_EXPR_CODE_CLASS (TREE_CODE_CLASS (code)))
     {
@@ -3136,10 +3177,14 @@ record_common_cand (struct ivopts_data *data, tree base,
   if (*slot == NULL)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
       *slot = XNEW (struct iv_common_cand);
 =======
       *slot = new iv_common_cand ();
 >>>>>>> gcc-mirror/master
+=======
+      *slot = XNEW (struct iv_common_cand);
+>>>>>>> master
       (*slot)->base = base;
       (*slot)->step = step;
       (*slot)->uses.create (8);

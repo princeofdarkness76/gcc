@@ -3,6 +3,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright (C) 2011-2013  Free Software Foundation, Inc.
    Contributed by Balaji V. Iyer <balaji.v.iyer@intel.com>,
 		  Aldy Hernandez <aldyh@redhat.com>.
@@ -14,6 +15,10 @@
    Copyright (C) 2013-2015 Free Software Foundation, Inc.
    Contributed by Aldy Hernandez <aldyh@redhat.com>.
 >>>>>>> gcc-mirror/master
+=======
+   Copyright (C) 2013-2015 Free Software Foundation, Inc.
+   Contributed by Aldy Hernandez <aldyh@redhat.com>.
+>>>>>>> master
 
 This file is part of GCC.
 
@@ -34,6 +39,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 #include "tree.h"
@@ -189,11 +195,16 @@ c_validate_cilk_plus_loop (tree *tp, int *walk_subtrees, void *data)
 #include "c-common.h"
 
 >>>>>>> gcc-mirror/master
+=======
+#include "c-common.h"
+
+>>>>>>> master
 /* Validate the body of a _Cilk_for construct or a <#pragma simd> for
    loop.
 
    Returns true if there were no errors, false otherwise.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 static bool
@@ -380,6 +391,8 @@ c_finish_cilk_simd_loop (location_t loc,
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 bool
 c_check_cilk_loop (location_t loc, tree decl)
 {
@@ -392,9 +405,12 @@ c_check_cilk_loop (location_t loc, tree decl)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Validate and emit code for <#pragma simd> clauses.  */
 
 tree
@@ -436,6 +452,7 @@ c_finish_cilk_clauses (tree clauses)
 		inform (OMP_CLAUSE_LOCATION (c),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			"multiple clause defined here");
 =======
 			"other clause defined here");
@@ -443,6 +460,9 @@ c_finish_cilk_clauses (tree clauses)
 =======
 			"other clause defined here");
 >>>>>>> gcc-mirror/master
+=======
+			"other clause defined here");
+>>>>>>> master
 		// Remove problematic clauses.
 		OMP_CLAUSE_CHAIN (prev) = OMP_CLAUSE_CHAIN (c2);
 	      }
@@ -452,12 +472,15 @@ c_finish_cilk_clauses (tree clauses)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   return clauses;
 }
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return clauses;
 }
 
@@ -594,6 +617,9 @@ cilk_for_number_of_iterations (tree cilk_for)
   return t;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

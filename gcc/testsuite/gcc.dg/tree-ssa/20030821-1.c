@@ -5,6 +5,8 @@ void dont_remove (void);
 
 void dont_remove (void);
 
+void dont_remove (void);
+
 void foo(int k)
 {
   int i = 1;

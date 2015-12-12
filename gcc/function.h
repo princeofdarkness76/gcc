@@ -371,6 +371,7 @@ struct GTY(()) function {
   /* Nonzero if the current function contains any loops with
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      loop->force_vect set.  */
   unsigned int has_force_vect_loops : 1;
 =======
@@ -381,12 +382,17 @@ struct GTY(()) function {
      loop->force_vectorize set.  */
   unsigned int has_force_vectorize_loops : 1;
 >>>>>>> gcc-mirror/master
+=======
+     loop->force_vectorize set.  */
+  unsigned int has_force_vectorize_loops : 1;
+>>>>>>> master
 
   /* Nonzero if the current function contains any loops with
      nonzero value in loop->simduid.  */
   unsigned int has_simduid_loops : 1;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* Set when the tail call has been identified.  */
@@ -397,6 +403,11 @@ struct GTY(()) function {
   /* Set when the tail call has been identified.  */
   unsigned int tail_call_marked : 1;
 >>>>>>> gcc-mirror/master
+=======
+
+  /* Set when the tail call has been identified.  */
+  unsigned int tail_call_marked : 1;
+>>>>>>> master
 };
 
 /* Add the decl D to the local_decls list of FUN.  */
@@ -599,6 +610,7 @@ extern rtx has_hard_reg_initial_val (machine_mode, unsigned int);
 
 /* Called from gimple_expand_cfg.  */
 extern unsigned int emit_initial_value_sets (void);
+<<<<<<< HEAD
 
 extern bool initial_value_entry (int i, rtx *, rtx *);
 extern void instantiate_decl_rtl (rtx x);
@@ -620,12 +632,68 @@ extern tree block_chainon (tree, tree);
 
 /* Set BLOCK_NUMBER for all the blocks in FN.  */
 extern void number_blocks (tree);
+=======
+
+extern bool initial_value_entry (int i, rtx *, rtx *);
+extern void instantiate_decl_rtl (rtx x);
+extern int aggregate_value_p (const_tree, const_tree);
+extern bool use_register_for_decl (const_tree);
+extern gimple_seq gimplify_parameters (void);
+extern void locate_and_pad_parm (machine_mode, tree, int, int, int,
+				 tree, struct args_size *,
+				 struct locate_and_pad_arg_data *);
+extern void generate_setjmp_warnings (void);
+
+/* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
+   and create duplicate blocks.  */
+extern void reorder_blocks (void);
+extern void clear_block_marks (tree);
+extern tree blocks_nreverse (tree);
+extern tree block_chainon (tree, tree);
+
+/* Set BLOCK_NUMBER for all the blocks in FN.  */
+extern void number_blocks (tree);
 
 /* cfun shouldn't be set directly; use one of these functions instead.  */
 extern void set_cfun (struct function *new_cfun);
 extern void push_cfun (struct function *new_cfun);
 extern void pop_cfun (void);
 
+extern int get_next_funcdef_no (void);
+extern int get_last_funcdef_no (void);
+extern void allocate_struct_function (tree, bool);
+extern void push_struct_function (tree fndecl);
+extern void push_dummy_function (bool);
+extern void pop_dummy_function (void);
+extern void init_dummy_function_start (void);
+extern void init_function_start (tree);
+extern void stack_protect_epilogue (void);
+extern void expand_function_start (tree);
+extern void expand_dummy_function_end (void);
+
+extern void thread_prologue_and_epilogue_insns (void);
+extern void diddle_return_value (void (*)(rtx, void*), void*);
+extern void clobber_return_register (void);
+extern void expand_function_end (void);
+extern rtx get_arg_pointer_save_area (void);
+extern void maybe_copy_prologue_epilogue_insn (rtx, rtx);
+extern int prologue_epilogue_contains (const_rtx);
+extern void emit_return_into_block (bool simple_p, basic_block bb);
+extern void set_return_jump_label (rtx_insn *);
+extern bool active_insn_between (rtx_insn *head, rtx_insn *tail);
+extern vec<edge> convert_jumps_to_returns (basic_block last_bb, bool simple_p,
+					   vec<edge> unconverted);
+extern basic_block emit_return_for_exit (edge exit_fallthru_edge,
+					 bool simple_p);
+extern void reposition_prologue_and_epilogue_notes (void);
+>>>>>>> master
+
+/* cfun shouldn't be set directly; use one of these functions instead.  */
+extern void set_cfun (struct function *new_cfun);
+extern void push_cfun (struct function *new_cfun);
+extern void pop_cfun (void);
+
+<<<<<<< HEAD
 =======
 
 /* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
@@ -679,4 +747,8 @@ extern const char *current_function_name (void);
 
 extern void used_types_insert (tree);
 
+=======
+extern void used_types_insert (tree);
+
+>>>>>>> master
 #endif  /* GCC_FUNCTION_H */

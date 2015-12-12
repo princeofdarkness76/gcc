@@ -18,10 +18,14 @@ foo (int *x)
     switch (x[thr])
       {
 <<<<<<< HEAD
+<<<<<<< HEAD
       case 4:
 =======
       case 4:;
 >>>>>>> gcc-mirror/master
+=======
+      case 4:
+>>>>>>> master
 	#pragma omp cancel parallel
 	break;
       case 3:
@@ -36,10 +40,14 @@ foo (int *x)
 	usleep (1000);
 	/* FALLTHRU */
 <<<<<<< HEAD
+<<<<<<< HEAD
       case 1:
 =======
       case 1:;
 >>>>>>> gcc-mirror/master
+=======
+      case 1:
+>>>>>>> master
 	#pragma omp cancellation point parallel
 	break;
       }

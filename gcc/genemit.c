@@ -287,6 +287,7 @@ gen_emit_seq (rtvec vec, char *used)
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Emit the given C code to the output file.  The code is allowed to
@@ -311,6 +312,8 @@ emit_c_code (const char *code, bool can_fail_p, const char *name)
   printf ("#undef FAIL\n");
 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Generate the `gen_...' function for a DEFINE_INSN.  */
 

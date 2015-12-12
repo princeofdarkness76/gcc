@@ -175,6 +175,9 @@ bitmap
 ipa_reference_get_not_read_global (struct cgraph_node *fn)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
       || !opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
@@ -183,6 +186,7 @@ ipa_reference_get_not_read_global (struct cgraph_node *fn)
   if (info)
     return info->statics_not_read;
   else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+<<<<<<< HEAD
 =======
   if (!opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
@@ -201,6 +205,8 @@ ipa_reference_get_not_read_global (struct cgraph_node *fn)
   else if (avail == AVAIL_NOT_AVAILABLE
 	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     return all_module_statics;
   else
     return NULL;
@@ -215,6 +221,7 @@ bitmap
 ipa_reference_get_not_written_global (struct cgraph_node *fn)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
       || !opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
@@ -225,6 +232,11 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
   enum availability avail;
   struct cgraph_node *fn2 = fn->function_symbol (&avail);
 >>>>>>> gcc-mirror/master
+=======
+  if (!opt_for_fn (fn->decl, flag_ipa_reference)
+      || !opt_for_fn (current_function_decl, flag_ipa_reference))
+    return NULL;
+>>>>>>> master
   ipa_reference_optimization_summary_t info =
     get_reference_optimization_summary (fn2);
 
@@ -235,17 +247,24 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
       && opt_for_fn (fn2->decl, flag_ipa_reference))
     return info->statics_not_written;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 =======
   else if (avail == AVAIL_NOT_AVAILABLE
 	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 >>>>>>> gcc-mirror/master
+=======
+  else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+>>>>>>> master
     return all_module_statics;
   else
     return NULL;
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 /* Return true if the variable T is the right kind of static variable to
    perform compilation unit scope escape analysis.  */
 
@@ -300,6 +319,13 @@ is_proper_for_analysis (tree t)
   if (TREE_ADDRESSABLE (t))
     return false;
 
+<<<<<<< HEAD
+=======
+  /* We can not track variables with address taken.  */
+  if (TREE_ADDRESSABLE (t))
+    return false;
+
+>>>>>>> master
   /* TODO: We could track public variables that are not addressable, but currently
      frontends don't give us those.  */
   if (TREE_PUBLIC (t))
@@ -307,10 +333,13 @@ is_proper_for_analysis (tree t)
 
   /* TODO: Check aliases.  */
   if (bitmap_bit_p (ignore_module_statics, DECL_UID (t)))
+<<<<<<< HEAD
 =======
   if (symtab_node::get (t)
 	->call_for_symbol_and_aliases (is_improper, NULL, true))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     return false;
 
   return true;
@@ -523,11 +552,15 @@ analyze_function (struct cgraph_node *fn)
 	 before, and if not add it the set of variables we care about.  */
       if (all_module_statics
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  && bitmap_set_bit (all_module_statics, DECL_UID (var)))
 	{
 	  if (dump_file)
 	    splay_tree_insert (reference_vars_to_consider,
 			       DECL_UID (var), (splay_tree_value)var);
+<<<<<<< HEAD
 =======
 	  && bitmap_set_bit (all_module_statics, ipa_reference_var_uid (var)))
 	{
@@ -536,6 +569,8 @@ analyze_function (struct cgraph_node *fn)
 			       ipa_reference_var_uid (var),
 			       (splay_tree_value)var);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	}
       switch (ref->use)
 	{
@@ -627,10 +662,14 @@ generate_summary (void)
 	    if (!is_proper_for_analysis (var))
 	      continue;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    bitmap_set_bit (ignore_module_statics, DECL_UID (var));
 =======
 	    bitmap_set_bit (ignore_module_statics, ipa_reference_var_uid (var));
 >>>>>>> gcc-mirror/master
+=======
+	    bitmap_set_bit (ignore_module_statics, DECL_UID (var));
+>>>>>>> master
 	  }
       }
   FOR_EACH_DEFINED_FUNCTION (node)
@@ -1059,6 +1098,9 @@ ipa_reference_write_optimization_summary (void)
       varpool_node *vnode = dyn_cast <varpool_node *> (snode);
       if (vnode
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  && bitmap_bit_p (all_module_statics, DECL_UID (vnode->decl))
 	  && referenced_from_this_partition_p (vnode, encoder))
 	{
@@ -1249,6 +1291,7 @@ ipa_reference_read_optimization_summary (void)
 namespace {
 
 const pass_data pass_data_ipa_reference =
+<<<<<<< HEAD
 {
   IPA_PASS, /* type */
   "static-var", /* name */
@@ -1333,6 +1376,55 @@ ipa_opt_pass_d *
 make_pass_ipa_reference (gcc::context *ctxt)
 {
 >>>>>>> gcc-mirror/master
+=======
+{
+  IPA_PASS, /* type */
+  "static-var", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_IPA_REFERENCE, /* tv_id */
+  0, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_ipa_reference : public ipa_opt_pass_d
+{
+public:
+  pass_ipa_reference (gcc::context *ctxt)
+    : ipa_opt_pass_d (pass_data_ipa_reference, ctxt,
+		      NULL, /* generate_summary */
+		      NULL, /* write_summary */
+		      NULL, /* read_summary */
+		      ipa_reference_write_optimization_summary, /*
+		      write_optimization_summary */
+		      ipa_reference_read_optimization_summary, /*
+		      read_optimization_summary */
+		      NULL, /* stmt_fixup */
+		      0, /* function_transform_todo_flags_start */
+		      NULL, /* function_transform */
+		      NULL) /* variable_transform */
+    {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return ((in_lto_p || flag_ipa_reference)
+	      /* Don't bother doing anything if the program has errors.  */
+	      && !seen_error ());
+    }
+
+  virtual unsigned int execute (function *) { return propagate (); }
+
+}; // class pass_ipa_reference
+
+} // anon namespace
+
+ipa_opt_pass_d *
+make_pass_ipa_reference (gcc::context *ctxt)
+{
+>>>>>>> master
   return new pass_ipa_reference (ctxt);
 }
 

@@ -20,6 +20,9 @@ int size)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "1 <<" 3 "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "1 <<" 3 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

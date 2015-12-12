@@ -50,9 +50,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "ipa-utils.h"
 #include "gomp-constants.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "lto-symtab.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 
 /* Number of parallel tasks to run, -1 if we want to use GNU Make jobserver.  */
@@ -394,12 +397,18 @@ iterative_hash_canonical_type (tree type, inchash::hash &hstate)
   type = TYPE_MAIN_VARIANT (type);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* We do not compute TYPE_CANONICAl of POINTER_TYPE because the aliasing
      code never use it anyway.  */
   if (POINTER_TYPE_P (type))
 =======
   if (!canonical_type_used_p (type))
 >>>>>>> gcc-mirror/master
+=======
+  /* We do not compute TYPE_CANONICAl of POINTER_TYPE because the aliasing
+     code never use it anyway.  */
+  if (POINTER_TYPE_P (type))
+>>>>>>> master
     v = hash_canonical_type (type);
   /* An already processed type.  */
   else if (TYPE_CANONICAL (type))
@@ -453,10 +462,14 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
   gcc_checking_assert (TYPE_P (t) && !TYPE_CANONICAL (t)
 		       && type_with_alias_set_p (t)
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       && !POINTER_TYPE_P (t));
 =======
 		       && canonical_type_used_p (t));
 >>>>>>> gcc-mirror/master
+=======
+		       && !POINTER_TYPE_P (t));
+>>>>>>> master
 
   slot = htab_find_slot_with_hash (gimple_canonical_types, t, hash, INSERT);
   if (*slot)
@@ -480,6 +493,7 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
    TYPE_CANONICAL of T accordingly.
    This is used by LTO to merge structurally equivalent types for
    type-based aliasing purposes across different TUs and languages.
+<<<<<<< HEAD
 
    ???  This merging does not exactly match how the tree.c middle-end
    functions will assign TYPE_CANONICAL when new types are created
@@ -497,6 +511,20 @@ gimple_register_canonical_type (tree t)
 >>>>>>> gcc-mirror/master
     return;
 
+=======
+
+   ???  This merging does not exactly match how the tree.c middle-end
+   functions will assign TYPE_CANONICAL when new types are created
+   during optimization (which at least happens for pointer and array
+   types).  */
+
+static void
+gimple_register_canonical_type (tree t)
+{
+  if (TYPE_CANONICAL (t) || !type_with_alias_set_p (t) || POINTER_TYPE_P (t))
+    return;
+
+>>>>>>> master
   /* Canonical types are same among all complete variants.  */
   if (TYPE_CANONICAL (TYPE_MAIN_VARIANT (t)))
     TYPE_CANONICAL (t) = TYPE_CANONICAL (TYPE_MAIN_VARIANT (t));
@@ -1646,6 +1674,9 @@ unify_scc (struct data_in *data_in, unsigned from,
 	      if (TYPE_P (scc->entries[i]))
 		num_merged_types++;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	      code = TREE_CODE (scc->entries[i]);
 	      if (CODE_CONTAINS_STRUCT (code, TS_CONSTRUCTOR))
 		vec_free (CONSTRUCTOR_ELTS (scc->entries[i]));

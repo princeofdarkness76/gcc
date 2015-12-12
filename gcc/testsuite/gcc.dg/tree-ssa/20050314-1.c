@@ -1,9 +1,13 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O1 -fdump-tree-lim1-details --param allow-store-data-races=1" } */
 =======
 /* { dg-options "-O1 -fdump-tree-lim2-details --param allow-store-data-races=1" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O1 -fdump-tree-lim1-details --param allow-store-data-races=1" } */
+>>>>>>> master
 
 float a[100];
 
@@ -23,6 +27,9 @@ void xxx (void)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 1 "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Moving statement" 1 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

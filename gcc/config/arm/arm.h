@@ -132,9 +132,12 @@ extern void (*arm_lang_output_object_attributes_hook)(void);
 #define TARGET_THUMB1_P(flags) (TARGET_THUMB_P (flags) && !arm_arch_thumb2)
 #define TARGET_THUMB2_P(flags) (TARGET_THUMB_P (flags) && arm_arch_thumb2)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define TARGET_32BIT_P(flags)  (TARGET_ARM_P (flags) || TARGET_THUMB2_P (flags))
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Run-time Target Specification.  */
 #define TARGET_SOFT_FLOAT		(arm_float_abi == ARM_FLOAT_ABI_SOFT)

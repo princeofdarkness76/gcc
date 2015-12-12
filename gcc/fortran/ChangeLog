@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-10  David Malcolm  <dmalcolm@redhat.com>
 
@@ -180,6 +181,8 @@
 	* simplify.c (gfc_simplify_cshift): Allow all EXPR_*.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-22  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/68486
@@ -224,10 +227,14 @@
 	* st.c (gfc_free_statement): Handle EXEC_OACC_DECLARE.
 	* symbol.c (check_conflict): Add conflict checks.
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin, 
 =======
 	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin,
 >>>>>>> gcc-mirror/master
+=======
+	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin, 
+>>>>>>> master
 	gfc_add_oacc_declare_deviceptr, gfc_add_oacc_declare_device_resident):
 	New functions.
 	(gfc_copy_attr): Handle new symbols.
@@ -244,10 +251,14 @@
 
 	* simplify.c (gfc_simplify_cshift): Work around bootstrap issues
 <<<<<<< HEAD
+<<<<<<< HEAD
 	due to inappropriate warning options. 
 =======
 	due to inappropriate warning options.
 >>>>>>> gcc-mirror/master
+=======
+	due to inappropriate warning options. 
+>>>>>>> master
 
 2015-11-21  Steven G. Kargl  <kargl@gcc.gnu.org>
 
@@ -257,10 +268,14 @@
 	* intrinsic.h: Prototype for gfc_simplify_cshift
 	* intrinsic.c (add_functions): Use gfc_simplify_cshift.
 <<<<<<< HEAD
+<<<<<<< HEAD
  
 =======
 
 >>>>>>> gcc-mirror/master
+=======
+ 
+>>>>>>> master
 2015-11-20  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/68237

@@ -2285,10 +2285,15 @@ vect_create_cond_for_alias_checks (loop_vec_info loop_vinfo, tree * cond_expr)
 		     "created %u versioning for alias checks.\n",
 		     comp_alias_ddrs.length ());
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   comp_alias_ddrs.release ();
 =======
 >>>>>>> gcc-mirror/master
+=======
+
+  comp_alias_ddrs.release ();
+>>>>>>> master
 }
 
 

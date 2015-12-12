@@ -590,10 +590,14 @@
 		      (pc)))]
   ""
 <<<<<<< HEAD
+<<<<<<< HEAD
   "bf\tA.%B0, $%1"
 =======
   "bt\tA.%B0, $1f\n\tbr !!%1\n\t1:"
 >>>>>>> gcc-mirror/master
+=======
+  "bf\tA.%B0, $%1"
+>>>>>>> master
   [(set (attr "update_Z") (const_string "clobber"))]
 )
 
@@ -606,10 +610,14 @@
 		      (pc)))]
   ""
 <<<<<<< HEAD
+<<<<<<< HEAD
   "bt\tA.%B0, $%1"
 =======
   "bf\tA.%B0, $1f\n\tbr !!%1\n\t1:"
 >>>>>>> gcc-mirror/master
+=======
+  "bt\tA.%B0, $%1"
+>>>>>>> master
   [(set (attr "update_Z") (const_string "clobber"))]
 )
 

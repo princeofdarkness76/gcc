@@ -29,10 +29,14 @@ along with GCC; see the file COPYING3.  If not see
    deleted map entries are represented as empty and deleted keys.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 template <typename H>
 =======
 template <typename H, typename Value>
 >>>>>>> gcc-mirror/master
+=======
+template <typename H>
+>>>>>>> master
 struct simple_hashmap_traits
 {
   typedef typename H::value_type key_type;
@@ -46,6 +50,7 @@ struct simple_hashmap_traits
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 template <typename H>
 inline hashval_t
 simple_hashmap_traits <H>::hash (const key_type &h)
@@ -54,10 +59,16 @@ template <typename H, typename Value>
 inline hashval_t
 simple_hashmap_traits <H, Value>::hash (const key_type &h)
 >>>>>>> gcc-mirror/master
+=======
+template <typename H>
+inline hashval_t
+simple_hashmap_traits <H>::hash (const key_type &h)
+>>>>>>> master
 {
   return H::hash (h);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 template <typename H>
 inline bool
@@ -68,11 +79,19 @@ inline bool
 simple_hashmap_traits <H, Value>::equal_keys (const key_type &k1,
 					      const key_type &k2)
 >>>>>>> gcc-mirror/master
+=======
+template <typename H>
+inline bool
+simple_hashmap_traits <H>::equal_keys (const key_type &k1, const key_type &k2)
+>>>>>>> master
 {
   return H::equal (k1, k2);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 template <typename H>
 template <typename T>
 inline void
@@ -85,6 +104,7 @@ template <typename H>
 template <typename T>
 inline bool
 simple_hashmap_traits <H>::is_empty (const T &entry)
+<<<<<<< HEAD
 =======
 template <typename H, typename Value>
 template <typename T>
@@ -100,51 +120,71 @@ template <typename T>
 inline bool
 simple_hashmap_traits <H, Value>::is_empty (const T &entry)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   return H::is_empty (entry.m_key);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 template <typename H>
 template <typename T>
 inline bool
 simple_hashmap_traits <H>::is_deleted (const T &entry)
+<<<<<<< HEAD
 =======
 template <typename H, typename Value>
 template <typename T>
 inline bool
 simple_hashmap_traits <H, Value>::is_deleted (const T &entry)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   return H::is_deleted (entry.m_key);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 template <typename H>
 template <typename T>
 inline void
 simple_hashmap_traits <H>::mark_empty (T &entry)
+<<<<<<< HEAD
 =======
 template <typename H, typename Value>
 template <typename T>
 inline void
 simple_hashmap_traits <H, Value>::mark_empty (T &entry)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   H::mark_empty (entry.m_key);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 template <typename H>
 template <typename T>
 inline void
 simple_hashmap_traits <H>::mark_deleted (T &entry)
+<<<<<<< HEAD
 =======
 template <typename H, typename Value>
 template <typename T>
 inline void
 simple_hashmap_traits <H, Value>::mark_deleted (T &entry)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   H::mark_deleted (entry.m_key);
 }

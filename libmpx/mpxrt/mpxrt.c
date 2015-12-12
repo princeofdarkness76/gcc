@@ -52,6 +52,9 @@
 #include <cpuid.h>
 #include "mpxrt-utils.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 #ifdef __i386__
 
@@ -74,18 +77,26 @@
 #define XSAVE_OFFSET_IN_FPMEM    0
 
 #endif /* !__i386__ */
+<<<<<<< HEAD
 =======
 #include "mpxrt.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #define MPX_ENABLE_BIT_NO 0
 #define BNDPRESERVE_BIT_NO 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const size_t MPX_L1_SIZE = (1UL << NUM_L1_BITS) * sizeof (void *);
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+const size_t MPX_L1_SIZE = (1UL << NUM_L1_BITS) * sizeof (void *);
+
+>>>>>>> master
 struct xsave_hdr_struct
 {
   uint64_t xstate_bv;
@@ -516,6 +527,7 @@ mpxrt_cleanup (void)
   process_specific_finish ();
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Get address of bounds directory.  */
@@ -525,3 +537,5 @@ get_bd ()
   return l1base;
 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

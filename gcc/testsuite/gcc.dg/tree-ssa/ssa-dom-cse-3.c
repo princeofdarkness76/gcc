@@ -1,9 +1,13 @@
 /* { dg-do run } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fno-tree-fre -fdump-tree-dom1" } */
 =======
 /* { dg-options "-O -fno-tree-fre -fdump-tree-dom2" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O -fno-tree-fre -fdump-tree-dom1" } */
+>>>>>>> master
 
 extern void abort (void);
 
@@ -32,7 +36,11 @@ main()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "= PHI <\[01\]\\\(.\\\), \[01\]\\\(.\\\)>" "dom1" } } */
 =======
 /* { dg-final { scan-tree-dump "= PHI <\[01\]\\\(.\\\), \[01\]\\\(.\\\)>" "dom2" } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump "= PHI <\[01\]\\\(.\\\), \[01\]\\\(.\\\)>" "dom1" } } */
+>>>>>>> master

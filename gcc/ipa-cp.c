@@ -614,10 +614,14 @@ ipcp_cloning_candidate_p (struct cgraph_node *node)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
   if (node->optimize_for_size_p ())
 >>>>>>> gcc-mirror/master
+=======
+  if (!optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
+>>>>>>> master
     {
       if (dump_file)
         fprintf (dump_file, "Not considering %s for cloning; "
@@ -1240,6 +1244,7 @@ values_equal_for_ipcp_p (tree x, tree y)
 static bool
 values_equal_for_ipcp_p (ipa_polymorphic_call_context x,
 			 ipa_polymorphic_call_context y)
+<<<<<<< HEAD
 {
   return x.equal_to (y);
 }
@@ -1256,6 +1261,24 @@ void
 ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
 				 int src_idx, HOST_WIDE_INT offset)
 {
+=======
+{
+  return x.equal_to (y);
+}
+
+
+/* Add a new value source to the value represented by THIS, marking that a
+   value comes from edge CS and (if the underlying jump function is a
+   pass-through or an ancestor one) from a caller value SRC_VAL of a caller
+   parameter described by SRC_INDEX.  OFFSET is negative if the source was the
+   scalar value of the parameter itself or the offset within an aggregate.  */
+
+template <typename valtype>
+void
+ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
+				 int src_idx, HOST_WIDE_INT offset)
+{
+>>>>>>> master
   ipcp_value_source<valtype> *src;
 
   src = new (ipcp_sources_pool.allocate ()) ipcp_value_source<valtype>;
@@ -1287,6 +1310,7 @@ allocate_and_init_ipcp_value (tree source)
 
 static ipcp_value<ipa_polymorphic_call_context> *
 allocate_and_init_ipcp_value (ipa_polymorphic_call_context source)
+<<<<<<< HEAD
 {
   ipcp_value<ipa_polymorphic_call_context> *val;
 
@@ -1310,6 +1334,31 @@ ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
 {
   ipcp_value<valtype> *val;
 
+=======
+{
+  ipcp_value<ipa_polymorphic_call_context> *val;
+
+  // TODO
+  val = ipcp_poly_ctx_values_pool.allocate ();
+  memset (val, 0, sizeof (*val));
+  val->value = source;
+  return val;
+}
+
+/* Try to add NEWVAL to LAT, potentially creating a new ipcp_value for it.  CS,
+   SRC_VAL SRC_INDEX and OFFSET are meant for add_source and have the same
+   meaning.  OFFSET -1 means the source is scalar and not a part of an
+   aggregate.  */
+
+template <typename valtype>
+bool
+ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
+				  ipcp_value<valtype> *src_val,
+				  int src_idx, HOST_WIDE_INT offset)
+{
+  ipcp_value<valtype> *val;
+
+>>>>>>> master
   if (bottom)
     return false;
 
@@ -2272,10 +2321,14 @@ good_cloning_opportunity_p (struct cgraph_node *node, int time_benefit,
   if (time_benefit == 0
       || !opt_for_fn (node->decl, flag_ipa_cp_clone)
 <<<<<<< HEAD
+<<<<<<< HEAD
       || !optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
       || node->optimize_for_size_p ())
 >>>>>>> gcc-mirror/master
+=======
+      || !optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
+>>>>>>> master
     return false;
 
   gcc_assert (size_cost > 0);
@@ -2396,12 +2449,16 @@ gather_context_independent_values (struct ipa_node_params *info,
 	  += ipa_get_param_move_cost (info, i);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       ipcp_lattice<ipa_polymorphic_call_context> *ctxlat = &plats->ctxlat;
       if (ctxlat->is_single_const ())
 	{
 	  (*known_contexts)[i] = ctxlat->values->value;
 	  ret = true;
 	}
+<<<<<<< HEAD
 =======
       if (!ipa_is_param_used (info, i))
 	continue;
@@ -2412,6 +2469,8 @@ gather_context_independent_values (struct ipa_node_params *info,
       if (ctxlat->is_single_const ())
 	(*known_contexts)[i] = ctxlat->values->value;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
       if (known_aggs)
 	{
@@ -2527,6 +2586,9 @@ estimate_local_effects (struct cgraph_node *node)
       estimate_ipcp_clone_size_and_time (node, known_csts, known_contexts,
 					 known_aggs_ptrs, &size, &time, &hints);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       time -= devirtualization_time_bonus (node, known_csts, known_contexts,
 					   known_aggs_ptrs);
 =======
@@ -2543,9 +2605,12 @@ estimate_local_effects (struct cgraph_node *node)
 <<<<<<< HEAD
       if (size <= 0
 	  || node->will_be_removed_from_program_if_no_direct_calls_p ())
+<<<<<<< HEAD
 =======
       if (size <= 0 || node->local.local)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	{
 	  info->do_clone_for_all_contexts = true;
 	  base_time = time;
@@ -4453,10 +4518,14 @@ identify_dead_nodes (struct cgraph_node *node)
   struct cgraph_node *v;
   for (v = node; v ; v = ((struct ipa_dfs_info *) v->aux)->next_cycle)
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (v->will_be_removed_from_program_if_no_direct_calls_p ()
 =======
     if (v->local.local
 >>>>>>> gcc-mirror/master
+=======
+    if (v->will_be_removed_from_program_if_no_direct_calls_p ()
+>>>>>>> master
 	&& !v->call_for_symbol_thunks_and_aliases
 	     (has_undead_caller_from_outside_scc_p, NULL, true))
       IPA_NODE_REF (v)->node_dead = 1;

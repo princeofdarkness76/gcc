@@ -994,6 +994,7 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 		     && !Materialize_Entity (gnat_entity))
 	      {
 		tree init = NULL_TREE;
+<<<<<<< HEAD
 
 		gnu_decl
 		  = elaborate_reference (gnu_expr, gnat_entity, definition,
@@ -1071,6 +1072,57 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 		const_flag = true;
 		volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+
+		gnu_decl
+		  = elaborate_reference (gnu_expr, gnat_entity, definition,
+					 &init);
+
+		/* We cannot evaluate the first arm of a COMPOUND_EXPR in the
+		   correct place for this case, hence the above test.  */
+		gcc_assert (init == NULL_TREE);
+
+		/* No DECL_EXPR will be created so the expression needs to be
+		   marked manually because it will likely be shared.  */
+		if (global_bindings_p ())
+		  MARK_VISITED (gnu_decl);
+
+		/* This assertion will fail if the renamed object isn't aligned
+		   enough as to make it possible to honor the alignment set on
+		   the renaming.  */
+		if (align)
+		  {
+		    unsigned int ralign = DECL_P (gnu_decl)
+					  ? DECL_ALIGN (gnu_decl)
+					  : TYPE_ALIGN (TREE_TYPE (gnu_decl));
+		    gcc_assert (ralign >= align);
+		  }
+
+		save_gnu_tree (gnat_entity, gnu_decl, true);
+		saved = true;
+		annotate_object (gnat_entity, gnu_type, NULL_TREE, false);
+		break;
+	      }
+
+	    /* Case 3: otherwise, make a constant pointer to the object we
+	       are renaming and attach the object to the pointer after it is
+	       elaborated.  The object will be referenced directly instead
+	       of indirectly via the pointer to avoid aliasing problems with
+	       non-addressable entities.  The pointer is called a "renaming"
+	       pointer in this case.  Note that we also need to preserve the
+	       volatility of the renamed object through the indirection.  */
+	    else
+	      {
+		tree init = NULL_TREE;
+
+		if (TREE_THIS_VOLATILE (gnu_expr) && !TYPE_VOLATILE (gnu_type))
+		  gnu_type
+		    = change_qualified_type (gnu_type, TYPE_QUAL_VOLATILE);
+
+		gnu_type = build_reference_type (gnu_type);
+		used_by_ref = true;
+		const_flag = true;
+>>>>>>> master
 		inner_const_flag = TREE_READONLY (gnu_expr);
 		gnu_size = NULL_TREE;
 
@@ -1179,10 +1231,13 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    /* Convert the type of the object to a reference type that can
 	       alias everything as per RM 13.3(19).  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    if (volatile_flag && !TYPE_VOLATILE (gnu_type))
 	      gnu_type = change_qualified_type (gnu_type, TYPE_QUAL_VOLATILE);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    gnu_type
 	      = build_reference_type_for_mode (gnu_type, ptr_mode, true);
 	    gnu_address = convert (gnu_type, gnu_address);
@@ -1191,11 +1246,14 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 <<<<<<< HEAD
 	      = !Is_Public (gnat_entity)
 		|| compile_time_known_address_p (gnat_expr);
+<<<<<<< HEAD
 =======
 	      = (!Is_Public (gnat_entity)
 		 || compile_time_known_address_p (gnat_expr));
 	    volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    gnu_size = NULL_TREE;
 
 	    /* If this is an aliased object with an unconstrained array nominal
@@ -1258,6 +1316,7 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    /* Convert the type of the object to a reference type that can
 	       alias everything as per RM 13.3(19).  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    gnu_type
 	      = build_reference_type_for_mode (gnu_type, ptr_mode, true);
 	    used_by_ref = true;
@@ -1270,6 +1329,11 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    const_flag = false;
 	    volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+	    gnu_type
+	      = build_reference_type_for_mode (gnu_type, ptr_mode, true);
+	    used_by_ref = true;
+>>>>>>> master
 	    gnu_size = NULL_TREE;
 
 	    /* No point in taking the address of an initializing expression
@@ -1321,9 +1385,12 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    used_by_ref = true;
 	    const_flag = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    gnu_size = NULL_TREE;
 
 	    /* In case this was a aliased object whose nominal subtype is
@@ -1378,10 +1445,14 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	if (definition
 	    && !global_bindings_p ()
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    && !static_p
 =======
 	    && !static_flag
 >>>>>>> gcc-mirror/master
+=======
+	    && !static_p
+>>>>>>> master
 	    && !imported_p
 	    && TYPE_ALIGN (gnu_type) > BIGGEST_ALIGNMENT)
 	  {
@@ -1397,11 +1468,14 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 				 NULL_TREE, gnu_new_type, NULL_TREE, false,
 				 false, false, false, true, debug_info_p,
 				 NULL, gnat_entity);
+<<<<<<< HEAD
 =======
 				 NULL_TREE, gnu_new_type, NULL_TREE,
 				 false, false, false, false, false,
 				 true, debug_info_p, NULL, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 	    /* Initialize the aligned field if we have an initializer.  */
 	    if (gnu_expr)
@@ -1425,9 +1499,12 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    used_by_ref = true;
 	    const_flag = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    gnu_size = NULL_TREE;
 	  }
 
@@ -1455,20 +1532,26 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 <<<<<<< HEAD
 				      imported_p || !definition, static_p,
 				      true, debug_info_p, NULL, gnat_entity);
+<<<<<<< HEAD
 =======
 				      imported_p || !definition, static_flag,
 				      volatile_flag, true, debug_info_p,
 				      NULL, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		gnu_expr = build_unary_op (ADDR_EXPR, NULL_TREE, gnu_unc_var);
 		TREE_CONSTANT (gnu_expr) = 1;
 
 		used_by_ref = true;
 		const_flag = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		volatile_flag = false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		inner_const_flag = TREE_READONLY (gnu_unc_var);
 		gnu_size = NULL_TREE;
 	      }
@@ -1504,6 +1587,9 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 		 && !tree_fits_uhwi_p (TYPE_SIZE_UNIT
 				       (TREE_TYPE (TYPE_FIELDS (gnu_type))))))
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  static_p = true;
 =======
 	  static_flag = true;
@@ -1521,10 +1607,17 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	  prepend_one_attribute_pragma (&attr_list,
 					Linker_Section_Pragma (gnat_entity));
 
+	/* Deal with a pragma Linker_Section on a constant or variable.  */
+	if ((kind == E_Constant || kind == E_Variable)
+	    && Present (Linker_Section_Pragma (gnat_entity)))
+	  prepend_one_attribute_pragma (&attr_list,
+					Linker_Section_Pragma (gnat_entity));
+
 	/* Now create the variable or the constant and set various flags.  */
 	gnu_decl
 	  = create_var_decl (gnu_entity_name, gnu_ext_name, gnu_type,
 			     gnu_expr, const_flag, Is_Public (gnat_entity),
+<<<<<<< HEAD
 <<<<<<< HEAD
 			     imported_p || !definition, static_p,
 			     artificial_p, debug_info_p, attr_list,
@@ -1534,6 +1627,11 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 			     volatile_flag, artificial_p, debug_info_p,
 			     attr_list, gnat_entity, !renamed_obj);
 >>>>>>> gcc-mirror/master
+=======
+			     imported_p || !definition, static_p,
+			     artificial_p, debug_info_p, attr_list,
+			     gnat_entity, !renamed_obj);
+>>>>>>> master
 	DECL_BY_REF_P (gnu_decl) = used_by_ref;
 	DECL_POINTS_TO_READONLY_P (gnu_decl) = used_by_ref && inner_const_flag;
 	DECL_CAN_NEVER_BE_NULL_P (gnu_decl) = Can_Never_Be_Null (gnat_entity);
@@ -1585,6 +1683,7 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	      = create_var_decl (gnu_entity_name, gnu_ext_name, gnu_type,
 				 gnu_expr, true, Is_Public (gnat_entity),
 <<<<<<< HEAD
+<<<<<<< HEAD
 				 !definition, static_p, artificial_p,
 				 debug_info_p, attr_list, gnat_entity,
 				 false);
@@ -1593,6 +1692,11 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 				 artificial_p, debug_info_p, attr_list,
 				 gnat_entity, false);
 >>>>>>> gcc-mirror/master
+=======
+				 !definition, static_p, artificial_p,
+				 debug_info_p, attr_list, gnat_entity,
+				 false);
+>>>>>>> master
 
 	    SET_DECL_CONST_CORRESPONDING_VAR (gnu_decl, gnu_corr_var);
 	  }
@@ -1709,12 +1813,17 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 		= create_var_decl (get_entity_name (gnat_literal), NULL_TREE,
 				   gnu_type, gnu_value, true, false, false,
 <<<<<<< HEAD
+<<<<<<< HEAD
 				   false, !Comes_From_Source (gnat_literal),
 				   false, NULL, gnat_literal);
 =======
 				   false, false, artificial_p, false,
 				   NULL, gnat_literal);
 >>>>>>> gcc-mirror/master
+=======
+				   false, !Comes_From_Source (gnat_literal),
+				   false, NULL, gnat_literal);
+>>>>>>> master
 	      save_gnu_tree (gnat_literal, gnu_literal, false);
 	      gnu_list
 	        = tree_cons (DECL_NAME (gnu_literal), gnu_value, gnu_list);
@@ -2985,9 +3094,12 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	TYPE_NAME (gnu_type) = gnu_entity_name;
 <<<<<<< HEAD
 	TYPE_PACKED (gnu_type) = (packed != 0) || has_rep;
+<<<<<<< HEAD
 =======
 	TYPE_PACKED (gnu_type) = (packed != 0) || has_align || has_rep;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	TYPE_REVERSE_STORAGE_ORDER (gnu_type)
 	  = Reverse_Storage_Order (gnat_entity);
 	process_attributes (&gnu_type, &attr_list, true, gnat_entity);
@@ -3010,6 +3122,9 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	  TYPE_ALIGN (gnu_type)
 	    = validate_alignment (Alignment (gnat_entity), gnat_entity, 0);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	else if (Is_Atomic_Or_VFA (gnat_entity) && Known_Esize (gnat_entity))
 	  {
 	    unsigned int size = UI_To_Int (Esize (gnat_entity));
@@ -3715,6 +3830,7 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 							     "XVZ"),
 					 NULL_TREE, sizetype, gnu_size_unit,
 <<<<<<< HEAD
+<<<<<<< HEAD
 					 false, false, false, false, true,
 					 debug_info_p, NULL, gnat_entity);
 =======
@@ -3722,6 +3838,10 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 					 true, debug_info_p,
 					 NULL, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+					 false, false, false, false, true,
+					 debug_info_p, NULL, gnat_entity);
+>>>>>>> master
 		}
 
 	      gnu_variant_list.release ();
@@ -4232,10 +4352,13 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	  = (Back_End_Exceptions ()
 	     && Is_Pure (gnat_entity));
 	bool noreturn_flag = No_Return (gnat_entity);
+<<<<<<< HEAD
 =======
 	bool const_flag = (Back_End_Exceptions () && Is_Pure (gnat_entity));
 	bool volatile_flag = No_Return (gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	bool return_by_direct_ref_p = false;
 	bool return_by_invisi_ref_p = false;
 	bool return_unconstrained_p = false;
@@ -4695,6 +4818,9 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	  const_flag = false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	if (const_flag || noreturn_flag)
 	  {
 	    const int quals
@@ -4763,10 +4889,14 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	      = create_var_decl (gnu_entity_name, gnu_ext_name, gnu_type,
 				 gnu_address, false, Is_Public (gnat_entity),
 <<<<<<< HEAD
+<<<<<<< HEAD
 				 extern_flag, false, artificial_p,
 =======
 				 extern_flag, false, false, artificial_p,
 >>>>>>> gcc-mirror/master
+=======
+				 extern_flag, false, artificial_p,
+>>>>>>> master
 				 debug_info_p, NULL, gnat_entity);
 	    DECL_BY_REF_P (gnu_decl) = 1;
 	  }
@@ -4795,12 +4925,15 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 				     gnu_param_list, inline_status,
 				     public_flag, extern_flag, artificial_p,
 				     debug_info_p, attr_list, gnat_entity);
+<<<<<<< HEAD
 =======
 				     gnu_param_list, inline_status, const_flag,
 				     public_flag, extern_flag, volatile_flag,
 				     artificial_p, debug_info_p,
 				     attr_list, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    /* This is unrelated to the stub built right above.  */
 	    DECL_STUBBED_P (gnu_decl)
 	      = Convention (gnat_entity) == Convention_Stubbed;
@@ -5203,6 +5336,7 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
       if (Is_Atomic_Or_VFA (gnat_entity))
 	check_ok_for_atomic_type (gnu_type, gnat_entity, false);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       /* If this is not an unconstrained array type, set some flags.  */
       if (TREE_CODE (gnu_type) != UNCONSTRAINED_ARRAY_TYPE)
@@ -5221,6 +5355,8 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	    SET_TYPE_MODE (gnu_type, BLKmode);
 
 =======
+=======
+>>>>>>> master
 
       /* If this is not an unconstrained array type, set some flags.  */
       if (TREE_CODE (gnu_type) != UNCONSTRAINED_ARRAY_TYPE)
@@ -5238,7 +5374,10 @@ gnat_to_gnu_entity (Entity_Id gnat_entity, tree gnu_expr, int definition)
 	      && TYPE_BY_REFERENCE_P (gnu_type))
 	    SET_TYPE_MODE (gnu_type, BLKmode);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  if (Treat_As_Volatile (gnat_entity))
 	    {
 	      const int quals
@@ -5604,12 +5743,17 @@ get_minimal_subprog_decl (Entity_Id gnat_entity)
   return
     create_subprog_decl (gnu_entity_name, gnu_ext_name, void_ftype, NULL_TREE,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			 is_disabled, true, true, true, false, attr_list,
 			 gnat_entity);
 =======
 			 is_disabled, false, true, true, false, true, false,
 			 attr_list, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+			 is_disabled, true, true, true, false, attr_list,
+			 gnat_entity);
+>>>>>>> master
 }
 
 /* Return whether the E_Subprogram_Type/E_Function/E_Procedure GNAT_ENTITY is
@@ -5625,6 +5769,7 @@ is_cplusplus_method (Entity_Id gnat_entity)
   /* Check that the subprogram has C++ convention.  */
   if (Convention (gnat_entity) != Convention_CPP)
     return false;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -5646,6 +5791,8 @@ is_cplusplus_method (Entity_Id gnat_entity)
   if (Convention (gnat_type) != Convention_CPP)
     return false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* This is the main case: C++ method imported as a primitive operation.
      Note that a C++ class with no virtual functions can be imported as a
@@ -5657,12 +5804,18 @@ is_cplusplus_method (Entity_Id gnat_entity)
   if (Is_Subprogram (gnat_entity) && Is_Thunk (gnat_entity))
     return true;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   /* A constructor is a method on the C++ side.  */
   if (Is_Constructor (gnat_entity))
     return true;
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* This is set on the E_Subprogram_Type built for a dispatching call.  */
   if (Is_Dispatch_Table_Entity (gnat_entity))
@@ -6512,11 +6665,15 @@ elaborate_expression_1 (tree gnu_expr, Entity_Id gnat_entity, const char *s,
 			   TREE_TYPE (gnu_expr), gnu_expr, true,
 			   expr_public_p, !definition && expr_global_p,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   expr_global_p, true, need_debug, NULL, gnat_entity);
 =======
 			   expr_global_p, false, true, need_debug,
 			   NULL, gnat_entity);
 >>>>>>> gcc-mirror/master
+=======
+			   expr_global_p, true, need_debug, NULL, gnat_entity);
+>>>>>>> master
 
       /* Using this variable at debug time (if need_debug is true) requires a
 	 proper location.  The back-end will compute a location for this

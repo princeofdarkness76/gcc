@@ -2502,9 +2502,12 @@ static rtx (*ix86_gen_one_cmpl2) (rtx, rtx);
 static rtx (*ix86_gen_monitor) (rtx, rtx, rtx);
 static rtx (*ix86_gen_monitorx) (rtx, rtx, rtx);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static rtx (*ix86_gen_clzero) (rtx);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 static rtx (*ix86_gen_andsp) (rtx, rtx, rtx);
 static rtx (*ix86_gen_allocate_stack_worker) (rtx, rtx);
 static rtx (*ix86_gen_adjust_stack_and_probe) (rtx, rtx, rtx);
@@ -4657,6 +4660,7 @@ ix86_option_override_internal (bool main_args_p,
     opts->x_ix86_pmode = TARGET_LP64_P (opts->x_ix86_isa_flags)
 			 ? PMODE_DI : PMODE_SI;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (!opts_set->x_ix86_abi)
     opts->x_ix86_abi = DEFAULT_ABI;
@@ -4679,6 +4683,18 @@ ix86_option_override_internal (bool main_args_p,
     opts->x_flag_ms_extensions = (MS_ABI == DEFAULT_ABI);
 
 >>>>>>> gcc-mirror/master
+=======
+
+  if (!opts_set->x_ix86_abi)
+    opts->x_ix86_abi = DEFAULT_ABI;
+
+  /* For targets using ms ABI enable ms-extensions, if not
+     explicit turned off.  For non-ms ABI we turn off this
+     option.  */
+  if (!opts_set->x_flag_ms_extensions)
+    opts->x_flag_ms_extensions = (MS_ABI == DEFAULT_ABI);
+
+>>>>>>> master
   if (opts_set->x_ix86_cmodel)
     {
       switch (opts->x_ix86_cmodel)
@@ -5311,6 +5327,7 @@ ix86_option_override_internal (bool main_args_p,
 		 "for correctness", prefix, suffix);
       opts->x_target_flags |= MASK_ACCUMULATE_OUTGOING_ARGS;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     }
 
@@ -5324,6 +5341,8 @@ ix86_option_override_internal (bool main_args_p,
 		 prefix, suffix);
       opts->x_target_flags |= MASK_ACCUMULATE_OUTGOING_ARGS;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
 
   /* Figure out what ASM_GENERATE_INTERNAL_LABEL builds as a prefix.  */
@@ -5402,9 +5421,12 @@ ix86_option_override_internal (bool main_args_p,
       ix86_gen_monitor = gen_sse3_monitor_di;
       ix86_gen_monitorx = gen_monitorx_di;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       ix86_gen_clzero = gen_clzero_di;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
   else
     {
@@ -5419,9 +5441,12 @@ ix86_option_override_internal (bool main_args_p,
       ix86_gen_monitor = gen_sse3_monitor_si;
       ix86_gen_monitorx = gen_monitorx_si;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       ix86_gen_clzero = gen_clzero_si;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
 
 #ifdef USE_IX86_CLD
@@ -5518,6 +5543,9 @@ ix86_option_override_internal (bool main_args_p,
   else if (opts_set->x_target_flags & MASK_RECIP)
     opts->x_recip_mask &= ~(RECIP_MASK_ALL & ~opts->x_recip_mask_explicit);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   /* Default long double to 64-bit for 32-bit Bionic and to __float128
      for 64-bit Bionic.  Also default long double to 64-bit for Intel
@@ -5529,6 +5557,7 @@ ix86_option_override_internal (bool main_args_p,
 			     ? MASK_LONG_DOUBLE_128
 			     : MASK_LONG_DOUBLE_64);
 
+<<<<<<< HEAD
 =======
 
   /* Default long double to 64-bit for 32-bit Bionic and to __float128
@@ -5542,6 +5571,8 @@ ix86_option_override_internal (bool main_args_p,
 			     : MASK_LONG_DOUBLE_64);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Only one of them can be active.  */
   gcc_assert ((opts->x_target_flags & MASK_LONG_DOUBLE_64) == 0
 	      || (opts->x_target_flags & MASK_LONG_DOUBLE_128) == 0);
@@ -5969,9 +6000,12 @@ ix86_valid_target_attribute_inner_p (tree args, char *p_strings[],
     IX86_ATTR_ISA ("pcommit",	OPT_mpcommit),
     IX86_ATTR_ISA ("mwaitx",	OPT_mmwaitx),
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     IX86_ATTR_ISA ("clzero",    OPT_mclzero),
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
     /* enum options */
     IX86_ATTR_ENUM ("fpmath=",	OPT_mfpmath_),
@@ -6195,10 +6229,14 @@ ix86_valid_target_attribute_tree (tree args,
 	{
 	  opts->x_ix86_arch_string
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    = option_strings[IX86_FUNCTION_SPECIFIC_ARCH];
 =======
 	    = ggc_strdup (option_strings[IX86_FUNCTION_SPECIFIC_ARCH]);
 >>>>>>> gcc-mirror/master
+=======
+	    = option_strings[IX86_FUNCTION_SPECIFIC_ARCH];
+>>>>>>> master
 
 	  /* If arch= is set,  clear all bits in x_ix86_isa_flags,
 	     except for ISA_64BIT, ABI_64, ABI_X32, and CODE16.  */
@@ -6213,11 +6251,15 @@ ix86_valid_target_attribute_tree (tree args,
 
       if (option_strings[IX86_FUNCTION_SPECIFIC_TUNE])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	opts->x_ix86_tune_string = option_strings[IX86_FUNCTION_SPECIFIC_TUNE];
 =======
 	opts->x_ix86_tune_string
 	  = ggc_strdup (option_strings[IX86_FUNCTION_SPECIFIC_TUNE]);
 >>>>>>> gcc-mirror/master
+=======
+	opts->x_ix86_tune_string = option_strings[IX86_FUNCTION_SPECIFIC_TUNE];
+>>>>>>> master
       else if (orig_tune_defaulted)
 	opts->x_ix86_tune_string = NULL;
 
@@ -17742,6 +17784,9 @@ output_387_binary_op (rtx insn, rtx *operands)
   /* Even if we do not want to check the inputs, this documents input
      constraints.  Which helps in understanding the following code.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   if (flag_checking
       && STACK_REG_P (operands[0])
       && ((REG_P (operands[1])
@@ -17754,6 +17799,7 @@ output_387_binary_op (rtx insn, rtx *operands)
     ; /* ok */
   else
     gcc_checking_assert (is_sse);
+<<<<<<< HEAD
 =======
   if (flag_checking)
     {
@@ -17770,6 +17816,8 @@ output_387_binary_op (rtx insn, rtx *operands)
 	gcc_assert (is_sse);
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   switch (GET_CODE (operands[3]))
     {
@@ -35976,12 +36024,15 @@ ix86_init_mmx_sse_builtins (void)
 	       VOID_FTYPE_UNSIGNED_UNSIGNED_UNSIGNED, IX86_BUILTIN_MWAITX);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* CLZERO.  */
   def_builtin (OPTION_MASK_ISA_CLZERO, "__builtin_ia32_clzero",
                VOID_FTYPE_PCVOID, IX86_BUILTIN_CLZERO);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Add FMA4 multi-arg argument instructions */
   for (i = 0, d = bdesc_multi_arg; i < ARRAY_SIZE (bdesc_multi_arg); i++, d++)
     {
@@ -38959,7 +39010,28 @@ ix86_expand_args_builtin (const struct builtin_description *d,
     case V4SF_FTYPE_V4SF_V4SF_V4SI_INT:
     case V8SF_FTYPE_V8SF_V8SF_V8SI_INT:
     case V16SF_FTYPE_V16SF_V16SF_V16SI_INT:
+<<<<<<< HEAD
       nargs = 4;
+      nargs_constant = 1;
+      break;
+    case UQI_FTYPE_V4DI_V4DI_INT_UQI:
+    case UQI_FTYPE_V8SI_V8SI_INT_UQI:
+    case QI_FTYPE_V4DF_V4DF_INT_UQI:
+    case QI_FTYPE_V8SF_V8SF_INT_UQI:
+    case UQI_FTYPE_V2DI_V2DI_INT_UQI:
+    case UQI_FTYPE_V4SI_V4SI_INT_UQI:
+    case UQI_FTYPE_V2DF_V2DF_INT_UQI:
+    case UQI_FTYPE_V4SF_V4SF_INT_UQI:
+    case UDI_FTYPE_V64QI_V64QI_INT_UDI:
+    case USI_FTYPE_V32QI_V32QI_INT_USI:
+    case UHI_FTYPE_V16QI_V16QI_INT_UHI:
+    case USI_FTYPE_V32HI_V32HI_INT_USI:
+    case UHI_FTYPE_V16HI_V16HI_INT_UHI:
+    case UQI_FTYPE_V8HI_V8HI_INT_UQI:
+=======
+>>>>>>> master
+      nargs = 4;
+      mask_pos = 1;
       nargs_constant = 1;
       break;
     case UQI_FTYPE_V4DI_V4DI_INT_UQI:
@@ -40753,6 +40825,7 @@ ix86_expand_builtin (tree exp, rtx target, rtx subtarget,
       return 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case IX86_BUILTIN_CLZERO:
       arg0 = CALL_EXPR_ARG (exp, 0);
@@ -40763,6 +40836,8 @@ ix86_expand_builtin (tree exp, rtx target, rtx subtarget,
       return 0;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     case IX86_BUILTIN_VEC_INIT_V2SI:
     case IX86_BUILTIN_VEC_INIT_V4HI:
     case IX86_BUILTIN_VEC_INIT_V8QI:
@@ -41751,6 +41826,7 @@ rdseed_step:
 	  break;
 	case IX86_BUILTIN_GATHER3DIV8SF:
 	case IX86_BUILTIN_GATHERDIV8SF:
+<<<<<<< HEAD
 	  if (target == NULL_RTX)
 	    target = gen_reg_rtx (V4SFmode);
 	  emit_insn (gen_vec_extract_lo_v8sf (target, subtarget));
@@ -41758,6 +41834,15 @@ rdseed_step:
 	case IX86_BUILTIN_GATHER3DIV8SI:
 	case IX86_BUILTIN_GATHERDIV8SI:
 	  if (target == NULL_RTX)
+=======
+	  if (target == NULL_RTX)
+	    target = gen_reg_rtx (V4SFmode);
+	  emit_insn (gen_vec_extract_lo_v8sf (target, subtarget));
+	  break;
+	case IX86_BUILTIN_GATHER3DIV8SI:
+	case IX86_BUILTIN_GATHERDIV8SI:
+	  if (target == NULL_RTX)
+>>>>>>> master
 	    target = gen_reg_rtx (V4SImode);
 	  emit_insn (gen_vec_extract_lo_v8si (target, subtarget));
 	  break;
@@ -42324,6 +42409,7 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       break;
 
     CASE_CFN_FLOOR:
+<<<<<<< HEAD
       /* The round insn does not trap on denormals.  */
       if (flag_trapping_math || !TARGET_ROUND)
 	break;
@@ -42345,6 +42431,8 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       break;
 
     CASE_CFN_CEIL:
+=======
+>>>>>>> master
       /* The round insn does not trap on denormals.  */
       if (flag_trapping_math || !TARGET_ROUND)
 	break;
@@ -42352,6 +42440,7 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       if (out_mode == DFmode && in_mode == DFmode)
 	{
 	  if (out_n == 2 && in_n == 2)
+<<<<<<< HEAD
 	    return ix86_get_builtin (IX86_BUILTIN_CEILPD);
 	  else if (out_n == 4 && in_n == 4)
 	    return ix86_get_builtin (IX86_BUILTIN_CEILPD256);
@@ -42367,6 +42456,22 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       break;
 
     CASE_CFN_TRUNC:
+=======
+	    return ix86_get_builtin (IX86_BUILTIN_FLOORPD);
+	  else if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_FLOORPD256);
+	}
+      if (out_mode == SFmode && in_mode == SFmode)
+	{
+	  if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_FLOORPS);
+	  else if (out_n == 8 && in_n == 8)
+	    return ix86_get_builtin (IX86_BUILTIN_FLOORPS256);
+	}
+      break;
+
+    CASE_CFN_CEIL:
+>>>>>>> master
       /* The round insn does not trap on denormals.  */
       if (flag_trapping_math || !TARGET_ROUND)
 	break;
@@ -42374,6 +42479,7 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       if (out_mode == DFmode && in_mode == DFmode)
 	{
 	  if (out_n == 2 && in_n == 2)
+<<<<<<< HEAD
 	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPD);
 	  else if (out_n == 4 && in_n == 4)
 	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPD256);
@@ -42389,6 +42495,12 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
 
     CASE_CFN_RINT:
 =======
+=======
+	    return ix86_get_builtin (IX86_BUILTIN_CEILPD);
+	  else if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_CEILPD256);
+	}
+>>>>>>> master
       if (out_mode == SFmode && in_mode == SFmode)
 	{
 	  if (out_n == 4 && in_n == 4)
@@ -42399,7 +42511,10 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       break;
 
     CASE_CFN_TRUNC:
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       /* The round insn does not trap on denormals.  */
       if (flag_trapping_math || !TARGET_ROUND)
 	break;
@@ -42407,6 +42522,7 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
       if (out_mode == DFmode && in_mode == DFmode)
 	{
 	  if (out_n == 2 && in_n == 2)
+<<<<<<< HEAD
 <<<<<<< HEAD
 	    return ix86_get_builtin (IX86_BUILTIN_RINTPD);
 	  else if (out_n == 4 && in_n == 4)
@@ -42416,10 +42532,16 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
 	  else if (out_n == 4 && in_n == 4)
 	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPD256);
 >>>>>>> gcc-mirror/master
+=======
+	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPD);
+	  else if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPD256);
+>>>>>>> master
 	}
       if (out_mode == SFmode && in_mode == SFmode)
 	{
 	  if (out_n == 4 && in_n == 4)
+<<<<<<< HEAD
 <<<<<<< HEAD
 	    return ix86_get_builtin (IX86_BUILTIN_RINTPS);
 	  else if (out_n == 8 && in_n == 8)
@@ -42464,6 +42586,39 @@ ix86_builtin_vectorized_function (unsigned int fn, tree type_out,
 	{
 	  if (out_n == 2 && in_n == 2)
 >>>>>>> gcc-mirror/master
+=======
+	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPS);
+	  else if (out_n == 8 && in_n == 8)
+	    return ix86_get_builtin (IX86_BUILTIN_TRUNCPS256);
+	}
+      break;
+
+    CASE_CFN_RINT:
+      /* The round insn does not trap on denormals.  */
+      if (flag_trapping_math || !TARGET_ROUND)
+	break;
+
+      if (out_mode == DFmode && in_mode == DFmode)
+	{
+	  if (out_n == 2 && in_n == 2)
+	    return ix86_get_builtin (IX86_BUILTIN_RINTPD);
+	  else if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_RINTPD256);
+	}
+      if (out_mode == SFmode && in_mode == SFmode)
+	{
+	  if (out_n == 4 && in_n == 4)
+	    return ix86_get_builtin (IX86_BUILTIN_RINTPS);
+	  else if (out_n == 8 && in_n == 8)
+	    return ix86_get_builtin (IX86_BUILTIN_RINTPS256);
+	}
+      break;
+
+    CASE_CFN_FMA:
+      if (out_mode == DFmode && in_mode == DFmode)
+	{
+	  if (out_n == 2 && in_n == 2)
+>>>>>>> master
 	    return ix86_get_builtin (IX86_BUILTIN_VFMADDPD);
 	  if (out_n == 4 && in_n == 4)
 	    return ix86_get_builtin (IX86_BUILTIN_VFMADDPD256);
@@ -42766,6 +42921,8 @@ ix86_vectorize_builtin_gather (const_tree mem_vectype,
       else
 	return NULL_TREE;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
       break;
     default:
       return NULL_TREE;
@@ -42781,6 +42938,67 @@ ix86_vectorize_builtin_gather (const_tree mem_vectype,
 static tree
 ix86_vectorize_builtin_scatter (const_tree vectype,
 				const_tree index_type, int scale)
+{
+  bool si;
+  enum ix86_builtins code;
+
+  if (!TARGET_AVX512F)
+    return NULL_TREE;
+
+  if ((TREE_CODE (index_type) != INTEGER_TYPE
+       && !POINTER_TYPE_P (index_type))
+      || (TYPE_MODE (index_type) != SImode
+	  && TYPE_MODE (index_type) != DImode))
+    return NULL_TREE;
+
+  if (TYPE_PRECISION (index_type) > POINTER_SIZE)
+    return NULL_TREE;
+
+  /* v*scatter* insn sign extends index to pointer mode.  */
+  if (TYPE_PRECISION (index_type) < POINTER_SIZE
+      && TYPE_UNSIGNED (index_type))
+    return NULL_TREE;
+
+  /* Scale can be 1, 2, 4 or 8.  */
+  if (scale <= 0
+      || scale > 8
+      || (scale & (scale - 1)) != 0)
+    return NULL_TREE;
+
+  si = TYPE_MODE (index_type) == SImode;
+  switch (TYPE_MODE (vectype))
+    {
+    case V8DFmode:
+      code = si ? IX86_BUILTIN_SCATTERALTSIV8DF : IX86_BUILTIN_SCATTERDIV8DF;
+      break;
+    case V8DImode:
+      code = si ? IX86_BUILTIN_SCATTERALTSIV8DI : IX86_BUILTIN_SCATTERDIV8DI;
+      break;
+    case V16SFmode:
+      code = si ? IX86_BUILTIN_SCATTERSIV16SF : IX86_BUILTIN_SCATTERALTDIV16SF;
+      break;
+    case V16SImode:
+      code = si ? IX86_BUILTIN_SCATTERSIV16SI : IX86_BUILTIN_SCATTERALTDIV16SI;
+>>>>>>> master
+      break;
+    default:
+      return NULL_TREE;
+    }
+
+  return ix86_get_builtin (code);
+}
+
+/* Returns a decl of a function that implements scatter store with
+   register type VECTYPE and index type INDEX_TYPE and SCALE.
+   Return NULL_TREE if it is not available.  */
+
+static tree
+<<<<<<< HEAD
+ix86_vectorize_builtin_scatter (const_tree vectype,
+				const_tree index_type, int scale)
+=======
+ix86_builtin_reciprocal (unsigned int fn, bool md_fn, bool)
+>>>>>>> master
 {
   bool si;
   enum ix86_builtins code;
@@ -42872,12 +43090,15 @@ ix86_vectorize_builtin_scatter (const_tree vectype,
 	/* Sqrt to rsqrt conversion.  */
       case BUILT_IN_SQRTF:
 	return ix86_get_builtin (IX86_BUILTIN_RSQRTF);
+<<<<<<< HEAD
 =======
   if ((TREE_CODE (index_type) != INTEGER_TYPE
        && !POINTER_TYPE_P (index_type))
       || (TYPE_MODE (index_type) != SImode
 	  && TYPE_MODE (index_type) != DImode))
     return NULL_TREE;
+=======
+>>>>>>> master
 
   if (TYPE_PRECISION (index_type) > POINTER_SIZE)
     return NULL_TREE;
@@ -44229,6 +44450,7 @@ ix86_rtx_costs (rtx x, machine_mode mode, int outer_code_i, int opno,
 		  *total = cost->lea;
 		  *total += rtx_cost (XEXP (XEXP (x, 0), 1), mode,
 <<<<<<< HEAD
+<<<<<<< HEAD
 				      outer_code, opno, speed);
 		  *total += rtx_cost (XEXP (XEXP (XEXP (x, 0), 0), 0), mode,
 				      outer_code, opno, speed);
@@ -44237,6 +44459,11 @@ ix86_rtx_costs (rtx x, machine_mode mode, int outer_code_i, int opno,
 		  *total += rtx_cost (XEXP (XEXP (XEXP (x, 0), 0), 0), mode,
 				      outer_code, opno, speed);
 >>>>>>> gcc-mirror/master
+=======
+				      outer_code, opno, speed);
+		  *total += rtx_cost (XEXP (XEXP (XEXP (x, 0), 0), 0), mode,
+				      outer_code, opno, speed);
+>>>>>>> master
 		  *total += rtx_cost (XEXP (x, 1), mode,
 				      outer_code, opno, speed);
 		  return true;
@@ -44260,9 +44487,15 @@ ix86_rtx_costs (rtx x, machine_mode mode, int outer_code_i, int opno,
 	    {
 	      *total = cost->lea;
 	      *total += rtx_cost (XEXP (XEXP (x, 0), 0), mode,
+<<<<<<< HEAD
 				  outer_code, opno, speed);
 	      *total += rtx_cost (XEXP (XEXP (x, 0), 1), mode,
 				  outer_code, opno, speed);
+=======
+				  outer_code, opno, speed);
+	      *total += rtx_cost (XEXP (XEXP (x, 0), 1), mode,
+				  outer_code, opno, speed);
+>>>>>>> master
 	      *total += rtx_cost (XEXP (x, 1), mode,
 				  outer_code, opno, speed);
 	      return true;
@@ -45484,6 +45717,7 @@ ix86_mitigate_rop (void)
   IOR_HARD_REG_SET (inout_risky, output_risky);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   compute_bb_for_insn ();
   df_note_add_problem ();
 =======
@@ -45491,6 +45725,10 @@ ix86_mitigate_rop (void)
   /* Fix up what stack-regs did.  */
   df_insn_rescan_all ();
 >>>>>>> gcc-mirror/master
+=======
+  compute_bb_for_insn ();
+  df_note_add_problem ();
+>>>>>>> master
   df_analyze ();
 
   regrename_init (true);
@@ -47441,6 +47679,7 @@ emit_reduc_half (rtx dest, rtx src, int i)
 				   const1_rtx);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
       else
 	{
 	  d = gen_reg_rtx (V2TImode);
@@ -47470,6 +47709,8 @@ emit_reduc_half (rtx dest, rtx src, int i)
 				      GEN_INT (0x16), GEN_INT (0x17));
       else
 =======
+=======
+>>>>>>> master
       else
 	{
 	  d = gen_reg_rtx (V2TImode);
@@ -47498,7 +47739,10 @@ emit_reduc_half (rtx dest, rtx src, int i)
 				      GEN_INT (0x14), GEN_INT (0x15),
 				      GEN_INT (0x16), GEN_INT (0x17));
       else
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	tem = gen_avx512f_pshufd_1 (gen_lowpart (V16SImode, dest),
 				   gen_lowpart (V16SImode, src),
 				   GEN_INT (i == 128 ? 0x2 : 0x1),
@@ -48093,6 +48337,9 @@ void ix86_emit_swdivsf (rtx res, rtx a, rtx b, machine_mode mode)
    single precision floating point [reciprocal] square root.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 void ix86_emit_swsqrtsf (rtx res, rtx a, machine_mode mode,
 			 bool recip)
 =======
@@ -48146,8 +48393,11 @@ void ix86_emit_swsqrtsf (rtx res, rtx a, machine_mode mode, bool recip)
 
       zero = force_reg (mode, CONST0_RTX(mode));
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       /* Handle masked compare.  */
       if (VECTOR_MODE_P (mode) && GET_MODE_SIZE (mode) == 64)
 	{
@@ -48159,12 +48409,17 @@ void ix86_emit_swsqrtsf (rtx res, rtx a, machine_mode mode, bool recip)
       else
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  emit_insn (gen_rtx_SET (mask, gen_rtx_NE (mode, zero, a)));
 
 =======
 	  mask = gen_reg_rtx (mode);
 	  emit_insn (gen_rtx_SET (mask, gen_rtx_NE (mode, zero, a)));
 >>>>>>> gcc-mirror/master
+=======
+	  emit_insn (gen_rtx_SET (mask, gen_rtx_NE (mode, zero, a)));
+
+>>>>>>> master
 	  emit_insn (gen_rtx_SET (x0, gen_rtx_AND (mode, x0, mask)));
 	}
     }
@@ -49628,7 +49883,10 @@ expand_vec_perm_pshufb (struct expand_vec_perm_d *d)
   if (target != d->target)
     emit_move_insn (d->target, gen_lowpart (d->vmode, target));
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
 
   return true;
 }
@@ -49857,6 +50115,7 @@ expand_vec_perm_1 (struct expand_vec_perm_d *d)
     return true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* See if we can get the same permutation in different vector integer
      mode.  */
@@ -49867,6 +50126,8 @@ expand_vec_perm_1 (struct expand_vec_perm_d *d)
       return true;
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return false;
 }
 
@@ -49998,6 +50259,7 @@ expand_vec_perm_palignr (struct expand_vec_perm_d *d, bool single_insn_only_p)
 	in_order = false;
       dcopy.perm[i] = e;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     }
   dcopy.one_operand_p = true;
@@ -50060,7 +50322,40 @@ expand_vec_perm_palignr (struct expand_vec_perm_d *d, bool single_insn_only_p)
 				       gen_lowpart (V2TImode, dcopy.op1),
 				       gen_lowpart (V2TImode, dcopy.op0),
 				       shift));
+=======
+>>>>>>> master
     }
+  dcopy.one_operand_p = true;
+
+  if (single_insn_only_p && !in_order)
+    return false;
+
+  /* For AVX2, test whether we can permute the result in one instruction.  */
+  if (d->testing_p)
+    {
+      if (in_order)
+	return true;
+      dcopy.op1 = dcopy.op0;
+      return expand_vec_perm_1 (&dcopy);
+    }
+
+  shift = GEN_INT (min * GET_MODE_UNIT_BITSIZE (d->vmode));
+  if (GET_MODE_SIZE (d->vmode) == 16)
+    {
+      target = gen_reg_rtx (TImode);
+      emit_insn (gen_ssse3_palignrti (target, gen_lowpart (TImode, dcopy.op1),
+				      gen_lowpart (TImode, dcopy.op0), shift));
+    }
+  else
+    {
+      target = gen_reg_rtx (V2TImode);
+      emit_insn (gen_avx2_palignrv2ti (target,
+				       gen_lowpart (V2TImode, dcopy.op1),
+				       gen_lowpart (V2TImode, dcopy.op0),
+				       shift));
+    }
+
+  dcopy.op0 = dcopy.op1 = gen_lowpart (d->vmode, target);
 
   dcopy.op0 = dcopy.op1 = gen_lowpart (d->vmode, target);
 
@@ -50121,6 +50416,7 @@ expand_vec_perm_pblendv (struct expand_vec_perm_d *d)
     return false;
   if (d->testing_p && GET_MODE_SIZE (vmode) == 16)
 <<<<<<< HEAD
+<<<<<<< HEAD
     return true;
 
   /* First we apply one operand permutation to the part where
@@ -50171,6 +50467,32 @@ expand_vec_perm_pblendv (struct expand_vec_perm_d *d)
     return true;
 
 >>>>>>> gcc-mirror/master
+=======
+    return true;
+
+  /* First we apply one operand permutation to the part where
+     elements stay not in their respective lanes.  */
+  dcopy = *d;
+  if (which == 2)
+    dcopy.op0 = dcopy.op1 = d->op1;
+  else
+    dcopy.op0 = dcopy.op1 = d->op0;
+  if (!d->testing_p)
+    dcopy.target = gen_reg_rtx (vmode);
+  dcopy.one_operand_p = true;
+
+  for (i = 0; i < nelt; ++i)
+    dcopy.perm[i] = d->perm[i] & (nelt - 1);
+
+  ok = expand_vec_perm_1 (&dcopy);
+  if (GET_MODE_SIZE (vmode) != 16 && !ok)
+    return false;
+  else
+    gcc_assert (ok);
+  if (d->testing_p)
+    return true;
+
+>>>>>>> master
   /* Next we put permuted elements into their positions.  */
   dcopy1 = *d;
   if (which == 2)
@@ -51361,10 +51683,14 @@ expand_vec_perm_even_odd_1 (struct expand_vec_perm_d *d, unsigned odd)
 	  d_copy.vmode = V4DFmode;
 	  if (d->testing_p)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    d_copy.target = gen_lowpart (V4DFmode, d->target);
 =======
 	    d_copy.target = gen_raw_REG (V4DFmode, LAST_VIRTUAL_REGISTER + 1);
 >>>>>>> gcc-mirror/master
+=======
+	    d_copy.target = gen_lowpart (V4DFmode, d->target);
+>>>>>>> master
 	  else
 	    d_copy.target = gen_reg_rtx (V4DFmode);
 	  d_copy.op0 = gen_lowpart (V4DFmode, d->op0);
@@ -51404,10 +51730,14 @@ expand_vec_perm_even_odd_1 (struct expand_vec_perm_d *d, unsigned odd)
 	  d_copy.vmode = V8SFmode;
 	  if (d->testing_p)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    d_copy.target = gen_lowpart (V8SFmode, d->target);
 =======
 	    d_copy.target = gen_raw_REG (V8SFmode, LAST_VIRTUAL_REGISTER + 1);
 >>>>>>> gcc-mirror/master
+=======
+	    d_copy.target = gen_lowpart (V8SFmode, d->target);
+>>>>>>> master
 	  else
 	    d_copy.target = gen_reg_rtx (V8SFmode);
 	  d_copy.op0 = gen_lowpart (V8SFmode, d->op0);
@@ -52820,11 +53150,15 @@ ix86_expand_pinsr (rtx *operands)
 	      {
 		rtx extr_ops[4];
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 		extr_ops[0] = gen_reg_rtx (srcmode);
 		extr_ops[1] = gen_lowpart (srcmode, SUBREG_REG (src));
 		extr_ops[2] = GEN_INT (size);
 		extr_ops[3] = GEN_INT (srcpos * BITS_PER_UNIT);
+<<<<<<< HEAD
 
 		if (!ix86_expand_pextr (extr_ops))
 		  return false;
@@ -52862,6 +53196,23 @@ ix86_expand_pinsr (rtx *operands)
 	  d = gen_reg_rtx (dstmode);
 
 >>>>>>> gcc-mirror/master
+=======
+
+		if (!ix86_expand_pextr (extr_ops))
+		  return false;
+
+		src = extr_ops[0];
+	      }
+	    else
+	      src = gen_lowpart (srcmode, SUBREG_REG (src));
+	  }
+
+	if (GET_MODE (dst) == dstmode)
+	  d = dst;
+	else
+	  d = gen_reg_rtx (dstmode);
+
+>>>>>>> master
 	emit_insn (pinsr (d, gen_lowpart (dstmode, dst),
 			  gen_lowpart (srcmode, src),
 			  GEN_INT (1 << (pos / size))));
@@ -53904,11 +54255,15 @@ ix86_get_mask_mode (unsigned nunits, unsigned vector_size)
 
   /* Scalar mask case.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (TARGET_AVX512F && vector_size == 64)
 =======
   if ((TARGET_AVX512F && vector_size == 64)
       || (TARGET_AVX512VL && (vector_size == 32 || vector_size == 16)))
 >>>>>>> gcc-mirror/master
+=======
+  if (TARGET_AVX512F && vector_size == 64)
+>>>>>>> master
     {
       if (elem_size == 4 || elem_size == 8 || TARGET_AVX512BW)
 	return smallest_mode_for_size (nunits, MODE_INT);
@@ -54539,6 +54894,7 @@ ix86_operands_ok_for_move_multiple (rtx *operands, bool load,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Implement the TARGET_OPTAB_SUPPORTED_P hook.  */
 
@@ -54587,6 +54943,8 @@ ix86_optab_supported_p (int op, machine_mode mode1, machine_mode,
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Address space support.
 
    This is not "far pointers" in the 16-bit sense, but an easy way
@@ -55133,11 +55491,14 @@ ix86_addr_space_zero_address_valid (addr_space_t as)
 #define TARGET_ABSOLUTE_BIGGEST_ALIGNMENT 512
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef TARGET_OPTAB_SUPPORTED_P
 #define TARGET_OPTAB_SUPPORTED_P ix86_optab_supported_p
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 struct gcc_target targetm = TARGET_INITIALIZER;
 
 #include "gt-i386.h"

@@ -138,10 +138,13 @@
     UNSPECV_GET_FPSR		; Represent fetch of FPSR content.
     UNSPECV_SET_FPSR		; Represent assign of FPSR content.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     UNSPECV_BLOCKAGE		; Represent a blockage
     UNSPECV_PROBE_STACK_RANGE	; Represent stack range probing.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   ]
 )
 
@@ -215,9 +218,12 @@
 (include "../arm/cortex-a53.md")
 (include "../arm/cortex-a57.md")
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 (include "../arm/exynos-m1.md")
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 (include "thunderx.md")
 (include "../arm/xgene1.md")
 
@@ -386,6 +392,9 @@
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 (define_insn "*condjump"
 =======
 (define_insn "condjump"
@@ -412,6 +421,7 @@
 			   (lt (minus (match_dup 2) (pc)) (const_int 1048572)))
 		      (const_int 0)
 		      (const_int 1)))]
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 )
@@ -450,6 +460,8 @@
     DONE;
   }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 )
 
 (define_expand "casesi"
@@ -1399,6 +1411,7 @@
 (define_insn "store_pairsf"
   [(set (match_operand:SF 0 "aarch64_mem_pair_operand" "=Ump,Ump")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(match_operand:SF 1 "register_operand" "w,*r"))
    (set (match_operand:SF 2 "memory_operand" "=m,m")
 	(match_operand:SF 3 "register_operand" "w,*r"))]
@@ -1407,6 +1420,11 @@
    (set (match_operand:SF 2 "memory_operand" "=m,m")
 	(match_operand:SF 3 "aarch64_reg_or_fp_zero" "w,*rY"))]
 >>>>>>> gcc-mirror/master
+=======
+	(match_operand:SF 1 "register_operand" "w,*r"))
+   (set (match_operand:SF 2 "memory_operand" "=m,m")
+	(match_operand:SF 3 "register_operand" "w,*r"))]
+>>>>>>> master
   "rtx_equal_p (XEXP (operands[2], 0),
 		plus_constant (Pmode,
 			       XEXP (operands[0], 0),
@@ -1421,6 +1439,7 @@
 (define_insn "store_pairdf"
   [(set (match_operand:DF 0 "aarch64_mem_pair_operand" "=Ump,Ump")
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(match_operand:DF 1 "register_operand" "w,*r"))
    (set (match_operand:DF 2 "memory_operand" "=m,m")
 	(match_operand:DF 3 "register_operand" "w,*r"))]
@@ -1429,6 +1448,11 @@
    (set (match_operand:DF 2 "memory_operand" "=m,m")
 	(match_operand:DF 3 "aarch64_reg_or_fp_zero" "w,*rY"))]
 >>>>>>> gcc-mirror/master
+=======
+	(match_operand:DF 1 "register_operand" "w,*r"))
+   (set (match_operand:DF 2 "memory_operand" "=m,m")
+	(match_operand:DF 3 "register_operand" "w,*r"))]
+>>>>>>> master
   "rtx_equal_p (XEXP (operands[2], 0),
 		plus_constant (Pmode,
 			       XEXP (operands[0], 0),
@@ -1619,6 +1643,9 @@
   if (!aarch64_plus_operand (operands[2], VOIDmode))
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       HOST_WIDE_INT imm = INTVAL (operands[2]);
 
       if (aarch64_move_imm (imm, <MODE>mode) && can_create_pseudo_p ())
@@ -1641,6 +1668,7 @@
 	  operands[1] = subtarget;
 	  operands[2] = GEN_INT (INTVAL (operands[2]) - imm);
         }
+<<<<<<< HEAD
 =======
       if (can_create_pseudo_p ())
 	{
@@ -1681,6 +1709,8 @@
       operands[3] = GEN_INT (INTVAL (operands[2]) - imm);
       operands[4] = GEN_INT (imm);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
   "
 )
@@ -1783,6 +1813,8 @@
   subs\\t%w0, %w1, #%n2"
   [(set_attr "type" "alus_sreg,alus_imm,alus_imm")]
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
 )
 
 (define_insn "*adds_shift_imm_<mode>"
@@ -1815,8 +1847,58 @@
   ""
   "subs\\t%<w>0, %<w>1, %<w>2, <shift> %3"
   [(set_attr "type" "alus_shift_imm")]
+>>>>>>> master
+)
+
+(define_insn "*adds_shift_imm_<mode>"
+  [(set (reg:CC_NZ CC_REGNUM)
+	(compare:CC_NZ
+	 (plus:GPI (ASHIFT:GPI 
+		    (match_operand:GPI 1 "register_operand" "r")
+<<<<<<< HEAD
+		    (match_operand:QI 2 "aarch64_shift_imm_<mode>" "n"))
+=======
+		    (match_operand:QI 2 "aarch64_pwr_2_<mode>" "n"))
+>>>>>>> master
+		   (match_operand:GPI 3 "register_operand" "r"))
+	 (const_int 0)))
+   (set (match_operand:GPI 0 "register_operand" "=r")
+	(plus:GPI (ASHIFT:GPI (match_dup 1) (match_dup 2))
+		  (match_dup 3)))]
+  ""
+<<<<<<< HEAD
+  "adds\\t%<w>0, %<w>3, %<w>1, <shift> %2"
+=======
+  "adds\\t%<w>0, %<w>3, %<w>1, lsl %p2"
+>>>>>>> master
+  [(set_attr "type" "alus_shift_imm")]
+)
+
+(define_insn "*subs_shift_imm_<mode>"
+  [(set (reg:CC_NZ CC_REGNUM)
+	(compare:CC_NZ
+	 (minus:GPI (match_operand:GPI 1 "register_operand" "r")
+<<<<<<< HEAD
+		    (ASHIFT:GPI
+=======
+		    (mult:GPI
+>>>>>>> master
+		     (match_operand:GPI 2 "register_operand" "r")
+		     (match_operand:QI 3 "aarch64_shift_imm_<mode>" "n")))
+	 (const_int 0)))
+   (set (match_operand:GPI 0 "register_operand" "=r")
+	(minus:GPI (match_dup 1)
+		   (ASHIFT:GPI (match_dup 2) (match_dup 3))))]
+  ""
+<<<<<<< HEAD
+  "subs\\t%<w>0, %<w>1, %<w>2, <shift> %3"
+  [(set_attr "type" "alus_shift_imm")]
 =======
 >>>>>>> gcc-mirror/master
+=======
+  "subs\\t%<w>0, %<w>1, %<w>2, lsl %p3"
+  [(set_attr "type" "alus_shift_imm")]
+>>>>>>> master
 )
 
 (define_insn "*adds_shift_imm_<mode>"
@@ -1835,6 +1917,7 @@
 	(plus:GPI (ASHIFT:GPI (match_dup 1) (match_dup 2))
 		  (match_dup 3)))]
   ""
+<<<<<<< HEAD
 <<<<<<< HEAD
   "adds\\t%<w>0, %<w>3, %<w>1, lsl %p2"
 =======
@@ -1909,6 +1992,8 @@
    (set (match_operand:GPI 0 "register_operand" "=r")
 	(plus:GPI (ANY_EXTEND:GPI (match_dup 1)) (match_dup 2)))]
   ""
+=======
+>>>>>>> master
   "adds\\t%<GPI:w>0, %<GPI:w>2, %<GPI:w>1, <su>xt<ALLX:size>"
   [(set_attr "type" "alus_ext")]
 )
@@ -3068,6 +3153,7 @@
   "cset\\t%<w>0, %m1"
   [(set_attr "type" "csel")]
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 )
 
@@ -3104,6 +3190,8 @@
   }
   [(set_attr "type" "csel")]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 )
 
 ;; zero_extend version of the above
@@ -3360,6 +3448,7 @@
 	  (match_operand 1 "aarch64_comparison_operation" "")
 	  (not:GPI (match_operand:GPI 2 "register_operand" "r"))
 	  (match_operand:GPI 3 "aarch64_reg_or_zero" "rZ")))]
+<<<<<<< HEAD
   ""
   "csinv\\t%<w>0, %<w>3, %<w>2, %M1"
   [(set_attr "type" "csel")]
@@ -3377,6 +3466,25 @@
   [(set_attr "type" "csel")]
 )
 
+=======
+  ""
+  "csinv\\t%<w>0, %<w>3, %<w>2, %M1"
+  [(set_attr "type" "csel")]
+)
+
+(define_insn "csneg3_uxtw_insn"
+  [(set (match_operand:DI 0 "register_operand" "=r")
+	(zero_extend:DI
+	  (if_then_else:SI
+	    (match_operand 1 "aarch64_comparison_operation" "")
+	    (neg:SI (match_operand:SI 2 "register_operand" "r"))
+	    (match_operand:SI 3 "aarch64_reg_or_zero" "rZ"))))]
+  ""
+  "csneg\\t%w0, %w3, %w2, %M1"
+  [(set_attr "type" "csel")]
+)
+
+>>>>>>> master
 (define_insn "csneg3<mode>_insn"
   [(set (match_operand:GPI 0 "register_operand" "=r")
         (if_then_else:GPI
@@ -3543,6 +3651,61 @@
 )
 
 ;; Binary logical operators negating one operand, i.e. (a & !b), (a | !b).
+<<<<<<< HEAD
+=======
+
+(define_insn "*<NLOGICAL:optab>_one_cmpl<mode>3"
+  [(set (match_operand:GPI 0 "register_operand" "=r,w")
+	(NLOGICAL:GPI (not:GPI (match_operand:GPI 1 "register_operand" "r,w"))
+		     (match_operand:GPI 2 "register_operand" "r,w")))]
+  ""
+  "@
+  <NLOGICAL:nlogical>\\t%<w>0, %<w>2, %<w>1
+  <NLOGICAL:nlogical>\\t%0.<Vbtype>, %2.<Vbtype>, %1.<Vbtype>"
+  [(set_attr "type" "logic_reg,neon_logic")
+   (set_attr "simd" "*,yes")]
+)
+
+(define_insn "*<NLOGICAL:optab>_one_cmplsidi3_ze"
+  [(set (match_operand:DI 0 "register_operand" "=r")
+	(zero_extend:DI
+	  (NLOGICAL:SI (not:SI (match_operand:SI 1 "register_operand" "r"))
+	               (match_operand:SI 2 "register_operand" "r"))))]
+  ""
+  "<NLOGICAL:nlogical>\\t%w0, %w2, %w1"
+  [(set_attr "type" "logic_reg")]
+)
+
+(define_insn "*xor_one_cmplsidi3_ze"
+  [(set (match_operand:DI 0 "register_operand" "=r")
+        (zero_extend:DI
+          (not:SI (xor:SI (match_operand:SI 1 "register_operand" "r")
+                          (match_operand:SI 2 "register_operand" "r")))))]
+  ""
+  "eon\\t%w0, %w1, %w2"
+  [(set_attr "type" "logic_reg")]
+)
+
+;; (xor (not a) b) is simplify_rtx-ed down to (not (xor a b)).
+;; eon does not operate on SIMD registers so the vector variant must be split.
+(define_insn_and_split "*xor_one_cmpl<mode>3"
+  [(set (match_operand:GPI 0 "register_operand" "=r,w")
+        (not:GPI (xor:GPI (match_operand:GPI 1 "register_operand" "r,?w")
+                          (match_operand:GPI 2 "register_operand" "r,w"))))]
+  ""
+  "@
+  eon\\t%<w>0, %<w>1, %<w>2
+  #"
+  "reload_completed && FP_REGNUM_P (REGNO (operands[0]))" ;; For SIMD registers.
+  [(set (match_operand:GPI 0 "register_operand" "=w")
+        (xor:GPI (match_operand:GPI 1 "register_operand" "w")
+                 (match_operand:GPI 2 "register_operand" "w")))
+   (set (match_dup 0) (not:GPI (match_dup 0)))]
+  ""
+  [(set_attr "type" "logic_reg,multiple")
+   (set_attr "simd" "*,yes")]
+)
+>>>>>>> master
 
 (define_insn "*<NLOGICAL:optab>_one_cmpl<mode>3"
   [(set (match_operand:GPI 0 "register_operand" "=r,w")
@@ -3550,6 +3713,7 @@
 		     (match_operand:GPI 2 "register_operand" "r,w")))]
 <<<<<<< HEAD
   ""
+<<<<<<< HEAD
   "@
   <NLOGICAL:nlogical>\\t%<w>0, %<w>2, %<w>1
   <NLOGICAL:nlogical>\\t%0.<Vbtype>, %2.<Vbtype>, %1.<Vbtype>"
@@ -3623,6 +3787,8 @@
    (set (match_operand:GPI 0 "register_operand" "=r")
 	(and:GPI (not:GPI (match_dup 1)) (match_dup 2)))]
   ""
+=======
+>>>>>>> master
   "bics\\t%<w>0, %<w>2, %<w>1"
   [(set_attr "type" "logics_reg")]
 )
@@ -3642,6 +3808,9 @@
   [(set_attr "type" "logics_reg")]
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 (define_insn "*and_one_cmpl<mode>3_compare0_no_reuse"
   [(set (reg:CC_NZ CC_REGNUM)
@@ -3655,6 +3824,7 @@
   [(set_attr "type" "logics_reg")]
 )
 
+<<<<<<< HEAD
 =======
 
 (define_insn "*and_one_cmpl<mode>3_compare0_no_reuse"
@@ -3670,6 +3840,8 @@
 )
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 (define_insn "<LOGICAL:optab>_one_cmpl_<SHIFT:optab><mode>3"
   [(set (match_operand:GPI 0 "register_operand" "=r")
 	(LOGICAL:GPI (not:GPI
@@ -3928,6 +4100,7 @@
         (ashift:GPI
           (match_operand:GPI 1 "register_operand" "r,w,w")
           (match_operand:QI 2 "aarch64_reg_or_shift_imm_<mode>" "rUs<cmode>,Us<cmode>,w")))]
+<<<<<<< HEAD
   ""
   "@
    lsl\t%<w>0, %<w>1, %<w>2
@@ -4194,6 +4367,170 @@
        (match_operand:QI 2 "aarch64_reg_or_shift_imm_<mode>" "r,Us<cmode>")))]
   ""
 >>>>>>> gcc-mirror/master
+=======
+  ""
+  "@
+   lsl\t%<w>0, %<w>1, %<w>2
+   shl\t%<rtn>0<vas>, %<rtn>1<vas>, %2
+   ushl\t%<rtn>0<vas>, %<rtn>1<vas>, %<rtn>2<vas>"
+  [(set_attr "simd" "no,yes,yes")
+   (set_attr "type" "shift_reg,neon_shift_imm<q>, neon_shift_reg<q>")]
+)
+
+;; Logical right shift using SISD or Integer instruction
+(define_insn "*aarch64_lshr_sisd_or_int_<mode>3"
+  [(set (match_operand:GPI 0 "register_operand" "=r,w,&w,&w")
+        (lshiftrt:GPI
+          (match_operand:GPI 1 "register_operand" "r,w,w,w")
+          (match_operand:QI 2 "aarch64_reg_or_shift_imm_<mode>" "rUs<cmode>,Us<cmode>,w,0")))]
+  ""
+  "@
+   lsr\t%<w>0, %<w>1, %<w>2
+   ushr\t%<rtn>0<vas>, %<rtn>1<vas>, %2
+   #
+   #"
+  [(set_attr "simd" "no,yes,yes,yes")
+   (set_attr "type" "shift_reg,neon_shift_imm<q>,neon_shift_reg<q>,neon_shift_reg<q>")]
+)
+
+(define_split
+  [(set (match_operand:DI 0 "aarch64_simd_register")
+        (lshiftrt:DI
+           (match_operand:DI 1 "aarch64_simd_register")
+           (match_operand:QI 2 "aarch64_simd_register")))]
+  "TARGET_SIMD && reload_completed"
+  [(set (match_dup 3)
+        (unspec:QI [(match_dup 2)] UNSPEC_SISD_NEG))
+   (set (match_dup 0)
+        (unspec:DI [(match_dup 1) (match_dup 3)] UNSPEC_SISD_USHL))]
+  {
+    operands[3] = gen_lowpart (QImode, operands[0]);
+  }
+)
+
+(define_split
+  [(set (match_operand:SI 0 "aarch64_simd_register")
+        (lshiftrt:SI
+           (match_operand:SI 1 "aarch64_simd_register")
+           (match_operand:QI 2 "aarch64_simd_register")))]
+  "TARGET_SIMD && reload_completed"
+  [(set (match_dup 3)
+        (unspec:QI [(match_dup 2)] UNSPEC_SISD_NEG))
+   (set (match_dup 0)
+        (unspec:SI [(match_dup 1) (match_dup 3)] UNSPEC_USHL_2S))]
+  {
+    operands[3] = gen_lowpart (QImode, operands[0]);
+  }
+)
+
+;; Arithmetic right shift using SISD or Integer instruction
+(define_insn "*aarch64_ashr_sisd_or_int_<mode>3"
+  [(set (match_operand:GPI 0 "register_operand" "=r,w,&w,&w")
+        (ashiftrt:GPI
+          (match_operand:GPI 1 "register_operand" "r,w,w,w")
+          (match_operand:QI 2 "aarch64_reg_or_shift_imm_di" "rUs<cmode>,Us<cmode>,w,0")))]
+  ""
+  "@
+   asr\t%<w>0, %<w>1, %<w>2
+   sshr\t%<rtn>0<vas>, %<rtn>1<vas>, %2
+   #
+   #"
+  [(set_attr "simd" "no,yes,yes,yes")
+   (set_attr "type" "shift_reg,neon_shift_imm<q>,neon_shift_reg<q>,neon_shift_reg<q>")]
+)
+
+(define_split
+  [(set (match_operand:DI 0 "aarch64_simd_register")
+        (ashiftrt:DI
+           (match_operand:DI 1 "aarch64_simd_register")
+           (match_operand:QI 2 "aarch64_simd_register")))]
+  "TARGET_SIMD && reload_completed"
+  [(set (match_dup 3)
+        (unspec:QI [(match_dup 2)] UNSPEC_SISD_NEG))
+   (set (match_dup 0)
+        (unspec:DI [(match_dup 1) (match_dup 3)] UNSPEC_SISD_SSHL))]
+{
+  operands[3] = gen_lowpart (QImode, operands[0]);
+}
+)
+
+(define_split
+  [(set (match_operand:SI 0 "aarch64_simd_register")
+        (ashiftrt:SI
+           (match_operand:SI 1 "aarch64_simd_register")
+           (match_operand:QI 2 "aarch64_simd_register")))]
+  "TARGET_SIMD && reload_completed"
+  [(set (match_dup 3)
+        (unspec:QI [(match_dup 2)] UNSPEC_SISD_NEG))
+   (set (match_dup 0)
+        (unspec:SI [(match_dup 1) (match_dup 3)] UNSPEC_SSHL_2S))]
+{
+  operands[3] = gen_lowpart (QImode, operands[0]);
+}
+)
+
+(define_insn "*aarch64_sisd_ushl"
+  [(set (match_operand:DI 0 "register_operand" "=w")
+        (unspec:DI [(match_operand:DI 1 "register_operand" "w")
+                    (match_operand:QI 2 "register_operand" "w")]
+                   UNSPEC_SISD_USHL))]
+  "TARGET_SIMD"
+  "ushl\t%d0, %d1, %d2"
+  [(set_attr "simd" "yes")
+   (set_attr "type" "neon_shift_reg")]
+)
+
+(define_insn "*aarch64_ushl_2s"
+  [(set (match_operand:SI 0 "register_operand" "=w")
+        (unspec:SI [(match_operand:SI 1 "register_operand" "w")
+                    (match_operand:QI 2 "register_operand" "w")]
+                   UNSPEC_USHL_2S))]
+  "TARGET_SIMD"
+  "ushl\t%0.2s, %1.2s, %2.2s"
+  [(set_attr "simd" "yes")
+   (set_attr "type" "neon_shift_reg")]
+)
+
+(define_insn "*aarch64_sisd_sshl"
+  [(set (match_operand:DI 0 "register_operand" "=w")
+        (unspec:DI [(match_operand:DI 1 "register_operand" "w")
+                    (match_operand:QI 2 "register_operand" "w")]
+                   UNSPEC_SISD_SSHL))]
+  "TARGET_SIMD"
+  "sshl\t%d0, %d1, %d2"
+  [(set_attr "simd" "yes")
+   (set_attr "type" "neon_shift_reg")]
+)
+
+(define_insn "*aarch64_sshl_2s"
+  [(set (match_operand:SI 0 "register_operand" "=w")
+        (unspec:SI [(match_operand:SI 1 "register_operand" "w")
+                    (match_operand:QI 2 "register_operand" "w")]
+                   UNSPEC_SSHL_2S))]
+  "TARGET_SIMD"
+  "sshl\t%0.2s, %1.2s, %2.2s"
+  [(set_attr "simd" "yes")
+   (set_attr "type" "neon_shift_reg")]
+)
+
+(define_insn "*aarch64_sisd_neg_qi"
+  [(set (match_operand:QI 0 "register_operand" "=w")
+        (unspec:QI [(match_operand:QI 1 "register_operand" "w")]
+                   UNSPEC_SISD_NEG))]
+  "TARGET_SIMD"
+  "neg\t%d0, %d1"
+  [(set_attr "simd" "yes")
+   (set_attr "type" "neon_neg")]
+)
+
+;; Rotate right
+(define_insn "*ror<mode>3_insn"
+  [(set (match_operand:GPI 0 "register_operand" "=r,r")
+     (rotatert:GPI
+       (match_operand:GPI 1 "register_operand" "r,r")
+       (match_operand:QI 2 "aarch64_reg_or_shift_imm_<mode>" "r,Us<cmode>")))]
+  ""
+>>>>>>> master
   "ror\\t%<w>0, %<w>1, %<w>2"
   [(set_attr "type" "shift_reg, rotate_imm")]
 )
@@ -4812,6 +5149,9 @@
   "fminnm\\t%<s>0, %<s>1, %<s>2"
   [(set_attr "type" "f_minmax<s>")]
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 )
 
 ;; For copysign (x, y), we want to generate:
@@ -4838,6 +5178,7 @@
 }
 )
 
+<<<<<<< HEAD
 =======
 )
 
@@ -4877,6 +5218,8 @@
 )
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 ;; As above, but we must first get to a 64-bit value if we wish to use
 ;; aarch64_simd_bslv2sf.
 
@@ -4953,10 +5296,13 @@
   [(set (match_operand:DI 0 "register_operand" "=r")
 <<<<<<< HEAD
         (truncate:DI (match_operand:TX 1 "register_operand" "w")))]
+<<<<<<< HEAD
 =======
 	(zero_extract:DI (match_operand:TX 1 "register_operand" "w")
 			 (const_int 64) (const_int 0)))]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "TARGET_FLOAT && (reload_completed || reload_in_progress)"
   "fmov\\t%x0, %d1"
   [(set_attr "type" "f_mrc")
@@ -4969,10 +5315,13 @@
         (truncate:DI
 	  (lshiftrt:TX (match_operand:TX 1 "register_operand" "w")
 		       (const_int 64))))]
+<<<<<<< HEAD
 =======
 	(zero_extract:DI (match_operand:TX 1 "register_operand" "w")
 			 (const_int 64) (const_int 64)))]
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "TARGET_FLOAT && (reload_completed || reload_in_progress)"
   "fmov\\t%x0, %1.d[1]"
   [(set_attr "type" "f_mrc")
@@ -5141,6 +5490,7 @@
           (unspec:SI [(match_operand 1 "aarch64_tls_ie_symref" "S")]
 		      UNSPEC_GOTSMALLTLS)))]
 <<<<<<< HEAD
+<<<<<<< HEAD
   ""
   "adrp\\t%0, %A1\;ldr\\t%w0, [%0, #%L1]"
   [(set_attr "type" "load1")
@@ -5159,6 +5509,8 @@
 )
 
 =======
+=======
+>>>>>>> master
   ""
   "adrp\\t%0, %A1\;ldr\\t%w0, [%0, #%L1]"
   [(set_attr "type" "load1")
@@ -5176,7 +5528,10 @@
    (set_attr "length" "8")]
 )
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 (define_insn "tlsie_tiny_sidi"
   [(set (match_operand:DI 0 "register_operand" "=&r")
 	(zero_extend:DI

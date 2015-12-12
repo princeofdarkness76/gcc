@@ -1165,6 +1165,7 @@ cdtor_p (cgraph_node *n, void *)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* We only propagate across edges with non-interposable callee.  */
 
@@ -1178,6 +1179,8 @@ ignore_edge_for_pure_const (struct cgraph_edge *e)
 
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Produce transitive closure over the callgraph and compute pure/const
    attributes.  */
 
@@ -1243,9 +1246,12 @@ propagate_pure_const (void)
 
 <<<<<<< HEAD
 	  /* For overwritable nodes we can not assume anything.  */
+<<<<<<< HEAD
 =======
 	  /* For interposable nodes we can not assume anything.  */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  if (w->get_availability () == AVAIL_INTERPOSABLE)
 	    {
 	      worse_state (&pure_const_state, &looping,
@@ -1354,11 +1360,15 @@ propagate_pure_const (void)
 
 	  /* And finally all loads and stores.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  for (i = 0; w->iterate_reference (i, ref); i++)
 =======
 	  for (i = 0; w->iterate_reference (i, ref)
 	       && pure_const_state != IPA_NEITHER; i++)
 >>>>>>> gcc-mirror/master
+=======
+	  for (i = 0; w->iterate_reference (i, ref); i++)
+>>>>>>> master
 	    {
 	      enum pure_const_state_e ref_state = IPA_CONST;
 	      bool ref_looping = false;
@@ -1558,6 +1568,7 @@ propagate_nothrow (void)
 	      enum availability avail;
 	      struct cgraph_node *y = e->callee->
 				function_or_virtual_thunk_symbol (&avail);
+<<<<<<< HEAD
 
 	      if (avail > AVAIL_INTERPOSABLE)
 =======
@@ -1572,10 +1583,17 @@ propagate_nothrow (void)
 
 	      for (e = w->callees; e && !can_throw; e = e->next_callee)
 >>>>>>> gcc-mirror/master
+=======
+
+	      if (avail > AVAIL_INTERPOSABLE)
+>>>>>>> master
 		{
 		  enum availability avail;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		  if (y_l->can_throw && !TREE_NOTHROW (w->decl)
 		      && e->can_throw_external)
 		    can_throw = true;
@@ -1586,6 +1604,7 @@ propagate_nothrow (void)
           for (ie = w->indirect_calls; ie && !can_throw; ie = ie->next_callee)
 	    if (ie->can_throw_external)
 	      can_throw = true;
+<<<<<<< HEAD
 =======
 		  if (!e->can_throw_external || TREE_NOTHROW (e->callee->decl))
 		    continue;
@@ -1607,6 +1626,8 @@ propagate_nothrow (void)
 		  can_throw = true;
 	    }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  w_info = (struct ipa_dfs_info *) w->aux;
 	  w = w_info->next_cycle;
 	}
@@ -1878,6 +1899,14 @@ make_pass_local_pure_const (gcc::context *ctxt)
 namespace {
 
 const pass_data pass_data_warn_function_noreturn =
+<<<<<<< HEAD
+{
+  GIMPLE_PASS, /* type */
+  "*warn_function_noreturn", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_NONE, /* tv_id */
+  PROP_cfg, /* properties_required */
+=======
 {
   GIMPLE_PASS, /* type */
   "*warn_function_noreturn", /* name */
@@ -1930,12 +1959,62 @@ const pass_data pass_data_nothrow =
   OPTGROUP_NONE, /* optinfo_flags */
   TV_IPA_PURE_CONST, /* tv_id */
   0, /* properties_required */
+>>>>>>> master
   0, /* properties_provided */
   0, /* properties_destroyed */
   0, /* todo_flags_start */
   0, /* todo_flags_finish */
 };
 
+<<<<<<< HEAD
+class pass_warn_function_noreturn : public gimple_opt_pass
+{
+public:
+  pass_warn_function_noreturn (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_warn_function_noreturn, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return warn_suggest_attribute_noreturn; }
+  virtual unsigned int execute (function *fun)
+    {
+      if (!TREE_THIS_VOLATILE (current_function_decl)
+	  && EDGE_COUNT (EXIT_BLOCK_PTR_FOR_FN (fun)->preds) == 0)
+	warn_function_noreturn (current_function_decl);
+      return 0;
+    }
+
+}; // class pass_warn_function_noreturn
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_warn_function_noreturn (gcc::context *ctxt)
+{
+  return new pass_warn_function_noreturn (ctxt);
+}
+
+/* Simple local pass for pure const discovery reusing the analysis from
+   ipa_pure_const.   This pass is effective when executed together with
+   other optimization passes in early optimization pass queue.  */
+
+namespace {
+
+const pass_data pass_data_nothrow =
+{
+  GIMPLE_PASS, /* type */
+  "nothrow", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_IPA_PURE_CONST, /* tv_id */
+  0, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+=======
+>>>>>>> master
 class pass_nothrow : public gimple_opt_pass
 {
 public:

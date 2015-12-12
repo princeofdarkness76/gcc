@@ -1701,6 +1701,7 @@ vec<T, va_heap, vl_ptr>::using_auto_storage () const
 {
   return m_vec->m_vecpfx.m_using_auto_storage;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 }
 
@@ -1715,6 +1716,8 @@ release_vec_vec (vec<vec<T> > &vec)
 
   vec.release ();
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 #if (GCC_VERSION >= 3000)

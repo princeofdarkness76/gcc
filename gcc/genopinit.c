@@ -251,6 +251,9 @@ static void
 gen_insn (md_rtx_info *info)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   rtx insn = info->def;
   const char *name = XSTR (insn, 0);
   pattern p;

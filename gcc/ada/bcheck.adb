@@ -1088,6 +1088,7 @@ package body Bcheck is
    ----------------------------------
    -- Check_Consistent_SSO_Default --
    ----------------------------------
+<<<<<<< HEAD
 
    --  This routine checks for a consistent SSO default setting. Note that
    --  internal units are excluded from this check, since we don't in any
@@ -1254,21 +1255,113 @@ package body Bcheck is
    --  All units must have the same exception handling mechanism.
 
 >>>>>>> gcc-mirror/master
+=======
+
+   --  This routine checks for a consistent SSO default setting. Note that
+   --  internal units are excluded from this check, since we don't in any
+   --  case allow the pragma to affect types in internal units, and there
+   --  is thus no requirement to recompile the run-time with the default set.
+
+   procedure Check_Consistent_SSO_Default is
+      Default : Character;
+
+   begin
+      Default := ALIs.Table (ALIs.First).SSO_Default;
+
+      --  The default must be set from a non-internal unit
+
+      pragma Assert
+        (not Is_Internal_File_Name (ALIs.Table (ALIs.First).Sfile));
+
+      --  Check all entries match the default above from the first entry
+
+      for A1 in ALIs.First + 1 .. ALIs.Last loop
+         if not Is_Internal_File_Name (ALIs.Table (A1).Sfile)
+           and then ALIs.Table (A1).SSO_Default /= Default
+         then
+            Default := '?';
+            exit;
+         end if;
+      end loop;
+
+      --  All match, return
+
+      if Default /= '?' then
+         return;
+      end if;
+
+      --  Here we have a mismatch
+
+      Consistency_Error_Msg
+        ("files not compiled with same Default_Scalar_Storage_Order");
+
+      Write_Eol;
+      Write_Str ("files compiled with High_Order_First");
+      Write_Eol;
+
+      for A1 in ALIs.First .. ALIs.Last loop
+         if ALIs.Table (A1).SSO_Default = 'H' then
+            Write_Str ("  ");
+            Write_Name (ALIs.Table (A1).Sfile);
+            Write_Eol;
+         end if;
+      end loop;
+
+      Write_Eol;
+      Write_Str ("files compiled with Low_Order_First");
+      Write_Eol;
+
+      for A1 in ALIs.First .. ALIs.Last loop
+         if ALIs.Table (A1).SSO_Default = 'L' then
+            Write_Str ("  ");
+            Write_Name (ALIs.Table (A1).Sfile);
+            Write_Eol;
+         end if;
+      end loop;
+
+      Write_Eol;
+      Write_Str ("files compiled with no Default_Scalar_Storage_Order");
+      Write_Eol;
+
+      for A1 in ALIs.First .. ALIs.Last loop
+         if not Is_Internal_File_Name (ALIs.Table (A1).Sfile)
+           and then ALIs.Table (A1).SSO_Default = ' '
+         then
+            Write_Str ("  ");
+            Write_Name (ALIs.Table (A1).Sfile);
+            Write_Eol;
+         end if;
+      end loop;
+   end Check_Consistent_SSO_Default;
+
+   -----------------------------------------
+   -- Check_Consistent_Exception_Handling --
+   -----------------------------------------
+
+   --  All units must have the same exception handling mechanism.
+
+>>>>>>> master
    procedure Check_Consistent_Exception_Handling is
    begin
       Check_Mechanism : for A1 in ALIs.First + 1 .. ALIs.Last loop
          if (ALIs.Table (A1).Zero_Cost_Exceptions /=
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
              ALIs.Table (ALIs.First).Zero_Cost_Exceptions)
            or else
             (ALIs.Table (A1).Frontend_Exceptions /=
              ALIs.Table (ALIs.First).Frontend_Exceptions)
+<<<<<<< HEAD
 =======
               ALIs.Table (ALIs.First).Zero_Cost_Exceptions)
            or else
             (ALIs.Table (A1).Frontend_Exceptions /=
               ALIs.Table (ALIs.First).Frontend_Exceptions)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
          then
             Error_Msg_File_1 := ALIs.Table (A1).Sfile;
             Error_Msg_File_2 := ALIs.Table (ALIs.First).Sfile;

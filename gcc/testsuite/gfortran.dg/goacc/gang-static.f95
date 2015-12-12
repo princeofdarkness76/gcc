@@ -48,6 +48,7 @@ program main
   !$acc end parallel loop
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   !$acc kernels loop gang (num:5, static:*)
   do i = 1, n
@@ -62,6 +63,8 @@ program main
   !$acc end kernels loop
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   call test (a, b, 20, n)
 
 end program main
@@ -82,7 +85,10 @@ end subroutine test
 ! { dg-final { scan-tree-dump-times "gang\\(static:5\\)" 1 "omplower" } }
 ! { dg-final { scan-tree-dump-times "gang\\(static:20\\)" 1 "omplower" } }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ! { dg-final { scan-tree-dump-times "gang\\(num: 5 static:\\\*\\)" 1 "omplower" } }
 ! { dg-final { scan-tree-dump-times "gang\\(num: 30 static:20\\)" 1 "omplower" } }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

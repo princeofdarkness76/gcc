@@ -1195,10 +1195,14 @@ package body Sem_Ch9 is
       --  An entry body "freezes" the contract of the nearest enclosing package
       --  body and all other contracts encountered in the same declarative part
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  upto and excluding the entry body. This ensures that any annotations
 =======
       --  up to and excluding the entry body. This ensures that any annotations
 >>>>>>> gcc-mirror/master
+=======
+      --  upto and excluding the entry body. This ensures that any annotations
+>>>>>>> master
       --  referenced by the contract of an entry or subprogram body declared
       --  within the current protected body are available.
 
@@ -1774,10 +1778,14 @@ package body Sem_Ch9 is
       --  A protected body "freezes" the contract of the nearest enclosing
       --  package body and all other contracts encountered in the same
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  declarative part upto and excluding the protected body. This ensures
 =======
       --  declarative part up to and excluding the protected body. This ensures
 >>>>>>> gcc-mirror/master
+=======
+      --  declarative part upto and excluding the protected body. This ensures
+>>>>>>> master
       --  that any annotations referenced by the contract of an entry or
       --  subprogram body declared within the current protected body are
       --  available.
@@ -2650,6 +2658,7 @@ package body Sem_Ch9 is
          Defining_Identifier => Typ,
          Protected_Definition => Relocate_Node (Protected_Definition (N)),
          Interface_List       => Interface_List (N)));
+<<<<<<< HEAD
 
       --  Use the original defining identifier of the single protected
       --  declaration in the generated object declaration to allow for debug
@@ -2661,6 +2670,19 @@ package body Sem_Ch9 is
 
       --    Obj : Typ;
 
+=======
+
+      --  Use the original defining identifier of the single protected
+      --  declaration in the generated object declaration to allow for debug
+      --  information to be attached to it when compiling with -gnatD. The
+      --  parent of the entity is the new object declaration. The single
+      --  protected declaration is not used in semantics or code generation,
+      --  but is scanned when generating debug information, and therefore needs
+      --  the updated Sloc information from the entity (see Sprint). Generate:
+
+      --    Obj : Typ;
+
+>>>>>>> master
       Obj_Decl :=
         Make_Object_Declaration (Loc,
           Defining_Identifier => Obj_Id,
@@ -2672,6 +2694,7 @@ package body Sem_Ch9 is
       --  Relocate aspect Part_Of from the the original single protected
       --  declaration to the anonymous object declaration. This emulates the
       --  placement of an equivalent source pragma.
+<<<<<<< HEAD
 
       Move_Or_Merge_Aspects (N, To => Obj_Decl);
 
@@ -2685,6 +2708,21 @@ package body Sem_Ch9 is
       --  analysis takes places, because the name of the object may be used in
       --  its own body.
 
+=======
+
+      Move_Or_Merge_Aspects (N, To => Obj_Decl);
+
+      --  Relocate pragma Part_Of from the visible declarations of the original
+      --  single protected declaration to the anonymous object declaration. The
+      --  new placement better reflects the role of the pragma.
+
+      Relocate_Pragmas_To_Anonymous_Object (N, Obj_Decl);
+
+      --  Enter the names of the anonymous protected type and the object before
+      --  analysis takes places, because the name of the object may be used in
+      --  its own body.
+
+>>>>>>> master
       Enter_Name (Typ);
       Set_Ekind            (Typ, E_Protected_Type);
       Set_Etype            (Typ, Typ);
@@ -2751,6 +2789,7 @@ package body Sem_Ch9 is
         Make_Object_Declaration (Loc,
           Defining_Identifier => Obj_Id,
           Object_Definition   => New_Occurrence_Of (Typ, Loc));
+<<<<<<< HEAD
 
       Insert_After (N, Obj_Decl);
       Mark_Rewrite_Insertion (Obj_Decl);
@@ -2772,6 +2811,29 @@ package body Sem_Ch9 is
       --  analysis takes places, because the name of the object may be used
       --  in its own body.
 
+=======
+
+      Insert_After (N, Obj_Decl);
+      Mark_Rewrite_Insertion (Obj_Decl);
+
+      --  Relocate aspects Depends, Global and Part_Of from the original single
+      --  task declaration to the anonymous object declaration. This emulates
+      --  the placement of an equivalent source pragma.
+
+      Move_Or_Merge_Aspects (N, To => Obj_Decl);
+
+      --  Relocate pragmas Depends, Global and Part_Of from the visible
+      --  declarations of the original single protected declaration to the
+      --  anonymous object declaration. The new placement better reflects the
+      --  role of the pragmas.
+
+      Relocate_Pragmas_To_Anonymous_Object (N, Obj_Decl);
+
+      --  Enter the names of the anonymous task type and the object before
+      --  analysis takes places, because the name of the object may be used
+      --  in its own body.
+
+>>>>>>> master
       Enter_Name (Typ);
       Set_Ekind            (Typ, E_Task_Type);
       Set_Etype            (Typ, Typ);
@@ -2819,10 +2881,14 @@ package body Sem_Ch9 is
       --  A task body "freezes" the contract of the nearest enclosing package
       --  body and all other contracts encountered in the same declarative part
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  upto and excluding the task body. This ensures that annotations
 =======
       --  up to and excluding the task body. This ensures that annotations
 >>>>>>> gcc-mirror/master
+=======
+      --  upto and excluding the task body. This ensures that annotations
+>>>>>>> master
       --  referenced by the contract of an entry or subprogram body declared
       --  within the current protected body are available.
 

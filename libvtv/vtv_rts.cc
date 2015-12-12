@@ -151,6 +151,9 @@
 #include "vtv-change-permission.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 // porting: fix link error to libc
 void __fortify_fail (const char * msg){
@@ -158,6 +161,7 @@ void __fortify_fail (const char * msg){
     abort();
 }
 #else
+<<<<<<< HEAD
 =======
 #ifdef HAVE_GETEXECNAME
 const char *program_invocation_name;
@@ -165,6 +169,8 @@ const char *program_invocation_name;
 
 #ifdef HAVE___FORTIFY_FAIL
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 extern "C" {
 
   /* __fortify_fail is a function in glibc that calls __libc_message,
@@ -182,6 +188,7 @@ extern "C" {
 
 } /* extern "C" */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #else
 #if defined (__CYGWIN__) || defined (__MINGW32__)
@@ -198,6 +205,8 @@ void __fortify_fail (const char *msg) {
 }
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #endif
 
 /* The following variables are used only for debugging and performance
@@ -599,11 +608,14 @@ read_section_offset_and_length (struct dl_phdr_info *info,
      arguments passed to the program.  Find the first space, assume it
      is the start of the argument list, and change it to a '\0'. */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef HAVE_GETEXECNAME
   program_invocation_name = getexecname ();
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   /* Check to see if we already have the data for this file.  */
@@ -695,6 +707,7 @@ read_section_offset_and_length (struct dl_phdr_info *info,
                   *sect_offset = sect_hdr.sh_addr;
 		  if (!is_libvtv)
 <<<<<<< HEAD
+<<<<<<< HEAD
 		    *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
 =======
 		    {
@@ -702,6 +715,9 @@ read_section_offset_and_length (struct dl_phdr_info *info,
 		      *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
 		    }
 >>>>>>> gcc-mirror/master
+=======
+		    *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
+>>>>>>> master
 		  else
 		    *sect_len = sect_hdr.sh_size;
                   found = true;
@@ -823,10 +839,14 @@ iterate_modules (void *data)
                         {
                           snprintf (buffer, sizeof (buffer),
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     "Failed called to mprotect for %s error: ",
 =======
                                     "Failed call to mprotect for %s error: ",
 >>>>>>> gcc-mirror/master
+=======
+                                    "Failed called to mprotect for %s error: ",
+>>>>>>> master
                                     (*mprotect_flags & PROT_WRITE) ?
                                     "READ/WRITE" : "READ-ONLY");
                           log_memory_protection_data (buffer);
@@ -847,6 +867,7 @@ iterate_modules (void *data)
                     }
                   increment_num_calls (&num_calls_to_mprotect);
 <<<<<<< HEAD
+<<<<<<< HEAD
                   /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
                                             / VTV_PAGE_SIZE; */
                   num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
@@ -854,6 +875,11 @@ iterate_modules (void *data)
                   num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
 		    / VTV_PAGE_SIZE;
 >>>>>>> gcc-mirror/master
+=======
+                  /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
+                                            / VTV_PAGE_SIZE; */
+                  num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
+>>>>>>> master
                   continue;
                 }
             }
@@ -901,11 +927,14 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
      arguments passed to the program.  Find the first space, assume it
      is the start of the argument list, and change it to a '\0'. */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef HAVE_GETEXECNAME
   program_invocation_name = getexecname ();
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   read_section_offset_and_length (info, map_sect_name, *mprotect_flags,
@@ -950,10 +979,14 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
             {
               snprintf (buffer, sizeof (buffer),
 <<<<<<< HEAD
+<<<<<<< HEAD
                         "Failed called to mprotect for %s error: ",
 =======
                         "Failed call to mprotect for %s error: ",
 >>>>>>> gcc-mirror/master
+=======
+                        "Failed called to mprotect for %s error: ",
+>>>>>>> master
                         (*mprotect_flags & PROT_WRITE) ?
                         "READ/WRITE" : "READ-ONLY");
               log_memory_protection_data (buffer);
@@ -974,11 +1007,16 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
         }
       increment_num_calls (&num_calls_to_mprotect);
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE; */
       num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
 =======
       num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE;
 >>>>>>> gcc-mirror/master
+=======
+      /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE; */
+      num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
+>>>>>>> master
     }
 
   return 0;
@@ -1116,6 +1154,7 @@ __VLTChangePermission (int perm)
     {
       if (perm == __VLTP_READ_WRITE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fprintf (stdout, "Changing VLT permisisons to Read-Write.\n");
       else if (perm == __VLTP_READ_ONLY)
 	fprintf (stdout, "Changing VLT permissions to Read-only.\n");
@@ -1124,6 +1163,11 @@ __VLTChangePermission (int perm)
       else if (perm == __VLTP_READ_ONLY)
 	fprintf (stdout, "Changing VLT permissions to Read-Only.\n");
 >>>>>>> gcc-mirror/master
+=======
+	fprintf (stdout, "Changing VLT permisisons to Read-Write.\n");
+      else if (perm == __VLTP_READ_ONLY)
+	fprintf (stdout, "Changing VLT permissions to Read-only.\n");
+>>>>>>> master
 
       else
 	fprintf (stdout, "Unrecognized permissions value: %d\n", perm);

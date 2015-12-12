@@ -1159,9 +1159,12 @@ shorten_branches (rtx_insn *first)
 
 <<<<<<< HEAD
 	      if (GET_CODE (body) == ASM_INPUT
+<<<<<<< HEAD
 =======
 	      if (GET_CODE (PATTERN (inner_insn)) == ASM_INPUT
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		  || asm_noperands (PATTERN (inner_insn)) >= 0)
 		inner_length = (asm_insn_count (PATTERN (inner_insn))
 				* insn_default_length (inner_insn));
@@ -3000,11 +3003,15 @@ final_scan_insn (rtx_insn *insn, FILE *file, int optimize_p ATTRIBUTE_UNUSED,
 	  targetm.asm_out.unwind_emit (asm_out_file, insn);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (rtx_call_insn *call_insn = dyn_cast <rtx_call_insn *> (insn))
 =======
 	rtx_call_insn *call_insn = dyn_cast <rtx_call_insn *> (insn);
 	if (call_insn != NULL)
 >>>>>>> gcc-mirror/master
+=======
+	if (rtx_call_insn *call_insn = dyn_cast <rtx_call_insn *> (insn))
+>>>>>>> master
 	  {
 	    rtx x = call_from_call_insn (call_insn);
 	    x = XEXP (x, 0);

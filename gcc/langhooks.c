@@ -661,6 +661,7 @@ lhd_append_data (const void *data, size_t len, void *)
   if (data)
 <<<<<<< HEAD
     assemble_string ((const char *)data, len);
+<<<<<<< HEAD
 =======
     {
       timevar_push (TV_IPA_LTO_OUTPUT);
@@ -668,6 +669,8 @@ lhd_append_data (const void *data, size_t len, void *)
       timevar_pop (TV_IPA_LTO_OUTPUT);
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 

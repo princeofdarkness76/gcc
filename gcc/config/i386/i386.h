@@ -1458,10 +1458,14 @@ enum reg_class
        { 0x0,       0x0, 0x1fc0 },       /* MASK_EVEX_REGS */           \
        { 0x0,       0x0, 0x1fe0 },       /* MASK_REGS */                 \
 <<<<<<< HEAD
+<<<<<<< HEAD
 { 0xffffffff,0xffffffff, 0x1fff }                                        \
 =======
 { 0xffffffff,0xffffffff,0x1ffff }                                        \
 >>>>>>> gcc-mirror/master
+=======
+{ 0xffffffff,0xffffffff, 0x1fff }                                        \
+>>>>>>> master
 }
 
 /* The same information, inverted:

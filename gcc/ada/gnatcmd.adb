@@ -59,14 +59,20 @@ with GNAT.OS_Lib; use GNAT.OS_Lib;
 procedure GNATCmd is
    Gprbuild : constant String := "gprbuild";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
    Gnatmake : constant String := "gnatmake";
 
    Gprclean  : constant String := "gprclean";
    Gnatclean : constant String := "gnatclean";
+<<<<<<< HEAD
 =======
    Gprclean : constant String := "gprclean";
    Gprname  : constant String := "gprname";
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
    Normal_Exit : exception;
    --  Raise this exception for normal program termination
@@ -1190,6 +1196,7 @@ begin
          --  gprbuild/gprclean is available; if it is, use gprbuild/gprclean
          --  instead of gnatmake/gnatclean.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
          if Program.all = Gnatmake or else Program.all = Gnatclean then
 =======
@@ -1201,6 +1208,10 @@ begin
             or else The_Command = Name
          then
 >>>>>>> gcc-mirror/master
+=======
+
+         if Program.all = Gnatmake or else Program.all = Gnatclean then
+>>>>>>> master
             declare
                Project_File_Used : Boolean := False;
                Switch            : String_Access;
@@ -1218,6 +1229,9 @@ begin
 
                if Project_File_Used then
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                   if Program.all = Gnatmake
                     and then Locate_Exec_On_Path (Gprbuild) /= null
                   then
@@ -1226,6 +1240,7 @@ begin
                     and then Locate_Exec_On_Path (Gprclean) /= null
                   then
                      Program := new String'(Gprclean);
+<<<<<<< HEAD
 =======
                   case The_Command is
                      when Make | Compile =>
@@ -1259,6 +1274,8 @@ begin
                              ("--target=" & Name_Buffer (1 .. Name_Len - 5)));
                      end if;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
                   end if;
                end if;
             end;

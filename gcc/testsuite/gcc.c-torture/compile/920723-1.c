@@ -1,7 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-skip-if "ptxas seg faults" { nvptx-*-* } { "-O2" } { "" } } */
 =======
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-skip-if "ptxas seg faults" { nvptx-*-* } { "-O2" } { "" } } */
+>>>>>>> master
 
 #if defined(STACK_SIZE) && STACK_SIZE < 65536
 # define GITT_SIZE 75

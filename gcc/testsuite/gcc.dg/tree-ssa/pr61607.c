@@ -1,9 +1,13 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-Os -fno-tree-fre -fdump-tree-dom1" } */
 =======
 /* { dg-options "-Os -fno-tree-fre -fdump-tree-dom2" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-Os -fno-tree-fre -fdump-tree-dom1" } */
+>>>>>>> master
 
 void foo(int *);
 void f2(int dst[3], int R)
@@ -28,9 +32,13 @@ void f2(int dst[3], int R)
    and one for the test after the loop.  Previously we failed to eliminate
    the second conditional after the loop.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if" 2 "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-times "if" 2 "dom2"} } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "if" 2 "dom1"} } */
+>>>>>>> master
 
 

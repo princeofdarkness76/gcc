@@ -137,6 +137,7 @@ common /blk/ i1
 
 end subroutine
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ! { dg-error "Array 'ia2' is not permitted in reduction" "" { target "*-*-*" } 27 }
@@ -162,3 +163,5 @@ end subroutine
 ! { dg-error "Array 'la1' is not permitted in reduction" "" { target "*-*-*" } 129 }
 ! { dg-error "Array 'ta1' is not permitted in reduction" "" { target "*-*-*" } 135 }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

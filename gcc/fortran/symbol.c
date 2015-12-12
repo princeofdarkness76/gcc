@@ -466,10 +466,14 @@ check_conflict (symbol_attribute *attr, const char *name, locus *where)
   if (attr->dummy && ((attr->function || attr->subroutine) && 
 			gfc_current_state () == COMP_CONTAINS))
 <<<<<<< HEAD
+<<<<<<< HEAD
     gfc_error_now ("internal procedure '%s' at %L conflicts with "
 =======
     gfc_error_now ("internal procedure %qs at %L conflicts with "
 >>>>>>> gcc-mirror/master
+=======
+    gfc_error_now ("internal procedure '%s' at %L conflicts with "
+>>>>>>> master
 		   "DUMMY argument", name, where);
 
   conf (dummy, entry);

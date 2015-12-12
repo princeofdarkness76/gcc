@@ -129,6 +129,7 @@
    (VUNSPEC_NOP 29) ; volatile NOP
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
    (UNSPEC_ARC_MEMBAR 30)
    (VUNSPEC_ARC_CAS 31)
@@ -137,6 +138,8 @@
    (VUNSPEC_ARC_EX 34)
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
    (R0_REG 0)
    (R1_REG 1)
    (R2_REG 2)
@@ -5541,8 +5544,11 @@
 
 (include "simdext.md")
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ;; include atomic extensions
 (include "atomic.md")
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

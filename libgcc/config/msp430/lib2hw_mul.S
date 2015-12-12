@@ -21,12 +21,16 @@
 ; <http://www.gnu.org/licenses/>.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 .macro start_func name
 	.pushsection .text.\name,"ax",@progbits
 	.p2align 1
 	.global \name
 	.type \name , @function
 \name:
+<<<<<<< HEAD
 =======
 	;;  Macro to start a multiply function.  Each function has three
 	;; names, and hence three entry points - although they all go
@@ -58,16 +62,21 @@
 	.type \gcc_name , @function
 \gcc_name:
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	PUSH.W	sr			; Save current interrupt state
 	DINT				; Disable interrupts
 	NOP				; Account for latency
 .endm
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 	;; End a function started with the start_func macro.
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 .macro end_func name
 #ifdef __MSP430X_LARGE__
 	POP.W  sr
@@ -79,6 +88,7 @@
 	.popsection
 .endm
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -105,6 +115,8 @@
 
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 .macro mult16 OP1, OP2, RESULT
 ;* * 16-bit hardware multiply:  int16 = int16 * int16
 ;*  
@@ -224,6 +236,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;;  First generation MSP430 hardware multiplies ....
 =======
 ;; EABI mandated names:
@@ -287,6 +300,9 @@
 
 
 >>>>>>> gcc-mirror/master
+=======
+;;  First generation MSP430 hardware multiplies ....
+>>>>>>> master
 
 .set MPY_OP1,   0x0130
 .set MPY_OP1_S, 0x0132
@@ -296,6 +312,9 @@
 .set RESULT_LO, 0x013A
 .set RESULT_HI, 0x013C
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	
 	start_func __mulhi2
 	mult16 MPY_OP1, MPY_OP2, RESULT_LO
@@ -351,6 +370,7 @@
 	start_func __umuldisi2_f5
 	mult3264_hw 0x04D0, 0x04D2, 0x04E0, 0x04E2, 0x04E4, 0x04E6, 0x04E8, 0x04EA
 	end_func __umuldisi2_f5
+<<<<<<< HEAD
 =======
 
 #if defined MUL_16
@@ -444,3 +464,5 @@
 #error MUL type not defined
 #endif
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

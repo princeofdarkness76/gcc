@@ -431,11 +431,16 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 		       vec<gimple *> stmts, unsigned int group_size,
 		       unsigned nops, unsigned int *max_nunits,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       unsigned int vectorization_factor, bool *matches,
 		       bool *two_operators)
 =======
 		       bool *matches, bool *two_operators)
 >>>>>>> gcc-mirror/master
+=======
+		       unsigned int vectorization_factor, bool *matches,
+		       bool *two_operators)
+>>>>>>> master
 {
   unsigned int i;
   gimple *first_stmt = stmts[0], *stmt = stmts[0];
@@ -709,6 +714,9 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 	    {
 	      /* Load.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
               /* Check that the size of interleaved loads group is not
                  greater than the SLP group size.  */
 	      unsigned ncopies
@@ -734,8 +742,11 @@ vect_build_slp_tree_1 (vec_info *vinfo,
                   return false;
                 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
               first_load = GROUP_FIRST_ELEMENT (vinfo_for_stmt (stmt));
               if (prev_first_load)
                 {
@@ -884,8 +895,11 @@ vect_build_slp_tree (vec_info *vinfo,
                      vec<slp_tree> *loads,
 <<<<<<< HEAD
                      unsigned int vectorization_factor,
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		     bool *matches, unsigned *npermutes, unsigned *tree_size,
 		     unsigned max_tree_size)
 {
@@ -910,11 +924,16 @@ vect_build_slp_tree (vec_info *vinfo,
   if (!vect_build_slp_tree_1 (vinfo,
 			      SLP_TREE_SCALAR_STMTS (*node), group_size, nops,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      max_nunits, vectorization_factor, matches,
 			      &two_operators))
 =======
 			      max_nunits, matches, &two_operators))
 >>>>>>> gcc-mirror/master
+=======
+			      max_nunits, vectorization_factor, matches,
+			      &two_operators))
+>>>>>>> master
     return false;
   SLP_TREE_TWO_OPERATORS (*node) = two_operators;
 
@@ -978,11 +997,16 @@ vect_build_slp_tree (vec_info *vinfo,
 
       if (vect_build_slp_tree (vinfo, &child,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			       group_size, max_nunits, loads,
 			       vectorization_factor, matches,
 =======
 			       group_size, max_nunits, loads, matches,
 >>>>>>> gcc-mirror/master
+=======
+			       group_size, max_nunits, loads,
+			       vectorization_factor, matches,
+>>>>>>> master
 			       npermutes, &this_tree_size, max_tree_size))
 	{
 	  /* If we have all children of child built up from scalars then just
@@ -1100,6 +1124,7 @@ vect_build_slp_tree (vec_info *vinfo,
 				   vectorization_factor,
 				   tem, npermutes, &this_tree_size,
 				   max_tree_size))
+<<<<<<< HEAD
 	    {
 =======
 				   tem, npermutes, &this_tree_size,
@@ -1135,6 +1160,9 @@ vect_build_slp_tree (vec_info *vinfo,
 		}
 
 >>>>>>> gcc-mirror/master
+=======
+	    {
+>>>>>>> master
 	      /* ... so if successful we can apply the operand swapping
 		 to the GIMPLE IL.  This is necessary because for example
 		 vect_get_slp_defs uses operand indexes and thus expects
@@ -1300,10 +1328,13 @@ vect_attempt_slp_rearrange_stmts (slp_instance slp_instn)
   FOR_EACH_VEC_ELT (node->load_permutation, i, lidx)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (lidx >= group_size)
 	return false;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       if (bitmap_bit_p (load_index, lidx))
 	{
 	  sbitmap_free (load_index);
@@ -1690,9 +1721,13 @@ vect_analyze_slp_instance (vec_info *vinfo,
   tree vectype, scalar_type = NULL_TREE;
   gimple *next;
 <<<<<<< HEAD
+<<<<<<< HEAD
   unsigned int vectorization_factor = 0;
 =======
 >>>>>>> gcc-mirror/master
+=======
+  unsigned int vectorization_factor = 0;
+>>>>>>> master
   unsigned int i;
   unsigned int max_nunits = 0;
   vec<slp_tree> loads;
@@ -1735,6 +1770,9 @@ vect_analyze_slp_instance (vec_info *vinfo,
     }
   nunits = TYPE_VECTOR_SUBPARTS (vectype);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   if (is_a <loop_vec_info> (vinfo))
     vectorization_factor = as_a <loop_vec_info> (vinfo)->vectorization_factor;
   else
@@ -1794,11 +1832,16 @@ vect_analyze_slp_instance (vec_info *vinfo,
   if (vect_build_slp_tree (vinfo, &node, group_size,
 			   &max_nunits, &loads,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   vectorization_factor, matches, &npermutes, NULL,
 			   max_tree_size))
 =======
 			   matches, &npermutes, NULL, max_tree_size))
 >>>>>>> gcc-mirror/master
+=======
+			   vectorization_factor, matches, &npermutes, NULL,
+			   max_tree_size))
+>>>>>>> master
     {
       /* Calculate the unrolling factor based on the smallest type.  */
       if (max_nunits > nunits)
@@ -1895,10 +1938,14 @@ vect_analyze_slp_instance (vec_info *vinfo,
 
   /* For basic block SLP, try to break the group up into multiples of the
 <<<<<<< HEAD
+<<<<<<< HEAD
      vectorization factor.  */
 =======
      vector size.  */
 >>>>>>> gcc-mirror/master
+=======
+     vectorization factor.  */
+>>>>>>> master
   if (is_a <bb_vec_info> (vinfo)
       && GROUP_FIRST_ELEMENT (vinfo_for_stmt (stmt))
       && STMT_VINFO_GROUPED_ACCESS (vinfo_for_stmt (stmt)))
@@ -1909,11 +1956,15 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	if (!matches[i]) break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       if (i >= vectorization_factor && i < group_size)
 	{
 	  /* Split into two groups at the first vector boundary before i.  */
 	  gcc_assert ((vectorization_factor & (vectorization_factor - 1)) == 0);
 	  unsigned group1_size = i & ~(vectorization_factor - 1);
+<<<<<<< HEAD
 =======
       if (i >= nunits && i < group_size)
 	{
@@ -1921,6 +1972,8 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	  gcc_assert ((nunits & (nunits - 1)) == 0);
 	  unsigned group1_size = i & ~(nunits - 1);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 	  gimple *rest = vect_split_slp_store_group (stmt, group1_size);
 	  bool res = vect_analyze_slp_instance (vinfo, stmt, max_tree_size);
@@ -1928,6 +1981,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	     skip the rest of that vector.  */
 	  if (group1_size < i)
 	    {
+<<<<<<< HEAD
 <<<<<<< HEAD
 	      i = group1_size + vectorization_factor;
 	      if (i < group_size)
@@ -1937,6 +1991,11 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	      if (i < group_size)
 		rest = vect_split_slp_store_group (rest, nunits);
 >>>>>>> gcc-mirror/master
+=======
+	      i = group1_size + vectorization_factor;
+	      if (i < group_size)
+		rest = vect_split_slp_store_group (rest, vectorization_factor);
+>>>>>>> master
 	    }
 	  if (i < group_size)
 	    res |= vect_analyze_slp_instance (vinfo, rest, max_tree_size);
@@ -1980,6 +2039,7 @@ vect_analyze_slp (vec_info *vinfo, unsigned max_tree_size)
 	      else
 		return false;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  /* Don't try to vectorize SLP reductions if reduction chain was
 	     detected.  */
@@ -1994,6 +2054,8 @@ vect_analyze_slp (vec_info *vinfo, unsigned max_tree_size)
     }
 
 =======
+=======
+>>>>>>> master
 
 	  /* Don't try to vectorize SLP reductions if reduction chain was
 	     detected.  */
@@ -2176,6 +2238,7 @@ vect_detect_hybrid_slp (loop_vec_info loop_vinfo)
   if (dump_enabled_p ())
     dump_printf_loc (MSG_NOTE, vect_location, "=== vect_detect_hybrid_slp ==="
                      "\n");
+<<<<<<< HEAD
 
   /* First walk all pattern stmt in the loop and mark defs of uses as
      hybrid because immediate uses in them are not recorded.  */
@@ -2203,6 +2266,35 @@ vect_detect_hybrid_slp (loop_vec_info loop_vinfo)
 	}
     }
 
+=======
+
+  /* First walk all pattern stmt in the loop and mark defs of uses as
+     hybrid because immediate uses in them are not recorded.  */
+  for (i = 0; i < LOOP_VINFO_LOOP (loop_vinfo)->num_nodes; ++i)
+    {
+      basic_block bb = LOOP_VINFO_BBS (loop_vinfo)[i];
+      for (gimple_stmt_iterator gsi = gsi_start_bb (bb); !gsi_end_p (gsi);
+	   gsi_next (&gsi))
+	{
+	  gimple *stmt = gsi_stmt (gsi);
+	  stmt_vec_info stmt_info = vinfo_for_stmt (stmt);
+	  if (STMT_VINFO_IN_PATTERN_P (stmt_info))
+	    {
+	      walk_stmt_info wi;
+	      memset (&wi, 0, sizeof (wi));
+	      wi.info = LOOP_VINFO_LOOP (loop_vinfo);
+	      gimple_stmt_iterator gsi2
+		= gsi_for_stmt (STMT_VINFO_RELATED_STMT (stmt_info));
+	      walk_gimple_stmt (&gsi2, vect_detect_hybrid_slp_2,
+				vect_detect_hybrid_slp_1, &wi);
+	      walk_gimple_seq (STMT_VINFO_PATTERN_DEF_SEQ (stmt_info),
+			       vect_detect_hybrid_slp_2,
+			       vect_detect_hybrid_slp_1, &wi);
+	    }
+	}
+    }
+
+>>>>>>> master
   /* Then walk the SLP instance trees marking stmts with uses in
      non-SLP stmts as hybrid, also propagating hybrid down the
      SLP tree, collecting the above info on-the-fly.  */
@@ -3326,6 +3418,9 @@ vect_create_mask_and_perm (gimple *stmt,
       SLP_TREE_VEC_STMTS (node)[stride_out * i + vect_stmts_counter]
 	= perm_stmt;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
       first_vec_indx += stride_in;
       second_vec_indx += stride_in;
@@ -3439,10 +3534,14 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
   stmt_vec_info stmt_info = vinfo_for_stmt (stmt);
   tree mask_element_type = NULL_TREE, mask_type;
 <<<<<<< HEAD
+<<<<<<< HEAD
   int i, j, k, nunits, vec_index = 0;
 =======
   int nunits, vec_index = 0;
 >>>>>>> gcc-mirror/master
+=======
+  int i, j, k, nunits, vec_index = 0;
+>>>>>>> master
   tree vectype = STMT_VINFO_VECTYPE (stmt_info);
   int group_size = SLP_INSTANCE_GROUP_SIZE (slp_node_instance);
   int unroll_factor, mask_element, ncopies;
@@ -3454,6 +3553,14 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
   bool mask_fixed = false;
   bool needs_first_vector = false;
   machine_mode mode;
+<<<<<<< HEAD
+=======
+
+  if (!STMT_VINFO_GROUPED_ACCESS (stmt_info))
+    return false;
+
+  stmt_info = vinfo_for_stmt (GROUP_FIRST_ELEMENT (stmt_info));
+>>>>>>> master
 
   if (!STMT_VINFO_GROUPED_ACCESS (stmt_info))
     return false;
@@ -3528,6 +3635,9 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
      {c2,a3,b3,c3}.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   {
       index = 0;
       vect_stmts_counter = 0;

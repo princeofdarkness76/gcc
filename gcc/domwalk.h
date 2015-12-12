@@ -31,6 +31,9 @@ class dom_walker
 {
 public:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   dom_walker (cdi_direction direction) : m_dom_direction (direction) {}
 
   /* Walk the dominator tree.  */
@@ -38,6 +41,7 @@ public:
 
   /* Function to call before the recursive walk of the dominator children.  */
   virtual void before_dom_children (basic_block) {}
+<<<<<<< HEAD
 =======
   /* Use SKIP_UNREACHBLE_BLOCKS = true when your client can discover
      that some edges are not executable.
@@ -60,6 +64,8 @@ public:
      outgoing edges should still be considered executable.  */
   virtual edge before_dom_children (basic_block) { return NULL; }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   /* Function to call after the recursive walk of the dominator children.  */
   virtual void after_dom_children (basic_block) {}
@@ -70,6 +76,7 @@ private:
      if it is set to CDI_POST_DOMINATORS, then we walk the post
      dominator tree.  */
   const ENUM_BITFIELD (cdi_direction) m_dom_direction : 2;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   bool m_skip_unreachable_blocks;
@@ -85,6 +92,8 @@ private:
   void propagate_unreachable_to_edges (basic_block, FILE *, int);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 };
 
 #endif

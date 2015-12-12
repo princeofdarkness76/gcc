@@ -545,10 +545,14 @@ package body Sem_Ch7 is
       --  A [generic] package body "freezes" the contract of the nearest
       --  enclosing package body and all other contracts encountered in the
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  same declarative part upto and excluding the package body:
 =======
       --  same declarative part up to and excluding the package body:
 >>>>>>> gcc-mirror/master
+=======
+      --  same declarative part upto and excluding the package body:
+>>>>>>> master
 
       --    package body Nearest_Enclosing_Package
       --      with Refined_State => (State => Constit)
@@ -1418,6 +1422,7 @@ package body Sem_Ch7 is
          end if;
 
          if Is_Type (E) then
+<<<<<<< HEAD
 
             --  Each private type subject to pragma Default_Initial_Condition
             --  declares a specialized procedure which verifies the assumption
@@ -1427,6 +1432,17 @@ package body Sem_Ch7 is
             if Has_Default_Init_Cond (E) then
                Build_Default_Init_Cond_Procedure_Declaration (E);
 
+=======
+
+            --  Each private type subject to pragma Default_Initial_Condition
+            --  declares a specialized procedure which verifies the assumption
+            --  of the pragma. The declaration appears in the visible part of
+            --  the package to allow for being called from the outside.
+
+            if Has_Default_Init_Cond (E) then
+               Build_Default_Init_Cond_Procedure_Declaration (E);
+
+>>>>>>> master
             --  A private extension inherits the default initial condition
             --  procedure from its parent type.
 

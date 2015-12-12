@@ -57,8 +57,11 @@ int main (int argc, char **argv)
 /* The loops in VecBug and VecBug2 require versioning for alignment.
    The loop in main is aligned.  */
 /* { dg-final { scan-tree-dump-times "vectorized 1 loops" 3 "vect" } } */
+<<<<<<< HEAD
 =======
 /* The loops in VecBug and VecBug2 require versioning for alignment.  */
 /* { dg-final { scan-tree-dump-times "vectorized 1 loops" 2 "vect" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /*  { dg-final { scan-tree-dump-times "Alignment of access forced using versioning" 2 "vect" { target { vect_no_align && { ! vect_hw_misalign } } } } } */

@@ -64,10 +64,15 @@ possible_polymorphic_call_targets (tree, HOST_WIDE_INT,
 				   bool speuclative = false);
 odr_type get_odr_type (tree, bool insert = false);
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool type_in_anonymous_namespace_p (const_tree);
 bool type_with_linkage_p (const_tree);
 =======
 >>>>>>> gcc-mirror/master
+=======
+bool type_in_anonymous_namespace_p (const_tree);
+bool type_with_linkage_p (const_tree);
+>>>>>>> master
 bool odr_type_p (const_tree);
 bool possible_polymorphic_call_target_p (tree ref, gimple *stmt, struct cgraph_node *n);
 void dump_possible_polymorphic_call_targets (FILE *, tree, HOST_WIDE_INT,
@@ -163,6 +168,7 @@ possible_polymorphic_call_target_p (struct cgraph_edge *e,
 }
 
 /* Return true if BINFO corresponds to a type with virtual methods. 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
    Every type has several BINFOs.  One is the BINFO associated by the type
@@ -273,6 +279,14 @@ odr_type_p (const_tree t)
   return false;
 }
 >>>>>>> gcc-mirror/master
+=======
+
+   Every type has several BINFOs.  One is the BINFO associated by the type
+   while other represents bases of derived types.  The BINFOs representing
+   bases do not have BINFO_VTABLE pointer set when this is the single
+   inheritance (because vtables are shared).  Look up the BINFO of type
+   and check presence of its vtable.  */
+>>>>>>> master
 
 inline bool
 polymorphic_type_binfo_p (const_tree binfo)

@@ -7816,6 +7816,7 @@ package body Exp_Util is
       else
          --  An expression which is in SPARK mode is considered side effect
          --  free if the resulting value is captured by a variable or a
+<<<<<<< HEAD
          --  constant. Same reasoning when generating C code.
          --  Why can't we apply this test in general???
 
@@ -7824,6 +7825,11 @@ package body Exp_Util is
 =======
          if (GNATprove_Mode or Generate_C_Code)
 >>>>>>> gcc-mirror/master
+=======
+         --  constant.
+
+         if GNATprove_Mode
+>>>>>>> master
            and then Nkind (Parent (Exp)) = N_Object_Declaration
          then
             goto Leave;
@@ -7867,6 +7873,7 @@ package body Exp_Util is
          --  the secondary stack. Since SPARK (and why) cannot process access
          --  types, use a different approach which ignores the secondary stack
          --  and "copies" the returned object.
+<<<<<<< HEAD
          --  When generating C code, no need for a 'reference since the
          --  secondary stack is not supported.
 
@@ -7875,6 +7882,10 @@ package body Exp_Util is
 =======
          if GNATprove_Mode or Generate_C_Code then
 >>>>>>> gcc-mirror/master
+=======
+
+         if GNATprove_Mode then
+>>>>>>> master
             Res := New_Occurrence_Of (Def_Id, Loc);
             Ref_Type := Exp_Type;
 
@@ -7913,10 +7924,14 @@ package body Exp_Util is
             --  since the access type is not created in the first place.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             if GNATprove_Mode then
 =======
             if GNATprove_Mode or Generate_C_Code then
 >>>>>>> gcc-mirror/master
+=======
+            if GNATprove_Mode then
+>>>>>>> master
                New_Exp := E;
 
             --  Otherwise generate reference, marking the value as non-null

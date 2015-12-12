@@ -55,12 +55,16 @@
 set _multiline_last_beginning_line -1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # A list of lists of strings.
 =======
 # A list of
 #   first-line-number, last-line-number, lines
 # where each "lines" is a list of strings.
 >>>>>>> gcc-mirror/master
+=======
+# A list of lists of strings.
+>>>>>>> master
 set _multiline_expected_outputs []
 
 ############################################################################
@@ -95,12 +99,16 @@ proc dg-end-multiline-output { args } {
 
     set lines [_get_lines $prog $_multiline_last_beginning_line $line]
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     set _multiline_last_beginning_line -1
 
     verbose "lines: $lines" 3
     global _multiline_expected_outputs
     lappend _multiline_expected_outputs $lines
     verbose "within dg-end-multiline-output: _multiline_expected_outputs: $_multiline_expected_outputs" 3
+<<<<<<< HEAD
 =======
 
     verbose "lines: $lines" 3
@@ -112,6 +120,8 @@ proc dg-end-multiline-output { args } {
 
     set _multiline_last_beginning_line -1
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 # Hook to be called by prune.exp's prune_gcc_output to
@@ -126,6 +136,7 @@ proc dg-end-multiline-output { args } {
 proc handle-multiline-outputs { text } {
     global _multiline_expected_outputs
 <<<<<<< HEAD
+<<<<<<< HEAD
     set index 0
     foreach multiline $_multiline_expected_outputs {
 	verbose "  multiline: $multiline" 4
@@ -139,6 +150,11 @@ proc handle-multiline-outputs { text } {
 	set multiline  [lindex $entry 2]
 	verbose "  multiline: $multiline" 3
 >>>>>>> gcc-mirror/master
+=======
+    set index 0
+    foreach multiline $_multiline_expected_outputs {
+	verbose "  multiline: $multiline" 4
+>>>>>>> master
 	set rexp [_build_multiline_regex $multiline $index]
 	verbose "rexp: ${rexp}" 4
 	# Escape newlines in $rexp so that we can print them in
@@ -147,12 +163,16 @@ proc handle-multiline-outputs { text } {
 	verbose "escaped_regex: ${escaped_regex}" 4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	# Use "regsub" to attempt to prune the pattern from $text
 	if {[regsub -line $rexp $text "" text]} {
 	    # Success; the multiline pattern was pruned.
 	    pass "expected multiline pattern $index was found: \"$escaped_regex\""
 	} else {
 	    fail "expected multiline pattern $index not found: \"$escaped_regex\""
+<<<<<<< HEAD
 =======
 	set title "$testname_with_flags expected multiline pattern lines $start_line-$end_line"
 
@@ -163,6 +183,8 @@ proc handle-multiline-outputs { text } {
 	} else {
 	    fail "$title not found: \"$escaped_regex\""
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	}
 
 	set index [expr $index + 1]

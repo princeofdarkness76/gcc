@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-11  Tsvetkova Alexandra  <aleksandra.tsvetkova@intel.com>
 
@@ -28,6 +29,8 @@
 	(__mpx_wrapper_memmove): Use move_bounds to copy bounds.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-10-15  Ilya Enkovich  <enkovich.gnu@gmail.com>
 
 	PR other/66887

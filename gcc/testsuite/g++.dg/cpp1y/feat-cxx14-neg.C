@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-do compile { target c++14 } }
 =======
 // { dg-options -std=c++14 }
 >>>>>>> gcc-mirror/master
+=======
+// { dg-do compile { target c++14 } }
+>>>>>>> master
 
 // C++17 features:
 

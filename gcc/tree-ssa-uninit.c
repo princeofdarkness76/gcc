@@ -77,6 +77,7 @@ has_undefined_value_p (tree t)
 {
   return (ssa_undefined_value_p (t)
 <<<<<<< HEAD
+<<<<<<< HEAD
           || (possibly_undefined_names
               && possibly_undefined_names->contains (t)));
 }
@@ -86,11 +87,18 @@ has_undefined_value_p (tree t)
 =======
 	  || (possibly_undefined_names
 	      && possibly_undefined_names->contains (t)));
+=======
+          || (possibly_undefined_names
+              && possibly_undefined_names->contains (t)));
+>>>>>>> master
 }
 
 
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Like has_undefined_value_p, but don't return true if TREE_NO_WARNING
    is set on SSA_NAME_VAR.  */
 
@@ -410,10 +418,13 @@ compute_control_dep_chain (basic_block bb, basic_block dep_bb,
 <<<<<<< HEAD
                            vec<edge> *cd_chains,
                            size_t *num_chains,
+<<<<<<< HEAD
 =======
 			   vec<edge> *cd_chains,
 			   size_t *num_chains,
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			   vec<edge> *cur_cd_chain,
 			   int *num_calls)
 {
@@ -556,10 +567,13 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
 <<<<<<< HEAD
                                       size_t num_chains,
                                       pred_chain_union *preds)
+<<<<<<< HEAD
 =======
 				      size_t num_chains,
 				      pred_chain_union *preds)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   bool has_valid_pred = false;
   size_t i, j;
@@ -620,6 +634,7 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
                 continue;
             }
           if (gimple_code (cond_stmt) == GIMPLE_COND)
+<<<<<<< HEAD
 =======
 	{
 	  gimple *cond_stmt;
@@ -664,6 +679,8 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
 	    }
 	  if (gimple_code (cond_stmt) == GIMPLE_COND)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    {
 	      one_pred.pred_lhs = gimple_cond_lhs (cond_stmt);
 	      one_pred.pred_rhs = gimple_cond_rhs (cond_stmt);
@@ -699,10 +716,14 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
 		}
 	      /* If more than one label reaches this block or the case
 <<<<<<< HEAD
+<<<<<<< HEAD
 	         label doesn't have a single value (like the default one)
 =======
 		 label doesn't have a single value (like the default one)
 >>>>>>> gcc-mirror/master
+=======
+	         label doesn't have a single value (like the default one)
+>>>>>>> master
 		 fail.  */
 	      if (!l
 		  || !CASE_LOW (l)
@@ -721,6 +742,9 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
 	    }
 	  else
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
             {
               has_valid_pred = false;
               break;
@@ -750,6 +774,9 @@ convert_control_dep_chain_into_preds (vec<edge> *dep_chains,
 static bool
 find_predicates (pred_chain_union *preds,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                  basic_block phi_bb,
                  basic_block use_bb)
 =======
@@ -933,6 +960,9 @@ find_def_preds (pred_chain_union *preds, gphi *phi)
 static void
 dump_predicates (gimple *usestmt, pred_chain_union preds,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                  const char* msg)
 =======
 		 const char* msg)
@@ -970,6 +1000,7 @@ dump_predicates (gimple *usestmt, pred_chain_union preds,
         fprintf (dump_file, "(.OR.)\n");
       else
         fprintf (dump_file, "\n\n");
+<<<<<<< HEAD
 =======
 	{
 	  pred_info one_pred = one_pred_chain[j];
@@ -988,6 +1019,8 @@ dump_predicates (gimple *usestmt, pred_chain_union preds,
       else
 	fprintf (dump_file, "\n\n");
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     }
 }
 
@@ -1064,6 +1097,9 @@ is_value_included_in (tree val, tree boundary, enum tree_code cmpc)
 	result = tree_int_cst_equal (val, boundary);
       else if (cmpc == LT_EXPR)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
         result = tree_int_cst_lt (val, boundary);
       else
         {
@@ -1085,6 +1121,9 @@ is_value_included_in (tree val, tree boundary, enum tree_code cmpc)
 	result = tree_int_cst_equal (val, boundary);
       else if (cmpc == LT_EXPR)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
         result = tree_int_cst_lt (val, boundary);
       else
         {
@@ -1116,6 +1155,9 @@ is_value_included_in (tree val, tree boundary, enum tree_code cmpc)
 static bool
 find_matching_predicate_in_rest_chains (pred_info pred,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                                         pred_chain_union preds,
                                         size_t num_pred_chains)
 =======
@@ -1180,11 +1222,15 @@ find_matching_predicate_in_rest_chains (pred_info pred,
 static bool
 is_use_properly_guarded (gimple *use_stmt,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                          basic_block use_bb,
                          gphi *phi,
                          unsigned uninit_opnds,
 			 pred_chain_union *def_preds,
                          hash_set<gphi *> *visited_phis);
+<<<<<<< HEAD
 =======
 			 basic_block use_bb,
 			 gphi *phi,
@@ -1192,6 +1238,8 @@ is_use_properly_guarded (gimple *use_stmt,
 			 pred_chain_union *def_preds,
 			 hash_set<gphi *> *visited_phis);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Returns true if all uninitialized opnds are pruned. Returns false
    otherwise. PHI is the phi node with uninitialized operands,
@@ -1315,6 +1363,7 @@ prune_uninit_phi_opnds_in_unrealizable_paths (gphi *phi,
               gcc_assert (!MASK_EMPTY (uninit_opnds2));
               opnd_edge = gimple_phi_arg_edge (phi, i);
               ok = is_use_properly_guarded (phi,
+<<<<<<< HEAD
 =======
 	{
 	  gphi *flag_arg_def, *phi_arg_def;
@@ -1384,6 +1433,8 @@ prune_uninit_phi_opnds_in_unrealizable_paths (gphi *phi,
 	      opnd_edge = gimple_phi_arg_edge (phi, i);
 	      ok = is_use_properly_guarded (phi,
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 					    opnd_edge->src,
 					    opnd_def_phi,
 					    uninit_opnds2,
@@ -1393,6 +1444,9 @@ prune_uninit_phi_opnds_in_unrealizable_paths (gphi *phi,
 	      if (!ok)
 		return false;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
             }
           else
             return false;
@@ -1485,10 +1539,14 @@ prune_uninit_phi_opnds_in_unrealizable_paths (gphi *phi,
 static bool
 use_pred_not_overlap_with_undef_path_pred (pred_chain_union preds,
 <<<<<<< HEAD
+<<<<<<< HEAD
 				           gphi *phi, unsigned uninit_opnds,
 =======
 					   gphi *phi, unsigned uninit_opnds,
 >>>>>>> gcc-mirror/master
+=======
+				           gphi *phi, unsigned uninit_opnds,
+>>>>>>> master
 					   hash_set<gphi *> *visited_phis)
 {
   unsigned int i, n;
@@ -1596,6 +1654,7 @@ use_pred_not_overlap_with_undef_path_pred (pred_chain_union preds,
 
 static inline bool
 pred_equal_p (pred_info x1, pred_info x2)
+<<<<<<< HEAD
 {
   enum tree_code c1, c2;
   if (!operand_equal_p (x1.pred_lhs, x2.pred_lhs, 0)
@@ -3070,6 +3129,866 @@ normalize_one_pred_1 (pred_chain_union *norm_preds,
 static void
 normalize_one_pred (pred_chain_union *norm_preds,
                     pred_info pred)
+=======
+{
+  enum tree_code c1, c2;
+  if (!operand_equal_p (x1.pred_lhs, x2.pred_lhs, 0)
+      || !operand_equal_p (x1.pred_rhs, x2.pred_rhs, 0))
+    return false;
+
+  c1 = x1.cond_code;
+  if (x1.invert != x2.invert
+      && TREE_CODE_CLASS (x2.cond_code) == tcc_comparison)
+    c2 = invert_tree_comparison (x2.cond_code, false);
+  else
+    c2 = x2.cond_code;
+
+  return c1 == c2;
+}
+
+/* Returns true if the predication is testing !=.  */
+
+static inline bool
+is_neq_relop_p (pred_info pred)
+{
+
+  return (pred.cond_code == NE_EXPR && !pred.invert) 
+          || (pred.cond_code == EQ_EXPR && pred.invert);
+}
+
+/* Returns true if pred is of the form X != 0.  */
+
+static inline bool 
+is_neq_zero_form_p (pred_info pred)
+{
+  if (!is_neq_relop_p (pred) || !integer_zerop (pred.pred_rhs)
+      || TREE_CODE (pred.pred_lhs) != SSA_NAME)
+    return false;
+  return true;
+}
+
+/* The helper function returns true if two predicates X1
+   is equivalent to X2 != 0.  */
+
+static inline bool
+pred_expr_equal_p (pred_info x1, tree x2)
+{
+  if (!is_neq_zero_form_p (x1))
+    return false;
+
+  return operand_equal_p (x1.pred_lhs, x2, 0);
+}
+
+/* Returns true of the domain of single predicate expression
+   EXPR1 is a subset of that of EXPR2. Returns false if it
+   can not be proved.  */
+
+static bool
+is_pred_expr_subset_of (pred_info expr1, pred_info expr2)
+{
+  enum tree_code code1, code2;
+
+  if (pred_equal_p (expr1, expr2))
+    return true;
+
+  if ((TREE_CODE (expr1.pred_rhs) != INTEGER_CST)
+      || (TREE_CODE (expr2.pred_rhs) != INTEGER_CST))
+    return false;
+
+  if (!operand_equal_p (expr1.pred_lhs, expr2.pred_lhs, 0))
+    return false;
+
+  code1 = expr1.cond_code;
+  if (expr1.invert)
+    code1 = invert_tree_comparison (code1, false);
+  code2 = expr2.cond_code;
+  if (expr2.invert)
+    code2 = invert_tree_comparison (code2, false);
+
+  if ((code1 == EQ_EXPR || code1 == BIT_AND_EXPR)
+      && code2 == BIT_AND_EXPR)
+    return wi::eq_p (expr1.pred_rhs,
+		     wi::bit_and (expr1.pred_rhs, expr2.pred_rhs));
+
+  if (code1 != code2 && code2 != NE_EXPR)
+    return false;
+
+  if (is_value_included_in (expr1.pred_rhs, expr2.pred_rhs, code2))
+    return true;
+
+  return false;
+}
+
+/* Returns true if the domain of PRED1 is a subset
+   of that of PRED2. Returns false if it can not be proved so.  */
+
+static bool
+is_pred_chain_subset_of (pred_chain pred1,
+                         pred_chain pred2)
+>>>>>>> master
+{
+  vec<pred_info, va_heap, vl_ptr> work_list = vNULL;
+  enum tree_code and_or_code = ERROR_MARK;
+  pred_chain norm_chain = vNULL;
+
+  if (!is_neq_zero_form_p (pred))
+    {
+      push_pred (norm_preds, pred);
+      return;
+    }
+
+  gimple *def_stmt = SSA_NAME_DEF_STMT (pred.pred_lhs);
+  if (gimple_code (def_stmt) == GIMPLE_ASSIGN)
+    and_or_code = gimple_assign_rhs_code (def_stmt);
+  if (and_or_code != BIT_IOR_EXPR
+      && and_or_code != BIT_AND_EXPR)
+    {
+<<<<<<< HEAD
+      if (TREE_CODE_CLASS (and_or_code)
+          == tcc_comparison)
+        {
+          pred_info n_pred = get_pred_info_from_cmp (def_stmt);
+          push_pred (norm_preds, n_pred);
+        } 
+       else
+          push_pred (norm_preds, pred);
+      return;
+    }
+
+  work_list.safe_push (pred);
+  hash_set<tree> mark_set;
+=======
+      bool found = false;
+      pred_info info2 = pred2[i2];
+      for (i1 = 0; i1 < np1; i1++)
+        {
+          pred_info info1 = pred1[i1];
+          if (is_pred_expr_subset_of (info1, info2))
+            {
+              found = true;
+              break;
+            }
+        }
+      if (!found)
+        return false;
+    }
+  return true;
+}
+
+/* Returns true if the domain defined by
+   one pred chain ONE_PRED is a subset of the domain
+   of *PREDS. It returns false if ONE_PRED's domain is
+   not a subset of any of the sub-domains of PREDS
+   (corresponding to each individual chains in it), even
+   though it may be still be a subset of whole domain
+   of PREDS which is the union (ORed) of all its subdomains.
+   In other words, the result is conservative.  */
+
+static bool
+is_included_in (pred_chain one_pred, pred_chain_union preds)
+{
+  size_t i;
+  size_t n = preds.length ();
+>>>>>>> master
+
+  while (!work_list.is_empty ())
+    {
+      pred_info a_pred = work_list.pop ();
+      normalize_one_pred_1 (norm_preds, &norm_chain, a_pred,
+                            and_or_code, &work_list, &mark_set);
+    }
+  if (and_or_code == BIT_AND_EXPR)
+    norm_preds->safe_push (norm_chain);
+
+  work_list.release ();
+}
+
+<<<<<<< HEAD
+static void
+normalize_one_pred_chain (pred_chain_union *norm_preds,
+                          pred_chain one_chain)
+{
+  vec<pred_info, va_heap, vl_ptr> work_list = vNULL;
+  hash_set<tree> mark_set;
+  pred_chain norm_chain = vNULL;
+  size_t i;
+=======
+/* Compares two predicate sets PREDS1 and PREDS2 and returns
+   true if the domain defined by PREDS1 is a superset
+   of PREDS2's domain. N1 and N2 are array sizes of PREDS1 and
+   PREDS2 respectively. The implementation chooses not to build
+   generic trees (and relying on the folding capability of the
+   compiler), but instead performs brute force comparison of
+   individual predicate chains (won't be a compile time problem
+   as the chains are pretty short). When the function returns
+   false, it does not necessarily mean *PREDS1 is not a superset
+   of *PREDS2, but mean it may not be so since the analysis can
+   not prove it. In such cases, false warnings may still be
+   emitted.  */
+
+static bool
+is_superset_of (pred_chain_union preds1, pred_chain_union preds2)
+{
+  size_t i, n2;
+  pred_chain one_pred_chain = vNULL;
+
+  n2 = preds2.length ();
+>>>>>>> master
+
+  for (i = 0; i < one_chain.length (); i++)
+    {
+<<<<<<< HEAD
+      work_list.safe_push (one_chain[i]);
+      mark_set.add (one_chain[i].pred_lhs);
+    }
+
+  while (!work_list.is_empty ())
+    {
+      pred_info a_pred = work_list.pop ();
+      normalize_one_pred_1 (0, &norm_chain, a_pred,
+                            BIT_AND_EXPR, &work_list, &mark_set);
+    }
+
+  norm_preds->safe_push (norm_chain);
+  work_list.release ();
+}
+
+/* Normalize predicate chains PREDS and returns the normalized one.  */
+
+static pred_chain_union
+normalize_preds (pred_chain_union preds, gimple *use_or_def, bool is_use)
+{
+  pred_chain_union norm_preds = vNULL;
+  size_t n = preds.length ();
+  size_t i;
+
+  if (dump_file && dump_flags & TDF_DETAILS)
+    {
+      fprintf (dump_file, "[BEFORE NORMALIZATION --");
+      dump_predicates (use_or_def, preds, is_use ? "[USE]:\n" : "[DEF]:\n");
+    }
+
+  for (i = 0; i < n; i++)
+    {
+      if (preds[i].length () != 1)
+        normalize_one_pred_chain (&norm_preds, preds[i]);
+      else
+        {
+          normalize_one_pred (&norm_preds, preds[i][0]);
+          preds[i].release ();
+        }
+    }
+
+  if (dump_file)
+    {
+      fprintf (dump_file, "[AFTER NORMALIZATION -- ");
+      dump_predicates (use_or_def, norm_preds, is_use ? "[USE]:\n" : "[DEF]:\n");
+    }
+
+  destroy_predicate_vecs (&preds);
+  return norm_preds;
+=======
+      one_pred_chain = preds2[i];
+      if (!is_included_in (one_pred_chain, preds1))
+        return false;
+    }
+
+  return true;
+}
+
+/* Returns true if TC is AND or OR.  */
+
+static inline bool
+is_and_or_or_p (enum tree_code tc, tree type)
+{
+  return (tc == BIT_IOR_EXPR
+          || (tc == BIT_AND_EXPR
+              && (type == 0 || TREE_CODE (type) == BOOLEAN_TYPE)));
+}
+
+/* Returns true if X1 is the negate of X2.  */
+
+static inline bool
+pred_neg_p (pred_info x1, pred_info x2)
+{
+  enum tree_code c1, c2;
+  if (!operand_equal_p (x1.pred_lhs, x2.pred_lhs, 0)
+      || !operand_equal_p (x1.pred_rhs, x2.pred_rhs, 0))
+    return false;
+      
+  c1 = x1.cond_code;
+  if (x1.invert == x2.invert)
+    c2 = invert_tree_comparison (x2.cond_code, false);
+  else
+    c2 = x2.cond_code;
+
+  return c1 == c2;
+}
+
+/* 1) ((x IOR y) != 0) AND (x != 0) is equivalent to (x != 0);
+   2) (X AND Y) OR (!X AND Y) is equivalent to Y;
+   3) X OR (!X AND Y) is equivalent to (X OR Y);
+   4) ((x IAND y) != 0) || (x != 0 AND y != 0)) is equivalent to
+      (x != 0 AND y != 0)
+   5) (X AND Y) OR (!X AND Z) OR (!Y AND Z) is equivalent to
+      (X AND Y) OR Z 
+
+   PREDS is the predicate chains, and N is the number of chains.  */
+
+/* Helper function to implement rule 1 above.  ONE_CHAIN is
+   the AND predication to be simplified.  */
+
+static void
+simplify_pred (pred_chain *one_chain)
+{
+  size_t i, j, n;
+  bool simplified = false;
+  pred_chain s_chain = vNULL;
+
+  n = one_chain->length ();
+
+  for (i = 0; i < n; i++)
+    {
+      pred_info *a_pred = &(*one_chain)[i];
+
+      if (!a_pred->pred_lhs)
+        continue;
+      if (!is_neq_zero_form_p (*a_pred))
+        continue;
+
+      gimple *def_stmt = SSA_NAME_DEF_STMT (a_pred->pred_lhs);
+      if (gimple_code (def_stmt) != GIMPLE_ASSIGN)
+        continue;
+      if (gimple_assign_rhs_code (def_stmt) == BIT_IOR_EXPR)
+        {
+          for (j = 0; j < n; j++)
+            {
+              pred_info *b_pred = &(*one_chain)[j];
+
+              if (!b_pred->pred_lhs)
+                continue;
+              if (!is_neq_zero_form_p (*b_pred))
+                continue;
+
+              if (pred_expr_equal_p (*b_pred, gimple_assign_rhs1 (def_stmt))
+                  || pred_expr_equal_p (*b_pred, gimple_assign_rhs2 (def_stmt)))
+                 {
+                   /* Mark a_pred for removal.  */
+                   a_pred->pred_lhs = NULL;
+                   a_pred->pred_rhs = NULL;
+                   simplified = true;
+                   break;
+                 }
+            }
+        }
+    }
+
+  if (!simplified)
+     return;
+
+  for (i = 0; i < n; i++)
+    {
+      pred_info *a_pred = &(*one_chain)[i];
+      if (!a_pred->pred_lhs)
+        continue;
+      s_chain.safe_push (*a_pred);
+    }
+
+   one_chain->release ();
+   *one_chain = s_chain;
+>>>>>>> master
+}
+
+/* The helper function implements the rule 2 for the
+   OR predicate PREDS.
+
+<<<<<<< HEAD
+=======
+   2) (X AND Y) OR (!X AND Y) is equivalent to Y.  */
+
+static bool
+simplify_preds_2 (pred_chain_union *preds)
+{
+  size_t i, j, n;
+  bool simplified = false;
+  pred_chain_union s_preds = vNULL;
+
+  /* (X AND Y) OR (!X AND Y) is equivalent to Y.  
+     (X AND Y) OR (X AND !Y) is equivalent to X.  */
+
+  n = preds->length ();
+  for (i = 0; i < n; i++)
+    {
+      pred_info x, y;
+      pred_chain *a_chain = &(*preds)[i];
+
+      if (a_chain->length () != 2)
+        continue;
+
+      x = (*a_chain)[0];
+      y = (*a_chain)[1];
+
+      for (j = 0; j < n; j++)
+        {
+          pred_chain *b_chain;
+          pred_info x2, y2;
+
+          if (j == i)
+            continue;
+
+          b_chain = &(*preds)[j];
+          if (b_chain->length () != 2)
+            continue;
+
+          x2 = (*b_chain)[0];
+          y2 = (*b_chain)[1];
+
+          if (pred_equal_p (x, x2) && pred_neg_p (y, y2))
+            {
+              /* Kill a_chain.  */
+              a_chain->release ();
+              b_chain->release ();
+              b_chain->safe_push (x);
+              simplified = true;
+              break;
+            }
+          if (pred_neg_p (x, x2) && pred_equal_p (y, y2))
+            {
+              /* Kill a_chain.  */
+              a_chain->release ();
+              b_chain->release ();
+              b_chain->safe_push (y);
+              simplified = true;
+              break;
+            }
+        }
+    }
+  /* Now clean up the chain.  */
+  if (simplified)
+    {
+      for (i = 0; i < n; i++)
+        {
+          if ((*preds)[i].is_empty ())
+            continue;
+          s_preds.safe_push ((*preds)[i]);
+        }
+      preds->release ();
+      (*preds) = s_preds;
+      s_preds = vNULL;
+    }
+
+  return simplified;
+}
+
+/* The helper function implements the rule 2 for the
+   OR predicate PREDS.
+
+   3) x OR (!x AND y) is equivalent to x OR y.  */
+
+static bool
+simplify_preds_3 (pred_chain_union *preds)
+{
+  size_t i, j, n;
+  bool simplified = false;
+
+  /* Now iteratively simplify X OR (!X AND Z ..)
+       into X OR (Z ...).  */
+
+  n = preds->length ();
+  if (n < 2)
+    return false;
+
+  for (i = 0; i < n; i++)
+    {
+      pred_info x;
+      pred_chain *a_chain = &(*preds)[i];
+
+      if (a_chain->length () != 1)
+        continue;
+
+      x = (*a_chain)[0];
+
+      for (j = 0; j < n; j++)
+        {
+          pred_chain *b_chain;
+          pred_info x2;
+          size_t k;
+
+          if (j == i)
+            continue;
+
+          b_chain = &(*preds)[j];
+          if (b_chain->length () < 2)
+            continue;
+
+          for (k = 0; k < b_chain->length (); k++)
+            {
+              x2 = (*b_chain)[k];
+              if (pred_neg_p (x, x2))
+                {
+                  b_chain->unordered_remove (k);
+                  simplified = true;
+                  break;
+                }
+            }
+        }
+    }
+  return simplified;
+}
+
+/* The helper function implements the rule 4 for the
+   OR predicate PREDS.
+
+   2) ((x AND y) != 0) OR (x != 0 AND y != 0) is equivalent to
+       (x != 0 ANd y != 0).   */
+
+static bool
+simplify_preds_4 (pred_chain_union *preds)
+{
+  size_t i, j, n;
+  bool simplified = false;
+  pred_chain_union s_preds = vNULL;
+  gimple *def_stmt;
+
+  n = preds->length ();
+  for (i = 0; i < n; i++)
+    {
+      pred_info z;
+      pred_chain *a_chain = &(*preds)[i];
+
+      if (a_chain->length () != 1)
+        continue;
+
+      z = (*a_chain)[0];
+
+      if (!is_neq_zero_form_p (z))
+        continue;
+
+      def_stmt = SSA_NAME_DEF_STMT (z.pred_lhs);
+      if (gimple_code (def_stmt) != GIMPLE_ASSIGN)
+        continue;
+
+      if (gimple_assign_rhs_code (def_stmt) != BIT_AND_EXPR)
+        continue;
+
+      for (j = 0; j < n; j++)
+        {
+          pred_chain *b_chain;
+          pred_info x2, y2;
+
+          if (j == i)
+            continue;
+
+          b_chain = &(*preds)[j];
+          if (b_chain->length () != 2)
+            continue;
+
+          x2 = (*b_chain)[0];
+          y2 = (*b_chain)[1];
+          if (!is_neq_zero_form_p (x2)
+              || !is_neq_zero_form_p (y2))
+            continue;
+
+          if ((pred_expr_equal_p (x2, gimple_assign_rhs1 (def_stmt))
+               && pred_expr_equal_p (y2, gimple_assign_rhs2 (def_stmt)))
+              || (pred_expr_equal_p (x2, gimple_assign_rhs2 (def_stmt))
+                  && pred_expr_equal_p (y2, gimple_assign_rhs1 (def_stmt))))
+            {
+              /* Kill a_chain.  */
+              a_chain->release ();
+              simplified = true;
+              break;
+            }
+        }
+    }
+  /* Now clean up the chain.  */
+  if (simplified)
+    {
+      for (i = 0; i < n; i++)
+        {
+          if ((*preds)[i].is_empty ())
+            continue;
+          s_preds.safe_push ((*preds)[i]);
+        }
+
+      destroy_predicate_vecs (preds);
+      (*preds) = s_preds;
+      s_preds = vNULL;
+    }
+
+  return simplified;
+}
+
+
+/* This function simplifies predicates in PREDS.  */
+
+static void
+simplify_preds (pred_chain_union *preds, gimple *use_or_def, bool is_use)
+{
+  size_t i, n;
+  bool changed = false;
+
+  if (dump_file && dump_flags & TDF_DETAILS)
+    {
+      fprintf (dump_file, "[BEFORE SIMPLICATION -- ");
+      dump_predicates (use_or_def, *preds, is_use ? "[USE]:\n" : "[DEF]:\n");
+    }
+
+  for (i = 0; i < preds->length (); i++)
+    simplify_pred (&(*preds)[i]);
+
+  n = preds->length ();
+  if (n < 2)
+    return;
+
+  do
+    {
+      changed = false;
+      if (simplify_preds_2 (preds))
+        changed = true;
+
+      /* Now iteratively simplify X OR (!X AND Z ..)
+       into X OR (Z ...).  */
+      if (simplify_preds_3 (preds))
+        changed = true;
+
+      if (simplify_preds_4 (preds))
+        changed = true;
+
+    } while (changed);
+
+  return;
+}
+
+/* This is a helper function which attempts to normalize predicate chains
+  by following UD chains. It basically builds up a big tree of either IOR
+  operations or AND operations, and convert the IOR tree into a 
+  pred_chain_union or BIT_AND tree into a pred_chain.
+  Example:
+
+  _3 = _2 RELOP1 _1;
+  _6 = _5 RELOP2 _4;
+  _9 = _8 RELOP3 _7;
+  _10 = _3 | _6;
+  _12 = _9 | _0;
+  _t = _10 | _12;
+
+ then _t != 0 will be normalized into a pred_chain_union
+
+   (_2 RELOP1 _1) OR (_5 RELOP2 _4) OR (_8 RELOP3 _7) OR (_0 != 0)
+
+ Similarly given,
+
+  _3 = _2 RELOP1 _1;
+  _6 = _5 RELOP2 _4;
+  _9 = _8 RELOP3 _7;
+  _10 = _3 & _6;
+  _12 = _9 & _0;
+
+ then _t != 0 will be normalized into a pred_chain:
+   (_2 RELOP1 _1) AND (_5 RELOP2 _4) AND (_8 RELOP3 _7) AND (_0 != 0)
+   
+  */
+
+/* This is a helper function that stores a PRED into NORM_PREDS.  */
+
+inline static void
+push_pred (pred_chain_union *norm_preds, pred_info pred)
+{
+  pred_chain pred_chain = vNULL;
+  pred_chain.safe_push (pred);
+  norm_preds->safe_push (pred_chain);
+}
+
+/* A helper function that creates a predicate of the form
+   OP != 0 and push it WORK_LIST.  */
+
+inline static void
+push_to_worklist (tree op, vec<pred_info, va_heap, vl_ptr> *work_list,
+                  hash_set<tree> *mark_set)
+{
+  if (mark_set->contains (op))
+    return;
+  mark_set->add (op);
+
+  pred_info arg_pred;
+  arg_pred.pred_lhs = op;
+  arg_pred.pred_rhs = integer_zero_node;
+  arg_pred.cond_code = NE_EXPR;
+  arg_pred.invert = false;
+  work_list->safe_push (arg_pred);
+}
+
+/* A helper that generates a pred_info from a gimple assignment
+   CMP_ASSIGN with comparison rhs.  */
+
+static pred_info
+get_pred_info_from_cmp (gimple *cmp_assign)
+{
+  pred_info n_pred;
+  n_pred.pred_lhs = gimple_assign_rhs1 (cmp_assign);
+  n_pred.pred_rhs = gimple_assign_rhs2 (cmp_assign);
+  n_pred.cond_code = gimple_assign_rhs_code (cmp_assign);
+  n_pred.invert = false;
+  return n_pred;
+}
+
+/* Returns true if the PHI is a degenerated phi with
+   all args with the same value (relop). In that case, *PRED
+   will be updated to that value.  */
+
+static bool
+is_degenerated_phi (gimple *phi, pred_info *pred_p)
+{
+  int i, n;
+  tree op0;
+  gimple *def0;
+  pred_info pred0;
+
+  n = gimple_phi_num_args (phi);
+  op0 = gimple_phi_arg_def (phi, 0);
+
+  if (TREE_CODE (op0) != SSA_NAME)
+    return false;
+
+  def0 = SSA_NAME_DEF_STMT (op0);
+  if (gimple_code (def0) != GIMPLE_ASSIGN)
+    return false;
+  if (TREE_CODE_CLASS (gimple_assign_rhs_code (def0))
+      != tcc_comparison)
+    return false;
+  pred0 = get_pred_info_from_cmp (def0);
+
+  for (i = 1; i < n; ++i)
+    {
+      gimple *def;
+      pred_info pred;
+      tree op = gimple_phi_arg_def (phi, i);
+
+      if (TREE_CODE (op) != SSA_NAME)
+        return false;
+
+      def = SSA_NAME_DEF_STMT (op);
+      if (gimple_code (def) != GIMPLE_ASSIGN)
+        return false;
+      if (TREE_CODE_CLASS (gimple_assign_rhs_code (def))
+          != tcc_comparison)
+        return false;
+      pred = get_pred_info_from_cmp (def);
+      if (!pred_equal_p (pred, pred0))
+        return false;
+    }
+
+  *pred_p = pred0;
+  return true;
+}
+
+/* Normalize one predicate PRED  
+   1) if PRED can no longer be normlized, put it into NORM_PREDS.
+   2) otherwise if PRED is of the form x != 0, follow x's definition
+      and put normalized predicates into WORK_LIST.  */
+ 
+static void
+normalize_one_pred_1 (pred_chain_union *norm_preds, 
+                      pred_chain *norm_chain,
+                      pred_info pred,
+                      enum tree_code and_or_code,
+                      vec<pred_info, va_heap, vl_ptr> *work_list,
+		      hash_set<tree> *mark_set)
+{
+  if (!is_neq_zero_form_p (pred))
+    {
+      if (and_or_code == BIT_IOR_EXPR)
+        push_pred (norm_preds, pred);
+      else
+        norm_chain->safe_push (pred);
+      return;
+    }
+
+  gimple *def_stmt = SSA_NAME_DEF_STMT (pred.pred_lhs);
+ 
+  if (gimple_code (def_stmt) == GIMPLE_PHI
+      && is_degenerated_phi (def_stmt, &pred))
+    work_list->safe_push (pred);
+  else if (gimple_code (def_stmt) == GIMPLE_PHI
+           && and_or_code == BIT_IOR_EXPR)
+    {
+      int i, n;
+      n = gimple_phi_num_args (def_stmt);
+
+      /* If we see non zero constant, we should punt. The predicate
+       * should be one guarding the phi edge.  */
+      for (i = 0; i < n; ++i)
+        {
+          tree op = gimple_phi_arg_def (def_stmt, i);
+          if (TREE_CODE (op) == INTEGER_CST && !integer_zerop (op))
+            {
+              push_pred (norm_preds, pred);
+              return;
+            }
+        }
+
+      for (i = 0; i < n; ++i)
+        {
+          tree op = gimple_phi_arg_def (def_stmt, i);
+          if (integer_zerop (op))
+            continue;
+
+          push_to_worklist (op, work_list, mark_set);
+        }
+    }
+  else if (gimple_code (def_stmt) != GIMPLE_ASSIGN)
+    {
+      if (and_or_code == BIT_IOR_EXPR)
+	push_pred (norm_preds, pred);
+      else
+	norm_chain->safe_push (pred);
+    }
+  else if (gimple_assign_rhs_code (def_stmt) == and_or_code)
+    {
+      /* Avoid splitting up bit manipulations like x & 3 or y | 1.  */
+      if (is_gimple_min_invariant (gimple_assign_rhs2 (def_stmt)))
+	{
+	  /* But treat x & 3 as condition.  */
+	  if (and_or_code == BIT_AND_EXPR)
+	    {
+	      pred_info n_pred;
+	      n_pred.pred_lhs = gimple_assign_rhs1 (def_stmt);
+	      n_pred.pred_rhs = gimple_assign_rhs2 (def_stmt);
+	      n_pred.cond_code = and_or_code;
+	      n_pred.invert = false;
+	      norm_chain->safe_push (n_pred);
+	    }
+	}
+      else
+	{
+	  push_to_worklist (gimple_assign_rhs1 (def_stmt), work_list, mark_set);
+	  push_to_worklist (gimple_assign_rhs2 (def_stmt), work_list, mark_set);
+	}
+    }
+  else if (TREE_CODE_CLASS (gimple_assign_rhs_code (def_stmt))
+	   == tcc_comparison)
+    {
+      pred_info n_pred = get_pred_info_from_cmp (def_stmt);
+      if (and_or_code == BIT_IOR_EXPR)
+	push_pred (norm_preds, n_pred);
+      else
+	norm_chain->safe_push (n_pred);
+    }
+  else
+    {
+      if (and_or_code == BIT_IOR_EXPR)
+	push_pred (norm_preds, pred);
+      else
+	norm_chain->safe_push (pred);
+    }
+}
+
+/* Normalize PRED and store the normalized predicates into NORM_PREDS.  */
+
+static void
+normalize_one_pred (pred_chain_union *norm_preds,
+                    pred_info pred)
 {
   vec<pred_info, va_heap, vl_ptr> work_list = vNULL;
   enum tree_code and_or_code = ERROR_MARK;
@@ -3176,6 +4095,7 @@ normalize_preds (pred_chain_union preds, gimple *use_or_def, bool is_use)
 }
 
 
+>>>>>>> master
 /* Computes the predicates that guard the use and checks
    if the incoming paths that have empty (or possibly
    empty) definition can be pruned/filtered. The function returns
@@ -3183,6 +4103,7 @@ normalize_preds (pred_chain_union preds, gimple *use_or_def, bool is_use)
    USE_STMT is guarded with a predicate set not overlapping with
    predicate sets of all runtime paths that do not have a definition.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 /* Computes the predicates that guard the use and checks
@@ -3193,6 +4114,8 @@ normalize_preds (pred_chain_union preds, gimple *use_or_def, bool is_use)
    predicate sets of all runtime paths that do not have a definition.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
    Returns false if it is not or it can not be determined. USE_BB is
    the bb of the use (for phi operand use, the bb is not the bb of
    the phi stmt, but the src bb of the operand edge).
@@ -3210,11 +4133,15 @@ normalize_preds (pred_chain_union preds, gimple *use_or_def, bool is_use)
 static bool
 is_use_properly_guarded (gimple *use_stmt,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                          basic_block use_bb,
                          gphi *phi,
                          unsigned uninit_opnds,
 			 pred_chain_union *def_preds,
                          hash_set<gphi *> *visited_phis)
+<<<<<<< HEAD
 =======
 			 basic_block use_bb,
 			 gphi *phi,
@@ -3222,6 +4149,8 @@ is_use_properly_guarded (gimple *use_stmt,
 			 pred_chain_union *def_preds,
 			 hash_set<gphi *> *visited_phis)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   basic_block phi_bb;
   pred_chain_union preds = vNULL;
@@ -3272,6 +4201,7 @@ is_use_properly_guarded (gimple *use_stmt,
   simplify_preds (&preds, use_stmt, true);
   preds = normalize_preds (preds, use_stmt, true);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   is_properly_guarded = is_superset_of (*def_preds, preds);
 
@@ -3280,6 +4210,11 @@ is_use_properly_guarded (gimple *use_stmt,
   is_properly_guarded = is_superset_of (*def_preds, preds);
 
 >>>>>>> gcc-mirror/master
+=======
+
+  is_properly_guarded = is_superset_of (*def_preds, preds);
+
+>>>>>>> master
   destroy_predicate_vecs (&preds);
   return is_properly_guarded;
 }
@@ -3296,10 +4231,14 @@ is_use_properly_guarded (gimple *use_stmt,
 static gimple *
 find_uninit_use (gphi *phi, unsigned uninit_opnds,
 <<<<<<< HEAD
+<<<<<<< HEAD
                  vec<gphi *> *worklist,
 =======
 		 vec<gphi *> *worklist,
 >>>>>>> gcc-mirror/master
+=======
+                 vec<gphi *> *worklist,
+>>>>>>> master
 		 hash_set<gphi *> *added_to_worklist)
 {
   tree phi_result;
@@ -3387,10 +4326,14 @@ find_uninit_use (gphi *phi, unsigned uninit_opnds,
 static void
 warn_uninitialized_phi (gphi *phi, vec<gphi *> *worklist,
 <<<<<<< HEAD
+<<<<<<< HEAD
                         hash_set<gphi *> *added_to_worklist)
 =======
 			hash_set<gphi *> *added_to_worklist)
 >>>>>>> gcc-mirror/master
+=======
+                        hash_set<gphi *> *added_to_worklist)
+>>>>>>> master
 {
   unsigned uninit_opnds;
   gimple *uninit_use_stmt = 0;
@@ -3434,12 +4377,15 @@ warn_uninitialized_phi (gphi *phi, vec<gphi *> *worklist,
 <<<<<<< HEAD
                "%qD may be used uninitialized in this function",
                uninit_use_stmt, loc);
+<<<<<<< HEAD
 =======
 	       "%qD may be used uninitialized in this function",
 	       uninit_use_stmt, loc);
 >>>>>>> gcc-mirror/master
 
 }
+=======
+>>>>>>> master
 
 static bool
 gate_warn_uninitialized (void)
@@ -3463,7 +4409,15 @@ const pass_data pass_data_late_warn_uninitialized =
   0, /* todo_flags_finish */
 };
 
+<<<<<<< HEAD
 =======
+=======
+static bool
+gate_warn_uninitialized (void)
+{
+  return warn_uninitialized || warn_maybe_uninitialized;
+}
+>>>>>>> master
 
 namespace {
 
@@ -3480,7 +4434,10 @@ const pass_data pass_data_late_warn_uninitialized =
   0, /* todo_flags_finish */
 };
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 class pass_late_warn_uninitialized : public gimple_opt_pass
 {
 public:
@@ -3565,6 +4522,7 @@ pass_late_warn_uninitialized::execute (function *fun)
 gimple_opt_pass *
 make_pass_late_warn_uninitialized (gcc::context *ctxt)
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   return new pass_late_warn_uninitialized (ctxt);
 }
@@ -3625,6 +4583,37 @@ namespace {
 const pass_data pass_data_early_warn_uninitialized =
 {
 >>>>>>> gcc-mirror/master
+=======
+{
+  return new pass_late_warn_uninitialized (ctxt);
+}
+
+
+static unsigned int
+execute_early_warn_uninitialized (void)
+{
+  /* Currently, this pass runs always but
+     execute_late_warn_uninitialized only runs with optimization. With
+     optimization we want to warn about possible uninitialized as late
+     as possible, thus don't do it here.  However, without
+     optimization we need to warn here about "may be uninitialized".  */
+  calculate_dominance_info (CDI_POST_DOMINATORS);
+
+  warn_uninitialized_vars (/*warn_possibly_uninitialized=*/!optimize);
+
+  /* Post-dominator information can not be reliably updated. Free it
+     after the use.  */
+
+  free_dominance_info (CDI_POST_DOMINATORS);
+  return 0;
+}
+
+
+namespace {
+
+const pass_data pass_data_early_warn_uninitialized =
+{
+>>>>>>> master
   GIMPLE_PASS, /* type */
   "*early_warn_uninitialized", /* name */
   OPTGROUP_NONE, /* optinfo_flags */

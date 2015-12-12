@@ -20,6 +20,9 @@ float foobar () {
    by FRE after the loops have been unrolled by the early unrolling pass.  */
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "c\.array" "dce2" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-not "c\.array" "dce3" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

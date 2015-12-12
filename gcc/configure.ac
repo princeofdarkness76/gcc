@@ -4565,6 +4565,7 @@ pointers into PC-relative form.])
       [AC_DEFINE(HAVE_AS_GNU_ATTRIBUTE, 1,
 	  [Define if your assembler supports .gnu_attribute.])])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     gcc_GAS_CHECK_FEATURE([.machine and .machinemode support],
       gcc_cv_as_s390_machine_machinemode, [2,24,0],,
@@ -4580,6 +4581,8 @@ pointers into PC-relative form.])
       [AC_DEFINE(HAVE_AS_ARCHITECTURE_MODIFIERS, 1,
 	  [Define if your assembler supports architecture modifiers.])])
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
     ;;
 esac
 

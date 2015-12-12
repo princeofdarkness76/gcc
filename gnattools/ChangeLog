@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-12-06  Eric Botcazou  <ebotcazou@adacore.com>
 
@@ -7,6 +8,8 @@
 	(INCLUDES_FOR_SUBDIR): Use -iquote and $(ftop_srcdir).
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-06-08  John Marino  <gnugcc@marino.st>
 
 	* configure.ac (*-*-dragonfly*): New configuration.

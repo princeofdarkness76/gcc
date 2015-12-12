@@ -166,10 +166,13 @@ public:
   virtual unsigned int execute (function *);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   opt_pass * clone () { return new pass_ch (m_ctxt); }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 protected:
   /* ch_base method: */
   virtual bool process_loop_p (struct loop *loop);

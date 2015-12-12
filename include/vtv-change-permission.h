@@ -47,6 +47,7 @@ extern void __VLTChangePermission (int);
 #define VTV_PAGE_SIZE 4096
 #else 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define VTV_PAGE_SIZE 4096
 #endif
 =======
@@ -57,6 +58,10 @@ extern void __VLTChangePermission (int);
 #endif
 #endif
 >>>>>>> gcc-mirror/master
+=======
+#define VTV_PAGE_SIZE 4096
+#endif
+>>>>>>> master
 
 
 

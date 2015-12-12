@@ -858,9 +858,12 @@ gimplify_cilk_spawn (tree *spawn_p)
   append_to_statement_list (spawn_expr, spawn_p);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   free (arg_array);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return GS_OK;
 }
 

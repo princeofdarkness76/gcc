@@ -940,12 +940,16 @@ gfc_format_decoder (pretty_printer *pp,
 	   processed one of %C/%L.  */
 	int loc_num = text->get_location (0) == UNKNOWN_LOCATION ? 0 : 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	source_range range
 	  = source_range::from_location (
 	      linemap_position_for_loc_and_offset (line_table,
 						   loc->lb->location,
 						   offset));
 	text->set_range (loc_num, range, true);
+<<<<<<< HEAD
 =======
 	location_t src_loc
 	  = linemap_position_for_loc_and_offset (line_table,
@@ -953,6 +957,8 @@ gfc_format_decoder (pretty_printer *pp,
 						 offset);
 	text->set_location (loc_num, src_loc, true);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	pp_string (pp, result[loc_num]);
 	return true;
       }

@@ -712,10 +712,14 @@ static void
 gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
 			tree token, tree status, tree errmsg, tree errlen,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			bool lock_var)
 =======
 			bool lock_var, bool event_var)
 >>>>>>> gcc-mirror/master
+=======
+			bool lock_var)
+>>>>>>> master
 {
   tree tmp, pstat;
 
@@ -743,11 +747,15 @@ gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
 	     build_int_cst (integer_type_node,
 			    lock_var ? GFC_CAF_LOCK_ALLOC
 <<<<<<< HEAD
+<<<<<<< HEAD
 				     : GFC_CAF_COARRAY_ALLOC),
 =======
                             : event_var ? GFC_CAF_EVENT_ALLOC
 					: GFC_CAF_COARRAY_ALLOC),
 >>>>>>> gcc-mirror/master
+=======
+				     : GFC_CAF_COARRAY_ALLOC),
+>>>>>>> master
 	     token, pstat, errmsg, errlen);
 
   tmp = fold_build2_loc (input_location, MODIFY_EXPR,
@@ -816,6 +824,7 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 		      && expr->ts.u.derived->intmod_sym_id
 		         == ISOFORTRAN_LOCK_TYPE;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       bool event_var = expr->ts.type == BT_DERIVED
 		       && expr->ts.u.derived->from_intmod
@@ -823,6 +832,8 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 		       && expr->ts.u.derived->intmod_sym_id
 		         == ISOFORTRAN_EVENT_TYPE;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       /* In the front end, we represent the lock variable as pointer. However,
 	 the FE only passes the pointer around and leaves the actual
 	 representation to the library. Hence, we have to convert back to the
@@ -833,10 +844,14 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 
       gfc_allocate_using_lib (&alloc_block, mem, size, token, status,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      errmsg, errlen, lock_var);
 =======
 			      errmsg, errlen, lock_var, event_var);
 >>>>>>> gcc-mirror/master
+=======
+			      errmsg, errlen, lock_var);
+>>>>>>> master
 
       if (status != NULL_TREE)
 	{

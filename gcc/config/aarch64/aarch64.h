@@ -135,12 +135,18 @@ extern unsigned aarch64_architecture_version;
 /* ARMv8.1 architecture extensions.  */
 #define AARCH64_FL_LSE	      (1 << 4)  /* Has Large System Extensions.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define AARCH64_FL_PAN	      (1 << 5)  /* Has Privileged Access Never.  */
 #define AARCH64_FL_LOR	      (1 << 6)  /* Has Limited Ordering regions.  */
 #define AARCH64_FL_RDMA	      (1 << 7)  /* Has ARMv8.1 Adv.SIMD.  */
 =======
 #define AARCH64_FL_V8_1	      (1 << 5)  /* Has ARMv8.1 extensions.  */
 >>>>>>> gcc-mirror/master
+=======
+#define AARCH64_FL_PAN	      (1 << 5)  /* Has Privileged Access Never.  */
+#define AARCH64_FL_LOR	      (1 << 6)  /* Has Limited Ordering regions.  */
+#define AARCH64_FL_RDMA	      (1 << 7)  /* Has ARMv8.1 Adv.SIMD.  */
+>>>>>>> master
 
 /* Has FP and SIMD.  */
 #define AARCH64_FL_FPSIMD     (AARCH64_FL_FP | AARCH64_FL_SIMD)
@@ -152,11 +158,16 @@ extern unsigned aarch64_architecture_version;
 #define AARCH64_FL_FOR_ARCH8       (AARCH64_FL_FPSIMD)
 #define AARCH64_FL_FOR_ARCH8_1			       \
 <<<<<<< HEAD
+<<<<<<< HEAD
   (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_PAN \
    | AARCH64_FL_LOR | AARCH64_FL_RDMA)
 =======
   (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_V8_1)
 >>>>>>> gcc-mirror/master
+=======
+  (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_PAN \
+   | AARCH64_FL_LOR | AARCH64_FL_RDMA)
+>>>>>>> master
 
 /* Macros to test ISA flags.  */
 
@@ -166,9 +177,12 @@ extern unsigned aarch64_architecture_version;
 #define AARCH64_ISA_SIMD           (aarch64_isa_flags & AARCH64_FL_SIMD)
 #define AARCH64_ISA_LSE		   (aarch64_isa_flags & AARCH64_FL_LSE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define AARCH64_ISA_RDMA	   (aarch64_isa_flags & AARCH64_FL_V8_1)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Crypto is an optional extension to AdvSIMD.  */
 #define TARGET_CRYPTO (TARGET_SIMD && AARCH64_ISA_CRYPTO)
@@ -193,11 +207,14 @@ extern unsigned aarch64_architecture_version;
   ((aarch64_fix_a53_err835769 == 2)	\
   ? TARGET_FIX_ERR_A53_835769_DEFAULT : aarch64_fix_a53_err835769)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* ARMv8.1 Adv.SIMD support.  */
 #define TARGET_SIMD_RDMA (TARGET_SIMD && AARCH64_ISA_RDMA)
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* Standard register usage.  */
 
@@ -812,6 +829,7 @@ do {									     \
 
 #define MCOUNT_NAME "_mcount"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #define NO_PROFILE_COUNTERS 1
 
@@ -830,6 +848,21 @@ do {									     \
     emit_library_call (fun, LCT_NORMAL, VOIDmode, 1, lr, Pmode);	\
   }
 
+=======
+
+#define NO_PROFILE_COUNTERS 1
+
+/* Emit rtl for profiling.  Output assembler code to FILE
+   to call "_mcount" for profiling a function entry.  */
+#define PROFILE_HOOK(LABEL)						\
+  {									\
+    rtx fun, lr;							\
+    lr = get_hard_reg_initial_val (Pmode, LR_REGNUM);			\
+    fun = gen_rtx_SYMBOL_REF (Pmode, MCOUNT_NAME);			\
+    emit_library_call (fun, LCT_NORMAL, VOIDmode, 1, lr, Pmode);	\
+  }
+
+>>>>>>> master
 /* All the work done in PROFILE_HOOK, but still required.  */
 #define FUNCTION_PROFILER(STREAM, LABELNO) do { } while (0)
 
@@ -852,11 +885,14 @@ do {									     \
   __aarch64_sync_cache_range (beg, end)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define CANNOT_CHANGE_MODE_CLASS(FROM, TO, CLASS)	\
   aarch64_cannot_change_mode_class (FROM, TO, CLASS)
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define SHIFT_COUNT_TRUNCATED !TARGET_SIMD
 
 /* Choose appropriate mode for caller saves, so we do the minimum

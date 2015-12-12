@@ -19,6 +19,9 @@ void f (int n)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of r" 6 "lim1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Executing store motion of r" 6 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

@@ -14,6 +14,9 @@ void bla (void)
 /* There should be a header duplicated.  */
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Duplicating header" 1 "ch"} } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "Duplicating header" 1 "ch2"} } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

@@ -381,10 +381,14 @@
                                 cortexa9,cortexa12,cortexa15,cortexa17,\
                                 cortexa53,cortexa57,cortexm4,cortexm7,\
 <<<<<<< HEAD
+<<<<<<< HEAD
 				marvell_pj4,xgene1")
 =======
 				exynosm1,marvell_pj4,xgene1")
 >>>>>>> gcc-mirror/master
+=======
+				marvell_pj4,xgene1")
+>>>>>>> master
 	       (eq_attr "tune_cortexr4" "yes"))
           (const_string "no")
           (const_string "yes"))))
@@ -7685,8 +7689,11 @@
    (set_attr "type" "call")]
 )
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 (define_expand "call_value"
   [(parallel [(set (match_operand       0 "" "")
 	           (call (match_operand 1 "memory_operand" "")
@@ -7768,8 +7775,11 @@
    (set_attr "type" "call")]
 )
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 ;; Allow calls to SYMBOL_REFs specially as they are not valid general addresses
 ;; The 'a' causes the operand to be treated as an address, i.e. no '#' output.
 
@@ -8195,10 +8205,14 @@
 	(unspec_volatile:SI [(match_operand:SI 1 "register_operand" "0")
 			     (match_operand:SI 2 "register_operand" "r")]
 <<<<<<< HEAD
+<<<<<<< HEAD
 			     UNSPEC_PROBE_STACK_RANGE))]
 =======
 			     VUNSPEC_PROBE_STACK_RANGE))]
 >>>>>>> gcc-mirror/master
+=======
+			     UNSPEC_PROBE_STACK_RANGE))]
+>>>>>>> master
   "TARGET_32BIT"
 {
   return output_probe_stack_range (operands[0], operands[2]);

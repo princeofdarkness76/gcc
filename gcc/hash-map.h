@@ -108,11 +108,15 @@ class GTY((user)) hash_map
 public:
   explicit hash_map (size_t n = 13, bool ggc = false,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		     bool gather_mem_stats = true CXX_MEM_STAT_INFO)
     : m_table (n, ggc, gather_mem_stats, HASH_MAP_ORIGIN PASS_MEM_STAT) {}
 
   /* Create a hash_map in ggc memory.  */
   static hash_map *create_ggc (size_t size, bool gather_mem_stats = true
+<<<<<<< HEAD
 =======
 		     bool gather_mem_stats = GATHER_STATISTICS
 		     CXX_MEM_STAT_INFO)
@@ -122,6 +126,8 @@ public:
   static hash_map *create_ggc (size_t size,
 			       bool gather_mem_stats = GATHER_STATISTICS
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 			       CXX_MEM_STAT_INFO)
     {
       hash_map *map = ggc_alloc<hash_map> ();

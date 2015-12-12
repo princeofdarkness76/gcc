@@ -402,14 +402,20 @@ struct lto_header
 struct lto_simple_header : lto_header
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   /* Size of main gimple body of function.  */
   int32_t main_size;
 };
 
 struct lto_simple_header_with_strings : lto_simple_header
 {
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Size of main gimple body of function.  */
   int32_t main_size;
 };
@@ -930,10 +936,15 @@ void cl_target_option_stream_in (struct data_in *,
 
 void cl_optimization_stream_out (struct bitpack_d *, struct cl_optimization *);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
 =======
 >>>>>>> gcc-mirror/master
+=======
+
+void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
+>>>>>>> master
 
 void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
 
@@ -942,8 +953,11 @@ void cl_optimization_stream_in (struct bitpack_d *, struct cl_optimization *);
 extern void lto_symtab_merge_decls (void);
 extern void lto_symtab_merge_symbols (void);
 extern tree lto_symtab_prevailing_decl (tree decl);
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 
 /* In lto-opts.c.  */

@@ -1,9 +1,13 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O1 -fdump-tree-dom1 -fdisable-tree-ifcombine" } */
 =======
 /* { dg-options "-O1 -fdump-tree-dom2 -fdisable-tree-ifcombine" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O1 -fdump-tree-dom1 -fdisable-tree-ifcombine" } */
+>>>>>>> master
 
 struct rtx_def;
 typedef struct rtx_def *rtx;
@@ -29,7 +33,11 @@ rgn_rank (rtx insn1, rtx insn2)
    from temporary equivalences.  The heuristics there no longer do
    the correct thing.  VRP still optimizes this testcase.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 2 "dom1" { xfail *-*-* } } } */
 =======
 /* { dg-final { scan-tree-dump-times "if " 2 "dom2" { xfail *-*-* } } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "if " 2 "dom1" { xfail *-*-* } } } */
+>>>>>>> master

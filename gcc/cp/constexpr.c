@@ -1800,12 +1800,17 @@ cxx_eval_array_reference (const constexpr_ctx *ctx, tree t,
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   i = tree_to_shwi (index);
   if (i < 0)
 =======
   if (!tree_fits_shwi_p (index)
       || (i = tree_to_shwi (index)) < 0)
 >>>>>>> gcc-mirror/master
+=======
+  i = tree_to_shwi (index);
+  if (i < 0)
+>>>>>>> master
     {
       if (!ctx->quiet)
 	error ("negative array subscript");
@@ -4136,10 +4141,14 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
   if (t == NULL_TREE)
     return true;
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (TREE_THIS_VOLATILE (t))
 =======
   if (TREE_THIS_VOLATILE (t) && !DECL_P (t))
 >>>>>>> gcc-mirror/master
+=======
+  if (TREE_THIS_VOLATILE (t))
+>>>>>>> master
     {
       if (flags & tf_error)
         error ("expression %qE has side-effects", t);
@@ -4355,10 +4364,13 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
       /* This test would be redundant, as it follows from the
 	 postfix-expression being a potential constant expression.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (type_unknown_p (t))
 	return true;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       return RECUR (TREE_OPERAND (t, 0), want_rval);
 
     case EXPR_PACK_EXPANSION:

@@ -1751,6 +1751,7 @@ build_call_n_expr (tree fndecl, int n, ...)
 /* Expand the SLOC of GNAT_NODE, if present, into tree location information
    pointed to by FILENAME, LINE and COL.  Fall back to the current location
    if GNAT_NODE is absent or has no SLOC.  */
+<<<<<<< HEAD
 
 static void
 expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
@@ -1787,6 +1788,44 @@ expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
     *col = build_int_cst (NULL_TREE, column_number);
 }
 
+=======
+
+static void
+expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
+{
+  const char *str;
+  int line_number, column_number;
+
+  if (Debug_Flag_NN || Exception_Locations_Suppressed)
+    {
+      str = "";
+      line_number = 0;
+      column_number = 0;
+    }
+  else if (Present (gnat_node) && Sloc (gnat_node) != No_Location)
+    {
+      str = Get_Name_String
+	    (Debug_Source_Name (Get_Source_File_Index (Sloc (gnat_node))));
+      line_number = Get_Logical_Line_Number (Sloc (gnat_node));
+      column_number = Get_Column_Number (Sloc (gnat_node));
+    }
+  else
+    {
+      str = lbasename (LOCATION_FILE (input_location));
+      line_number = LOCATION_LINE (input_location);
+      column_number = LOCATION_COLUMN (input_location);
+    }
+
+  const int len = strlen (str);
+  *filename = build_string (len, str);
+  TREE_TYPE (*filename) = build_array_type (unsigned_char_type_node,
+					    build_index_type (size_int (len)));
+  *line = build_int_cst (NULL_TREE, line_number);
+  if (col)
+    *col = build_int_cst (NULL_TREE, column_number);
+}
+
+>>>>>>> master
 /* Build a call to a function that raises an exception and passes file name
    and line number, if requested.  MSG says which exception function to call.
    GNAT_NODE is the node conveying the source location for which the error
@@ -1948,9 +1987,15 @@ build_simple_component_ref (tree record, tree field, bool no_fold)
 {
   tree type = TYPE_MAIN_VARIANT (TREE_TYPE (record));
   tree ref;
+<<<<<<< HEAD
 
   gcc_assert (RECORD_OR_UNION_TYPE_P (type) && COMPLETE_TYPE_P (type));
 
+=======
+
+  gcc_assert (RECORD_OR_UNION_TYPE_P (type) && COMPLETE_TYPE_P (type));
+
+>>>>>>> master
   /* Try to fold a conversion from another record or union type unless the type
      contains a placeholder as it might be needed for a later substitution.  */
   if (TREE_CODE (record) == VIEW_CONVERT_EXPR
@@ -2634,6 +2679,7 @@ gnat_stabilize_reference_1 (tree e, void *data)
    force evaluation of everything in REF.  INIT is set to the first arm of
    a COMPOUND_EXPR present in REF, if any.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 tree
 gnat_stabilize_reference (tree ref, bool force, tree *init)
@@ -2648,6 +2694,8 @@ gnat_stabilize_reference (tree ref, bool force, tree *init)
 
 tree
 =======
+=======
+>>>>>>> master
 
 tree
 gnat_stabilize_reference (tree ref, bool force, tree *init)
@@ -2661,7 +2709,10 @@ gnat_stabilize_reference (tree ref, bool force, tree *init)
    arm of a COMPOUND_EXPR present in REF, if any.  */
 
 tree
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
 {
   tree type = TREE_TYPE (ref);
@@ -2750,11 +2801,15 @@ gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
 
     case ERROR_MARK:
 <<<<<<< HEAD
+<<<<<<< HEAD
       return error_mark_node;
 =======
     case NULL_EXPR:
       return ref;
 >>>>>>> gcc-mirror/master
+=======
+      return error_mark_node;
+>>>>>>> master
 
     default:
       gcc_unreachable ();
@@ -2835,6 +2890,7 @@ done:
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Return true if EXPR is the addition or the subtraction of a constant and,
    if so, set *ADD to the addend, *CST to the constant and *MINUS_P to true
@@ -2883,6 +2939,8 @@ is_simple_additive_expression (tree expr, tree *add, tree *cst, bool *minus_p)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* If EXPR is an expression that is invariant in the current function, in the
    sense that it can be evaluated anywhere in the function and any number of
    times, return EXPR or an equivalent expression.  Otherwise return NULL.  */
@@ -2892,10 +2950,13 @@ gnat_invariant_expr (tree expr)
 {
   const tree type = TREE_TYPE (expr);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   tree add, cst;
   bool minus_p;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   expr = remove_conversions (expr, false);
 
@@ -2922,6 +2983,9 @@ gnat_invariant_expr (tree expr)
     return fold_convert (type, expr);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   /* Skip overflow checks since they don't change the invariantness.  */
   if (TREE_CODE (expr) == COND_EXPR
       && TREE_CODE (COND_EXPR_THEN (expr)) == COMPOUND_EXPR
@@ -2937,6 +3001,7 @@ gnat_invariant_expr (tree expr)
       tree op1 = TREE_OPERAND (expr, 1);
       if (op0 && TREE_CONSTANT (op1))
 	return fold_build2 (TREE_CODE (expr), type, op0, op1);
+<<<<<<< HEAD
 =======
   /* Deal with addition or subtraction of constants.  */
   if (is_simple_additive_expression (expr, &add, &cst, &minus_p))
@@ -2947,6 +3012,8 @@ gnat_invariant_expr (tree expr)
 	  fold_build2 (minus_p ? MINUS_EXPR : PLUS_EXPR, type,
 		       fold_convert (type, add), fold_convert (type, cst));
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       else
 	return NULL_TREE;
     }

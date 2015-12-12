@@ -434,10 +434,14 @@ struct layout
    compilation forcing a frame pointer to be reliable.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if (defined (__x86_64__) || defined (__linux__)) && !defined (__USING_SJLJ_EXCEPTIONS__) && !defined (__vxworks)
 =======
 #if (defined (__x86_64__) || defined (__linux__)) && !defined (__USING_SJLJ_EXCEPTIONS__)
 >>>>>>> gcc-mirror/master
+=======
+#if (defined (__x86_64__) || defined (__linux__)) && !defined (__USING_SJLJ_EXCEPTIONS__) && !defined (__vxworks)
+>>>>>>> master
 #define USE_GCC_UNWINDER
 #else
 #define USE_GENERIC_UNWINDER

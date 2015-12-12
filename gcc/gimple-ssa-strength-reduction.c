@@ -1650,19 +1650,27 @@ public:
   find_candidates_dom_walker (cdi_direction direction)
     : dom_walker (direction) {}
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
 };
 
 /* Find strength-reduction candidates in block BB.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 find_candidates_dom_walker::before_dom_children (basic_block bb)
 {
   bool speed = optimize_bb_for_speed_p (bb);
@@ -3586,6 +3594,9 @@ namespace {
 
 const pass_data pass_data_strength_reduction =
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 {
   GIMPLE_PASS, /* type */
   "slsr", /* name */
@@ -3599,6 +3610,7 @@ const pass_data pass_data_strength_reduction =
 };
 
 class pass_strength_reduction : public gimple_opt_pass
+<<<<<<< HEAD
 {
 public:
   pass_strength_reduction (gcc::context *ctxt)
@@ -3626,6 +3638,9 @@ public:
 
 class pass_strength_reduction : public gimple_opt_pass
 {
+=======
+{
+>>>>>>> master
 public:
   pass_strength_reduction (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_strength_reduction, ctxt)
@@ -3634,10 +3649,16 @@ public:
   /* opt_pass methods: */
   virtual bool gate (function *) { return flag_tree_slsr; }
   virtual unsigned int execute (function *);
+<<<<<<< HEAD
 
 }; // class pass_strength_reduction
 
 >>>>>>> gcc-mirror/master
+=======
+
+}; // class pass_strength_reduction
+
+>>>>>>> master
 unsigned
 pass_strength_reduction::execute (function *fun)
 {

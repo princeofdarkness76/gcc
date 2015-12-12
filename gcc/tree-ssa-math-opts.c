@@ -111,9 +111,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "builtins.h"
 #include "params.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "internal-fn.h"
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #include "case-cfn-macros.h"
 
 /* This structure represents one basic block that either computes a
@@ -502,6 +505,7 @@ execute_cse_reciprocals_1 (gimple_stmt_iterator *def_gsi, tree def)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Return an internal function that implements the reciprocal of CALL,
    or IFN_LAST if there is no such function that the target supports.  */
@@ -529,6 +533,8 @@ internal_fn_reciprocal (gcall *call)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* Go through all the floating-point SSA_NAMEs, and call
    execute_cse_reciprocals_1 on each of them.  */
 namespace {
@@ -619,6 +625,9 @@ pass_cse_reciprocals::execute (function *fun)
         {
 	  gimple *stmt = gsi_stmt (gsi);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  tree fndecl;
 =======
 >>>>>>> gcc-mirror/master
@@ -677,6 +686,9 @@ pass_cse_reciprocals::execute (function *fun)
 		    continue;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 		  gimple_replace_ssa_lhs (stmt1, arg1);
 		  gimple_call_set_fndecl (stmt1, fndecl);
 		  update_stmt (stmt1);
@@ -1927,6 +1939,7 @@ pass_cse_sincos::execute (function *fun)
 
 } // anon namespace
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 gimple_opt_pass *
 make_pass_cse_sincos (gcc::context *ctxt)
@@ -1936,6 +1949,9 @@ make_pass_cse_sincos (gcc::context *ctxt)
 
 =======
 
+=======
+
+>>>>>>> master
 gimple_opt_pass *
 make_pass_cse_sincos (gcc::context *ctxt)
 {
@@ -1951,6 +1967,9 @@ make_pass_cse_sincos (gcc::context *ctxt)
    FF   - target byte has an unknown value (eg. due to sign extension)
    1..size - marker value is the target byte index minus one.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
    To detect permutations on memory sources (arrays and structures), a symbolic
    number is also associated a base address (the array or structure the load is
@@ -1960,6 +1979,7 @@ make_pass_cse_sincos (gcc::context *ctxt)
    the size of the type of current expression. Note that for non memory source,
    range holds the same value as size.
 
+<<<<<<< HEAD
 =======
 
    To detect permutations on memory sources (arrays and structures), a symbolic
@@ -1971,6 +1991,8 @@ make_pass_cse_sincos (gcc::context *ctxt)
    range holds the same value as size.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
    For instance, for an array char a[], (short) a[0] | (short) a[3] would have
    a size of 2 but a range of 4 while (short) a[0] | ((short) a[0] << 1) would
    still have a size of 2 but this time a range of 1.  */
@@ -2078,6 +2100,7 @@ verify_symbolic_number_p (struct symbolic_number *n, gimple *stmt)
 
 static bool
 init_symbolic_number (struct symbolic_number *n, tree src)
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
   int size;
@@ -2304,6 +2327,8 @@ static gimple *
 find_bswap_or_nop_1 (gimple *stmt, struct symbolic_number *n, int limit)
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 {
   int size;
 
@@ -2676,6 +2701,7 @@ find_bswap_or_nop_1 (gimple *stmt, struct symbolic_number *n, int limit)
 	      || (n1.vuse && !operand_equal_p (n1.vuse, n2.vuse, 0)))
 	    return NULL;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  source_stmt
 	    = perform_symbolic_merge (source_stmt1, &n1, source_stmt2, &n2, n);
@@ -2686,6 +2712,12 @@ find_bswap_or_nop_1 (gimple *stmt, struct symbolic_number *n, int limit)
 	    = perform_symbolic_merge (source_stmt1, &n1, source_stmt2, &n2, n);
 
 >>>>>>> gcc-mirror/master
+=======
+
+	  source_stmt
+	    = perform_symbolic_merge (source_stmt1, &n1, source_stmt2, &n2, n);
+
+>>>>>>> master
 	  if (!source_stmt)
 	    return NULL;
 
@@ -2747,6 +2779,7 @@ find_bswap_or_nop (gimple *stmt, struct symbolic_number *n, bool *bswap)
   if (n->range < (int) sizeof (int64_t))
     {
       uint64_t mask;
+<<<<<<< HEAD
 
       mask = ((uint64_t) 1 << (n->range * BITS_PER_MARKER)) - 1;
       cmpxchg >>= (64 / BITS_PER_MARKER - n->range) * BITS_PER_MARKER;
@@ -2754,6 +2787,14 @@ find_bswap_or_nop (gimple *stmt, struct symbolic_number *n, bool *bswap)
     }
 <<<<<<< HEAD
 
+=======
+
+      mask = ((uint64_t) 1 << (n->range * BITS_PER_MARKER)) - 1;
+      cmpxchg >>= (64 / BITS_PER_MARKER - n->range) * BITS_PER_MARKER;
+      cmpnop &= mask;
+    }
+
+>>>>>>> master
   /* A complete byte swap should make the symbolic number to start with
      the largest digit in the highest order byte. Unchanged symbolic
      number indicates a read with same endianness as target architecture.  */
@@ -2793,6 +2834,7 @@ public:
   pass_optimize_bswap (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_optimize_bswap, ctxt)
   {}
+<<<<<<< HEAD
 
   /* opt_pass methods: */
   virtual bool gate (function *)
@@ -3058,6 +3100,17 @@ public:
 
   virtual unsigned int execute (function *);
 
+=======
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return flag_expensive_optimizations && optimize;
+    }
+
+  virtual unsigned int execute (function *);
+
+>>>>>>> master
 }; // class pass_optimize_bswap
 
 /* Perform the bswap optimization: replace the expression computed in the rhs
@@ -3264,7 +3317,10 @@ bswap_replace (gimple *cur_stmt, gimple *src_stmt, tree fndecl,
    while endian loads are converted to bswap builtin invokation or
    simple load according to the target endianness.  */
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 unsigned int
 pass_optimize_bswap::execute (function *fun)
 {
@@ -3341,12 +3397,21 @@ pass_optimize_bswap::execute (function *fun)
 	    default:
 	      continue;
 	    }
+<<<<<<< HEAD
 
 	  src_stmt = find_bswap_or_nop (cur_stmt, &n, &bswap);
 
 	  if (!src_stmt)
 	    continue;
 
+=======
+
+	  src_stmt = find_bswap_or_nop (cur_stmt, &n, &bswap);
+
+	  if (!src_stmt)
+	    continue;
+
+>>>>>>> master
 	  switch (n.range)
 	    {
 	    case 16:
@@ -3402,6 +3467,7 @@ pass_optimize_bswap::execute (function *fun)
 
 } // anon namespace
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 gimple_opt_pass *
 make_pass_optimize_bswap (gcc::context *ctxt)
@@ -3410,6 +3476,14 @@ make_pass_optimize_bswap (gcc::context *ctxt)
 }
 
 =======
+=======
+
+gimple_opt_pass *
+make_pass_optimize_bswap (gcc::context *ctxt)
+{
+  return new pass_optimize_bswap (ctxt);
+}
+>>>>>>> master
 
 gimple_opt_pass *
 make_pass_optimize_bswap (gcc::context *ctxt)

@@ -69,11 +69,14 @@ struct GTY (()) cp_token {
     tree GTY((tag ("0"))) value;
 <<<<<<< HEAD
   } GTY((desc ("(%1.type == CPP_TEMPLATE_ID) || (%1.type == CPP_NESTED_NAME_SPECIFIER)"))) u;
+<<<<<<< HEAD
 =======
   } GTY((desc ("(%1.type == CPP_TEMPLATE_ID)"
 	       "|| (%1.type == CPP_NESTED_NAME_SPECIFIER)"
 	       "|| (%1.type == CPP_DECLTYPE)"))) u;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 };
 
 
@@ -311,6 +314,7 @@ struct GTY(()) cp_parser {
 #define IN_IF_STMT             16
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define IN_CILK_P_SIMD_FOR     32
 =======
 #define IN_CILK_SIMD_FOR       32
@@ -320,6 +324,10 @@ struct GTY(()) cp_parser {
 #define IN_CILK_SIMD_FOR       32
 #define IN_CILK_SPAWN          64
 >>>>>>> gcc-mirror/master
+=======
+#define IN_CILK_SIMD_FOR       32
+#define IN_CILK_SPAWN          64
+>>>>>>> master
   unsigned char in_statement;
 
   /* TRUE if we are presently parsing the body of a switch statement.
@@ -378,6 +386,7 @@ struct GTY(()) cp_parser {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* When parsing #pragma omp declare simd, this is a vector of
      the clauses, each tree is either NULL_TREE, or OMP_CLAUSE
      with optional chain of other clauses.  If error regarding
@@ -390,6 +399,8 @@ struct GTY(()) cp_parser {
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* When parsing #pragma omp declare simd, this is a pointer to a
      data structure with everything needed for parsing the clauses.  */
   cp_omp_declare_simd_data * GTY((skip)) omp_declare_simd;
@@ -439,9 +450,12 @@ struct GTY(()) cp_parser {
 
 };
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 /* In parser.c  */
 extern void debug (cp_token &ref);

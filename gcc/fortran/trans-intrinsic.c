@@ -1212,6 +1212,7 @@ gfc_conv_intrinsic_caf_get (gfc_se *se, gfc_expr *expr, tree lhs, tree lhs_kind,
     may_require_tmp = boolean_false_node;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* It guarantees memory consistency within the same segment */
   tmp = gfc_build_string_const (strlen ("memory")+1, "memory"),
@@ -1222,6 +1223,8 @@ gfc_conv_intrinsic_caf_get (gfc_se *se, gfc_expr *expr, tree lhs, tree lhs_kind,
   gfc_add_expr_to_block (&se->pre, tmp);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   tmp = build_call_expr_loc (input_location, gfor_fndecl_caf_get, 9,
 			     token, offset, image_index, argse.expr, vec,
 			     dst_var, kind, lhs_kind, may_require_tmp);
@@ -1387,6 +1390,7 @@ conv_caf_send (gfc_code *code) {
       tree rhs_token, rhs_offset, rhs_image_index;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       /* It guarantees memory consistency within the same segment */
       tmp = gfc_build_string_const (strlen ("memory")+1, "memory"),
@@ -1397,6 +1401,8 @@ conv_caf_send (gfc_code *code) {
       gfc_add_expr_to_block (&block, tmp);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       caf_decl = gfc_get_tree_for_caf_expr (rhs_expr);
       if (TREE_CODE (TREE_TYPE (caf_decl)) == REFERENCE_TYPE)
 	caf_decl = build_fold_indirect_ref_loc (input_location, caf_decl);
@@ -1413,6 +1419,7 @@ conv_caf_send (gfc_code *code) {
   gfc_add_block_to_block (&block, &lhs_se.post);
   gfc_add_block_to_block (&block, &rhs_se.post);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* It guarantees memory consistency within the same segment */
@@ -1424,6 +1431,8 @@ conv_caf_send (gfc_code *code) {
   gfc_add_expr_to_block (&block, tmp);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return gfc_finish_block (&block);
 }
 
@@ -8729,6 +8738,9 @@ conv_co_collective (gfc_code *code)
   gfc_start_block (&block);
   gfc_init_block (&post_block);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   if (code->resolved_isym->id == GFC_ISYM_CO_REDUCE)
     {
@@ -8892,6 +8904,7 @@ conv_co_collective (gfc_code *code)
   gfc_add_expr_to_block (&block, fndecl);
   gfc_add_block_to_block (&block, &post_block);
 
+<<<<<<< HEAD
 =======
 
   if (code->resolved_isym->id == GFC_ISYM_CO_REDUCE)
@@ -9057,6 +9070,8 @@ conv_co_collective (gfc_code *code)
   gfc_add_block_to_block (&block, &post_block);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return gfc_finish_block (&block);
 }
 
@@ -9271,6 +9286,9 @@ conv_intrinsic_atomic_ref (gfc_code *code)
   built_in_function fn;
   gfc_expr *atom_expr = code->ext.actual->next->expr;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   if (atom_expr->expr_type == EXPR_FUNCTION
       && atom_expr->value.function.isym
@@ -9326,6 +9344,7 @@ conv_intrinsic_atomic_ref (gfc_code *code)
 	image_index = integer_zero_node;
 
       gfc_get_caf_token_offset (&token, &offset, caf_decl, atom, atom_expr);
+<<<<<<< HEAD
 
       /* Different type, need type conversion.  */
       if (!POINTER_TYPE_P (TREE_TYPE (value)))
@@ -9461,6 +9480,47 @@ conv_intrinsic_atomic_ref (gfc_code *code)
 }
 
 >>>>>>> gcc-mirror/master
+=======
+
+      /* Different type, need type conversion.  */
+      if (!POINTER_TYPE_P (TREE_TYPE (value)))
+	{
+	  vardecl = gfc_create_var (TREE_TYPE (TREE_TYPE (atom)), "value");
+          orig_value = value;
+          value = gfc_build_addr_expr (NULL_TREE, vardecl);
+	}
+
+      tmp = build_call_expr_loc (input_location, gfor_fndecl_caf_atomic_ref, 7,
+				 token, offset, image_index, value, stat,
+				 build_int_cst (integer_type_node,
+						(int) atom_expr->ts.type),
+				 build_int_cst (integer_type_node,
+						(int) atom_expr->ts.kind));
+      gfc_add_expr_to_block (&block, tmp);
+      if (vardecl != NULL_TREE)
+	gfc_add_modify (&block, orig_value,
+			fold_convert (TREE_TYPE (orig_value), vardecl));
+      gfc_add_block_to_block (&block, &post_block);
+      return gfc_finish_block (&block);
+    }
+
+  tmp = TREE_TYPE (TREE_TYPE (atom));
+  fn = (built_in_function) ((int) BUILT_IN_ATOMIC_LOAD_N
+			    + exact_log2 (tree_to_uhwi (TYPE_SIZE_UNIT (tmp)))
+			    + 1);
+  tmp = builtin_decl_explicit (fn);
+  tmp = build_call_expr_loc (input_location, tmp, 2, atom,
+			     build_int_cst (integer_type_node,
+					    MEMMODEL_RELAXED));
+  gfc_add_modify (&block, value, fold_convert (TREE_TYPE (value), tmp));
+
+  if (stat != NULL_TREE)
+    gfc_add_modify (&block, stat, build_int_cst (TREE_TYPE (stat), 0));
+  gfc_add_block_to_block (&block, &post_block);
+  return gfc_finish_block (&block);
+}
+
+>>>>>>> master
 
 static tree
 conv_intrinsic_atomic_cas (gfc_code *code)

@@ -3,15 +3,20 @@
 /* { dg-do compile } */
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-excess-errors "" { xfail arm*-*-* } } */
+>>>>>>> master
 /* { dg-skip-if "" { arm*-*-* } } */
 
 uint8x16x3_t
 f_vld3q_lane_u8 (uint8_t * p, uint8x16x3_t v)
 {
   uint8x16x3_t res;
+<<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 16 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
   res = vld3q_lane_u8 (p, v, 16);
@@ -21,6 +26,11 @@ f_vld3q_lane_u8 (uint8_t * p, uint8x16x3_t v)
   res = vld3q_lane_u8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/master
+=======
+  /* { dg-error "lane 16 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
+  res = vld3q_lane_u8 (p, v, 16);
+  /* { dg-error "lane -1 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
+>>>>>>> master
   res = vld3q_lane_u8 (p, v, -1);
   return res;
 }

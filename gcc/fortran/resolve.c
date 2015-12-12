@@ -8741,6 +8741,9 @@ resolve_lock_unlock_event (gfc_code *code)
     remove_caf_get_intrinsic (code->expr1);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   if (code->expr1->ts.type != BT_DERIVED
       || code->expr1->expr_type != EXPR_VARIABLE
       || code->expr1->ts.u.derived->from_intmod != INTMOD_ISO_FORTRAN_ENV
@@ -8810,9 +8813,12 @@ resolve_lock_unlock_event (gfc_code *code)
 
 <<<<<<< HEAD
   if (code->expr4
+<<<<<<< HEAD
 =======
   if (code->op != EXEC_EVENT_WAIT && code->expr4
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       && !gfc_check_vardef_context (code->expr4, false, false, false,
 				    _("ACQUIRED_LOCK variable")))
     return;
@@ -8827,6 +8833,56 @@ resolve_lock_unlock_event (gfc_code *code)
 
 static void
 resolve_critical (gfc_code *code)
+<<<<<<< HEAD
+=======
+{
+  gfc_symtree *symtree;
+  gfc_symbol *lock_type;
+  char name[GFC_MAX_SYMBOL_LEN];
+  static int serial = 0;
+
+  if (flag_coarray != GFC_FCOARRAY_LIB)
+    return;
+
+  symtree = gfc_find_symtree (gfc_current_ns->sym_root,
+			      GFC_PREFIX ("lock_type"));
+  if (symtree)
+    lock_type = symtree->n.sym;
+  else
+    {
+      if (gfc_get_sym_tree (GFC_PREFIX ("lock_type"), gfc_current_ns, &symtree,
+			    false) != 0)
+	gcc_unreachable ();
+      lock_type = symtree->n.sym;
+      lock_type->attr.flavor = FL_DERIVED;
+      lock_type->attr.zero_comp = 1;
+      lock_type->from_intmod = INTMOD_ISO_FORTRAN_ENV;
+      lock_type->intmod_sym_id = ISOFORTRAN_LOCK_TYPE;
+    }
+
+  sprintf(name, GFC_PREFIX ("lock_var") "%d",serial++);
+  if (gfc_get_sym_tree (name, gfc_current_ns, &symtree, false) != 0)
+    gcc_unreachable ();
+
+  code->resolved_sym = symtree->n.sym;
+  symtree->n.sym->attr.flavor = FL_VARIABLE;
+  symtree->n.sym->attr.referenced = 1;
+  symtree->n.sym->attr.artificial = 1;
+  symtree->n.sym->attr.codimension = 1;
+  symtree->n.sym->ts.type = BT_DERIVED;
+  symtree->n.sym->ts.u.derived = lock_type;
+  symtree->n.sym->as = gfc_get_array_spec ();
+  symtree->n.sym->as->corank = 1;
+  symtree->n.sym->as->type = AS_EXPLICIT;
+  symtree->n.sym->as->cotype = AS_EXPLICIT;
+  symtree->n.sym->as->lower[0] = gfc_get_int_expr (gfc_default_integer_kind,
+						   NULL, 1);
+}
+
+
+static void
+resolve_sync (gfc_code *code)
+>>>>>>> master
 {
   gfc_symtree *symtree;
   gfc_symbol *lock_type;
@@ -9486,9 +9542,12 @@ gfc_resolve_blocks (gfc_code *b, gfc_namespace *ns)
 	case EXEC_OACC_EXIT_DATA:
 	case EXEC_OACC_ATOMIC:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	case EXEC_OMP_ATOMIC:
 	case EXEC_OMP_CRITICAL:
 	case EXEC_OMP_DISTRIBUTE:
@@ -9718,6 +9777,27 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
   /* F2008, 7.2.1.2.  */
   attr = gfc_expr_attr (lhs);
   if (lhs->ts.type == BT_CLASS && attr.allocatable)
+<<<<<<< HEAD
+    {
+      if (attr.codimension)
+	{
+	  gfc_error ("Assignment to polymorphic coarray at %L is not "
+		     "permitted", &lhs->where);
+	  return false;
+	}
+      if (!gfc_notify_std (GFC_STD_F2008, "Assignment to an allocatable "
+			   "polymorphic variable at %L", &lhs->where))
+	return false;
+      if (!flag_realloc_lhs)
+	{
+	  gfc_error ("Assignment to an allocatable polymorphic variable at %L "
+		     "requires %<-frealloc-lhs%>", &lhs->where);
+	  return false;
+	}
+      /* See PR 43366.  */
+      gfc_error ("Assignment to an allocatable polymorphic variable at %L "
+		 "is not yet supported", &lhs->where);
+=======
     {
       if (attr.codimension)
 	{
@@ -9744,8 +9824,18 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
       gfc_error ("Nonallocatable variable must not be polymorphic in intrinsic "
 		 "assignment at %L - check that there is a matching specific "
 		 "subroutine for '=' operator", &lhs->where);
+>>>>>>> master
       return false;
     }
+  else if (lhs->ts.type == BT_CLASS)
+    {
+      gfc_error ("Nonallocatable variable must not be polymorphic in intrinsic "
+		 "assignment at %L - check that there is a matching specific "
+		 "subroutine for '=' operator", &lhs->where);
+      return false;
+    }
+
+  bool lhs_coindexed = gfc_is_coindexed (lhs);
 
   bool lhs_coindexed = gfc_is_coindexed (lhs);
 
@@ -10649,12 +10739,16 @@ start:
 	    if (e->expr_type == EXPR_NULL)
 	      gfc_error ("Invalid NULL at %L", &e->where);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 	    if (t && (e->rank > 0
 		      || !(e->ts.type == BT_REAL || e->ts.type == BT_INTEGER)))
 	      gfc_error ("Arithmetic IF statement at %L requires a scalar "
 			 "REAL or INTEGER expression", &e->where);
 
+<<<<<<< HEAD
 =======
 
 	    if (t && (e->rank > 0
@@ -10663,6 +10757,8 @@ start:
 			 "REAL or INTEGER expression", &e->where);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	    resolve_branch (code->label1, code);
 	    resolve_branch (code->label2, code);
 	    resolve_branch (code->label3, code);
@@ -12084,16 +12180,22 @@ gfc_resolve_finalizers (gfc_symbol* derived, bool *finalizable)
   gfc_component *c;
   gfc_symbol *parent = gfc_get_derived_super_type (derived);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (parent)
     gfc_resolve_finalizers (parent, finalizable);
 
 =======
+=======
+>>>>>>> master
 
   if (parent)
     gfc_resolve_finalizers (parent, finalizable);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   /* Return early when not finalizable. Additionally, ensure that derived-type
      components have a their finalizables resolved.  */
   if (!derived->f2k_derived || !derived->f2k_derived->finalizers)
@@ -14173,6 +14275,7 @@ resolve_symbol (gfc_symbol *sym)
     {
       gfc_error ("Dummy argument %qs at %L of LOCK_TYPE shall not be "
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		 "INTENT(OUT)", sym->name, &sym->declared_at);
       return;
@@ -14184,6 +14287,8 @@ resolve_symbol (gfc_symbol *sym)
     {
       gfc_error ("Dummy argument %qs at %L of EVENT_TYPE shall not be "
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 		 "INTENT(OUT)", sym->name, &sym->declared_at);
       return;
     }

@@ -3791,12 +3791,21 @@ package body Sem_Util is
       -------------------------------
       -- Report_Unused_Body_States --
       -------------------------------
+<<<<<<< HEAD
 
       procedure Report_Unused_Body_States (States : Elist_Id) is
          Posted     : Boolean := False;
          State_Elmt : Elmt_Id;
          State_Id   : Entity_Id;
 
+=======
+
+      procedure Report_Unused_Body_States (States : Elist_Id) is
+         Posted     : Boolean := False;
+         State_Elmt : Elmt_Id;
+         State_Id   : Entity_Id;
+
+>>>>>>> master
       begin
          if Present (States) then
             State_Elmt := First_Elmt (States);
@@ -6671,6 +6680,7 @@ package body Sem_Util is
    begin
       --  When a formal parameter is subject to Extensions_Visible, the pragma
       --  is stored in the contract of related subprogram.
+<<<<<<< HEAD
 
       if Is_Formal (Id) then
          Subp := Scope (Id);
@@ -6785,6 +6795,122 @@ package body Sem_Util is
          Find_Actual (Context, Formal, Call);
          return;
 
+=======
+
+      if Is_Formal (Id) then
+         Subp := Scope (Id);
+
+      elsif Is_Subprogram_Or_Generic_Subprogram (Id) then
+         Subp := Id;
+
+      --  No other construct carries this pragma
+
+      else
+         return Extensions_Visible_None;
+      end if;
+
+      Prag := Get_Pragma (Subp, Pragma_Extensions_Visible);
+
+      --  In certain cases analysis may request the Extensions_Visible status
+      --  of an expression function before the pragma has been analyzed yet.
+      --  Inspect the declarative items after the expression function looking
+      --  for the pragma (if any).
+
+      if No (Prag) and then Is_Expression_Function (Subp) then
+         Decl := Next (Unit_Declaration_Node (Subp));
+         while Present (Decl) loop
+            if Nkind (Decl) = N_Pragma
+              and then Pragma_Name (Decl) = Name_Extensions_Visible
+            then
+               Prag := Decl;
+               exit;
+
+            --  A source construct ends the region where Extensions_Visible may
+            --  appear, stop the traversal. An expanded expression function is
+            --  no longer a source construct, but it must still be recognized.
+
+            elsif Comes_From_Source (Decl)
+              or else
+                (Nkind_In (Decl, N_Subprogram_Body,
+                                 N_Subprogram_Declaration)
+                  and then Is_Expression_Function (Defining_Entity (Decl)))
+            then
+               exit;
+            end if;
+
+            Next (Decl);
+         end loop;
+      end if;
+
+      --  Extract the value from the Boolean expression (if any)
+
+      if Present (Prag) then
+         Arg := First (Pragma_Argument_Associations (Prag));
+
+         if Present (Arg) then
+            Expr := Get_Pragma_Arg (Arg);
+
+            --  When the associated subprogram is an expression function, the
+            --  argument of the pragma may not have been analyzed.
+
+            if not Analyzed (Expr) then
+               Preanalyze_And_Resolve (Expr, Standard_Boolean);
+            end if;
+
+            --  Guard against cascading errors when the argument of pragma
+            --  Extensions_Visible is not a valid static Boolean expression.
+
+            if Error_Posted (Expr) then
+               return Extensions_Visible_None;
+
+            elsif Is_True (Expr_Value (Expr)) then
+               return Extensions_Visible_True;
+
+            else
+               return Extensions_Visible_False;
+            end if;
+
+         --  Otherwise the aspect or pragma defaults to True
+
+         else
+            return Extensions_Visible_True;
+         end if;
+
+      --  Otherwise aspect or pragma Extensions_Visible is not inherited or
+      --  directly specified. In SPARK code, its value defaults to "False".
+
+      elsif SPARK_Mode = On then
+         return Extensions_Visible_False;
+
+      --  In non-SPARK code, aspect or pragma Extensions_Visible defaults to
+      --  "True".
+
+      else
+         return Extensions_Visible_True;
+      end if;
+   end Extensions_Visible_Status;
+
+   -----------------
+   -- Find_Actual --
+   -----------------
+
+   procedure Find_Actual
+     (N        : Node_Id;
+      Formal   : out Entity_Id;
+      Call     : out Node_Id)
+   is
+      Context  : constant Node_Id := Parent (N);
+      Actual   : Node_Id;
+      Call_Nam : Node_Id;
+
+   begin
+      if Nkind_In (Context, N_Indexed_Component, N_Selected_Component)
+        and then N = Prefix (Context)
+      then
+         Find_Actual (Context, Formal, Call);
+         return;
+
+>>>>>>> master
       elsif Nkind (Context) = N_Parameter_Association
         and then N = Explicit_Actual_Parameter (Context)
       then
@@ -8698,6 +8824,7 @@ package body Sem_Util is
 
       --  Now do the internal call that does all the work
 
+<<<<<<< HEAD
       return
         Has_Compatible_Alignment_Internal (Obj, Expr, Layout_Done, Unknown);
    end Has_Compatible_Alignment;
@@ -9109,6 +9236,8 @@ package body Sem_Util is
 
       --  Now do the internal call that does all the work
 
+=======
+>>>>>>> master
       return Has_Compatible_Alignment_Internal (Obj, Expr, Unknown);
    end Has_Compatible_Alignment;
 
@@ -9445,8 +9574,11 @@ package body Sem_Util is
       if Ekind (Item_Id) = E_Abstract_State then
          return State_Has_Enabled_Property;
 
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       elsif Ekind (Item_Id) = E_Variable then
          return Variable_Has_Enabled_Property;
 

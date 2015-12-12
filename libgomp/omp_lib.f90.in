@@ -31,16 +31,21 @@
         integer, parameter :: omp_proc_bind_kind = 4
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         integer, parameter :: omp_lock_hint_kind = 4
 >>>>>>> gcc-mirror/master
 =======
         integer, parameter :: omp_lock_hint_kind = 4
 >>>>>>> gcc-mirror/master
+=======
+        integer, parameter :: omp_lock_hint_kind = 4
+>>>>>>> master
         integer (omp_sched_kind), parameter :: omp_sched_static = 1
         integer (omp_sched_kind), parameter :: omp_sched_dynamic = 2
         integer (omp_sched_kind), parameter :: omp_sched_guided = 3
         integer (omp_sched_kind), parameter :: omp_sched_auto = 4
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         integer (omp_proc_bind_kind), parameter :: omp_proc_bind_false = 0
@@ -51,6 +56,8 @@
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
         integer (omp_proc_bind_kind), &
                  parameter :: omp_proc_bind_false = 0
         integer (omp_proc_bind_kind), &
@@ -72,14 +79,18 @@
         integer (omp_lock_hint_kind), &
                  parameter :: omp_lock_hint_speculative = 8
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       end module
 
       module omp_lib
         use omp_lib_kinds
         implicit none
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         integer, parameter :: openmp_version = 201107
@@ -89,6 +100,9 @@
 =======
         integer, parameter :: openmp_version = 201307
 >>>>>>> gcc-mirror/master
+=======
+        integer, parameter :: openmp_version = 201307
+>>>>>>> master
 
         interface
           subroutine omp_init_lock (svar)
@@ -361,9 +375,12 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
         interface
           function omp_get_num_places ()
             integer (4) :: omp_get_num_places
@@ -417,9 +434,12 @@
         end interface
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
         interface omp_set_default_device
           subroutine omp_set_default_device (device_num)
             integer (4), intent (in) :: device_num
@@ -461,9 +481,12 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
         interface
           function omp_get_initial_device ()
             integer (4) :: omp_get_initial_device
@@ -477,7 +500,10 @@
         end interface
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       end module omp_lib

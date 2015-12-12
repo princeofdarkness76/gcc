@@ -550,10 +550,14 @@ check_format (bool is_input)
   const char *posint_required	  = _("Positive width required");
   const char *nonneg_required	  = _("Nonnegative width required");
 <<<<<<< HEAD
+<<<<<<< HEAD
   const char *unexpected_element  = _("Unexpected element %<%c%> in format "
 =======
   const char *unexpected_element  = _("Unexpected element %qc in format "
 >>>>>>> gcc-mirror/master
+=======
+  const char *unexpected_element  = _("Unexpected element %<%c%> in format "
+>>>>>>> master
 				      "string at %L");
   const char *unexpected_end	  = _("Unexpected end of format string");
   const char *zero_width	  = _("Zero width in format descriptor");
@@ -2011,12 +2015,17 @@ gfc_match_open (void)
 	  static const char *delim[] = { "APOSTROPHE", "QUOTE", "NONE", NULL };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (!is_char_type ("DELIM", open->delim))
 	  goto cleanup;
 =======
 	  if (!is_char_type ("DELIM", open->delim))
 	    goto cleanup;
 >>>>>>> gcc-mirror/master
+=======
+	if (!is_char_type ("DELIM", open->delim))
+	  goto cleanup;
+>>>>>>> master
 
 	  if (!compare_to_allowed_values ("DELIM", delim, NULL, NULL,
 					  open->delim->value.character.string,

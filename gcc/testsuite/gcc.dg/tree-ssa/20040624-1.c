@@ -19,6 +19,9 @@ foo (unsigned int a, unsigned int b)
 
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 1 "dom1" } } */
+<<<<<<< HEAD
 =======
 /* { dg-final { scan-tree-dump-times "if " 1 "dom2" } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

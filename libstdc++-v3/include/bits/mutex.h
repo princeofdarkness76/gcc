@@ -83,10 +83,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /// mutex
 =======
   /// The standard mutex type.
 >>>>>>> gcc-mirror/master
+=======
+  /// mutex
+>>>>>>> master
   class mutex : private __mutex_base
   {
   public:
@@ -143,6 +147,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   struct adopt_lock_t { explicit adopt_lock_t() = default; };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   constexpr defer_lock_t	defer_lock { };
   constexpr try_to_lock_t	try_to_lock { };
   constexpr adopt_lock_t	adopt_lock { };
@@ -150,6 +157,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   /// @brief  Scoped lock idiom.
   // Acquire the mutex here with a constructor call, then release with
   // the destructor call in accordance with RAII style.
+<<<<<<< HEAD
 =======
   /// Tag used to prevent a scoped lock from acquiring ownership of a mutex.
   constexpr defer_lock_t	defer_lock { };
@@ -166,6 +174,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * ownership in the destructor.
    */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   template<typename _Mutex>
     class lock_guard
     {
@@ -189,6 +199,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /// unique_lock
 =======
   /** @brief A movable scoped lock type.
@@ -199,6 +210,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * mutex lock is owned when the destructor runs ownership will be released.
    */
 >>>>>>> gcc-mirror/master
+=======
+  /// unique_lock
+>>>>>>> master
   template<typename _Mutex>
     class unique_lock
     {

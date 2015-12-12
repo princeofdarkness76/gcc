@@ -1,23 +1,30 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-ftree-vectorize -fcilkplus" } */
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 /* { dg-options "-O3 -fcilkplus" } */
 
 // Test storage classes in the initialization of a <#pragma simd> for
 // loop.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 int *a, *b;
 
 void foo()
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   int i;
@@ -27,6 +34,8 @@ void foo()
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #pragma simd
   for (static int tt=5; tt < 10; ++tt) /* { dg-error "before 'static'\|not declared\|expected" } */
     a[tt] = b[tt];
@@ -43,7 +52,10 @@ void foo()
   for (volatile int vj=0; vj<1000; ++vj) /* { dg-error "iteration variable cannot be volatile" } */
     a[vj] = b[vj];
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }

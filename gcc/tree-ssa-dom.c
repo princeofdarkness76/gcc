@@ -100,10 +100,14 @@ static struct opt_stats_d opt_stats;
 
 /* Local functions.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void optimize_stmt (basic_block, gimple_stmt_iterator,
 =======
 static edge optimize_stmt (basic_block, gimple_stmt_iterator,
 >>>>>>> gcc-mirror/master
+=======
+static void optimize_stmt (basic_block, gimple_stmt_iterator,
+>>>>>>> master
 			   class const_and_copies *,
 			   class avail_exprs_stack *);
 static tree lookup_avail_expr (gimple *, bool, class avail_exprs_stack *);
@@ -498,19 +502,27 @@ public:
 		      class const_and_copies *const_and_copies,
 		      class avail_exprs_stack *avail_exprs_stack)
 <<<<<<< HEAD
+<<<<<<< HEAD
     : dom_walker (direction),
 =======
     : dom_walker (direction, true),
 >>>>>>> gcc-mirror/master
+=======
+    : dom_walker (direction),
+>>>>>>> master
       m_const_and_copies (const_and_copies),
       m_avail_exprs_stack (avail_exprs_stack),
       m_dummy_cond (NULL) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
   virtual void after_dom_children (basic_block);
 
 private:
@@ -623,6 +635,7 @@ pass_dominator::execute (function *fun)
 			     avail_exprs_stack);
   walker.walk (fun->cfg->x_entry_block_ptr);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* Look for blocks where we cleared EDGE_EXECUTABLE on an outgoing
@@ -655,6 +668,8 @@ pass_dominator::execute (function *fun)
 	}
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   {
     gimple_stmt_iterator gsi;
@@ -997,6 +1012,7 @@ record_equivalences_from_phis (basic_block bb)
 	    continue;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  /* If the associated edge is not marked as executable, then it
 	     can be ignored.  */
@@ -1004,6 +1020,8 @@ record_equivalences_from_phis (basic_block bb)
 	    continue;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  t = dom_valueize (t);
 
 	  /* If we have not processed an alternative yet, then set
@@ -1092,6 +1110,7 @@ record_equivalences_from_incoming_edge (basic_block bb,
     record_temporary_equivalences (e, const_and_copies, avail_exprs_stack);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Dump statistics for the hash table HTAB.  */
 
@@ -1144,6 +1163,33 @@ dump_dominator_optimization_stats (FILE *file,
   fprintf (file, "\nHash table statistics:\n");
 
 >>>>>>> gcc-mirror/master
+=======
+
+/* Dump statistics for the hash table HTAB.  */
+
+static void
+htab_statistics (FILE *file, const hash_table<expr_elt_hasher> &htab)
+{
+  fprintf (file, "size %ld, %ld elements, %f collision/search ratio\n",
+	   (long) htab.size (),
+	   (long) htab.elements (),
+	   htab.collisions ());
+}
+
+/* Dump SSA statistics on FILE.  */
+
+static void
+dump_dominator_optimization_stats (FILE *file,
+				   hash_table<expr_elt_hasher> *avail_exprs)
+{
+  fprintf (file, "Total number of statements:                   %6ld\n\n",
+	   opt_stats.num_stmts);
+  fprintf (file, "Exprs considered for dominator optimizations: %6ld\n",
+           opt_stats.num_exprs_considered);
+
+  fprintf (file, "\nHash table statistics:\n");
+
+>>>>>>> master
   fprintf (file, "    avail_exprs: ");
   htab_statistics (file, *avail_exprs);
 }
@@ -1380,10 +1426,14 @@ cprop_into_successor_phis (basic_block bb,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 dom_opt_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -1414,19 +1464,26 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
   edge taken_edge = NULL;
   for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
 <<<<<<< HEAD
+<<<<<<< HEAD
     optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
 =======
     taken_edge
       = optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
 >>>>>>> gcc-mirror/master
+=======
+    optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
+>>>>>>> master
 
   /* Now prepare to process dominated blocks.  */
   record_edge_info (bb);
   cprop_into_successor_phis (bb, m_const_and_copies);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return taken_edge;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* We have finished processing the dominator children of BB, perform
@@ -1795,9 +1852,12 @@ cprop_into_stmt (gimple *stmt)
 
 <<<<<<< HEAD
 static void
+<<<<<<< HEAD
 =======
 static edge
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 	       class const_and_copies *const_and_copies,
 	       class avail_exprs_stack *avail_exprs_stack)
@@ -1807,9 +1867,12 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
   bool modified_p = false;
   bool was_noreturn;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   edge retval = NULL;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   old_stmt = stmt = gsi_stmt (si);
   was_noreturn = is_gimple_call (stmt) && gimple_call_noreturn_p (stmt);
@@ -1957,6 +2020,9 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
       if (val && TREE_CODE (val) == INTEGER_CST)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	  edge taken_edge = find_taken_edge (bb, val);
 	  if (taken_edge)
 	    {
@@ -1971,6 +2037,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 	      /* Now clean up the control statement at the end of
 		 BB and remove unexecutable edges.  */
 	      remove_ctrl_stmt_and_useless_edges (bb, taken_edge->dest);
+<<<<<<< HEAD
 
 	      /* Fixup the flags on the single remaining edge.  */
 	      taken_edge->flags
@@ -1993,6 +2060,14 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 		}
 
 >>>>>>> gcc-mirror/master
+=======
+
+	      /* Fixup the flags on the single remaining edge.  */
+	      taken_edge->flags
+		&= ~(EDGE_TRUE_VALUE | EDGE_FALSE_VALUE | EDGE_ABNORMAL);
+	      taken_edge->flags |= EDGE_FALLTHRU;
+
+>>>>>>> master
 	      /* Further simplifications may be possible.  */
 	      cfg_altered = true;
 	    }

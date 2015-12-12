@@ -896,6 +896,7 @@ INPUT                  = @srcdir@/doc/doxygen/doxygroups.cc \
                          include/tr2/type_traits \
                          include/decimal/decimal \
 <<<<<<< HEAD
+<<<<<<< HEAD
                          include/experimental/any \
                          include/experimental/optional \
                          include/experimental/string_view \
@@ -931,6 +932,11 @@ INPUT                  = @srcdir@/doc/doxygen/doxygroups.cc \
                          include/experimental/utility \
                          include/experimental/vector \
 >>>>>>> gcc-mirror/master
+=======
+                         include/experimental/any \
+                         include/experimental/optional \
+                         include/experimental/string_view \
+>>>>>>> master
                          include/ext \
                          include/ext/pb_ds \
                          include/ext/pb_ds/detail \
@@ -2008,6 +2014,7 @@ GENERATE_XML           = @do_xml@
 XML_OUTPUT             = xml
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # The XML_SCHEMA tag can be used to specify a XML schema, which can be used by a
 # validating XML parser to check the syntax of the XML files.
 # This tag requires that the tag GENERATE_XML is set to YES.
@@ -2018,13 +2025,24 @@ XML_OUTPUT             = xml
 # of the XML output.
 # The default value is: YES.
 # This tag requires that the tag GENERATE_XML is set to YES.
+=======
+# The XML_SCHEMA tag can be used to specify a XML schema, which can be used by a
+# validating XML parser to check the syntax of the XML files.
+# This tag requires that the tag GENERATE_XML is set to YES.
+>>>>>>> master
 
 XML_PROGRAMLISTING     = NO
 >>>>>>> gcc-mirror/master
 
+<<<<<<< HEAD
 #---------------------------------------------------------------------------
 # Configuration options related to the DOCBOOK output
 #---------------------------------------------------------------------------
+=======
+# The XML_DTD tag can be used to specify a XML DTD, which can be used by a
+# validating XML parser to check the syntax of the XML files.
+# This tag requires that the tag GENERATE_XML is set to YES.
+>>>>>>> master
 
 <<<<<<< HEAD
 # The XML_DTD tag can be used to specify a XML DTD, which can be used by a
@@ -2055,8 +2073,39 @@ GENERATE_DOCBOOK       = NO
 
 DOCBOOK_OUTPUT         = docbook
 
+<<<<<<< HEAD
 #---------------------------------------------------------------------------
 <<<<<<< HEAD
+# Configuration options related to the DOCBOOK output
+#---------------------------------------------------------------------------
+=======
+# If the XML_PROGRAMLISTING tag is set to YES doxygen will dump the program
+# listings (including syntax highlighting and cross-referencing information) to
+# the XML output. Note that enabling this will significantly increase the size
+# of the XML output.
+# The default value is: YES.
+# This tag requires that the tag GENERATE_XML is set to YES.
+>>>>>>> master
+
+# If the GENERATE_DOCBOOK tag is set to YES doxygen will generate Docbook files
+# that can be used to generate PDF.
+# The default value is: NO.
+
+GENERATE_DOCBOOK       = NO
+
+# The DOCBOOK_OUTPUT tag is used to specify where the Docbook pages will be put.
+# If a relative path is entered the value of OUTPUT_DIRECTORY will be put in
+# front of it.
+# The default directory is: docbook.
+# This tag requires that the tag GENERATE_DOCBOOK is set to YES.
+
+DOCBOOK_OUTPUT         = docbook
+
+#---------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
+=======
 # Configuration options related to the DOCBOOK output
 #---------------------------------------------------------------------------
 
@@ -2075,8 +2124,7 @@ GENERATE_DOCBOOK       = NO
 DOCBOOK_OUTPUT         = docbook
 
 #---------------------------------------------------------------------------
-=======
->>>>>>> gcc-mirror/master
+>>>>>>> master
 # Configuration options for the AutoGen Definitions output
 #---------------------------------------------------------------------------
 
@@ -2219,6 +2267,9 @@ PREDEFINED             = __cplusplus=201402L \
                          __cpp_exceptions \
                          __cpp_rtti \
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
                          ATOMIC_INT_LOCK_FREE \
 =======
                          ATOMIC_INT_LOCK_FREE=2 \

@@ -422,6 +422,7 @@
   (and (match_code "const_int")
        (match_test "UNSIGNED_INT6 (ival - 1)")))
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ;; Memory constraint used for atomic ops.
@@ -430,3 +431,5 @@
   (match_operand 0 "mem_noofs_operand"))
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

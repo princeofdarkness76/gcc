@@ -1,9 +1,13 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fprofile-arcs -fdump-tree-lim1-details" } */
 =======
 /* { dg-options "-O -fprofile-arcs -fdump-tree-lim2-details" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O -fprofile-arcs -fdump-tree-lim1-details" } */
+>>>>>>> master
 /* { dg-require-profiling "-fprofile-generate" } */
 
 struct thread_param
@@ -27,7 +31,11 @@ void access_buf(struct thread_param* p)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of __gcov0.access_buf\\\[\[01\]\\\] from loop 1" 2 "lim1" } } */
 =======
 /* { dg-final { scan-tree-dump-times "Executing store motion of __gcov0.access_buf\\\[\[01\]\\\] from loop 1" 2 "lim2" } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "Executing store motion of __gcov0.access_buf\\\[\[01\]\\\] from loop 1" 2 "lim1" } } */
+>>>>>>> master

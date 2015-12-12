@@ -362,11 +362,15 @@ class hash_table
 
 public:
 <<<<<<< HEAD
+<<<<<<< HEAD
   explicit hash_table (size_t, bool ggc = false, bool gather_mem_stats = true,
 =======
   explicit hash_table (size_t, bool ggc = false,
 		       bool gather_mem_stats = GATHER_STATISTICS,
 >>>>>>> gcc-mirror/master
+=======
+  explicit hash_table (size_t, bool ggc = false, bool gather_mem_stats = true,
+>>>>>>> master
 		       mem_alloc_origin origin = HASH_TABLE_ORIGIN
 		       CXX_MEM_STAT_INFO);
   ~hash_table ();
@@ -377,11 +381,15 @@ public:
   {
     hash_table *table = ggc_alloc<hash_table> ();
 <<<<<<< HEAD
+<<<<<<< HEAD
     new (table) hash_table (n, true, true, HASH_TABLE_ORIGIN PASS_MEM_STAT);
 =======
     new (table) hash_table (n, true, GATHER_STATISTICS,
 			    HASH_TABLE_ORIGIN PASS_MEM_STAT);
 >>>>>>> gcc-mirror/master
+=======
+    new (table) hash_table (n, true, true, HASH_TABLE_ORIGIN PASS_MEM_STAT);
+>>>>>>> master
     return table;
   }
 

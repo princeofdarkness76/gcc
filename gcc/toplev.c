@@ -1241,10 +1241,14 @@ process_options (void)
 #ifndef HAVE_isl
   if (flag_graphite
 <<<<<<< HEAD
+<<<<<<< HEAD
       || flag_loop_optimize_isl
 =======
       || flag_loop_nest_optimize
 >>>>>>> gcc-mirror/master
+=======
+      || flag_loop_optimize_isl
+>>>>>>> master
       || flag_graphite_identity
       || flag_loop_parallelize_all)
     sorry ("Graphite loop optimizations cannot be used (ISL is not available)" 
@@ -1258,16 +1262,21 @@ process_options (void)
       if (targetm.chkp_bound_mode () == VOIDmode)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error ("-fcheck-pointer-bounds is not supported for this target");
 =======
 	  error_at (UNKNOWN_LOCATION,
 		    "-fcheck-pointer-bounds is not supported for this target");
 >>>>>>> gcc-mirror/master
+=======
+	  error ("-fcheck-pointer-bounds is not supported for this target");
+>>>>>>> master
 	  flag_check_pointer_bounds = 0;
 	}
 
       if (flag_sanitize & SANITIZE_ADDRESS)
 	{
+<<<<<<< HEAD
 <<<<<<< HEAD
 	  error ("-fcheck-pointer-bounds is not supported with "
 		 "Address Sanitizer");
@@ -1276,6 +1285,10 @@ process_options (void)
 		    "-fcheck-pointer-bounds is not supported with "
 		    "Address Sanitizer");
 >>>>>>> gcc-mirror/master
+=======
+	  error ("-fcheck-pointer-bounds is not supported with "
+		 "Address Sanitizer");
+>>>>>>> master
 	  flag_check_pointer_bounds = 0;
 	}
     }
@@ -1289,11 +1302,15 @@ process_options (void)
     {
       /* -fabi-version=1 support was removed after GCC 4.9.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
       error ("%<-fabi-version=1%> is no longer supported");
 =======
       error_at (UNKNOWN_LOCATION,
 		"%<-fabi-version=1%> is no longer supported");
 >>>>>>> gcc-mirror/master
+=======
+      error ("%<-fabi-version=1%> is no longer supported");
+>>>>>>> master
       flag_abi_version = 2;
     }
 
@@ -1325,6 +1342,7 @@ process_options (void)
 #endif
   if (!DELAY_SLOTS && flag_delayed_branch)
     warning (0, "this target machine does not have delayed branches");
+<<<<<<< HEAD
 =======
     warning_at (UNKNOWN_LOCATION, 0,
 		"instruction scheduling not supported on this target machine");
@@ -1333,6 +1351,8 @@ process_options (void)
     warning_at (UNKNOWN_LOCATION, 0,
 		"this target machine does not have delayed branches");
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   user_label_prefix = USER_LABEL_PREFIX;
   if (flag_leading_underscore != -1)
@@ -1428,6 +1448,9 @@ process_options (void)
 #endif
   else
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     error ("target system does not support the %qs debug format",
 	   debug_type_names[write_symbols]);
 =======
@@ -1506,11 +1529,15 @@ process_options (void)
       aux_info_file = fopen (aux_info_file_name, "w");
       if (aux_info_file == 0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fatal_error (input_location, "can%'t open %s: %m", aux_info_file_name);
 =======
 	fatal_error (UNKNOWN_LOCATION,
 		     "can%'t open %s: %m", aux_info_file_name);
 >>>>>>> gcc-mirror/master
+=======
+	fatal_error (input_location, "can%'t open %s: %m", aux_info_file_name);
+>>>>>>> master
     }
 
   if (!targetm_common.have_named_sections)
@@ -1589,6 +1616,9 @@ process_options (void)
   if ((flag_sanitize & SANITIZE_ADDRESS)
       && !FRAME_GROWS_DOWNWARD)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     {
       warning (0,
 	       "-fsanitize=address and -fsanitize=kernel-address "
@@ -1601,6 +1631,7 @@ process_options (void)
     {
       warning (0, "-fsanitize=address not supported for this target");
       flag_sanitize &= ~SANITIZE_ADDRESS;
+<<<<<<< HEAD
     }
 
 =======
@@ -1620,6 +1651,10 @@ process_options (void)
     }
 
 >>>>>>> gcc-mirror/master
+=======
+    }
+
+>>>>>>> master
  /* Do not use IPA optimizations for register allocation if profiler is active
     or port does not emit prologue and epilogue as RTL.  */
   if (profile_flag || !targetm.have_prologue () || !targetm.have_epilogue ())
@@ -2038,6 +2073,7 @@ do_compile ()
       timevar_stop (TV_PHASE_FINALIZE);
     }
 }
+<<<<<<< HEAD
 
 toplev::toplev (timer *external_timer,
 		bool init_signals)
@@ -2068,6 +2104,38 @@ toplev::start_timevars ()
   if (time_report || !quiet_flag  || flag_detailed_statistics)
     timevar_init ();
 
+=======
+
+toplev::toplev (timer *external_timer,
+		bool init_signals)
+  : m_use_TV_TOTAL (external_timer == NULL),
+    m_init_signals (init_signals)
+{
+  if (external_timer)
+    g_timer = external_timer;
+}
+
+toplev::~toplev ()
+{
+  if (g_timer && m_use_TV_TOTAL)
+    {
+      g_timer->stop (TV_TOTAL);
+      g_timer->print (stderr);
+      delete g_timer;
+      g_timer = NULL;
+    }
+}
+
+/* Potentially call timevar_init (which will create g_timevars if it
+   doesn't already exist).  */
+
+void
+toplev::start_timevars ()
+{
+  if (time_report || !quiet_flag  || flag_detailed_statistics)
+    timevar_init ();
+
+>>>>>>> master
   timevar_start (TV_TOTAL);
 }
 

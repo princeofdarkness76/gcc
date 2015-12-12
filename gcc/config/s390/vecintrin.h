@@ -22,10 +22,15 @@ along with GCC; see the file COPYING3.  If not see
 #define _VECINTRIN_H
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef __VEC__
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+#ifdef __VEC__
+
+>>>>>>> master
 #define __VFTCI_ZERO           1<<11
 #define __VFTCI_ZERO_N         1<<10
 #define __VFTCI_NORMAL          1<<9
@@ -71,6 +76,9 @@ __lcbb(const void *ptr, int bndry)
 #define vec_genmasks_32 __builtin_s390_vgmf
 #define vec_genmasks_64 __builtin_s390_vgmg
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 #define vec_splat_u8 __builtin_s390_vlrepb
 #define vec_splat_s8 __builtin_s390_vlrepb
 #define vec_splat_u16 __builtin_s390_vlreph
@@ -79,6 +87,7 @@ __lcbb(const void *ptr, int bndry)
 #define vec_splat_s32 __builtin_s390_vlrepf
 #define vec_splat_u64 __builtin_s390_vlrepg
 #define vec_splat_s64 __builtin_s390_vlrepg
+<<<<<<< HEAD
 =======
 #define vec_splat_u8 __builtin_s390_vec_splat_u8
 #define vec_splat_s8 __builtin_s390_vec_splat_s8
@@ -89,6 +98,8 @@ __lcbb(const void *ptr, int bndry)
 #define vec_splat_u64 __builtin_s390_vec_splat_u64
 #define vec_splat_s64 __builtin_s390_vec_splat_s64
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define vec_add_u128 __builtin_s390_vaq
 #define vec_addc_u128 __builtin_s390_vaccq
 #define vec_adde_u128 __builtin_s390_vacq
@@ -111,6 +122,9 @@ __lcbb(const void *ptr, int bndry)
 #define vec_msub __builtin_s390_vfmsdb
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 static inline int
 vec_all_nan (__vector double a)
 {
@@ -158,6 +172,7 @@ vec_any_numeric (__vector double a)
 			  | __VFTCI_SUBNORMAL_N, &cc);
   return cc != 3 ? 1 : 0;
 }
+<<<<<<< HEAD
 =======
 #define vec_all_nan(a)						\
   __extension__ ({						\
@@ -204,6 +219,8 @@ vec_any_numeric (__vector double a)
     })
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define vec_gather_element __builtin_s390_vec_gather_element
 #define vec_xld2 __builtin_s390_vec_xld2
 #define vec_xlw4 __builtin_s390_vec_xlw4
@@ -334,7 +351,11 @@ vec_any_numeric (__vector double a)
 #define vec_ld2f __builtin_s390_vec_ld2f
 #define vec_st2f __builtin_s390_vec_st2f
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif /* __VEC__ */
 =======
 >>>>>>> gcc-mirror/master
+=======
+#endif /* __VEC__ */
+>>>>>>> master
 #endif /* _VECINTRIN_H */

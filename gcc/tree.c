@@ -271,6 +271,7 @@ unsigned const char omp_clause_num_ops[] =
   1, /* OMP_CLAUSE_COPYPRIVATE  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   2, /* OMP_CLAUSE_LINEAR  */
   2, /* OMP_CLAUSE_ALIGNED  */
   1, /* OMP_CLAUSE_DEPEND  */
@@ -281,6 +282,8 @@ unsigned const char omp_clause_num_ops[] =
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   3, /* OMP_CLAUSE_LINEAR  */
   2, /* OMP_CLAUSE_ALIGNED  */
   1, /* OMP_CLAUSE_DEPEND  */
@@ -301,9 +304,12 @@ unsigned const char omp_clause_num_ops[] =
   0, /* OMP_CLAUSE_AUTO  */
   0, /* OMP_CLAUSE_SEQ  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   1, /* OMP_CLAUSE__LOOPTEMP_  */
   1, /* OMP_CLAUSE_IF  */
   1, /* OMP_CLAUSE_NUM_THREADS  */
@@ -330,10 +336,13 @@ unsigned const char omp_clause_num_ops[] =
   0, /* OMP_CLAUSE_TASKGROUP  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   1, /* OMP_CLAUSE__SIMDUID_  */
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   1, /* OMP_CLAUSE_PRIORITY  */
   1, /* OMP_CLAUSE_GRAINSIZE  */
   1, /* OMP_CLAUSE_NUM_TASKS  */
@@ -352,9 +361,12 @@ unsigned const char omp_clause_num_ops[] =
   1, /* OMP_CLAUSE_VECTOR_LENGTH  */
   1, /* OMP_CLAUSE_TILE  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 };
 
 const char * const omp_clause_code_name[] =
@@ -373,12 +385,15 @@ const char * const omp_clause_code_name[] =
   "uniform",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "from",
   "to",
   "map",
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "to",
   "link",
   "from",
@@ -395,9 +410,12 @@ const char * const omp_clause_code_name[] =
   "auto",
   "seq",
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "_looptemp_",
   "if",
   "num_threads",
@@ -424,10 +442,13 @@ const char * const omp_clause_code_name[] =
   "taskgroup",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "_simduid_"
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   "priority",
   "grainsize",
   "num_tasks",
@@ -446,9 +467,12 @@ const char * const omp_clause_code_name[] =
   "vector_length",
   "tile"
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 };
 
 
@@ -1420,6 +1444,7 @@ int_cst_hasher::hash (tree x)
   hashval_t code = TYPE_UID (TREE_TYPE (t));
   int i;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   for (i = 0; i < TREE_INT_CST_NUNITS (t); i++)
     code = iterative_hash_host_wide_int (TREE_INT_CST_ELT(t, i), code);
@@ -1430,6 +1455,12 @@ int_cst_hasher::hash (tree x)
     code = iterative_hash_host_wide_int (TREE_INT_CST_ELT(t, i), code);
 
 >>>>>>> gcc-mirror/master
+=======
+
+  for (i = 0; i < TREE_INT_CST_NUNITS (t); i++)
+    code = iterative_hash_host_wide_int (TREE_INT_CST_ELT(t, i), code);
+
+>>>>>>> master
   return code;
 }
 
@@ -1447,11 +1478,15 @@ int_cst_hasher::equal (tree x, tree y)
       || TREE_INT_CST_EXT_NUNITS (xt) != TREE_INT_CST_EXT_NUNITS (yt))
     return false;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
   for (int i = 0; i < TREE_INT_CST_NUNITS (xt); i++)
     if (TREE_INT_CST_ELT (xt, i) != TREE_INT_CST_ELT (yt, i))
       return false;
 
+<<<<<<< HEAD
 =======
 
   for (int i = 0; i < TREE_INT_CST_NUNITS (xt); i++)
@@ -1459,6 +1494,8 @@ int_cst_hasher::equal (tree x, tree y)
       return false;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return true;
 }
 
@@ -2067,6 +2104,8 @@ build_complex (tree type, tree real, tree imag)
 /* Build a complex (inf +- 0i), such as for the result of cproj.
    TYPE is the complex tree type of the result.  If NEG is true, the
    imaginary zero is negative.  */
+<<<<<<< HEAD
+=======
 
 tree
 build_complex_inf (tree type, bool neg)
@@ -2079,6 +2118,37 @@ build_complex_inf (tree type, bool neg)
 			build_real (TREE_TYPE (type), rzero));
 }
 
+/* Return the constant 1 in type TYPE.  If TYPE has several elements, each
+   element is set to 1.  In particular, this is 1 + i for complex types.  */
+
+tree
+build_each_one_cst (tree type)
+{
+  if (TREE_CODE (type) == COMPLEX_TYPE)
+    {
+      tree scalar = build_one_cst (TREE_TYPE (type));
+      return build_complex (type, scalar, scalar);
+    }
+  else
+    return build_one_cst (type);
+}
+
+/* Return a constant of arithmetic type TYPE which is the
+   multiplicative identity of the set TYPE.  */
+>>>>>>> master
+
+tree
+build_complex_inf (tree type, bool neg)
+{
+  REAL_VALUE_TYPE rinf, rzero = dconst0;
+
+  real_inf (&rinf);
+  rzero.sign = neg;
+  return build_complex (type, build_real (TREE_TYPE (type), rinf),
+			build_real (TREE_TYPE (type), rzero));
+}
+
+<<<<<<< HEAD
 /* Return the constant 1 in type TYPE.  If TYPE has several elements, each
    element is set to 1.  In particular, this is 1 + i for complex types.  */
 
@@ -2110,6 +2180,8 @@ build_one_cst (tree type)
     case REAL_TYPE:
       return build_real (type, dconst1);
 
+=======
+>>>>>>> master
     case FIXED_POINT_TYPE:
       /* We can only generate 1 for accum types.  */
       gcc_assert (ALL_SCALAR_ACCUM_MODE_P (TYPE_MODE (type)));
@@ -2271,6 +2343,7 @@ build_case_label (tree low_value, tree high_value, tree label_decl)
 /* Build a newly constructed INTEGER_CST node.  LEN and EXT_LEN are the
    values of TREE_INT_CST_NUNITS and TREE_INT_CST_EXT_NUNITS respectively.
    The latter determines the length of the HOST_WIDE_INT vector.  */
+<<<<<<< HEAD
 
 tree
 make_int_cst_stat (int len, int ext_len MEM_STAT_DECL)
@@ -2369,6 +2442,77 @@ zerop (const_tree expr)
 /* Return 1 if EXPR is the integer constant zero or a complex constant
    of zero.  */
 >>>>>>> gcc-mirror/master
+
+/* Build a newly constructed TREE_VEC node of length LEN.  */
+=======
+>>>>>>> master
+
+tree
+make_int_cst_stat (int len, int ext_len MEM_STAT_DECL)
+{
+  tree t;
+  int length = ((ext_len - 1) * sizeof (HOST_WIDE_INT)
+		+ sizeof (struct tree_int_cst));
+
+  gcc_assert (len);
+  record_node_allocation_statistics (INTEGER_CST, length);
+
+  t = ggc_alloc_cleared_tree_node_stat (length PASS_MEM_STAT);
+
+  TREE_SET_CODE (t, INTEGER_CST);
+  TREE_INT_CST_NUNITS (t) = len;
+  TREE_INT_CST_EXT_NUNITS (t) = ext_len;
+  /* to_offset can only be applied to trees that are offset_int-sized
+     or smaller.  EXT_LEN is correct if it fits, otherwise the constant
+     must be exactly the precision of offset_int and so LEN is correct.  */
+  if (ext_len <= OFFSET_INT_ELTS)
+    TREE_INT_CST_OFFSET_NUNITS (t) = ext_len;
+  else
+    TREE_INT_CST_OFFSET_NUNITS (t) = len;
+
+  TREE_CONSTANT (t) = 1;
+
+  return t;
+}
+<<<<<<< HEAD
+
+/* Grow a TREE_VEC node to new length LEN.  */
+
+tree
+grow_tree_vec_stat (tree v, int len MEM_STAT_DECL)
+{
+  gcc_assert (TREE_CODE (v) == TREE_VEC);
+
+  int oldlen = TREE_VEC_LENGTH (v);
+  gcc_assert (len > oldlen);
+
+  int oldlength = (oldlen - 1) * sizeof (tree) + sizeof (struct tree_vec);
+  int length = (len - 1) * sizeof (tree) + sizeof (struct tree_vec);
+
+  record_node_allocation_statistics (TREE_VEC, length - oldlength);
+
+  v = (tree) ggc_realloc (v, length PASS_MEM_STAT);
+
+  TREE_VEC_LENGTH (v) = len;
+
+  return v;
+}
+
+/* Return 1 if EXPR is the constant zero, whether it is integral, float or
+   fixed, and scalar, complex or vector.  */
+
+int
+zerop (const_tree expr)
+{
+  return (integer_zerop (expr)
+	  || real_zerop (expr)
+	  || fixed_zerop (expr));
+}
+
+/* Return 1 if EXPR is the integer constant zero or a complex constant
+   of zero.  */
+=======
+>>>>>>> master
 
 /* Build a newly constructed TREE_VEC node of length LEN.  */
 
@@ -2480,10 +2624,15 @@ int
 integer_each_onep (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   STRIP_NOPS (expr);
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+  STRIP_NOPS (expr);
+
+>>>>>>> master
   if (TREE_CODE (expr) == COMPLEX_CST)
     return (integer_onep (TREE_REALPART (expr))
 	    && integer_onep (TREE_IMAGPART (expr)));
@@ -2498,6 +2647,9 @@ int
 integer_all_onesp (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   STRIP_NOPS (expr);
 
 =======
@@ -2541,6 +2693,9 @@ int
 integer_pow2p (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   STRIP_NOPS (expr);
 
 =======
@@ -2577,10 +2732,15 @@ int
 integer_truep (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   STRIP_NOPS (expr);
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+  STRIP_NOPS (expr);
+
+>>>>>>> master
   if (TREE_CODE (expr) == VECTOR_CST)
     return integer_all_onesp (expr);
   return integer_onep (expr);
@@ -2602,6 +2762,9 @@ int
 tree_log2 (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   STRIP_NOPS (expr);
 
 =======
@@ -2619,6 +2782,9 @@ int
 tree_floor_log2 (const_tree expr)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   STRIP_NOPS (expr);
 
 =======
@@ -2628,6 +2794,7 @@ tree_floor_log2 (const_tree expr)
 
   return wi::floor_log2 (expr);
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 /* Return number of known trailing zero bits in EXPR, or, if the value of
@@ -2653,6 +2820,19 @@ tree_ctz (const_tree expr)
     return 0;
 
 >>>>>>> gcc-mirror/master
+=======
+
+/* Return number of known trailing zero bits in EXPR, or, if the value of
+   EXPR is known to be zero, the precision of it's type.  */
+
+unsigned int
+tree_ctz (const_tree expr)
+{
+  if (!INTEGRAL_TYPE_P (TREE_TYPE (expr))
+      && !POINTER_TYPE_P (TREE_TYPE (expr)))
+    return 0;
+
+>>>>>>> master
   unsigned int ret1, ret2, prec = TYPE_PRECISION (TREE_TYPE (expr));
   switch (TREE_CODE (expr))
     {
@@ -5043,12 +5223,17 @@ build_type_attribute_qual_variant (tree ttype, tree attribute, int quals)
 /* Check if "omp declare simd" attribute arguments, CLAUSES1 and CLAUSES2, are
    the same.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 bool
 =======
 static bool
 >>>>>>> gcc-mirror/master
+=======
+
+static bool
+>>>>>>> master
 omp_declare_simd_clauses_equal (tree clauses1, tree clauses2)
 {
   tree cl1, cl2;
@@ -5088,9 +5273,16 @@ omp_declare_simd_clauses_equal (tree clauses1, tree clauses2)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Compare two attributes for their value identity.  Return true if the
    attribute values are known to be equal; otherwise return false.
 */
+=======
+/* Compare two constructor-element-type constants.  Return 1 if the lists
+   are known to be equal; otherwise return 0.  */
+
+static bool
+simple_cst_list_equal (const_tree l1, const_tree l2)
 =======
 /* Compare two constructor-element-type constants.  Return 1 if the lists
    are known to be equal; otherwise return 0.  */
@@ -5106,6 +5298,101 @@ simple_cst_list_equal (const_tree l1, const_tree l2)
       l1 = TREE_CHAIN (l1);
       l2 = TREE_CHAIN (l2);
     }
+
+  return l1 == l2;
+}
+
+/* Compare two identifier nodes representing attributes.  Either one may
+   be in wrapped __ATTR__ form.  Return true if they are the same, false
+   otherwise.  */
+
+static bool
+cmp_attrib_identifiers (const_tree attr1, const_tree attr2)
+{
+  /* Make sure we're dealing with IDENTIFIER_NODEs.  */
+  gcc_checking_assert (TREE_CODE (attr1) == IDENTIFIER_NODE
+		       && TREE_CODE (attr2) == IDENTIFIER_NODE);
+
+  /* Identifiers can be compared directly for equality.  */
+  if (attr1 == attr2)
+    return true;
+
+  /* If they are not equal, they may still be one in the form
+     'text' while the other one is in the form '__text__'.  TODO:
+     If we were storing attributes in normalized 'text' form, then
+     this could all go away and we could take full advantage of
+     the fact that we're comparing identifiers. :-)  */
+  const size_t attr1_len = IDENTIFIER_LENGTH (attr1);
+  const size_t attr2_len = IDENTIFIER_LENGTH (attr2);
+
+  if (attr2_len == attr1_len + 4)
+    {
+      const char *p = IDENTIFIER_POINTER (attr2);
+      const char *q = IDENTIFIER_POINTER (attr1);
+      if (p[0] == '_' && p[1] == '_'
+	  && p[attr2_len - 2] == '_' && p[attr2_len - 1] == '_'
+	  && strncmp (q, p + 2, attr1_len) == 0)
+	return true;;
+    }
+  else if (attr2_len + 4 == attr1_len)
+    {
+      const char *p = IDENTIFIER_POINTER (attr2);
+      const char *q = IDENTIFIER_POINTER (attr1);
+      if (q[0] == '_' && q[1] == '_'
+	  && q[attr1_len - 2] == '_' && q[attr1_len - 1] == '_'
+	  && strncmp (q + 2, p, attr2_len) == 0)
+	return true;
+    }
+
+  return false;
+}
+
+/* Compare two attributes for their value identity.  Return true if the
+   attribute values are known to be equal; otherwise return false.  */
+
+bool
+attribute_value_equal (const_tree attr1, const_tree attr2)
+>>>>>>> master
+{
+  while (l1 != NULL_TREE && l2 != NULL_TREE)
+    {
+      if (simple_cst_equal (TREE_VALUE (l1), TREE_VALUE (l2)) != 1)
+	return false;
+
+<<<<<<< HEAD
+      l1 = TREE_CHAIN (l1);
+      l2 = TREE_CHAIN (l2);
+    }
+=======
+  if (TREE_VALUE (attr1) != NULL_TREE
+      && TREE_CODE (TREE_VALUE (attr1)) == TREE_LIST
+      && TREE_VALUE (attr2) != NULL_TREE
+      && TREE_CODE (TREE_VALUE (attr2)) == TREE_LIST)
+    {
+      /* Handle attribute format.  */
+      if (is_attribute_p ("format", TREE_PURPOSE (attr1)))
+	{
+	  attr1 = TREE_VALUE (attr1);
+	  attr2 = TREE_VALUE (attr2);
+	  /* Compare the archetypes (printf/scanf/strftime/...).  */
+	  if (!cmp_attrib_identifiers (TREE_VALUE (attr1),
+				       TREE_VALUE (attr2)))
+	    return false;
+	  /* Archetypes are the same.  Compare the rest.  */
+	  return (simple_cst_list_equal (TREE_CHAIN (attr1),
+					 TREE_CHAIN (attr2)) == 1);
+	}
+      return (simple_cst_list_equal (TREE_VALUE (attr1),
+				     TREE_VALUE (attr2)) == 1);
+    }
+
+  if ((flag_openmp || flag_openmp_simd)
+      && TREE_VALUE (attr1) && TREE_VALUE (attr2)
+      && TREE_CODE (TREE_VALUE (attr1)) == OMP_CLAUSE
+      && TREE_CODE (TREE_VALUE (attr2)) == OMP_CLAUSE)
+    return omp_declare_simd_clauses_equal (TREE_VALUE (attr1),
+					   TREE_VALUE (attr2));
+>>>>>>> master
 
   return l1 == l2;
 }
@@ -7432,6 +7719,9 @@ type_hash_canon (unsigned int hashcode, tree type)
       tree t1 = ((type_hash *) *loc)->type;
       gcc_assert (TYPE_MAIN_VARIANT (t1) == t1);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
       if (GATHER_STATISTICS)
 	{
 	  tree_code_counts[(int) TREE_CODE (type)]--;
@@ -10123,6 +10413,21 @@ tree_contains_struct_check_failed (const_tree node,
 void
 tree_int_cst_elt_check_failed (int idx, int len, const char *file, int line,
 			       const char *function)
+<<<<<<< HEAD
+=======
+{
+  internal_error
+    ("tree check: accessed elt %d of tree_int_cst with %d elts in %s, at %s:%d",
+     idx + 1, len, function, trim_filename (file), line);
+}
+
+/* Similar to above, except that the check is for the bounds of a TREE_VEC's
+   (dynamically sized) vector.  */
+
+void
+tree_vec_elt_check_failed (int idx, int len, const char *file, int line,
+			   const char *function)
+>>>>>>> master
 {
   internal_error
     ("tree check: accessed elt %d of tree_int_cst with %d elts in %s, at %s:%d",
@@ -10180,9 +10485,12 @@ make_vector_type (tree innertype, int nunits, machine_mode mode)
   tree t;
   inchash::hash hstate;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   tree mv_innertype = TYPE_MAIN_VARIANT (innertype);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   t = make_node (VECTOR_TYPE);
   TREE_TYPE (t) = mv_innertype;
@@ -10192,10 +10500,14 @@ make_vector_type (tree innertype, int nunits, machine_mode mode)
   if (TYPE_STRUCTURAL_EQUALITY_P (mv_innertype) || in_lto_p)
     SET_TYPE_STRUCTURAL_EQUALITY (t);
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if ((TYPE_CANONICAL (innertype) != innertype
 =======
   else if ((TYPE_CANONICAL (mv_innertype) != innertype
 >>>>>>> gcc-mirror/master
+=======
+  else if ((TYPE_CANONICAL (innertype) != innertype
+>>>>>>> master
 	    || mode != VOIDmode)
 	   && !VECTOR_BOOLEAN_TYPE_P (t))
     TYPE_CANONICAL (t)
@@ -11024,6 +11336,7 @@ build_vector_type (tree innertype, int nunits)
 
 /* Build truth vector with specified length and number of units.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 tree
 build_truth_vector_type (unsigned nunits, unsigned vector_size)
@@ -11066,6 +11379,8 @@ build_same_sized_truth_vector_type (tree vectype)
 /* Similarly, but builds a variant type with TYPE_VECTOR_OPAQUE set.  */
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 tree
 build_truth_vector_type (unsigned nunits, unsigned vector_size)
@@ -11411,6 +11726,20 @@ build_call_expr_loc_array (location_t loc, tree fndecl, int n, tree *argarray)
 
 tree
 build_call_expr_loc_vec (location_t loc, tree fndecl, vec<tree, va_gc> *vec)
+<<<<<<< HEAD
+{
+  return build_call_expr_loc_array (loc, fndecl, vec_safe_length (vec),
+				    vec_safe_address (vec));
+}
+
+
+/* Conveniently construct a function call expression.  FNDECL names the
+   function to be called, N is the number of arguments, and the "..."
+   parameters are the argument expressions.  */
+
+tree
+build_call_expr_loc (location_t loc, tree fndecl, int n, ...)
+=======
 {
   return build_call_expr_loc_array (loc, fndecl, vec_safe_length (vec),
 				    vec_safe_address (vec));
@@ -11432,6 +11761,25 @@ build_call_expr_loc (location_t loc, tree fndecl, int n, ...)
   for (i = 0; i < n; i++)
     argarray[i] = va_arg (ap, tree);
   va_end (ap);
+  return build_call_expr_loc_array (loc, fndecl, n, argarray);
+}
+
+/* Like build_call_expr_loc (UNKNOWN_LOCATION, ...).  Duplicated because
+   varargs macros aren't supported by all bootstrap compilers.  */
+
+tree
+build_call_expr (tree fndecl, int n, ...)
+>>>>>>> master
+{
+  va_list ap;
+  tree *argarray = XALLOCAVEC (tree, n);
+  int i;
+
+  va_start (ap, n);
+  for (i = 0; i < n; i++)
+    argarray[i] = va_arg (ap, tree);
+  va_end (ap);
+<<<<<<< HEAD
   return build_call_expr_loc_array (loc, fndecl, n, argarray);
 }
 
@@ -11487,6 +11835,46 @@ build_call_expr_internal_loc (location_t loc, enum internal_fn ifn,
   return build_call_expr_internal_loc_array (loc, ifn, type, n, argarray);
 }
 
+=======
+  return build_call_expr_loc_array (UNKNOWN_LOCATION, fndecl, n, argarray);
+}
+
+/* Build an internal call to IFN, with arguments ARGS[0:N-1] and with return
+   type TYPE.  This is just like CALL_EXPR, except its CALL_EXPR_FN is NULL.
+   It will get gimplified later into an ordinary internal function.  */
+
+tree
+build_call_expr_internal_loc_array (location_t loc, internal_fn ifn,
+				    tree type, int n, const tree *args)
+{
+  tree t = build_call_1 (type, NULL_TREE, n);
+  for (int i = 0; i < n; ++i)
+    CALL_EXPR_ARG (t, i) = args[i];
+  SET_EXPR_LOCATION (t, loc);
+  CALL_EXPR_IFN (t) = ifn;
+  return t;
+}
+
+/* Build internal call expression.  This is just like CALL_EXPR, except
+   its CALL_EXPR_FN is NULL.  It will get gimplified later into ordinary
+   internal function.  */
+
+tree
+build_call_expr_internal_loc (location_t loc, enum internal_fn ifn,
+			      tree type, int n, ...)
+{
+  va_list ap;
+  tree *argarray = XALLOCAVEC (tree, n);
+  int i;
+
+  va_start (ap, n);
+  for (i = 0; i < n; i++)
+    argarray[i] = va_arg (ap, tree);
+  va_end (ap);
+  return build_call_expr_internal_loc_array (loc, ifn, type, n, argarray);
+}
+
+>>>>>>> master
 /* Return a function call to FN, if the target is guaranteed to support it,
    or null otherwise.
 
@@ -11512,11 +11900,15 @@ maybe_build_call_expr_loc (location_t loc, combined_fn fn, tree type,
 	{
 	  tree_pair types = direct_internal_fn_types (ifn, type, argarray);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (!direct_internal_fn_supported_p (ifn, types))
 =======
 	  if (!direct_internal_fn_supported_p (ifn, types,
 					       OPTIMIZE_FOR_BOTH))
 >>>>>>> gcc-mirror/master
+=======
+	  if (!direct_internal_fn_supported_p (ifn, types))
+>>>>>>> master
 	    return NULL_TREE;
 	}
       return build_call_expr_internal_loc_array (loc, ifn, type, n, argarray);
@@ -12032,11 +12424,14 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 	case OMP_CLAUSE_SIMDLEN:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	case OMP_CLAUSE__LOOPTEMP_:
 	case OMP_CLAUSE__SIMDUID_:
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	case OMP_CLAUSE_ORDERED:
 	case OMP_CLAUSE_PRIORITY:
 	case OMP_CLAUSE_GRAINSIZE:
@@ -12050,9 +12445,12 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 	case OMP_CLAUSE__SIMDUID_:
 	case OMP_CLAUSE__CILK_FOR_COUNT_:
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  WALK_SUBTREE (OMP_CLAUSE_OPERAND (*tp, 0));
 	  /* FALLTHRU */
 
@@ -12070,9 +12468,12 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 	case OMP_CLAUSE_TASKGROUP:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	case OMP_CLAUSE_NOGROUP:
 	case OMP_CLAUSE_THREADS:
 	case OMP_CLAUSE_SIMD:
@@ -12081,9 +12482,12 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 	case OMP_CLAUSE_SEQ:
 	case OMP_CLAUSE_TILE:
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  WALK_SUBTREE_TAIL (OMP_CLAUSE_CHAIN (*tp));
 
 	case OMP_CLAUSE_LASTPRIVATE:
@@ -12101,6 +12505,7 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	case OMP_CLAUSE_ALIGNED:
 	case OMP_CLAUSE_LINEAR:
 	case OMP_CLAUSE_FROM:
@@ -12109,6 +12514,8 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	case OMP_CLAUSE_LINEAR:
 	  WALK_SUBTREE (OMP_CLAUSE_DECL (*tp));
 	  WALK_SUBTREE (OMP_CLAUSE_LINEAR_STEP (*tp));
@@ -12121,9 +12528,12 @@ walk_tree_1 (tree *tp, walk_tree_fn func, void *data,
 	case OMP_CLAUSE_MAP:
 	case OMP_CLAUSE__CACHE_:
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	  WALK_SUBTREE (OMP_CLAUSE_DECL (*tp));
 	  WALK_SUBTREE (OMP_CLAUSE_OPERAND (*tp, 1));
 	  WALK_SUBTREE_TAIL (OMP_CLAUSE_CHAIN (*tp));
@@ -13483,6 +13893,7 @@ verify_type_variant (const_tree t, tree tv)
     verify_variant_match (TYPE_CONTEXT);
   verify_variant_match (TYPE_STRING_FLAG);
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (TYPE_ALIAS_SET_KNOWN_P (t) && TYPE_ALIAS_SET_KNOWN_P (tv))
     verify_variant_match (TYPE_ALIAS_SET);
 =======
@@ -13493,6 +13904,10 @@ verify_type_variant (const_tree t, tree tv)
       return false;
     }
 >>>>>>> gcc-mirror/master
+=======
+  if (TYPE_ALIAS_SET_KNOWN_P (t) && TYPE_ALIAS_SET_KNOWN_P (tv))
+    verify_variant_match (TYPE_ALIAS_SET);
+>>>>>>> master
 
   /* tree_type_non_common checks.  */
 
@@ -13715,11 +14130,15 @@ gimple_canonical_types_compatible_p (const_tree t1, const_tree t2,
 	 all pointers are considered equal.  Be sure to not return false
 	 negatives.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
       gcc_checking_assert (!POINTER_TYPE_P (t1) && !POINTER_TYPE_P (t2));
 =======
       gcc_checking_assert (canonical_type_used_p (t1)
 			   && canonical_type_used_p (t2));
 >>>>>>> gcc-mirror/master
+=======
+      gcc_checking_assert (!POINTER_TYPE_P (t1) && !POINTER_TYPE_P (t2));
+>>>>>>> master
       return TYPE_CANONICAL (t1) == TYPE_CANONICAL (t2);
     }
 
@@ -13866,6 +14285,7 @@ gimple_canonical_types_compatible_p (const_tree t1, const_tree t2,
 	tree f1, f2;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	/* Don't try to compare variants of an incomplete type, before
 	   TYPE_FIELDS has been copied around.  */
@@ -13874,6 +14294,8 @@ gimple_canonical_types_compatible_p (const_tree t1, const_tree t2,
 
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	if (TYPE_REVERSE_STORAGE_ORDER (t1) != TYPE_REVERSE_STORAGE_ORDER (t2))
 	  return false;
 
@@ -13972,6 +14394,7 @@ verify_type (const_tree t)
       error_found = true;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (TYPE_MAIN_VARIANT (t) == t && ct && TYPE_MAIN_VARIANT (ct) != ct)
    {
@@ -13981,6 +14404,8 @@ verify_type (const_tree t)
       error_found = true;
    }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 
   /* Check various uses of TYPE_MINVAL.  */
@@ -14164,6 +14589,9 @@ verify_type (const_tree t)
     }
   else if (RECORD_OR_UNION_TYPE_P (t))
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
     for (tree fld = TYPE_FIELDS (t); fld; fld = TREE_CHAIN (fld))
       {
 	/* TODO: verify properties of decls.  */
@@ -14186,6 +14614,7 @@ verify_type (const_tree t)
 	    error_found = true;
 	  }
       }
+<<<<<<< HEAD
 =======
     {
       if (TYPE_FIELDS (t) && !COMPLETE_TYPE_P (t) && in_lto_p)
@@ -14217,6 +14646,8 @@ verify_type (const_tree t)
 	}
     }
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   else if (TREE_CODE (t) == INTEGER_TYPE
 	   || TREE_CODE (t) == BOOLEAN_TYPE
 	   || TREE_CODE (t) == OFFSET_TYPE
@@ -14335,12 +14766,16 @@ nonnull_arg_p (const_tree arg)
   unsigned HOST_WIDE_INT arg_num;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   gcc_assert (TREE_CODE (arg) == PARM_DECL && POINTER_TYPE_P (TREE_TYPE (arg)));
 =======
   gcc_assert (TREE_CODE (arg) == PARM_DECL
 	      && (POINTER_TYPE_P (TREE_TYPE (arg))
 		  || TREE_CODE (TREE_TYPE (arg)) == OFFSET_TYPE));
 >>>>>>> gcc-mirror/master
+=======
+  gcc_assert (TREE_CODE (arg) == PARM_DECL && POINTER_TYPE_P (TREE_TYPE (arg)));
+>>>>>>> master
 
   /* The static chain decl is always non null.  */
   if (arg == cfun->static_chain_decl)
@@ -14396,10 +14831,14 @@ nonnull_arg_p (const_tree arg)
    or ad-hoc information.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static location_t
 =======
 location_t
 >>>>>>> gcc-mirror/master
+=======
+static location_t
+>>>>>>> master
 get_pure_location (location_t loc)
 {
   if (IS_ADHOC_LOC (loc))
@@ -14430,16 +14869,23 @@ set_block (location_t loc, tree block)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 location_t
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 set_source_range (tree expr, location_t start, location_t finish)
 {
   source_range src_range;
   src_range.m_start = start;
   src_range.m_finish = finish;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
   set_source_range (expr, src_range);
 }
 
@@ -14448,6 +14894,7 @@ set_source_range (tree expr, source_range src_range)
 {
   if (!EXPR_P (expr))
     return;
+<<<<<<< HEAD
 =======
   return set_source_range (expr, src_range);
 }
@@ -14458,6 +14905,8 @@ set_source_range (tree expr, source_range src_range)
   if (!EXPR_P (expr))
     return UNKNOWN_LOCATION;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
   location_t pure_loc = get_pure_location (EXPR_LOCATION (expr));
   location_t adhoc = COMBINE_LOCATION_DATA (line_table,
@@ -14465,6 +14914,7 @@ set_source_range (tree expr, source_range src_range)
 					    src_range,
 					    NULL);
   SET_EXPR_LOCATION (expr, adhoc);
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   return adhoc;
@@ -14483,6 +14933,8 @@ make_location (location_t caret, location_t start, location_t finish)
 						   NULL);
   return combined_loc;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Return the name of combined function FN, for debugging purposes.  */

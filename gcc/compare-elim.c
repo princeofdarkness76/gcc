@@ -249,10 +249,14 @@ public:
     : dom_walker (direction) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
 };
 
 /* Return true if conforming COMPARE with EH_NOTE is redundant with comparison
@@ -299,10 +303,14 @@ can_eliminate_compare (rtx compare, rtx eh_note, struct comparison *cmp)
    in BB->AUX.  Called via dom_walker.walk ().  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 find_comparison_dom_walker::before_dom_children (basic_block bb)
 {
   struct comparison *last_cmp;
@@ -435,10 +443,13 @@ find_comparison_dom_walker::before_dom_children (basic_block bb)
   if (need_purge)
     purge_dead_edges (bb);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   return NULL;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Find all comparisons in the function.  */

@@ -1647,9 +1647,12 @@ ipa_compute_jump_functions_for_edge (struct ipa_func_body_info *fbi,
 	      && hwi_bitpos % BITS_PER_UNIT == 0)
 	    {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      gcc_checking_assert (align != 0);
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 	      jfunc->alignment.known = true;
 	      jfunc->alignment.align = align / BITS_PER_UNIT;
 	      jfunc->alignment.misalign = hwi_bitpos / BITS_PER_UNIT;
@@ -2250,28 +2253,39 @@ public:
     : dom_walker (CDI_DOMINATORS), m_fbi (fbi) {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/master
+=======
+  virtual void before_dom_children (basic_block);
+>>>>>>> master
 
 private:
   struct ipa_func_body_info *m_fbi;
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
 >>>>>>> gcc-mirror/master
+=======
+void
+>>>>>>> master
 analysis_dom_walker::before_dom_children (basic_block bb)
 {
   ipa_analyze_params_uses_in_bb (m_fbi, bb);
   ipa_compute_jump_functions_for_bb (m_fbi, bb);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 }
 
 /* Release body info FBI.  */
@@ -3543,9 +3557,15 @@ ipa_node_params_t::duplicate(cgraph_node *src, cgraph_node *dst,
 	}
       ipa_set_node_agg_value_chain (dst, new_av);
     }
+<<<<<<< HEAD
 
   ipcp_transformation_summary *src_trans = ipcp_get_transformation_summary (src);
 
+=======
+
+  ipcp_transformation_summary *src_trans = ipcp_get_transformation_summary (src);
+
+>>>>>>> master
   if (src_trans && vec_safe_length (src_trans->alignments) > 0)
     {
       ipcp_grow_transformations_if_necessary ();
@@ -5103,6 +5123,7 @@ adjust_agg_replacement_values (struct cgraph_node *node,
 }
 
 /* Dominator walker driving the ipcp modification phase.  */
+<<<<<<< HEAD
 
 class ipcp_modif_dom_walker : public dom_walker
 {
@@ -5166,6 +5187,63 @@ ipcp_modif_dom_walker::before_dom_children (basic_block bb)
       if (vce)
 	continue;
 
+=======
+
+class ipcp_modif_dom_walker : public dom_walker
+{
+public:
+  ipcp_modif_dom_walker (struct ipa_func_body_info *fbi,
+			 vec<ipa_param_descriptor> descs,
+			 struct ipa_agg_replacement_value *av,
+			 bool *sc, bool *cc)
+    : dom_walker (CDI_DOMINATORS), m_fbi (fbi), m_descriptors (descs),
+      m_aggval (av), m_something_changed (sc), m_cfg_changed (cc) {}
+
+  virtual void before_dom_children (basic_block);
+
+private:
+  struct ipa_func_body_info *m_fbi;
+  vec<ipa_param_descriptor> m_descriptors;
+  struct ipa_agg_replacement_value *m_aggval;
+  bool *m_something_changed, *m_cfg_changed;
+};
+
+void
+ipcp_modif_dom_walker::before_dom_children (basic_block bb)
+{
+  gimple_stmt_iterator gsi;
+  for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+    {
+      struct ipa_agg_replacement_value *v;
+      gimple *stmt = gsi_stmt (gsi);
+      tree rhs, val, t;
+      HOST_WIDE_INT offset, size;
+      int index;
+      bool by_ref, vce;
+
+      if (!gimple_assign_load_p (stmt))
+	continue;
+      rhs = gimple_assign_rhs1 (stmt);
+      if (!is_gimple_reg_type (TREE_TYPE (rhs)))
+	continue;
+
+      vce = false;
+      t = rhs;
+      while (handled_component_p (t))
+	{
+	  /* V_C_E can do things like convert an array of integers to one
+	     bigger integer and similar things we do not handle below.  */
+	  if (TREE_CODE (rhs) == VIEW_CONVERT_EXPR)
+	    {
+	      vce = true;
+	      break;
+	    }
+	  t = TREE_OPERAND (t, 0);
+	}
+      if (vce)
+	continue;
+
+>>>>>>> master
       if (!ipa_load_from_parm_agg (m_fbi, m_descriptors, stmt, rhs, &index,
 				   &offset, &size, &by_ref))
 	continue;
@@ -5223,10 +5301,14 @@ ipcp_modif_dom_walker::before_dom_children (basic_block bb)
 	*m_cfg_changed = true;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
+=======
+
+>>>>>>> master
 }
 
 /* Update alignment of formal parameters as described in

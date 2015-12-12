@@ -300,9 +300,13 @@ const struct fname_var_t fname_vars[] =
 struct visibility_flags visibility_options;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree c_fully_fold_internal (tree expr, bool, bool *, bool *, bool);
 =======
 >>>>>>> gcc-mirror/master
+=======
+static tree c_fully_fold_internal (tree expr, bool, bool *, bool *, bool);
+>>>>>>> master
 static tree check_case_value (location_t, tree);
 static bool check_case_bounds (location_t, tree, tree, tree *, tree *,
 			       bool *);
@@ -388,6 +392,7 @@ static tree handle_no_split_stack_attribute (tree *, tree, tree, int, bool *);
 static tree handle_fnspec_attribute (tree *, tree, tree, int, bool *);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree handle_omp_declare_simd_attribute (tree *, tree, tree, int,
 					       bool *);
 static tree handle_omp_declare_target_attribute (tree *, tree, tree, int,
@@ -395,6 +400,8 @@ static tree handle_omp_declare_target_attribute (tree *, tree, tree, int,
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 static tree handle_warn_unused_attribute (tree *, tree, tree, int, bool *);
 static tree handle_returns_nonnull_attribute (tree *, tree, tree, int, bool *);
 static tree handle_omp_declare_simd_attribute (tree *, tree, tree, int,
@@ -407,9 +414,12 @@ static tree handle_bnd_variable_size_attribute (tree *, tree, tree, int, bool *)
 static tree handle_bnd_legacy (tree *, tree, tree, int, bool *);
 static tree handle_bnd_instrument (tree *, tree, tree, int, bool *);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 static void check_function_nonnull (tree, int, tree *);
 static void check_nonnull_arg (void *, tree, unsigned HOST_WIDE_INT);
@@ -828,6 +838,7 @@ const struct attribute_spec c_common_attribute_table[] =
 			      handle_fnspec_attribute, false },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "omp declare simd",       0, -1, true,  false, false,
 			      handle_omp_declare_simd_attribute, false },
   { "omp declare target",     0, 0, true, false, false,
@@ -835,6 +846,8 @@ const struct attribute_spec c_common_attribute_table[] =
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   { "warn_unused",            0, 0, false, false, false,
 			      handle_warn_unused_attribute, false },
   { "returns_nonnull",        0, 0, false, true, true,
@@ -844,10 +857,14 @@ const struct attribute_spec c_common_attribute_table[] =
   { "cilk simd function",     0, -1, true,  false, false,
 			      handle_omp_declare_simd_attribute, false },
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "simd",		      0, 0, true,  false, false,
 =======
   { "simd",		      0, 1, true,  false, false,
 >>>>>>> gcc-mirror/master
+=======
+  { "simd",		      0, 0, true,  false, false,
+>>>>>>> master
 			      handle_simd_attribute, false },
   { "omp declare target",     0, 0, true, false, false,
 			      handle_omp_declare_target_attribute, false },
@@ -864,9 +881,12 @@ const struct attribute_spec c_common_attribute_table[] =
   { "bnd_instrument",         0, 0, true, false, false,
 			      handle_bnd_instrument, false },
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   { NULL,                     0, 0, false, false, false, NULL, false }
 };
 
@@ -1973,11 +1993,15 @@ warn_tautological_cmp (location_t loc, enum tree_code code, tree lhs, tree rhs)
   /* We do not warn for constants because they are typical of macro
      expansions that test for features, sizeof, and similar.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (CONSTANT_CLASS_P (fold (lhs)) || CONSTANT_CLASS_P (fold (rhs)))
 =======
   if (CONSTANT_CLASS_P (fold_for_warn (lhs))
       || CONSTANT_CLASS_P (fold_for_warn (rhs)))
 >>>>>>> gcc-mirror/master
+=======
+  if (CONSTANT_CLASS_P (fold (lhs)) || CONSTANT_CLASS_P (fold (rhs)))
+>>>>>>> master
     return;
 
   /* Don't warn for e.g.
@@ -5610,12 +5634,15 @@ enum c_builtin_type
 #define DEF_FUNCTION_TYPE_5(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5) NAME,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) NAME,
 #define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) NAME,
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
@@ -5629,9 +5656,12 @@ enum c_builtin_type
 #define DEF_FUNCTION_TYPE_11(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) NAME,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define DEF_FUNCTION_TYPE_VAR_0(NAME, RETURN) NAME,
 #define DEF_FUNCTION_TYPE_VAR_1(NAME, RETURN, ARG1) NAME,
 #define DEF_FUNCTION_TYPE_VAR_2(NAME, RETURN, ARG1, ARG2) NAME,
@@ -5657,6 +5687,7 @@ enum c_builtin_type
 #undef DEF_FUNCTION_TYPE_8
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef DEF_FUNCTION_TYPE_9
 #undef DEF_FUNCTION_TYPE_10
@@ -5667,6 +5698,11 @@ enum c_builtin_type
 #undef DEF_FUNCTION_TYPE_10
 #undef DEF_FUNCTION_TYPE_11
 >>>>>>> gcc-mirror/master
+=======
+#undef DEF_FUNCTION_TYPE_9
+#undef DEF_FUNCTION_TYPE_10
+#undef DEF_FUNCTION_TYPE_11
+>>>>>>> master
 #undef DEF_FUNCTION_TYPE_VAR_0
 #undef DEF_FUNCTION_TYPE_VAR_1
 #undef DEF_FUNCTION_TYPE_VAR_2
@@ -5757,9 +5793,12 @@ c_define_builtins (tree va_list_ref_type_node, tree va_list_arg_type_node)
 	       ARG7, ARG8);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define DEF_FUNCTION_TYPE_9(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6, ARG7, ARG8, ARG9)			\
   def_fn_type (ENUM, RETURN, 0, 9, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	\
@@ -5773,9 +5812,12 @@ c_define_builtins (tree va_list_ref_type_node, tree va_list_arg_type_node)
   def_fn_type (ENUM, RETURN, 0, 11, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	 \
 	       ARG7, ARG8, ARG9, ARG10, ARG11);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #define DEF_FUNCTION_TYPE_VAR_0(ENUM, RETURN) \
   def_fn_type (ENUM, RETURN, 1, 0);
 #define DEF_FUNCTION_TYPE_VAR_1(ENUM, RETURN, ARG1) \
@@ -7378,7 +7420,10 @@ handle_no_address_safety_analysis_attribute (tree *node, tree name, tree, int,
 
 /* Handle a "no_sanitize_undefined" attribute; arguments as in
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
    struct attribute_spec.handler.  */
 
 static tree
@@ -7414,12 +7459,21 @@ handle_stack_protect_attribute (tree *node, tree name, tree, int,
 }
 
 /* Handle a "noinline" attribute; arguments as in
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
    struct attribute_spec.handler.  */
 
 static tree
 handle_no_sanitize_undefined_attribute (tree *node, tree name, tree, int,
 				      bool *no_add_attrs)
+=======
+   struct attribute_spec.handler.  */
+
+static tree
+handle_noinline_attribute (tree *node, tree name,
+			   tree ARG_UNUSED (args),
+			   int ARG_UNUSED (flags), bool *no_add_attrs)
+>>>>>>> master
 {
 <<<<<<< HEAD
   if (TREE_CODE (*node) != FUNCTION_DECL)
@@ -7445,7 +7499,11 @@ handle_no_sanitize_undefined_attribute (tree *node, tree name, tree, int,
   return NULL_TREE;
 }
 
+<<<<<<< HEAD
 /* Handle a "stack_protect" attribute; arguments as in
+=======
+/* Handle a "noclone" attribute; arguments as in
+>>>>>>> master
    struct attribute_spec.handler.  */
 static tree
 handle_stack_protect_attribute (tree *node, tree name, tree, int,
@@ -7534,6 +7592,78 @@ handle_noinline_attribute (tree *node, tree name,
 }
 
 /* Handle a "noclone" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_noclone_attribute (tree *node, tree name,
+			  tree ARG_UNUSED (args),
+			  int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "no_icf" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_noicf_attribute (tree *node, tree name,
+			tree ARG_UNUSED (args),
+			int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+
+/* Handle a "always_inline" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_always_inline_attribute (tree *node, tree name,
+				tree ARG_UNUSED (args),
+				int ARG_UNUSED (flags),
+				bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) == FUNCTION_DECL)
+    {
+      if (lookup_attribute ("noinline", DECL_ATTRIBUTES (*node)))
+	{
+	  warning (OPT_Wattributes, "%qE attribute ignored due to conflict "
+		   "with %qs attribute", name, "noinline");
+	  *no_add_attrs = true;
+	}
+      else if (lookup_attribute ("target_clones", DECL_ATTRIBUTES (*node)))
+	{
+	  warning (OPT_Wattributes, "%qE attribute ignored due to conflict "
+		   "with %qs attribute", name, "target_clones");
+	  *no_add_attrs = true;
+	}
+      else
+	/* Set the attribute and mark it for disregarding inline
+	   limits.  */
+	DECL_DISREGARD_INLINE_LIMITS (*node) = 1;
+    }
+  else
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "gnu_inline" attribute; arguments as in
    struct attribute_spec.handler.  */
 
 static tree
@@ -8343,6 +8473,7 @@ handle_section_attribute (tree *node, tree ARG_UNUSED (name), tree args,
       error ("section attribute argument not a string constant");
       goto fail;
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
   if (VAR_P (decl)
@@ -8369,6 +8500,11 @@ handle_section_attribute (tree *node, tree ARG_UNUSED (name), tree args,
     }
 
   if (VAR_P (decl)
+=======
+    }
+
+  if (VAR_P (decl)
+>>>>>>> master
       && current_function_decl != NULL_TREE
       && !TREE_STATIC (decl))
     {
@@ -8388,7 +8524,10 @@ handle_section_attribute (tree *node, tree ARG_UNUSED (name), tree args,
     }
 
   if (VAR_P (decl)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
       && !targetm.have_tls && targetm.emutls.tmpl_section
       && DECL_THREAD_LOCAL_P (decl))
     {
@@ -9040,6 +9179,8 @@ handle_no_instrument_function_attribute (tree *node, tree name,
   else
     DECL_NO_INSTRUMENT_FUNCTION_ENTRY_EXIT (decl) = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
 
   return NULL_TREE;
 }
@@ -9063,6 +9204,168 @@ handle_malloc_attribute (tree *node, tree name, tree ARG_UNUSED (args),
   return NULL_TREE;
 }
 
+/* Handle a "alloc_size" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_alloc_size_attribute (tree *node, tree ARG_UNUSED (name), tree args,
+			     int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  unsigned arg_count = type_num_arguments (*node);
+  for (; args; args = TREE_CHAIN (args))
+    {
+      tree position = TREE_VALUE (args);
+      if (position && TREE_CODE (position) != IDENTIFIER_NODE
+	  && TREE_CODE (position) != FUNCTION_DECL)
+	position = default_conversion (position);
+
+      if (!tree_fits_uhwi_p (position)
+	  || !arg_count
+	  || !IN_RANGE (tree_to_uhwi (position), 1, arg_count))
+	{
+	  warning (OPT_Wattributes,
+	           "alloc_size parameter outside range");
+	  *no_add_attrs = true;
+	  return NULL_TREE;
+	}
+    }
+  return NULL_TREE;
+}
+
+/* Handle a "alloc_align" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_alloc_align_attribute (tree *node, tree, tree args, int,
+			      bool *no_add_attrs)
+{
+  unsigned arg_count = type_num_arguments (*node);
+  tree position = TREE_VALUE (args);
+  if (position && TREE_CODE (position) != IDENTIFIER_NODE)
+    position = default_conversion (position);
+
+  if (!tree_fits_uhwi_p (position)
+      || !arg_count
+      || !IN_RANGE (tree_to_uhwi (position), 1, arg_count))
+    {
+      warning (OPT_Wattributes,
+	       "alloc_align parameter outside range");
+      *no_add_attrs = true;
+      return NULL_TREE;
+    }
+  return NULL_TREE;
+}
+
+/* Handle a "assume_aligned" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_assume_aligned_attribute (tree *, tree, tree args, int,
+				 bool *no_add_attrs)
+{
+  for (; args; args = TREE_CHAIN (args))
+    {
+      tree position = TREE_VALUE (args);
+      if (position && TREE_CODE (position) != IDENTIFIER_NODE
+	  && TREE_CODE (position) != FUNCTION_DECL)
+	position = default_conversion (position);
+
+      if (TREE_CODE (position) != INTEGER_CST)
+	{
+	  warning (OPT_Wattributes,
+		   "assume_aligned parameter not integer constant");
+	  *no_add_attrs = true;
+	  return NULL_TREE;
+	}
+    }
+  return NULL_TREE;
+}
+
+/* Handle a "fn spec" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_fnspec_attribute (tree *node ATTRIBUTE_UNUSED, tree ARG_UNUSED (name),
+			 tree args, int ARG_UNUSED (flags),
+			 bool *no_add_attrs ATTRIBUTE_UNUSED)
+{
+  gcc_assert (args
+	      && TREE_CODE (TREE_VALUE (args)) == STRING_CST
+	      && !TREE_CHAIN (args));
+  return NULL_TREE;
+}
+
+/* Handle a "bnd_variable_size" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_bnd_variable_size_attribute (tree *node, tree name, tree ARG_UNUSED (args),
+				    int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FIELD_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "bnd_legacy" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_bnd_legacy (tree *node, tree name, tree ARG_UNUSED (args),
+		   int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "bnd_instrument" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_bnd_instrument (tree *node, tree name, tree ARG_UNUSED (args),
+		       int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+>>>>>>> master
+
+  return NULL_TREE;
+}
+
+/* Handle a "warn_unused" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_warn_unused_attribute (tree *node, tree name,
+			      tree args ATTRIBUTE_UNUSED,
+			      int flags ATTRIBUTE_UNUSED, bool *no_add_attrs)
+{
+  if (TYPE_P (*node))
+    /* Do nothing else, just set the attribute.  We'll get at
+       it later with lookup_attribute.  */
+    ;
+  else
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+<<<<<<< HEAD
 /* Handle a "alloc_size" attribute; arguments as in
    struct attribute_spec.handler.  */
 
@@ -9441,17 +9744,29 @@ handle_omp_declare_simd_attribute (tree *, tree, tree, int, bool *)
 }
 
 <<<<<<< HEAD
+=======
+>>>>>>> master
 /* Handle an "omp declare simd" attribute; arguments as in
    struct attribute_spec.handler.  */
 
 static tree
 handle_omp_declare_simd_attribute (tree *, tree, tree, int, bool *)
 {
+<<<<<<< HEAD
 =======
 /* Handle a "simd" attribute.  */
 
 static tree
 handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs)
+=======
+  return NULL_TREE;
+}
+
+/* Handle a "simd" attribute.  */
+
+static tree
+handle_simd_attribute (tree *node, tree name, tree, int, bool *no_add_attrs)
+>>>>>>> master
 {
   if (TREE_CODE (*node) == FUNCTION_DECL)
     {
@@ -9464,6 +9779,7 @@ handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs
 	  *no_add_attrs = true;
 	}
       else
+<<<<<<< HEAD
 	{
 	  tree t = get_identifier ("omp declare simd");
 	  tree attr = NULL_TREE;
@@ -9499,6 +9815,11 @@ handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs
 								attr),
 					       DECL_ATTRIBUTES (*node));
 	}
+=======
+	DECL_ATTRIBUTES (*node)
+	  = tree_cons (get_identifier ("omp declare simd"),
+		       NULL_TREE, DECL_ATTRIBUTES (*node));
+>>>>>>> master
     }
   else
     {
@@ -9506,7 +9827,10 @@ handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs
       *no_add_attrs = true;
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
   return NULL_TREE;
 }
 
@@ -11141,12 +11465,18 @@ c_cpp_error (cpp_reader *pfile ATTRIBUTE_UNUSED, int level, int reason,
     }
   if (done_lexing)
 <<<<<<< HEAD
+<<<<<<< HEAD
     richloc->set_range (0,
 			source_range::from_location (input_location),
 			true, true);
 =======
     richloc->set_range (line_table, 0, input_location, true);
 >>>>>>> gcc-mirror/master
+=======
+    richloc->set_range (0,
+			source_range::from_location (input_location),
+			true, true);
+>>>>>>> master
   diagnostic_set_info_translated (&diagnostic, msg, ap,
 				  richloc, dlevel);
   diagnostic_override_option_index (&diagnostic,
@@ -13021,6 +13351,7 @@ maybe_warn_bool_compare (location_t loc, enum tree_code code, tree op0,
     return;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree cst = (TREE_CODE (op0) == INTEGER_CST)
 	     ? op0 : (TREE_CODE (op1) == INTEGER_CST) ? op1 : NULL_TREE;
   if (!cst)
@@ -13034,6 +13365,11 @@ maybe_warn_bool_compare (location_t loc, enum tree_code code, tree op0,
     cst = op1 = f;
   else
 >>>>>>> gcc-mirror/master
+=======
+  tree cst = (TREE_CODE (op0) == INTEGER_CST)
+	     ? op0 : (TREE_CODE (op1) == INTEGER_CST) ? op1 : NULL_TREE;
+  if (!cst)
+>>>>>>> master
     return;
 
   if (!integer_zerop (cst) && !integer_onep (cst))
@@ -13097,6 +13433,7 @@ maybe_warn_shift_overflow (location_t loc, tree op0, tree op1)
   unsigned int min_prec = (wi::min_precision (op0, SIGNED)
 			   + TREE_INT_CST_LOW (op1));
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Handle the left-shifting 1 into the sign bit case.  */
   if (min_prec == prec0 + 1)
 =======
@@ -13106,6 +13443,10 @@ maybe_warn_shift_overflow (location_t loc, tree op0, tree op1)
    */
   if (!tree_int_cst_sign_bit(op0) && min_prec == prec0 + 1)
 >>>>>>> gcc-mirror/master
+=======
+  /* Handle the left-shifting 1 into the sign bit case.  */
+  if (min_prec == prec0 + 1)
+>>>>>>> master
     {
       /* Never warn for C++14 onwards.  */
       if (cxx_dialect >= cxx14)

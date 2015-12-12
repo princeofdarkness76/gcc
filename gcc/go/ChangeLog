@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 2015-11-30  Ian Lance Taylor  <iant@google.com>
 
@@ -7,6 +8,8 @@
 	TYPE_STRING_FLAG on a variant type.
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 2015-11-11  Andrew MacLeod  <amacleod@redhat.com>
 
 	* go-backend.c: Remove unused header files.

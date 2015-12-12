@@ -4,6 +4,7 @@ LIBMPX_1.0
 	*;
 };
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 LIBMPX_2.0
 {
@@ -11,3 +12,5 @@ LIBMPX_2.0
     get_bd;
 } LIBMPX_1.0;
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

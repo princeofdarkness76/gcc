@@ -251,9 +251,12 @@ extern void default_setup_incoming_vararg_bounds (cumulative_args_t ca ATTRIBUTE
 						  int *pretend_arg_size ATTRIBUTE_UNUSED,
 						  int second_time ATTRIBUTE_UNUSED);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern bool default_optab_supported_p (int, machine_mode, machine_mode,
 				       optimization_type);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 #endif /* GCC_TARGHOOKS_H */

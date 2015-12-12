@@ -50,8 +50,12 @@ L23:
    execute the if (expr->common.code != 142) test once per loop
    iteration.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom2" } } */
 =======
 /* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom3" } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom2" } } */
+>>>>>>> master
 

@@ -35,10 +35,14 @@
 --
 --  The algorithm used here is not appropriate for applications that require
 <<<<<<< HEAD
+<<<<<<< HEAD
 --  cryptographically strong hashes, or for application which wish to use very
 =======
 --  cryptographically strong hashes, or for applications that wish to use very
 >>>>>>> gcc-mirror/master
+=======
+--  cryptographically strong hashes, or for application which wish to use very
+>>>>>>> master
 --  wide hash values as pseudo unique identifiers. In such cases please refer
 --  to GNAT.SHA1 and GNAT.MD5.
 

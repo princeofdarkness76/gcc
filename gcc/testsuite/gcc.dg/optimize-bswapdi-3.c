@@ -3,9 +3,12 @@
 /* { dg-require-effective-target stdint_types } */
 /* { dg-options "-O2 -fdump-tree-bswap" } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-additional-options "-mzarch" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 
 #include <stdint.h>
 

@@ -45,6 +45,7 @@ package body Opt is
    function Back_End_Exceptions return Boolean is
    begin
 <<<<<<< HEAD
+<<<<<<< HEAD
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Back_End_ZCX;
 =======
@@ -53,6 +54,10 @@ package body Opt is
           or else
         Exception_Mechanism = Back_End_ZCX;
 >>>>>>> gcc-mirror/master
+=======
+      return Exception_Mechanism = Back_End_SJLJ
+        or else Exception_Mechanism = Back_End_ZCX;
+>>>>>>> master
    end Back_End_Exceptions;
 
    -------------------------
@@ -71,6 +76,7 @@ package body Opt is
    function SJLJ_Exceptions return Boolean is
    begin
 <<<<<<< HEAD
+<<<<<<< HEAD
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Front_End_SJLJ;
 =======
@@ -79,6 +85,10 @@ package body Opt is
           or else
         Exception_Mechanism = Front_End_SJLJ;
 >>>>>>> gcc-mirror/master
+=======
+      return Exception_Mechanism = Back_End_SJLJ
+        or else Exception_Mechanism = Front_End_SJLJ;
+>>>>>>> master
    end SJLJ_Exceptions;
 
    --------------------

@@ -79,6 +79,7 @@ CXX_AND_OBJCXX_OBJS = cp/call.o cp/decl.o cp/expr.o cp/pt.o cp/typeck2.o \
  cp/cp-cilkplus.o \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  cp/cp-gimplify.o cp/cp-array-notation.o $(CXX_C_OBJS)
 =======
  cp/cp-gimplify.o cp/cp-array-notation.o cp/lambda.o \
@@ -90,6 +91,11 @@ CXX_AND_OBJCXX_OBJS = cp/call.o cp/decl.o cp/expr.o cp/pt.o cp/typeck2.o \
  cp/vtable-class-hierarchy.o cp/constexpr.o cp/cp-ubsan.o \
  cp/constraint.o cp/logic.o $(CXX_C_OBJS)
 >>>>>>> gcc-mirror/master
+=======
+ cp/cp-gimplify.o cp/cp-array-notation.o cp/lambda.o \
+ cp/vtable-class-hierarchy.o cp/constexpr.o cp/cp-ubsan.o \
+ cp/constraint.o cp/logic.o $(CXX_C_OBJS)
+>>>>>>> master
 
 # Language-specific object files for C++.
 CXX_OBJS = cp/cp-lang.o c-family/stub-objc.o $(CXX_AND_OBJCXX_OBJS)
@@ -262,6 +268,7 @@ c++.stagefeedback: stagefeedback-start
 	-mv cp/*$(objext) stagefeedback/cp
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #
 # .o: .h dependencies.
@@ -363,3 +370,5 @@ cp/cp-cilkplus.o: cp/cp-cilkplus.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master

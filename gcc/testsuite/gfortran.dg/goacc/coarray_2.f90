@@ -3,9 +3,13 @@
 !
 ! PR fortran/63861
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
 =======
 >>>>>>> gcc-mirror/master
+=======
+! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
+>>>>>>> master
 
 module test
 contains
@@ -23,10 +27,14 @@ contains
     !$acc host_data use_device (a)
     !$acc end host_data
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/master
+=======
+    !$acc parallel loop reduction(+:a)
+>>>>>>> master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -79,10 +87,14 @@ contains
     !$acc host_data use_device (a)
     !$acc end host_data
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/master
+=======
+    !$acc parallel loop reduction(+:a)
+>>>>>>> master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -105,10 +117,14 @@ contains
     !$acc parallel private (a)
     !$acc end parallel
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/master
+=======
+    !$acc parallel loop reduction(+:a)
+>>>>>>> master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -122,6 +138,10 @@ contains
   end subroutine oacc4
 end module test
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 =======
 >>>>>>> gcc-mirror/master
+=======
+! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
+>>>>>>> master

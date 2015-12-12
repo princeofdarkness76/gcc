@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-std=gnu++1y" }
 =======
 // { dg-options "-std=gnu++14" }
 // { dg-do compile }
 >>>>>>> gcc-mirror/master
+=======
+// { dg-options "-std=gnu++1y" }
+>>>>>>> master
 
 // Copyright (C) 2015 Free Software Foundation, Inc.
 //
@@ -25,16 +29,22 @@
 // 8.2.1 Class template shared_ptr [memory.smartptr.shared]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 
 #include <experimental/memory>
 #include <testsuite_hooks.h>
 
 
+<<<<<<< HEAD
 =======
 #include <experimental/memory>
 #include <testsuite_hooks.h>
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
 struct A { virtual ~A() { } };
 struct B : A { };
 
@@ -50,10 +60,14 @@ test01()
 
   std::experimental::shared_ptr<A[3]> a;
 <<<<<<< HEAD
+<<<<<<< HEAD
   a = std::experimental::shared_ptr<B[3]> (new B[3]); // { dg-excess-errors "no matching" }
 =======
   a = std::experimental::shared_ptr<B[3]> (new B[3]); // { dg-error "no match " }
 >>>>>>> gcc-mirror/master
+=======
+  a = std::experimental::shared_ptr<B[3]> (new B[3]); // { dg-excess-errors "no matching" }
+>>>>>>> master
 }
 
 void
@@ -63,10 +77,14 @@ test02()
 
   std::experimental::shared_ptr<A[]> a(new A[3]);
 <<<<<<< HEAD
+<<<<<<< HEAD
   std::experimental::shared_ptr<A[2]> spa(a); // { dg-excess-errors "no matching" }
 =======
   std::experimental::shared_ptr<A[2]> spa(a); // { dg-error "no matching" }
 >>>>>>> gcc-mirror/master
+=======
+  std::experimental::shared_ptr<A[2]> spa(a); // { dg-excess-errors "no matching" }
+>>>>>>> master
 }
 
 int
