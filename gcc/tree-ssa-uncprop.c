@@ -277,6 +277,7 @@ struct equiv_hash_elt
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Value to ssa name equivalence hashtable helpers.  */
 
 struct val_ssa_equiv_hash_traits : simple_hashmap_traits <tree_operand_hash>
@@ -312,6 +313,12 @@ static hash_map<tree, auto_vec<tree> > *val_ssa_equiv;
    able to reuse tree-vn for this code.  */
 static hash_map<tree, auto_vec<tree> > *val_ssa_equiv;
 >>>>>>> gcc-mirror/trunk
+=======
+/* Global hash table implementing a mapping from invariant values
+   to a list of SSA_NAMEs which have the same value.  We might be
+   able to reuse tree-vn for this code.  */
+static hash_map<tree, auto_vec<tree> > *val_ssa_equiv;
+>>>>>>> gcc-mirror/master
 
 static void uncprop_into_successor_phis (basic_block);
 
@@ -339,6 +346,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -349,6 +357,9 @@ public:
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
 private:
@@ -481,6 +492,7 @@ single_incoming_edge_ignoring_loop_edges (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -491,6 +503,9 @@ void
 =======
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+edge
+>>>>>>> gcc-mirror/master
 uncprop_dom_walker::before_dom_children (basic_block bb)
 {
   basic_block parent;
@@ -528,6 +543,7 @@ const pass_data pass_data_uncprop =
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 {
@@ -563,6 +579,22 @@ class pass_uncprop : public gimple_opt_pass
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+{
+  GIMPLE_PASS, /* type */
+  "uncprop", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_SSA_UNCPROP, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_uncprop : public gimple_opt_pass
+{
+>>>>>>> gcc-mirror/master
 public:
   pass_uncprop (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_uncprop, ctxt)
@@ -585,6 +617,7 @@ pass_uncprop::execute (function *fun)
   /* Create our global data structures.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   val_ssa_equiv
     = new hash_map<tree, vec<tree>, val_ssa_equiv_hash_traits> (1024);
 =======
@@ -593,6 +626,9 @@ pass_uncprop::execute (function *fun)
 =======
   val_ssa_equiv = new hash_map<tree, auto_vec<tree> > (1024);
 >>>>>>> gcc-mirror/trunk
+=======
+  val_ssa_equiv = new hash_map<tree, auto_vec<tree> > (1024);
+>>>>>>> gcc-mirror/master
 
   /* We're going to do a dominator walk, so ensure that we have
      dominance information.  */
@@ -627,6 +663,7 @@ pass_uncprop::execute (function *fun)
 
 gimple_opt_pass *
 make_pass_uncprop (gcc::context *ctxt)
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
 =======
@@ -705,5 +742,8 @@ make_pass_uncprop (gcc::context *ctxt)
 =======
 {
 >>>>>>> gcc-mirror/trunk
+=======
+{
+>>>>>>> gcc-mirror/master
   return new pass_uncprop (ctxt);
 }

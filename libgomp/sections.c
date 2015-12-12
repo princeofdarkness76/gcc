@@ -160,6 +160,7 @@ GOMP_parallel_sections (void (*fn) (void *), void *data,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 ialias_redirect (GOMP_parallel_end)
@@ -183,6 +184,8 @@ GOMP_parallel_sections (void (*fn) (void *), void *data,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* The GOMP_section_end* routines are called after the thread is told

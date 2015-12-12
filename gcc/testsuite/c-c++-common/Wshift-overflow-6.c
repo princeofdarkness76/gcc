@@ -37,6 +37,7 @@ int i30 = 0b1000000000000000000000000000000 << 1;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 int i31 = (int) 0b10000000000000000000000000000000u << 1; /* { dg-warning "requires 33 bits to represent" } */
 >>>>>>> gcc-mirror/master
@@ -45,3 +46,6 @@ int i31 = (int) 0b10000000000000000000000000000000u << 1; /* { dg-warning "requi
 =======
 int i31 = (int) 0b10000000000000000000000000000000u << 1; /* { dg-warning "requires 33 bits to represent" } */
 >>>>>>> gcc-mirror/trunk
+=======
+int i31 = (int) 0b10000000000000000000000000000000u << 1; /* { dg-warning "requires 33 bits to represent" } */
+>>>>>>> gcc-mirror/master

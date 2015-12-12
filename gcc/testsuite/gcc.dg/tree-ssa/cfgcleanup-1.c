@@ -17,6 +17,7 @@ cleanup (int a, int b)
 /* Dce should get rid of the initializers and cfgcleanup should elliminate ifs  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 0 "dce1"} } */
 <<<<<<< HEAD
 =======
@@ -27,3 +28,6 @@ cleanup (int a, int b)
 =======
 /* { dg-final { scan-tree-dump-times "if " 0 "dce2"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if " 0 "dce2"} } */
+>>>>>>> gcc-mirror/master

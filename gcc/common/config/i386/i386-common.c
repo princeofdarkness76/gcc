@@ -131,6 +131,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define OPTION_MASK_ISA_CLZERO_SET OPTION_MASK_ISA_CLZERO
 >>>>>>> gcc-mirror/master
@@ -139,6 +140,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #define OPTION_MASK_ISA_CLZERO_SET OPTION_MASK_ISA_CLZERO
 >>>>>>> gcc-mirror/trunk
+=======
+#define OPTION_MASK_ISA_CLZERO_SET OPTION_MASK_ISA_CLZERO
+>>>>>>> gcc-mirror/master
 
 /* Define a set of ISAs which aren't available when a given ISA is
    disabled.  MMX and SSE ISAs are handled separately.  */
@@ -202,6 +206,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define OPTION_MASK_ISA_CLZERO_UNSET OPTION_MASK_ISA_CLZERO
 >>>>>>> gcc-mirror/master
@@ -210,6 +215,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #define OPTION_MASK_ISA_CLZERO_UNSET OPTION_MASK_ISA_CLZERO
 >>>>>>> gcc-mirror/trunk
+=======
+#define OPTION_MASK_ISA_CLZERO_UNSET OPTION_MASK_ISA_CLZERO
+>>>>>>> gcc-mirror/master
 
 /* SSE4 includes both SSE4.1 and SSE4.2.  -mno-sse4 should the same
    as -mno-sse4.1. */
@@ -972,9 +980,12 @@ ix86_handle_option (struct gcc_options *opts,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case OPT_mclzero:
       if (value)
 	{
@@ -990,11 +1001,14 @@ ix86_handle_option (struct gcc_options *opts,
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Comes from final.c -- no real reason to change it.  */
 #define MAX_CODE_ALIGN 16
 

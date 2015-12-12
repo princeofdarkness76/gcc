@@ -375,6 +375,7 @@ i[34567]86-*-*)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h"
 =======
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
@@ -385,6 +386,9 @@ i[34567]86-*-*)
 =======
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
 >>>>>>> gcc-mirror/trunk
+=======
+		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
+>>>>>>> gcc-mirror/master
 	;;
 x86_64-*-*)
 	cpu_type=i386
@@ -408,6 +412,7 @@ x86_64-*-*)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h"
 =======
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
@@ -418,6 +423,9 @@ x86_64-*-*)
 =======
 		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
 >>>>>>> gcc-mirror/trunk
+=======
+		       avx512vbmivlintrin.h clwbintrin.h pcommitintrin.h mwaitxintrin.h clzerointrin.h"
+>>>>>>> gcc-mirror/master
 	;;
 ia64-*-*)
 	extra_headers=ia64intrin.h
@@ -2263,6 +2271,7 @@ msp430*-*-*)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	extra_gcc_objs="driver-msp430.o"
 >>>>>>> gcc-mirror/master
@@ -2271,6 +2280,9 @@ msp430*-*-*)
 =======
 	extra_gcc_objs="driver-msp430.o"
 >>>>>>> gcc-mirror/trunk
+=======
+	extra_gcc_objs="driver-msp430.o"
+>>>>>>> gcc-mirror/master
 	;;
 nds32le-*-*)
 	target_cpu_default="0"

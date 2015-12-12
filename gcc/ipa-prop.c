@@ -1649,6 +1649,7 @@ ipa_compute_jump_functions_for_edge (struct ipa_func_body_info *fbi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      gcc_checking_assert (align != 0);
 >>>>>>> gcc-mirror/master
@@ -1657,6 +1658,9 @@ ipa_compute_jump_functions_for_edge (struct ipa_func_body_info *fbi,
 =======
 	      gcc_checking_assert (align != 0);
 >>>>>>> gcc-mirror/trunk
+=======
+	      gcc_checking_assert (align != 0);
+>>>>>>> gcc-mirror/master
 	      jfunc->alignment.known = true;
 	      jfunc->alignment.align = align / BITS_PER_UNIT;
 	      jfunc->alignment.misalign = hwi_bitpos / BITS_PER_UNIT;
@@ -2259,6 +2263,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -2269,6 +2274,9 @@ public:
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 
 private:
   struct ipa_func_body_info *m_fbi;
@@ -2277,6 +2285,7 @@ private:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -2287,6 +2296,9 @@ void
 =======
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+edge
+>>>>>>> gcc-mirror/master
 analysis_dom_walker::before_dom_children (basic_block bb)
 {
   ipa_analyze_params_uses_in_bb (m_fbi, bb);
@@ -2294,6 +2306,7 @@ analysis_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
@@ -2302,6 +2315,9 @@ analysis_dom_walker::before_dom_children (basic_block bb)
 =======
   return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+  return NULL;
+>>>>>>> gcc-mirror/master
 }
 
 /* Release body info FBI.  */
@@ -2648,6 +2664,7 @@ ipa_make_edge_direct_to_target (struct cgraph_edge *ie, tree target,
 	}
       callee = cgraph_node::get_create (target);
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
   /* If the edge is already speculated.  */
@@ -2683,6 +2700,8 @@ ipa_make_edge_direct_to_target (struct cgraph_edge *ie, tree target,
     }
 
 =======
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /* If the edge is already speculated.  */
@@ -2717,7 +2736,10 @@ ipa_make_edge_direct_to_target (struct cgraph_edge *ie, tree target,
       return NULL;
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (!dbg_cnt (devirt))
     return NULL;
 
@@ -3612,6 +3634,7 @@ ipa_node_params_t::duplicate(cgraph_node *src, cgraph_node *dst,
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   ipcp_transformation_summary *src_trans = ipcp_get_transformation_summary (src);
 
@@ -3625,6 +3648,11 @@ ipa_node_params_t::duplicate(cgraph_node *src, cgraph_node *dst,
   ipcp_transformation_summary *src_trans = ipcp_get_transformation_summary (src);
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+  ipcp_transformation_summary *src_trans = ipcp_get_transformation_summary (src);
+
+>>>>>>> gcc-mirror/master
   if (src_trans && vec_safe_length (src_trans->alignments) > 0)
     {
       ipcp_grow_transformations_if_necessary ();
@@ -5184,8 +5212,11 @@ adjust_agg_replacement_values (struct cgraph_node *node,
 /* Dominator walker driving the ipcp modification phase.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 class ipcp_modif_dom_walker : public dom_walker
 {
@@ -5199,6 +5230,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -5206,6 +5238,9 @@ public:
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
 
 private:
   struct ipa_func_body_info *m_fbi;
@@ -5214,6 +5249,7 @@ private:
   bool *m_something_changed, *m_cfg_changed;
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 void
@@ -5280,6 +5316,9 @@ private:
 };
 
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 ipcp_modif_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -5313,6 +5352,7 @@ ipcp_modif_dom_walker::before_dom_children (basic_block bb)
 	}
       if (vce)
 	continue;
+<<<<<<< HEAD
 
 >>>>>>> master
 =======
@@ -5451,6 +5491,108 @@ ipcp_update_alignments (struct cgraph_node *node)
       unsigned old_misalign;
       bool old_known = get_ptr_info_alignment (pi, &old_align, &old_misalign);
 
+=======
+
+      if (!ipa_load_from_parm_agg (m_fbi, m_descriptors, stmt, rhs, &index,
+				   &offset, &size, &by_ref))
+	continue;
+      for (v = m_aggval; v; v = v->next)
+	if (v->index == index
+	    && v->offset == offset)
+	  break;
+      if (!v
+	  || v->by_ref != by_ref
+	  || tree_to_shwi (TYPE_SIZE (TREE_TYPE (v->value))) != size)
+	continue;
+
+      gcc_checking_assert (is_gimple_ip_invariant (v->value));
+      if (!useless_type_conversion_p (TREE_TYPE (rhs), TREE_TYPE (v->value)))
+	{
+	  if (fold_convertible_p (TREE_TYPE (rhs), v->value))
+	    val = fold_build1 (NOP_EXPR, TREE_TYPE (rhs), v->value);
+	  else if (TYPE_SIZE (TREE_TYPE (rhs))
+		   == TYPE_SIZE (TREE_TYPE (v->value)))
+	    val = fold_build1 (VIEW_CONVERT_EXPR, TREE_TYPE (rhs), v->value);
+	  else
+	    {
+	      if (dump_file)
+		{
+		  fprintf (dump_file, "    const ");
+		  print_generic_expr (dump_file, v->value, 0);
+		  fprintf (dump_file, "  can't be converted to type of ");
+		  print_generic_expr (dump_file, rhs, 0);
+		  fprintf (dump_file, "\n");
+		}
+	      continue;
+	    }
+	}
+      else
+	val = v->value;
+
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  fprintf (dump_file, "Modifying stmt:\n  ");
+	  print_gimple_stmt (dump_file, stmt, 0, 0);
+	}
+      gimple_assign_set_rhs_from_tree (&gsi, val);
+      update_stmt (stmt);
+
+      if (dump_file && (dump_flags & TDF_DETAILS))
+	{
+	  fprintf (dump_file, "into:\n  ");
+	  print_gimple_stmt (dump_file, stmt, 0, 0);
+	  fprintf (dump_file, "\n");
+	}
+
+      *m_something_changed = true;
+      if (maybe_clean_eh_stmt (stmt)
+	  && gimple_purge_dead_eh_edges (gimple_bb (stmt)))
+	*m_cfg_changed = true;
+    }
+  return NULL;
+}
+
+/* Update alignment of formal parameters as described in
+   ipcp_transformation_summary.  */
+
+static void
+ipcp_update_alignments (struct cgraph_node *node)
+{
+  tree fndecl = node->decl;
+  tree parm = DECL_ARGUMENTS (fndecl);
+  tree next_parm = parm;
+  ipcp_transformation_summary *ts = ipcp_get_transformation_summary (node);
+  if (!ts || vec_safe_length (ts->alignments) == 0)
+    return;
+  const vec<ipa_alignment, va_gc> &alignments = *ts->alignments;
+  unsigned count = alignments.length ();
+
+  for (unsigned i = 0; i < count; ++i, parm = next_parm)
+    {
+      if (node->clone.combined_args_to_skip
+	  && bitmap_bit_p (node->clone.combined_args_to_skip, i))
+	continue;
+      gcc_checking_assert (parm);
+      next_parm = DECL_CHAIN (parm);
+
+      if (!alignments[i].known || !is_gimple_reg (parm))
+	continue;
+      tree ddef = ssa_default_def (DECL_STRUCT_FUNCTION (node->decl), parm);
+      if (!ddef)
+	continue;
+
+      if (dump_file)
+	fprintf (dump_file, "  Adjusting alignment of param %u to %u, "
+		 "misalignment to %u\n", i, alignments[i].align,
+		 alignments[i].misalign);
+
+      struct ptr_info_def *pi = get_ptr_info (ddef);
+      gcc_checking_assert (pi);
+      unsigned old_align;
+      unsigned old_misalign;
+      bool old_known = get_ptr_info_alignment (pi, &old_align, &old_misalign);
+
+>>>>>>> gcc-mirror/master
       if (old_known
 	  && old_align >= alignments[i].align)
 	{
@@ -5491,6 +5633,7 @@ ipcp_transform_function (struct cgraph_node *node)
   adjust_agg_replacement_values (node, aggval);
   if (dump_file)
     ipa_dump_agg_replacement_values (dump_file, aggval);
+<<<<<<< HEAD
 
   fbi.node = node;
   fbi.info = NULL;
@@ -5499,6 +5642,16 @@ ipcp_transform_function (struct cgraph_node *node)
   fbi.param_count = param_count;
   fbi.aa_walked = 0;
 
+=======
+
+  fbi.node = node;
+  fbi.info = NULL;
+  fbi.bb_infos = vNULL;
+  fbi.bb_infos.safe_grow_cleared (last_basic_block_for_fn (cfun));
+  fbi.param_count = param_count;
+  fbi.aa_walked = 0;
+
+>>>>>>> gcc-mirror/master
   descriptors.safe_grow_cleared (param_count);
   ipa_populate_param_decls (node, descriptors);
   calculate_dominance_info (CDI_DOMINATORS);

@@ -1102,8 +1102,11 @@ class pass_tail_recursion : public gimple_opt_pass
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 {
 public:
   pass_tail_recursion (gcc::context *ctxt)
@@ -1124,6 +1127,7 @@ public:
 
 gimple_opt_pass *
 make_pass_tail_recursion (gcc::context *ctxt)
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
 =======
@@ -1155,6 +1159,9 @@ make_pass_tail_recursion (gcc::context *ctxt)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+{
+>>>>>>> gcc-mirror/master
   return new pass_tail_recursion (ctxt);
 }
 
@@ -1162,6 +1169,7 @@ namespace {
 
 const pass_data pass_data_tail_calls =
 {
+<<<<<<< HEAD
 =======
 {
   return new pass_tail_recursion (ctxt);
@@ -1172,6 +1180,8 @@ namespace {
 const pass_data pass_data_tail_calls =
 {
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   GIMPLE_PASS, /* type */
   "tailc", /* name */
   OPTGROUP_NONE, /* optinfo_flags */

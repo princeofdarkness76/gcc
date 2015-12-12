@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-30  Ian Lance Taylor  <iant@google.com>
 
 	PR go/68477
@@ -11,11 +14,14 @@
 	TYPE_STRING_FLAG on a variant type.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-11  Andrew MacLeod  <amacleod@redhat.com>
 
 	* go-backend.c: Remove unused header files.

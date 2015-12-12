@@ -3,12 +3,15 @@
 
 void foo (void);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 void foo (void);
 
 void foo (void);
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 void
 bar (int i, int partial, int args_addr)
@@ -24,6 +27,7 @@ bar (int i, int partial, int args_addr)
    useful.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 1 "dce1"} } */
 <<<<<<< HEAD
 =======
@@ -34,3 +38,6 @@ bar (int i, int partial, int args_addr)
 =======
 /* { dg-final { scan-tree-dump-times "if " 1 "dce2"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if " 1 "dce2"} } */
+>>>>>>> gcc-mirror/master

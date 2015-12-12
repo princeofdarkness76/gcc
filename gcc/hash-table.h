@@ -364,6 +364,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   explicit hash_table (size_t, bool ggc = false, bool gather_mem_stats = true,
 =======
   explicit hash_table (size_t, bool ggc = false,
@@ -376,6 +377,10 @@ public:
   explicit hash_table (size_t, bool ggc = false,
 		       bool gather_mem_stats = GATHER_STATISTICS,
 >>>>>>> gcc-mirror/trunk
+=======
+  explicit hash_table (size_t, bool ggc = false,
+		       bool gather_mem_stats = GATHER_STATISTICS,
+>>>>>>> gcc-mirror/master
 		       mem_alloc_origin origin = HASH_TABLE_ORIGIN
 		       CXX_MEM_STAT_INFO);
   ~hash_table ();
@@ -388,6 +393,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     new (table) hash_table (n, true, true, HASH_TABLE_ORIGIN PASS_MEM_STAT);
 =======
     new (table) hash_table (n, true, GATHER_STATISTICS,
@@ -400,6 +406,10 @@ public:
     new (table) hash_table (n, true, GATHER_STATISTICS,
 			    HASH_TABLE_ORIGIN PASS_MEM_STAT);
 >>>>>>> gcc-mirror/trunk
+=======
+    new (table) hash_table (n, true, GATHER_STATISTICS,
+			    HASH_TABLE_ORIGIN PASS_MEM_STAT);
+>>>>>>> gcc-mirror/master
     return table;
   }
 

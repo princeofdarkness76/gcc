@@ -60,6 +60,7 @@ is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
 =======
      Global => Ada.Real_Time.Clock_Time,
@@ -72,6 +73,10 @@ is
      Global => Ada.Real_Time.Clock_Time,
      Pre    => T /= Ada.Task_Identification.Null_Task_Id;
 >>>>>>> gcc-mirror/trunk
+=======
+     Global => Ada.Real_Time.Clock_Time,
+     Pre    => T /= Ada.Task_Identification.Null_Task_Id;
+>>>>>>> gcc-mirror/master
 
    function "+"
      (Left  : CPU_Time;
@@ -124,18 +129,22 @@ is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    function Clock_For_Interrupts return CPU_Time with
      Volatile_Function,
      Global => Ada.Real_Time.Clock_Time;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    pragma Warnings (Off, "check will fail at run time");
    function Clock_For_Interrupts return CPU_Time with
      Volatile_Function,
      Global => Ada.Real_Time.Clock_Time,
      Pre    => Interrupt_Clocks_Supported;
    pragma Warnings (On, "check will fail at run time");
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -145,6 +154,8 @@ is
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 private
    pragma SPARK_Mode (Off);

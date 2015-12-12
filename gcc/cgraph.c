@@ -563,6 +563,7 @@ cgraph_node::create_alias (tree alias, tree target)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     alias_node->weakref = true;
 =======
     alias_node->transparent_alias = alias_node->weakref = true;
@@ -573,6 +574,9 @@ cgraph_node::create_alias (tree alias, tree target)
 =======
     alias_node->transparent_alias = alias_node->weakref = true;
 >>>>>>> gcc-mirror/trunk
+=======
+    alias_node->transparent_alias = alias_node->weakref = true;
+>>>>>>> gcc-mirror/master
   return alias_node;
 }
 
@@ -2009,6 +2013,7 @@ cgraph_node::dump (FILE *f)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (merged_comdat)
     fprintf (f, " merged_comdat");
@@ -2019,6 +2024,10 @@ cgraph_node::dump (FILE *f)
   if (merged_comdat)
     fprintf (f, " merged_comdat");
 >>>>>>> gcc-mirror/trunk
+=======
+  if (merged_comdat)
+    fprintf (f, " merged_comdat");
+>>>>>>> gcc-mirror/master
   if (nonfreeing_fn)
     fprintf (f, " nonfreeing_fn");
   if (DECL_STATIC_CONSTRUCTOR (decl))
@@ -2173,6 +2182,7 @@ cgraph_node::get_availability (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (alias && weakref)
 =======
   else if (transparent_alias)
@@ -2183,6 +2193,9 @@ cgraph_node::get_availability (void)
 =======
   else if (transparent_alias)
 >>>>>>> gcc-mirror/trunk
+=======
+  else if (transparent_alias)
+>>>>>>> gcc-mirror/master
     ultimate_alias_target (&avail);
   else if (lookup_attribute ("ifunc", DECL_ATTRIBUTES (decl)))
     avail = AVAIL_INTERPOSABLE;
@@ -2293,6 +2306,7 @@ cgraph_node::make_local (cgraph_node *node, void *)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       node->unique_name = (node->resolution == LDPR_PREVAILING_DEF_IRONLY
 				  || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP);
 =======
@@ -2309,6 +2323,11 @@ cgraph_node::make_local (cgraph_node *node, void *)
 			   || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP)
 			   && !flag_incremental_link);
 >>>>>>> gcc-mirror/trunk
+=======
+      node->unique_name = ((node->resolution == LDPR_PREVAILING_DEF_IRONLY
+			   || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP)
+			   && !flag_incremental_link);
+>>>>>>> gcc-mirror/master
       node->resolution = LDPR_PREVAILING_DEF_IRONLY;
       gcc_assert (node->get_availability () == AVAIL_LOCAL);
     }

@@ -1243,6 +1243,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || flag_loop_optimize_isl
 =======
       || flag_loop_nest_optimize
@@ -1253,6 +1254,9 @@ process_options (void)
 =======
       || flag_loop_nest_optimize
 >>>>>>> gcc-mirror/trunk
+=======
+      || flag_loop_nest_optimize
+>>>>>>> gcc-mirror/master
       || flag_graphite_identity
       || flag_loop_parallelize_all)
     sorry ("Graphite loop optimizations cannot be used (ISL is not available)" 
@@ -1268,6 +1272,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error ("-fcheck-pointer-bounds is not supported for this target");
 =======
 	  error_at (UNKNOWN_LOCATION,
@@ -1280,6 +1285,10 @@ process_options (void)
 	  error_at (UNKNOWN_LOCATION,
 		    "-fcheck-pointer-bounds is not supported for this target");
 >>>>>>> gcc-mirror/trunk
+=======
+	  error_at (UNKNOWN_LOCATION,
+		    "-fcheck-pointer-bounds is not supported for this target");
+>>>>>>> gcc-mirror/master
 	  flag_check_pointer_bounds = 0;
 	}
 
@@ -1288,6 +1297,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  error ("-fcheck-pointer-bounds is not supported with "
 		 "Address Sanitizer");
 =======
@@ -1304,6 +1314,11 @@ process_options (void)
 		    "-fcheck-pointer-bounds is not supported with "
 		    "Address Sanitizer");
 >>>>>>> gcc-mirror/trunk
+=======
+	  error_at (UNKNOWN_LOCATION,
+		    "-fcheck-pointer-bounds is not supported with "
+		    "Address Sanitizer");
+>>>>>>> gcc-mirror/master
 	  flag_check_pointer_bounds = 0;
 	}
     }
@@ -1319,6 +1334,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       error ("%<-fabi-version=1%> is no longer supported");
 =======
       error_at (UNKNOWN_LOCATION,
@@ -1331,6 +1347,10 @@ process_options (void)
       error_at (UNKNOWN_LOCATION,
 		"%<-fabi-version=1%> is no longer supported");
 >>>>>>> gcc-mirror/trunk
+=======
+      error_at (UNKNOWN_LOCATION,
+		"%<-fabi-version=1%> is no longer supported");
+>>>>>>> gcc-mirror/master
       flag_abi_version = 2;
     }
 
@@ -1359,6 +1379,7 @@ process_options (void)
   if (flag_schedule_insns || flag_schedule_insns_after_reload)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     warning (0, "instruction scheduling not supported on this target machine");
 #endif
   if (!DELAY_SLOTS && flag_delayed_branch)
@@ -1367,6 +1388,8 @@ process_options (void)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     warning_at (UNKNOWN_LOCATION, 0,
 		"instruction scheduling not supported on this target machine");
 #endif
@@ -1374,11 +1397,14 @@ process_options (void)
     warning_at (UNKNOWN_LOCATION, 0,
 		"this target machine does not have delayed branches");
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   user_label_prefix = USER_LABEL_PREFIX;
   if (flag_leading_underscore != -1)
@@ -1476,6 +1502,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     error ("target system does not support the %qs debug format",
@@ -1490,6 +1517,11 @@ process_options (void)
 	      "target system does not support the %qs debug format",
 	      debug_type_names[write_symbols]);
 >>>>>>> gcc-mirror/trunk
+=======
+    error_at (UNKNOWN_LOCATION,
+	      "target system does not support the %qs debug format",
+	      debug_type_names[write_symbols]);
+>>>>>>> gcc-mirror/master
 
   /* We know which debug output will be used so we can set flag_var_tracking
      and flag_var_tracking_uninit if the user has not specified them.  */
@@ -1563,6 +1595,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fatal_error (input_location, "can%'t open %s: %m", aux_info_file_name);
 =======
 	fatal_error (UNKNOWN_LOCATION,
@@ -1575,6 +1608,10 @@ process_options (void)
 	fatal_error (UNKNOWN_LOCATION,
 		     "can%'t open %s: %m", aux_info_file_name);
 >>>>>>> gcc-mirror/trunk
+=======
+	fatal_error (UNKNOWN_LOCATION,
+		     "can%'t open %s: %m", aux_info_file_name);
+>>>>>>> gcc-mirror/master
     }
 
   if (!targetm_common.have_named_sections)
@@ -1655,6 +1692,7 @@ process_options (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     {
@@ -1677,6 +1715,9 @@ process_options (void)
 =======
     {
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+>>>>>>> gcc-mirror/master
       warning_at (UNKNOWN_LOCATION, 0,
 		  "-fsanitize=address and -fsanitize=kernel-address "
 		  "are not supported for this target");
@@ -1692,6 +1733,7 @@ process_options (void)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     }
@@ -1699,6 +1741,8 @@ process_options (void)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
  /* Do not use IPA optimizations for register allocation if profiler is active
     or port does not emit prologue and epilogue as RTL.  */
   if (profile_flag || !targetm.have_prologue () || !targetm.have_epilogue ())
@@ -2119,8 +2163,11 @@ do_compile ()
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 toplev::toplev (timer *external_timer,
 		bool init_signals)
@@ -2150,6 +2197,7 @@ toplev::start_timevars ()
 {
   if (time_report || !quiet_flag  || flag_detailed_statistics)
     timevar_init ();
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -2187,6 +2235,9 @@ toplev::start_timevars ()
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
   timevar_start (TV_TOTAL);
 }
 

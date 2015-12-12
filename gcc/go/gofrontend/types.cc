@@ -6126,6 +6126,7 @@ Array_type::get_backend_element(Gogo* gogo, bool use_placeholder)
 
 // Return the backend representation of the length. The length may be
 // computed using a function call, so we must only evaluate it once.
+<<<<<<< HEAD
 
 Bexpression*
 Array_type::get_backend_length(Gogo* gogo)
@@ -6159,6 +6160,41 @@ Array_type::get_backend_length(Gogo* gogo)
 	  Translate_context context(gogo, NULL, NULL, NULL);
 	  this->blength_ = this->length_->get_backend(&context);
 
+=======
+
+Bexpression*
+Array_type::get_backend_length(Gogo* gogo)
+{
+  go_assert(this->length_ != NULL);
+  if (this->blength_ == NULL)
+    {
+      Numeric_constant nc;
+      mpz_t val;
+      if (this->length_->numeric_constant_value(&nc) && nc.to_int(&val))
+	{
+	  if (mpz_sgn(val) < 0)
+	    {
+	      this->blength_ = gogo->backend()->error_expression();
+	      return this->blength_;
+	    }
+	  Type* t = nc.type();
+	  if (t == NULL)
+	    t = Type::lookup_integer_type("int");
+	  else if (t->is_abstract())
+	    t = t->make_non_abstract_type();
+          Btype* btype = t->get_backend(gogo);
+          this->blength_ =
+	    gogo->backend()->integer_constant_expression(btype, val);
+	  mpz_clear(val);
+	}
+      else
+	{
+	  // Make up a translation context for the array length
+	  // expression.  FIXME: This won't work in general.
+	  Translate_context context(gogo, NULL, NULL, NULL);
+	  this->blength_ = this->length_->get_backend(&context);
+
+>>>>>>> gcc-mirror/master
 	  Btype* ibtype = Type::lookup_integer_type("int")->get_backend(gogo);
 	  this->blength_ =
 	    gogo->backend()->convert_expression(ibtype, this->blength_,
@@ -6400,6 +6436,7 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
       Numeric_constant nc;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       unsigned long val;
       if (!this->length_->numeric_constant_value(&nc)
 	  || nc.to_unsigned_long(&val) != Numeric_constant::NC_UL_VALID)
@@ -6414,6 +6451,9 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
 =======
       if (!this->length_->numeric_constant_value(&nc))
 >>>>>>> gcc-mirror/master
+=======
+      if (!this->length_->numeric_constant_value(&nc))
+>>>>>>> gcc-mirror/master
 	{
 	  go_assert(saw_errors());
 	  return;
@@ -6423,6 +6463,7 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
 	{
 	  go_assert(saw_errors());
 	  return;
+<<<<<<< HEAD
 	}
 =======
       if (!this->length_->numeric_constant_value(&nc))
@@ -6437,6 +6478,9 @@ Array_type::do_reflection(Gogo* gogo, std::string* ret) const
 	  return;
 	}
 >>>>>>> gcc-mirror/trunk
+=======
+	}
+>>>>>>> gcc-mirror/master
       char* s = mpz_get_str(NULL, 10, val);
       ret->append(s);
       free(s);
@@ -6573,6 +6617,7 @@ Array_type::do_mangled_name(Gogo* gogo, std::string* ret) const
       Numeric_constant nc;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       unsigned long val;
       if (!this->length_->numeric_constant_value(&nc)
 	  || nc.to_unsigned_long(&val) != Numeric_constant::NC_UL_VALID)
@@ -6590,6 +6635,9 @@ Array_type::do_mangled_name(Gogo* gogo, std::string* ret) const
 =======
       if (!this->length_->numeric_constant_value(&nc))
 >>>>>>> gcc-mirror/trunk
+=======
+      if (!this->length_->numeric_constant_value(&nc))
+>>>>>>> gcc-mirror/master
 	{
 	  go_assert(saw_errors());
 	  return;

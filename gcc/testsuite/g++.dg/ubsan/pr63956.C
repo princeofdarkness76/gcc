@@ -13,6 +13,7 @@ fn1 (int a, int b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     // { dg-error "5 << -2.. is negative" "" { target *-*-* } 12 }
     // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 12 }
@@ -25,10 +26,16 @@ fn1 (int a, int b)
     // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 12 }
     // { dg-error "-2 << 4.. is negative" "" { target *-*-* } 12 }
 >>>>>>> gcc-mirror/trunk
+=======
+    // { dg-error "5 << -2.. is negative" "" { target *-*-* } 12 }
+    // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 12 }
+    // { dg-error "-2 << 4.. is negative" "" { target *-*-* } 12 }
+>>>>>>> gcc-mirror/master
   return a;
 }
 
 constexpr int i1 = fn1 (5, 3);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,17 +50,22 @@ constexpr int i6 = fn1 (-2, 4); // { dg-error "is negative" }
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 constexpr int i2 = fn1 (5, -2); // { dg-message "in constexpr expansion" }
 constexpr int i3 = fn1 (5, sizeof (int) * __CHAR_BIT__); // { dg-message "in constexpr expansion" }
 constexpr int i4 = fn1 (5, 256); // { dg-message "in constexpr expansion" }
 constexpr int i5 = fn1 (5, 2);
 constexpr int i6 = fn1 (-2, 4); // { dg-message "in constexpr expansion" }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 constexpr int i7 = fn1 (0, 2);
 
 SA (i1 == 40);
@@ -68,6 +80,7 @@ fn2 (int a, int b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     // { dg-error "4 >> -1.. is negative" "" { target *-*-* } 35 }
     // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 35 }
@@ -80,6 +93,11 @@ fn2 (int a, int b)
     // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 35 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+    // { dg-error "4 >> -1.. is negative" "" { target *-*-* } 35 }
+    // { dg-error "is >= than the precision of the left operand" "" { target *-*-* } 35 }
+
+>>>>>>> gcc-mirror/master
   return a;
 }
 
@@ -87,6 +105,7 @@ constexpr int j1 = fn2 (4, 1);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 constexpr int j2 = fn2 (4, -1); // { dg-error "is negative" }
 constexpr int j3 = fn2 (10, sizeof (int) * __CHAR_BIT__); // { dg-error "is >= than the precision of the left operand" }
 constexpr int j4 = fn2 (1, 256); // { dg-error "is >= than the precision of the left operand" }
@@ -105,6 +124,11 @@ constexpr int j2 = fn2 (4, -1); // { dg-message "in constexpr expansion" }
 constexpr int j3 = fn2 (10, sizeof (int) * __CHAR_BIT__); // { dg-message "in constexpr expansion" }
 constexpr int j4 = fn2 (1, 256); // { dg-message "in constexpr expansion" }
 >>>>>>> gcc-mirror/trunk
+=======
+constexpr int j2 = fn2 (4, -1); // { dg-message "in constexpr expansion" }
+constexpr int j3 = fn2 (10, sizeof (int) * __CHAR_BIT__); // { dg-message "in constexpr expansion" }
+constexpr int j4 = fn2 (1, 256); // { dg-message "in constexpr expansion" }
+>>>>>>> gcc-mirror/master
 constexpr int j5 = fn2 (5, 2);
 constexpr int j6 = fn2 (-2, 4);
 constexpr int j7 = fn2 (0, 4);
@@ -120,6 +144,7 @@ fn3 (int a, int b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     a = a / b;
 =======
     a = a / b; // { dg-error "..7 / 0.. is not a constant expression" }
@@ -130,6 +155,9 @@ fn3 (int a, int b)
 =======
     a = a / b; // { dg-error "..7 / 0.. is not a constant expression" }
 >>>>>>> gcc-mirror/trunk
+=======
+    a = a / b; // { dg-error "..7 / 0.. is not a constant expression" }
+>>>>>>> gcc-mirror/master
   return a;
 }
 
@@ -137,6 +165,7 @@ constexpr int k1 = fn3 (8, 4);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 constexpr int k2 = fn3 (7, 0); // { dg-error "is not a constant expression" }
 =======
 constexpr int k2 = fn3 (7, 0); // { dg-message "in constexpr expansion" }
@@ -147,6 +176,9 @@ constexpr int k2 = fn3 (7, 0); // { dg-error "is not a constant expression" }
 =======
 constexpr int k2 = fn3 (7, 0); // { dg-message "in constexpr expansion" }
 >>>>>>> gcc-mirror/trunk
+=======
+constexpr int k2 = fn3 (7, 0); // { dg-message "in constexpr expansion" }
+>>>>>>> gcc-mirror/master
 constexpr int k3 = fn3 (INT_MIN, -1); // { dg-error "overflow in constant expression" }
 
 SA (k1 == 2);
@@ -158,6 +190,7 @@ fn4 (float a, float b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     a = a / b;
 =======
     a = a / b; // { dg-error "is not a constant expression" }
@@ -168,6 +201,9 @@ fn4 (float a, float b)
 =======
     a = a / b; // { dg-error "is not a constant expression" }
 >>>>>>> gcc-mirror/trunk
+=======
+    a = a / b; // { dg-error "is not a constant expression" }
+>>>>>>> gcc-mirror/master
   return a;
 }
 
@@ -175,6 +211,7 @@ constexpr float l1 = fn4 (5.0, 3.0);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 constexpr float l2 = fn4 (7.0, 0.0); // { dg-error "is not a constant expression" }
 =======
 constexpr float l2 = fn4 (7.0, 0.0); // { dg-message "in constexpr expansion" }
@@ -185,6 +222,9 @@ constexpr float l2 = fn4 (7.0, 0.0); // { dg-error "is not a constant expression
 =======
 constexpr float l2 = fn4 (7.0, 0.0); // { dg-message "in constexpr expansion" }
 >>>>>>> gcc-mirror/trunk
+=======
+constexpr float l2 = fn4 (7.0, 0.0); // { dg-message "in constexpr expansion" }
+>>>>>>> gcc-mirror/master
 
 constexpr int
 fn5 (const int *a, int b)

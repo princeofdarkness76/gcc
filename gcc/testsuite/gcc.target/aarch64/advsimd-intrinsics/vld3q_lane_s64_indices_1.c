@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-skip-if "" { arm*-*-* } } */
 
 int64x2x3_t
@@ -22,6 +25,7 @@ f_vld3q_lane_s64 (int64_t * p, int64x2x3_t v)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* { dg-error "lane 2 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
   res = vld3q_lane_s64 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
@@ -40,6 +44,11 @@ f_vld3q_lane_s64 (int64_t * p, int64x2x3_t v)
   res = vld3q_lane_s64 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* { dg-error "lane 2 out of range 0 - 1" "" { target *-*-* } 0 } */
+  res = vld3q_lane_s64 (p, v, 2);
+  /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   res = vld3q_lane_s64 (p, v, -1);
   return res;
 }

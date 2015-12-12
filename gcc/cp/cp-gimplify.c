@@ -234,8 +234,11 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
     {
       /* If COND is constant, don't bother building an exit.  If it's false,
 	 we won't build a loop.  If it's true, any exits are in the body.  */
@@ -266,6 +269,7 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
 				build_empty_stmt (start_locus));
       else
 	loop = stmt_list;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     {
@@ -309,6 +313,17 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
 				build_empty_stmt (start_locus));
       else
 	loop = stmt_list;
+=======
+    }
+  else
+    {
+      location_t loc = start_locus;
+      if (!cond || integer_nonzerop (cond))
+	loc = EXPR_LOCATION (expr_first (body));
+      if (loc == UNKNOWN_LOCATION)
+	loc = start_locus;
+      loop = build1_loc (loc, LOOP_EXPR, void_type_node, stmt_list);
+>>>>>>> gcc-mirror/master
     }
   else
     {
@@ -323,6 +338,7 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
   else
     loop = build1_loc (start_locus, LOOP_EXPR, void_type_node, stmt_list);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   if (exit && cond_is_first)
@@ -363,6 +379,8 @@ genericize_cp_loop (tree *stmt_p, location_t start_locus, tree cond, tree body,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   stmt_list = NULL;
   append_to_statement_list (loop, &stmt_list);
   finish_bc_block (&stmt_list, bc_break, blab);
@@ -808,6 +826,7 @@ cp_gimplify_expr (tree *expr_p, gimple_seq *pre_p, gimple_seq *post_p)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     case CILK_SIMD:
     case OMP_DISTRIBUTE:
 =======
@@ -826,6 +845,10 @@ cp_gimplify_expr (tree *expr_p, gimple_seq *pre_p, gimple_seq *post_p)
     case OMP_DISTRIBUTE:
     case OMP_TASKLOOP:
 >>>>>>> gcc-mirror/trunk
+=======
+    case OMP_DISTRIBUTE:
+    case OMP_TASKLOOP:
+>>>>>>> gcc-mirror/master
       ret = cp_gimplify_omp_for (expr_p, pre_p);
       break;
 
@@ -1105,9 +1128,12 @@ cp_fold_r (tree *stmt_p, int *walk_subtrees, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Fold ALL the trees!  FIXME we should be able to remove this, but
    apparently that still causes optimization regressions.  */
 
@@ -1118,11 +1144,14 @@ cp_fold_function (tree fndecl)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Perform any pre-gimplification lowering of C++ front end trees to
    GENERIC.  */
 
@@ -1498,6 +1527,7 @@ cp_genericize_r (tree *stmt_p, int *walk_subtrees, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	   || TREE_CODE (stmt) == CILK_SIMD
 	   || TREE_CODE (stmt) == OMP_DISTRIBUTE)
 =======
@@ -1516,6 +1546,10 @@ cp_genericize_r (tree *stmt_p, int *walk_subtrees, void *data)
 	   || TREE_CODE (stmt) == OMP_DISTRIBUTE
 	   || TREE_CODE (stmt) == OMP_TASKLOOP)
 >>>>>>> gcc-mirror/trunk
+=======
+	   || TREE_CODE (stmt) == OMP_DISTRIBUTE
+	   || TREE_CODE (stmt) == OMP_TASKLOOP)
+>>>>>>> gcc-mirror/master
     genericize_omp_for_stmt (stmt_p, walk_subtrees, data);
   else if ((flag_sanitize
 	    & (SANITIZE_NULL | SANITIZE_ALIGNMENT | SANITIZE_VPTR))
@@ -2038,9 +2072,12 @@ cp_fully_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Fold expression X which is used as an rvalue if RVAL is true.  */
 
 static tree
@@ -2077,11 +2114,14 @@ c_fully_fold (tree x, bool /*in_init*/, bool */*maybe_const*/)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 static GTY((cache, deletable)) cache_map fold_cache;
 
 /*  This function tries to fold an expression X.
@@ -2101,6 +2141,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -2113,6 +2154,8 @@ cp_fold (tree x)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   bool rval_ops = true;
 
   if (!x || x == error_mark_node)
@@ -2121,11 +2164,14 @@ cp_fold (tree x)
   if (processing_template_decl
       || (EXPR_P (x) && (!TREE_TYPE (x) || TREE_TYPE (x) == error_mark_node)))
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     return x;
 
   /* Don't bother to cache DECLs or constants.  */
@@ -2146,6 +2192,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       rval_ops = false;
 >>>>>>> gcc-mirror/master
@@ -2154,6 +2201,9 @@ cp_fold (tree x)
 =======
       rval_ops = false;
 >>>>>>> gcc-mirror/trunk
+=======
+      rval_ops = false;
+>>>>>>> gcc-mirror/master
     case CONVERT_EXPR:
     case NOP_EXPR:
     case NON_LVALUE_EXPR:
@@ -2176,6 +2226,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       op0 = cp_fold (op0);
@@ -2188,6 +2239,8 @@ cp_fold (tree x)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       op0 = cp_fold_maybe_rvalue (op0, rval_ops);
 
       if (op0 != TREE_OPERAND (x, 0))
@@ -2195,11 +2248,14 @@ cp_fold (tree x)
       else
 	x = fold (x);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       /* Conversion of an out-of-range value has implementation-defined
 	 behavior; the language considers it different from arithmetic
@@ -2213,6 +2269,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     case SAVE_EXPR:
@@ -2223,16 +2280,21 @@ cp_fold (tree x)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case ADDR_EXPR:
     case REALPART_EXPR:
     case IMAGPART_EXPR:
       rval_ops = false;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case CONJ_EXPR:
     case FIX_TRUNC_EXPR:
     case FLOAT_EXPR:
@@ -2248,6 +2310,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       op0 = cp_fold (TREE_OPERAND (x, 0));
@@ -2260,6 +2323,8 @@ cp_fold (tree x)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       op0 = cp_fold_maybe_rvalue (TREE_OPERAND (x, 0), rval_ops);
 
       if (op0 != TREE_OPERAND (x, 0))
@@ -2267,11 +2332,14 @@ cp_fold (tree x)
       else
 	x = fold (x);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       gcc_assert (TREE_CODE (x) != COND_EXPR
 		  || !VOID_TYPE_P (TREE_TYPE (TREE_OPERAND (x, 0))));
@@ -2286,6 +2354,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	op1 = cp_fold (TREE_OPERAND (x, 1));
 =======
 	op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
@@ -2296,6 +2365,9 @@ cp_fold (tree x)
 =======
 	op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
 >>>>>>> gcc-mirror/trunk
+=======
+	op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
+>>>>>>> gcc-mirror/master
 
 	if (TREE_OPERAND (x, 0) != op0 || TREE_OPERAND (x, 1) != op1)
 	  x = build2_loc (loc, code, TREE_TYPE (x), op0, op1);
@@ -2308,6 +2380,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case MODIFY_EXPR:
       rval_ops = false;
@@ -2318,6 +2391,10 @@ cp_fold (tree x)
     case MODIFY_EXPR:
       rval_ops = false;
 >>>>>>> gcc-mirror/trunk
+=======
+    case MODIFY_EXPR:
+      rval_ops = false;
+>>>>>>> gcc-mirror/master
     case POINTER_PLUS_EXPR:
     case PLUS_EXPR:
     case MINUS_EXPR:
@@ -2356,6 +2433,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     case MODIFY_EXPR:
@@ -2367,16 +2445,21 @@ cp_fold (tree x)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       loc = EXPR_LOCATION (x);
       op0 = cp_fold_maybe_rvalue (TREE_OPERAND (x, 0), rval_ops);
       op1 = cp_fold_rvalue (TREE_OPERAND (x, 1));
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if ((code == COMPOUND_EXPR || code == MODIFY_EXPR)
 	  && ((op1 && TREE_SIDE_EFFECTS (op1))
 	       || (op0 && TREE_SIDE_EFFECTS (op0))))
@@ -2388,6 +2471,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	x = build2_loc (loc, code, TREE_TYPE (x), op0, op1);
 
       x = fold (x);
@@ -2406,6 +2490,11 @@ cp_fold (tree x)
       else
 	x = fold (x);
 >>>>>>> gcc-mirror/trunk
+=======
+	x = fold_build2_loc (loc, code, TREE_TYPE (x), op0, op1);
+      else
+	x = fold (x);
+>>>>>>> gcc-mirror/master
 
       if (TREE_CODE (x) == COMPOUND_EXPR && TREE_OPERAND (x, 0) == NULL_TREE
 	  && TREE_OPERAND (x, 1))
@@ -2419,6 +2508,7 @@ cp_fold (tree x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       op0 = cp_fold (TREE_OPERAND (x, 0));
 =======
       op0 = cp_fold_rvalue (TREE_OPERAND (x, 0));
@@ -2429,6 +2519,9 @@ cp_fold (tree x)
 =======
       op0 = cp_fold_rvalue (TREE_OPERAND (x, 0));
 >>>>>>> gcc-mirror/trunk
+=======
+      op0 = cp_fold_rvalue (TREE_OPERAND (x, 0));
+>>>>>>> gcc-mirror/master
 
       if (TREE_SIDE_EFFECTS (op0))
 	break;

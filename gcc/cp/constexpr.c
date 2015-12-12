@@ -1802,6 +1802,7 @@ cxx_eval_array_reference (const constexpr_ctx *ctx, tree t,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   i = tree_to_shwi (index);
   if (i < 0)
 =======
@@ -1816,6 +1817,10 @@ cxx_eval_array_reference (const constexpr_ctx *ctx, tree t,
   if (!tree_fits_shwi_p (index)
       || (i = tree_to_shwi (index)) < 0)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (!tree_fits_shwi_p (index)
+      || (i = tree_to_shwi (index)) < 0)
+>>>>>>> gcc-mirror/master
     {
       if (!ctx->quiet)
 	error ("negative array subscript");
@@ -4148,6 +4153,7 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (TREE_THIS_VOLATILE (t))
 =======
   if (TREE_THIS_VOLATILE (t) && !DECL_P (t))
@@ -4158,6 +4164,9 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
 =======
   if (TREE_THIS_VOLATILE (t) && !DECL_P (t))
 >>>>>>> gcc-mirror/trunk
+=======
+  if (TREE_THIS_VOLATILE (t) && !DECL_P (t))
+>>>>>>> gcc-mirror/master
     {
       if (flags & tf_error)
         error ("expression %qE has side-effects", t);
@@ -4375,6 +4384,7 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (type_unknown_p (t))
 	return true;
@@ -4385,6 +4395,10 @@ potential_constant_expression_1 (tree t, bool want_rval, bool strict,
       if (type_unknown_p (t))
 	return true;
 >>>>>>> gcc-mirror/trunk
+=======
+      if (type_unknown_p (t))
+	return true;
+>>>>>>> gcc-mirror/master
       return RECUR (TREE_OPERAND (t, 0), want_rval);
 
     case EXPR_PACK_EXPANSION:

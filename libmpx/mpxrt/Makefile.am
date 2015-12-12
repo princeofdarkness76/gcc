@@ -16,6 +16,7 @@ libmpx_la_DEPENDENCIES = libmpx.map
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
 =======
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
@@ -28,6 +29,10 @@ libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx)
 libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
                     -version-info `grep -v '^\#' $(srcdir)/libtool-version`
 >>>>>>> gcc-mirror/trunk
+=======
+libmpx_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpx.map $(link_libmpx) \
+                    -version-info `grep -v '^\#' $(srcdir)/libtool-version`
+>>>>>>> gcc-mirror/master
 
 mpxrt.lo: mpxrt-utils.h
 mpxrt-utils.lo: mpxrt-utils.h

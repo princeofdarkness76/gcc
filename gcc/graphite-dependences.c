@@ -48,6 +48,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 =======
 #include "graphite.h"
@@ -58,6 +59,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #include "graphite.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "graphite.h"
+>>>>>>> gcc-mirror/master
 
 
 /* Add the constraints from the set S to the domain of MAP.  */
@@ -339,6 +343,7 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
   isl_union_map *original = scop_get_original_schedule (scop, pbbs);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   isl_union_map_compute_flow (isl_union_map_copy (reads),
@@ -359,6 +364,9 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
 }
 
 =======
+=======
+
+>>>>>>> gcc-mirror/master
   if (dump_file)
     {
       fprintf (dump_file, "\n--- Documentation for datarefs dump: ---\n");
@@ -406,6 +414,7 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
 			      may_waw_no_source);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
@@ -477,6 +486,8 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 isl_union_map *
 scop_get_dependences (scop_p scop)
 {

@@ -7818,6 +7818,7 @@ package body Exp_Util is
          --  free if the resulting value is captured by a variable or a
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  constant. Same reasoning when generating C code.
          --  Why can't we apply this test in general???
 
@@ -7837,6 +7838,12 @@ package body Exp_Util is
 
          if (GNATprove_Mode or Generate_C_Code)
 >>>>>>> gcc-mirror/trunk
+=======
+         --  constant. Same reasoning when generating C code.
+         --  Why can't we apply this test in general???
+
+         if (GNATprove_Mode or Generate_C_Code)
+>>>>>>> gcc-mirror/master
            and then Nkind (Parent (Exp)) = N_Object_Declaration
          then
             goto Leave;
@@ -7882,6 +7889,7 @@ package body Exp_Util is
          --  and "copies" the returned object.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  When generating C code, no need for a 'reference since the
          --  secondary stack is not supported.
 
@@ -7900,6 +7908,12 @@ package body Exp_Util is
 
          if GNATprove_Mode or Generate_C_Code then
 >>>>>>> gcc-mirror/trunk
+=======
+         --  When generating C code, no need for a 'reference since the
+         --  secondary stack is not supported.
+
+         if GNATprove_Mode or Generate_C_Code then
+>>>>>>> gcc-mirror/master
             Res := New_Occurrence_Of (Def_Id, Loc);
             Ref_Type := Exp_Type;
 
@@ -7940,6 +7954,7 @@ package body Exp_Util is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             if GNATprove_Mode then
 =======
             if GNATprove_Mode or Generate_C_Code then
@@ -7950,6 +7965,9 @@ package body Exp_Util is
 =======
             if GNATprove_Mode or Generate_C_Code then
 >>>>>>> gcc-mirror/trunk
+=======
+            if GNATprove_Mode or Generate_C_Code then
+>>>>>>> gcc-mirror/master
                New_Exp := E;
 
             --  Otherwise generate reference, marking the value as non-null

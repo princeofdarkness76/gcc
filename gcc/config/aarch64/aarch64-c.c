@@ -129,6 +129,7 @@ aarch64_update_cpp_builtins (cpp_reader *pfile)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   aarch64_def_or_undef (TARGET_SIMD_RDMA, "__ARM_FEATURE_QRDMX", pfile);
 >>>>>>> gcc-mirror/master
@@ -137,6 +138,9 @@ aarch64_update_cpp_builtins (cpp_reader *pfile)
 =======
   aarch64_def_or_undef (TARGET_SIMD_RDMA, "__ARM_FEATURE_QRDMX", pfile);
 >>>>>>> gcc-mirror/trunk
+=======
+  aarch64_def_or_undef (TARGET_SIMD_RDMA, "__ARM_FEATURE_QRDMX", pfile);
+>>>>>>> gcc-mirror/master
 }
 
 /* Implement TARGET_CPU_CPP_BUILTINS.  */

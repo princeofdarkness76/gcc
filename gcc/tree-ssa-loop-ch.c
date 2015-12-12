@@ -168,6 +168,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   opt_pass * clone () { return new pass_ch (m_ctxt); }
 
@@ -178,6 +179,10 @@ public:
   opt_pass * clone () { return new pass_ch (m_ctxt); }
 
 >>>>>>> gcc-mirror/trunk
+=======
+  opt_pass * clone () { return new pass_ch (m_ctxt); }
+
+>>>>>>> gcc-mirror/master
 protected:
   /* ch_base method: */
   virtual bool process_loop_p (struct loop *loop);

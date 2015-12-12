@@ -962,6 +962,7 @@ use_internal_fn (gcall *call)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   gen_shrink_wrap_conditions (call, conds, &nconds);
 =======
   if (can_test_argument_range (call))
@@ -974,6 +975,10 @@ use_internal_fn (gcall *call)
   if (can_test_argument_range (call))
     gen_shrink_wrap_conditions (call, conds, &nconds);
 >>>>>>> gcc-mirror/trunk
+=======
+  if (can_test_argument_range (call))
+    gen_shrink_wrap_conditions (call, conds, &nconds);
+>>>>>>> gcc-mirror/master
   if (nconds == 0 && !edom_only_function (call))
     return false;
 

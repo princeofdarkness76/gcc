@@ -117,6 +117,7 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> gcc-mirror/master
@@ -125,12 +126,16 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
   if (bitpos)
     {
       if (TREE_CODE (type) == BOOLEAN_TYPE)
 	{
 	  tree itype
 	    = build_nonstandard_integer_type (tree_to_uhwi (bitsize), 0);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -149,6 +154,8 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  tree field = fold_build3 (BIT_FIELD_REF, itype, t, bitsize, bitpos);
 	  return fold_build2 (NE_EXPR, type, field, build_zero_cst (itype));
 	}
@@ -158,9 +165,12 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
 
   return fold_build1 (VIEW_CONVERT_EXPR, type, t);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 static tree
@@ -198,10 +208,17 @@ do_compare (gimple_stmt_iterator *gsi, tree inner_type, tree a, tree b,
   tree cst_false = build_zero_cst (stype);
   tree cst_true = build_all_ones_cst (stype);
   tree cmp;
+<<<<<<< HEAD
 
   a = tree_vec_extract (inner_type, a, bitsize, bitpos);
   b = tree_vec_extract (inner_type, b, bitsize, bitpos);
 
+=======
+
+  a = tree_vec_extract (inner_type, a, bitsize, bitpos);
+  b = tree_vec_extract (inner_type, b, bitsize, bitpos);
+
+>>>>>>> gcc-mirror/master
   cmp = build2 (code, boolean_type_node, a, b);
   return gimplify_build3 (gsi, COND_EXPR, stype, cmp, cst_true, cst_false);
 }
@@ -1482,6 +1499,7 @@ do_cond (gimple_stmt_iterator *gsi, tree inner_type, tree a, tree b,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     a = tree_vec_extract (gsi, inner_type, a, bitsize, bitpos);
   if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
     b = tree_vec_extract (gsi, inner_type, b, bitsize, bitpos);
@@ -1500,6 +1518,11 @@ do_cond (gimple_stmt_iterator *gsi, tree inner_type, tree a, tree b,
   if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
     b = tree_vec_extract (inner_type, b, bitsize, bitpos);
 >>>>>>> gcc-mirror/trunk
+=======
+    a = tree_vec_extract (inner_type, a, bitsize, bitpos);
+  if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
+    b = tree_vec_extract (inner_type, b, bitsize, bitpos);
+>>>>>>> gcc-mirror/master
   tree cond = gimple_assign_rhs1 (gsi_stmt (*gsi));
   return gimplify_build3 (gsi, code, inner_type, unshare_expr (cond), a, b);
 }
@@ -1847,6 +1870,7 @@ class pass_lower_vector : public gimple_opt_pass
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 {
@@ -1886,6 +1910,9 @@ const pass_data pass_data_lower_vector_ssa =
 =======
 {
 >>>>>>> gcc-mirror/trunk
+=======
+{
+>>>>>>> gcc-mirror/master
 public:
   pass_lower_vector (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_lower_vector, ctxt)
@@ -1916,6 +1943,7 @@ namespace {
 
 const pass_data pass_data_lower_vector_ssa =
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -1930,6 +1958,8 @@ const pass_data pass_data_lower_vector_ssa =
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   GIMPLE_PASS, /* type */
   "veclower2", /* name */
   OPTGROUP_VEC, /* optinfo_flags */

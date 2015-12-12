@@ -110,6 +110,7 @@ extern void GOMP_parallel_loop_runtime (void (*)(void *), void *,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -117,6 +118,8 @@ extern void GOMP_parallel_loop_runtime (void (*)(void *), void *,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern void GOMP_parallel_loop_nonmonotonic_dynamic (void (*)(void *), void *,
 						     unsigned, long, long,
 						     long, long, unsigned);
@@ -126,6 +129,7 @@ extern void GOMP_parallel_loop_nonmonotonic_guided (void (*)(void *), void *,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -133,6 +137,8 @@ extern void GOMP_parallel_loop_nonmonotonic_guided (void (*)(void *), void *,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 extern void GOMP_loop_end (void);
 extern void GOMP_loop_end_nowait (void);
@@ -260,6 +266,7 @@ extern void GOMP_parallel (void (*) (void *), void *, unsigned, unsigned);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern void GOMP_cancel (void);
 extern void GOMP_cancellation_point (void);
 =======
@@ -278,6 +285,10 @@ extern bool GOMP_cancellation_point (int);
 extern bool GOMP_cancel (int, bool);
 extern bool GOMP_cancellation_point (int);
 >>>>>>> gcc-mirror/trunk
+=======
+extern bool GOMP_cancel (int, bool);
+extern bool GOMP_cancellation_point (int);
+>>>>>>> gcc-mirror/master
 
 /* task.c */
 

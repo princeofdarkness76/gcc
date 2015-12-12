@@ -547,6 +547,7 @@ sem_function::param_used_p (unsigned int i)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
     return true;
@@ -557,6 +558,9 @@ sem_function::param_used_p (unsigned int i)
 =======
     return true;
 >>>>>>> gcc-mirror/trunk
+=======
+    return true;
+>>>>>>> gcc-mirror/master
 
   struct ipa_node_params *parms_info = IPA_NODE_REF (get_node ());
 
@@ -1367,6 +1371,7 @@ sem_function::merge (sem_item *alias_item)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* Inform the inliner about cross-module merging.  */
@@ -1377,6 +1382,8 @@ sem_function::merge (sem_item *alias_item)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* We use merged flag to track cases where COMDAT function is known to be
      compatible its callers.  If we merged in non-COMDAT, we need to give up
      on this optimization.  */
@@ -1389,11 +1396,14 @@ sem_function::merge (sem_item *alias_item)
       original->merged_comdat = false;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   if (remove)
     {

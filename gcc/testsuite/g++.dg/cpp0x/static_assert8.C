@@ -9,6 +9,7 @@ static_assert (1 == 0, "oops"); // { dg-error "static assertion failed" }
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-error "static_assert without a message only available with " "" { target *-*-* } 3 }
 =======
 // { dg-error "static_assert without a message only available with " "" { target { ! c++1z } } 3 }
@@ -19,3 +20,6 @@ static_assert (1 == 0, "oops"); // { dg-error "static assertion failed" }
 =======
 // { dg-error "static_assert without a message only available with " "" { target { ! c++1z } } 3 }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-error "static_assert without a message only available with " "" { target { ! c++1z } } 3 }
+>>>>>>> gcc-mirror/master

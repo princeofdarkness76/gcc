@@ -2637,6 +2637,7 @@ expand_unop_direct (machine_mode mode, optab unoptab, rtx op0, rtx target,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	     int unsignedp)
@@ -2646,6 +2647,9 @@ expand_unop_direct (machine_mode mode, optab unoptab, rtx op0, rtx target,
 =======
 		    int unsignedp)
 >>>>>>> gcc-mirror/trunk
+=======
+		    int unsignedp)
+>>>>>>> gcc-mirror/master
 {
   if (optab_handler (unoptab, mode) != CODE_FOR_nothing)
     {
@@ -4327,8 +4331,11 @@ emit_conditional_neg_or_complement (rtx target, rtx_code code,
     target = gen_reg_rtx (mode);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   rtx_insn *last = get_last_insn ();
   struct expand_operand ops[4];
@@ -4342,6 +4349,7 @@ emit_conditional_neg_or_complement (rtx target, rtx_code code,
     {
       if (ops[0].value != target)
 	convert_move (target, ops[0].value, false);
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -4363,6 +4371,9 @@ emit_conditional_neg_or_complement (rtx target, rtx_code code,
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
       return target;
     }
   delete_insns_since (last);
@@ -4515,6 +4526,7 @@ have_add2_insn (rtx x, rtx y)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 rtx_insn *
 gen_addptr3_insn (rtx x, rtx y, rtx z)
@@ -4604,13 +4616,60 @@ have_addptr3_insn (rtx x, rtx y, rtx z)
 
 rtx_insn *
 gen_sub2_insn (rtx x, rtx y)
+=======
+
+rtx_insn *
+gen_addptr3_insn (rtx x, rtx y, rtx z)
+>>>>>>> gcc-mirror/master
+{
+  enum insn_code icode = optab_handler (addptr3_optab, GET_MODE (x));
+
+  gcc_assert (insn_operand_matches (icode, 0, x));
+<<<<<<< HEAD
+  gcc_assert (insn_operand_matches (icode, 1, x));
+  gcc_assert (insn_operand_matches (icode, 2, y));
+>>>>>>> gcc-mirror/trunk
+=======
+  gcc_assert (insn_operand_matches (icode, 1, y));
+  gcc_assert (insn_operand_matches (icode, 2, z));
+
+  return GEN_FCN (icode) (x, y, z);
+}
+
+/* Return true if the target implements an addptr pattern and X, Y,
+   and Z are valid for the pattern predicates.  */
+
+int
+have_addptr3_insn (rtx x, rtx y, rtx z)
+{
+  enum insn_code icode;
+
+  gcc_assert (GET_MODE (x) != VOIDmode);
+
+  icode = optab_handler (addptr3_optab, GET_MODE (x));
+
+  if (icode == CODE_FOR_nothing)
+    return 0;
+
+  if (!insn_operand_matches (icode, 0, x)
+      || !insn_operand_matches (icode, 1, y)
+      || !insn_operand_matches (icode, 2, z))
+    return 0;
+
+  return 1;
+}
+
+/* Generate and return an insn body to subtract Y from X.  */
+
+rtx_insn *
+gen_sub2_insn (rtx x, rtx y)
 {
   enum insn_code icode = optab_handler (sub_optab, GET_MODE (x));
 
   gcc_assert (insn_operand_matches (icode, 0, x));
   gcc_assert (insn_operand_matches (icode, 1, x));
   gcc_assert (insn_operand_matches (icode, 2, y));
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
   return GEN_FCN (icode) (x, y, z);
 }
@@ -4656,6 +4715,7 @@ have_addptr3_insn (rtx x, rtx y, rtx z)
 
   return 1;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -4767,6 +4827,12 @@ have_sub2_insn (rtx x, rtx y)
    into X (with mode MTO).  Do zero-extension if UNSIGNEDP is nonzero.  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* Generate the body of an insn to extend Y (with mode MFROM)
+   into X (with mode MTO).  Do zero-extension if UNSIGNEDP is nonzero.  */
+
+>>>>>>> gcc-mirror/master
 rtx_insn *
 gen_extend_insn (rtx x, rtx y, machine_mode mto,
 		 machine_mode mfrom, int unsignedp)
@@ -5257,6 +5323,7 @@ expand_sfix_optab (rtx to, rtx from, convert_optab tab)
   rtx target = to;
   machine_mode fmode, imode;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /* We first try to find a pair of modes, one real and one integer, at
      least as wide as FROM and TO, respectively, in which we can open-code
@@ -5340,6 +5407,8 @@ expand_sfix_optab (rtx to, rtx from, convert_optab tab)
   machine_mode fmode, imode;
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* We first try to find a pair of modes, one real and one integer, at
      least as wide as FROM and TO, respectively, in which we can open-code
@@ -5373,9 +5442,12 @@ expand_sfix_optab (rtx to, rtx from, convert_optab tab)
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   return false;
 }
 
@@ -5598,6 +5670,7 @@ shift_amt_for_vec_perm_mask (rtx sel)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (first >= 2*nelt)
 =======
   if (first >= nelt)
@@ -5608,6 +5681,9 @@ shift_amt_for_vec_perm_mask (rtx sel)
 =======
   if (first >= nelt)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (first >= nelt)
+>>>>>>> gcc-mirror/master
     return NULL_RTX;
   for (i = 1; i < nelt; i++)
     {
@@ -5615,6 +5691,7 @@ shift_amt_for_vec_perm_mask (rtx sel)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       unsigned int expected = (i + first) & (2 * nelt - 1);
 =======
       unsigned int expected = i + first;
@@ -5625,6 +5702,9 @@ shift_amt_for_vec_perm_mask (rtx sel)
 =======
       unsigned int expected = i + first;
 >>>>>>> gcc-mirror/trunk
+=======
+      unsigned int expected = i + first;
+>>>>>>> gcc-mirror/master
       /* Indices into the second vector are all equivalent.  */
       if (idx < 0 || (MIN (nelt, (unsigned) idx) != MIN (nelt, expected)))
 	return NULL_RTX;

@@ -189,6 +189,7 @@ struct GTY ((chain_next ("%h.next"))) loop {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* True if we should try harder to vectorize this loop.  */
   bool force_vect;
 =======
@@ -198,6 +199,8 @@ struct GTY ((chain_next ("%h.next"))) loop {
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* True if this loop should never be vectorized.  */
   bool dont_vectorize;
 
@@ -209,6 +212,7 @@ struct GTY ((chain_next ("%h.next"))) loop {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -216,6 +220,8 @@ struct GTY ((chain_next ("%h.next"))) loop {
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* For SIMD loops, this is a unique identifier of the loop, referenced
      by IFN_GOMP_SIMD_VF, IFN_GOMP_SIMD_LANE and IFN_GOMP_SIMD_LAST_LANE
@@ -694,6 +700,7 @@ loop_iterator::loop_iterator (function *fn, loop_p *loop, unsigned flags)
   *loop = this->next ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 inline
@@ -713,6 +720,8 @@ loop_iterator::~loop_iterator ()
 
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 }
 
 inline
@@ -721,7 +730,10 @@ loop_iterator::~loop_iterator ()
   this->to_visit.release ();
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define FOR_EACH_LOOP(LOOP, FLAGS) \
   for (loop_iterator li(cfun, &(LOOP), FLAGS); \
        (LOOP); \
@@ -814,6 +826,9 @@ extern bool get_max_loop_iterations (struct loop *loop, widest_int *nit);
 extern int bb_loop_depth (const_basic_block);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
 /* Converts VAL to widest_int.  */
 
@@ -829,6 +844,7 @@ gcov_type_to_wide_int (gcov_type val)
   val >>= 1;
   a[1] = (unsigned HOST_WIDE_INT) val;
 
+<<<<<<< HEAD
 =======
 
 /* Converts VAL to widest_int.  */
@@ -854,6 +870,8 @@ gcov_type_to_wide_int (gcov_type val)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   return widest_int::from_array (a, 2);
 }
 #endif /* GCC_CFGLOOP_H */

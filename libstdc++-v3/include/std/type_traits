@@ -284,6 +284,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_1)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __is_integral_helper<__GLIBCXX_TYPE_INT_N_1>
     : public true_type { };
@@ -299,11 +302,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __is_integral_helper<unsigned __GLIBCXX_TYPE_INT_N_2>
     : public true_type { };
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_3)
+<<<<<<< HEAD
   template<>
 =======
   template<>
@@ -350,6 +357,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<>
 >>>>>>> gcc-mirror/trunk
+=======
+  template<>
+    struct __is_integral_helper<__GLIBCXX_TYPE_INT_N_3>
+    : public true_type { };
+
+  template<>
+>>>>>>> gcc-mirror/master
     struct __is_integral_helper<unsigned __GLIBCXX_TYPE_INT_N_3>
     : public true_type { };
 #endif
@@ -1394,6 +1408,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     : public __and_<is_constructible<_Tp, _Args...>, integral_constant<bool,
 			__is_trivially_constructible(_Tp, _Args...)>>
     { };
+<<<<<<< HEAD
   
   /// is_trivially_default_constructible
   template<typename _Tp>
@@ -1556,6 +1571,77 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { };
 
 >>>>>>> gcc-mirror/trunk
+=======
+  
+  /// is_trivially_default_constructible
+  template<typename _Tp>
+    struct is_trivially_default_constructible
+    : public is_trivially_constructible<_Tp>::type
+    { };
+
+  struct __do_is_implicitly_default_constructible_impl
+  {
+    template <typename _Tp>
+    static void __helper(const _Tp&);
+
+    template <typename _Tp>
+    static true_type __test(const _Tp&,
+                            decltype(__helper<const _Tp&>({}))* = 0);
+
+    static false_type __test(...);
+  };
+
+  template<typename _Tp>
+    struct __is_implicitly_default_constructible_impl
+      : public __do_is_implicitly_default_constructible_impl
+  {
+    typedef decltype(__test(declval<_Tp>())) type;
+  };
+
+  template<typename _Tp>
+    struct __is_implicitly_default_constructible_safe
+      : public __is_implicitly_default_constructible_impl<_Tp>::type
+  { };
+
+  template <typename _Tp>
+    struct __is_implicitly_default_constructible
+      : public __and_<is_default_constructible<_Tp>,
+                      __is_implicitly_default_constructible_safe<_Tp>>
+  { };
+
+  /// is_trivially_copy_constructible
+  template<typename _Tp>
+    struct is_trivially_copy_constructible
+    : public __and_<is_copy_constructible<_Tp>, 
+		    integral_constant<bool,
+			__is_trivially_constructible(_Tp, const _Tp&)>>
+    { };
+  
+  /// is_trivially_move_constructible
+  template<typename _Tp>
+    struct is_trivially_move_constructible
+    : public __and_<is_move_constructible<_Tp>, 
+		    integral_constant<bool,
+			__is_trivially_constructible(_Tp, _Tp&&)>>
+    { };
+
+  /// is_trivially_assignable
+  template<typename _Tp, typename _Up>
+    struct is_trivially_assignable
+    : public __and_<is_assignable<_Tp, _Up>, 
+		    integral_constant<bool,
+			__is_trivially_assignable(_Tp, _Up)>>
+    { };
+
+  /// is_trivially_copy_assignable
+  template<typename _Tp>
+    struct is_trivially_copy_assignable
+    : public __and_<is_copy_assignable<_Tp>, 
+		    integral_constant<bool,
+			__is_trivially_assignable(_Tp&, const _Tp&)>>
+    { };
+
+>>>>>>> gcc-mirror/master
   /// is_trivially_move_assignable
   template<typename _Tp>
     struct is_trivially_move_assignable
@@ -1884,6 +1970,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __make_unsigned<wchar_t> : __make_unsigned<__WCHAR_TYPE__>
     { };
@@ -1905,6 +1994,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { typedef unsigned __GLIBCXX_TYPE_INT_N_2 __type; };
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_3)
+<<<<<<< HEAD
   template<>
 =======
   template<>
@@ -1960,6 +2050,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if defined(__GLIBCXX_TYPE_INT_N_3)
   template<>
 >>>>>>> gcc-mirror/trunk
+=======
+  template<>
+>>>>>>> gcc-mirror/master
     struct __make_unsigned<__GLIBCXX_TYPE_INT_N_3>
     { typedef unsigned __GLIBCXX_TYPE_INT_N_3 __type; };
 #endif
@@ -2050,8 +2143,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if defined(_GLIBCXX_USE_WCHAR_T) && defined(__WCHAR_UNSIGNED__)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __make_signed<wchar_t> : __make_signed<__WCHAR_TYPE__>
     { };
@@ -2068,6 +2164,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #if defined(__GLIBCXX_TYPE_INT_N_0)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_0>
     { typedef __GLIBCXX_TYPE_INT_N_0 __type; };
@@ -2079,11 +2178,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_2)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
   template<>
     struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_2>
     { typedef __GLIBCXX_TYPE_INT_N_2 __type; };
 #endif
 #if defined(__GLIBCXX_TYPE_INT_N_3)
+<<<<<<< HEAD
   template<>
 =======
   template<>
@@ -2142,6 +2245,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if defined(__GLIBCXX_TYPE_INT_N_3)
   template<>
 >>>>>>> gcc-mirror/trunk
+=======
+  template<>
+>>>>>>> gcc-mirror/master
     struct __make_signed<unsigned __GLIBCXX_TYPE_INT_N_3>
     { typedef __GLIBCXX_TYPE_INT_N_3 __type; };
 #endif
@@ -2651,6 +2757,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   template<typename> struct reference_wrapper;
@@ -2670,6 +2777,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   template<typename _Res, typename _Class, typename _Arg>
     struct __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
@@ -2685,11 +2794,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __result_of_memobj<_Res _Class::*, const reference_wrapper<_Arg>&>
     : __result_of_memobj_ref<_Res _Class::*, _Arg&>
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     { };
 
   template<typename _Res, typename _Class, typename _Arg>
@@ -2697,10 +2809,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     : __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     : __result_of_memobj_ref<_Res _Class::*, _Arg&>
     { };
 
@@ -2708,16 +2823,20 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __result_of_memobj<_Res _Class::*, const reference_wrapper<_Arg>&&>
     : __result_of_memobj_ref<_Res _Class::*, _Arg&>
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     : __result_of_memobj<_Res _Class::*, reference_wrapper<_Arg>>
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     { };
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
     struct __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2739,6 +2858,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
     { };
 >>>>>>> gcc-mirror/trunk
+=======
+    : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
+    { };
+>>>>>>> gcc-mirror/master
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
     struct __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>&,
@@ -2746,10 +2869,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
     { };
 
@@ -2758,12 +2884,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      _Args...>
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     { };
 
   template<typename _Res, typename _Class, typename _Arg, typename... _Args>
@@ -2772,10 +2901,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
     { };
 
@@ -2784,12 +2916,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      _Args...>
     : __result_of_memfun_ref<_Res _Class::*, _Arg&, _Args...>
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     : __result_of_memfun<_Res _Class::*, reference_wrapper<_Arg>, _Args...>
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     { };
 
   template<bool, bool, typename _Functor, typename... _ArgTypes>

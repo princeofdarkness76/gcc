@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fdump-tree-dce2" } */
 =======
 /* { dg-options "-O -fdump-tree-dce3" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O -fdump-tree-dce3" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O -fdump-tree-dce3" } */
+>>>>>>> gcc-mirror/master
   
 struct rtx_def;
 typedef struct rtx_def *rtx;
@@ -57,6 +61,7 @@ get_alias_set (t)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* { dg-final { scan-tree-dump-times "->decl\\.rtl" 1 "dce2"} } */
@@ -93,4 +98,15 @@ get_alias_set (t)
    collapse down to a simple return 0 without any conditionals).  */
 /* { dg-final { scan-tree-dump-times "if " 1 "dce3"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "->decl\\.rtl" 1 "dce3"} } */
+  
+/* There should be no loads of .rtmem since the complex return statement
+   is just "return 0".  */
+/* { dg-final { scan-tree-dump-times ".rtmem" 0 "dce3"} } */
+  
+/* There should be one IF statement (the complex return statement should
+   collapse down to a simple return 0 without any conditionals).  */
+/* { dg-final { scan-tree-dump-times "if " 1 "dce3"} } */
+>>>>>>> gcc-mirror/master
 

@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 void
 f_vst2_lane_s32 (int32_t * p, int32x2x2_t v)
@@ -20,6 +23,7 @@ f_vst2_lane_s32 (int32_t * p, int32x2x2_t v)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* { dg-error "lane 2 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
   vst2_lane_s32 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
@@ -38,6 +42,11 @@ f_vst2_lane_s32 (int32_t * p, int32x2x2_t v)
   vst2_lane_s32 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* { dg-error "lane 2 out of range 0 - 1" "" { target *-*-* } 0 } */
+  vst2_lane_s32 (p, v, 2);
+  /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   vst2_lane_s32 (p, v, -1);
   return;
 }

@@ -1149,6 +1149,7 @@ DEFTREECODE (OMP_TARGET, "omp_target", tcc_statement, 2)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* OpenMP - #pragma omp simd [clause1 ... clauseN]
    Operands like for OMP_FOR.  */
@@ -1185,6 +1186,8 @@ DEFTREECODE (OMP_TARGET, "omp_target", tcc_statement, 2)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* OpenMP - #pragma omp sections [clause1 ... clauseN]
    Operand 0: OMP_SECTIONS_BODY: Sections body.
@@ -1257,6 +1260,7 @@ DEFTREECODE (OMP_TARGET_EXIT_DATA, "omp_target_exit_data", tcc_statement, 1)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* OpenMP - #pragma omp target update [clause1 ... clauseN]
    Operand 0: OMP_TARGET_UPDATE_CLAUSES: List of clauses.  */
@@ -1270,6 +1274,8 @@ DEFTREECODE (OMP_TARGET_UPDATE, "omp_target_update", tcc_statement, 1)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* OpenMP - #pragma omp atomic
    Operand 0: The address at which the atomic operation is to be performed.

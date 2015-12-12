@@ -25,6 +25,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/filesystem
  *  This is a TS C++ Library header.
 =======
@@ -41,6 +42,11 @@
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
 >>>>>>> gcc-mirror/trunk
+=======
+/** @file experimental/bits/fs_fwd.h
+ *  This is an internal header file, included by other library headers.
+ *  Do not attempt to use it directly. @headername{experimental/filesystem}
+>>>>>>> gcc-mirror/master
  */
 
 #ifndef _GLIBCXX_EXPERIMENTAL_FS_FWD_H
@@ -72,6 +78,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    * @defgroup filesystem
 =======
    * @defgroup filesystem Filesystem
@@ -82,6 +89,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
    * @defgroup filesystem Filesystem
 >>>>>>> gcc-mirror/trunk
+=======
+   * @defgroup filesystem Filesystem
+>>>>>>> gcc-mirror/master
    * @ingroup experimental
    *
    * Utilities for performing operations on file systems and their components,

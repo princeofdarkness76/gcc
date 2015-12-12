@@ -867,6 +867,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   (ior (match_test "rs6000_is_valid_and_mask (op, mode)")
 =======
   (ior (and (match_code "const_int")
@@ -879,6 +880,10 @@
   (ior (and (match_code "const_int")
 	    (match_test "rs6000_is_valid_and_mask (op, mode)"))
 >>>>>>> gcc-mirror/trunk
+=======
+  (ior (and (match_code "const_int")
+	    (match_test "rs6000_is_valid_and_mask (op, mode)"))
+>>>>>>> gcc-mirror/master
        (if_then_else (match_test "fixed_regs[CR0_REGNO]")
 	 (match_operand 0 "gpc_reg_operand")
 	 (match_operand 0 "logical_operand"))))

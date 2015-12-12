@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-skip-if "" { arm*-*-* } } */
 
 poly8x16x2_t
@@ -22,6 +25,7 @@ f_vld2q_lane_p8 (poly8_t * p, poly8x16x2_t v)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* { dg-error "lane 16 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
   res = vld2q_lane_p8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
@@ -40,6 +44,11 @@ f_vld2q_lane_p8 (poly8_t * p, poly8x16x2_t v)
   res = vld2q_lane_p8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* { dg-error "lane 16 out of range 0 - 15" "" { target *-*-* } 0 } */
+  res = vld2q_lane_p8 (p, v, 16);
+  /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   res = vld2q_lane_p8 (p, v, -1);
   return res;
 }

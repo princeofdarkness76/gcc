@@ -1813,6 +1813,7 @@ d_operator_name (struct d_info *di)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -1824,6 +1825,8 @@ d_operator_name (struct d_info *di)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       struct demangle_component *res;
 
       di->is_conversion = ! di->is_expression;
@@ -1835,11 +1838,14 @@ d_operator_name (struct d_info *di)
       di->is_conversion = was_conversion;
       return res;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
   else
     {
@@ -3962,6 +3968,7 @@ d_count_templates_scopes (int *num_templates, int *num_scopes,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case DEMANGLE_COMPONENT_CONVERSION:
 >>>>>>> gcc-mirror/master
@@ -3970,6 +3977,9 @@ d_count_templates_scopes (int *num_templates, int *num_scopes,
 =======
     case DEMANGLE_COMPONENT_CONVERSION:
 >>>>>>> gcc-mirror/trunk
+=======
+    case DEMANGLE_COMPONENT_CONVERSION:
+>>>>>>> gcc-mirror/master
     case DEMANGLE_COMPONENT_NULLARY:
     case DEMANGLE_COMPONENT_UNARY:
     case DEMANGLE_COMPONENT_BINARY:
@@ -4149,6 +4159,7 @@ cplus_demangle_print_callback (int options,
   d_print_init (&dpi, callback, opaque, dc);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -4174,6 +4185,14 @@ cplus_demangle_print_callback (int options,
     __extension__ struct d_saved_scope scopes[dpi.num_saved_scopes];
     __extension__ struct d_print_template temps[dpi.num_copy_templates];
 
+=======
+
+  {
+#ifdef CP_DYNAMIC_ARRAYS
+    __extension__ struct d_saved_scope scopes[dpi.num_saved_scopes];
+    __extension__ struct d_print_template temps[dpi.num_copy_templates];
+
+>>>>>>> gcc-mirror/master
     dpi.saved_scopes = scopes;
     dpi.copy_templates = temps;
 #else
@@ -4183,9 +4202,12 @@ cplus_demangle_print_callback (int options,
 				 * sizeof (*dpi.copy_templates));
 #endif
 
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     d_print_comp (&dpi, options, dc);
   }
 
@@ -5876,15 +5898,19 @@ d_print_cast (struct d_print_info *dpi, int options,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   struct d_print_template dpt;
 
   /* For a cast operator, we need the template parameters from
 =======
+=======
+>>>>>>> gcc-mirror/master
   d_print_comp (dpi, options, d_left (dc));
 }
 
 /* Print a conversion operator.  */
 
+<<<<<<< HEAD
 =======
   d_print_comp (dpi, options, d_left (dc));
 }
@@ -5910,6 +5936,15 @@ d_print_conversion (struct d_print_info *dpi, int options,
 
   /* For a conversion operator, we need the template parameters from
 >>>>>>> gcc-mirror/trunk
+=======
+static void
+d_print_conversion (struct d_print_info *dpi, int options,
+		    const struct demangle_component *dc)
+{
+  struct d_print_template dpt;
+
+  /* For a conversion operator, we need the template parameters from
+>>>>>>> gcc-mirror/master
      the enclosing template in scope for processing the type.  */
   if (dpi->current_template != NULL)
     {

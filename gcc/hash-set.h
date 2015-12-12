@@ -30,6 +30,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     : m_table (n, ggc, true, HASH_SET_ORIGIN PASS_MEM_STAT) {}
 =======
     : m_table (n, ggc, GATHER_STATISTICS, HASH_SET_ORIGIN PASS_MEM_STAT) {}
@@ -40,6 +41,9 @@ public:
 =======
     : m_table (n, ggc, GATHER_STATISTICS, HASH_SET_ORIGIN PASS_MEM_STAT) {}
 >>>>>>> gcc-mirror/trunk
+=======
+    : m_table (n, ggc, GATHER_STATISTICS, HASH_SET_ORIGIN PASS_MEM_STAT) {}
+>>>>>>> gcc-mirror/master
 
   /* Create a hash_set in gc memory with space for at least n elements.  */
 

@@ -33,6 +33,7 @@ if NATIVE
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 GOCOMPILER = $(GOC_FOR_TARGET)
 =======
 GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
@@ -43,6 +44,9 @@ GOCOMPILER = $(GOC_FOR_TARGET)
 =======
 GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
 >>>>>>> gcc-mirror/trunk
+=======
+GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
+>>>>>>> gcc-mirror/master
 else
 GOCOMPILER = $(GOC)
 endif

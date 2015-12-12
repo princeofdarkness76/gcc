@@ -28,6 +28,7 @@ is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      Global => Ada.Real_Time.Clock_Time;
 =======
      Global => Ada.Real_Time.Clock_Time,
@@ -40,6 +41,10 @@ is
      Global => Ada.Real_Time.Clock_Time,
      Pre    => Separate_Interrupt_Clocks_Supported;
 >>>>>>> gcc-mirror/trunk
+=======
+     Global => Ada.Real_Time.Clock_Time,
+     Pre    => Separate_Interrupt_Clocks_Supported;
+>>>>>>> gcc-mirror/master
 
    function Supported (Interrupt : Ada.Interrupts.Interrupt_ID) return Boolean
    with

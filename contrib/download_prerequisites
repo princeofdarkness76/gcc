@@ -51,6 +51,7 @@ if [ "$GRAPHITE_LOOP_OPT" = "yes" ] ; then
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ISL=isl-0.14
 =======
   ISL=isl-0.15
@@ -61,6 +62,9 @@ if [ "$GRAPHITE_LOOP_OPT" = "yes" ] ; then
 =======
   ISL=isl-0.15
 >>>>>>> gcc-mirror/trunk
+=======
+  ISL=isl-0.15
+>>>>>>> gcc-mirror/master
 
   wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$ISL.tar.bz2 || exit 1
   tar xjf $ISL.tar.bz2  || exit 1

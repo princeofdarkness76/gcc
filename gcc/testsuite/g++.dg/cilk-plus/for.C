@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-ftree-vectorize -fcilkplus" } */
 =======
 =======
@@ -11,10 +12,13 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-options "-O3 -fcilkplus" } */
 
 // Test storage classes in the initialization of a <#pragma simd> for
 // loop.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25,11 +29,14 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 int *a, *b;
 
 void foo()
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -45,6 +52,8 @@ void foo()
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #pragma simd
   for (static int tt=5; tt < 10; ++tt) /* { dg-error "before 'static'\|not declared\|expected" } */
     a[tt] = b[tt];
@@ -63,6 +72,7 @@ void foo()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -70,4 +80,6 @@ void foo()
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }

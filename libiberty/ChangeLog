@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-27  Pedro Alves  <palves@redhat.com>
 
 	PR other/61321
@@ -29,11 +32,14 @@
 	* testsuite/demangle-expected: Add tests.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-12  Mike Stump  <mikestump@comcast.net>
 
 	* Makefile.in (etags tags TAGS): Use && instead of ;.

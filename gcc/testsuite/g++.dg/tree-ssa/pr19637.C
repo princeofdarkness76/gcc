@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fno-ipa-icf -fdump-tree-dom1" } */
 =======
 /* { dg-options "-O2 -fno-ipa-icf -fdump-tree-dom2" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O2 -fno-ipa-icf -fdump-tree-dom2" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O2 -fno-ipa-icf -fdump-tree-dom2" } */
+>>>>>>> gcc-mirror/master
 
 #include <new>
 
@@ -43,6 +47,7 @@ int foo_void_offset(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "return 1;" 3 "dom1" } } */
 <<<<<<< HEAD
 =======
@@ -53,3 +58,6 @@ int foo_void_offset(void)
 =======
 /* { dg-final { scan-tree-dump-times "return 1;" 3 "dom2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "return 1;" 3 "dom2" } } */
+>>>>>>> gcc-mirror/master

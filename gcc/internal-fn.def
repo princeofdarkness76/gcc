@@ -53,6 +53,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 DEF_INTERNAL_FN (LOAD_LANES, ECF_CONST | ECF_LEAF)
 DEF_INTERNAL_FN (STORE_LANES, ECF_CONST | ECF_LEAF)
 DEF_INTERNAL_FN (GOMP_SIMD_LANE, ECF_NOVOPS | ECF_LEAF | ECF_NOTHROW)
@@ -65,6 +66,8 @@ DEF_INTERNAL_FN (GOMP_SIMD_LAST_LANE, ECF_CONST | ECF_LEAF | ECF_NOTHROW)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    DEF_INTERNAL_FLT_FN is like DEF_INTERNAL_OPTAB_FN, but in addition,
    the function implements the computational part of a built-in math
    function BUILT_IN_<NAME>{F,,L}.  Unlike some built-in functions,
@@ -110,6 +113,7 @@ DEF_INTERNAL_OPTAB_FN (STORE_LANES, ECF_CONST, vec_store_lanes, store_lanes)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 DEF_INTERNAL_OPTAB_FN (RSQRT, ECF_CONST, rsqrt, unary)
 
@@ -120,6 +124,10 @@ DEF_INTERNAL_OPTAB_FN (RSQRT, ECF_CONST, rsqrt, unary)
 DEF_INTERNAL_OPTAB_FN (RSQRT, ECF_CONST, rsqrt, unary)
 
 >>>>>>> gcc-mirror/trunk
+=======
+DEF_INTERNAL_OPTAB_FN (RSQRT, ECF_CONST, rsqrt, unary)
+
+>>>>>>> gcc-mirror/master
 /* Unary math functions.  */
 DEF_INTERNAL_FLT_FN (ACOS, ECF_CONST, acos, unary)
 DEF_INTERNAL_FLT_FN (ASIN, ECF_CONST, asin, unary)
@@ -157,6 +165,7 @@ DEF_INTERNAL_FLT_FN (SCALB, ECF_CONST, scalb, binary)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 DEF_INTERNAL_FLT_FN (FMIN, ECF_CONST, fmin, binary)
 DEF_INTERNAL_FLT_FN (FMAX, ECF_CONST, fmax, binary)
@@ -167,6 +176,10 @@ DEF_INTERNAL_FLT_FN (FMAX, ECF_CONST, fmax, binary)
 DEF_INTERNAL_FLT_FN (FMIN, ECF_CONST, fmin, binary)
 DEF_INTERNAL_FLT_FN (FMAX, ECF_CONST, fmax, binary)
 >>>>>>> gcc-mirror/trunk
+=======
+DEF_INTERNAL_FLT_FN (FMIN, ECF_CONST, fmin, binary)
+DEF_INTERNAL_FLT_FN (FMAX, ECF_CONST, fmax, binary)
+>>>>>>> gcc-mirror/master
 
 /* FP scales.  */
 DEF_INTERNAL_FLT_FN (LDEXP, ECF_CONST, ldexp, binary)
@@ -234,6 +247,7 @@ DEF_INTERNAL_FN (SET_EDOM, ECF_LEAF | ECF_NOTHROW, NULL)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -241,3 +255,5 @@ DEF_INTERNAL_FN (SET_EDOM, ECF_LEAF | ECF_NOTHROW, NULL)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

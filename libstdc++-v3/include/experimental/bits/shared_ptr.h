@@ -94,6 +94,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       template<typename _Tp1>
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value>;
@@ -112,6 +113,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
 >>>>>>> gcc-mirror/trunk
+=======
+      template<typename _Tp1, typename _Res = void>
+	using _Compatible
+	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
+>>>>>>> gcc-mirror/master
 
       using _Base_type = __shared_ptr<_Tp>;
 
@@ -222,6 +228,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -232,6 +239,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(const __shared_ptr<__libfund_v1<_Tp1>, _Lp>& __r) noexcept
 	{
 	  _Base_type::operator=(__r._M_get_base());
@@ -242,6 +252,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -252,6 +263,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(__shared_ptr<__libfund_v1<_Tp1>, _Lp>&& __r) noexcept
 	{
 	  _Base_type::operator=(std::move(__r._M_get_base()));
@@ -262,6 +276,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -272,6 +287,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(std::unique_ptr<_Tp1>&& __r)
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -283,6 +301,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -293,6 +312,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(std::auto_ptr<_Tp1>&& __r)
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -361,6 +383,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       struct _Array_Deleter
 =======
       struct _Array_deleter
@@ -371,12 +394,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
       struct _Array_deleter
 >>>>>>> gcc-mirror/trunk
+=======
+      struct _Array_deleter
+>>>>>>> gcc-mirror/master
       {
 	void
 	operator()(element_type const *__p) const
 	{ delete [] __p; }
       };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -408,6 +435,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
 >>>>>>> gcc-mirror/trunk
+=======
+      template<typename _Tp1, typename _Res = void>
+	using _Compatible
+	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
+>>>>>>> gcc-mirror/master
 
       using _Base_type = __shared_ptr<element_type>;
 
@@ -424,6 +456,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	: _Base_type(__p, _Deleter_type())
 =======
 	: _Base_type(__p, _Array_deleter())
@@ -434,6 +467,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	: _Base_type(__p, _Array_deleter())
 >>>>>>> gcc-mirror/trunk
+=======
+	: _Base_type(__p, _Array_deleter())
+>>>>>>> gcc-mirror/master
 	{ }
 
       template<typename _Tp1, typename _Deleter>
@@ -513,6 +549,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  __shared_ptr(__p, _Deleter_type()).swap(*this);
 =======
 	  __shared_ptr(__p, _Array_deleter()).swap(*this);
@@ -523,6 +560,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	  __shared_ptr(__p, _Array_deleter()).swap(*this);
 >>>>>>> gcc-mirror/trunk
+=======
+	  __shared_ptr(__p, _Array_deleter()).swap(*this);
+>>>>>>> gcc-mirror/master
 	}
 
       template<typename _Tp1, typename _Deleter>
@@ -546,6 +586,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -556,6 +597,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(const __shared_ptr<__libfund_v1<_Tp1>, _Lp>& __r) noexcept
 	{
 	  _Base_type::operator=(__r._M_get_base());
@@ -566,6 +610,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -576,6 +621,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(__shared_ptr<__libfund_v1<_Tp1>, _Lp>&& __r) noexcept
 	{
 	  _Base_type::operator=(std::move(__r._M_get_base()));
@@ -586,6 +634,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -596,6 +645,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(std::unique_ptr<_Tp1>&& __r)
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -607,6 +659,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__shared_ptr&
 =======
 	_Compatible<_Tp1, __shared_ptr&>
@@ -617,6 +670,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(std::auto_ptr<_Tp1>&& __r)
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -680,6 +736,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       template<typename _Tp1>
 	using _Compatible = enable_if_t<__sp_compatible<_Tp1, _Tp>::value>;
 =======
@@ -696,6 +753,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
 >>>>>>> gcc-mirror/trunk
+=======
+      template<typename _Tp1, typename _Res = void>
+	using _Compatible
+	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
+>>>>>>> gcc-mirror/master
 
       using _Base_type = __weak_ptr<remove_extent_t<_Tp>>;
 
@@ -739,6 +801,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__weak_ptr&
 =======
 	_Compatible<_Tp1, __weak_ptr&>
@@ -749,6 +812,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __weak_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(const __weak_ptr<__libfund_v1<_Tp1>, _Lp>& __r) noexcept
 	{
 	  this->_Base_type::operator=(__r._M_get_base());
@@ -759,6 +825,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__weak_ptr&
 =======
 	_Compatible<_Tp1, __weak_ptr&>
@@ -769,6 +836,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __weak_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(const __shared_ptr<_Tp1, _Lp>& __r) noexcept
 	{
 	  this->_Base_type::operator=(__r._M_get_base());
@@ -786,6 +856,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__weak_ptr&
 =======
 	_Compatible<_Tp1, __weak_ptr&>
@@ -796,6 +867,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, __weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, __weak_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(__weak_ptr<_Tp1, _Lp>&& __r) noexcept
 	{
 	  this->_Base_type::operator=(std::move(__r._M_get_base()));
@@ -863,6 +937,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       template<typename _Tp1>
 	using _Compatible = enable_if_t<__sp_compatible<_Tp1, _Tp>::value>;
 =======
@@ -879,6 +954,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
 >>>>>>> gcc-mirror/trunk
+=======
+      template<typename _Tp1, typename _Res = void>
+	using _Compatible
+	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
+>>>>>>> gcc-mirror/master
 
       using _Base_type = __shared_ptr<_Tp>;
 
@@ -954,6 +1034,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shared_ptr&
 =======
 	_Compatible<_Tp1, shared_ptr&>
@@ -964,6 +1045,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(const shared_ptr<_Tp1>& __r) noexcept
 	{
 	  _Base_type::operator=(__r);
@@ -981,6 +1065,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shared_ptr&
 =======
 	_Compatible<_Tp1, shared_ptr&>
@@ -991,6 +1076,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(shared_ptr<_Tp1>&& __r) noexcept
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -1002,6 +1090,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shared_ptr&
 =======
 	_Compatible<_Tp1, shared_ptr&>
@@ -1012,6 +1101,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(std::auto_ptr<_Tp1>&& __r)
 	{
 	  __shared_ptr<_Tp>::operator=(std::move(__r));
@@ -1023,6 +1115,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	shared_ptr&
 =======
 	_Compatible<_Tp1, shared_ptr&>
@@ -1033,6 +1126,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	_Compatible<_Tp1, shared_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	_Compatible<_Tp1, shared_ptr&>
+>>>>>>> gcc-mirror/master
 	operator=(unique_ptr<_Tp1, _Del>&& __r)
 	{
 	  _Base_type::operator=(std::move(__r));
@@ -1222,6 +1318,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       template<typename _Tp1>
 	using _Compatible = enable_if_t<__sp_compatible<_Tp1, _Tp>::value>;
 =======
@@ -1238,6 +1335,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Compatible
 	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
 >>>>>>> gcc-mirror/trunk
+=======
+      template<typename _Tp1, typename _Res = void>
+	using _Compatible
+	  = enable_if_t<__sp_compatible<_Tp1, _Tp>::value, _Res>;
+>>>>>>> gcc-mirror/master
 
       using _Base_type = __weak_ptr<_Tp>;
 
@@ -1267,6 +1369,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 weak_ptr&
 =======
 	 _Compatible<_Tp1, weak_ptr&>
@@ -1277,6 +1380,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	 _Compatible<_Tp1, weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	 _Compatible<_Tp1, weak_ptr&>
+>>>>>>> gcc-mirror/master
 	 operator=(const weak_ptr<_Tp1>& __r) noexcept
 	 {
 	   this->_Base_type::operator=(__r);
@@ -1287,6 +1393,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 weak_ptr&
 =======
 	 _Compatible<_Tp1, weak_ptr&>
@@ -1297,6 +1404,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	 _Compatible<_Tp1, weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	 _Compatible<_Tp1, weak_ptr&>
+>>>>>>> gcc-mirror/master
 	 operator=(const shared_ptr<_Tp1>& __r) noexcept
 	 {
 	   this->_Base_type::operator=(__r);
@@ -1310,6 +1420,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 weak_ptr&
 =======
 	 _Compatible<_Tp1, weak_ptr&>
@@ -1320,6 +1431,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
 	 _Compatible<_Tp1, weak_ptr&>
 >>>>>>> gcc-mirror/trunk
+=======
+	 _Compatible<_Tp1, weak_ptr&>
+>>>>>>> gcc-mirror/master
 	 operator=(weak_ptr<_Tp1>&& __r) noexcept
 	 {
 	   this->_Base_type::operator=(std::move(__r));

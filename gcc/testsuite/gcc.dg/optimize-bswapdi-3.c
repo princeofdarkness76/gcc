@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-additional-options "-mzarch" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,9 @@
 =======
 /* { dg-additional-options "-mzarch" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-additional-options "-mzarch" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/master
 
 #include <stdint.h>
 

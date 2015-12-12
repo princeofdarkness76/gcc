@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-additional-options "-mbackchain" { target { s390*-*-* } } } */
 >>>>>>> gcc-mirror/master
@@ -11,6 +12,9 @@
 =======
 /* { dg-additional-options "-mbackchain" { target { s390*-*-* } } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-additional-options "-mbackchain" { target { s390*-*-* } } } */
+>>>>>>> gcc-mirror/master
 
 void* __attribute__ ((noclone, noinline))
 test_builtin_frame_address (unsigned i)

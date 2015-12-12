@@ -91,10 +91,13 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  NEXT_PASS (pass_fre);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  /* Pass group that runs when the function is an offloaded function
 	     containing oacc kernels loops.  Part 1.  */
 	  NEXT_PASS (pass_oacc_kernels);
@@ -114,12 +117,15 @@ along with GCC; see the file COPYING3.  If not see
 	      NEXT_PASS (pass_expand_omp_ssa);
 	  POP_INSERT_PASSES ()
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  NEXT_PASS (pass_fre);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  NEXT_PASS (pass_merge_phi);
           NEXT_PASS (pass_dse);
 	  NEXT_PASS (pass_cd_dce);
@@ -254,6 +260,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       NEXT_PASS (pass_sancov);
 >>>>>>> gcc-mirror/master
@@ -262,6 +269,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
       NEXT_PASS (pass_sancov);
 >>>>>>> gcc-mirror/trunk
+=======
+      NEXT_PASS (pass_sancov);
+>>>>>>> gcc-mirror/master
       NEXT_PASS (pass_asan);
       NEXT_PASS (pass_tsan);
       /* Pass group that runs when 1) enabled, 2) there are loops
@@ -374,6 +384,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       NEXT_PASS (pass_sancov);
 >>>>>>> gcc-mirror/master
@@ -382,6 +393,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
       NEXT_PASS (pass_sancov);
 >>>>>>> gcc-mirror/trunk
+=======
+      NEXT_PASS (pass_sancov);
+>>>>>>> gcc-mirror/master
       NEXT_PASS (pass_asan);
       NEXT_PASS (pass_tsan);
       /* ???  We do want some kind of loop invariant motion, but we possibly
@@ -408,6 +422,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   NEXT_PASS (pass_sancov_O0);
 >>>>>>> gcc-mirror/master
@@ -416,6 +431,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
   NEXT_PASS (pass_sancov_O0);
 >>>>>>> gcc-mirror/trunk
+=======
+  NEXT_PASS (pass_sancov_O0);
+>>>>>>> gcc-mirror/master
   NEXT_PASS (pass_asan_O0);
   NEXT_PASS (pass_tsan_O0);
   NEXT_PASS (pass_sanopt);
@@ -457,6 +475,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  TERMINATE_PASS_LIST ()
 =======
 >>>>>>> gcc-mirror/master
@@ -465,6 +484,8 @@ along with GCC; see the file COPYING3.  If not see
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       POP_INSERT_PASSES ()
       NEXT_PASS (pass_web);
       NEXT_PASS (pass_rtl_cprop);

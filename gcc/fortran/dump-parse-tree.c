@@ -1073,6 +1073,7 @@ show_omp_namelist (int list_type, gfc_omp_namelist *n)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 
@@ -1336,6 +1337,8 @@ show_omp_clauses (gfc_omp_clauses *omp_clauses)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 
@@ -1611,6 +1614,7 @@ show_omp_clauses (gfc_omp_clauses *omp_clauses)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 }
@@ -1876,6 +1880,8 @@ show_omp_clauses (gfc_omp_clauses *omp_clauses)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Show a single OpenMP or OpenACC directive node and everything underneath it
    if necessary.  */
 

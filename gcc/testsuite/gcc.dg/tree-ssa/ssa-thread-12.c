@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-dom1-details" } */
 /* { dg-final { scan-tree-dump "FSM" "dom1" } } */
 =======
@@ -16,6 +17,10 @@
 /* { dg-options "-O2 -fdump-tree-dom2-details" } */
 /* { dg-final { scan-tree-dump "FSM" "dom2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O2 -fdump-tree-dom2-details" } */
+/* { dg-final { scan-tree-dump "FSM" "dom2" } } */
+>>>>>>> gcc-mirror/master
 
 typedef struct bitmap_head_def *bitmap;
 typedef const struct bitmap_head_def *const_bitmap;

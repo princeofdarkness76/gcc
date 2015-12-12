@@ -8,6 +8,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 }
 =======
 /* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 } */
@@ -18,3 +19,6 @@
 =======
 /* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-message "" "#define _GNU_SOURCE" {target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master

@@ -177,6 +177,7 @@ ipa_reference_get_not_read_global (struct cgraph_node *fn)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
@@ -226,6 +227,24 @@ ipa_reference_get_not_read_global (struct cgraph_node *fn)
   else if (avail == AVAIL_NOT_AVAILABLE
 	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (!opt_for_fn (current_function_decl, flag_ipa_reference))
+    return NULL;
+
+  enum availability avail;
+  struct cgraph_node *fn2 = fn->function_symbol (&avail);
+  ipa_reference_optimization_summary_t info =
+    get_reference_optimization_summary (fn2);
+
+  if (info
+      && (avail >= AVAIL_AVAILABLE
+	  || (avail == AVAIL_INTERPOSABLE
+	      && flags_from_decl_or_type (fn->decl) & ECF_LEAF))
+      && opt_for_fn (fn2->decl, flag_ipa_reference))
+    return info->statics_not_read;
+  else if (avail == AVAIL_NOT_AVAILABLE
+	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+>>>>>>> gcc-mirror/master
     return all_module_statics;
   else
     return NULL;
@@ -242,17 +261,21 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!opt_for_fn (fn->decl, flag_ipa_reference)
       || !opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (!opt_for_fn (current_function_decl, flag_ipa_reference))
     return NULL;
 
   enum availability avail;
   struct cgraph_node *fn2 = fn->function_symbol (&avail);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -262,6 +285,8 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   ipa_reference_optimization_summary_t info =
     get_reference_optimization_summary (fn2);
 
@@ -274,6 +299,7 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   else if (flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 =======
   else if (avail == AVAIL_NOT_AVAILABLE
@@ -286,11 +312,16 @@ ipa_reference_get_not_written_global (struct cgraph_node *fn)
   else if (avail == AVAIL_NOT_AVAILABLE
 	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
 >>>>>>> gcc-mirror/trunk
+=======
+  else if (avail == AVAIL_NOT_AVAILABLE
+	   && flags_from_decl_or_type (fn->decl) & ECF_LEAF)
+>>>>>>> gcc-mirror/master
     return all_module_statics;
   else
     return NULL;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -304,14 +335,19 @@ is_proper_for_analysis (tree t)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Hepler for is_proper_for_analysis.  */
 static bool
 is_improper (symtab_node *n, void *v ATTRIBUTE_UNUSED)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 {
   tree t = n->decl;
   /* If the variable has the "used" attribute, treat it as if it had a
@@ -349,6 +385,7 @@ is_proper_for_analysis (tree t)
 {
   if (bitmap_bit_p (ignore_module_statics, ipa_reference_var_uid (t)))
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 
 <<<<<<< HEAD
@@ -383,6 +420,12 @@ is_proper_for_analysis (tree t)
   if (symtab_node::get (t)
 	->call_for_symbol_and_aliases (is_improper, NULL, true))
 >>>>>>> gcc-mirror/trunk
+=======
+    return false;
+
+  if (symtab_node::get (t)
+	->call_for_symbol_and_aliases (is_improper, NULL, true))
+>>>>>>> gcc-mirror/master
     return false;
 
   return true;
@@ -597,6 +640,7 @@ analyze_function (struct cgraph_node *fn)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  && bitmap_set_bit (all_module_statics, DECL_UID (var)))
@@ -608,6 +652,8 @@ analyze_function (struct cgraph_node *fn)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  && bitmap_set_bit (all_module_statics, ipa_reference_var_uid (var)))
 	{
 	  if (dump_file)
@@ -615,11 +661,14 @@ analyze_function (struct cgraph_node *fn)
 			       ipa_reference_var_uid (var),
 			       (splay_tree_value)var);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       switch (ref->use)
 	{
@@ -713,6 +762,7 @@ generate_summary (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    bitmap_set_bit (ignore_module_statics, DECL_UID (var));
 =======
 	    bitmap_set_bit (ignore_module_statics, ipa_reference_var_uid (var));
@@ -723,6 +773,9 @@ generate_summary (void)
 =======
 	    bitmap_set_bit (ignore_module_statics, ipa_reference_var_uid (var));
 >>>>>>> gcc-mirror/trunk
+=======
+	    bitmap_set_bit (ignore_module_statics, ipa_reference_var_uid (var));
+>>>>>>> gcc-mirror/master
 	  }
       }
   FOR_EACH_DEFINED_FUNCTION (node)
@@ -1153,6 +1206,7 @@ ipa_reference_write_optimization_summary (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  && bitmap_bit_p (all_module_statics, DECL_UID (vnode->decl))
@@ -1176,6 +1230,14 @@ ipa_reference_write_optimization_summary (void)
 	  tree decl = vnode->decl;
 	  bitmap_set_bit (ltrans_statics, ipa_reference_var_uid (decl));
 >>>>>>> gcc-mirror/trunk
+=======
+	  && bitmap_bit_p (all_module_statics,
+			    ipa_reference_var_uid (vnode->decl))
+	  && referenced_from_this_partition_p (vnode, encoder))
+	{
+	  tree decl = vnode->decl;
+	  bitmap_set_bit (ltrans_statics, ipa_reference_var_uid (decl));
+>>>>>>> gcc-mirror/master
 	  splay_tree_insert (reference_vars_to_consider,
 			     ipa_reference_var_uid (decl),
 			     (splay_tree_value)decl);
@@ -1355,6 +1417,9 @@ namespace {
 const pass_data pass_data_ipa_reference =
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 {
   IPA_PASS, /* type */
   "static-var", /* name */
@@ -1368,6 +1433,7 @@ const pass_data pass_data_ipa_reference =
 };
 
 class pass_ipa_reference : public ipa_opt_pass_d
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
 public:
@@ -1454,6 +1520,9 @@ make_pass_ipa_reference (gcc::context *ctxt)
 
 class pass_ipa_reference : public ipa_opt_pass_d
 {
+=======
+{
+>>>>>>> gcc-mirror/master
 public:
   pass_ipa_reference (gcc::context *ctxt)
     : ipa_opt_pass_d (pass_data_ipa_reference, ctxt,
@@ -1487,7 +1556,10 @@ public:
 ipa_opt_pass_d *
 make_pass_ipa_reference (gcc::context *ctxt)
 {
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
   return new pass_ipa_reference (ctxt);
 }
 
@@ -1497,6 +1569,7 @@ make_pass_ipa_reference (gcc::context *ctxt)
 void
 ipa_reference_c_finalize (void)
 {
+<<<<<<< HEAD
 =======
 {
   IPA_PASS, /* type */
@@ -1555,6 +1628,8 @@ void
 ipa_reference_c_finalize (void)
 {
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (ipa_init_p)
     {
       bitmap_obstack_release (&optimization_summary_obstack);

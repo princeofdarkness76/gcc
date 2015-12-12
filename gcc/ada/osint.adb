@@ -2639,11 +2639,15 @@ package body Osint is
       --  pass information from gprbuild to gcc. We don't want to save runtime
       --  file names, because we don't want users to send them in bug reports.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
       if T = Source then
          declare
             Name : String renames Name_Buffer (1 .. Name_Len);
             Inc  : String renames Include_Dir_Default_Prefix.all;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2690,6 +2694,19 @@ package body Osint is
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+            Part_Of_Runtimes : constant Boolean :=
+              Inc /= ""
+                and then Inc'Length < Name_Len
+                and then Name_Buffer (1 .. Inc'Length) = Inc;
+
+         begin
+            if Debug.Debug_Flag_Dot_N then
+               Write_Line (Name);
+            end if;
+
+>>>>>>> gcc-mirror/master
             if not Part_Of_Runtimes then
                File_Name_Chars.Append_All (File_Name_Chars.Table_Type (Name));
                File_Name_Chars.Append (ASCII.LF);

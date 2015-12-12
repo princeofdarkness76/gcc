@@ -87,6 +87,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   UNSPEC_PROBE_STACK_RANGE ; Probe stack range
 =======
 >>>>>>> gcc-mirror/master
@@ -95,6 +96,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ])
 
 (define_c_enum "unspec" [
@@ -160,6 +163,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
 >>>>>>> gcc-mirror/master
@@ -168,6 +172,9 @@
 =======
   VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
 >>>>>>> gcc-mirror/trunk
+=======
+  VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
+>>>>>>> gcc-mirror/master
 ])
 
 ;; Enumerators for NEON unspecs.

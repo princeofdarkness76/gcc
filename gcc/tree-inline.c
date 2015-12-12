@@ -1772,6 +1772,7 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  gimple_duplicate_stmt_histograms (cfun, stmt, id->src_cfun,
 					    orig_stmt);
@@ -1816,6 +1817,12 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 					    orig_stmt);
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+	  gimple_duplicate_stmt_histograms (cfun, stmt, id->src_cfun,
+					    orig_stmt);
+
+>>>>>>> gcc-mirror/master
 	  /* With return slot optimization we can end up with
 	     non-gimple (foo *)&this->m, fix that here.  */
 	  if (is_gimple_assign (stmt)
@@ -1835,6 +1842,7 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 
 	  if (id->regimplify)
 	    gimple_regimplify_operands (stmt, &seq_gsi);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -1845,14 +1853,19 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	  stmt_added = true;
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (!stmt_added)
 	continue;
 
@@ -2032,8 +2045,11 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 		      if (edge->speculative)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 			{
 			  struct cgraph_edge *direct, *indirect;
 			  struct ipa_ref *ref;
@@ -2057,6 +2073,7 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 			}
 		      else
 			{
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 			{
@@ -2085,6 +2102,8 @@ copy_bb (copy_body_data *id, basic_block bb, int frequency_scale,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 			  edge->frequency = new_freq;
 			  if (dump_file
 			      && profile_status_for_fn (cfun) != PROFILE_ABSENT
@@ -5648,6 +5667,7 @@ delete_unreachable_blocks_update_callgraph (copy_body_data *id)
 	      struct cgraph_node *node;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	      id->dst_node->remove_stmt_references (gsi_stmt (bsi));
 
@@ -5661,6 +5681,11 @@ delete_unreachable_blocks_update_callgraph (copy_body_data *id)
 	      id->dst_node->remove_stmt_references (gsi_stmt (bsi));
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+	      id->dst_node->remove_stmt_references (gsi_stmt (bsi));
+
+>>>>>>> gcc-mirror/master
 	      if (gimple_code (gsi_stmt (bsi)) == GIMPLE_CALL
 		  &&(e = id->dst_node->get_edge (gsi_stmt (bsi))) != NULL)
 		{

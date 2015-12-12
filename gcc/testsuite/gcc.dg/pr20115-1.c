@@ -13,6 +13,7 @@ int bar()
 /* Check that we only have one call to foo.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "foo" 1 "dom1" } } */
 <<<<<<< HEAD
 =======
@@ -23,3 +24,6 @@ int bar()
 =======
 /* { dg-final { scan-tree-dump-times "foo" 1 "dom2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "foo" 1 "dom2" } } */
+>>>>>>> gcc-mirror/master

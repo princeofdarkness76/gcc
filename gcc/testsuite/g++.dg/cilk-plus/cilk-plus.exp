@@ -21,6 +21,7 @@ load_lib cilk-plus-dg.exp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 dg-init
@@ -66,6 +67,12 @@ if { ![check_effective_target_cilkplus] } {
     return;
 }
 >>>>>>> gcc-mirror/trunk
+=======
+
+if { ![check_effective_target_cilkplus] } {
+    return;
+}
+>>>>>>> gcc-mirror/master
 
 dg-init
 if [cilkplus_init] {

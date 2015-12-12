@@ -38,6 +38,7 @@ void test5(struct a *A, unsigned b)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 4 "lim1" { xfail { lp64 || llp64 } } } } */
 <<<<<<< HEAD
 =======
@@ -48,3 +49,6 @@ void test5(struct a *A, unsigned b)
 =======
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 4 "lim2" { xfail { lp64 || llp64 } } } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "Executing store motion of" 4 "lim2" { xfail { lp64 || llp64 } } } } */
+>>>>>>> gcc-mirror/master

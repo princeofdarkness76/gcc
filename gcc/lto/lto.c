@@ -52,6 +52,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "lto-symtab.h"
 >>>>>>> gcc-mirror/master
@@ -60,6 +61,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #include "lto-symtab.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "lto-symtab.h"
+>>>>>>> gcc-mirror/master
 
 
 /* Number of parallel tasks to run, -1 if we want to use GNU Make jobserver.  */
@@ -399,6 +403,7 @@ iterative_hash_canonical_type (tree type, inchash::hash &hstate)
 
   /* All type variants have same TYPE_CANONICAL.  */
   type = TYPE_MAIN_VARIANT (type);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -436,6 +441,29 @@ iterative_hash_canonical_type (tree type, inchash::hash &hstate)
   hstate.add_int (v);
 }
 
+=======
+
+  if (!canonical_type_used_p (type))
+    v = hash_canonical_type (type);
+  /* An already processed type.  */
+  else if (TYPE_CANONICAL (type))
+    {
+      type = TYPE_CANONICAL (type);
+      v = gimple_canonical_type_hash (type);
+    }
+  else
+    {
+      /* Canonical types should not be able to form SCCs by design, this
+	 recursion is just because we do not register canonical types in
+	 optimal order.  To avoid quadratic behavior also register the
+	 type here.  */
+      v = hash_canonical_type (type);
+      gimple_register_canonical_type_1 (type, v);
+    }
+  hstate.add_int (v);
+}
+
+>>>>>>> gcc-mirror/master
 /* Returns the hash for a canonical type P.  */
 
 static hashval_t
@@ -472,6 +500,7 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       && !POINTER_TYPE_P (t));
 =======
 		       && canonical_type_used_p (t));
@@ -482,6 +511,9 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
 =======
 		       && canonical_type_used_p (t));
 >>>>>>> gcc-mirror/trunk
+=======
+		       && canonical_type_used_p (t));
+>>>>>>> gcc-mirror/master
 
   slot = htab_find_slot_with_hash (gimple_canonical_types, t, hash, INSERT);
   if (*slot)
@@ -507,6 +539,7 @@ gimple_register_canonical_type_1 (tree t, hashval_t hash)
    type-based aliasing purposes across different TUs and languages.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
    ???  This merging does not exactly match how the tree.c middle-end
    functions will assign TYPE_CANONICAL when new types are created
@@ -540,10 +573,14 @@ gimple_register_canonical_type (tree t)
 >>>>>>> master
 =======
 
+=======
+
+>>>>>>> gcc-mirror/master
    ???  This merging does not exactly match how the tree.c middle-end
    functions will assign TYPE_CANONICAL when new types are created
    during optimization (which at least happens for pointer and array
    types).  */
+<<<<<<< HEAD
 
 static void
 gimple_register_canonical_type (tree t)
@@ -553,6 +590,16 @@ gimple_register_canonical_type (tree t)
     return;
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+static void
+gimple_register_canonical_type (tree t)
+{
+  if (TYPE_CANONICAL (t) || !type_with_alias_set_p (t)
+      || !canonical_type_used_p (t))
+    return;
+
+>>>>>>> gcc-mirror/master
   /* Canonical types are same among all complete variants.  */
   if (TYPE_CANONICAL (TYPE_MAIN_VARIANT (t)))
     TYPE_CANONICAL (t) = TYPE_CANONICAL (TYPE_MAIN_VARIANT (t));
@@ -1704,6 +1751,7 @@ unify_scc (struct data_in *data_in, unsigned from,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      code = TREE_CODE (scc->entries[i]);
@@ -1716,6 +1764,9 @@ unify_scc (struct data_in *data_in, unsigned from,
 =======
 	      free_node (scc->entries[i]);
 >>>>>>> gcc-mirror/trunk
+=======
+	      free_node (scc->entries[i]);
+>>>>>>> gcc-mirror/master
 	    }
 
 	  break;

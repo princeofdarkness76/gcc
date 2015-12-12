@@ -239,6 +239,7 @@ as_internal_fn (combined_fn code)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define CASE_INT_FN(FN) case FN: case FN##L: case FN##LL
 
 /* In an OMP_CLAUSE node.  */
@@ -647,6 +648,9 @@ struct GTY(()) tree_base {
 =======
 #define CASE_INT_FN(FN) case FN: case FN##L: case FN##LL: case FN##IMAX
 >>>>>>> gcc-mirror/trunk
+=======
+#define CASE_INT_FN(FN) case FN: case FN##L: case FN##LL: case FN##IMAX
+>>>>>>> gcc-mirror/master
 
 #define NULL_TREE (tree) NULL
 
@@ -1739,6 +1743,7 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define OMP_LOOP_CHECK(NODE) TREE_RANGE_CHECK (NODE, OMP_FOR, OMP_DISTRIBUTE)
 =======
 #define OMP_LOOP_CHECK(NODE) TREE_RANGE_CHECK (NODE, OMP_FOR, OACC_LOOP)
@@ -1752,12 +1757,16 @@ extern void protected_set_expr_location (tree, location_t);
 =======
 #define OMP_LOOP_CHECK(NODE) TREE_RANGE_CHECK (NODE, OMP_FOR, OACC_LOOP)
 >>>>>>> gcc-mirror/trunk
+=======
+#define OMP_LOOP_CHECK(NODE) TREE_RANGE_CHECK (NODE, OMP_FOR, OACC_LOOP)
+>>>>>>> gcc-mirror/master
 #define OMP_FOR_BODY(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 0)
 #define OMP_FOR_CLAUSES(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 1)
 #define OMP_FOR_INIT(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 2)
 #define OMP_FOR_COND(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 3)
 #define OMP_FOR_INCR(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 4)
 #define OMP_FOR_PRE_BODY(NODE)	   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 5)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1774,6 +1783,9 @@ extern void protected_set_expr_location (tree, location_t);
 =======
 #define OMP_FOR_ORIG_DECLS(NODE)   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 6)
 >>>>>>> gcc-mirror/trunk
+=======
+#define OMP_FOR_ORIG_DECLS(NODE)   TREE_OPERAND (OMP_LOOP_CHECK (NODE), 6)
+>>>>>>> gcc-mirror/master
 
 #define OMP_SECTIONS_BODY(NODE)    TREE_OPERAND (OMP_SECTIONS_CHECK (NODE), 0)
 #define OMP_SECTIONS_CLAUSES(NODE) TREE_OPERAND (OMP_SECTIONS_CHECK (NODE), 1)
@@ -1821,6 +1833,7 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #define OMP_TEAMS_BODY(NODE)	   TREE_OPERAND (OMP_TEAMS_CHECK (NODE), 0)
 #define OMP_TEAMS_CLAUSES(NODE)	   TREE_OPERAND (OMP_TEAMS_CHECK (NODE), 1)
@@ -1846,6 +1859,8 @@ extern void protected_set_expr_location (tree, location_t);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #define OMP_CLAUSE_CHAIN(NODE)     TREE_CHAIN (OMP_CLAUSE_CHECK (NODE))
 #define OMP_CLAUSE_DECL(NODE)      					\
@@ -1871,6 +1886,7 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -1878,6 +1894,8 @@ extern void protected_set_expr_location (tree, location_t);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* True on an OMP_TEAMS statement if it represents an explicit
    combined teams distribute constructs.  */
 #define OMP_TEAMS_COMBINED(NODE) \
@@ -1891,6 +1909,7 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -1898,6 +1917,8 @@ extern void protected_set_expr_location (tree, location_t);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* True if OMP_ATOMIC* is supposed to be sequentially consistent
    as opposed to relaxed.  */
 #define OMP_ATOMIC_SEQ_CST(NODE) \
@@ -1947,20 +1968,26 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* True on a SHARED clause if a scalar is not modified in the body and
    thus could be optimized as firstprivate.  */
 #define OMP_CLAUSE_SHARED_READONLY(NODE) \
   TREE_PRIVATE (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_SHARED))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define OMP_CLAUSE_IF_MODIFIER(NODE)	\
   (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_IF)->omp_clause.subcode.if_modifier)
 
@@ -2066,6 +2093,7 @@ extern void protected_set_expr_location (tree, location_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -2157,6 +2185,9 @@ enum omp_clause_schedule_kind
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 /* True if a REDUCTION clause may reference the original list item (omp_orig)
    in its OMP_CLAUSE_REDUCTION_{,GIMPLE_}INIT.  */
 #define OMP_CLAUSE_REDUCTION_OMP_ORIG_REF(NODE) \
@@ -2220,11 +2251,14 @@ enum omp_clause_schedule_kind
   OMP_CLAUSE_OPERAND (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE__SIMDUID_), 0)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #define OMP_CLAUSE_SCHEDULE_KIND(NODE) \
   (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_SCHEDULE)->omp_clause.subcode.schedule_kind)
@@ -2236,6 +2270,7 @@ enum omp_clause_schedule_kind
 #define OMP_CLAUSE_DEFAULT_KIND(NODE) \
   (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_DEFAULT)->omp_clause.subcode.default_kind)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2306,6 +2341,11 @@ struct GTY(()) tree_exp {
   OMP_CLAUSE_OPERAND (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_TILE), 0)
 
 >>>>>>> gcc-mirror/trunk
+=======
+#define OMP_CLAUSE_TILE_LIST(NODE) \
+  OMP_CLAUSE_OPERAND (OMP_CLAUSE_SUBCODE_CHECK (NODE, OMP_CLAUSE_TILE), 0)
+
+>>>>>>> gcc-mirror/master
 /* SSA_NAME accessors.  */
 
 /* Returns the IDENTIFIER_NODE giving the SSA name a name or NULL_TREE
@@ -2359,6 +2399,7 @@ struct GTY(()) tree_exp {
 #define SSA_NAME_PTR_INFO(N) \
    SSA_NAME_CHECK (N)->ssa_name.info.ptr_info
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* True if SSA_NAME_RANGE_INFO describes an anti-range.  */
 #define SSA_NAME_ANTI_RANGE_P(N) \
@@ -2411,6 +2452,21 @@ struct GTY(()) tree_exp {
     SSA_NAME_CHECK (N)->ssa_name.info.range_info
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* True if SSA_NAME_RANGE_INFO describes an anti-range.  */
+#define SSA_NAME_ANTI_RANGE_P(N) \
+    SSA_NAME_CHECK (N)->base.static_flag
+
+/* The type of range described by SSA_NAME_RANGE_INFO.  */
+#define SSA_NAME_RANGE_TYPE(N) \
+    (SSA_NAME_ANTI_RANGE_P (N) ? VR_ANTI_RANGE : VR_RANGE)
+
+/* Value range info attributes for SSA_NAMEs of non pointer-type variables.  */
+#define SSA_NAME_RANGE_INFO(N) \
+    SSA_NAME_CHECK (N)->ssa_name.info.range_info
+
+>>>>>>> gcc-mirror/master
 /* Return the immediate_use information for an SSA_NAME. */
 #define SSA_NAME_IMM_USE_NODE(NODE) SSA_NAME_CHECK (NODE)->ssa_name.imm_uses
 
@@ -2423,6 +2479,7 @@ struct GTY(()) tree_exp {
 #define OMP_CLAUSE_OPERAND(NODE, I)				\
 	OMP_CLAUSE_ELT_CHECK (NODE, I)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2457,6 +2514,8 @@ struct GTY(()) tree_omp_clause {
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* In a BLOCK node.  */
 #define BLOCK_VARS(NODE) (BLOCK_CHECK (NODE)->block.vars)
 #define BLOCK_NONLOCALIZED_VARS(NODE) \
@@ -2515,6 +2574,7 @@ struct GTY(()) tree_omp_clause {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #define BLOCK_SOURCE_END_LOCATION(NODE) (BLOCK_CHECK (NODE)->block.end_locus)
 
@@ -2534,6 +2594,11 @@ struct GTY(()) tree_omp_clause {
 #define BLOCK_SOURCE_END_LOCATION(NODE) (BLOCK_CHECK (NODE)->block.end_locus)
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+#define BLOCK_SOURCE_END_LOCATION(NODE) (BLOCK_CHECK (NODE)->block.end_locus)
+
+>>>>>>> gcc-mirror/master
 /* Define fields and accessors for nodes representing data types.  */
 
 >>>>>>> gcc-mirror/master
@@ -3731,6 +3796,7 @@ extern vec<tree, va_gc> **decl_debug_args_insert (tree);
 
 #define TREE_OPTIMIZATION(NODE) \
   (OPTIMIZATION_NODE_CHECK (NODE)->optimization.opts)
+<<<<<<< HEAD
 
 #define TREE_OPTIMIZATION_OPTABS(NODE) \
   (OPTIMIZATION_NODE_CHECK (NODE)->optimization.optabs)
@@ -3757,6 +3823,8 @@ extern tree build_target_option_node (struct gcc_options *opts);
 
 #define TREE_TARGET_OPTION(NODE) \
   (TARGET_OPTION_NODE_CHECK (NODE)->target_option.opts)
+=======
+>>>>>>> gcc-mirror/master
 
 #define TREE_TARGET_GLOBALS(NODE) \
   (TARGET_OPTION_NODE_CHECK (NODE)->target_option.globals)
@@ -3764,6 +3832,7 @@ extern tree build_target_option_node (struct gcc_options *opts);
 /* Return a tree node that encapsulates the target options in OPTS.  */
 extern tree build_target_option_node (struct gcc_options *opts);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
@@ -3789,6 +3858,20 @@ extern tree build_target_option_node (struct gcc_options *opts);
 extern tree build_target_option_node (struct gcc_options *opts);
 
 >>>>>>> gcc-mirror/trunk
+=======
+/* Return a tree node that encapsulates the optimization options in OPTS.  */
+extern tree build_optimization_node (struct gcc_options *opts);
+
+#define TREE_TARGET_OPTION(NODE) \
+  (TARGET_OPTION_NODE_CHECK (NODE)->target_option.opts)
+
+#define TREE_TARGET_GLOBALS(NODE) \
+  (TARGET_OPTION_NODE_CHECK (NODE)->target_option.globals)
+
+/* Return a tree node that encapsulates the target options in OPTS.  */
+extern tree build_target_option_node (struct gcc_options *opts);
+
+>>>>>>> gcc-mirror/master
 extern void prepare_target_option_nodes_for_pch (void);
 
 #if defined ENABLE_TREE_CHECKING && (GCC_VERSION >= 2007)
@@ -4807,6 +4890,7 @@ extern int tree_int_cst_equal (const_tree, const_tree);
 extern bool tree_fits_shwi_p (const_tree)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 #ifndef ENABLE_TREE_CHECKING
@@ -4820,6 +4904,8 @@ extern bool tree_fits_uhwi_p (const_tree)
   ;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/master
 #ifndef ENABLE_TREE_CHECKING
   ATTRIBUTE_PURE /* tree_fits_shwi_p is pure only when checking is disabled.  */
 #endif
@@ -4829,9 +4915,12 @@ extern bool tree_fits_uhwi_p (const_tree)
   ATTRIBUTE_PURE /* tree_fits_uhwi_p is pure only when checking is disabled.  */
 #endif
   ;
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern HOST_WIDE_INT tree_to_shwi (const_tree);
 extern unsigned HOST_WIDE_INT tree_to_uhwi (const_tree);
 #if !defined ENABLE_TREE_CHECKING && (GCC_VERSION >= 4003)
@@ -4877,6 +4966,7 @@ extern tree build_type_attribute_qual_variant (tree, tree, int);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Check if "omp declare simd" attribute arguments, CLAUSES1 and CLAUSES2, are
    the same.  */
 extern bool omp_declare_simd_clauses_equal (tree, tree);
@@ -4892,6 +4982,9 @@ extern bool attribute_value_equal (const_tree, const_tree);
 =======
 extern bool attribute_value_equal (const_tree, const_tree);
 >>>>>>> gcc-mirror/trunk
+=======
+extern bool attribute_value_equal (const_tree, const_tree);
+>>>>>>> gcc-mirror/master
 
 /* Return 0 if the attributes for two types are incompatible, 1 if they
    are compatible, and 2 if they are nearly compatible (which causes a
@@ -5027,6 +5120,7 @@ extern tree build_variant_type_copy (tree);
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Finish up a builtin RECORD_TYPE. Give it a name and provide its
    fields. Optionally specify an alignment, and then lay it out.  */
@@ -5089,6 +5183,8 @@ extern void finish_record_layout (record_layout_info, int);
 >>>>>>> gcc-mirror/python
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Given a hashcode and a ..._TYPE node (for which the hashcode was made),
    return a canonicalized ..._TYPE node, so that duplicates are not made.
    How the hash code is computed is up to the caller, as long as any two
@@ -5350,10 +5446,13 @@ handled_component_p (const_tree t)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 static inline bool
 reverse_storage_order_for_component_p (tree t)
@@ -5403,6 +5502,7 @@ storage_order_barrier_p (const_tree t)
       && TYPE_REVERSE_STORAGE_ORDER (TREE_TYPE (t)))
     return true;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -5460,6 +5560,8 @@ storage_order_barrier_p (const_tree t)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   tree op = TREE_OPERAND (t, 0);
 
   if (AGGREGATE_TYPE_P (TREE_TYPE (op))
@@ -5586,6 +5688,7 @@ memmodel_from_int (unsigned HOST_WIDE_INT val)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -5665,6 +5768,23 @@ is_mm_relaxed (enum memmodel model)
   return (model & MEMMODEL_BASE_MASK) == MEMMODEL_RELAXED;
 }
 
+=======
+
+/* Return the base memory model from a host integer.  */
+static inline enum memmodel
+memmodel_base (unsigned HOST_WIDE_INT val)
+{
+  return (enum memmodel) (val & MEMMODEL_BASE_MASK);
+}
+
+/* Return TRUE if the memory model is RELAXED.  */
+static inline bool
+is_mm_relaxed (enum memmodel model)
+{
+  return (model & MEMMODEL_BASE_MASK) == MEMMODEL_RELAXED;
+}
+
+>>>>>>> gcc-mirror/master
 /* Return TRUE if the memory model is CONSUME.  */
 static inline bool
 is_mm_consume (enum memmodel model)
@@ -5685,6 +5805,7 @@ is_mm_release (enum memmodel model)
 {
   return (model & MEMMODEL_BASE_MASK) == MEMMODEL_RELEASE;
 }
+<<<<<<< HEAD
 
 =======
 
@@ -5703,6 +5824,9 @@ is_mm_release (enum memmodel model)
 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 /* Return TRUE if the memory model is ACQ_REL.  */
 static inline bool
 is_mm_acq_rel (enum memmodel model)
@@ -5710,10 +5834,13 @@ is_mm_acq_rel (enum memmodel model)
   return (model & MEMMODEL_BASE_MASK) == MEMMODEL_ACQ_REL;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Return TRUE if the memory model is SEQ_CST.  */
 static inline bool
 is_mm_seq_cst (enum memmodel model)
@@ -5721,6 +5848,7 @@ is_mm_seq_cst (enum memmodel model)
   return (model & MEMMODEL_BASE_MASK) == MEMMODEL_SEQ_CST;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -5728,6 +5856,8 @@ is_mm_seq_cst (enum memmodel model)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Return TRUE if the memory model is a SYNC variant.  */
 static inline bool
 is_mm_sync (enum memmodel model)
@@ -5859,6 +5989,7 @@ extern tree get_base_address (tree t);
 extern tree array_ref_element_size (tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Return a tree representing the upper bound of the array mentioned in
    EXP, an ARRAY_REF or an ARRAY_RANGE_REF.  */
@@ -5869,14 +6000,20 @@ extern tree array_ref_up_bound (tree);
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 /* Return a tree representing the upper bound of the array mentioned in
    EXP, an ARRAY_REF or an ARRAY_RANGE_REF.  */
 extern tree array_ref_up_bound (tree);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Return a tree representing the lower bound of the array mentioned in
    EXP, an ARRAY_REF or an ARRAY_RANGE_REF.  */
 extern tree array_ref_low_bound (tree);
@@ -5900,6 +6037,7 @@ extern bool type_with_interoperable_signedness (const_tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Return simplified tree code of type that is used for canonical type merging.  */
 =======
 
@@ -5914,6 +6052,11 @@ extern bool type_with_interoperable_signedness (const_tree);
 /* Return simplified tree code of type that is used for canonical type
    merging.  */
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* Return simplified tree code of type that is used for canonical type
+   merging.  */
+>>>>>>> gcc-mirror/master
 inline enum tree_code
 tree_code_for_canonical_type_merging (enum tree_code code)
 {
@@ -5937,9 +6080,12 @@ tree_code_for_canonical_type_merging (enum tree_code code)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Return ture if get_alias_set care about TYPE_CANONICAL of given type.
    We don't define the types for pointers, arrays and vectors.  The reason is
@@ -5958,11 +6104,14 @@ canonical_type_used_p (const_tree t)
 	   || TREE_CODE (t) == VECTOR_TYPE);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #define tree_map_eq tree_map_base_eq
 extern unsigned int tree_map_hash (const void *);
@@ -6135,6 +6284,7 @@ set_builtin_decl_implicit_p (enum built_in_function fncode, bool implicit_p)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   builtin_info[uns_fncode].implicit_p = implicit_p;
 }
@@ -6169,6 +6319,8 @@ set_builtin_decl_declared_p (enum built_in_function fncode, bool declared_p)
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
+=======
+>>>>>>> gcc-mirror/master
 
   builtin_info[uns_fncode].implicit_p = implicit_p;
 }
@@ -6183,9 +6335,12 @@ set_builtin_decl_declared_p (enum built_in_function fncode, bool declared_p)
   gcc_checking_assert (BUILTIN_VALID_P (fncode)
 		       && builtin_info[uns_fncode].decl != NULL_TREE);
 
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   builtin_info[uns_fncode].declared_p = declared_p;
 }
 
@@ -6211,6 +6366,9 @@ builtin_decl_implicit_p (enum built_in_function fncode)
 	  && builtin_info[uns_fncode].implicit_p);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* Return whether the standard builtin function was declared.  */
@@ -6224,6 +6382,9 @@ builtin_decl_declared_p (enum built_in_function fncode)
   return (builtin_info[uns_fncode].decl != NULL_TREE
 	  && builtin_info[uns_fncode].declared_p);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* Return true if T (assumed to be a DECL) is a global variable.
@@ -6233,6 +6394,7 @@ static inline bool
 is_global_var (const_tree t)
 {
   return (TREE_STATIC (t) || DECL_EXTERNAL (t));
+<<<<<<< HEAD
 }
 
 /* Return true if VAR may be aliased.  A variable is considered as
@@ -6433,6 +6595,48 @@ target_opts_for_fn (const_tree fndecl)
 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+}
+
+/* Return true if VAR may be aliased.  A variable is considered as
+   maybe aliased if it has its address taken by the local TU
+   or possibly by another TU and might be modified through a pointer.  */
+
+static inline bool
+may_be_aliased (const_tree var)
+{
+  return (TREE_CODE (var) != CONST_DECL
+	  && (TREE_PUBLIC (var)
+	      || DECL_EXTERNAL (var)
+	      || TREE_ADDRESSABLE (var))
+	  && !((TREE_STATIC (var) || TREE_PUBLIC (var) || DECL_EXTERNAL (var))
+	       && ((TREE_READONLY (var)
+		    && !TYPE_NEEDS_CONSTRUCTING (TREE_TYPE (var)))
+		   || (TREE_CODE (var) == VAR_DECL
+		       && DECL_NONALIASED (var)))));
+}
+
+/* Return pointer to optimization flags of FNDECL.  */
+static inline struct cl_optimization *
+opts_for_fn (const_tree fndecl)
+{
+  tree fn_opts = DECL_FUNCTION_SPECIFIC_OPTIMIZATION (fndecl);
+  if (fn_opts == NULL_TREE)
+    fn_opts = optimization_default_node;
+  return TREE_OPTIMIZATION (fn_opts);
+}
+
+/* Return pointer to target flags of FNDECL.  */
+static inline cl_target_option *
+target_opts_for_fn (const_tree fndecl)
+{
+  tree fn_opts = DECL_FUNCTION_SPECIFIC_TARGET (fndecl);
+  if (fn_opts == NULL_TREE)
+    fn_opts = target_option_default_node;
+  return fn_opts == NULL_TREE ? NULL : TREE_TARGET_OPTION (fn_opts);
+}
+
+>>>>>>> gcc-mirror/master
 /* opt flag for function FNDECL, e.g. opts_for_fn (fndecl, optimize) is
    the optimization level of function fndecl.  */
 #define opt_for_fn(fndecl, opt) (opts_for_fn (fndecl)->x_##opt)
@@ -6490,6 +6694,9 @@ namespace wi
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
 inline unsigned int
 wi::int_traits <const_tree>::get_precision (const_tree tcst)
@@ -6518,6 +6725,7 @@ wi::to_offset (const_tree t)
   return t;
 }
 
+<<<<<<< HEAD
 =======
 
 inline unsigned int
@@ -6548,6 +6756,8 @@ wi::to_offset (const_tree t)
 }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
 template <int N>
 inline wi::extended_tree <N>::extended_tree (const_tree t)
   : m_t (t)
@@ -6595,6 +6805,9 @@ namespace wi
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
 template <typename T>
 bool
@@ -6643,6 +6856,7 @@ tree_int_cst_le (const_tree t1, const_tree t2)
 /* Returns -1 if T1 < T2, 0 if T1 == T2, and 1 if T1 > T2.  T1 and T2
    are both INTEGER_CSTs and their values are extended according to their
    respective TYPE_SIGNs.  */
+<<<<<<< HEAD
 
 =======
 =======
@@ -6824,6 +7038,9 @@ tree_int_cst_le (const_tree t1, const_tree t2)
    respective TYPE_SIGNs.  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 inline int
 tree_int_cst_compare (const_tree t1, const_tree t2)
 {
@@ -6892,9 +7109,12 @@ type_with_alias_set_p (const_tree t)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern location_t get_pure_location (location_t loc);
 
 /* Get the endpoint of any range encoded within location LOC.  */
@@ -6906,11 +7126,14 @@ get_finish (location_t loc)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern location_t set_block (location_t loc, tree block);
 
 extern void gt_ggc_mx (tree &);
@@ -6922,6 +7145,7 @@ extern bool nonnull_arg_p (const_tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 extern void
@@ -6932,16 +7156,21 @@ extern void
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern location_t
 set_source_range (tree expr, location_t start, location_t finish);
 
 extern location_t
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 set_source_range (tree expr, source_range src_range);
 
 static inline source_range
@@ -6954,6 +7183,7 @@ get_decl_source_range (tree decl)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern location_t
 make_location (location_t caret, location_t start, location_t finish);
@@ -6966,6 +7196,11 @@ extern location_t
 make_location (location_t caret, location_t start, location_t finish);
 
 >>>>>>> gcc-mirror/trunk
+=======
+extern location_t
+make_location (location_t caret, location_t start, location_t finish);
+
+>>>>>>> gcc-mirror/master
 /* Return true if it makes sense to promote/demote from_type to to_type. */
 inline bool
 desired_pro_or_demotion_p (const_tree to_type, const_tree from_type)

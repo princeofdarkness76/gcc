@@ -146,6 +146,7 @@ namespace std
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (auto __tp = dynamic_cast<const nested_exception*>(&__t))
 =======
 	if (auto __tp =
@@ -158,6 +159,10 @@ namespace std
 	if (auto __tp =
             dynamic_cast<const nested_exception*>(std::__addressof(__t)))
 >>>>>>> gcc-mirror/trunk
+=======
+	if (auto __tp =
+            dynamic_cast<const nested_exception*>(std::__addressof(__t)))
+>>>>>>> gcc-mirror/master
 	  __tp->rethrow_nested();
       }
     };

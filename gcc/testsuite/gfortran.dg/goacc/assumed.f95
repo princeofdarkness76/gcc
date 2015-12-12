@@ -48,6 +48,7 @@ end module test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 18 }
@@ -60,3 +61,8 @@ end module test
 ! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 18 }
 ! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 39 }
 >>>>>>> gcc-mirror/trunk
+=======
+
+! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 18 }
+! { dg-error "Array 'a' is not permitted in reduction" "" { target "*-*-*" } 39 }
+>>>>>>> gcc-mirror/master

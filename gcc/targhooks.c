@@ -1956,9 +1956,12 @@ can_use_doloop_if_innermost (const widest_int &, const widest_int &,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Default implementation of TARGET_OPTAB_SUPPORTED_P.  */
 
 bool
@@ -1968,9 +1971,12 @@ default_optab_supported_p (int, machine_mode, machine_mode, optimization_type)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #include "gt-targhooks.h"

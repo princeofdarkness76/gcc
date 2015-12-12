@@ -1075,6 +1075,7 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/master
@@ -1083,6 +1084,9 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	do_decl_clause:
@@ -1119,6 +1123,7 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	case OMP_CLAUSE_NUM_TASKS:
 	case OMP_CLAUSE_HINT:
 	case OMP_CLAUSE__CILK_FOR_COUNT_:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1263,6 +1268,59 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	  wi->val_only = true;
 	  wi->is_lhs = false;
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_NUM_GANGS:
+	case OMP_CLAUSE_NUM_WORKERS:
+	case OMP_CLAUSE_VECTOR_LENGTH:
+	case OMP_CLAUSE_GANG:
+	case OMP_CLAUSE_WORKER:
+	case OMP_CLAUSE_VECTOR:
+	  /* Several OpenACC clauses have optional arguments.  Check if they
+	     are present.  */
+	  if (OMP_CLAUSE_OPERAND (clause, 0))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					     &dummy, wi);
+	    }
+
+	  /* The gang clause accepts two arguments.  */
+	  if (OMP_CLAUSE_CODE (clause) == OMP_CLAUSE_GANG
+	      && OMP_CLAUSE_GANG_STATIC_EXPR (clause))
+	    {
+		wi->val_only = true;
+		wi->is_lhs = false;
+		convert_nonlocal_reference_op
+		  (&OMP_CLAUSE_GANG_STATIC_EXPR (clause), &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_DIST_SCHEDULE:
+	  if (OMP_CLAUSE_DIST_SCHEDULE_CHUNK_EXPR (clause) != NULL)
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_OPERAND (clause, 0),
+					     &dummy, wi);
+	    }
+	  break;
+
+	case OMP_CLAUSE_MAP:
+	case OMP_CLAUSE_TO:
+	case OMP_CLAUSE_FROM:
+	  if (OMP_CLAUSE_SIZE (clause))
+	    {
+	      wi->val_only = true;
+	      wi->is_lhs = false;
+	      convert_nonlocal_reference_op (&OMP_CLAUSE_SIZE (clause),
+					     &dummy, wi);
+	    }
+	  if (DECL_P (OMP_CLAUSE_DECL (clause)))
+	    goto do_decl_clause;
+	  wi->val_only = true;
+	  wi->is_lhs = false;
+>>>>>>> gcc-mirror/master
 	  walk_tree (&OMP_CLAUSE_DECL (clause), convert_nonlocal_reference_op,
 		     wi, NULL);
 	  break;
@@ -1303,6 +1361,7 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case OMP_CLAUSE_SEQ:
 >>>>>>> gcc-mirror/master
@@ -1311,6 +1370,9 @@ convert_nonlocal_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 =======
 	case OMP_CLAUSE_SEQ:
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_SEQ:
+>>>>>>> gcc-mirror/master
 	  break;
 
 	default:
@@ -1512,6 +1574,7 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       save_suppress = info->suppress_expansion;
       convert_nonlocal_omp_clauses (gimple_omp_target_clauses_ptr (stmt), wi);
       walk_body (convert_nonlocal_reference_stmt, convert_nonlocal_reference_op,
@@ -1523,6 +1586,8 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (!is_gimple_omp_offloaded (stmt))
 	{
 	  save_suppress = info->suppress_expansion;
@@ -1562,6 +1627,7 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -1569,6 +1635,8 @@ convert_nonlocal_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       info->suppress_expansion = save_suppress;
       break;
 
@@ -1885,6 +1953,7 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/master
@@ -1893,6 +1962,9 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	do_decl_clause:
@@ -1937,9 +2009,12 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_NUM_GANGS:
 	case OMP_CLAUSE_NUM_WORKERS:
 	case OMP_CLAUSE_VECTOR_LENGTH:
@@ -1990,11 +2065,14 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	  if (DECL_P (OMP_CLAUSE_DECL (clause)))
 	    goto do_decl_clause;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  wi->val_only = true;
 	  wi->is_lhs = false;
 	  walk_tree (&OMP_CLAUSE_DECL (clause), convert_local_reference_op,
@@ -2025,6 +2103,7 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 		  need_frame = true;
 		}
 	    }
+<<<<<<< HEAD
 <<<<<<< HEAD
 	  break;
 
@@ -2136,6 +2215,8 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 	    }
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  break;
 
 	case OMP_CLAUSE_NOWAIT:
@@ -2153,6 +2234,7 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case OMP_CLAUSE_SEQ:
 >>>>>>> gcc-mirror/master
@@ -2161,6 +2243,9 @@ convert_local_omp_clauses (tree *pclauses, struct walk_stmt_info *wi)
 =======
 	case OMP_CLAUSE_SEQ:
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_SEQ:
+>>>>>>> gcc-mirror/master
 	  break;
 
 	default:
@@ -2293,6 +2378,7 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       save_suppress = info->suppress_expansion;
       convert_local_omp_clauses (gimple_omp_target_clauses_ptr (stmt), wi);
       walk_body (convert_local_reference_stmt, convert_local_reference_op,
@@ -2304,6 +2390,8 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (!is_gimple_omp_offloaded (stmt))
 	{
 	  save_suppress = info->suppress_expansion;
@@ -2339,6 +2427,7 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -2346,6 +2435,8 @@ convert_local_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       info->suppress_expansion = save_suppress;
       break;
 
@@ -2684,6 +2775,7 @@ convert_tramp_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      if (c == NULL && gimple_code (stmt) != GIMPLE_OMP_TARGET)
@@ -2711,6 +2803,8 @@ convert_tramp_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    if (c == NULL && gimple_code (stmt) != GIMPLE_OMP_TARGET)
 	      {
 		c = build_omp_clause (gimple_location (stmt),
@@ -2733,11 +2827,14 @@ convert_tramp_reference_stmt (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 					       c);
 	      }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  }
 	info->new_local_var_chain = save_local_var_chain;
 	info->static_chain_added |= save_static_chain_added;
@@ -2866,6 +2963,7 @@ convert_gimple_call (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     case GIMPLE_OMP_TARGET:
 =======
 >>>>>>> gcc-mirror/master
@@ -2875,6 +2973,8 @@ convert_gimple_call (gimple_stmt_iterator *gsi, bool *handled_ops_p,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case GIMPLE_OMP_TEAMS:
     case GIMPLE_OMP_MASTER:
     case GIMPLE_OMP_TASKGROUP:

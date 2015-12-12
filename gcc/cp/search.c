@@ -1274,6 +1274,7 @@ lookup_member (tree xbasetype, tree name, int protect, bool want_type,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     type = currently_open_class (type);
 =======
     if (tree t = currently_open_class (type))
@@ -1286,6 +1287,10 @@ lookup_member (tree xbasetype, tree name, int protect, bool want_type,
     if (tree t = currently_open_class (type))
       type = t;
 >>>>>>> gcc-mirror/trunk
+=======
+    if (tree t = currently_open_class (type))
+      type = t;
+>>>>>>> gcc-mirror/master
 
   if (!basetype_path)
     basetype_path = TYPE_BINFO (type);

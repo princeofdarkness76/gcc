@@ -30,6 +30,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Handle -mcpu= and -mmcu= here.  We want to ensure that only one
    of these two options - the last specified on the command line -
    is passed on to the msp430 backend.  */
@@ -48,6 +49,11 @@
    convert to a baseline cpu name.  Otherwise we allow the option to
    be passed on to the backend where it can be checked more fully.  */
 >>>>>>> gcc-mirror/trunk
+=======
+/* Check for generic -mcpu= and -mmcu= names here.  If found then we
+   convert to a baseline cpu name.  Otherwise we allow the option to
+   be passed on to the backend where it can be checked more fully.  */
+>>>>>>> gcc-mirror/master
 
 static bool
 msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
@@ -67,6 +73,7 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  target_mcu = NULL;
 =======
 >>>>>>> gcc-mirror/master
@@ -75,6 +82,8 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       else if (strcasecmp (decoded->arg, "msp430") == 0
 	       || strcasecmp (decoded->arg, "430") == 0)
@@ -83,6 +92,7 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  target_mcu = NULL;
 =======
 >>>>>>> gcc-mirror/master
@@ -91,6 +101,8 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       else
 	{
@@ -118,6 +130,7 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       else
 	target_cpu = NULL;
 =======
@@ -128,6 +141,8 @@ msp430_handle_option (struct gcc_options *opts ATTRIBUTE_UNUSED,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       break;
     }
       

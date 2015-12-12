@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-Ofast -fdump-tree-dom1-all" } */
 =======
 /* { dg-options "-Ofast -fdump-tree-dom2-all" } */
@@ -13,6 +14,9 @@
 =======
 /* { dg-options "-Ofast -fdump-tree-dom2-all" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-Ofast -fdump-tree-dom2-all" } */
+>>>>>>> gcc-mirror/master
 
 #include <limits.h>
 
@@ -196,6 +200,7 @@ main (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom1"} } */
 =======
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
@@ -206,3 +211,6 @@ main (void)
 =======
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
+>>>>>>> gcc-mirror/master

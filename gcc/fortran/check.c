@@ -1160,9 +1160,12 @@ gfc_check_atomic_cas (gfc_expr *atom, gfc_expr *old, gfc_expr *compare,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 bool
 gfc_check_event_query (gfc_expr *event, gfc_expr *count, gfc_expr *stat)
 {
@@ -1217,11 +1220,14 @@ gfc_check_event_query (gfc_expr *event, gfc_expr *count, gfc_expr *stat)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 bool
 gfc_check_atomic_fetch_op (gfc_expr *atom, gfc_expr *value, gfc_expr *old,
@@ -1562,9 +1568,12 @@ check_co_collective (gfc_expr *a, gfc_expr *image_idx, gfc_expr *stat,
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   return true;
 }
@@ -1747,13 +1756,17 @@ gfc_check_co_reduce (gfc_expr *a, gfc_expr *op, gfc_expr *result_image,
 	}
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
 
   return true;
 }
 
 
 bool
+<<<<<<< HEAD
 <<<<<<< HEAD
 gfc_check_co_broadcast (gfc_expr *a, gfc_expr *source_image, gfc_expr *stat,
 			gfc_expr *errmsg)
@@ -1943,6 +1956,8 @@ bool
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 gfc_check_co_minmax (gfc_expr *a, gfc_expr *result_image, gfc_expr *stat,
 		     gfc_expr *errmsg)
 {
@@ -5201,8 +5216,11 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     {
       if (!type_check (distance, 0, BT_INTEGER))
 	return false;
@@ -5219,6 +5237,7 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
     }
 
    if (failed)
+<<<<<<< HEAD
 <<<<<<< HEAD
     {
 =======
@@ -5262,6 +5281,9 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
 =======
     {
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+>>>>>>> gcc-mirror/master
       if (!type_check (failed, 1, BT_LOGICAL))
 	return false;
 

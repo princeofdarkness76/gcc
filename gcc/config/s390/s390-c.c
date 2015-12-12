@@ -290,6 +290,7 @@ s390_macro_to_expand (cpp_reader *pfile, const cpp_token *tok)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Define platform dependent macros.  */
@@ -323,6 +324,8 @@ s390_cpu_cpp_builtins (cpp_reader *pfile)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Helper function that defines or undefines macros.  If SET is true, the macro
    MACRO_DEF is defined.  If SET is false, the macro MACRO_UNDEF is undefined.
    Nothing is done if SET and WAS_SET have the same value.  */
@@ -375,11 +378,14 @@ s390_cpu_cpp_builtins_internal (cpp_reader *pfile,
       if (TARGET_ZVECTOR_P (opts->x_target_flags) && __vector_keyword == NULL)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  __vector_keyword = get_identifier ("__vector");
 	  C_CPP_HASHNODE (__vector_keyword)->flags |= NODE_CONDITIONAL;
 
@@ -404,9 +410,12 @@ s390_cpu_cpp_builtins_internal (cpp_reader *pfile,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Define platform dependent macros.  */
 void
 s390_cpu_cpp_builtins (cpp_reader *pfile)
@@ -481,11 +490,14 @@ s390_pragma_target_parse (tree args, tree pop_target)
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Expand builtins which can directly be mapped to tree expressions.
    LOC - location information
    FCODE - function code of the builtin
@@ -568,6 +580,7 @@ s390_get_vstring_flags (int ob_fcode)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     case S390_OVERLOADED_BUILTIN_s390_vec_find_any_eq_idx:
@@ -590,6 +603,8 @@ s390_get_vstring_flags (int ob_fcode)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case S390_OVERLOADED_BUILTIN_s390_vec_find_any_eq:
     case S390_OVERLOADED_BUILTIN_s390_vec_find_any_ne:
     case S390_OVERLOADED_BUILTIN_s390_vec_find_any_eq_cc:
@@ -599,11 +614,14 @@ s390_get_vstring_flags (int ob_fcode)
     case S390_OVERLOADED_BUILTIN_s390_vec_cmprg_cc:
     case S390_OVERLOADED_BUILTIN_s390_vec_cmpnrg_cc:
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       flags |= __VSTRING_FLAG_RT;
       break;
     default:
@@ -1069,17 +1087,23 @@ s390_register_target_pragmas (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #if S390_USE_TARGET_ATTRIBUTE
   /* Update pragma hook to allow parsing #pragma GCC target.  */
   targetm.target_option.pragma_parse = s390_pragma_target_parse;
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }

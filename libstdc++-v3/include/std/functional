@@ -187,6 +187,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   template<typename _Res, typename _Fn, typename... _Args>
@@ -258,6 +259,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       using type = _Tp&&;
 
+=======
+  template<typename _Tp, typename _Up = typename decay<_Tp>::type>
+    struct _Unwrap
+    {
+      using type = _Tp&&;
+
+>>>>>>> gcc-mirror/master
       // Equivalent to std::forward<_Tp>
       static constexpr _Tp&&
       _S_fwd(_Tp& __t) noexcept { return static_cast<_Tp&&>(__t); }
@@ -317,6 +325,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Callable, typename... _Args>
     inline typename result_of<_Callable&&(_Args&&...)>::type
     __invoke(_Callable&& __fn, _Args&&... __args)
+<<<<<<< HEAD
     {
 =======
   template<typename _Tp, typename _Up = typename decay<_Tp>::type>
@@ -385,6 +394,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     __invoke(_Callable&& __fn, _Args&&... __args)
     {
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+>>>>>>> gcc-mirror/master
       using __result_of = result_of<_Callable&&(_Args&&...)>;
       using __type = typename __result_of::type;
       using __tag = typename __result_of::__invoke_type;
@@ -396,12 +408,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 # define __cpp_lib_invoke 201411
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /// Invoke a callable object.
   template<typename _Callable, typename... _Args>
     inline result_of_t<_Callable&&(_Args&&...)>
@@ -686,6 +701,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct _Mem_fn_traits;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   template<typename _Res, typename _Class, typename... _ArgTypes>
     struct _Mem_fn_traits_base
@@ -833,6 +849,67 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
       explicit constexpr
       _Mem_fn_base(_MemFunPtr __pmf) noexcept : _M_pmf(__pmf) { }
 
+=======
+
+  template<typename _Res, typename _Class, typename... _ArgTypes>
+    struct _Mem_fn_traits_base
+    {
+      using __result_type = _Res;
+      using __maybe_type
+	= _Maybe_unary_or_binary_function<_Res, _Class*, _ArgTypes...>;
+      using __arity = integral_constant<size_t, sizeof...(_ArgTypes)>;
+    };
+
+#define _GLIBCXX_MEM_FN_TRAITS2(_CV, _REF, _LVAL, _RVAL)		\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = false_type;					\
+    };									\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes... ...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = true_type;					\
+    };
+
+#define _GLIBCXX_MEM_FN_TRAITS(_REF, _LVAL, _RVAL)		\
+  _GLIBCXX_MEM_FN_TRAITS2(		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(volatile	, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const volatile, _REF, _LVAL, _RVAL)
+
+_GLIBCXX_MEM_FN_TRAITS( , true_type, true_type)
+_GLIBCXX_MEM_FN_TRAITS(&, true_type, false_type)
+_GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
+
+#undef _GLIBCXX_MEM_FN_TRAITS
+#undef _GLIBCXX_MEM_FN_TRAITS2
+
+  template<typename _MemFunPtr,
+	   bool __is_mem_fn = is_member_function_pointer<_MemFunPtr>::value>
+    class _Mem_fn_base
+    : public _Mem_fn_traits<_MemFunPtr>::__maybe_type
+    {
+      using _Traits = _Mem_fn_traits<_MemFunPtr>;
+
+      using _Arity = typename _Traits::__arity;
+      using _Varargs = typename _Traits::__vararg;
+
+      template<typename _Func, typename... _BoundArgs>
+	friend struct _Bind_check_arity;
+
+      _MemFunPtr _M_pmf;
+
+    public:
+
+      using result_type = typename _Traits::__result_type;
+
+      explicit constexpr
+      _Mem_fn_base(_MemFunPtr __pmf) noexcept : _M_pmf(__pmf) { }
+
+>>>>>>> gcc-mirror/master
       template<typename... _Args>
 	auto
 	operator()(_Args&&... __args) const
@@ -863,6 +940,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
 	noexcept(noexcept(std::__invoke(_M_pm, forward<_Tp>(__obj))))
 	-> decltype(std::__invoke(_M_pm, std::forward<_Tp>(__obj)))
 	{ return std::__invoke(_M_pm, std::forward<_Tp>(__obj)); }
+<<<<<<< HEAD
     };
 
   template<typename _Res, typename _Class>
@@ -966,6 +1044,14 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
     : _Mem_fn_base<_Res _Class::*>
     {
 >>>>>>> gcc-mirror/trunk
+=======
+    };
+
+  template<typename _Res, typename _Class>
+    struct _Mem_fn<_Res _Class::*>
+    : _Mem_fn_base<_Res _Class::*>
+    {
+>>>>>>> gcc-mirror/master
       using _Mem_fn_base<_Res _Class::*>::_Mem_fn_base;
     };
 

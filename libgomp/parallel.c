@@ -159,6 +159,7 @@ GOMP_parallel_end (void)
     gomp_team_end ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 }
@@ -264,6 +265,8 @@ GOMP_cancel (int which, bool do_cancel)
 =======
 >>>>>>> gcc-mirror/master
 =======
+=======
+>>>>>>> gcc-mirror/master
 }
 ialias (GOMP_parallel_end)
 
@@ -309,6 +312,7 @@ GOMP_cancel (int which, bool do_cancel)
 {
   if (!gomp_cancel_var)
     return false;
+<<<<<<< HEAD
 
   if (!do_cancel)
     return ialias_call (GOMP_cancellation_point) (which);
@@ -316,6 +320,12 @@ GOMP_cancel (int which, bool do_cancel)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+  if (!do_cancel)
+    return ialias_call (GOMP_cancellation_point) (which);
+
+>>>>>>> gcc-mirror/master
   struct gomp_thread *thr = gomp_thread ();
   struct gomp_team *team = thr->ts.team;
   if (which & (GOMP_CANCEL_LOOP | GOMP_CANCEL_SECTIONS))
@@ -342,6 +352,7 @@ GOMP_cancel (int which, bool do_cancel)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -349,6 +360,8 @@ GOMP_cancel (int which, bool do_cancel)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* The public OpenMP API for thread and team related inquiries.  */

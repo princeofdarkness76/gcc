@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-08  David Malcolm  <dmalcolm@redhat.com>
 
 	* c-parser.c (c_parser_alignof_expression): Capture location of
@@ -110,11 +113,14 @@
 	with "if (ENABLE_OFFLOADING)".
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-23  David Malcolm  <dmalcolm@redhat.com>
 
 	PR objc/68438

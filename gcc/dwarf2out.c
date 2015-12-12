@@ -19116,12 +19116,15 @@ gen_subprogram_die (tree decl, dw_die_ref context_die)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	add_AT_location_description
 	  (subr_die, DW_AT_static_link,
 	   loc_list_from_tree (fun->static_chain_decl, 2, NULL));
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	{
 	  /* DWARF requires here a location expression that computes the
 	     address of the enclosing subprogram's frame base.  The machinery
@@ -19140,6 +19143,7 @@ gen_subprogram_die (tree decl, dw_die_ref context_die)
 				       loc_list_from_tree (fb_expr, 0, NULL));
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	add_AT_location_description
@@ -19148,6 +19152,8 @@ gen_subprogram_die (tree decl, dw_die_ref context_die)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /* Generate child dies for template paramaters.  */
@@ -19449,6 +19455,7 @@ block_die_hasher::hash (die_struct *d)
 bool
 block_die_hasher::equal (die_struct *x, die_struct *y)
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   return x->decl_id == y->decl_id && x->die_parent == y->die_parent;
 }
@@ -19476,6 +19483,9 @@ local_function_static (tree decl)
 {
 =======
 {
+=======
+{
+>>>>>>> gcc-mirror/master
   return x->decl_id == y->decl_id && x->die_parent == y->die_parent;
 }
 
@@ -19500,7 +19510,10 @@ decl_will_get_specification_p (dw_die_ref old_die, tree decl, bool declaration)
 static inline bool
 local_function_static (tree decl)
 {
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   gcc_assert (TREE_CODE (decl) == VAR_DECL);
   return TREE_STATIC (decl)
     && DECL_CONTEXT (decl)
@@ -19807,6 +19820,9 @@ gen_label_die (tree decl, dw_die_ref context_die)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
       if (origin != NULL)
 	add_abstract_origin_attribute (lbl_die, origin);
@@ -19814,6 +19830,7 @@ gen_label_die (tree decl, dw_die_ref context_die)
 	add_name_and_src_coords_attributes (lbl_die, decl);
     }
 
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> master
@@ -19833,6 +19850,8 @@ gen_label_die (tree decl, dw_die_ref context_die)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (DECL_ABSTRACT_P (decl))
     equate_decl_number_to_die (decl, lbl_die);
   else
@@ -19994,6 +20013,7 @@ gen_lexical_block_die (tree stmt, dw_die_ref context_die)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -20059,6 +20079,8 @@ gen_lexical_block_die (tree stmt, dw_die_ref context_die)
       gcc_assert (stmt_die);
       add_high_low_attributes (stmt, stmt_die);
 =======
+=======
+>>>>>>> gcc-mirror/master
 
   if (BLOCK_ABSTRACT (stmt))
     {
@@ -20077,7 +20099,10 @@ gen_lexical_block_die (tree stmt, dw_die_ref context_die)
 		}
 	  return;
 	}
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
     }
   else if (BLOCK_ABSTRACT_ORIGIN (stmt))
     {
@@ -20093,6 +20118,7 @@ gen_lexical_block_die (tree stmt, dw_die_ref context_die)
 
   if (old_die)
     stmt_die = old_die;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20123,6 +20149,18 @@ gen_lexical_block_die (tree stmt, dw_die_ref context_die)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+  /* A non abstract block whose blocks have already been reordered
+     should have the instruction range for this block.  If so, set the
+     high/low attributes.  */
+  if (!early_dwarf && !BLOCK_ABSTRACT (stmt) && TREE_ASM_WRITTEN (stmt))
+    {
+      gcc_assert (stmt_die);
+      add_high_low_attributes (stmt, stmt_die);
+    }
+
+>>>>>>> gcc-mirror/master
   decls_for_scope (stmt, stmt_die);
 }
 
@@ -21770,20 +21808,26 @@ gen_decl_die (tree decl, tree origin, dw_die_ref context_die)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case IMPORTED_DECL:
       dwarf2out_imported_module_or_decl_1 (decl, DECL_NAME (decl),
 					   DECL_CONTEXT (decl), context_die);
       break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     case NAMELIST_DECL:
       gen_namelist_decl (DECL_NAME (decl), context_die,
 			 NAMELIST_DECL_ASSOCIATED_DECL (decl));
@@ -21796,9 +21840,12 @@ gen_decl_die (tree decl, tree origin, dw_die_ref context_die)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   return NULL;
 }
@@ -21827,6 +21874,7 @@ dwarf2out_early_global_decl (tree decl)
   bool save = symtab->global_info_ready;
   symtab->global_info_ready = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 
   /* We don't handle TYPE_DECLs.  If required, they'll be reached via
@@ -21961,6 +22009,23 @@ dwarf2out_early_global_decl (tree decl)
 	    goto early_decl_exit;
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+  /* We don't handle TYPE_DECLs.  If required, they'll be reached via
+     other DECLs and they can point to template types or other things
+     that dwarf2out can't handle when done via dwarf2out_decl.  */
+  if (TREE_CODE (decl) != TYPE_DECL
+      && TREE_CODE (decl) != PARM_DECL)
+    {
+      tree save_fndecl = current_function_decl;
+      if (TREE_CODE (decl) == FUNCTION_DECL)
+	{
+	  /* No cfun means the symbol has no body, so there's nothing
+	     to emit.  */
+	  if (!DECL_STRUCT_FUNCTION (decl))
+	    goto early_decl_exit;
+
+>>>>>>> gcc-mirror/master
 	  current_function_decl = decl;
 	}
       dwarf2out_decl (decl);
@@ -21970,10 +22035,13 @@ dwarf2out_early_global_decl (tree decl)
  early_decl_exit:
   symtab->global_info_ready = save;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Output debug information for global decl DECL.  Called from
    toplev.c after compilation proper has finished.  */
@@ -22157,6 +22225,7 @@ gen_namelist_decl (tree name, dw_die_ref scope_die, tree item_decls)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -22184,6 +22253,9 @@ gen_namelist_decl (tree name, dw_die_ref scope_die, tree item_decls)
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
   gcc_assert (scope_die != NULL);
   nml_die = new_die (DW_TAG_namelist, scope_die, NULL);
   add_AT_string (nml_die, DW_AT_name, IDENTIFIER_POINTER (name));
@@ -22202,12 +22274,15 @@ gen_namelist_decl (tree name, dw_die_ref scope_die, tree item_decls)
       if (!nml_item_ref_die)
 	nml_item_ref_die = force_decl_die (value);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       nml_item_die = new_die (DW_TAG_namelist_item, nml_die, NULL);
       add_AT_die_ref (nml_item_die, DW_AT_namelist_items, nml_item_ref_die);
     }
@@ -22631,6 +22706,7 @@ dwarf2out_var_location (rtx_insn *loc_note)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   rtx_insn *call_insn = NULL;
 >>>>>>> gcc-mirror/master
@@ -22639,6 +22715,9 @@ dwarf2out_var_location (rtx_insn *loc_note)
 =======
   rtx_insn *call_insn = NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+  rtx_insn *call_insn = NULL;
+>>>>>>> gcc-mirror/master
   static const char *last_label;
   static const char *last_postcall_label;
   static bool last_in_cold_section_p;
@@ -22818,6 +22897,7 @@ create_label:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       rtx_insn *prev = prev_real_insn (loc_note);
       rtx x;
 =======
@@ -22834,6 +22914,11 @@ create_label:
         = loc_note != NULL_RTX ? prev_real_insn (loc_note) : call_insn;
 
 >>>>>>> gcc-mirror/trunk
+=======
+      rtx_insn *prev
+        = loc_note != NULL_RTX ? prev_real_insn (loc_note) : call_insn;
+
+>>>>>>> gcc-mirror/master
       ca_loc->call_arg_loc_note = loc_note;
       ca_loc->next = NULL;
       ca_loc->label = last_label;

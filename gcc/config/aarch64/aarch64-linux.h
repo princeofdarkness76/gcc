@@ -55,6 +55,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -70,6 +71,8 @@
 =======
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
 
 #ifdef TARGET_FIX_ERR_A53_843419_DEFAULT
 #define CA53_ERR_843419_SPEC \
@@ -79,6 +82,7 @@
   " %{mfix-cortex-a53-843419:--fix-cortex-a53-843419}"
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -86,6 +90,8 @@
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define LINK_SPEC LINUX_TARGET_LINK_SPEC \
                   CA53_ERR_835769_SPEC \
                   CA53_ERR_843419_SPEC
@@ -116,6 +122,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* Define this to be nonzero if static stack checking is supported.  */
 #define STACK_CHECK_STATIC_BUILTIN 1
@@ -128,4 +135,9 @@
 #define STACK_CHECK_STATIC_BUILTIN 1
 
 >>>>>>> gcc-mirror/trunk
+=======
+/* Define this to be nonzero if static stack checking is supported.  */
+#define STACK_CHECK_STATIC_BUILTIN 1
+
+>>>>>>> gcc-mirror/master
 #endif  /* GCC_AARCH64_LINUX_H */

@@ -140,6 +140,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(set (match_operand:V_128 0 "nonimmediate_operand" "=v, v,QR,  v,  v,  v,  v,v,d")
 	(match_operand:V_128 1 "general_operand"      " v,QR, v,j00,jm1,jyy,jxx,d,v"))]
 =======
@@ -154,6 +155,10 @@
   [(set (match_operand:V_128 0 "nonimmediate_operand" "=v, v,QR,  v,  v,  v,  v,  v,v,d")
 	(match_operand:V_128 1 "general_operand"      " v,QR, v,j00,jm1,jyy,jxx,jKK,d,v"))]
 >>>>>>> gcc-mirror/trunk
+=======
+  [(set (match_operand:V_128 0 "nonimmediate_operand" "=v, v,QR,  v,  v,  v,  v,  v,v,d")
+	(match_operand:V_128 1 "general_operand"      " v,QR, v,j00,jm1,jyy,jxx,jKK,d,v"))]
+>>>>>>> gcc-mirror/master
   "TARGET_VX"
   "@
    vlr\t%v0,%v1
@@ -166,16 +171,20 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    vlvgp\t%v0,%1,%N1
    #"
   [(set_attr "op_type" "VRR,VRX,VRX,VRI,VRI,VRI,VRI,VRR,*")])
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    vrepi<bhfgq>\t%v0,%h1
    vlvgp\t%v0,%1,%N1
    #"
   [(set_attr "op_type" "VRR,VRX,VRX,VRI,VRI,VRI,VRI,VRI,VRR,*")])
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -185,6 +194,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 (define_split
   [(set (match_operand:V_128 0 "register_operand" "")
@@ -350,6 +361,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		   (match_operand:DI        2 "shift_count_or_setmem_operand" "Y, I,I")
 =======
 		   (match_operand:SI        2 "shift_count_or_setmem_operand" "Y, I,I")
@@ -360,6 +372,9 @@
 =======
 		   (match_operand:SI        2 "shift_count_or_setmem_operand" "Y, I,I")
 >>>>>>> gcc-mirror/trunk
+=======
+		   (match_operand:SI        2 "shift_count_or_setmem_operand" "Y, I,I")
+>>>>>>> gcc-mirror/master
 		   (match_operand:V         3 "register_operand"              "0, 0,0")]
 		  UNSPEC_VEC_SET))]
   "TARGET_VX"
@@ -412,6 +427,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	   [(match_operand:QI 2 "immediate_operand" "C")]))))]
   "TARGET_VX"
 =======
@@ -426,11 +442,16 @@
 	   [(match_operand:QI 2 "const_mask_operand" "C")]))))]
   "TARGET_VX && UINTVAL (operands[2]) < GET_MODE_NUNITS (<V_HW:MODE>mode)"
 >>>>>>> gcc-mirror/trunk
+=======
+	   [(match_operand:QI 2 "const_mask_operand" "C")]))))]
+  "TARGET_VX && UINTVAL (operands[2]) < GET_MODE_NUNITS (<V_HW:MODE>mode)"
+>>>>>>> gcc-mirror/master
   "vrep<bhfgq>\t%v0,%v1,%2"
   [(set_attr "op_type" "VRI")])
 
 (define_insn "*vec_splats<mode>"
   [(set (match_operand:V_HW                          0 "register_operand" "=v,v,v,v")
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -445,17 +466,22 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	(vec_duplicate:V_HW (match_operand:<non_vec> 1 "general_operand"  "QR,K,v,d")))]
   "TARGET_VX"
   "@
    vlrep<bhfgq>\t%v0,%1
    vrepi<bhfgq>\t%v0,%h1
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    vrep<bhfgq>\t%v0,%v1,0
    #"
   [(set_attr "op_type" "VRX,VRI,VRI,*")])
@@ -1156,6 +1182,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   (match_operand:QI 3 "immediate_operand" "C")]
 =======
 			   (match_operand:QI 3 "const_mask_operand" "C")]
@@ -1166,6 +1193,9 @@
 =======
 			   (match_operand:QI 3 "const_mask_operand" "C")]
 >>>>>>> gcc-mirror/trunk
+=======
+			   (match_operand:QI 3 "const_mask_operand" "C")]
+>>>>>>> gcc-mirror/master
 			  UNSPEC_VEC_VFENE))
    (set (reg:CCRAW CC_REGNUM)
 	(unspec:CCRAW [(match_dup 1)

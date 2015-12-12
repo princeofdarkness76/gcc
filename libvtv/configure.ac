@@ -9,6 +9,7 @@ AC_CONFIG_SRCDIR([vtv_rts.h])
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AM_ENABLE_MULTILIB(, ..)
 
@@ -19,6 +20,10 @@ AM_ENABLE_MULTILIB(, ..)
 AM_ENABLE_MULTILIB(, ..)
 
 >>>>>>> gcc-mirror/trunk
+=======
+AM_ENABLE_MULTILIB(, ..)
+
+>>>>>>> gcc-mirror/master
 # -------
 # Options
 # -------
@@ -43,6 +48,7 @@ GCC_LIBSTDCXX_RAW_CXX_FLAGS
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -53,6 +59,10 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_USE_SYSTEM_EXTENSIONS
 
 >>>>>>> gcc-mirror/trunk
+=======
+AC_USE_SYSTEM_EXTENSIONS
+
+>>>>>>> gcc-mirror/master
 # Use same top-level configure hooks in libgcc/libstdc++/libvtv.
 AC_MSG_CHECKING([for --enable-vtable-verify])
 AC_ARG_ENABLE(vtable-verify,
@@ -72,9 +82,12 @@ AC_MSG_CHECKING([for host support for vtable verification])
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 case ${host} in
   *-*-solaris2*)
     # libvtv requires init priority support, which depends on the linker
@@ -91,11 +104,14 @@ case ${host} in
     ;;
 esac
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 AC_MSG_RESULT($VTV_SUPPORTED)
 
 # Decide if it's usable.
@@ -112,6 +128,7 @@ AM_INIT_AUTOMAKE(foreign no-dist)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 AM_ENABLE_MULTILIB(, ..)
 =======
 >>>>>>> gcc-mirror/master
@@ -120,6 +137,8 @@ AM_ENABLE_MULTILIB(, ..)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 AM_MAINTAINER_MODE
 
 LIBVTV_CONFIGURE
@@ -163,6 +182,7 @@ AC_CHECK_FUNCS([secure_getenv])
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_CHECK_FUNCS([getexecname __fortify_fail])
 
@@ -173,6 +193,10 @@ AC_CHECK_FUNCS([getexecname __fortify_fail])
 AC_CHECK_FUNCS([getexecname __fortify_fail])
 
 >>>>>>> gcc-mirror/trunk
+=======
+AC_CHECK_FUNCS([getexecname __fortify_fail])
+
+>>>>>>> gcc-mirror/master
 # Check for programs.
 m4_rename([_AC_ARG_VAR_PRECIOUS],[real_PRECIOUS])
 m4_define([_AC_ARG_VAR_PRECIOUS],[])
@@ -246,6 +270,7 @@ AM_CONDITIONAL(VTV_CYGMIN, test $vtv_cygmin = yes)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_CHECK_FUNCS([_obstack_begin])
 AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
@@ -258,4 +283,9 @@ AC_CHECK_FUNCS([_obstack_begin])
 AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
 
 >>>>>>> gcc-mirror/trunk
+=======
+AC_CHECK_FUNCS([_obstack_begin])
+AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
+
+>>>>>>> gcc-mirror/master
 AC_OUTPUT

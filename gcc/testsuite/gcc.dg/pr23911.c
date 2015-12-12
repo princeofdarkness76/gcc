@@ -18,6 +18,7 @@ test (void)
    constant folded.  There should be no loads from b left.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "__complex__ \\\(1.0e\\\+0, 0.0\\\)" 2 "dce2" } } */
 /* { dg-final { scan-tree-dump-times "= b" 0 "dce2" } } */
 <<<<<<< HEAD
@@ -31,3 +32,7 @@ test (void)
 /* { dg-final { scan-tree-dump-times "__complex__ \\\(1.0e\\\+0, 0.0\\\)" 2 "dce3" } } */
 /* { dg-final { scan-tree-dump-times "= b" 0 "dce3" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "__complex__ \\\(1.0e\\\+0, 0.0\\\)" 2 "dce3" } } */
+/* { dg-final { scan-tree-dump-times "= b" 0 "dce3" } } */
+>>>>>>> gcc-mirror/master

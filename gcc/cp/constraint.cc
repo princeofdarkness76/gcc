@@ -1356,6 +1356,7 @@ finish_template_introduction (tree tmpl_decl, tree intro_list)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Make a "constrained auto" type-specifier. This is an
@@ -1391,6 +1392,8 @@ make_constrained_auto (tree con, tree args)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Given the predicate constraint T from a constrained-type-specifier, extract
    its TMPL and ARGS.  FIXME why do we need two different forms of
    constrained-type-specifier?  */
@@ -1912,6 +1915,7 @@ satisfy_argument_deduction_constraint (tree t, tree args,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
@@ -1923,6 +1927,8 @@ satisfy_argument_deduction_constraint (tree t, tree args,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   tree type_canonical = TYPE_CANONICAL (placeholder);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
     = tsubst_constraint (constr, args, complain|tf_partial, in_decl);
@@ -1932,11 +1938,14 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
   TYPE_CANONICAL (placeholder) = type_canonical;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (type == error_mark_node)
     return boolean_false_node;
 
@@ -2378,9 +2387,12 @@ subsumes_constraints (tree a, tree b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Returns true when the the constraints in A subsume those in B, but
    the constraints in B do not subsume the constraints in A.  */
 
@@ -2391,11 +2403,14 @@ strictly_subsumes (tree a, tree b)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Determines which of the declarations, A or B, is more constrained.
    That is, which declaration's constraints subsume but are not subsumed
    by the other's?

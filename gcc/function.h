@@ -373,6 +373,7 @@ struct GTY(()) function {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      loop->force_vect set.  */
   unsigned int has_force_vect_loops : 1;
 =======
@@ -391,10 +392,15 @@ struct GTY(()) function {
      loop->force_vectorize set.  */
   unsigned int has_force_vectorize_loops : 1;
 >>>>>>> gcc-mirror/trunk
+=======
+     loop->force_vectorize set.  */
+  unsigned int has_force_vectorize_loops : 1;
+>>>>>>> gcc-mirror/master
 
   /* Nonzero if the current function contains any loops with
      nonzero value in loop->simduid.  */
   unsigned int has_simduid_loops : 1;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -419,6 +425,11 @@ struct GTY(()) function {
   /* Set when the tail call has been identified.  */
   unsigned int tail_call_marked : 1;
 >>>>>>> gcc-mirror/trunk
+=======
+
+  /* Set when the tail call has been identified.  */
+  unsigned int tail_call_marked : 1;
+>>>>>>> gcc-mirror/master
 };
 
 /* Add the decl D to the local_decls list of FUN.  */
@@ -623,6 +634,9 @@ extern rtx has_hard_reg_initial_val (machine_mode, unsigned int);
 extern unsigned int emit_initial_value_sets (void);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
 extern bool initial_value_entry (int i, rtx *, rtx *);
 extern void instantiate_decl_rtl (rtx x);
@@ -633,6 +647,7 @@ extern void locate_and_pad_parm (machine_mode, tree, int, int, int,
 				 tree, struct args_size *,
 				 struct locate_and_pad_arg_data *);
 extern void generate_setjmp_warnings (void);
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 /* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
@@ -691,6 +706,24 @@ extern void set_cfun (struct function *new_cfun);
 extern void push_cfun (struct function *new_cfun);
 extern void pop_cfun (void);
 
+=======
+
+/* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
+   and create duplicate blocks.  */
+extern void reorder_blocks (void);
+extern void clear_block_marks (tree);
+extern tree blocks_nreverse (tree);
+extern tree block_chainon (tree, tree);
+
+/* Set BLOCK_NUMBER for all the blocks in FN.  */
+extern void number_blocks (tree);
+
+/* cfun shouldn't be set directly; use one of these functions instead.  */
+extern void set_cfun (struct function *new_cfun);
+extern void push_cfun (struct function *new_cfun);
+extern void pop_cfun (void);
+
+>>>>>>> gcc-mirror/master
 extern int get_next_funcdef_no (void);
 extern int get_last_funcdef_no (void);
 extern void allocate_struct_function (tree, bool);
@@ -719,9 +752,12 @@ extern basic_block emit_return_for_exit (edge exit_fallthru_edge,
 					 bool simple_p);
 extern void reposition_prologue_and_epilogue_notes (void);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* cfun shouldn't be set directly; use one of these functions instead.  */
 extern void set_cfun (struct function *new_cfun);
@@ -732,6 +768,7 @@ extern void pop_cfun (void);
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 /* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
    and create duplicate blocks.  */
 extern void reorder_blocks (void);
@@ -791,4 +828,8 @@ extern void used_types_insert (tree);
 extern void used_types_insert (tree);
 
 >>>>>>> gcc-mirror/trunk
+=======
+extern void used_types_insert (tree);
+
+>>>>>>> gcc-mirror/master
 #endif  /* GCC_FUNCTION_H */

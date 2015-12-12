@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-24  Maxim Ostapenko  <m.ostapenko@partner.samsung.com>
 
 	* include/system/linux/asm/ptrace.h: Move to ...
@@ -14,11 +17,14 @@
 	* include/system/linux/asm/ptrace.h: New header.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-23  Maxim Ostapenko  <m.ostapenko@partner.samsung.com>
 
 	* All source files: Merge from upstream r253555.

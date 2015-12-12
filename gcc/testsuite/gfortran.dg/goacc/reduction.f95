@@ -139,9 +139,12 @@ end subroutine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 ! { dg-error "Array 'ia2' is not permitted in reduction" "" { target "*-*-*" } 27 }
 ! { dg-error "Array 'ra1' is not permitted in reduction" "" { target "*-*-*" } 29 }
@@ -166,8 +169,11 @@ end subroutine
 ! { dg-error "Array 'la1' is not permitted in reduction" "" { target "*-*-*" } 129 }
 ! { dg-error "Array 'ta1' is not permitted in reduction" "" { target "*-*-*" } 135 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

@@ -15,6 +15,7 @@ void foo()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { cleanup-tree-dump "gimple" } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -24,3 +25,5 @@ void foo()
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

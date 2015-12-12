@@ -227,17 +227,21 @@ test_show_locus (function *fun)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       location_t combined_loc = COMBINE_LOCATION_DATA (line_table,
 						       caret,
 						       src_range,
 						       NULL);
       warning_at (combined_loc, 0, "test");
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -247,6 +251,8 @@ test_show_locus (function *fun)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /* Example of a very wide line, where the information of interest
@@ -261,17 +267,21 @@ test_show_locus (function *fun)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       location_t combined_loc = COMBINE_LOCATION_DATA (line_table,
 						       caret,
 						       src_range,
 						       NULL);
       warning_at (combined_loc, 0, "test");
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -281,6 +291,8 @@ test_show_locus (function *fun)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /* Example of multiple carets.  */
@@ -356,9 +368,12 @@ test_show_locus (function *fun)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* Example of using the "%q+D" format code, which as well as printing
      a quoted decl, overrides the given location to use the location of
@@ -371,11 +386,14 @@ test_show_locus (function *fun)
 		  "example of plus in format code for %q+D", local);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 unsigned int

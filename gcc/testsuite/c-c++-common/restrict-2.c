@@ -12,6 +12,7 @@ void foo (float * __restrict__ a, float * __restrict__ b, int n, int j)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 11 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -22,3 +23,6 @@ void foo (float * __restrict__ a, float * __restrict__ b, int n, int j)
 =======
 /* { dg-final { scan-tree-dump-times "Moving statement" 11 "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "Moving statement" 11 "lim2" } } */
+>>>>>>> gcc-mirror/master

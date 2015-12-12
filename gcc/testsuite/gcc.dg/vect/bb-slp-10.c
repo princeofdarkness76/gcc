@@ -52,6 +52,7 @@ int main (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "unsupported alignment in basic block." "slp2" { xfail vect_element_align } } } */
 =======
 /* { dg-final { scan-tree-dump "bad data alignment in basic block" "slp2" { target { ! vect_element_align } } } } */
@@ -62,5 +63,8 @@ int main (void)
 =======
 /* { dg-final { scan-tree-dump "bad data alignment in basic block" "slp2" { target { ! vect_element_align } } } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump "bad data alignment in basic block" "slp2" { target { ! vect_element_align } } } } */
+>>>>>>> gcc-mirror/master
 /* { dg-final { scan-tree-dump-times "basic block vectorized" 1 "slp2" { target vect_element_align } } } */
   

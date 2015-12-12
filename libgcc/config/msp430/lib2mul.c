@@ -33,6 +33,7 @@ typedef unsigned int  uint08_type   __attribute__ ((mode (QI)));
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -54,11 +55,17 @@ typedef unsigned int  uint08_type   __attribute__ ((mode (QI)));
 
 /* The software multiply library needs __mspabi_mpyll.  */
 >>>>>>> gcc-mirror/trunk
+=======
+#if defined MUL_NONE
+
+/* The software multiply library needs __mspabi_mpyll.  */
+>>>>>>> gcc-mirror/master
 
 #undef UINT_TYPE
 #undef BITS_MINUS_1
 #undef NAME_MODE
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -74,6 +81,8 @@ typedef unsigned int  uint08_type   __attribute__ ((mode (QI)));
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define UINT_TYPE	uint32_type
 #define BITS_MINUS_1	31
 #define NAME_MODE	si
@@ -97,15 +106,19 @@ __mspabi_mpyull (unsigned long a, unsigned long b)
 #else
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #undef UINT_TYPE
 #undef BITS_MINUS_1
 #undef NAME_MODE
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -120,6 +133,8 @@ __mspabi_mpyull (unsigned long a, unsigned long b)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define UINT_TYPE	uint08_type
 #define BITS_MINUS_1	7
 #define NAME_MODE	qi
@@ -128,8 +143,11 @@ __mspabi_mpyull (unsigned long a, unsigned long b)
 
 #endif /* MUL_NONE */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

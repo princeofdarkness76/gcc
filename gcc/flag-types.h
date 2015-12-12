@@ -268,9 +268,12 @@ enum lto_partition_model {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* flag_lto_linker_output initialization values.  */
 enum lto_linker_output {
   LTO_LINKER_OUTPUT_UNKNOWN,
@@ -280,11 +283,14 @@ enum lto_linker_output {
   LTO_LINKER_OUTPUT_EXEC
 };
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* gfortran -finit-real= values.  */
 

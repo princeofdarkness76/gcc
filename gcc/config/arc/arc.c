@@ -64,6 +64,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "alias.h"
 >>>>>>> gcc-mirror/master
@@ -72,6 +73,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #include "alias.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "alias.h"
+>>>>>>> gcc-mirror/master
 
 /* Which cpu we're compiling for (ARC600, ARC601, ARC700).  */
 static const char *arc_cpu_string = "";
@@ -898,6 +902,7 @@ arc_init (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (TARGET_ATOMIC && !(TARGET_ARC700 || TARGET_HS))
     error ("-matomic is only supported for ARC700 or ARC HS cores");
@@ -910,6 +915,11 @@ arc_init (void)
     error ("-matomic is only supported for ARC700 or ARC HS cores");
 
 >>>>>>> gcc-mirror/trunk
+=======
+  if (TARGET_ATOMIC && !(TARGET_ARC700 || TARGET_HS))
+    error ("-matomic is only supported for ARC700 or ARC HS cores");
+
+>>>>>>> gcc-mirror/master
   arc_init_reg_tables ();
 
   /* Initialize array for PRINT_OPERAND_PUNCT_VALID_P.  */
@@ -9679,9 +9689,12 @@ arc_use_by_pieces_infrastructure_p (unsigned HOST_WIDE_INT size,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Emit a (pre) memory barrier around an atomic sequence according to
    MODEL.  */
 
@@ -10036,11 +10049,14 @@ arc_expand_atomic_op (enum rtx_code code, rtx mem, rtx val,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 struct gcc_target targetm = TARGET_INITIALIZER;
 
 #include "gt-arc.h"

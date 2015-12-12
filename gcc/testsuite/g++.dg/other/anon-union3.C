@@ -6,6 +6,7 @@ class C
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     {
@@ -15,6 +16,9 @@ class C
 =======
     {		  // { dg-error "auto" "" { target c++11 } 5 }
 >>>>>>> gcc-mirror/trunk
+=======
+    {		  // { dg-error "auto" "" { target c++11 } 5 }
+>>>>>>> gcc-mirror/master
       int a;
     };            // { dg-error "multiple types" "" { target c++11 } }
   register union  // { dg-error "storage class" }

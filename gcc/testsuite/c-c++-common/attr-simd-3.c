@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void f () __attribute__((__simd__, __vector__)); /* { dg-error "in the same function marked as a Cilk Plus" "PR68158" { xfail c++ } } */
 =======
 void f () __attribute__((__simd__, __vector__)); /* { dg-error "in the same function marked as a Cilk Plus" "PR68158" } */
@@ -15,3 +16,6 @@ void f () __attribute__((__simd__, __vector__)); /* { dg-error "in the same func
 =======
 void f () __attribute__((__simd__, __vector__)); /* { dg-error "in the same function marked as a Cilk Plus" "PR68158" } */
 >>>>>>> gcc-mirror/trunk
+=======
+void f () __attribute__((__simd__, __vector__)); /* { dg-error "in the same function marked as a Cilk Plus" "PR68158" } */
+>>>>>>> gcc-mirror/master

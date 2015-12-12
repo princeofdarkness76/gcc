@@ -1282,6 +1282,7 @@ Gcc_backend::string_constant_expression(const std::string& val)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   string_type = build_variant_type_copy(string_type);
 =======
 >>>>>>> gcc-mirror/master
@@ -1290,6 +1291,8 @@ Gcc_backend::string_constant_expression(const std::string& val)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   TYPE_STRING_FLAG(string_type) = 1;
   tree string_val = build_string(val.length(), val.data());
   TREE_TYPE(string_val) = string_type;

@@ -1969,6 +1969,7 @@ replacement_internal_fn (gcall *call)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (direct_internal_fn_supported_p (ifn, types))
 =======
 	  optimization_type opt_type = bb_optimization_type (gimple_bb (call));
@@ -1981,6 +1982,10 @@ replacement_internal_fn (gcall *call)
 	  optimization_type opt_type = bb_optimization_type (gimple_bb (call));
 	  if (direct_internal_fn_supported_p (ifn, types, opt_type))
 >>>>>>> gcc-mirror/trunk
+=======
+	  optimization_type opt_type = bb_optimization_type (gimple_bb (call));
+	  if (direct_internal_fn_supported_p (ifn, types, opt_type))
+>>>>>>> gcc-mirror/master
 	    return ifn;
 	}
     }

@@ -15,6 +15,7 @@ void q(void)
 /* There should be no IF conditionals.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 0 "dce2"} } */
 <<<<<<< HEAD
 =======
@@ -25,3 +26,6 @@ void q(void)
 =======
 /* { dg-final { scan-tree-dump-times "if " 0 "dce3"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if " 0 "dce3"} } */
+>>>>>>> gcc-mirror/master

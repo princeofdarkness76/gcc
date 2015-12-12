@@ -372,6 +372,7 @@ cgraph_node::reset (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   transparent_alias = false;
 >>>>>>> gcc-mirror/master
@@ -380,6 +381,9 @@ cgraph_node::reset (void)
 =======
   transparent_alias = false;
 >>>>>>> gcc-mirror/trunk
+=======
+  transparent_alias = false;
+>>>>>>> gcc-mirror/master
   weakref = false;
   cpp_implicit_alias = false;
 
@@ -491,6 +495,7 @@ cgraph_node::add_new_function (tree fndecl, bool lowered)
   if (dump_file)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       struct function *fn = DECL_STRUCT_FUNCTION (fndecl);
       const char *function_type = ((gimple_has_body_p (fndecl))
@@ -509,6 +514,8 @@ cgraph_node::add_new_function (tree fndecl, bool lowered)
   switch (symtab->state)
     {
 =======
+=======
+>>>>>>> gcc-mirror/master
     {
       struct function *fn = DECL_STRUCT_FUNCTION (fndecl);
       const char *function_type = ((gimple_has_body_p (fndecl))
@@ -526,6 +533,7 @@ cgraph_node::add_new_function (tree fndecl, bool lowered)
 
   switch (symtab->state)
     {
+<<<<<<< HEAD
 >>>>>>> master
 =======
     {
@@ -546,6 +554,8 @@ cgraph_node::add_new_function (tree fndecl, bool lowered)
   switch (symtab->state)
     {
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       case PARSING:
 	cgraph_node::finalize_function (fndecl, false);
 	break;
@@ -629,6 +639,7 @@ cgraph_node::analyze (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       callees->can_throw_external = !TREE_NOTHROW (t->decl);
 >>>>>>> gcc-mirror/master
@@ -637,6 +648,9 @@ cgraph_node::analyze (void)
 =======
       callees->can_throw_external = !TREE_NOTHROW (t->decl);
 >>>>>>> gcc-mirror/trunk
+=======
+      callees->can_throw_external = !TREE_NOTHROW (t->decl);
+>>>>>>> gcc-mirror/master
       /* Target code in expand_thunk may need the thunk's target
 	 to be analyzed, so recurse here.  */
       if (!t->analyzed)
@@ -658,6 +672,7 @@ cgraph_node::analyze (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     resolve_alias (cgraph_node::get (alias_target));
 =======
     resolve_alias (cgraph_node::get (alias_target), transparent_alias);
@@ -668,6 +683,9 @@ cgraph_node::analyze (void)
 =======
     resolve_alias (cgraph_node::get (alias_target), transparent_alias);
 >>>>>>> gcc-mirror/trunk
+=======
+    resolve_alias (cgraph_node::get (alias_target), transparent_alias);
+>>>>>>> gcc-mirror/master
   else if (dispatcher_function)
     {
       /* Generate the dispatcher body of multi-versioned functions.  */
@@ -898,6 +916,7 @@ varpool_node::finalize_decl (tree decl)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 =======
@@ -1088,6 +1107,97 @@ walk_polymorphic_call_targets (hash_set<void *> *reachable_call_targets,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+}
+
+/* EDGE is an polymorphic call.  Mark all possible targets as reachable
+   and if there is only one target, perform trivial devirtualization. 
+   REACHABLE_CALL_TARGETS collects target lists we already walked to
+   avoid udplicate work.  */
+
+static void
+walk_polymorphic_call_targets (hash_set<void *> *reachable_call_targets,
+			       cgraph_edge *edge)
+{
+  unsigned int i;
+  void *cache_token;
+  bool final;
+  vec <cgraph_node *>targets
+    = possible_polymorphic_call_targets
+	(edge, &final, &cache_token);
+
+  if (!reachable_call_targets->add (cache_token))
+    {
+      if (symtab->dump_file)
+	dump_possible_polymorphic_call_targets 
+	  (symtab->dump_file, edge);
+
+      for (i = 0; i < targets.length (); i++)
+	{
+	  /* Do not bother to mark virtual methods in anonymous namespace;
+	     either we will find use of virtual table defining it, or it is
+	     unused.  */
+	  if (targets[i]->definition
+	      && TREE_CODE
+		  (TREE_TYPE (targets[i]->decl))
+		   == METHOD_TYPE
+	      && !type_in_anonymous_namespace_p
+		   (TYPE_METHOD_BASETYPE (TREE_TYPE (targets[i]->decl))))
+	    enqueue_node (targets[i]);
+	}
+    }
+
+  /* Very trivial devirtualization; when the type is
+     final or anonymous (so we know all its derivation)
+     and there is only one possible virtual call target,
+     make the edge direct.  */
+  if (final)
+    {
+      if (targets.length () <= 1 && dbg_cnt (devirt))
+	{
+	  cgraph_node *target;
+	  if (targets.length () == 1)
+	    target = targets[0];
+	  else
+	    target = cgraph_node::create
+			(builtin_decl_implicit (BUILT_IN_UNREACHABLE));
+
+	  if (symtab->dump_file)
+	    {
+	      fprintf (symtab->dump_file,
+		       "Devirtualizing call: ");
+	      print_gimple_stmt (symtab->dump_file,
+				 edge->call_stmt, 0,
+				 TDF_SLIM);
+	    }
+          if (dump_enabled_p ())
+            {
+	      location_t locus = gimple_location_safe (edge->call_stmt);
+	      dump_printf_loc (MSG_OPTIMIZED_LOCATIONS, locus,
+			       "devirtualizing call in %s to %s\n",
+			       edge->caller->name (), target->name ());
+	    }
+
+	  edge->make_direct (target);
+	  edge->redirect_call_stmt_to_callee ();
+
+	  /* Call to __builtin_unreachable shouldn't be instrumented.  */
+	  if (!targets.length ())
+	    gimple_call_set_with_bounds (edge->call_stmt, false);
+
+	  if (symtab->dump_file)
+	    {
+	      fprintf (symtab->dump_file,
+		       "Devirtualized as: ");
+	      print_gimple_stmt (symtab->dump_file,
+				 edge->call_stmt, 0,
+				 TDF_SLIM);
+	    }
+	}
+    }
+}
+
+>>>>>>> gcc-mirror/master
 /* Issue appropriate warnings for the global declaration DECL.  */
 
 static void
@@ -1137,6 +1247,7 @@ check_global_declaration (symtab_node *snode)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       && ! TREE_THIS_VOLATILE (decl)
 =======
       && (! VAR_P (decl) || ! TREE_THIS_VOLATILE (decl))
@@ -1147,6 +1258,9 @@ check_global_declaration (symtab_node *snode)
 =======
       && (! VAR_P (decl) || ! TREE_THIS_VOLATILE (decl))
 >>>>>>> gcc-mirror/trunk
+=======
+      && (! VAR_P (decl) || ! TREE_THIS_VOLATILE (decl))
+>>>>>>> gcc-mirror/master
       /* Global register variables must be declared to reserve them.  */
       && ! (TREE_CODE (decl) == VAR_DECL && DECL_REGISTER (decl))
       /* Global ctors and dtors are called by the runtime.  */
@@ -1342,6 +1456,9 @@ analyze_functions (bool first_time)
   /* Collect entry points to the unit.  */
   if (symtab->dump_file)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
     {
       fprintf (symtab->dump_file, "\n\nInitial ");
       symtab_node::dump_table (symtab->dump_file);
@@ -1352,6 +1469,7 @@ analyze_functions (bool first_time)
       symtab_node *snode;
       FOR_EACH_SYMBOL (snode)
 	check_global_declaration (snode);
+<<<<<<< HEAD
 =======
     {
       fprintf (symtab->dump_file, "\n\nInitial ");
@@ -1393,6 +1511,17 @@ analyze_functions (bool first_time)
        node != first_handled
        && node != first_handled_var; node = next)
     {
+=======
+    }
+
+  if (symtab->dump_file)
+    fprintf (symtab->dump_file, "\nRemoving unused symbols:");
+
+  for (node = symtab->first_symbol ();
+       node != first_handled
+       && node != first_handled_var; node = next)
+    {
+>>>>>>> gcc-mirror/master
       next = node->next;
       if (!node->aux && !node->referred_to_p ())
 	{
@@ -1479,6 +1608,7 @@ handle_alias_pairs (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      node->transparent_alias = true;
 >>>>>>> gcc-mirror/master
@@ -1487,6 +1617,9 @@ handle_alias_pairs (void)
 =======
 	      node->transparent_alias = true;
 >>>>>>> gcc-mirror/trunk
+=======
+	      node->transparent_alias = true;
+>>>>>>> gcc-mirror/master
 	    }
 	  alias_pairs->unordered_remove (i);
 	  continue;
@@ -1892,6 +2025,7 @@ cgraph_node::expand_thunk (bool output_asm_thunks, bool force_gimple_thunk)
       tree resbnd = NULL;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -1929,6 +2063,17 @@ cgraph_node::expand_thunk (bool output_asm_thunks, bool force_gimple_thunk)
       a = DECL_ARGUMENTS (thunk_fndecl);
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+      gcall *call;
+      greturn *ret;
+      bool alias_is_noreturn = TREE_THIS_VOLATILE (alias);
+
+      if (in_lto_p)
+	get_untransformed_body ();
+      a = DECL_ARGUMENTS (thunk_fndecl);
+
+>>>>>>> gcc-mirror/master
       current_function_decl = thunk_fndecl;
 
       /* Ensure thunks are emitted in their correct sections.  */
@@ -1965,6 +2110,7 @@ cgraph_node::expand_thunk (bool output_asm_thunks, bool force_gimple_thunk)
 	  if (DECL_BY_REFERENCE (resdecl))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 	    {
@@ -1995,6 +2141,19 @@ cgraph_node::expand_thunk (bool output_asm_thunks, bool force_gimple_thunk)
 =======
 	    {
 >>>>>>> gcc-mirror/trunk
+=======
+	    {
+	      restmp = gimple_fold_indirect_ref (resdecl);
+	      if (!restmp)
+		restmp = build2 (MEM_REF,
+				 TREE_TYPE (TREE_TYPE (DECL_RESULT (alias))),
+				 resdecl,
+				 build_int_cst (TREE_TYPE
+				   (DECL_RESULT (alias)), 0));
+	    }
+	  else if (!is_gimple_reg_type (restype))
+	    {
+>>>>>>> gcc-mirror/master
 	      if (aggregate_value_p (resdecl, TREE_TYPE (thunk_fndecl)))
 		{
 		  restmp = resdecl;
@@ -2195,6 +2354,7 @@ cgraph_node::assemble_thunks_and_aliases (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       bool saved_written = TREE_ASM_WRITTEN (decl);
@@ -2210,6 +2370,8 @@ cgraph_node::assemble_thunks_and_aliases (void)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (!alias->transparent_alias)
 	{
 	  bool saved_written = TREE_ASM_WRITTEN (decl);
@@ -2223,11 +2385,14 @@ cgraph_node::assemble_thunks_and_aliases (void)
 	  TREE_ASM_WRITTEN (decl) = saved_written;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 }
 
@@ -2420,12 +2585,16 @@ expand_all_functions (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   if (symtab->dump_file && flag_profile_reorder_functions)
     fprintf (symtab->dump_file, "Expanded functions with time profile:%u/%u\n",
              profiled_func_count, expanded_func_count);
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -2451,6 +2620,12 @@ expand_all_functions (void)
   free_gimplify_stack ();
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+  symtab->process_new_functions ();
+  free_gimplify_stack ();
+
+>>>>>>> gcc-mirror/master
   free (order);
 }
 

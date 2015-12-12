@@ -20,6 +20,7 @@ quantum_toffoli (int control1, int control2, int target,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "1 <<" 3 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -30,3 +31,6 @@ quantum_toffoli (int control1, int control2, int target,
 =======
 /* { dg-final { scan-tree-dump-times "1 <<" 3 "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "1 <<" 3 "lim2" } } */
+>>>>>>> gcc-mirror/master

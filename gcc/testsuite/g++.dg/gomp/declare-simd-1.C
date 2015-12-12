@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 // { dg-options "-fopenmp -ffat-lto-objects" }
 >>>>>>> gcc-mirror/master
@@ -16,6 +17,9 @@
 =======
 // { dg-options "-fopenmp -ffat-lto-objects" }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-options "-fopenmp -ffat-lto-objects" }
+>>>>>>> gcc-mirror/master
 
 #pragma omp declare simd uniform (a) aligned (b : 8 * sizeof (int)) \
 	    linear (c : 4) simdlen (8) notinbranch
@@ -33,6 +37,7 @@ int f2 (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -40,6 +45,8 @@ int f2 (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-assembler-times "_ZGVbM8uva32l4__Z2f2iPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVbN8uva32l4__Z2f2iPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVcM8uva32l4__Z2f2iPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
@@ -50,6 +57,7 @@ int f2 (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -57,6 +65,8 @@ int f2 (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #pragma omp declare simd uniform (c) aligned (b : 4 * sizeof (int)) linear (a : 4) simdlen (4)
 template <typename T>
 T f3 (int a, int *b, T c);
@@ -119,6 +129,7 @@ namespace N1
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -126,6 +137,8 @@ namespace N1
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-assembler-times "_ZGVbM2va16__ZN2N12N23f10EPx:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVbN2va16__ZN2N12N23f10EPx:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVcM2va16__ZN2N12N23f10EPx:" 1 { target { i?86-*-* x86_64-*-* } } } }
@@ -136,6 +149,7 @@ namespace N1
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -143,6 +157,8 @@ namespace N1
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 struct A
 {
   #pragma omp declare simd uniform (a) aligned (b : 8 * sizeof (int)) linear (c : 4) simdlen (8)
@@ -248,6 +264,7 @@ int B<int>::f25<7> (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -255,6 +272,8 @@ int B<int>::f25<7> (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-assembler-times "_ZGVbM8vuva32u__ZN1BIiE3f25ILi7EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVbN8vuva32u__ZN1BIiE3f25ILi7EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVcM8vuva32u__ZN1BIiE3f25ILi7EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
@@ -265,6 +284,7 @@ int B<int>::f25<7> (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -272,6 +292,8 @@ int B<int>::f25<7> (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #pragma omp declare simd simdlen (4) aligned (b : 8 * sizeof (int)) linear (a, c : 2)
 template <>
 template <>
@@ -284,6 +306,7 @@ int B<int>::f26<-1> (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -291,6 +314,8 @@ int B<int>::f26<-1> (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-assembler-times "_ZGVbM4vl2va32__ZN1BIiE3f26ILin1EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVbN4vl2va32__ZN1BIiE3f26ILin1EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVcM4vl2va32__ZN1BIiE3f26ILin1EEEiiPii:" 1 { target { i?86-*-* x86_64-*-* } } } }
@@ -301,6 +326,7 @@ int B<int>::f26<-1> (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -308,6 +334,8 @@ int B<int>::f26<-1> (int a, int *b, int c)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 int
 f27 (int x)
 {
@@ -334,6 +362,7 @@ f30 (int x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 template <int N>
 struct C
 {
@@ -345,6 +374,8 @@ struct C
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-assembler-times "_ZGVbM16v__Z3f30i:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVbN16v__Z3f30i:" 1 { target { i?86-*-* x86_64-*-* } } } }
 // { dg-final { scan-assembler-times "_ZGVcM16v__Z3f30i:" 1 { target { i?86-*-* x86_64-*-* } } } }
@@ -359,6 +390,7 @@ struct C
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -366,6 +398,8 @@ struct C
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   int f32 (int a, int *b, int c);
 };
 
@@ -386,6 +420,7 @@ f33 (int x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -393,6 +428,8 @@ f33 (int x)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #pragma omp declare simd simdlen (N)
 template <int N>
@@ -415,6 +452,7 @@ f38 (D &d)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -422,3 +460,5 @@ f38 (D &d)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

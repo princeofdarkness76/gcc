@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-fdump-tree-original" } */
 =======
 /* { dg-options "-O -fdump-tree-cddce1" } */
@@ -13,6 +14,9 @@
 =======
 /* { dg-options "-O -fdump-tree-cddce1" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O -fdump-tree-cddce1" } */
+>>>>>>> gcc-mirror/master
 
 int
 fn1 (int a, int b, int m)
@@ -20,6 +24,7 @@ fn1 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (a & ~m) | (b & m);
 =======
   int tem1 = a & ~m;
@@ -34,6 +39,11 @@ fn1 (int a, int b, int m)
   int tem2 = b & m;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = a & ~m;
+  int tem2 = b & m;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -42,6 +52,7 @@ fn2 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (a & ~m) | (m & b);
 =======
   int tem1 = a & ~m;
@@ -56,6 +67,11 @@ fn2 (int a, int b, int m)
   int tem2 = m & b;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = a & ~m;
+  int tem2 = m & b;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -64,6 +80,7 @@ fn3 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (~m & a) | (m & b);
 =======
   int tem1 = ~m & a;
@@ -78,6 +95,11 @@ fn3 (int a, int b, int m)
   int tem2 = m & b;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = ~m & a;
+  int tem2 = m & b;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -86,6 +108,7 @@ fn4 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (~m & a) | (b & m);
 =======
   int tem1 = ~m & a;
@@ -100,6 +123,11 @@ fn4 (int a, int b, int m)
   int tem2 = b & m;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = ~m & a;
+  int tem2 = b & m;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -108,6 +136,7 @@ fn5 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (b & m) | (a & ~m);
 =======
   int tem1 = b & m;
@@ -122,6 +151,11 @@ fn5 (int a, int b, int m)
   int tem2 = a & ~m;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = b & m;
+  int tem2 = a & ~m;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -130,6 +164,7 @@ fn6 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (m & b) | (a & ~m);
 =======
   int tem1 = m & b;
@@ -144,6 +179,11 @@ fn6 (int a, int b, int m)
   int tem2 = a & ~m;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = m & b;
+  int tem2 = a & ~m;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
@@ -152,6 +192,7 @@ fn7 (int a, int b, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (m & b) | (~m & a);
 =======
   int tem1 = m & b;
@@ -166,11 +207,17 @@ fn7 (int a, int b, int m)
   int tem2 = ~m & a;
   return tem1 | tem2;
 >>>>>>> gcc-mirror/trunk
+=======
+  int tem1 = m & b;
+  int tem2 = ~m & a;
+  return tem1 | tem2;
+>>>>>>> gcc-mirror/master
 }
 
 int
 fn8 (int a, int b, int m)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -184,6 +231,8 @@ fn8 (int a, int b, int m)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   int tem1 = b & m;
   int tem2 = ~m & a;
   return tem1 | tem2;
@@ -191,8 +240,11 @@ fn8 (int a, int b, int m)
 
 /* { dg-final { scan-tree-dump-not " \\| " "cddce1" } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

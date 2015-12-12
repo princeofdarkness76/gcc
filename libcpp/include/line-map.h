@@ -1379,6 +1379,7 @@ class rich_location
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   set_range (unsigned int idx, source_range src_range,
 	     bool show_caret_p, bool overwrite_loc_p);
 =======
@@ -1393,6 +1394,10 @@ class rich_location
   set_range (line_maps *set, unsigned int idx, source_location loc,
 	     bool show_caret_p);
 >>>>>>> gcc-mirror/trunk
+=======
+  set_range (line_maps *set, unsigned int idx, source_location loc,
+	     bool show_caret_p);
+>>>>>>> gcc-mirror/master
 
   unsigned int get_num_locations () const { return m_num_ranges; }
 

@@ -38,6 +38,7 @@ LIB2ADD = \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	$(srcdir)/config/msp430/lib2hw_mul.S \
 =======
 >>>>>>> gcc-mirror/master
@@ -46,6 +47,8 @@ LIB2ADD = \
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	$(srcdir)/config/msp430/floatunhisf.c \
 	$(srcdir)/config/msp430/floatunhidf.c \
 	$(srcdir)/config/msp430/floathidf.c \
@@ -57,9 +60,12 @@ HOST_LIBGCC2_CFLAGS += -Os -ffunction-sections -fdata-sections -mhwmult=none
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 lib2_mul_none.o: $(srcdir)/config/msp430/lib2mul.c
 	$(gcc_compile) $^ -c -DMUL_NONE
 
@@ -88,11 +94,14 @@ libmul_f5.a: lib2hw_mul_f5.o
 	$(AR_CREATE_FOR_TARGET) $@ $^
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # Local Variables:
 # mode: Makefile
 # End:

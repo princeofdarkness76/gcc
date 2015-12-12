@@ -724,6 +724,7 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
   if ((*expr)->expr_type == EXPR_FUNCTION)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       if ((*expr)->ts.type == BT_INTEGER
 	  || ((*expr)->ts.type == BT_UNKNOWN
@@ -751,6 +752,18 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+      if ((*expr)->ts.type == BT_INTEGER
+	  || ((*expr)->ts.type == BT_UNKNOWN
+	      && strcmp((*expr)->symtree->name, "null") != 0))
+	return MATCH_YES;
+
+      goto syntax;
+    }
+  else if ((*expr)->expr_type == EXPR_CONSTANT)
+    {
+>>>>>>> gcc-mirror/master
       /* F2008, 4.4.3.1:  The length is a type parameter; its kind is
 	 processor dependent and its value is greater than or equal to zero.
 	 F2008, 4.4.3.2:  If the character length parameter value evaluates
@@ -761,6 +774,7 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 	{
 	  if (mpz_cmp_si ((*expr)->value.integer, 0) < 0)
 	    mpz_set_si ((*expr)->value.integer, 0);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -834,6 +848,8 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 =======
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 	}
       else
 	goto syntax;
@@ -865,7 +881,10 @@ char_len_param_value (gfc_expr **expr, bool *deferred)
 
       gfc_free_expr (e);
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   return m;
 
@@ -1040,6 +1059,7 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
   sym = *result;
   if (sym->attr.proc == PROC_ST_FUNCTION)
     return rc;
+<<<<<<< HEAD
 
   if (sym->attr.module_procedure
       && sym->attr.if_source == IFSRC_IFBODY)
@@ -1053,6 +1073,21 @@ get_proc_name (const char *name, gfc_symbol **result, bool module_fcn_entry)
       if (sym->attr.dimension)
 	sym->ts.interface->as = gfc_copy_array_spec (sym->as);
 
+=======
+
+  if (sym->attr.module_procedure
+      && sym->attr.if_source == IFSRC_IFBODY)
+    {
+      /* Create a partially populated interface symbol to carry the
+	 characteristics of the procedure and the result.  */
+      sym->ts.interface = gfc_new_symbol (name, sym->ns);
+      gfc_add_type (sym->ts.interface, &(sym->ts),
+		    &gfc_current_locus);
+      gfc_copy_attr (&sym->ts.interface->attr, &sym->attr, NULL);
+      if (sym->attr.dimension)
+	sym->ts.interface->as = gfc_copy_array_spec (sym->as);
+
+>>>>>>> gcc-mirror/master
       /* Ideally, at this point, a copy would be made of the formal
 	 arguments and their namespace. However, this does not appear
 	 to be necessary, albeit at the expense of not being able to
@@ -2119,6 +2154,7 @@ variable_decl (int elem)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  gfc_error ("'%s' at %C is a redefinition of the declaration "
 		     "in the corresponding interface for MODULE "
 		     "PROCEDURE '%s'", sym->name,
@@ -2137,6 +2173,11 @@ variable_decl (int elem)
 		     "in the corresponding interface for MODULE "
 		     "PROCEDURE %qs", sym->name,
 >>>>>>> gcc-mirror/trunk
+=======
+	  gfc_error ("%qs at %C is a redefinition of the declaration "
+		     "in the corresponding interface for MODULE "
+		     "PROCEDURE %qs", sym->name,
+>>>>>>> gcc-mirror/master
 		     gfc_current_ns->proc_name->name);
 	  goto cleanup;
 	}
@@ -4931,11 +4972,14 @@ ok:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (formal)
     {
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* gfc_error_now used in following and return with MATCH_YES because
      doing otherwise results in a cascade of extraneous errors and in
      some cases an ICE in symbol.c(gfc_release_symbol).  */
@@ -4952,6 +4996,7 @@ ok:
 	arg_count_mismatch = true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   if (formal)
@@ -4959,10 +5004,13 @@ ok:
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       for (p = formal, q = head; p && q; p = p->next, q = q->next)
 	{
 	  if ((p->next != NULL && q->next == NULL)
 	      || (p->next == NULL && q->next != NULL))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4978,6 +5026,9 @@ ok:
 =======
 	    arg_count_mismatch = true;
 >>>>>>> gcc-mirror/trunk
+=======
+	    arg_count_mismatch = true;
+>>>>>>> gcc-mirror/master
 	  else if ((p->sym == NULL && q->sym == NULL)
 		    || strcmp (p->sym->name, q->sym->name) == 0)
 	    continue;
@@ -4989,19 +5040,25 @@ ok:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       if (arg_count_mismatch)
 	gfc_error_now ("Mismatch in number of MODULE PROCEDURE "
 		       "formal arguments at %C");
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   return MATCH_YES;

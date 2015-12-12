@@ -23,6 +23,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
    UNSPEC_FROM_GLOBAL
@@ -47,6 +48,9 @@
 =======
    UNSPEC_TO_GENERIC
 >>>>>>> gcc-mirror/trunk
+=======
+   UNSPEC_TO_GENERIC
+>>>>>>> gcc-mirror/master
 
    UNSPEC_COPYSIGN
    UNSPEC_LOG2
@@ -120,6 +124,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 ;; Allow registers or symbolic constants.  We can allow frame, arg or stack
@@ -143,6 +148,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ;; Registers or constants for normal instructions.  Does not allow symbolic
 ;; constants.
 (define_predicate "nvptx_nonmemory_operand"
@@ -182,6 +189,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 (define_predicate "const_0_operand"
@@ -211,6 +219,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 (define_predicate "const0_operand"
   (and (match_code "const_int")
        (match_test "op == const0_rtx")))
@@ -319,6 +329,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   [(set (match_operand:QHSDIM 0 "nvptx_nonimmediate_operand" "=R,R,R,m")
@@ -367,6 +378,8 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   [(set (match_operand:QHSDIM 0 "nvptx_nonimmediate_operand" "=R,R,m")
 	(match_operand:QHSDIM 1 "general_operand" "Ri,m,R"))]
   "!MEM_P (operands[0])
@@ -379,11 +392,14 @@
 
   return nvptx_output_mov_insn (operands[0], operands[1]);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
   [(set_attr "subregs_ok" "true")])
 
@@ -393,6 +409,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "!(MEM_P (operands[0]) && !REG_P (operands[1]))"
 =======
   "!MEM_P (operands[0]) || REG_P (operands[1])"
@@ -403,12 +420,16 @@
 =======
   "!MEM_P (operands[0]) || REG_P (operands[1])"
 >>>>>>> gcc-mirror/trunk
+=======
+  "!MEM_P (operands[0]) || REG_P (operands[1])"
+>>>>>>> gcc-mirror/master
 {
   if (which_alternative == 1)
     return "%.\\tld%A1%u0\\t%0, %1;";
   if (which_alternative == 2)
     return "%.\\tst%A0%u1\\t%0, %1;";
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -436,11 +457,15 @@
 =======
   return nvptx_output_mov_insn (operands[0], operands[1]);
 >>>>>>> gcc-mirror/trunk
+=======
+  return nvptx_output_mov_insn (operands[0], operands[1]);
+>>>>>>> gcc-mirror/master
 }
   [(set_attr "subregs_ok" "true")])
 
 (define_insn "load_arg_reg<mode>"
   [(set (match_operand:QHIM 0 "nvptx_register_operand" "=R")
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -454,6 +479,9 @@
 =======
 	(unspec:QHIM [(match_operand 1 "const_int_operand" "n")]
 >>>>>>> gcc-mirror/trunk
+=======
+	(unspec:QHIM [(match_operand 1 "const_int_operand" "n")]
+>>>>>>> gcc-mirror/master
 		     UNSPEC_ARG_REG))]
   ""
   "%.\\tcvt%t0.u32\\t%0, %%ar%1;")
@@ -463,6 +491,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(unspec:SDISDFM [(match_operand 1 "const_int_operand" "i")]
 =======
 	(unspec:SDISDFM [(match_operand 1 "const_int_operand" "n")]
@@ -473,6 +502,9 @@
 =======
 	(unspec:SDISDFM [(match_operand 1 "const_int_operand" "n")]
 >>>>>>> gcc-mirror/trunk
+=======
+	(unspec:SDISDFM [(match_operand 1 "const_int_operand" "n")]
+>>>>>>> gcc-mirror/master
 			UNSPEC_ARG_REG))]
   ""
   "%.\\tmov%t0\\t%0, %%ar%1;")
@@ -505,6 +537,7 @@
       emit_move_insn (operands[0], tmp);
       DONE;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -629,6 +662,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 })
 
 (define_insn "zero_extendqihi2"
@@ -706,6 +741,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 ;; Pointer address space conversions
@@ -749,6 +785,8 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ;; Pointer address space conversion
 (define_insn "convaddr_<mode>"
   [(set (match_operand:P 0 "nvptx_register_operand" "=R")
@@ -757,11 +795,14 @@
   ""
   "%.\\tcvta%D1%t0\\t%0, %1;")
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 ;; Integer arithmetic
 
@@ -1483,6 +1524,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    (match_operand 3 "const_0_operand"))]
 =======
 	    (match_operand 3 "const0_operand"))]
@@ -1493,6 +1535,9 @@
 =======
 	    (match_operand 3 "const0_operand"))]
 >>>>>>> gcc-mirror/trunk
+=======
+	    (match_operand 3 "const0_operand"))]
+>>>>>>> gcc-mirror/master
   ""
 {
   rtx t = nvptx_expand_compare (operands[0]);

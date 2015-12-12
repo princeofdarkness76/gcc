@@ -27,6 +27,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "dumpfile.h"
 >>>>>>> gcc-mirror/master
@@ -35,6 +36,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #include "dumpfile.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "dumpfile.h"
+>>>>>>> gcc-mirror/master
 
 /* This file implements a generic walker for dominator trees.
 
@@ -156,9 +160,12 @@ cmp_bb_postorder (const void *a, const void *b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Constructor for a dom walker.
 
    If SKIP_UNREACHBLE_BLOCKS is true, then we need to set
@@ -245,11 +252,14 @@ dom_walker::propagate_unreachable_to_edges (basic_block bb,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Recursively walk the dominator tree.
    BB is the basic block we are currently visiting.  */
 
@@ -282,12 +292,15 @@ dom_walker::walk (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
 	  before_dom_children (bb);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
@@ -306,6 +319,7 @@ dom_walker::walk (basic_block bb)
 	  else
 	    propagate_unreachable_to_edges (bb, dump_file, dump_flags);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  /* Callback for subclasses to do custom things before we have walked
@@ -314,6 +328,8 @@ dom_walker::walk (basic_block bb)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	  /* Mark the current BB to be popped out of the recursion stack
 	     once children are processed.  */
@@ -346,14 +362,18 @@ dom_walker::walk (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  after_dom_children (bb);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  if (bb_reachable (cfun, bb))
 	    after_dom_children (bb);
 	  else if (m_unreachable_dom == bb)
 	    m_unreachable_dom = NULL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -361,6 +381,8 @@ dom_walker::walk (basic_block bb)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       if (sp)
 	bb = worklist[--sp];

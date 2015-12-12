@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-O3 -fdump-tree-fre2" }
 =======
 // { dg-options "-O2 -fdump-tree-fre2 -fdump-tree-optimized" }
@@ -12,6 +13,9 @@
 =======
 // { dg-options "-O2 -fdump-tree-fre2 -fdump-tree-optimized" }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-options "-O2 -fdump-tree-fre2 -fdump-tree-optimized" }
+>>>>>>> gcc-mirror/master
 
 #define assume(x) if(!(x))__builtin_unreachable()
 
@@ -58,11 +62,14 @@ bool f(I a, I b, I c, I d) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-final { scan-tree-dump-times "free" 10 "fre2" } }
 // { dg-final { scan-tree-dump-times "unreachable" 11 "fre2" } }
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { scan-tree-dump-times "unreachable" 11 "fre2" } }
 
 // Note that depending on PUSH_ARGS_REVERSED we are presented with
@@ -73,6 +80,7 @@ bool f(I a, I b, I c, I d) {
 // { dg-final { scan-tree-dump-times "free" 14 "fre2" { target aarch64-*-* ia64-*-* arm-*-* hppa*-*-* sparc*-*-* powerpc*-*-* alpha*-*-* } } }
 // { dg-final { scan-tree-dump-times "free" 4 "optimized" { target aarch64-*-* ia64-*-* arm-*-* hppa*-*-* sparc*-*-* powerpc*-*-* alpha*-*-* } } }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 // { dg-final { scan-tree-dump-times "free" 10 "fre2" } }
@@ -80,3 +88,5 @@ bool f(I a, I b, I c, I d) {
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

@@ -73,6 +73,7 @@ extern "C" {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 #include "graphite-isl-ast-to-gimple.h"
 =======
@@ -85,6 +86,9 @@ extern "C" {
 =======
 #include "graphite.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "graphite.h"
+>>>>>>> gcc-mirror/master
 
 #include <map>
 
@@ -377,9 +381,12 @@ class translate_isl_ast_to_gimple
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Add phi nodes to all merge points of all the diamonds enclosing the loop of
      the close phi node PHI.  */
 
@@ -390,11 +397,14 @@ class translate_isl_ast_to_gimple
 				      gimple *old_close_phi);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Copy all the loop-close phi args from BB to NEW_BB.  */
 
   bool copy_loop_close_phi_args (basic_block old_bb, basic_block new_bb,
@@ -498,10 +508,13 @@ class translate_isl_ast_to_gimple
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 private:
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Return true when OP is a constant tree.  */
 
   bool is_constant (tree op) const
@@ -515,12 +528,15 @@ private:
 private:
   /* The region to be translated.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 private:
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   sese_info_p region;
 
   /* This flag is set when an error occurred during the translation of ISL AST
@@ -529,6 +545,7 @@ private:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* A vector of all the edges at if_condition merge points.  */
@@ -541,6 +558,11 @@ private:
   /* A vector of all the edges at if_condition merge points.  */
   auto_vec<edge, 2> merge_points;
 >>>>>>> gcc-mirror/trunk
+=======
+
+  /* A vector of all the edges at if_condition merge points.  */
+  auto_vec<edge, 2> merge_points;
+>>>>>>> gcc-mirror/master
 };
 
 /* Return the tree variable that corresponds to the given isl ast identifier
@@ -557,6 +579,7 @@ gcc_expression_from_isl_ast_expr_id (tree type,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				     __isl_keep isl_ast_expr *expr_id,
 =======
 				     __isl_take isl_ast_expr *expr_id,
@@ -567,6 +590,9 @@ gcc_expression_from_isl_ast_expr_id (tree type,
 =======
 				     __isl_take isl_ast_expr *expr_id,
 >>>>>>> gcc-mirror/trunk
+=======
+				     __isl_take isl_ast_expr *expr_id,
+>>>>>>> gcc-mirror/master
 				     ivs_params &ip)
 {
   gcc_assert (isl_ast_expr_get_type (expr_id) == isl_ast_expr_id);
@@ -617,11 +643,14 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   enum isl_ast_op_type expr_type = isl_ast_expr_get_op_type (expr);
   isl_ast_expr_free (expr);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   enum isl_ast_op_type expr_type = isl_ast_expr_get_op_type (expr);
   isl_ast_expr_free (expr);
@@ -630,6 +659,7 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
     return NULL_TREE;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   enum isl_ast_op_type expr_type = isl_ast_expr_get_op_type (expr);
@@ -637,6 +667,8 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   switch (expr_type)
     {
     case isl_ast_op_add:
@@ -652,6 +684,7 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return fold_build2 (EXACT_DIV_EXPR, type, tree_lhs_expr, tree_rhs_expr);
 
     case isl_ast_op_pdiv_q:
@@ -664,6 +697,8 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       /* As ISL operates on arbitrary precision numbers, we may end up with
 	 division by 2^64 that is folded to 0.  */
       if (integer_zerop (tree_rhs_expr))
@@ -705,6 +740,7 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 	  return NULL_TREE;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       return fold_build2 (EXACT_DIV_EXPR, type, tree_lhs_expr, tree_rhs_expr);
@@ -719,6 +755,8 @@ binary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       return fold_build2 (FLOOR_DIV_EXPR, type, tree_lhs_expr, tree_rhs_expr);
 
     case isl_ast_op_and:
@@ -769,6 +807,7 @@ ternary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   if (codegen_error)
@@ -781,6 +820,11 @@ ternary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
   if (codegen_error)
     return NULL_TREE;
 >>>>>>> gcc-mirror/trunk
+=======
+
+  if (codegen_error)
+    return NULL_TREE;
+>>>>>>> gcc-mirror/master
   return fold_build3 (COND_EXPR, type, tree_first_expr,
 		      tree_second_expr, tree_third_expr);
 }
@@ -799,6 +843,7 @@ unary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return fold_build1 (NEGATE_EXPR, type, tree_expr);
 =======
   return codegen_error ? NULL_TREE : fold_build1 (NEGATE_EXPR, type, tree_expr);
@@ -809,6 +854,9 @@ unary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 =======
   return codegen_error ? NULL_TREE : fold_build1 (NEGATE_EXPR, type, tree_expr);
 >>>>>>> gcc-mirror/trunk
+=======
+  return codegen_error ? NULL_TREE : fold_build1 (NEGATE_EXPR, type, tree_expr);
+>>>>>>> gcc-mirror/master
 }
 
 /* Converts an isl_ast_expr_op expression E with unknown number of arguments
@@ -837,9 +885,12 @@ nary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   if (codegen_error)
     {
@@ -848,11 +899,14 @@ nary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   int i;
   for (i = 1; i < isl_ast_expr_get_op_n_arg (expr); i++)
     {
@@ -861,9 +915,12 @@ nary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       if (codegen_error)
 	{
@@ -872,11 +929,14 @@ nary_op_to_tree (tree type, __isl_take isl_ast_expr *expr, ivs_params &ip)
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       res = fold_build2 (op_code, type, res, t);
     }
   isl_ast_expr_free (expr);
@@ -894,9 +954,12 @@ gcc_expression_from_isl_expr_op (tree type, __isl_take isl_ast_expr *expr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (codegen_error)
     {
       isl_ast_expr_free (expr);
@@ -904,11 +967,14 @@ gcc_expression_from_isl_expr_op (tree type, __isl_take isl_ast_expr *expr,
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   gcc_assert (isl_ast_expr_get_type (expr) == isl_ast_expr_op);
   switch (isl_ast_expr_get_op_type (expr))
     {
@@ -934,6 +1000,7 @@ gcc_expression_from_isl_expr_op (tree type, __isl_take isl_ast_expr *expr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #if HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
     case isl_ast_op_zdiv_r:
@@ -946,6 +1013,11 @@ gcc_expression_from_isl_expr_op (tree type, __isl_take isl_ast_expr *expr,
     case isl_ast_op_zdiv_r:
 #endif
 >>>>>>> gcc-mirror/trunk
+=======
+#if HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
+    case isl_ast_op_zdiv_r:
+#endif
+>>>>>>> gcc-mirror/master
     case isl_ast_op_and:
     case isl_ast_op_or:
     case isl_ast_op_eq:
@@ -979,9 +1051,12 @@ gcc_expression_from_isl_expression (tree type, __isl_take isl_ast_expr *expr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (codegen_error)
     {
       isl_ast_expr_free (expr);
@@ -989,11 +1064,14 @@ gcc_expression_from_isl_expression (tree type, __isl_take isl_ast_expr *expr,
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   switch (isl_ast_expr_get_type (expr))
     {
     case isl_ast_expr_id:
@@ -1031,20 +1109,26 @@ graphite_create_new_loop (edge entry_edge, __isl_keep isl_ast_node *node_for,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* To fail code generation, we generate wrong code until we discard it.  */
   if (codegen_error)
     stride = integer_zero_node;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   tree ivvar = create_tmp_var (type, "graphite_IV");
   tree iv, iv_after_increment;
   loop_p loop = create_empty_loop_on_edge
@@ -1092,6 +1176,7 @@ translate_isl_ast_for_loop (loop_p context_loop,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   redirect_edge_succ_nodup (next_e, after);
 =======
   if (next_e->dest != after)
@@ -1104,6 +1189,10 @@ translate_isl_ast_for_loop (loop_p context_loop,
   if (next_e->dest != after)
     redirect_edge_succ_nodup (next_e, after);
 >>>>>>> gcc-mirror/trunk
+=======
+  if (next_e->dest != after)
+    redirect_edge_succ_nodup (next_e, after);
+>>>>>>> gcc-mirror/master
   set_immediate_dominator (CDI_DOMINATORS, next_e->dest, next_e->src);
 
   if (flag_loop_parallelize_all)
@@ -1204,11 +1293,14 @@ graphite_create_new_loop_guard (edge entry_edge,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   isl_ast_expr *upper_bound = get_upper_bound (node_for);
   *ub = gcc_expression_from_isl_expression (*type, upper_bound, ip);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* To fail code generation, we generate wrong code until we discard it.  */
   if (codegen_error)
     *lb = integer_zero_node;
@@ -1218,6 +1310,7 @@ graphite_create_new_loop_guard (edge entry_edge,
   if (codegen_error)
     *ub = integer_zero_node;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   isl_ast_expr *upper_bound = get_upper_bound (node_for);
@@ -1225,6 +1318,8 @@ graphite_create_new_loop_guard (edge entry_edge,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   
   /* When ub is simply a constant or a parameter, use lb <= ub.  */
   if (TREE_CODE (*ub) == INTEGER_CST || TREE_CODE (*ub) == SSA_NAME)
@@ -1269,6 +1364,7 @@ translate_isl_ast_node_for (loop_p context_loop, __isl_keep isl_ast_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     /* There was no guard generated.  */
@@ -1281,6 +1377,8 @@ translate_isl_ast_node_for (loop_p context_loop, __isl_keep isl_ast_node *node,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     {
       /* There was no guard generated.  */
       last_e = single_succ_edge (split_edge (last_e));
@@ -1297,11 +1395,14 @@ translate_isl_ast_node_for (loop_p context_loop, __isl_keep isl_ast_node *node,
   translate_isl_ast_for_loop (context_loop, node, true_e, type, lb, ub, ip);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   return last_e;
 }
 
@@ -1331,19 +1432,25 @@ build_iv_mapping (vec<tree> iv_map, gimple_poly_bb_p gbb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       /* To fail code generation, we generate wrong code until we discard it.  */
       if (codegen_error)
 	t = integer_zero_node;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       loop_p old_loop = gbb_loop_at_index (gbb, region, i - 1);
       iv_map[old_loop->num] = t;
     }
@@ -1387,6 +1494,7 @@ translate_isl_ast_node_user (__isl_keep isl_ast_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   if (dump_file)
@@ -1403,6 +1511,8 @@ translate_isl_ast_node_user (__isl_keep isl_ast_node *node,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   basic_block old_bb = GBB_BB (gbb);
   if (dump_file)
     {
@@ -1415,11 +1525,14 @@ translate_isl_ast_node_user (__isl_keep isl_ast_node *node,
 
   next_e = copy_bb_and_scalar_dependences (old_bb, next_e, iv_map);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   iv_map.release ();
 
@@ -1431,6 +1544,7 @@ translate_isl_ast_node_user (__isl_keep isl_ast_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fprintf (dump_file, "\n[codegen] (after copy) new basic block\n");
 =======
       fprintf (dump_file, "[codegen] (after copy) new basic block\n");
@@ -1441,6 +1555,9 @@ translate_isl_ast_node_user (__isl_keep isl_ast_node *node,
 =======
       fprintf (dump_file, "[codegen] (after copy) new basic block\n");
 >>>>>>> gcc-mirror/trunk
+=======
+      fprintf (dump_file, "[codegen] (after copy) new basic block\n");
+>>>>>>> gcc-mirror/master
       print_loops_bb (dump_file, next_e->src, 0, 3);
     }
 
@@ -1481,19 +1598,25 @@ graphite_create_new_guard (edge entry_edge, __isl_take isl_ast_expr *if_cond,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* To fail code generation, we generate wrong code until we discard it.  */
   if (codegen_error)
     cond_expr = integer_zero_node;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   edge exit_edge = create_empty_if_region_on_edge (entry_edge, cond_expr);
   return exit_edge;
 }
@@ -1512,6 +1635,7 @@ translate_isl_ast_node_if (loop_p context_loop,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   edge true_e = get_true_edge_from_guard_bb (next_e->dest);
 =======
@@ -1528,6 +1652,11 @@ translate_isl_ast_node_if (loop_p context_loop,
   merge_points.safe_push (last_e);
 
 >>>>>>> gcc-mirror/trunk
+=======
+  edge true_e = get_true_edge_from_guard_bb (next_e->dest);
+  merge_points.safe_push (last_e);
+
+>>>>>>> gcc-mirror/master
   isl_ast_node *then_node = isl_ast_node_if_get_then (node);
   translate_isl_ast (context_loop, then_node, true_e, ip);
   isl_ast_node_free (then_node);
@@ -1539,6 +1668,7 @@ translate_isl_ast_node_if (loop_p context_loop,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> gcc-mirror/master
@@ -1547,6 +1677,9 @@ translate_isl_ast_node_if (loop_p context_loop,
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
   isl_ast_node_free (else_node);
   return last_e;
 }
@@ -1594,6 +1727,7 @@ translate_isl_ast_to_gimple::translate_isl_ast (loop_p context_loop,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool
 =======
 static bool
@@ -1604,6 +1738,9 @@ bool
 =======
 static bool
 >>>>>>> gcc-mirror/trunk
+=======
+static bool
+>>>>>>> gcc-mirror/master
 bb_contains_loop_close_phi_nodes (basic_block bb)
 {
   return single_pred_p (bb)
@@ -1616,6 +1753,7 @@ bb_contains_loop_close_phi_nodes (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool
 =======
 static bool
@@ -1626,6 +1764,9 @@ bool
 =======
 static bool
 >>>>>>> gcc-mirror/trunk
+=======
+static bool
+>>>>>>> gcc-mirror/master
 bb_contains_loop_phi_nodes (basic_block bb)
 {
   gcc_assert (EDGE_COUNT (bb->preds) <= 2);
@@ -1722,6 +1863,7 @@ is_valid_rename (tree rename, basic_block def_bb, basic_block use_bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] rename not in loop closed ssa:");
 	  print_generic_expr (dump_file, rename, 0);
 =======
@@ -1738,6 +1880,11 @@ is_valid_rename (tree rename, basic_block def_bb, basic_block use_bb,
 	  print_generic_expr (dump_file, rename, 0);
 	  fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] rename not in loop closed ssa:");
+	  print_generic_expr (dump_file, rename, 0);
+	  fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 	}
       return false;
     }
@@ -1785,12 +1932,15 @@ translate_isl_ast_to_gimple::get_rename (basic_block new_bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       basic_block bb = gimple_bb (SSA_NAME_DEF_STMT (rename));
       if (is_valid_rename (rename, bb, new_bb, loop_phi, old_name, old_bb))
 	return rename;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (TREE_CODE (rename) == SSA_NAME)
 	{
 	  basic_block bb = gimple_bb (SSA_NAME_DEF_STMT (rename));
@@ -1803,6 +1953,7 @@ translate_isl_ast_to_gimple::get_rename (basic_block new_bb,
 	return rename;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       basic_block bb = gimple_bb (SSA_NAME_DEF_STMT (rename));
@@ -1811,6 +1962,8 @@ translate_isl_ast_to_gimple::get_rename (basic_block new_bb,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       return NULL_TREE;
     }
 
@@ -1853,6 +2006,7 @@ translate_isl_ast_to_gimple::set_rename (tree old_name, tree expr)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       fprintf (dump_file, "\n[codegen] setting rename: old_name = ");
@@ -1863,17 +2017,22 @@ translate_isl_ast_to_gimple::set_rename (tree old_name, tree expr)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       fprintf (dump_file, "[codegen] setting rename: old_name = ");
       print_generic_expr (dump_file, old_name, 0);
       fprintf (dump_file, ", new_name = ");
       print_generic_expr (dump_file, expr, 0);
       fprintf (dump_file, "\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   if (old_name == expr)
@@ -1992,6 +2151,7 @@ translate_isl_ast_to_gimple::gsi_insert_earliest (gimple_seq seq)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] inserting statement: ");
 =======
 	  fprintf (dump_file, "[codegen] inserting statement: ");
@@ -2002,6 +2162,9 @@ translate_isl_ast_to_gimple::gsi_insert_earliest (gimple_seq seq)
 =======
 	  fprintf (dump_file, "[codegen] inserting statement: ");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] inserting statement: ");
+>>>>>>> gcc-mirror/master
 	  print_gimple_stmt (dump_file, use_stmt, 0, TDF_VOPS | TDF_MEMSYMS);
 	  print_loops_bb (dump_file, gimple_bb (use_stmt), 0, 3);
 	}
@@ -2034,6 +2197,7 @@ translate_isl_ast_to_gimple::collect_all_ssa_names (tree new_expr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* This is abridged version of the function:
    tree.c:substitute_in_expr (tree exp, tree f, tree r). */
 =======
@@ -2048,6 +2212,10 @@ translate_isl_ast_to_gimple::collect_all_ssa_names (tree new_expr,
 /* This is abridged version of the function copied from:
    tree.c:substitute_in_expr (tree exp, tree f, tree r).  */
 >>>>>>> gcc-mirror/trunk
+=======
+/* This is abridged version of the function copied from:
+   tree.c:substitute_in_expr (tree exp, tree f, tree r).  */
+>>>>>>> gcc-mirror/master
 
 static tree
 substitute_ssa_name (tree exp, tree f, tree r)
@@ -2255,6 +2423,7 @@ get_rename_from_scev (tree old_name, gimple_seq *stmts, loop_p loop,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* We should check all the operands and all of them should dominate the use at
@@ -2270,6 +2439,8 @@ get_rename_from_scev (tree old_name, gimple_seq *stmts, loop_p loop,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* We check all the operands and all of them should dominate the use at
      new_expr.  */
@@ -2288,11 +2459,14 @@ get_rename_from_scev (tree old_name, gimple_seq *stmts, loop_p loop,
 	      return build_zero_cst (TREE_TYPE (old_name));
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
     }
 
@@ -2333,6 +2507,7 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fprintf (dump_file, "\n[codegen] renaming uses of stmt: ");
 =======
       fprintf (dump_file, "[codegen] renaming uses of stmt: ");
@@ -2343,6 +2518,9 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 =======
       fprintf (dump_file, "[codegen] renaming uses of stmt: ");
 >>>>>>> gcc-mirror/trunk
+=======
+      fprintf (dump_file, "[codegen] renaming uses of stmt: ");
+>>>>>>> gcc-mirror/master
       print_gimple_stmt (dump_file, copy, 0, 0);
     }
 
@@ -2357,6 +2535,7 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] renaming old_name = ");
 	  print_generic_expr (dump_file, old_name, 0);
 =======
@@ -2373,6 +2552,11 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 	  print_generic_expr (dump_file, old_name, 0);
 	  fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] renaming old_name = ");
+	  print_generic_expr (dump_file, old_name, 0);
+	  fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 	}
 
       if (TREE_CODE (old_name) != SSA_NAME
@@ -2393,6 +2577,7 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      fprintf (dump_file, "\n[codegen] from rename_map: new_name = ");
 	      print_generic_expr (dump_file, new_expr, 0);
 =======
@@ -2409,6 +2594,11 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 	      print_generic_expr (dump_file, new_expr, 0);
 	      fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	      fprintf (dump_file, "[codegen] from rename_map: new_name = ");
+	      print_generic_expr (dump_file, new_expr, 0);
+	      fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 	    }
 
 	  if (type_old_name != type_new_expr
@@ -2439,6 +2629,7 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] not in rename map, scev: ");
 	  print_generic_expr (dump_file, new_expr, 0);
 =======
@@ -2455,6 +2646,11 @@ translate_isl_ast_to_gimple::rename_uses (gimple *copy,
 	  print_generic_expr (dump_file, new_expr, 0);
 	  fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] not in rename map, scev: ");
+	  print_generic_expr (dump_file, new_expr, 0);
+	  fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 	}
 
       gsi_insert_earliest (stmts);
@@ -2524,6 +2720,7 @@ get_new_name (basic_block new_bb, tree op,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   if (TREE_CODE (op) == INTEGER_CST
@@ -2539,6 +2736,9 @@ get_new_name (basic_block new_bb, tree op,
 =======
   if (is_constant (op))
 >>>>>>> gcc-mirror/trunk
+=======
+  if (is_constant (op))
+>>>>>>> gcc-mirror/master
     return op;
 
   return get_rename (new_bb, op, old_bb, loop_phi);
@@ -2617,6 +2817,7 @@ copy_loop_phi_args (gphi *old_phi, init_back_edge_pair_t &ibp_old_bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    fprintf (dump_file, "\n[codegen] postpone loop phi nodes: ");
 =======
 	    fprintf (dump_file, "[codegen] postpone loop phi nodes.\n");
@@ -2627,6 +2828,9 @@ copy_loop_phi_args (gphi *old_phi, init_back_edge_pair_t &ibp_old_bb,
 =======
 	    fprintf (dump_file, "[codegen] postpone loop phi nodes.\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	    fprintf (dump_file, "[codegen] postpone loop phi nodes.\n");
+>>>>>>> gcc-mirror/master
 	}
       else
 	/* Either we should add the arg to phi or, we should postpone.  */
@@ -2645,6 +2849,7 @@ translate_isl_ast_to_gimple::copy_loop_phi_nodes (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fprintf (dump_file, "\n[codegen] copying loop phi nodes in bb_%d.",
 =======
     fprintf (dump_file, "[codegen] copying loop phi nodes in bb_%d.\n",
@@ -2655,6 +2860,9 @@ translate_isl_ast_to_gimple::copy_loop_phi_nodes (basic_block bb,
 =======
     fprintf (dump_file, "[codegen] copying loop phi nodes in bb_%d.\n",
 >>>>>>> gcc-mirror/trunk
+=======
+    fprintf (dump_file, "[codegen] copying loop phi nodes in bb_%d.\n",
+>>>>>>> gcc-mirror/master
 	     new_bb->index);
 
   /* Loop phi nodes should have only two arguments.  */
@@ -2686,9 +2894,12 @@ translate_isl_ast_to_gimple::copy_loop_phi_nodes (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       if (dump_file)
 	{
@@ -2696,11 +2907,14 @@ translate_isl_ast_to_gimple::copy_loop_phi_nodes (basic_block bb,
 	  print_gimple_stmt (dump_file, new_phi, 0, 0);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   return true;
@@ -2764,9 +2978,12 @@ find_init_value_close_phi (gphi *phi)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 tree translate_isl_ast_to_gimple::
 add_close_phis_to_outer_loops (tree last_merge_name, edge last_e,
@@ -2876,11 +3093,14 @@ add_close_phis_to_merge_points (gphi *old_close_phi, gphi *new_close_phi,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Copy all the loop-close phi args from BB to NEW_BB.  */
 
 bool
@@ -2888,6 +3108,7 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 						       basic_block new_bb,
 						       bool postpone)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2906,17 +3127,22 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   for (gphi_iterator psi = gsi_start_phis (old_bb); !gsi_end_p (psi);
        gsi_next (&psi))
     {
       gphi *old_close_phi = psi.phi ();
       tree res = gimple_phi_result (old_close_phi);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (virtual_operand_p (res))
 	continue;
 
@@ -2924,6 +3150,7 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 	/* Loop close phi nodes should not be scev_analyzable_p.  */
 	gcc_unreachable ();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2939,6 +3166,8 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       gphi *new_close_phi = create_phi_node (SSA_NAME_VAR (res), new_bb);
       tree new_res = create_new_def_for (res, new_close_phi,
 					 gimple_phi_result_ptr (new_close_phi));
@@ -2946,11 +3175,14 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 
       tree old_name = gimple_phi_arg_def (old_close_phi, 0);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       tree new_name = get_new_name (new_bb, old_name, old_bb, false);
 
       /* Predecessor basic blocks of a loop close phi should have been code
@@ -2959,6 +3191,7 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
       if (!new_name)
 	return false;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2989,6 +3222,8 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       add_phi_arg (new_close_phi, new_name, single_pred_edge (new_bb),
 		   get_loc (old_name));
       if (dump_file)
@@ -3010,15 +3245,19 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
       /* A close phi must come from a loop-phi having a default value.  */
       if (!default_value)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	{
 	  if (!postpone)
 	    return false;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3033,6 +3272,8 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  region->incomplete_phis.safe_push (std::make_pair (old_close_phi,
 							     new_close_phi));
 	  if (dump_file)
@@ -3040,15 +3281,19 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 	      fprintf (dump_file, "[codegen] postpone close phi nodes: ");
 	      print_gimple_stmt (dump_file, new_close_phi, 0, 0);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    }
 	  continue;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3087,6 +3332,11 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_args (basic_block old_bb,
 					   default_value))
 	return false;
 >>>>>>> gcc-mirror/trunk
+=======
+      if (!add_close_phis_to_merge_points (old_close_phi, new_close_phi,
+					   default_value))
+	return false;
+>>>>>>> gcc-mirror/master
     }
 
   return true;
@@ -3102,6 +3352,7 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_nodes (basic_block old_bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fprintf (dump_file, "\n[codegen] copying loop closed phi nodes in bb_%d.",
 =======
     fprintf (dump_file, "[codegen] copying loop close phi nodes in bb_%d.\n",
@@ -3112,6 +3363,9 @@ translate_isl_ast_to_gimple::copy_loop_close_phi_nodes (basic_block old_bb,
 =======
     fprintf (dump_file, "[codegen] copying loop close phi nodes in bb_%d.\n",
 >>>>>>> gcc-mirror/trunk
+=======
+    fprintf (dump_file, "[codegen] copying loop close phi nodes in bb_%d.\n",
+>>>>>>> gcc-mirror/master
 	     new_bb->index);
   /* Loop close phi nodes should have only one argument.  */
   gcc_assert (1 == EDGE_COUNT (old_bb->preds));
@@ -3305,6 +3559,7 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fprintf (dump_file, "\n[codegen] copying cond phi args: ");
 =======
     fprintf (dump_file, "[codegen] copying cond phi args.\n");
@@ -3315,6 +3570,9 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 =======
     fprintf (dump_file, "[codegen] copying cond phi args.\n");
 >>>>>>> gcc-mirror/trunk
+=======
+    fprintf (dump_file, "[codegen] copying cond phi args.\n");
+>>>>>>> gcc-mirror/master
   gcc_assert (2 == gimple_phi_num_args (phi));
 
   basic_block new_bb = gimple_bb (new_phi);
@@ -3358,6 +3616,7 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       "\n[codegen] parameter argument to phi, new_expr: ");
 	      print_generic_expr (dump_file, new_phi_args[i], 0);
 =======
@@ -3374,6 +3633,11 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 	      print_generic_expr (dump_file, new_phi_args[i], 0);
 	      fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+		       "[codegen] parameter argument to phi, new_expr: ");
+	      print_generic_expr (dump_file, new_phi_args[i], 0);
+	      fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 	    }
 	  continue;
 	}
@@ -3403,6 +3667,7 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   "\n[codegen] scev analyzeable, new_expr: ");
 		  print_generic_expr (dump_file, new_expr, 0);
 =======
@@ -3419,6 +3684,11 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 		  print_generic_expr (dump_file, new_expr, 0);
 		  fprintf (dump_file, "\n");
 >>>>>>> gcc-mirror/trunk
+=======
+			   "[codegen] scev analyzeable, new_expr: ");
+		  print_generic_expr (dump_file, new_expr, 0);
+		  fprintf (dump_file, "\n");
+>>>>>>> gcc-mirror/master
 		}
 	      gsi_insert_earliest (stmts);
 	      new_phi_args [i] = new_name;
@@ -3433,6 +3703,7 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      fprintf (dump_file, "\n[codegen] postpone cond phi nodes: ");
 =======
 	      fprintf (dump_file, "[codegen] postpone cond phi nodes: ");
@@ -3443,6 +3714,9 @@ translate_isl_ast_to_gimple::copy_cond_phi_args (gphi *phi, gphi *new_phi,
 =======
 	      fprintf (dump_file, "[codegen] postpone cond phi nodes: ");
 >>>>>>> gcc-mirror/trunk
+=======
+	      fprintf (dump_file, "[codegen] postpone cond phi nodes: ");
+>>>>>>> gcc-mirror/master
 	      print_gimple_stmt (dump_file, new_phi, 0, 0);
 	    }
 
@@ -3481,6 +3755,7 @@ translate_isl_ast_to_gimple::copy_cond_phi_nodes (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fprintf (dump_file, "\n[codegen] copying cond phi nodes in bb_%d:",
 =======
     fprintf (dump_file, "[codegen] copying cond phi nodes in bb_%d.\n",
@@ -3491,6 +3766,9 @@ translate_isl_ast_to_gimple::copy_cond_phi_nodes (basic_block bb,
 =======
     fprintf (dump_file, "[codegen] copying cond phi nodes in bb_%d.\n",
 >>>>>>> gcc-mirror/trunk
+=======
+    fprintf (dump_file, "[codegen] copying cond phi nodes in bb_%d.\n",
+>>>>>>> gcc-mirror/master
 	     new_bb->index);
 
   /* Cond phi nodes should have exactly two arguments.  */
@@ -3590,6 +3868,7 @@ translate_isl_ast_to_gimple::graphite_copy_stmts_from_block (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] inserting statement: ");
 =======
 	  fprintf (dump_file, "[codegen] inserting statement: ");
@@ -3600,6 +3879,9 @@ translate_isl_ast_to_gimple::graphite_copy_stmts_from_block (basic_block bb,
 =======
 	  fprintf (dump_file, "[codegen] inserting statement: ");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] inserting statement: ");
+>>>>>>> gcc-mirror/master
 	  print_gimple_stmt (dump_file, copy, 0, 0);
 	}
 
@@ -3692,6 +3974,7 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   basic_block new_bb = split_edge (next_e);
@@ -3726,17 +4009,22 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   basic_block new_bb = NULL;
   if (bb_contains_loop_close_phi_nodes (bb))
     {
       if (dump_file)
 	fprintf (dump_file, "[codegen] bb_%d contains close phi nodes.\n",
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		 bb->index);
 
       edge e = edge_for_new_close_phis (bb);
@@ -3749,15 +4037,19 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       basic_block phi_bb = split_edge (e);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       basic_block phi_bb = e->dest;
 
       if (!bb_contains_loop_close_phi_nodes (phi_bb) || !single_succ_p (phi_bb))
 	phi_bb = split_edge (e);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -3765,6 +4057,8 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       gcc_assert (single_pred_edge (phi_bb)->src->loop_father
 		  != single_pred_edge (phi_bb)->dest->loop_father);
 
@@ -3773,6 +4067,7 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 	  codegen_error = true;
 	  return NULL;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3802,6 +4097,8 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       if (e == next_e)
 	new_bb = phi_bb;
@@ -3876,11 +4173,14 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 	      return NULL;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
     }
 
@@ -3888,6 +4188,7 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fprintf (dump_file, "\n[codegen] copying from bb_%d to bb_%d",
 =======
     fprintf (dump_file, "[codegen] copying from bb_%d to bb_%d.\n",
@@ -3898,6 +4199,9 @@ translate_isl_ast_to_gimple::copy_bb_and_scalar_dependences (basic_block bb,
 =======
     fprintf (dump_file, "[codegen] copying from bb_%d to bb_%d.\n",
 >>>>>>> gcc-mirror/trunk
+=======
+    fprintf (dump_file, "[codegen] copying from bb_%d to bb_%d.\n",
+>>>>>>> gcc-mirror/master
 	     bb->index, new_bb->index);
 
   vec <basic_block> *copied_bbs = region->copied_bb_map->get (bb);
@@ -3943,6 +4247,7 @@ translate_isl_ast_to_gimple::translate_pending_phi_nodes ()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  fprintf (dump_file, "\n[codegen] translating pending old-phi: ");
 =======
 	  fprintf (dump_file, "[codegen] translating pending old-phi: ");
@@ -3953,6 +4258,9 @@ translate_isl_ast_to_gimple::translate_pending_phi_nodes ()
 =======
 	  fprintf (dump_file, "[codegen] translating pending old-phi: ");
 >>>>>>> gcc-mirror/trunk
+=======
+	  fprintf (dump_file, "[codegen] translating pending old-phi: ");
+>>>>>>> gcc-mirror/master
 	  print_gimple_stmt (dump_file, old_phi, 0, 0);
 	}
 
@@ -4183,6 +4491,7 @@ graphite_regenerate_ast_isl (scop_p scop)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fprintf (dump_file, "\nISL AST generated by ISL: \n");
 =======
       fprintf (dump_file, "ISL AST generated by ISL: \n");
@@ -4193,6 +4502,9 @@ graphite_regenerate_ast_isl (scop_p scop)
 =======
       fprintf (dump_file, "ISL AST generated by ISL: \n");
 >>>>>>> gcc-mirror/trunk
+=======
+      fprintf (dump_file, "ISL AST generated by ISL: \n");
+>>>>>>> gcc-mirror/master
       t.print_isl_ast_node (dump_file, root_node, scop->isl_context);
     }
 
@@ -4218,6 +4530,7 @@ graphite_regenerate_ast_isl (scop_p scop)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fprintf (dump_file, "\n[codegen] unsuccessful,"
 		 " reverting back to the original code.");
 =======
@@ -4232,6 +4545,10 @@ graphite_regenerate_ast_isl (scop_p scop)
 	fprintf (dump_file, "[codegen] unsuccessful,"
 		 " reverting back to the original code.\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	fprintf (dump_file, "[codegen] unsuccessful,"
+		 " reverting back to the original code.\n");
+>>>>>>> gcc-mirror/master
       set_ifsese_condition (if_region, integer_zero_node);
     }
   else
@@ -4258,6 +4575,7 @@ graphite_regenerate_ast_isl (scop_p scop)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    fprintf (dump_file, "\n[codegen] unsuccessful in translating"
 		     " pending phis, reverting back to the original code.");
 =======
@@ -4272,6 +4590,10 @@ graphite_regenerate_ast_isl (scop_p scop)
 	    fprintf (dump_file, "[codegen] unsuccessful in translating"
 		     " pending phis, reverting back to the original code.\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	    fprintf (dump_file, "[codegen] unsuccessful in translating"
+		     " pending phis, reverting back to the original code.\n");
+>>>>>>> gcc-mirror/master
 	  set_ifsese_condition (if_region, integer_zero_node);
 	}
     }
@@ -4296,6 +4618,7 @@ graphite_regenerate_ast_isl (scop_p scop)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fprintf (dump_file, "\n%d loops carried no dependency.\n",
 =======
       fprintf (dump_file, "%d loops carried no dependency.\n",
@@ -4306,6 +4629,9 @@ graphite_regenerate_ast_isl (scop_p scop)
 =======
       fprintf (dump_file, "%d loops carried no dependency.\n",
 >>>>>>> gcc-mirror/trunk
+=======
+      fprintf (dump_file, "%d loops carried no dependency.\n",
+>>>>>>> gcc-mirror/master
 	       num_no_dependency);
     }
 

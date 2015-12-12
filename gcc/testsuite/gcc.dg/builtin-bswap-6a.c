@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-additional-options "-march=z900" { target s390-*-* } } */
 =======
 /* { dg-additional-options "-march=z900" { target s390*-*-* } } */
@@ -14,6 +15,9 @@
 =======
 /* { dg-additional-options "-march=z900" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-additional-options "-march=z900" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/master
 
 /* The test is similiar to builtin-bswap-6.c but returns 1/2 instead
    of 0/1 to prevent GCC from calculating the return value with

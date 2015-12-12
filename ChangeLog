@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-02  Ian Lance Taylor  <iant@google.com>
 
 	PR go/66147
@@ -23,11 +26,14 @@
 	symbols.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-20  Tristan Gingold  <gingold@adacore.com>
 
 	Sync with binutils-gdb:
@@ -392,6 +398,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 1
@@ -402,6 +409,9 @@
 =======
 1
 >>>>>>> gcc-mirror/trunk
+=======
+1
+>>>>>>> gcc-mirror/master
 	* MAINTAINERS (Global Reviewers, Plugin, LTO, tree-ssa,
 	middle-end, docstring): Remove myself.
 	(Write After Approval): Add myself.

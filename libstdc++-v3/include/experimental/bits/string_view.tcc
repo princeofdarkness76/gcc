@@ -27,6 +27,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  *  Do not attempt to use it directly. @headername{string_view}
 =======
  *  Do not attempt to use it directly. @headername{experimental/string_view}
@@ -37,6 +38,9 @@
 =======
  *  Do not attempt to use it directly. @headername{experimental/string_view}
 >>>>>>> gcc-mirror/trunk
+=======
+ *  Do not attempt to use it directly. @headername{experimental/string_view}
+>>>>>>> gcc-mirror/master
  */
 
 //

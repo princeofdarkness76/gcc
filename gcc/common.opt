@@ -228,20 +228,26 @@ unsigned int flag_sanitize_recover = SANITIZE_UNDEFINED | SANITIZE_NONDEFAULT | 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 fsanitize-coverage=trace-pc
 Common Report Var(flag_sanitize_coverage)
 Enable coverage-guided fuzzing code instrumentation.
 Inserts call to __sanitizer_cov_trace_pc into every basic block.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ; Flag whether a prefix has been added to dump_base_name
 Variable
 bool dump_base_name_prefixed = false
@@ -595,6 +601,7 @@ Exit on the first error occurred.
 Wframe-larger-than=
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Common RejectNegative Joined UInteger
 <<<<<<< HEAD
 =======
@@ -605,6 +612,9 @@ Common RejectNegative Joined UInteger Warning
 =======
 Common RejectNegative Joined UInteger Warning
 >>>>>>> gcc-mirror/trunk
+=======
+Common RejectNegative Joined UInteger Warning
+>>>>>>> gcc-mirror/master
 -Wframe-larger-than=<number>	Warn if a function's stack frame requires more than <number> bytes.
 
 Wfree-nonheap-object
@@ -941,6 +951,7 @@ fsanitize=
 Common Driver Report Joined
 Select what to sanitize.
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 fasan-shadow-offset=
 Common Joined RejectNegative Var(common_deferred_options) Defer
@@ -978,6 +989,8 @@ This switch is deprecated; use -fsanitize-recover= instead.
 =======
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 fasan-shadow-offset=
 Common Joined RejectNegative Var(common_deferred_options) Defer
@@ -996,7 +1009,10 @@ fsanitize-recover
 Common Report
 This switch is deprecated; use -fsanitize-recover= instead.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 fsanitize-undefined-trap-on-error
 Common Driver Report Var(flag_sanitize_undefined_trap_on_error) Init(0)
 Use trap instead of a library function for undefined behavior sanitization.
@@ -1448,6 +1464,7 @@ Does nothing. Preserved for backward compatibility.
 floop-nest-optimize
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Common Report Var(flag_loop_optimize_isl) Optimization
 <<<<<<< HEAD
 =======
@@ -1458,6 +1475,9 @@ Common Report Var(flag_loop_nest_optimize) Optimization
 =======
 Common Report Var(flag_loop_nest_optimize) Optimization
 >>>>>>> gcc-mirror/trunk
+=======
+Common Report Var(flag_loop_nest_optimize) Optimization
+>>>>>>> gcc-mirror/master
 Enable the ISL based loop nest optimizer.
 
 fstrict-volatile-bitfields
@@ -1703,6 +1723,7 @@ Link-time optimization with number of parallel jobs or jobserver.
 Enum
 Name(lto_partition_model) Type(enum lto_partition_model) UnknownError(unknown LTO partitioning model %qs)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 EnumValue
 Enum(lto_partition_model) String(none) Value(LTO_PARTITION_NONE)
@@ -1756,6 +1777,24 @@ EnumValue
 Enum(lto_partition_model) String(max) Value(LTO_PARTITION_MAX)
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+EnumValue
+Enum(lto_partition_model) String(none) Value(LTO_PARTITION_NONE)
+
+EnumValue
+Enum(lto_partition_model) String(one) Value(LTO_PARTITION_ONE)
+
+EnumValue
+Enum(lto_partition_model) String(balanced) Value(LTO_PARTITION_BALANCED)
+
+EnumValue
+Enum(lto_partition_model) String(1to1) Value(LTO_PARTITION_1TO1)
+
+EnumValue
+Enum(lto_partition_model) String(max) Value(LTO_PARTITION_MAX)
+
+>>>>>>> gcc-mirror/master
 flto-partition=
 Common Joined RejectNegative Enum(lto_partition_model) Var(flag_lto_partition) Init(LTO_PARTITION_BALANCED)
 Specify the algorithm to partition symbols and vars at linktime.

@@ -7,6 +7,7 @@ __mulhi3 (int x, int y)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   volatile int rv = 0;
@@ -21,6 +22,8 @@ __mulhi3 (int x, int y)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   char bit;
   int neg = 0;
   int rv = 0;
@@ -41,9 +44,12 @@ __mulhi3 (int x, int y)
 
   return neg ? - rv : rv;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }

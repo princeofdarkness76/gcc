@@ -1233,6 +1233,7 @@ noce_try_inverse_constants (struct noce_if_info *if_info)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	seq = end_ifcvt_sequence (if_info);
@@ -1247,6 +1248,8 @@ noce_try_inverse_constants (struct noce_if_info *if_info)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       seq = end_ifcvt_sequence (if_info);
 
       if (!seq)
@@ -1256,11 +1259,14 @@ noce_try_inverse_constants (struct noce_if_info *if_info)
 			       INSN_LOCATION (if_info->insn_a));
       return true;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   end_sequence ();
@@ -1285,6 +1291,7 @@ noce_try_store_flag_constants (struct noce_if_info *if_info)
   rtx common = NULL_RTX;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   rtx a = if_info->a;
   rtx b = if_info->b;
@@ -1355,6 +1362,12 @@ noce_try_store_flag_constants (struct noce_if_info *if_info)
   rtx a = if_info->a;
   rtx b = if_info->b;
 
+=======
+
+  rtx a = if_info->a;
+  rtx b = if_info->b;
+
+>>>>>>> gcc-mirror/master
   /* Handle cases like x := test ? y + 3 : y + 4.  */
   if (GET_CODE (a) == PLUS
       && GET_CODE (b) == PLUS
@@ -1368,6 +1381,7 @@ noce_try_store_flag_constants (struct noce_if_info *if_info)
       a = XEXP (a, 1);
       b = XEXP (b, 1);
     }
+<<<<<<< HEAD
 
   if (!noce_simple_bbs (if_info))
     return FALSE;
@@ -1380,6 +1394,19 @@ noce_try_store_flag_constants (struct noce_if_info *if_info)
       bool subtract_flag_p = false;
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+  if (CONST_INT_P (a)
+      && CONST_INT_P (b))
+    {
+      ifalse = INTVAL (a);
+      itrue = INTVAL (b);
+      bool subtract_flag_p = false;
+
+>>>>>>> gcc-mirror/master
       diff = (unsigned HOST_WIDE_INT) itrue - ifalse;
       /* Make sure we can represent the difference between the two values.  */
       if ((diff > 0)
@@ -1922,6 +1949,8 @@ noce_try_cmove (struct noce_if_info *if_info)
 /* Return true if X contains a conditional code mode rtx.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
 =======
 =======
 
@@ -2084,7 +2113,7 @@ noce_emit_bb (rtx last_insn, basic_block bb, bool simple)
 }
 
 /* Try more complex cases involving conditional_move.  */
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
 static bool
 contains_ccmode_rtx_p (rtx x)
@@ -2097,6 +2126,39 @@ contains_ccmode_rtx_p (rtx x)
 
   return false;
 }
+=======
+  rtx a = if_info->a;
+  rtx b = if_info->b;
+  rtx x = if_info->x;
+  rtx orig_a, orig_b;
+  rtx_insn *insn_a, *insn_b;
+  bool a_simple = if_info->then_simple;
+  bool b_simple = if_info->else_simple;
+  basic_block then_bb = if_info->then_bb;
+  basic_block else_bb = if_info->else_bb;
+  rtx target;
+  int is_mem = 0;
+  enum rtx_code code;
+  rtx_insn *ifcvt_seq;
+
+  /* A conditional move from two memory sources is equivalent to a
+     conditional on their addresses followed by a load.  Don't do this
+     early because it'll screw alias analysis.  Note that we've
+     already checked for no side effects.  */
+  /* ??? FIXME: Magic number 5.  */
+  if (cse_not_expected
+      && MEM_P (a) && MEM_P (b)
+      && MEM_ADDR_SPACE (a) == MEM_ADDR_SPACE (b)
+      && if_info->branch_cost >= 5)
+    {
+      machine_mode address_mode = get_address_mode (a);
+
+      a = XEXP (a, 0);
+      b = XEXP (b, 0);
+      x = gen_reg_rtx (address_mode);
+      is_mem = 1;
+    }
+>>>>>>> gcc-mirror/master
 
 /* Helper for bb_valid_for_noce_process_p.  Validate that
    the rtx insn INSN is a single set that does not set
@@ -2113,6 +2175,7 @@ insn_valid_noce_process_p (rtx_insn *insn, rtx cc)
 
   rtx sset = single_set (insn);
 
+<<<<<<< HEAD
   /* Currently support only simple single sets in test_bb.  */
   if (!sset
       || !noce_operand_ok (SET_DEST (sset))
@@ -2122,8 +2185,32 @@ insn_valid_noce_process_p (rtx_insn *insn, rtx cc)
 
   return true;
 }
+=======
+  machine_mode x_mode = GET_MODE (x);
+
+  if (!can_conditionally_move_p (x_mode))
+    return FALSE;
+
+  unsigned int then_cost;
+  unsigned int else_cost;
+  if (insn_a)
+    then_cost = if_info->then_cost;
+  else
+    then_cost = 0;
+
+  if (insn_b)
+    else_cost = if_info->else_cost;
+  else
+    else_cost = 0;
+
+  /* We're going to execute one of the basic blocks anyway, so
+     bail out if the most expensive of the two blocks is unacceptable.  */
+  if (MAX (then_cost, else_cost) > COSTS_N_INSNS (if_info->branch_cost))
+    return FALSE;
+>>>>>>> gcc-mirror/master
 
 
+<<<<<<< HEAD
 /* Return true iff the registers that the insns in BB_A set do not
    get used in BB_B.  */
 
@@ -2175,6 +2262,384 @@ bbs_ok_for_cmove_arith (basic_block bb_a, basic_block bb_b)
 	{
 	  BITMAP_FREE (bba_sets);
 	  return false;
+=======
+      if (reversep)
+	{
+	  code = reversed_comparison_code (if_info->cond, if_info->jump);
+	  std::swap (a, b);
+	  std::swap (insn_a, insn_b);
+	  std::swap (a_simple, b_simple);
+	  std::swap (then_bb, else_bb);
+	}
+    }
+
+  if (then_bb && else_bb && !a_simple && !b_simple
+      && (!bbs_ok_for_cmove_arith (then_bb, else_bb)
+	  || !bbs_ok_for_cmove_arith (else_bb, then_bb)))
+    return FALSE;
+
+  start_sequence ();
+
+  /* If one of the blocks is empty then the corresponding B or A value
+     came from the test block.  The non-empty complex block that we will
+     emit might clobber the register used by B or A, so move it to a pseudo
+     first.  */
+
+  rtx tmp_a = NULL_RTX;
+  rtx tmp_b = NULL_RTX;
+
+  if (b_simple || !else_bb)
+    tmp_b = gen_reg_rtx (x_mode);
+
+  if (a_simple || !then_bb)
+    tmp_a = gen_reg_rtx (x_mode);
+
+  orig_a = a;
+  orig_b = b;
+
+  rtx emit_a = NULL_RTX;
+  rtx emit_b = NULL_RTX;
+  rtx_insn *tmp_insn = NULL;
+  bool modified_in_a = false;
+  bool  modified_in_b = false;
+  /* If either operand is complex, load it into a register first.
+     The best way to do this is to copy the original insn.  In this
+     way we preserve any clobbers etc that the insn may have had.
+     This is of course not possible in the IS_MEM case.  */
+
+  if (! general_operand (a, GET_MODE (a)) || tmp_a)
+    {
+
+      if (is_mem)
+	{
+	  rtx reg = gen_reg_rtx (GET_MODE (a));
+	  emit_a = gen_rtx_SET (reg, a);
+	}
+      else
+	{
+	  if (insn_a)
+	    {
+	      a = tmp_a ? tmp_a : gen_reg_rtx (GET_MODE (a));
+
+	      rtx_insn *copy_of_a = as_a <rtx_insn *> (copy_rtx (insn_a));
+	      rtx set = single_set (copy_of_a);
+	      SET_DEST (set) = a;
+
+	      emit_a = PATTERN (copy_of_a);
+	    }
+	  else
+	    {
+	      rtx tmp_reg = tmp_a ? tmp_a : gen_reg_rtx (GET_MODE (a));
+	      emit_a = gen_rtx_SET (tmp_reg, a);
+	      a = tmp_reg;
+	    }
+	}
+    }
+
+  if (! general_operand (b, GET_MODE (b)) || tmp_b)
+    {
+      if (is_mem)
+	{
+          rtx reg = gen_reg_rtx (GET_MODE (b));
+	  emit_b = gen_rtx_SET (reg, b);
+	}
+      else
+	{
+	  if (insn_b)
+	    {
+	      b = tmp_b ? tmp_b : gen_reg_rtx (GET_MODE (b));
+	      rtx_insn *copy_of_b = as_a <rtx_insn *> (copy_rtx (insn_b));
+	      rtx set = single_set (copy_of_b);
+
+	      SET_DEST (set) = b;
+	      emit_b = PATTERN (copy_of_b);
+	    }
+	  else
+	    {
+	      rtx tmp_reg = tmp_b ? tmp_b : gen_reg_rtx (GET_MODE (b));
+	      emit_b = gen_rtx_SET (tmp_reg, b);
+	      b = tmp_reg;
+	  }
+>>>>>>> gcc-mirror/master
+	}
+    }
+
+  modified_in_a = emit_a != NULL_RTX && modified_in_p (orig_b, emit_a);
+  if (tmp_b && then_bb)
+    {
+      FOR_BB_INSNS (then_bb, tmp_insn)
+	/* Don't check inside insn_a.  We will have changed it to emit_a
+	   with a destination that doesn't conflict.  */
+	if (!(insn_a && tmp_insn == insn_a)
+	    && modified_in_p (orig_b, tmp_insn))
+	  {
+	    modified_in_a = true;
+	    break;
+	  }
+
+    }
+
+<<<<<<< HEAD
+      /* If the insn uses a reg set in BB_A return false.  */
+      FOR_EACH_INSN_USE (use, b_insn)
+	{
+	  if (bitmap_bit_p (bba_sets, DF_REF_REGNO (use)))
+	    {
+	      BITMAP_FREE (bba_sets);
+	      return false;
+	    }
+	}
+
+=======
+  modified_in_b = emit_b != NULL_RTX && modified_in_p (orig_a, emit_b);
+  if (tmp_a && else_bb)
+    {
+      FOR_BB_INSNS (else_bb, tmp_insn)
+      /* Don't check inside insn_b.  We will have changed it to emit_b
+	 with a destination that doesn't conflict.  */
+      if (!(insn_b && tmp_insn == insn_b)
+	  && modified_in_p (orig_a, tmp_insn))
+	{
+	  modified_in_b = true;
+	  break;
+	}
+    }
+
+  /* If insn to set up A clobbers any registers B depends on, try to
+     swap insn that sets up A with the one that sets up B.  If even
+     that doesn't help, punt.  */
+  if (modified_in_a && !modified_in_b)
+    {
+      if (!noce_emit_bb (emit_b, else_bb, b_simple))
+	goto end_seq_and_fail;
+
+      if (!noce_emit_bb (emit_a, then_bb, a_simple))
+	goto end_seq_and_fail;
+    }
+  else if (!modified_in_a)
+    {
+      if (!noce_emit_bb (emit_a, then_bb, a_simple))
+	goto end_seq_and_fail;
+
+      if (!noce_emit_bb (emit_b, else_bb, b_simple))
+	goto end_seq_and_fail;
+>>>>>>> gcc-mirror/master
+    }
+  else
+    goto end_seq_and_fail;
+
+  BITMAP_FREE (bba_sets);
+  return true;
+}
+
+/* Emit copies of all the active instructions in BB except the last.
+   This is a helper for noce_try_cmove_arith.  */
+
+static void
+noce_emit_all_but_last (basic_block bb)
+{
+  rtx_insn *last = last_active_insn (bb, FALSE);
+  rtx_insn *insn;
+  FOR_BB_INSNS (bb, insn)
+    {
+<<<<<<< HEAD
+      if (insn != last && active_insn_p (insn))
+	{
+	  rtx_insn *to_emit = as_a <rtx_insn *> (copy_rtx (insn));
+
+	  emit_insn (PATTERN (to_emit));
+	}
+    }
+}
+
+/* Helper for noce_try_cmove_arith.  Emit the pattern TO_EMIT and return
+   the resulting insn or NULL if it's not a valid insn.  */
+
+static rtx_insn *
+noce_emit_insn (rtx to_emit)
+{
+  gcc_assert (to_emit);
+  rtx_insn *insn = emit_insn (to_emit);
+
+  if (recog_memoized (insn) < 0)
+    return NULL;
+
+  return insn;
+}
+=======
+      rtx mem = gen_rtx_MEM (GET_MODE (if_info->x), target);
+
+      /* Copy over flags as appropriate.  */
+      if (MEM_VOLATILE_P (if_info->a) || MEM_VOLATILE_P (if_info->b))
+	MEM_VOLATILE_P (mem) = 1;
+      if (MEM_ALIAS_SET (if_info->a) == MEM_ALIAS_SET (if_info->b))
+	set_mem_alias_set (mem, MEM_ALIAS_SET (if_info->a));
+      set_mem_align (mem,
+		     MIN (MEM_ALIGN (if_info->a), MEM_ALIGN (if_info->b)));
+
+      gcc_assert (MEM_ADDR_SPACE (if_info->a) == MEM_ADDR_SPACE (if_info->b));
+      set_mem_addr_space (mem, MEM_ADDR_SPACE (if_info->a));
+
+      noce_emit_move_insn (if_info->x, mem);
+    }
+  else if (target != x)
+    noce_emit_move_insn (x, target);
+
+  ifcvt_seq = end_ifcvt_sequence (if_info);
+  if (!ifcvt_seq)
+    return FALSE;
+
+  emit_insn_before_setloc (ifcvt_seq, if_info->jump,
+			   INSN_LOCATION (if_info->insn_a));
+  return TRUE;
+>>>>>>> gcc-mirror/master
+
+/* Helper for noce_try_cmove_arith.  Emit a copy of the insns up to
+   and including the penultimate one in BB if it is not simple
+   (as indicated by SIMPLE).  Then emit LAST_INSN as the last
+   insn in the block.  The reason for that is that LAST_INSN may
+   have been modified by the preparation in noce_try_cmove_arith.  */
+
+static bool
+noce_emit_bb (rtx last_insn, basic_block bb, bool simple)
+{
+  if (bb && !simple)
+    noce_emit_all_but_last (bb);
+
+  if (last_insn && !noce_emit_insn (last_insn))
+    return false;
+
+  return true;
+}
+
+/* Try more complex cases involving conditional_move.  */
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+static bool
+contains_ccmode_rtx_p (rtx x)
+{
+<<<<<<< HEAD
+  subrtx_iterator::array_type array;
+  FOR_EACH_SUBRTX (iter, array, x, ALL)
+    if (GET_MODE_CLASS (GET_MODE (*iter)) == MODE_CC)
+      return true;
+=======
+static rtx
+noce_get_alt_condition (struct noce_if_info *if_info, rtx target,
+			rtx_insn **earliest)
+{
+  rtx cond, set;
+  rtx_insn *insn;
+  int reverse;
+>>>>>>> gcc-mirror/master
+
+  return false;
+}
+
+<<<<<<< HEAD
+/* Helper for bb_valid_for_noce_process_p.  Validate that
+   the rtx insn INSN is a single set that does not set
+   the conditional register CC and is in general valid for
+   if-conversion.  */
+=======
+  set = pc_set (if_info->jump);
+  cond = XEXP (SET_SRC (set), 0);
+  reverse
+    = GET_CODE (XEXP (SET_SRC (set), 2)) == LABEL_REF
+      && LABEL_REF_LABEL (XEXP (SET_SRC (set), 2)) == JUMP_LABEL (if_info->jump);
+  if (if_info->then_else_reversed)
+    reverse = !reverse;
+>>>>>>> gcc-mirror/master
+
+static bool
+insn_valid_noce_process_p (rtx_insn *insn, rtx cc)
+{
+  if (!insn
+      || !NONJUMP_INSN_P (insn)
+      || (cc && set_of (cc, insn)))
+      return false;
+
+  rtx sset = single_set (insn);
+
+  /* Currently support only simple single sets in test_bb.  */
+  if (!sset
+      || !noce_operand_ok (SET_DEST (sset))
+      || contains_ccmode_rtx_p (SET_DEST (sset))
+      || !noce_operand_ok (SET_SRC (sset)))
+    return false;
+
+  return true;
+}
+
+
+/* Return true iff the registers that the insns in BB_A set do not
+   get used in BB_B.  */
+
+static bool
+bbs_ok_for_cmove_arith (basic_block bb_a, basic_block bb_b)
+{
+  rtx_insn *a_insn;
+  bitmap bba_sets = BITMAP_ALLOC (&reg_obstack);
+
+  df_ref def;
+  df_ref use;
+
+  FOR_BB_INSNS (bb_a, a_insn)
+    {
+<<<<<<< HEAD
+      if (!active_insn_p (a_insn))
+	continue;
+=======
+      enum rtx_code code = GET_CODE (if_info->cond);
+      rtx op_a = XEXP (if_info->cond, 0);
+      rtx op_b = XEXP (if_info->cond, 1);
+      rtx_insn *prev_insn;
+>>>>>>> gcc-mirror/master
+
+      rtx sset_a = single_set (a_insn);
+
+      if (!sset_a)
+	{
+	  BITMAP_FREE (bba_sets);
+	  return false;
+	}
+
+<<<<<<< HEAD
+      /* Record all registers that BB_A sets.  */
+      FOR_EACH_INSN_DEF (def, a_insn)
+	bitmap_set_bit (bba_sets, DF_REF_REGNO (def));
+    }
+
+  rtx_insn *b_insn;
+
+  FOR_BB_INSNS (bb_b, b_insn)
+    {
+      if (!active_insn_p (b_insn))
+	continue;
+
+      rtx sset_b = single_set (b_insn);
+
+      if (!sset_b)
+	{
+	  BITMAP_FREE (bba_sets);
+	  return false;
+=======
+	      if (CONST_INT_P (op_a))
+		{
+		  std::swap (op_a, op_b);
+		  code = swap_condition (code);
+		}
+	    }
+>>>>>>> gcc-mirror/master
+	}
+
+      /* Make sure this is a REG and not some instance
+	 of ZERO_EXTRACT or SUBREG or other dangerous stuff.  */
+      if (!REG_P (SET_DEST (sset_b)))
+	{
+	  BITMAP_FREE (bba_sets);
+	  return false;
 	}
 
       /* If the insn uses a reg set in BB_A return false.  */
@@ -2212,8 +2677,18 @@ noce_emit_all_but_last (basic_block bb)
     }
 }
 
+<<<<<<< HEAD
 /* Helper for noce_try_cmove_arith.  Emit the pattern TO_EMIT and return
    the resulting insn or NULL if it's not a valid insn.  */
+=======
+  cond = canonicalize_condition (if_info->jump, cond, reverse,
+				 earliest, target, have_cbranchcc4, true);
+  if (! cond || ! reg_mentioned_p (target, cond))
+    return NULL;
+
+  /* We almost certainly searched back to a different place.
+     Need to re-verify correct lifetimes.  */
+>>>>>>> gcc-mirror/master
 
 static rtx_insn *
 noce_emit_insn (rtx to_emit)
@@ -2236,11 +2711,28 @@ noce_emit_insn (rtx to_emit)
 static bool
 noce_emit_bb (rtx last_insn, basic_block bb, bool simple)
 {
+<<<<<<< HEAD
   if (bb && !simple)
     noce_emit_all_but_last (bb);
 
   if (last_insn && !noce_emit_insn (last_insn))
     return false;
+=======
+  rtx cond, target;
+  rtx_insn *earliest, *seq;
+  enum rtx_code code, op;
+  int unsignedp;
+
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+  /* ??? Reject modes with NaNs or signed zeros since we don't know how
+     they will be resolved with an SMIN/SMAX.  It wouldn't be too hard
+     to get the target to tell us...  */
+  if (HONOR_SIGNED_ZEROS (if_info->x)
+      || HONOR_NANS (if_info->x))
+    return FALSE;
+>>>>>>> gcc-mirror/master
 
   return true;
 }
@@ -2319,6 +2811,7 @@ insn_valid_noce_process_p (rtx_insn *insn, rtx cc)
 static bool
 bbs_ok_for_cmove_arith (basic_block bb_a, basic_block bb_b)
 {
+<<<<<<< HEAD
   rtx_insn *a_insn;
   bitmap bba_sets = BITMAP_ALLOC (&reg_obstack);
 
@@ -2341,6 +2834,42 @@ bbs_ok_for_cmove_arith (basic_block bb_a, basic_block bb_b)
       /* Record all registers that BB_A sets.  */
       FOR_EACH_INSN_DEF (def, a_insn)
 	bitmap_set_bit (bba_sets, DF_REF_REGNO (def));
+=======
+  rtx cond, target, a, b, c;
+  rtx_insn *earliest, *seq;
+  int negate;
+  bool one_cmpl = false;
+
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+  /* Reject modes with signed zeros.  */
+  if (HONOR_SIGNED_ZEROS (if_info->x))
+    return FALSE;
+
+  /* Recognize A and B as constituting an ABS or NABS.  The canonical
+     form is a branch around the negation, taken when the object is the
+     first operand of a comparison against 0 that evaluates to true.  */
+  a = if_info->a;
+  b = if_info->b;
+  if (GET_CODE (a) == NEG && rtx_equal_p (XEXP (a, 0), b))
+    negate = 0;
+  else if (GET_CODE (b) == NEG && rtx_equal_p (XEXP (b, 0), a))
+    {
+      std::swap (a, b);
+      negate = 1;
+    }
+  else if (GET_CODE (a) == NOT && rtx_equal_p (XEXP (a, 0), b))
+    {
+      negate = 0;
+      one_cmpl = true;
+    }
+  else if (GET_CODE (b) == NOT && rtx_equal_p (XEXP (b, 0), a))
+    {
+      std::swap (a, b);
+      negate = 1;
+      one_cmpl = true;
+>>>>>>> gcc-mirror/master
     }
 
   rtx_insn *b_insn;
@@ -2392,7 +2921,16 @@ noce_emit_all_but_last (basic_block bb)
   rtx_insn *insn;
   FOR_BB_INSNS (bb, insn)
     {
+<<<<<<< HEAD
       if (insn != last && active_insn_p (insn))
+=======
+      rtx set;
+      rtx_insn *insn = prev_nonnote_insn (earliest);
+      if (insn
+	  && BLOCK_FOR_INSN (insn) == BLOCK_FOR_INSN (earliest)
+	  && (set = single_set (insn))
+	  && rtx_equal_p (SET_DEST (set), c))
+>>>>>>> gcc-mirror/master
 	{
 	  rtx_insn *to_emit = as_a <rtx_insn *> (copy_rtx (insn));
 
@@ -2401,8 +2939,34 @@ noce_emit_all_but_last (basic_block bb)
     }
 }
 
+<<<<<<< HEAD
 /* Helper for noce_try_cmove_arith.  Emit the pattern TO_EMIT and return
    the resulting insn or NULL if it's not a valid insn.  */
+=======
+  /* Work around funny ideas get_condition has wrt canonicalization.
+     Note that these rtx constants are known to be CONST_INT, and
+     therefore imply integer comparisons.
+     The one_cmpl case is more complicated, as we want to handle
+     only x < 0 ? ~x : x or x >= 0 ? x : ~x to one_cmpl_abs (x)
+     and x < 0 ? x : ~x or x >= 0 ? ~x : x to ~one_cmpl_abs (x),
+     but not other cases (x > -1 is equivalent of x >= 0).  */
+  if (c == constm1_rtx && GET_CODE (cond) == GT)
+    ;
+  else if (c == const1_rtx && GET_CODE (cond) == LT)
+    {
+      if (one_cmpl)
+	return FALSE;
+    }
+  else if (c == CONST0_RTX (GET_MODE (b)))
+    {
+      if (one_cmpl
+	  && GET_CODE (cond) != GE
+	  && GET_CODE (cond) != LT)
+	return FALSE;
+    }
+  else
+    return FALSE;
+>>>>>>> gcc-mirror/master
 
 static rtx_insn *
 noce_emit_insn (rtx to_emit)
@@ -4301,6 +4865,424 @@ noce_get_condition (rtx_insn *jump, rtx_insn **earliest, bool then_else_reversed
 static int
 noce_convert_multiple_sets (struct noce_if_info *if_info)
 {
+<<<<<<< HEAD
+  basic_block test_bb = if_info->test_bb;
+  basic_block then_bb = if_info->then_bb;
+  basic_block join_bb = if_info->join_bb;
+  rtx_insn *jump = if_info->jump;
+  rtx_insn *cond_earliest;
+  rtx_insn *insn;
+
+  start_sequence ();
+=======
+  rtx cond, t, m, c;
+  rtx_insn *seq;
+  machine_mode mode;
+  enum rtx_code code;
+  bool t_unconditional;
+
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+  cond = if_info->cond;
+  code = GET_CODE (cond);
+  m = XEXP (cond, 0);
+  c = XEXP (cond, 1);
+>>>>>>> gcc-mirror/master
+
+  /* Decompose the condition attached to the jump.  */
+  rtx cond = noce_get_condition (jump, &cond_earliest, false);
+  rtx x = XEXP (cond, 0);
+  rtx y = XEXP (cond, 1);
+  rtx_code cond_code = GET_CODE (cond);
+
+  /* The true targets for a conditional move.  */
+  auto_vec<rtx> targets;
+  /* The temporaries introduced to allow us to not consider register
+     overlap.  */
+  auto_vec<rtx> temporaries;
+  /* The insns we've emitted.  */
+  auto_vec<rtx_insn *> unmodified_insns;
+  int count = 0;
+
+<<<<<<< HEAD
+  FOR_BB_INSNS (then_bb, insn)
+    {
+      /* Skip over non-insns.  */
+      if (!active_insn_p (insn))
+	continue;
+
+      rtx set = single_set (insn);
+      gcc_checking_assert (set);
+
+      rtx target = SET_DEST (set);
+      rtx temp = gen_reg_rtx (GET_MODE (target));
+      rtx new_val = SET_SRC (set);
+      rtx old_val = target;
+
+      /* If we were supposed to read from an earlier write in this block,
+	 we've changed the register allocation.  Rewire the read.  While
+	 we are looking, also try to catch a swap idiom.  */
+      for (int i = count - 1; i >= 0; --i)
+	if (reg_overlap_mentioned_p (new_val, targets[i]))
+	  {
+	    /* Catch a "swap" style idiom.  */
+	    if (find_reg_note (insn, REG_DEAD, new_val) != NULL_RTX)
+	      /* The write to targets[i] is only live until the read
+		 here.  As the condition codes match, we can propagate
+		 the set to here.  */
+	      new_val = SET_SRC (single_set (unmodified_insns[i]));
+	    else
+	      new_val = temporaries[i];
+	    break;
+	  }
+
+      /* If we had a non-canonical conditional jump (i.e. one where
+	 the fallthrough is to the "else" case) we need to reverse
+	 the conditional select.  */
+      if (if_info->then_else_reversed)
+	std::swap (old_val, new_val);
+
+      /* Actually emit the conditional move.  */
+      rtx temp_dest = noce_emit_cmove (if_info, temp, cond_code,
+				       x, y, new_val, old_val);
+
+      /* If we failed to expand the conditional move, drop out and don't
+	 try to continue.  */
+      if (temp_dest == NULL_RTX)
+	{
+	  end_sequence ();
+	  return FALSE;
+	}
+=======
+/* Return true if X contains a MEM subrtx.  */
+
+static bool
+contains_mem_rtx_p (rtx x)
+{
+  subrtx_iterator::array_type array;
+  FOR_EACH_SUBRTX (iter, array, x, ALL)
+    if (MEM_P (*iter))
+      return true;
+>>>>>>> gcc-mirror/trunk
+
+      /* Bookkeeping.  */
+      count++;
+      targets.safe_push (target);
+      temporaries.safe_push (temp_dest);
+      unmodified_insns.safe_push (insn);
+    }
+
+  /* We must have seen some sort of insn to insert, otherwise we were
+     given an empty BB to convert, and we can't handle that.  */
+  gcc_assert (!unmodified_insns.is_empty ());
+
+  /* Now fixup the assignments.  */
+  for (int i = 0; i < count; i++)
+    noce_emit_move_insn (targets[i], temporaries[i]);
+
+<<<<<<< HEAD
+  /* Actually emit the sequence.  */
+  rtx_insn *seq = get_insns ();
+=======
+  /* This is only profitable if T is unconditionally executed/evaluated in the
+     original insn sequence or T is cheap.  The former happens if B is the
+     non-zero (T) value and if INSN_B was taken from TEST_BB, or there was no
+     INSN_B which can happen for e.g. conditional stores to memory.  For the
+     cost computation use the block TEST_BB where the evaluation will end up
+     after the transformation.  */
+  t_unconditional =
+    (t == if_info->b
+     && (if_info->insn_b == NULL_RTX
+	 || BLOCK_FOR_INSN (if_info->insn_b) == if_info->test_bb));
+  if (!(t_unconditional
+	|| (set_src_cost (t, mode, optimize_bb_for_speed_p (if_info->test_bb))
+	    < COSTS_N_INSNS (2))))
+    return FALSE;
+>>>>>>> gcc-mirror/master
+
+  for (insn = seq; insn; insn = NEXT_INSN (insn))
+    set_used_flags (insn);
+
+  /* Mark all our temporaries and targets as used.  */
+  for (int i = 0; i < count; i++)
+    {
+      set_used_flags (temporaries[i]);
+      set_used_flags (targets[i]);
+    }
+
+  set_used_flags (cond);
+  set_used_flags (x);
+  set_used_flags (y);
+
+  unshare_all_rtl_in_chain (seq);
+  end_sequence ();
+
+  if (!seq)
+    return FALSE;
+
+  for (insn = seq; insn; insn = NEXT_INSN (insn))
+    if (JUMP_P (insn)
+	|| recog_memoized (insn) == -1)
+      return FALSE;
+
+  emit_insn_before_setloc (seq, if_info->jump,
+			   INSN_LOCATION (unmodified_insns.last ()));
+
+  /* Clean up THEN_BB and the edges in and out of it.  */
+  remove_edge (find_edge (test_bb, join_bb));
+  remove_edge (find_edge (then_bb, join_bb));
+  redirect_edge_and_branch_force (single_succ_edge (test_bb), join_bb);
+  delete_basic_block (then_bb);
+  num_true_changes++;
+
+  /* Maybe merge blocks now the jump is simple enough.  */
+  if (can_merge_blocks_p (test_bb, join_bb))
+    {
+      merge_blocks (test_bb, join_bb);
+      num_true_changes++;
+    }
+
+  num_updated_if_blocks++;
+  return TRUE;
+}
+
+<<<<<<< HEAD
+/* Return true iff basic block TEST_BB is comprised of only
+   (SET (REG) (REG)) insns suitable for conversion to a series
+   of conditional moves.  FORNOW: Use II to find the expected cost of
+   the branch into/over TEST_BB.
+
+   TODO: This creates an implicit "magic number" for branch_cost.
+   II->branch_cost now guides the maximum number of set instructions in
+   a basic block which is considered profitable to completely
+   if-convert.  */
+
+static bool
+bb_ok_for_noce_convert_multiple_sets (basic_block test_bb,
+				      struct noce_if_info *ii)
+{
+<<<<<<< HEAD
+  rtx_insn *insn;
+  unsigned count = 0;
+=======
+  rtx cond, x, a, result;
+  rtx_insn *seq;
+  machine_mode mode;
+  enum rtx_code code;
+  int bitnum;
+>>>>>>> gcc-mirror/master
+
+  FOR_BB_INSNS (test_bb, insn)
+    {
+      /* Skip over notes etc.  */
+      if (!active_insn_p (insn))
+	continue;
+
+<<<<<<< HEAD
+      /* We only handle SET insns.  */
+      rtx set = single_set (insn);
+      if (set == NULL_RTX)
+	return false;
+=======
+  if (!noce_simple_bbs (if_info))
+    return FALSE;
+
+  /* Check for no else condition.  */
+  if (! rtx_equal_p (x, if_info->b))
+    return FALSE;
+>>>>>>> gcc-mirror/master
+
+      rtx dest = SET_DEST (set);
+      rtx src = SET_SRC (set);
+
+      /* We can possibly relax this, but for now only handle REG to REG
+	 moves.  This avoids any issues that might come from introducing
+	 loads/stores that might violate data-race-freedom guarantees.  */
+      if (!(REG_P (src) && REG_P (dest)))
+	return false;
+
+      /* Destination must be appropriate for a conditional write.  */
+      if (!noce_operand_ok (dest))
+	return false;
+
+      /* We must be able to conditionally move in this mode.  */
+      if (!can_conditionally_move_p (GET_MODE (dest)))
+	return false;
+
+      ++count;
+    }
+
+  /* FORNOW: Our cost model is a count of the number of instructions we
+     would if-convert.  This is suboptimal, and should be improved as part
+     of a wider rework of branch_cost.  */
+  if (count > ii->branch_cost)
+    return FALSE;
+
+  return count > 0;
+=======
+/* Return true iff basic block TEST_BB is valid for noce if-conversion.
+   The condition used in this if-conversion is in COND.
+   In practice, check that TEST_BB ends with a single set
+   x := a and all previous computations
+   in TEST_BB don't produce any values that are live after TEST_BB.
+   In other words, all the insns in TEST_BB are there only
+   to compute a value for x.  Put the rtx cost of the insns
+   in TEST_BB into COST.  Record whether TEST_BB is a single simple
+   set instruction in SIMPLE_P.  */
+
+static bool
+bb_valid_for_noce_process_p (basic_block test_bb, rtx cond,
+			      unsigned int *cost, bool *simple_p)
+{
+  if (!test_bb)
+    return false;
+
+  rtx_insn *last_insn = last_active_insn (test_bb, FALSE);
+  rtx last_set = NULL_RTX;
+
+  rtx cc = cc_in_cond (cond);
+
+  if (!insn_valid_noce_process_p (last_insn, cc))
+    return false;
+  last_set = single_set (last_insn);
+
+  rtx x = SET_DEST (last_set);
+  rtx_insn *first_insn = first_active_insn (test_bb);
+  rtx first_set = single_set (first_insn);
+
+  if (!first_set)
+    return false;
+
+  /* We have a single simple set, that's okay.  */
+  bool speed_p = optimize_bb_for_speed_p (test_bb);
+
+  if (first_insn == last_insn)
+    {
+      *simple_p = noce_operand_ok (SET_DEST (first_set));
+      *cost = insn_rtx_cost (first_set, speed_p);
+      return *simple_p;
+    }
+
+  rtx_insn *prev_last_insn = PREV_INSN (last_insn);
+  gcc_assert (prev_last_insn);
+
+  /* For now, disallow setting x multiple times in test_bb.  */
+  if (REG_P (x) && reg_set_between_p (x, first_insn, prev_last_insn))
+    return false;
+
+  bitmap test_bb_temps = BITMAP_ALLOC (&reg_obstack);
+
+  /* The regs that are live out of test_bb.  */
+  bitmap test_bb_live_out = df_get_live_out (test_bb);
+
+  int potential_cost = insn_rtx_cost (last_set, speed_p);
+  rtx_insn *insn;
+  FOR_BB_INSNS (test_bb, insn)
+    {
+      if (insn != last_insn)
+	{
+	  if (!active_insn_p (insn))
+	    continue;
+
+	  if (!insn_valid_noce_process_p (insn, cc))
+	    goto free_bitmap_and_fail;
+
+	  rtx sset = single_set (insn);
+	  gcc_assert (sset);
+
+	  if (contains_mem_rtx_p (SET_SRC (sset))
+	      || !REG_P (SET_DEST (sset))
+	      || reg_overlap_mentioned_p (SET_DEST (sset), cond))
+	    goto free_bitmap_and_fail;
+
+	  potential_cost += insn_rtx_cost (sset, speed_p);
+	  bitmap_set_bit (test_bb_temps, REGNO (SET_DEST (sset)));
+	}
+    }
+
+  /* If any of the intermediate results in test_bb are live after test_bb
+     then fail.  */
+  if (bitmap_intersect_p (test_bb_live_out, test_bb_temps))
+    goto free_bitmap_and_fail;
+
+  BITMAP_FREE (test_bb_temps);
+  *cost = potential_cost;
+  *simple_p = false;
+  return true;
+
+ free_bitmap_and_fail:
+  BITMAP_FREE (test_bb_temps);
+  return false;
+>>>>>>> gcc-mirror/trunk
+}
+
+<<<<<<< HEAD
+/* We have something like:
+=======
+static rtx
+noce_get_condition (rtx_insn *jump, rtx_insn **earliest, bool then_else_reversed)
+{
+  rtx cond, set, tmp;
+  bool reverse;
+>>>>>>> gcc-mirror/master
+
+     if (x > y)
+       { i = a; j = b; k = c; }
+
+   Make it:
+
+<<<<<<< HEAD
+     tmp_i = (x > y) ? a : i;
+     tmp_j = (x > y) ? b : j;
+     tmp_k = (x > y) ? c : k;
+     i = tmp_i;
+     j = tmp_j;
+     k = tmp_k;
+=======
+  /* If this branches to JUMP_LABEL when the condition is false,
+     reverse the condition.  */
+  reverse = (GET_CODE (XEXP (SET_SRC (set), 2)) == LABEL_REF
+	     && LABEL_REF_LABEL (XEXP (SET_SRC (set), 2)) == JUMP_LABEL (jump));
+>>>>>>> gcc-mirror/master
+
+   Subsequent passes are expected to clean up the extra moves.
+
+   Look for special cases such as writes to one register which are
+   read back in another SET, as might occur in a swap idiom or
+   similar.
+
+   These look like:
+
+   if (x > y)
+     i = a;
+     j = i;
+
+<<<<<<< HEAD
+   Which we want to rewrite to:
+=======
+  /* Otherwise, fall back on canonicalize_condition to do the dirty
+     work of manipulating MODE_CC values and COMPARE rtx codes.  */
+  tmp = canonicalize_condition (jump, cond, reverse, earliest,
+				NULL_RTX, have_cbranchcc4, true);
+>>>>>>> gcc-mirror/master
+
+     tmp_i = (x > y) ? a : i;
+     tmp_j = (x > y) ? tmp_i : j;
+     i = tmp_i;
+     j = tmp_j;
+
+   We can catch these when looking at (SET x y) by keeping a list of the
+   registers we would have targeted before if-conversion and looking back
+   through it for an overlap with Y.  If we find one, we rewire the
+   conditional set to use the temporary we introduced earlier.
+
+   IF_INFO contains the useful information about the block structure and
+   jump instructions.  */
+
+static int
+noce_convert_multiple_sets (struct noce_if_info *if_info)
+{
   basic_block test_bb = if_info->test_bb;
   basic_block then_bb = if_info->then_bb;
   basic_block join_bb = if_info->join_bb;
@@ -4384,7 +5366,7 @@ contains_mem_rtx_p (rtx x)
   FOR_EACH_SUBRTX (iter, array, x, ALL)
     if (MEM_P (*iter))
       return true;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
       /* Bookkeeping.  */
       count++;
@@ -4600,7 +5582,7 @@ bb_valid_for_noce_process_p (basic_block test_bb, rtx cond,
  free_bitmap_and_fail:
   BITMAP_FREE (test_bb_temps);
   return false;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 }
 
 /* We have something like:

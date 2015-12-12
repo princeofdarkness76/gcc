@@ -592,6 +592,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "bf\tA.%B0, $%1"
 =======
   "bt\tA.%B0, $1f\n\tbr !!%1\n\t1:"
@@ -602,6 +603,9 @@
 =======
   "bt\tA.%B0, $1f\n\tbr !!%1\n\t1:"
 >>>>>>> gcc-mirror/trunk
+=======
+  "bt\tA.%B0, $1f\n\tbr !!%1\n\t1:"
+>>>>>>> gcc-mirror/master
   [(set (attr "update_Z") (const_string "clobber"))]
 )
 
@@ -616,6 +620,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "bt\tA.%B0, $%1"
 =======
   "bf\tA.%B0, $1f\n\tbr !!%1\n\t1:"
@@ -626,6 +631,9 @@
 =======
   "bf\tA.%B0, $1f\n\tbr !!%1\n\t1:"
 >>>>>>> gcc-mirror/trunk
+=======
+  "bf\tA.%B0, $1f\n\tbr !!%1\n\t1:"
+>>>>>>> gcc-mirror/master
   [(set (attr "update_Z") (const_string "clobber"))]
 )
 

@@ -72,6 +72,7 @@ ialias_redirect (omp_get_proc_bind)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -79,6 +80,8 @@ ialias_redirect (omp_get_proc_bind)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ialias_redirect (omp_get_num_places)
 ialias_redirect (omp_get_place_num_procs)
 ialias_redirect (omp_get_place_proc_ids)
@@ -88,6 +91,7 @@ ialias_redirect (omp_get_partition_place_nums)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -95,6 +99,8 @@ ialias_redirect (omp_get_partition_place_nums)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ialias_redirect (omp_set_default_device)
 ialias_redirect (omp_get_default_device)
 ialias_redirect (omp_get_num_devices)
@@ -105,6 +111,7 @@ ialias_redirect (omp_is_initial_device)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ialias_redirect (omp_get_initial_device)
 ialias_redirect (omp_get_max_task_priority)
@@ -121,6 +128,10 @@ ialias_redirect (omp_get_max_task_priority)
 ialias_redirect (omp_get_initial_device)
 ialias_redirect (omp_get_max_task_priority)
 >>>>>>> gcc-mirror/trunk
+=======
+ialias_redirect (omp_get_initial_device)
+ialias_redirect (omp_get_max_task_priority)
+>>>>>>> gcc-mirror/master
 #endif
 
 #ifndef LIBGOMP_GNU_SYMBOL_VERSIONING
@@ -503,6 +514,7 @@ omp_get_proc_bind_ (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -510,6 +522,8 @@ omp_get_proc_bind_ (void)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 int32_t
 omp_get_num_places_ (void)
 {
@@ -576,6 +590,7 @@ omp_get_partition_place_nums_8_ (int64_t *place_nums)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -583,6 +598,8 @@ omp_get_partition_place_nums_8_ (int64_t *place_nums)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 void
 omp_set_default_device_ (const int32_t *device_num)
 {
@@ -628,6 +645,7 @@ omp_is_initial_device_ (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -635,6 +653,8 @@ omp_is_initial_device_ (void)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 int32_t
 omp_get_initial_device_ (void)
@@ -650,6 +670,7 @@ omp_get_max_task_priority_ (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -657,3 +678,5 @@ omp_get_max_task_priority_ (void)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-g -O2 -pthread -ldl -x c -fvtable-verify=none" { target *-*-linux* *-*-gnu* } }
 =======
 // { dg-options "-g -O2 -pthread -ldl -x c -fvtable-verify=none" { target *-*-linux* *-*-gnu* *-*-solaris2.1[2-9]* } }
@@ -12,6 +13,9 @@
 =======
 // { dg-options "-g -O2 -pthread -ldl -x c -fvtable-verify=none" { target *-*-linux* *-*-gnu* *-*-solaris2.1[2-9]* } }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-options "-g -O2 -pthread -ldl -x c -fvtable-verify=none" { target *-*-linux* *-*-gnu* *-*-solaris2.1[2-9]* } }
+>>>>>>> gcc-mirror/master
 
 // Copyright (C) 2005-2015 Free Software Foundation, Inc.
 //

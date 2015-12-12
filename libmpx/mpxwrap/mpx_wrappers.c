@@ -29,6 +29,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <stdint.h>
 #include "mpxrt/mpxrt.h"
@@ -39,6 +40,10 @@
 #include <stdint.h>
 #include "mpxrt/mpxrt.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include <stdint.h>
+#include "mpxrt/mpxrt.h"
+>>>>>>> gcc-mirror/master
 
 void *
 __mpx_wrapper_malloc (size_t size)
@@ -101,6 +106,7 @@ __mpx_wrapper_bzero (void *dst, size_t len)
   __mpx_wrapper_memset (dst, 0, len);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -179,6 +185,8 @@ __mpx_wrapper_memmove (void *dst, const void *src, size_t n)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* The mpx_pointer type is used for getting bits
    for bt_index (index in bounds table) and
    bd_index (index in bounds directory).  */
@@ -580,11 +588,14 @@ __mpx_wrapper_memmove (void *dst, const void *src, size_t n)
 
   return dst;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 

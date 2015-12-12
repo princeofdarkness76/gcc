@@ -37,6 +37,7 @@ if (n >= k + 1 && k >= 0) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if \\\(n >= k \\\+ 1 && k >= 0\\\) \\\{" 1 "graphite" } } */
 =======
 /* { dg-final { scan-tree-dump-times "if \\\(P_9 >= P_10 \\\+ 1 && P_10 >= 0\\\) \\\{" 1 "graphite" } } */
@@ -47,3 +48,6 @@ if (n >= k + 1 && k >= 0) {
 =======
 /* { dg-final { scan-tree-dump-times "if \\\(P_9 >= P_10 \\\+ 1 && P_10 >= 0\\\) \\\{" 1 "graphite" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if \\\(P_9 >= P_10 \\\+ 1 && P_10 >= 0\\\) \\\{" 1 "graphite" } } */
+>>>>>>> gcc-mirror/master

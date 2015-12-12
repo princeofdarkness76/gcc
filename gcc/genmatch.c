@@ -1400,6 +1400,7 @@ struct sinfo
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct sinfo_hashmap_traits : simple_hashmap_traits <pointer_hash <dt_simplify> >
 =======
 struct sinfo_hashmap_traits : simple_hashmap_traits<pointer_hash<dt_simplify>,
@@ -1412,6 +1413,10 @@ struct sinfo_hashmap_traits : simple_hashmap_traits <pointer_hash <dt_simplify> 
 struct sinfo_hashmap_traits : simple_hashmap_traits<pointer_hash<dt_simplify>,
 						    sinfo *>
 >>>>>>> gcc-mirror/trunk
+=======
+struct sinfo_hashmap_traits : simple_hashmap_traits<pointer_hash<dt_simplify>,
+						    sinfo *>
+>>>>>>> gcc-mirror/master
 {
   static inline hashval_t hash (const key_type &);
   static inline bool equal_keys (const key_type &, const key_type &);
@@ -1867,6 +1872,7 @@ struct capture_info
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       int result_use_count;
 =======
       unsigned match_use_count;
@@ -1879,6 +1885,10 @@ struct capture_info
       unsigned match_use_count;
       unsigned result_use_count;
 >>>>>>> gcc-mirror/trunk
+=======
+      unsigned match_use_count;
+      unsigned result_use_count;
+>>>>>>> gcc-mirror/master
       unsigned same_as;
       capture *c;
     };
@@ -1931,6 +1941,7 @@ capture_info::walk_match (operand *o, unsigned toplevel_arg,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       info[where].match_use_count++;
 >>>>>>> gcc-mirror/master
@@ -1939,6 +1950,9 @@ capture_info::walk_match (operand *o, unsigned toplevel_arg,
 =======
       info[where].match_use_count++;
 >>>>>>> gcc-mirror/trunk
+=======
+      info[where].match_use_count++;
+>>>>>>> gcc-mirror/master
       info[where].toplevel_msk |= 1 << toplevel_arg;
       info[where].force_no_side_effects_p |= conditional_p;
       info[where].cond_expr_cond_p |= cond_expr_cond_p;
@@ -3147,6 +3161,7 @@ dt_simplify::gen_1 (FILE *f, int indent, bool gimple, operand *result)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	     and dependent on TREE_SIDE_EFFECTS emit a SAVE_EXPR.  */
@@ -3169,6 +3184,8 @@ dt_simplify::gen_1 (FILE *f, int indent, bool gimple, operand *result)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	     and wrap them in a SAVE_EXPR.  Allow as many uses as in the
 	     original expression.  */
 	  if (!is_predicate)
@@ -3183,11 +3200,14 @@ dt_simplify::gen_1 (FILE *f, int indent, bool gimple, operand *result)
 				  "if (! tree_invariant_p (captures[%d])) "
 				  "return NULL_TREE;\n", i);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	      }
 	  for (unsigned j = 0; j < e->ops.length (); ++j)
 	    {

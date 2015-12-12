@@ -385,6 +385,7 @@ lra_emit_add (rtx x, rtx y, rtx z)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (! (REG_P (base) || GET_CODE (base) == SUBREG)
 =======
       if ((base != NULL_RTX && ! (REG_P (base) || GET_CODE (base) == SUBREG))
@@ -395,6 +396,9 @@ lra_emit_add (rtx x, rtx y, rtx z)
 =======
       if ((base != NULL_RTX && ! (REG_P (base) || GET_CODE (base) == SUBREG))
 >>>>>>> gcc-mirror/trunk
+=======
+      if ((base != NULL_RTX && ! (REG_P (base) || GET_CODE (base) == SUBREG))
+>>>>>>> gcc-mirror/master
 	  || (index != NULL_RTX
 	      && ! (REG_P (index) || GET_CODE (index) == SUBREG))
 	  || (disp != NULL_RTX && ! CONSTANT_P (disp))
@@ -457,6 +461,7 @@ lra_emit_add (rtx x, rtx y, rtx z)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		      insn = emit_add2_insn (x, base);
@@ -467,6 +472,9 @@ lra_emit_add (rtx x, rtx y, rtx z)
 =======
 		      if (base == NULL_RTX)
 >>>>>>> gcc-mirror/trunk
+=======
+		      if (base == NULL_RTX)
+>>>>>>> gcc-mirror/master
 			ok_p = true;
 		      else
 			{
@@ -486,6 +494,7 @@ lra_emit_add (rtx x, rtx y, rtx z)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		  rtx_insn *insn = emit_add2_insn (x, base);
@@ -493,15 +502,20 @@ lra_emit_add (rtx x, rtx y, rtx z)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  if (base != NULL_RTX)
 		    {
 		      insn = emit_add2_insn (x, base);
 		      lra_assert (insn != NULL_RTX);
 		    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  insn = emit_add2_insn (x, index_scale);
 		  lra_assert (insn != NULL_RTX);
 		}
@@ -1793,6 +1807,9 @@ lra_process_new_insns (rtx_insn *insn, rtx_insn *before, rtx_insn *after,
       setup_sp_offset (after, last);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
     }
 }
 
@@ -1846,6 +1863,7 @@ lra_substitute_pseudo (rtx *loc, int old_regno, rtx new_reg, bool subreg_p)
 	}
       *loc = new_reg;
       return true;
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
     }
@@ -2018,6 +2036,8 @@ lra_substitute_pseudo (rtx *loc, int old_regno, rtx new_reg, bool subreg_p)
 	}
       *loc = new_reg;
       return true;
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /* Scan all the operand sub-expressions.  */
@@ -2560,7 +2580,24 @@ lra (FILE *f)
 	  /* We need full live info for spilling pseudos into
 	     registers instead of memory.  */
 	  lra_create_live_ranges (lra_reg_spill_p, true);
+<<<<<<< HEAD
+=======
 	  live_p = true;
+	}
+      /* We should check necessity for spilling here as the above live
+	 range pass can remove spilled pseudos.  */
+      if (! lra_need_for_spills_p ())
+	break;
+      /* Now we know what pseudos should be spilled.  Try to
+	 rematerialize them first.  */
+      if (lra_remat ())
+	{
+	  /* We need full live info -- see the comment above.  */
+	  lra_create_live_ranges (lra_reg_spill_p, true);
+>>>>>>> gcc-mirror/master
+	  live_p = true;
+	  if (! lra_need_for_spills_p ())
+	    break;
 	}
       /* We should check necessity for spilling here as the above live
 	 range pass can remove spilled pseudos.  */

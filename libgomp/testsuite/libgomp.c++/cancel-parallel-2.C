@@ -20,6 +20,7 @@ foo (int *x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case 4:
 =======
       case 4:;
@@ -30,6 +31,9 @@ foo (int *x)
 =======
       case 4:;
 >>>>>>> gcc-mirror/trunk
+=======
+      case 4:;
+>>>>>>> gcc-mirror/master
 	#pragma omp cancel parallel
 	break;
       case 3:
@@ -46,6 +50,7 @@ foo (int *x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case 1:
 =======
       case 1:;
@@ -56,6 +61,9 @@ foo (int *x)
 =======
       case 1:;
 >>>>>>> gcc-mirror/trunk
+=======
+      case 1:;
+>>>>>>> gcc-mirror/master
 	#pragma omp cancellation point parallel
 	break;
       }

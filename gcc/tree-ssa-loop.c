@@ -36,6 +36,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-scalar-evolution.h"
 #include "tree-vectorizer.h"
 #include "omp-low.h"
+<<<<<<< HEAD
 
 
 /* A pass making sure loops are fixed up.  */
@@ -148,9 +149,11 @@ public:
 
   return number_of_loops (fn) > 1;
 }
+=======
+>>>>>>> gcc-mirror/master
 
-/* The loop superpass.  */
 
+<<<<<<< HEAD
 namespace {
 
 =======
@@ -395,6 +398,55 @@ make_pass_oacc_kernels2 (gcc::context *ctxt)
 {
   return new pass_oacc_kernels2 (ctxt);
 >>>>>>> gcc-mirror/master
+=======
+/* A pass making sure loops are fixed up.  */
+
+namespace {
+
+const pass_data pass_data_fix_loops =
+{
+  GIMPLE_PASS, /* type */
+  "fix_loops", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_fix_loops : public gimple_opt_pass
+{
+public:
+  pass_fix_loops (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_fix_loops, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_loop_optimize; }
+
+  virtual unsigned int execute (function *fn);
+}; // class pass_fix_loops
+
+unsigned int
+pass_fix_loops::execute (function *)
+{
+  if (loops_state_satisfies_p (LOOPS_NEED_FIXUP))
+    {
+      calculate_dominance_info (CDI_DOMINATORS);
+      fix_loop_structure (NULL);
+    }
+  return 0;
+}
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_fix_loops (gcc::context *ctxt)
+{
+  return new pass_fix_loops (ctxt);
+>>>>>>> gcc-mirror/master
 }
 =======
 public:
@@ -403,6 +455,7 @@ public:
   {}
 >>>>>>> gcc-mirror/master
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   /* opt_pass methods: */
   virtual bool gate (function *fn) { return !gate_loop (fn); }
@@ -503,10 +556,59 @@ public:
 
 >>>>>>> gcc-mirror/trunk
 }; // class pass_tree_no_loop
+=======
+
+/* Gate for loop pass group.  The group is controlled by -ftree-loop-optimize
+   but we also avoid running it when the IL doesn't contain any loop.  */
+
+static bool
+gate_loop (function *fn)
+{
+  if (!flag_tree_loop_optimize)
+    return false;
+
+  /* For -fdump-passes which runs before loop discovery print the
+     state of -ftree-loop-optimize.  */
+  if (!loops_for_fn (fn))
+    return true;
+
+  return number_of_loops (fn) > 1;
+}
+
+/* The loop superpass.  */
+
+namespace {
+
+const pass_data pass_data_tree_loop =
+{
+  GIMPLE_PASS, /* type */
+  "loop", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_loop : public gimple_opt_pass
+{
+public:
+  pass_tree_loop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_loop, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_loop (fn); }
+
+}; // class pass_tree_loop
+>>>>>>> gcc-mirror/master
 
 } // anon namespace
 
 gimple_opt_pass *
+<<<<<<< HEAD
 make_pass_tree_no_loop (gcc::context *ctxt)
 {
   return new pass_tree_no_loop (ctxt);
@@ -552,12 +654,57 @@ const pass_data pass_data_tree_no_loop =
   "no_loop", /* name */
   OPTGROUP_NONE, /* optinfo_flags */
   TV_TREE_NOLOOP, /* tv_id */
+=======
+make_pass_tree_loop (gcc::context *ctxt)
+{
+  return new pass_tree_loop (ctxt);
+}
+
+/* Gate for oacc kernels pass group.  */
+
+static bool
+gate_oacc_kernels (function *fn)
+{
+  if (flag_tree_parallelize_loops <= 1)
+    return false;
+
+  tree oacc_function_attr = get_oacc_fn_attrib (fn->decl);
+  if (oacc_function_attr == NULL_TREE)
+    return false;
+
+  tree val = TREE_VALUE (oacc_function_attr);
+  while (val != NULL_TREE && TREE_VALUE (val) == NULL_TREE)
+    val = TREE_CHAIN (val);
+
+  if (val != NULL_TREE)
+    return false;
+
+  struct loop *loop;
+  FOR_EACH_LOOP (loop, 0)
+    if (loop->in_oacc_kernels_region)
+      return true;
+
+  return false;
+}
+
+/* The oacc kernels superpass.  */
+
+namespace {
+
+const pass_data pass_data_oacc_kernels =
+{
+  GIMPLE_PASS, /* type */
+  "oacc_kernels", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+>>>>>>> gcc-mirror/master
   PROP_cfg, /* properties_required */
   0, /* properties_provided */
   0, /* properties_destroyed */
   0, /* todo_flags_start */
   0, /* todo_flags_finish */
 };
+<<<<<<< HEAD
 
 class pass_tree_no_loop : public gimple_opt_pass
 {
@@ -641,12 +788,44 @@ const pass_data pass_data_tree_loop_init =
   "loopinit", /* name */
   OPTGROUP_LOOP, /* optinfo_flags */
   TV_NONE, /* tv_id */
+=======
+
+class pass_oacc_kernels : public gimple_opt_pass
+{
+public:
+  pass_oacc_kernels (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_oacc_kernels, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_oacc_kernels (fn); }
+
+}; // class pass_oacc_kernels
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_oacc_kernels (gcc::context *ctxt)
+{
+  return new pass_oacc_kernels (ctxt);
+}
+
+namespace {
+
+const pass_data pass_data_oacc_kernels2 =
+{
+  GIMPLE_PASS, /* type */
+  "oacc_kernels2", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP, /* tv_id */
+>>>>>>> gcc-mirror/master
   PROP_cfg, /* properties_required */
   0, /* properties_provided */
   0, /* properties_destroyed */
   0, /* todo_flags_start */
   0, /* todo_flags_finish */
 };
+<<<<<<< HEAD
 =======
 }; // class pass_tree_loop_init
 
@@ -714,10 +893,30 @@ pass_vectorize::execute (function *fun)
 {
   if (number_of_loops (fun) <= 1)
     return 0;
+=======
 
-  return vectorize_loops ();
-}
+class pass_oacc_kernels2 : public gimple_opt_pass
+{
+public:
+  pass_oacc_kernels2 (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_oacc_kernels2, ctxt)
+  {}
+>>>>>>> gcc-mirror/master
 
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return gate_oacc_kernels (fn); }
+  virtual unsigned int execute (function *fn)
+    {
+      /* Rather than having a copy of the previous dump, get some use out of
+	 this dump, and try to minimize differences with the following pass
+	 (pass_lim), which will initizalize the loop optimizer with
+	 LOOPS_NORMAL.  */
+      loop_optimizer_init (LOOPS_NORMAL);
+      loop_optimizer_finalize (fn);
+      return 0;
+    }
+
+<<<<<<< HEAD
 } // anon namespace
 
 gimple_opt_pass *
@@ -876,6 +1075,99 @@ pass_iv_optimize::execute (function *fun)
 
   tree_ssa_iv_optimize ();
 >>>>>>> gcc-mirror/trunk
+=======
+}; // class pass_oacc_kernels2
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_oacc_kernels2 (gcc::context *ctxt)
+{
+  return new pass_oacc_kernels2 (ctxt);
+}
+
+/* The no-loop superpass.  */
+
+namespace {
+
+const pass_data pass_data_tree_no_loop =
+{
+  GIMPLE_PASS, /* type */
+  "no_loop", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_NOLOOP, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_no_loop : public gimple_opt_pass
+{
+public:
+  pass_tree_no_loop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_no_loop, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fn) { return !gate_loop (fn); }
+
+}; // class pass_tree_no_loop
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_tree_no_loop (gcc::context *ctxt)
+{
+  return new pass_tree_no_loop (ctxt);
+}
+
+
+/* Loop optimizer initialization.  */
+
+namespace {
+
+const pass_data pass_data_tree_loop_init =
+{
+  GIMPLE_PASS, /* type */
+  "loopinit", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_NONE, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_tree_loop_init : public gimple_opt_pass
+{
+public:
+  pass_tree_loop_init (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_loop_init, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *);
+
+}; // class pass_tree_loop_init
+
+unsigned int
+pass_tree_loop_init::execute (function *fun ATTRIBUTE_UNUSED)
+{
+  /* When processing a loop in the loop pipeline, we should be able to assert
+     that:
+       (loops_state_satisfies_p (LOOPS_NORMAL | LOOPS_HAVE_RECORDED_EXITS
+					      | LOOP_CLOSED_SSA)
+	&& scev_initialized_p ())
+  */
+  loop_optimizer_init (LOOPS_NORMAL
+		       | LOOPS_HAVE_RECORDED_EXITS);
+  rewrite_into_loop_closed_ssa (NULL, TODO_update_ssa);
+  scev_initialize ();
+
+>>>>>>> gcc-mirror/master
   return 0;
 }
 
@@ -883,6 +1175,9 @@ pass_iv_optimize::execute (function *fun)
 
 gimple_opt_pass *
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 make_pass_tree_loop_init (gcc::context *ctxt)
 {
   return new pass_tree_loop_init (ctxt);
@@ -938,6 +1233,8 @@ make_pass_vectorize (gcc::context *ctxt)
 {
   return new pass_vectorize (ctxt);
 }
+<<<<<<< HEAD
+=======
 
 /* Propagation of constants using scev.  */
 
@@ -953,6 +1250,58 @@ const pass_data pass_data_scev_cprop =
   0, /* properties_provided */
   0, /* properties_destroyed */
   0, /* todo_flags_start */
+  ( TODO_cleanup_cfg
+    | TODO_update_ssa_only_virtuals ), /* todo_flags_finish */
+};
+>>>>>>> gcc-mirror/master
+
+class pass_scev_cprop : public gimple_opt_pass
+{
+public:
+  pass_scev_cprop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_scev_cprop, ctxt)
+  {}
+
+<<<<<<< HEAD
+namespace {
+
+const pass_data pass_data_scev_cprop =
+{
+  GIMPLE_PASS, /* type */
+  "sccp", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_SCEV_CONST, /* tv_id */
+=======
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_scev_cprop; }
+  virtual unsigned int execute (function *) { return scev_const_prop (); }
+
+}; // class pass_scev_cprop
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_scev_cprop (gcc::context *ctxt)
+{
+  return new pass_scev_cprop (ctxt);
+}
+
+/* Record bounds on numbers of iterations of loops.  */
+
+namespace {
+
+const pass_data pass_data_record_bounds =
+{
+  GIMPLE_PASS, /* type */
+  "*record_bounds", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_LOOP_BOUNDS, /* tv_id */
+>>>>>>> gcc-mirror/master
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+<<<<<<< HEAD
   ( TODO_cleanup_cfg
     | TODO_update_ssa_only_virtuals ), /* todo_flags_finish */
 };
@@ -1010,6 +1359,26 @@ public:
 unsigned int
 pass_record_bounds::execute (function *fun)
 {
+=======
+  0, /* todo_flags_finish */
+};
+
+class pass_record_bounds : public gimple_opt_pass
+{
+public:
+  pass_record_bounds (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_record_bounds, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *);
+
+}; // class pass_record_bounds
+
+unsigned int
+pass_record_bounds::execute (function *fun)
+{
+>>>>>>> gcc-mirror/master
   if (number_of_loops (fun) <= 1)
     return 0;
 
@@ -1025,6 +1394,7 @@ make_pass_record_bounds (gcc::context *ctxt)
 {
   return new pass_record_bounds (ctxt);
 }
+<<<<<<< HEAD
 
 /* Induction variable optimizations.  */
 
@@ -1074,6 +1444,42 @@ public:
 unsigned int
 pass_iv_optimize::execute (function *fun)
 {
+=======
+
+/* Induction variable optimizations.  */
+
+namespace {
+
+const pass_data pass_data_iv_optimize =
+{
+  GIMPLE_PASS, /* type */
+  "ivopts", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_LOOP_IVOPTS, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  TODO_update_ssa, /* todo_flags_finish */
+};
+
+class pass_iv_optimize : public gimple_opt_pass
+{
+public:
+  pass_iv_optimize (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_iv_optimize, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_ivopts != 0; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_iv_optimize
+
+unsigned int
+pass_iv_optimize::execute (function *fun)
+{
+>>>>>>> gcc-mirror/master
   if (number_of_loops (fun) <= 1)
     return 0;
 =======
@@ -1084,6 +1490,7 @@ make_pass_iv_optimize (gcc::context *ctxt)
 
 /* Loop optimizer finalization.  */
 
+<<<<<<< HEAD
 static unsigned int
 tree_ssa_loop_done (void)
 {
@@ -1419,6 +1826,85 @@ for_each_index (tree *addr_p, bool (*cbck) (tree, tree *, void *), void *data)
 {
   tree *nxt, *idx;
 
+=======
+  tree_ssa_iv_optimize ();
+  return 0;
+}
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_iv_optimize (gcc::context *ctxt)
+{
+  return new pass_iv_optimize (ctxt);
+}
+
+/* Loop optimizer finalization.  */
+
+static unsigned int
+tree_ssa_loop_done (void)
+{
+  free_numbers_of_iterations_estimates (cfun);
+  scev_finalize ();
+  loop_optimizer_finalize ();
+  return 0;
+}
+
+namespace {
+
+const pass_data pass_data_tree_loop_done =
+{
+  GIMPLE_PASS, /* type */
+  "loopdone", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_NONE, /* tv_id */
+  PROP_cfg, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  TODO_cleanup_cfg, /* todo_flags_finish */
+};
+
+class pass_tree_loop_done : public gimple_opt_pass
+{
+public:
+  pass_tree_loop_done (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_tree_loop_done, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *) { return tree_ssa_loop_done (); }
+
+}; // class pass_tree_loop_done
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_tree_loop_done (gcc::context *ctxt)
+{
+  return new pass_tree_loop_done (ctxt);
+}
+
+/* Calls CBCK for each index in memory reference ADDR_P.  There are two
+   kinds situations handled; in each of these cases, the memory reference
+   and DATA are passed to the callback:
+
+   Access to an array: ARRAY_{RANGE_}REF (base, index).  In this case we also
+   pass the pointer to the index to the callback.
+
+   Pointer dereference: INDIRECT_REF (addr).  In this case we also pass the
+   pointer to addr to the callback.
+
+   If the callback returns false, the whole search stops and false is returned.
+   Otherwise the function returns true after traversing through the whole
+   reference *ADDR_P.  */
+
+bool
+for_each_index (tree *addr_p, bool (*cbck) (tree, tree *, void *), void *data)
+{
+  tree *nxt, *idx;
+
+>>>>>>> gcc-mirror/master
   for (; ; addr_p = nxt)
     {
       switch (TREE_CODE (*addr_p))
@@ -1493,6 +1979,7 @@ for_each_index (tree *addr_p, bool (*cbck) (tree, tree *, void *), void *data)
     }
 }
 
+<<<<<<< HEAD
 
 /* The name and the length of the currently generated variable
    for lsm.  */
@@ -1502,6 +1989,17 @@ static int lsm_tmp_name_length;
 
 /* Adds S to lsm_tmp_name.  */
 
+=======
+
+/* The name and the length of the currently generated variable
+   for lsm.  */
+#define MAX_LSM_NAME_LENGTH 40
+static char lsm_tmp_name[MAX_LSM_NAME_LENGTH + 1];
+static int lsm_tmp_name_length;
+
+/* Adds S to lsm_tmp_name.  */
+
+>>>>>>> gcc-mirror/master
 static void
 lsm_tmp_name_add (const char *s)
 {
@@ -1515,6 +2013,7 @@ lsm_tmp_name_add (const char *s)
 
 /* Stores the name for temporary variable that replaces REF to
    lsm_tmp_name.  */
+<<<<<<< HEAD
 
 static void
 gen_lsm_tmp_name (tree ref)
@@ -1643,5 +2142,121 @@ tree_num_loop_insns (struct loop *loop, eni_weights *weights)
 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+static void
+gen_lsm_tmp_name (tree ref)
+{
+  const char *name;
+
+  switch (TREE_CODE (ref))
+    {
+    case MEM_REF:
+    case TARGET_MEM_REF:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      lsm_tmp_name_add ("_");
+      break;
+
+    case ADDR_EXPR:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      break;
+
+    case BIT_FIELD_REF:
+    case VIEW_CONVERT_EXPR:
+    case ARRAY_RANGE_REF:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      break;
+
+    case REALPART_EXPR:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      lsm_tmp_name_add ("_RE");
+      break;
+
+    case IMAGPART_EXPR:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      lsm_tmp_name_add ("_IM");
+      break;
+
+    case COMPONENT_REF:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      lsm_tmp_name_add ("_");
+      name = get_name (TREE_OPERAND (ref, 1));
+      if (!name)
+	name = "F";
+      lsm_tmp_name_add (name);
+      break;
+
+    case ARRAY_REF:
+      gen_lsm_tmp_name (TREE_OPERAND (ref, 0));
+      lsm_tmp_name_add ("_I");
+      break;
+
+    case SSA_NAME:
+    case VAR_DECL:
+    case PARM_DECL:
+      name = get_name (ref);
+      if (!name)
+	name = "D";
+      lsm_tmp_name_add (name);
+      break;
+
+    case STRING_CST:
+      lsm_tmp_name_add ("S");
+      break;
+
+    case RESULT_DECL:
+      lsm_tmp_name_add ("R");
+      break;
+
+    case INTEGER_CST:
+      /* Nothing.  */
+      break;
+
+    default:
+      gcc_unreachable ();
+    }
+}
+
+/* Determines name for temporary variable that replaces REF.
+   The name is accumulated into the lsm_tmp_name variable.
+   N is added to the name of the temporary.  */
+
+char *
+get_lsm_tmp_name (tree ref, unsigned n, const char *suffix)
+{
+  char ns[2];
+
+  lsm_tmp_name_length = 0;
+  gen_lsm_tmp_name (ref);
+  lsm_tmp_name_add ("_lsm");
+  if (n < 10)
+    {
+      ns[0] = '0' + n;
+      ns[1] = 0;
+      lsm_tmp_name_add (ns);
+    }
+  return lsm_tmp_name;
+  if (suffix != NULL)
+    lsm_tmp_name_add (suffix);
+}
+
+/* Computes an estimated number of insns in LOOP, weighted by WEIGHTS.  */
+
+unsigned
+tree_num_loop_insns (struct loop *loop, eni_weights *weights)
+{
+  basic_block *body = get_loop_body (loop);
+  gimple_stmt_iterator gsi;
+  unsigned size = 0, i;
+
+  for (i = 0; i < loop->num_nodes; i++)
+    for (gsi = gsi_start_bb (body[i]); !gsi_end_p (gsi); gsi_next (&gsi))
+      size += estimate_num_insns (gsi_stmt (gsi), weights);
+  free (body);
+
+  return size;
+}
+
+>>>>>>> gcc-mirror/master
 
 

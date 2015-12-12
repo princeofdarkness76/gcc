@@ -350,6 +350,7 @@ extern void do_using_directive (tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern tree lookup_arg_dependent (tree, tree, vec<tree, va_gc> *);
 =======
 extern cp_expr lookup_arg_dependent (tree, tree, vec<tree, va_gc> *);
@@ -360,6 +361,9 @@ extern tree lookup_arg_dependent (tree, tree, vec<tree, va_gc> *);
 =======
 extern cp_expr lookup_arg_dependent (tree, tree, vec<tree, va_gc> *);
 >>>>>>> gcc-mirror/trunk
+=======
+extern cp_expr lookup_arg_dependent (tree, tree, vec<tree, va_gc> *);
+>>>>>>> gcc-mirror/master
 extern bool is_associated_namespace (tree, tree);
 extern void parse_using_directive (tree, tree);
 extern tree innermost_non_namespace_value (tree);

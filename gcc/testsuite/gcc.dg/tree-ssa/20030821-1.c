@@ -3,12 +3,15 @@
 
 void dont_remove (void);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 void dont_remove (void);
 
 void dont_remove (void);
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 void foo(int k)
 {

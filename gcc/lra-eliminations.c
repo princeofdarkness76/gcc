@@ -433,6 +433,7 @@ lra_eliminate_regs_1 (rtx_insn *insn, rtx x, machine_mode mem_mode,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	new0 = move_plus_up (new0);
 	new1 = move_plus_up (new1);
@@ -443,6 +444,10 @@ lra_eliminate_regs_1 (rtx_insn *insn, rtx x, machine_mode mem_mode,
 	new0 = move_plus_up (new0);
 	new1 = move_plus_up (new1);
 >>>>>>> gcc-mirror/trunk
+=======
+	new0 = move_plus_up (new0);
+	new1 = move_plus_up (new1);
+>>>>>>> gcc-mirror/master
 	if (new0 != XEXP (x, 0) || new1 != XEXP (x, 1))
 	  return form_sum (new0, new1);
       }

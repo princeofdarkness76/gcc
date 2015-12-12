@@ -55,9 +55,12 @@ extern bool s390_function_arg_vector (machine_mode, const_tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #if S390_USE_TARGET_ATTRIBUTE
 extern tree s390_valid_target_attribute_tree (tree args,
 					      struct gcc_options *opts,
@@ -72,11 +75,14 @@ s390_asm_declare_function_size (FILE *asm_out_file,
 				const char *fnname ATTRIBUTE_UNUSED, tree decl);
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #ifdef RTX_CODE
 extern int s390_extra_constraint_str (rtx, int, const char *);

@@ -9,6 +9,7 @@ int f(void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* extern int acc_on_device_(int *); */
@@ -19,14 +20,19 @@ int f(void)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* extern int foo (int *); */
   /* { dg-final { scan-assembler-not "\\\.callprototype" } } */
   /* { dg-final { scan-assembler "\\\.extern \\\.func \\\(\[^,\n\r\]+\\\) foo \\\(\[^,\n\r\]+\\\);" } } */
   return !foo(&dev);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }

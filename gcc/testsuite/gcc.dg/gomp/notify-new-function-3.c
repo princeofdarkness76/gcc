@@ -14,6 +14,7 @@ foo (int *__restrict a, int *__restrict b, int *__restrict c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Added new ssa gimple function foo\\.\[\\\$_\]loopfn\\.0 to callgraph" 1 "ompexpssa" } } */
 =======
 /* { dg-final { scan-tree-dump-times "Added new ssa gimple function foo\\.\[\\\$_\]loopfn\\.0 to callgraph" 1 "ompexpssa2" } } */
@@ -24,3 +25,6 @@ foo (int *__restrict a, int *__restrict b, int *__restrict c)
 =======
 /* { dg-final { scan-tree-dump-times "Added new ssa gimple function foo\\.\[\\\$_\]loopfn\\.0 to callgraph" 1 "ompexpssa2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "Added new ssa gimple function foo\\.\[\\\$_\]loopfn\\.0 to callgraph" 1 "ompexpssa2" } } */
+>>>>>>> gcc-mirror/master

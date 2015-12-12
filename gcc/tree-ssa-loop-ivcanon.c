@@ -1269,6 +1269,7 @@ tree_unroll_loops_completely_1 (bool may_increase_size, bool unroll_outer,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (loop->force_vect)
 =======
   if (loop->force_vectorize)
@@ -1282,6 +1283,9 @@ tree_unroll_loops_completely_1 (bool may_increase_size, bool unroll_outer,
 =======
   if (loop->force_vectorize)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (loop->force_vectorize)
+>>>>>>> gcc-mirror/master
     return false;
 
   /* Try to unroll this loop.  */

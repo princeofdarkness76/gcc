@@ -190,6 +190,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     !$acc loop gang(5) ! { dg-error "non-static" }
@@ -200,16 +201,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     !$acc loop gang(5) ! { dg-error "num arguments" }
     DO i = 1,10
     ENDDO
     !$acc loop gang(num:5) ! { dg-error "num arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     DO i = 1,10
     ENDDO
     !$acc loop gang(static:5)
@@ -240,6 +246,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     !$acc loop worker(5) ! { dg-error "non-static" }
@@ -250,16 +257,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     !$acc loop worker(5) ! { dg-error "num arguments" }
     DO i = 1,10
     ENDDO
     !$acc loop worker(num:5) ! { dg-error "num arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     DO i = 1,10
     ENDDO
     !$acc loop worker
@@ -287,6 +299,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     !$acc loop vector(5)
@@ -297,16 +310,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     !$acc loop vector(5) ! { dg-error "length arguments" }
     DO i = 1,10
     ENDDO
     !$acc loop vector(length:5) ! { dg-error "length arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     DO i = 1,10
     ENDDO
     !$acc loop vector
@@ -561,6 +579,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   !$acc parallel loop gang(5) ! { dg-error "non-static" }
@@ -571,16 +590,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   !$acc parallel loop gang(5) ! { dg-error "num arguments" }
   DO i = 1,10
   ENDDO
   !$acc parallel loop gang(num:5) ! { dg-error "num arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   DO i = 1,10
   ENDDO
   !$acc parallel loop gang(static:5)
@@ -605,6 +629,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   !$acc parallel loop worker(5) ! { dg-error "non-static" }
@@ -615,16 +640,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   !$acc parallel loop worker(5) ! { dg-error "num arguments" }
   DO i = 1,10
   ENDDO
   !$acc parallel loop worker(num:5) ! { dg-error "num arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   DO i = 1,10
   ENDDO
   !$acc parallel loop worker
@@ -649,6 +679,7 @@ program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   !$acc parallel loop vector(5)
@@ -659,16 +690,21 @@ program test
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   !$acc parallel loop vector(5) ! { dg-error "length arguments" }
   DO i = 1,10
   ENDDO
   !$acc parallel loop vector(length:5) ! { dg-error "length arguments" }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   DO i = 1,10
   ENDDO
   !$acc parallel loop vector

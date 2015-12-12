@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-06  Eric Botcazou  <ebotcazou@adacore.com>
 
 	PR ada/50048
@@ -11,11 +14,14 @@
 	(INCLUDES_FOR_SUBDIR): Use -iquote and $(ftop_srcdir).
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-06-08  John Marino  <gnugcc@marino.st>
 
 	* configure.ac (*-*-dragonfly*): New configuration.

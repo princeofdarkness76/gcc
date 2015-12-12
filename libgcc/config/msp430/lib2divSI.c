@@ -43,9 +43,12 @@ typedef int           word_type     __attribute__ ((mode (__word__)));
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* ---------------------------------------------------------------------*/
 
@@ -76,8 +79,11 @@ asm (".global __mspabi_divllu\n\
            BR #__mspabi_divull");
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

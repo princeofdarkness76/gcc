@@ -72,6 +72,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define TARGET_SUPPORTS_WIDE_INT 1
 >>>>>>> gcc-mirror/master
@@ -80,6 +81,9 @@
 =======
 #define TARGET_SUPPORTS_WIDE_INT 1
 >>>>>>> gcc-mirror/trunk
+=======
+#define TARGET_SUPPORTS_WIDE_INT 1
+>>>>>>> gcc-mirror/master
 
 #undef SIZE_TYPE
 #define SIZE_TYPE (TARGET_ABI64 ? "long unsigned int" : "unsigned int")
@@ -155,6 +159,7 @@ enum reg_class
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Address spaces.  */
@@ -171,6 +176,8 @@ enum reg_class
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Stack and Calling.  */
 
 #define STARTING_FRAME_OFFSET 0
@@ -179,6 +186,7 @@ enum reg_class
 
 #define STACK_POINTER_REGNUM 1
 #define HARD_FRAME_POINTER_REGNUM 2
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -206,6 +214,8 @@ struct nvptx_args {
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define NVPTX_RETURN_REGNUM 4
 #define FRAME_POINTER_REGNUM 15
 #define ARG_POINTER_REGNUM 14
@@ -224,11 +234,14 @@ struct nvptx_args {
 struct nvptx_args {
   tree fntype;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Number of arguments passed in registers so far.  */
   int count;
   /* Offset into the stdarg area so far.  */
@@ -242,6 +255,7 @@ struct nvptx_args {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   do { (CUM).fntype = (FNTYPE); (CUM).count = 0; (CUM).off = 0; } while (0)
 =======
   ((CUM).fntype = (FNTYPE), (CUM).count = 0, (CUM).off = 0, (void)0)
@@ -252,6 +266,9 @@ struct nvptx_args {
 =======
   ((CUM).fntype = (FNTYPE), (CUM).count = 0, (CUM).off = 0, (void)0)
 >>>>>>> gcc-mirror/trunk
+=======
+  ((CUM).fntype = (FNTYPE), (CUM).count = 0, (CUM).off = 0, (void)0)
+>>>>>>> gcc-mirror/master
 
 #define FUNCTION_ARG_REGNO_P(r) 0
 
@@ -299,6 +316,7 @@ struct GTY(()) machine_function
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   int punning_buffer_size;
 =======
 >>>>>>> gcc-mirror/master
@@ -307,6 +325,8 @@ struct GTY(()) machine_function
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   rtx axis_predicate[2];
 };
 #endif
@@ -337,6 +357,7 @@ struct GTY(()) machine_function
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 #define ASM_OUTPUT_COMMON(stream, name, size, rounded)
@@ -350,16 +371,21 @@ struct GTY(()) machine_function
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define REGISTER_NAMES							\
   {									\
     "%hr0", "%outargs", "%hfp", "%hr3", "%retval", "%hr5", "%hr6", "%hr7",	\
     "%hr8", "%hr9", "%chain_out", "%hr11", "%chain_in", "%hr13", "%argp", "%frame" \
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   }
 
 #define DBX_REGISTER_NUMBER(N) N
@@ -401,6 +427,7 @@ struct GTY(()) machine_function
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   do									\
@@ -439,17 +466,22 @@ struct GTY(()) machine_function
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   nvptx_output_aligned_decl (FILE, NAME, DECL, SIZE, ALIGN)
 
 #undef  ASM_OUTPUT_ALIGNED_DECL_LOCAL
 #define ASM_OUTPUT_ALIGNED_DECL_LOCAL(FILE, DECL, NAME, SIZE, ALIGN)	\
   nvptx_output_aligned_decl (FILE, NAME, DECL, SIZE, ALIGN)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #define CASE_VECTOR_PC_RELATIVE flag_pic
 #define JUMP_TABLES_IN_TEXT_SECTION flag_pic

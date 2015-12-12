@@ -68,12 +68,15 @@ extern bool msp430x;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #undef  LIB_SPEC
 #define LIB_SPEC "					\
 --start-group						\
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern const char * msp430_select_hwmult_lib (int, const char **);
 # define EXTRA_SPEC_FUNCTIONS				\
   { "msp430_hwmult_lib", msp430_select_hwmult_lib },
@@ -101,6 +104,7 @@ extern const char * msp430_select_hwmult_lib (int, const char **);
   mmcu=*:%:msp430_hwmult_lib(mcu %{mmcu=*:%*});		\
   :%:msp430_hwmult_lib(default)}			\
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 #undef  LIB_SPEC
@@ -109,10 +113,13 @@ extern const char * msp430_select_hwmult_lib (int, const char **);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 -lc							\
 -lgcc							\
 -lcrt							\
 %{msim:-lsim}						\
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -124,6 +131,9 @@ extern const char * msp430_select_hwmult_lib (int, const char **);
 =======
 %{!msim:-lnosys}					\
 >>>>>>> gcc-mirror/trunk
+=======
+%{!msim:-lnosys}					\
+>>>>>>> gcc-mirror/master
 --end-group					   	\
 %{!T*:%{!msim:%{mmcu=*:--script=%*.ld}}}		\
 %{!T*:%{!msim:%{!mmcu=*:%Tmsp430.ld}}}			\

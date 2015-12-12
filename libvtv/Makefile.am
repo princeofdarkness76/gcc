@@ -79,6 +79,7 @@ vtv_end.c:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 if VTV_CYGMIN
@@ -90,6 +91,8 @@ if VTV_CYGMIN
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 if VTV_NO_OBSTACK
   obstack.c:
 	  rm -f $@
@@ -99,11 +102,14 @@ endif
 
 if VTV_CYGMIN
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   vtv_stubs.cc:
 	  rm -f $@
 	  $(LN_S) $(toplevel_srcdir)/libstdc++-v3/libsupc++/vtv_stubs.cc $@
@@ -119,6 +125,7 @@ if ENABLE_VTABLE_VERIFY
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 if VTV_CYGMIN
@@ -130,6 +137,8 @@ else
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   libvtv_la_SOURCES = $(vtv_sources)
 if VTV_NO_OBSTACK
   libvtv_la_SOURCES += obstack.c
@@ -137,11 +146,14 @@ endif
 if VTV_CYGMIN
   libvtv_stubs_la_SOURCES = $(vtv_stubs_sources)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 endif
   libvtv_include_HEADERS = $(vtv_headers)
 else

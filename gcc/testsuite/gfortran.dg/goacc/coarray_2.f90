@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 module test
 contains
@@ -32,6 +35,7 @@ contains
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -42,6 +46,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/trunk
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -96,6 +103,7 @@ contains
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -106,6 +114,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/trunk
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -130,6 +141,7 @@ contains
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -140,6 +152,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
 >>>>>>> gcc-mirror/trunk
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/master
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -155,6 +170,7 @@ end module test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 =======
 >>>>>>> gcc-mirror/master
@@ -163,3 +179,5 @@ end module test
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

@@ -1266,6 +1266,7 @@ package body Checks is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  generating a conversion to Result_Type, we will let the parent
 =======
          --  generating a conversion to Result_Type. Instead, we let the parent
@@ -1276,6 +1277,9 @@ package body Checks is
 =======
          --  generating a conversion to Result_Type. Instead, we let the parent
 >>>>>>> gcc-mirror/trunk
+=======
+         --  generating a conversion to Result_Type. Instead, we let the parent
+>>>>>>> gcc-mirror/master
          --  handle this. Note that this special case is not just about
          --  optimization. Consider
 
@@ -2389,8 +2393,11 @@ package body Checks is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
          if Nkind (Original_Actual (Actual_1)) = N_Aggregate
            or else
@@ -2399,6 +2406,7 @@ package body Checks is
                            N_Aggregate)
          then
             null;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -2420,6 +2428,9 @@ package body Checks is
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
          elsif Is_Object_Reference (Original_Actual (Actual_1))
            and then not Is_Elementary_Type (Etype (Original_Actual (Actual_1)))
          then
@@ -2946,6 +2957,9 @@ package body Checks is
             --  If the expression is a literal and the bounds of the type are
             --  static constants it may be possible to optimize the check.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
             if Nkind (Expr) = N_Real_Literal then
                declare
@@ -2964,6 +2978,7 @@ package body Checks is
                   end if;
                end;
 
+<<<<<<< HEAD
 =======
 
             if Nkind (Expr) = N_Real_Literal then
@@ -2984,6 +2999,8 @@ package body Checks is
                end;
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
             else
                Enable_Range_Check (Expr);
             end if;

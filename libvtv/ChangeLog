@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-02  Matthias Klose  <doko@ubuntu.com>
 
 	* configure.ac: Move AM_ENABLE_MULTILIB before
@@ -38,11 +41,14 @@
 	(__VLTChangePermission): Fix typos.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-09  Alan Modra  <amodra@gmail.com>
 
 	* vtv_malloc.cc (obstack_chunk_free): Correct param type.

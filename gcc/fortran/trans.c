@@ -714,6 +714,7 @@ gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			bool lock_var)
 =======
 			bool lock_var, bool event_var)
@@ -724,6 +725,9 @@ gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
 =======
 			bool lock_var, bool event_var)
 >>>>>>> gcc-mirror/trunk
+=======
+			bool lock_var, bool event_var)
+>>>>>>> gcc-mirror/master
 {
   tree tmp, pstat;
 
@@ -753,6 +757,7 @@ gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				     : GFC_CAF_COARRAY_ALLOC),
 =======
                             : event_var ? GFC_CAF_EVENT_ALLOC
@@ -765,6 +770,10 @@ gfc_allocate_using_lib (stmtblock_t * block, tree pointer, tree size,
                             : event_var ? GFC_CAF_EVENT_ALLOC
 					: GFC_CAF_COARRAY_ALLOC),
 >>>>>>> gcc-mirror/trunk
+=======
+                            : event_var ? GFC_CAF_EVENT_ALLOC
+					: GFC_CAF_COARRAY_ALLOC),
+>>>>>>> gcc-mirror/master
 	     token, pstat, errmsg, errlen);
 
   tmp = fold_build2_loc (input_location, MODIFY_EXPR,
@@ -835,20 +844,26 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       bool event_var = expr->ts.type == BT_DERIVED
 		       && expr->ts.u.derived->from_intmod
 			 == INTMOD_ISO_FORTRAN_ENV
 		       && expr->ts.u.derived->intmod_sym_id
 		         == ISOFORTRAN_EVENT_TYPE;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       /* In the front end, we represent the lock variable as pointer. However,
 	 the FE only passes the pointer around and leaves the actual
 	 representation to the library. Hence, we have to convert back to the
@@ -861,6 +876,7 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      errmsg, errlen, lock_var);
 =======
 			      errmsg, errlen, lock_var, event_var);
@@ -871,6 +887,9 @@ gfc_allocate_allocatable (stmtblock_t * block, tree mem, tree size, tree token,
 =======
 			      errmsg, errlen, lock_var, event_var);
 >>>>>>> gcc-mirror/trunk
+=======
+			      errmsg, errlen, lock_var, event_var);
+>>>>>>> gcc-mirror/master
 
       if (status != NULL_TREE)
 	{

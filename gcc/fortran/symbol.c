@@ -468,6 +468,7 @@ check_conflict (symbol_attribute *attr, const char *name, locus *where)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     gfc_error_now ("internal procedure '%s' at %L conflicts with "
 =======
     gfc_error_now ("internal procedure %qs at %L conflicts with "
@@ -478,6 +479,9 @@ check_conflict (symbol_attribute *attr, const char *name, locus *where)
 =======
     gfc_error_now ("internal procedure %qs at %L conflicts with "
 >>>>>>> gcc-mirror/trunk
+=======
+    gfc_error_now ("internal procedure %qs at %L conflicts with "
+>>>>>>> gcc-mirror/master
 		   "DUMMY argument", name, where);
 
   conf (dummy, entry);

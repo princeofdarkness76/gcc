@@ -6840,6 +6840,7 @@ default_binds_local_p_3 (const_tree exp, bool shlib, bool weak_dominate,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (resolution_to_local_definition_p (node->resolution))
 =======
       if (node->can_be_discarded_p ())
@@ -6854,6 +6855,11 @@ default_binds_local_p_3 (const_tree exp, bool shlib, bool weak_dominate,
 	;
       else if (resolution_to_local_definition_p (node->resolution))
 >>>>>>> gcc-mirror/trunk
+=======
+      if (node->can_be_discarded_p ())
+	;
+      else if (resolution_to_local_definition_p (node->resolution))
+>>>>>>> gcc-mirror/master
 	defined_locally = resolved_locally = true;
       else if (resolution_local_p (node->resolution))
 	resolved_locally = true;
@@ -6900,6 +6906,7 @@ default_binds_local_p_3 (const_tree exp, bool shlib, bool weak_dominate,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Assume ELF-ish defaults, since that's pretty much the most liberal
    wrt cross-module name binding.  */
@@ -6947,6 +6954,9 @@ bool
 >>>>>>> master
 =======
 
+=======
+
+>>>>>>> gcc-mirror/master
 /* Assume ELF-ish defaults, since that's pretty much the most liberal
    wrt cross-module name binding.  */
 
@@ -6960,7 +6970,10 @@ default_binds_local_p (const_tree exp)
    extern protected data is non-local.  */
 
 bool
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 default_binds_local_p_2 (const_tree exp)
 {
   return default_binds_local_p_3 (exp, flag_shlib != 0, true, true,
@@ -6999,6 +7012,7 @@ decl_binds_to_current_def_p (const_tree decl)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (node->resolution != LDPR_UNKNOWN)
 =======
       if (node->resolution != LDPR_UNKNOWN
@@ -7011,6 +7025,10 @@ decl_binds_to_current_def_p (const_tree decl)
       if (node->resolution != LDPR_UNKNOWN
 	  && !node->can_be_discarded_p ())
 >>>>>>> gcc-mirror/trunk
+=======
+      if (node->resolution != LDPR_UNKNOWN
+	  && !node->can_be_discarded_p ())
+>>>>>>> gcc-mirror/master
 	return resolution_to_local_definition_p (node->resolution);
     }
 

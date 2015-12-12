@@ -737,6 +737,7 @@ build_atomic_store (tree dest, tree src, bool sync)
   src = fold_build1 (VIEW_CONVERT_EXPR, int_type, src);
   addr = build_unary_op (ADDR_EXPR, ptr_type, dest);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   return build_call_expr (t, 3, addr, src, mem_model);
 }
@@ -808,6 +809,8 @@ build_load_modify_store (tree dest, tree src, Node_Id gnat_node)
     }
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
   return build_call_expr (t, 3, addr, src, mem_model);
 }
@@ -878,7 +881,10 @@ build_load_modify_store (tree dest, tree src, Node_Id gnat_node)
       ref = TREE_OPERAND (ref, 0);
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Something went wrong earlier if we have not found the atomic load.  */
   gcc_unreachable ();
 }
@@ -1826,6 +1832,7 @@ build_call_n_expr (tree fndecl, int n, ...)
    if GNAT_NODE is absent or has no SLOC.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -1873,6 +1880,15 @@ expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
   const char *str;
   int line_number, column_number;
 
+=======
+
+static void
+expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
+{
+  const char *str;
+  int line_number, column_number;
+
+>>>>>>> gcc-mirror/master
   if (Debug_Flag_NN || Exception_Locations_Suppressed)
     {
       str = "";
@@ -1902,9 +1918,12 @@ expand_sloc (Node_Id gnat_node, tree *filename, tree *line, tree *col)
     *col = build_int_cst (NULL_TREE, column_number);
 }
 
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Build a call to a function that raises an exception and passes file name
    and line number, if requested.  MSG says which exception function to call.
    GNAT_NODE is the node conveying the source location for which the error
@@ -2068,6 +2087,7 @@ build_simple_component_ref (tree record, tree field, bool no_fold)
   tree ref;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   gcc_assert (RECORD_OR_UNION_TYPE_P (type) && COMPLETE_TYPE_P (type));
 
@@ -2081,6 +2101,11 @@ build_simple_component_ref (tree record, tree field, bool no_fold)
   gcc_assert (RECORD_OR_UNION_TYPE_P (type) && COMPLETE_TYPE_P (type));
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+  gcc_assert (RECORD_OR_UNION_TYPE_P (type) && COMPLETE_TYPE_P (type));
+
+>>>>>>> gcc-mirror/master
   /* Try to fold a conversion from another record or union type unless the type
      contains a placeholder as it might be needed for a later substitution.  */
   if (TREE_CODE (record) == VIEW_CONVERT_EXPR
@@ -2766,6 +2791,7 @@ gnat_stabilize_reference_1 (tree e, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 tree
 gnat_stabilize_reference (tree ref, bool force, tree *init)
@@ -2782,6 +2808,8 @@ tree
 =======
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
 
 tree
 gnat_stabilize_reference (tree ref, bool force, tree *init)
@@ -2795,6 +2823,7 @@ gnat_stabilize_reference (tree ref, bool force, tree *init)
    arm of a COMPOUND_EXPR present in REF, if any.  */
 
 tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -2814,6 +2843,8 @@ gnat_stabilize_reference (tree ref, bool force, tree *init)
 
 tree
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
 {
   tree type = TREE_TYPE (ref);
@@ -2904,6 +2935,7 @@ gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return error_mark_node;
 =======
     case NULL_EXPR:
@@ -2916,6 +2948,10 @@ gnat_rewrite_reference (tree ref, rewrite_fn func, void *data, tree *init)
     case NULL_EXPR:
       return ref;
 >>>>>>> gcc-mirror/trunk
+=======
+    case NULL_EXPR:
+      return ref;
+>>>>>>> gcc-mirror/master
 
     default:
       gcc_unreachable ();
@@ -2998,9 +3034,12 @@ done:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Return true if EXPR is the addition or the subtraction of a constant and,
    if so, set *ADD to the addend, *CST to the constant and *MINUS_P to true
    if this is a subtraction.  */
@@ -3048,11 +3087,14 @@ is_simple_additive_expression (tree expr, tree *add, tree *cst, bool *minus_p)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* If EXPR is an expression that is invariant in the current function, in the
    sense that it can be evaluated anywhere in the function and any number of
    times, return EXPR or an equivalent expression.  Otherwise return NULL.  */
@@ -3064,6 +3106,7 @@ gnat_invariant_expr (tree expr)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   tree add, cst;
   bool minus_p;
@@ -3074,6 +3117,10 @@ gnat_invariant_expr (tree expr)
   tree add, cst;
   bool minus_p;
 >>>>>>> gcc-mirror/trunk
+=======
+  tree add, cst;
+  bool minus_p;
+>>>>>>> gcc-mirror/master
 
   expr = remove_conversions (expr, false);
 
@@ -3102,6 +3149,7 @@ gnat_invariant_expr (tree expr)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* Skip overflow checks since they don't change the invariantness.  */
@@ -3123,6 +3171,8 @@ gnat_invariant_expr (tree expr)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Deal with addition or subtraction of constants.  */
   if (is_simple_additive_expression (expr, &add, &cst, &minus_p))
     {
@@ -3132,11 +3182,14 @@ gnat_invariant_expr (tree expr)
 	  fold_build2 (minus_p ? MINUS_EXPR : PLUS_EXPR, type,
 		       fold_convert (type, add), fold_convert (type, cst));
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       else
 	return NULL_TREE;
     }

@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-additional-options "-march=z900" { target s390-*-* } } */
 =======
 /* { dg-additional-options "-march=z900" { target s390*-*-* } } */
@@ -15,6 +16,9 @@
 =======
 /* { dg-additional-options "-march=z900" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-additional-options "-march=z900" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/master
 
 #include <stdint.h>
 

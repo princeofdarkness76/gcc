@@ -14,6 +14,7 @@ void foo()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return;	 /* { dg-error "invalid branch to.from a Cilk" } */
 =======
 	return; /* { dg-error "invalid branch to/from Cilk Plus structured block" } */
@@ -27,6 +28,9 @@ void foo()
 =======
 	return; /* { dg-error "invalid branch to/from Cilk Plus structured block" } */
 >>>>>>> gcc-mirror/trunk
+=======
+	return; /* { dg-error "invalid branch to/from Cilk Plus structured block" } */
+>>>>>>> gcc-mirror/master
     }
 }
 
@@ -39,6 +43,7 @@ void bar()
       a[i] = b[i];
     }
   if (c == 6)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,4 +61,7 @@ void bar()
 =======
     goto lab; /* { dg-error "invalid entry to Cilk Plus structured block" } */
 >>>>>>> gcc-mirror/trunk
+=======
+    goto lab; /* { dg-error "invalid entry to Cilk Plus structured block" } */
+>>>>>>> gcc-mirror/master
 }

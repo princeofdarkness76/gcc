@@ -981,6 +981,7 @@ CONTEXT_H = context.h
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 GENSUPPORT_H = gensupport.h read-md.h optabs.def
 >>>>>>> gcc-mirror/master
@@ -989,6 +990,9 @@ GENSUPPORT_H = gensupport.h read-md.h optabs.def
 =======
 GENSUPPORT_H = gensupport.h read-md.h optabs.def
 >>>>>>> gcc-mirror/trunk
+=======
+GENSUPPORT_H = gensupport.h read-md.h optabs.def
+>>>>>>> gcc-mirror/master
 
 #
 # Now figure out from those variables how to compile and link.
@@ -1182,6 +1186,7 @@ C_COMMON_OBJS = c-family/c-common.o c-family/c-cppbuiltin.o c-family/c-dump.o \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   c-family/c-semantics.o c-family/c-ada-spec.o tree-mudflap.o \
   c-family/array-notation-common.o c-family/c-cilkplus.o
 =======
@@ -1204,6 +1209,11 @@ C_COMMON_OBJS = c-family/c-common.o c-family/c-cppbuiltin.o c-family/c-dump.o \
   c-family/c-cilkplus.o \
   c-family/array-notation-common.o c-family/cilk.o c-family/c-ubsan.o
 >>>>>>> gcc-mirror/trunk
+=======
+  c-family/c-semantics.o c-family/c-ada-spec.o \
+  c-family/c-cilkplus.o \
+  c-family/array-notation-common.o c-family/cilk.o c-family/c-ubsan.o
+>>>>>>> gcc-mirror/master
 
 # Language-independent object files.
 # We put the *-match.o and insn-*.o files first so that a parallel make
@@ -1463,6 +1473,7 @@ OBJS = \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	sancov.o \
 >>>>>>> gcc-mirror/master
@@ -1471,6 +1482,9 @@ OBJS = \
 =======
 	sancov.o \
 >>>>>>> gcc-mirror/trunk
+=======
+	sancov.o \
+>>>>>>> gcc-mirror/master
 	tree-call-cdce.o \
 	tree-cfg.o \
 	tree-cfgcleanup.o \
@@ -2042,6 +2056,7 @@ lto-wrapper$(exeext): $(LTO_WRAPPER_OBJS) libcommon-target.a $(LIBDEPS)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 c-family/cppspec.o: c-family/cppspec.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
     $(TM_H) $(GCC_H) $(OPTS_H)
 
@@ -2092,6 +2107,8 @@ c-family/c-cilkplus.o : c-family/c-cilkplus.c $(CONFIG_H) $(SYSTEM_H) \
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 CFLAGS-c-family/c-opts.o += @TARGET_SYSTEM_ROOT_DEFINE@
 
@@ -2171,6 +2188,7 @@ version.o: $(REVISION) $(DATESTAMP) $(BASEVER) $(DEVPHASE)
 
 # lto-compress.o needs $(ZLIBINC) added to the include flags.
 CFLAGS-lto-compress.o += $(ZLIBINC)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2738,6 +2756,8 @@ common/common-targhooks.o : common/common-targhooks.c $(CONFIG_H) $(SYSTEM_H) \
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 bversion.h: s-bversion; @true
 s-bversion: BASE-VER
@@ -3068,6 +3088,7 @@ GTFILES = $(CPP_ID_DATA_H) $(srcdir)/input.h $(srcdir)/coretypes.h \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   $(srcdir)/sancov.c \
 >>>>>>> gcc-mirror/master
@@ -3076,6 +3097,9 @@ GTFILES = $(CPP_ID_DATA_H) $(srcdir)/input.h $(srcdir)/coretypes.h \
 =======
   $(srcdir)/sancov.c \
 >>>>>>> gcc-mirror/trunk
+=======
+  $(srcdir)/sancov.c \
+>>>>>>> gcc-mirror/master
   $(srcdir)/ipa-devirt.c \
   $(srcdir)/internal-fn.h \
   @all_gtfiles@
@@ -3217,6 +3241,7 @@ build/genextract.o : genextract.c $(RTL_BASE_H) $(BCONFIG_H)		\
 build/genflags.o : genflags.c $(RTL_BASE_H) $(OBSTACK_H) $(BCONFIG_H)	\
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   $(SYSTEM_H) coretypes.h $(GTM_H) errors.h $(READ_MD_H) gensupport.h
 build/gentarget-def.o : gentarget-def.c $(BCONFIG_H) $(SYSTEM_H)	\
   coretypes.h $(GTM_H) $(RTL_BASE_H) errors.h $(READ_MD_H) gensupport.h	\
@@ -3233,6 +3258,11 @@ build/gentarget-def.o : gentarget-def.c $(BCONFIG_H) $(SYSTEM_H)	\
 build/gentarget-def.o : gentarget-def.c $(BCONFIG_H) $(SYSTEM_H)	\
   coretypes.h $(GTM_H) $(RTL_BASE_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)	\
 >>>>>>> gcc-mirror/trunk
+=======
+  $(SYSTEM_H) coretypes.h $(GTM_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)
+build/gentarget-def.o : gentarget-def.c $(BCONFIG_H) $(SYSTEM_H)	\
+  coretypes.h $(GTM_H) $(RTL_BASE_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)	\
+>>>>>>> gcc-mirror/master
   $(HASH_TABLE_H) target-insns.def
 build/gengenrtl.o : gengenrtl.c $(BCONFIG_H) $(SYSTEM_H) rtl.def
 
@@ -3285,6 +3315,7 @@ build/genrecog.o : genrecog.c $(RTL_BASE_H) $(BCONFIG_H) $(SYSTEM_H)	\
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   coretypes.h $(GTM_H) errors.h $(READ_MD_H) gensupport.h		\
 =======
   coretypes.h $(GTM_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)		\
@@ -3295,10 +3326,14 @@ build/genrecog.o : genrecog.c $(RTL_BASE_H) $(BCONFIG_H) $(SYSTEM_H)	\
 =======
   coretypes.h $(GTM_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)		\
 >>>>>>> gcc-mirror/trunk
+=======
+  coretypes.h $(GTM_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)		\
+>>>>>>> gcc-mirror/master
   $(HASH_TABLE_H) inchash.h
 build/genhooks.o : genhooks.c $(TARGET_DEF) $(C_TARGET_DEF)		\
   $(COMMON_TARGET_DEF) $(BCONFIG_H) $(SYSTEM_H) errors.h
 build/genmddump.o : genmddump.c $(RTL_BASE_H) $(BCONFIG_H) $(SYSTEM_H)	\
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   coretypes.h $(GTM_H) errors.h $(READ_MD_H) gensupport.h
@@ -3309,16 +3344,21 @@ build/genmatch.o : genmatch.c $(BCONFIG_H) $(SYSTEM_H) \
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   coretypes.h $(GTM_H) errors.h $(READ_MD_H) $(GENSUPPORT_H)
 build/genmatch.o : genmatch.c $(BCONFIG_H) $(SYSTEM_H) \
   coretypes.h errors.h $(HASH_TABLE_H) hash-map.h $(GGC_H) is-a.h \
   tree.def builtins.def internal-fn.def
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 build/gencfn-macros.o : gencfn-macros.c $(BCONFIG_H) $(SYSTEM_H)	\
   coretypes.h errors.h $(HASH_TABLE_H) hash-set.h builtins.def internal-fn.def
 

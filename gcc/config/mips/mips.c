@@ -8976,6 +8976,16 @@ mips_dwarf_register_span (rtx reg)
 	   && MAX_FPRS_PER_FMT > 1
 	   && GET_MODE_SIZE (mode) > UNITS_PER_FPREG)
     {
+      return gen_rtx_PARALLEL (VOIDmode, gen_rtvec (1, reg));
+    }
+  /* By default, GCC maps increasing register numbers to increasing
+     memory locations, but paired FPRs are always little-endian,
+     regardless of the prevailing endianness.  */
+  else if (FP_REG_P (REGNO (reg))
+	   && TARGET_BIG_ENDIAN
+	   && MAX_FPRS_PER_FMT > 1
+	   && GET_MODE_SIZE (mode) > UNITS_PER_FPREG)
+    {
       gcc_assert (GET_MODE_SIZE (mode) == UNITS_PER_HWFPVALUE);
       high = mips_subword (reg, true);
       low = mips_subword (reg, false);
@@ -9364,7 +9374,39 @@ mips_file_start (void)
   else
     fputs ("\t.module\tnooddspreg\n", asm_out_file);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+  /* Record the NaN encoding.  */
+  if (HAVE_AS_NAN || mips_nan != MIPS_IEEE_754_DEFAULT)
+    fprintf (asm_out_file, "\t.nan\t%s\n",
+	     mips_nan == MIPS_IEEE_754_2008 ? "2008" : "legacy");
+
+#ifdef HAVE_AS_DOT_MODULE
+  /* Record the FP ABI.  See below for comments.  */
+  if (TARGET_NO_FLOAT)
+#ifdef HAVE_AS_GNU_ATTRIBUTE
+    fputs ("\t.gnu_attribute 4, 0\n", asm_out_file);
+#else
+    ;
+#endif
+  else if (!TARGET_HARD_FLOAT_ABI)
+    fputs ("\t.module\tsoftfloat\n", asm_out_file);
+  else if (!TARGET_DOUBLE_FLOAT)
+    fputs ("\t.module\tsinglefloat\n", asm_out_file);
+  else if (TARGET_FLOATXX)
+    fputs ("\t.module\tfp=xx\n", asm_out_file);
+  else if (TARGET_FLOAT64)
+    fputs ("\t.module\tfp=64\n", asm_out_file);
+  else
+    fputs ("\t.module\tfp=32\n", asm_out_file);
+
+  if (TARGET_ODD_SPREG)
+    fputs ("\t.module\toddspreg\n", asm_out_file);
+  else
+    fputs ("\t.module\tnooddspreg\n", asm_out_file);
+
+>>>>>>> gcc-mirror/master
 #else
 #ifdef HAVE_AS_GNU_ATTRIBUTE
   {
@@ -11708,6 +11750,7 @@ mips_expand_prologue (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      rtx insn = gen_add3_insn (stack_pointer_rtx,
@@ -11719,6 +11762,8 @@ mips_expand_prologue (void)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	      if (step1 != 0)
 		{
 		  rtx insn = gen_add3_insn (stack_pointer_rtx,
@@ -11729,9 +11774,12 @@ mips_expand_prologue (void)
 		  size -= step1;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    }
 	  mips_for_each_saved_acc (size, mips_save_reg);
 	  mips_for_each_saved_gpr_and_fpr (size, mips_save_reg);

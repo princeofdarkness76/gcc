@@ -547,6 +547,7 @@ package body Sem_Ch7 is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  same declarative part upto and excluding the package body:
 =======
       --  same declarative part up to and excluding the package body:
@@ -557,6 +558,9 @@ package body Sem_Ch7 is
 =======
       --  same declarative part up to and excluding the package body:
 >>>>>>> gcc-mirror/trunk
+=======
+      --  same declarative part up to and excluding the package body:
+>>>>>>> gcc-mirror/master
 
       --    package body Nearest_Enclosing_Package
       --      with Refined_State => (State => Constit)
@@ -1428,6 +1432,7 @@ package body Sem_Ch7 is
          if Is_Type (E) then
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
             --  Each private type subject to pragma Default_Initial_Condition
             --  declares a specialized procedure which verifies the assumption
@@ -1449,6 +1454,8 @@ package body Sem_Ch7 is
 
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 
             --  Each private type subject to pragma Default_Initial_Condition
             --  declares a specialized procedure which verifies the assumption
@@ -1458,7 +1465,10 @@ package body Sem_Ch7 is
             if Has_Default_Init_Cond (E) then
                Build_Default_Init_Cond_Procedure_Declaration (E);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
             --  A private extension inherits the default initial condition
             --  procedure from its parent type.
 

@@ -91,19 +91,25 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     if (TARGET_ATOMIC)			\
       {					\
 	builtin_define ("__ARC_ATOMIC__");	\
       }					\
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     if (TARGET_NORM)			\
       {					\
 	builtin_define ("__ARC_NORM__");\
@@ -172,6 +178,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 "
 =======
 %{matomic:-mlock}"
@@ -182,6 +189,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 %{matomic:-mlock}"
 >>>>>>> gcc-mirror/trunk
+=======
+%{matomic:-mlock}"
+>>>>>>> gcc-mirror/master
 
 #if DEFAULT_LIBC == LIBC_UCLIBC
 /* Note that the default is to link against dynamic libraries, if they are

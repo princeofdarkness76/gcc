@@ -354,6 +354,7 @@ extern gimple_opt_pass *make_pass_tsan_O0 (gcc::context *ctxt);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern gimple_opt_pass *make_pass_sancov (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_sancov_O0 (gcc::context *ctxt);
@@ -364,6 +365,10 @@ extern gimple_opt_pass *make_pass_sancov_O0 (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_sancov (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_sancov_O0 (gcc::context *ctxt);
 >>>>>>> gcc-mirror/trunk
+=======
+extern gimple_opt_pass *make_pass_sancov (gcc::context *ctxt);
+extern gimple_opt_pass *make_pass_sancov_O0 (gcc::context *ctxt);
+>>>>>>> gcc-mirror/master
 extern gimple_opt_pass *make_pass_lower_cf (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_refactor_eh (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_lower_eh (gcc::context *ctxt);
@@ -481,6 +486,7 @@ extern gimple_opt_pass *make_pass_sanopt (gcc::context *ctxt);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern gimple_opt_pass *make_pass_oacc_kernels (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_oacc_kernels2 (gcc::context *ctxt);
@@ -491,6 +497,10 @@ extern gimple_opt_pass *make_pass_oacc_kernels2 (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_oacc_kernels (gcc::context *ctxt);
 extern gimple_opt_pass *make_pass_oacc_kernels2 (gcc::context *ctxt);
 >>>>>>> gcc-mirror/trunk
+=======
+extern gimple_opt_pass *make_pass_oacc_kernels (gcc::context *ctxt);
+extern gimple_opt_pass *make_pass_oacc_kernels2 (gcc::context *ctxt);
+>>>>>>> gcc-mirror/master
 
 /* IPA Passes */
 extern simple_ipa_opt_pass *make_pass_ipa_lower_emutls (gcc::context *ctxt);

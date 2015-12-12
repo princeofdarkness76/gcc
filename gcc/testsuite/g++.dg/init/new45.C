@@ -26,9 +26,12 @@ enum { N = 123 };
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #if defined (__arm__) && defined (__ARM_EABI__)
 // On ARM EABI the cookie is always 8 bytes as per Section 3.2.2 of
 // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0041d/IHI0041D_cppabi.pdf
@@ -41,11 +44,14 @@ static const size_t cookie_size = sizeof (size_t);
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 inline __attribute__ ((always_inline))
 void* operator new[] (size_t n)
 {
@@ -55,6 +61,7 @@ void* operator new[] (size_t n)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (n != N * sizeof (UDClass) + sizeof n) abort ();
 =======
  
@@ -67,6 +74,10 @@ void* operator new[] (size_t n)
  
   if (n != N * sizeof (UDClass) + cookie_size) abort ();
 >>>>>>> gcc-mirror/trunk
+=======
+ 
+  if (n != N * sizeof (UDClass) + cookie_size) abort ();
+>>>>>>> gcc-mirror/master
     return malloc (n);
 }
 
@@ -100,6 +111,7 @@ void* operator new[] (size_t n, UDClass *p)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (n != N * sizeof (UDClass) + sizeof n) abort ();
 =======
     if (n != N * sizeof (UDClass) + cookie_size) abort ();
@@ -110,6 +122,9 @@ void* operator new[] (size_t n, UDClass *p)
 =======
     if (n != N * sizeof (UDClass) + cookie_size) abort ();
 >>>>>>> gcc-mirror/trunk
+=======
+    if (n != N * sizeof (UDClass) + cookie_size) abort ();
+>>>>>>> gcc-mirror/master
     return p;
 }
 

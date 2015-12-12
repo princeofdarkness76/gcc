@@ -1212,6 +1212,7 @@ proc check_effective_target_nonpic { } {
 	#error __PIC__
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	#endif
     }]
 }
@@ -1238,13 +1239,18 @@ proc check_effective_target_pie_enabled { } {
 	#error unsupported
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	#endif
     }]
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 # Return 1 if the current multilib generates PIE by default.
 
 proc check_effective_target_pie_enabled { } {
@@ -1255,7 +1261,10 @@ proc check_effective_target_pie_enabled { } {
     }]
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # Return 1 if the target generates -fstack-protector by default.
 
 proc check_effective_target_fstack_protector_enabled {} {
@@ -2626,11 +2635,14 @@ proc check_effective_target_aarch64_big_endian { } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	#endif
     }]
 }
@@ -2650,8 +2662,11 @@ proc check_effective_target_aarch64_little_endian { } {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # Return 1 if this is a compiler supporting ARC atomic operations
 proc check_effective_target_arc_atomic { } {
     return [check_no_compiler_messages arc_atomic assembly {
@@ -2667,6 +2682,7 @@ proc check_effective_target_arc_atomic { } {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Return 1 if this is a AArch64 target supporting little endian
 proc check_effective_target_aarch64_little_endian { } {
     if { ![istarget aarch64*-*-*] } {
@@ -2686,6 +2702,8 @@ proc check_effective_target_aarch64_little_endian { } {
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # Return 1 if this is an arm target using 32-bit instructions
 proc check_effective_target_arm32 { } {
     if { ![istarget arm*-*-*] } {
@@ -2897,9 +2915,12 @@ proc add_options_for_arm_v8_neon { flags } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # Add the options needed for ARMv8.1 Adv.SIMD.
 
 proc add_options_for_arm_v8_1a_neon { flags } {
@@ -2911,11 +2932,14 @@ proc add_options_for_arm_v8_1a_neon { flags } {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 proc add_options_for_arm_crc { flags } {
     if { ! [check_effective_target_arm_crc_ok] } {
         return "$flags"
@@ -5505,6 +5529,7 @@ proc check_effective_target_sync_long_long { } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	 || [istarget s390*-*-*]
 >>>>>>> gcc-mirror/master
@@ -5513,6 +5538,9 @@ proc check_effective_target_sync_long_long { } {
 =======
 	 || [istarget s390*-*-*]
 >>>>>>> gcc-mirror/trunk
+=======
+	 || [istarget s390*-*-*]
+>>>>>>> gcc-mirror/master
 	 || [istarget spu-*-*] } {
 	return 1
     } else {
@@ -5648,6 +5676,7 @@ proc check_effective_target_bswap32 { } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #
 # Note: 32bit s390 targets require -mzarch in dg-options.
@@ -5658,6 +5687,10 @@ proc check_effective_target_bswap32 { } {
 #
 # Note: 32bit s390 targets require -mzarch in dg-options.
 >>>>>>> gcc-mirror/trunk
+=======
+#
+# Note: 32bit s390 targets require -mzarch in dg-options.
+>>>>>>> gcc-mirror/master
 
 proc check_effective_target_bswap64 { } {
     global et_bswap64_saved
@@ -5695,6 +5728,7 @@ proc check_effective_target_sync_int_long { } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/master
@@ -5703,6 +5737,9 @@ proc check_effective_target_sync_int_long { } {
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/trunk
+=======
+	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
+>>>>>>> gcc-mirror/master
 	     || [check_effective_target_mips_llsc] } {
            set et_sync_int_long_saved 1
         }
@@ -5737,6 +5774,7 @@ proc check_effective_target_sync_char_short { } {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/master
@@ -5745,6 +5783,9 @@ proc check_effective_target_sync_char_short { } {
 =======
 	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
 >>>>>>> gcc-mirror/trunk
+=======
+	     || ([istarget arc*-*-*] && [check_effective_target_arc_atomic])
+>>>>>>> gcc-mirror/master
 	     || [check_effective_target_mips_llsc] } {
            set et_sync_char_short_saved 1
         }

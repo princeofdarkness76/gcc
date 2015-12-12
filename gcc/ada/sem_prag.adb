@@ -361,6 +361,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  to detect multiple illegal occurences of "others".
 =======
       --  to detect multiple illegal occurrences of "others".
@@ -371,6 +372,9 @@ package body Sem_Prag is
 =======
       --  to detect multiple illegal occurrences of "others".
 >>>>>>> gcc-mirror/trunk
+=======
+      --  to detect multiple illegal occurrences of "others".
+>>>>>>> gcc-mirror/master
 
       procedure Analyze_Contract_Case (CCase : Node_Id);
       --  Verify the legality of a single contract case
@@ -426,6 +430,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                --  at leat one undefined reference, possibly due to contract
 =======
                --  at least one undefined reference, possibly due to contract
@@ -436,6 +441,9 @@ package body Sem_Prag is
 =======
                --  at least one undefined reference, possibly due to contract
 >>>>>>> gcc-mirror/trunk
+=======
+               --  at least one undefined reference, possibly due to contract
+>>>>>>> gcc-mirror/master
                --  "freezing".
 
                if Errors /= Serious_Errors_Detected
@@ -453,6 +461,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             --  at leat one undefined reference, possibly due to contract
 =======
             --  at least one undefined reference, possibly due to contract
@@ -463,6 +472,9 @@ package body Sem_Prag is
 =======
             --  at least one undefined reference, possibly due to contract
 >>>>>>> gcc-mirror/trunk
+=======
+            --  at least one undefined reference, possibly due to contract
+>>>>>>> gcc-mirror/master
             --  "freezing".
 
             if Errors /= Serious_Errors_Detected
@@ -1831,13 +1843,17 @@ package body Sem_Prag is
                   Install_Generic_Formals (Spec_Id);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
                else
                   Install_Formals (Spec_Id);
                end if;
             end if;
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -1868,6 +1884,8 @@ package body Sem_Prag is
 =======
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
             Clause := First (Component_Associations (Deps));
             while Present (Clause) loop
@@ -1879,6 +1897,7 @@ package body Sem_Prag is
 
                if not Analyzed (Clause) then
                   Set_Analyzed (Clause);
+<<<<<<< HEAD
 
 >>>>>>> gcc-mirror/trunk
                   Analyze_Dependency_Clause
@@ -1896,6 +1915,20 @@ package body Sem_Prag is
                --  in ASIS mode as it alters the tree by introducing new nodes
                --  similar to expansion.
 
+=======
+
+                  Analyze_Dependency_Clause
+                    (Clause  => Clause,
+                     Is_Last => Clause = Last_Clause);
+               end if;
+
+               --  Do not normalize a clause if errors were detected (count
+               --  of Serious_Errors has increased) because the inputs and/or
+               --  outputs may denote illegal items. Normalization is disabled
+               --  in ASIS mode as it alters the tree by introducing new nodes
+               --  similar to expansion.
+
+>>>>>>> gcc-mirror/master
                if Serious_Errors_Detected = Errors and then not ASIS_Mode then
                   Normalize_Clause (Clause);
                end if;
@@ -2217,6 +2250,7 @@ package body Sem_Prag is
                   --  If the reference to the abstract state appears in an
                   --  enclosing package body that will eventually refine the
                   --  state, record the reference for future checks.
+<<<<<<< HEAD
 
                   else
                      Record_Possible_Body_Reference
@@ -2305,6 +2339,59 @@ package body Sem_Prag is
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+                  else
+                     Record_Possible_Body_Reference
+                       (State_Id => Item_Id,
+                        Ref      => Item);
+                  end if;
+
+               --  Constant related checks
+
+               elsif Ekind (Item_Id) = E_Constant then
+
+                  --  A constant is a read-only item, therefore it cannot act
+                  --  as an output.
+
+                  if Nam_In (Global_Mode, Name_In_Out, Name_Output) then
+                     SPARK_Msg_NE
+                       ("constant & cannot act as output", Item, Item_Id);
+                     return;
+                  end if;
+
+               --  Discriminant related checks
+
+               elsif Ekind (Item_Id) = E_Discriminant then
+
+                  --  A discriminant is a read-only item, therefore it cannot
+                  --  act as an output.
+
+                  if Nam_In (Global_Mode, Name_In_Out, Name_Output) then
+                     SPARK_Msg_NE
+                       ("discriminant & cannot act as output", Item, Item_Id);
+                     return;
+                  end if;
+
+               --  Loop parameter related checks
+
+               elsif Ekind (Item_Id) = E_Loop_Parameter then
+
+                  --  A loop parameter is a read-only item, therefore it cannot
+                  --  act as an output.
+
+                  if Nam_In (Global_Mode, Name_In_Out, Name_Output) then
+                     SPARK_Msg_NE
+                       ("loop parameter & cannot act as output",
+                        Item, Item_Id);
+                     return;
+                  end if;
+
+               --  Variable related checks. These are only relevant when
+               --  SPARK_Mode is on as they are not standard Ada legality
+               --  rules.
+
+>>>>>>> gcc-mirror/master
                elsif SPARK_Mode = On
                  and then Ekind (Item_Id) = E_Variable
                  and then Is_Effectively_Volatile (Item_Id)
@@ -2583,6 +2670,7 @@ package body Sem_Prag is
 
       Items : constant Node_Id := Expression (Get_Argument (N, Spec_Id));
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       Restore_Scope : Boolean := False;
 
@@ -2591,6 +2679,11 @@ package body Sem_Prag is
       Restore_Scope : Boolean := False;
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+      Restore_Scope : Boolean := False;
+
+>>>>>>> gcc-mirror/master
    --  Start of processing for Analyze_Global_In_Decl_Part
 
    begin
@@ -2736,6 +2829,7 @@ package body Sem_Prag is
       -- Analyze_Initialization_Item --
       ---------------------------------
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       procedure Analyze_Initialization_Item (Item : Node_Id) is
          Item_Id : Entity_Id;
@@ -2746,6 +2840,7 @@ package body Sem_Prag is
          if Nkind (Item) = N_Null then
             if Null_Seen then
                SPARK_Msg_N ("multiple null initializations not allowed", Item);
+=======
 =======
 
       procedure Analyze_Initialization_Item (Item : Node_Id) is
@@ -3379,24 +3474,24 @@ package body Sem_Prag is
          Contract_Freeze_Error (Var_Id, Freeze_Id);
       end if;
    end Analyze_Part_Of_In_Decl_Part;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
+      procedure Analyze_Initialization_Item (Item : Node_Id) is
+         Item_Id : Entity_Id;
+
+      begin
+         --  Null initialization list
+
+         if Nkind (Item) = N_Null then
+            if Null_Seen then
+               SPARK_Msg_N ("multiple null initializations not allowed", Item);
+
+<<<<<<< HEAD
             elsif Non_Null_Seen then
                SPARK_Msg_N
                  ("cannot mix null and non-null initialization items", Item);
             else
                Null_Seen := True;
-            end if;
-
-         --  Initialization item
-
-         else
-            Non_Null_Seen := True;
-
-<<<<<<< HEAD
-            if Null_Seen then
-               SPARK_Msg_N
-                 ("cannot mix null and non-null initialization items", Item);
             end if;
 =======
       Pragma_Exit : exception;
@@ -3404,27 +3499,21 @@ package body Sem_Prag is
       --  is used when an error is detected, and no further processing is
       --  required. It is also used if an earlier error has left the tree in
       --  a state where the pragma should not be processed.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-            Analyze       (Item);
-            Resolve_State (Item);
+         --  Initialization item
 
-            if Is_Entity_Name (Item) then
-               Item_Id := Entity_Of (Item);
+         else
+            Non_Null_Seen := True;
 
-               if Ekind_In (Item_Id, E_Abstract_State,
-                                     E_Constant,
-                                     E_Variable)
-               then
-                  --  The state or variable must be declared in the visible
-                  --  declarations of the package (SPARK RM 7.1.5(7)).
+            if Null_Seen then
+               SPARK_Msg_N
+                 ("cannot mix null and non-null initialization items", Item);
+            end if;
 
 <<<<<<< HEAD
-                  if not Contains (States_And_Objs, Item_Id) then
-                     Error_Msg_Name_1 := Chars (Pack_Id);
-                     SPARK_Msg_NE
-                       ("initialization item & must appear in the visible "
-                        & "declarations of package %", Item, Item_Id);
+            Analyze       (Item);
+            Resolve_State (Item);
 =======
       -----------------------
       -- Local Subprograms --
@@ -3440,14 +3529,18 @@ package body Sem_Prag is
       --  Called for pragmas defined in Ada 2005, that are not in Ada 95. In
       --  Ada 95 mode, these are implementation defined pragmas, so should be
       --  caught by the No_Implementation_Pragmas restriction.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-                  --  Detect a duplicate use of the same initialization item
-                  --  (SPARK RM 7.1.5(5)).
+            if Is_Entity_Name (Item) then
+               Item_Id := Entity_Of (Item);
 
 <<<<<<< HEAD
-                  elsif Contains (Items_Seen, Item_Id) then
-                     SPARK_Msg_N ("duplicate initialization item", Item);
+               if Ekind_In (Item_Id, E_Abstract_State,
+                                     E_Constant,
+                                     E_Variable)
+               then
+                  --  The state or variable must be declared in the visible
+                  --  declarations of the package (SPARK RM 7.1.5(7)).
 =======
       procedure Analyze_Depends_Global
         (Spec_Id   : out Entity_Id;
@@ -3480,7 +3573,19 @@ package body Sem_Prag is
       --  83 mode (used for language pragmas that are not a standard part of
       --  Ada 83). This procedure does not raise Pragma_Exit. Also notes use
       --  of 95 pragma.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+                  if not Contains (States_And_Objs, Item_Id) then
+                     Error_Msg_Name_1 := Chars (Pack_Id);
+                     SPARK_Msg_NE
+                       ("initialization item & must appear in the visible "
+                        & "declarations of package %", Item, Item_Id);
+
+                  --  Detect a duplicate use of the same initialization item
+                  --  (SPARK RM 7.1.5(5)).
+
+                  elsif Contains (Items_Seen, Item_Id) then
+                     SPARK_Msg_N ("duplicate initialization item", Item);
 
                   --  The item is legal, add it to the list of processed states
                   --  and variables.
@@ -3515,22 +3620,10 @@ package body Sem_Prag is
          end if;
       end Analyze_Initialization_Item;
 
+<<<<<<< HEAD
       ---------------------------------------------
       -- Analyze_Initialization_Item_With_Inputs --
       ---------------------------------------------
-
-      procedure Analyze_Initialization_Item_With_Inputs (Item : Node_Id) is
-         Inputs_Seen : Elist_Id := No_Elist;
-         --  A list of all inputs processed so far. This list is used to detect
-         --  duplicate uses of an input.
-
-         Non_Null_Seen : Boolean := False;
-         Null_Seen     : Boolean := False;
-         --  Flags used to check the legality of an input list
-
-<<<<<<< HEAD
-         procedure Analyze_Input_Item (Input : Node_Id);
-         --  Verify the legality of a single input item
 =======
       procedure Check_Arg_Is_OK_Static_Expression
         (Arg : Node_Id;
@@ -3541,7 +3634,19 @@ package body Sem_Prag is
       --  Any_Integer is OK). If not, given error and raise Pragma_Exit. If
       --  Typ is left Empty, then any static expression is allowed. Includes
       --  checking that the argument does not raise Constraint_Error.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+      procedure Analyze_Initialization_Item_With_Inputs (Item : Node_Id) is
+         Inputs_Seen : Elist_Id := No_Elist;
+         --  A list of all inputs processed so far. This list is used to detect
+         --  duplicate uses of an input.
+
+         Non_Null_Seen : Boolean := False;
+         Null_Seen     : Boolean := False;
+         --  Flags used to check the legality of an input list
+
+         procedure Analyze_Input_Item (Input : Node_Id);
+         --  Verify the legality of a single input item
 
          ------------------------
          -- Analyze_Input_Item --
@@ -3550,6 +3655,7 @@ package body Sem_Prag is
          procedure Analyze_Input_Item (Input : Node_Id) is
             Input_Id : Entity_Id;
 
+<<<<<<< HEAD
          begin
             --  Null input list
 
@@ -3557,6 +3663,14 @@ package body Sem_Prag is
                if Null_Seen then
                   SPARK_Msg_N
                     ("multiple null initializations not allowed", Item);
+=======
+      procedure Check_Duplicate_Pragma (E : Entity_Id);
+      --  Check if a rep item of the same name as the current pragma is already
+      --  chained as a rep pragma to the given entity. If so give a message
+      --  about the duplicate, and then raise Pragma_Exit so does not return.
+      --  Note that if E is a type, then this routine avoids flagging a pragma
+      --  which applies to a parent type from which E is derived.
+>>>>>>> gcc-mirror/master
 
                elsif Non_Null_Seen then
                   SPARK_Msg_N
@@ -3567,26 +3681,6 @@ package body Sem_Prag is
 
 <<<<<<< HEAD
             --  Input item
-
-            else
-               Non_Null_Seen := True;
-=======
-      procedure Check_Duplicate_Pragma (E : Entity_Id);
-      --  Check if a rep item of the same name as the current pragma is already
-      --  chained as a rep pragma to the given entity. If so give a message
-      --  about the duplicate, and then raise Pragma_Exit so does not return.
-      --  Note that if E is a type, then this routine avoids flagging a pragma
-      --  which applies to a parent type from which E is derived.
->>>>>>> gcc-mirror/trunk
-
-               if Null_Seen then
-                  SPARK_Msg_N
-                    ("cannot mix null and non-null initialization item", Item);
-               end if;
-
-<<<<<<< HEAD
-               Analyze       (Input);
-               Resolve_State (Input);
 =======
       procedure Check_Expr_Is_OK_Static_Expression
         (Expr : Node_Id;
@@ -3597,7 +3691,18 @@ package body Sem_Prag is
       --  Any_Integer is OK). If not, given error and raise Pragma_Exit. If
       --  Typ is left Empty, then any static expression is allowed. Includes
       --  checking that the expression does not raise Constraint_Error.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+            else
+               Non_Null_Seen := True;
+
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null initialization item", Item);
+               end if;
+
+               Analyze       (Input);
+               Resolve_State (Input);
 
                if Is_Entity_Name (Input) then
                   Input_Id := Entity_Of (Input);
@@ -3612,11 +3717,18 @@ package body Sem_Prag is
                      --  The input cannot denote states or objects declared
                      --  within the related package (SPARK RM 7.1.5(4)).
 
+<<<<<<< HEAD
                      if Within_Scope (Input_Id, Current_Scope) then
                         Error_Msg_Name_1 := Chars (Pack_Id);
                         SPARK_Msg_NE
                           ("input item & cannot denote a visible object or "
                            & "state of package %", Input, Input_Id);
+=======
+      procedure Check_Loop_Pragma_Placement;
+      --  Verify whether pragmas Loop_Invariant, Loop_Optimize and Loop_Variant
+      --  appear immediately within a construct restricted to loops, and that
+      --  pragmas Loop_Invariant and Loop_Variant are grouped together.
+>>>>>>> gcc-mirror/master
 
                      --  Detect a duplicate use of the same input item
                      --  (SPARK RM 7.1.5(5)).
@@ -3624,14 +3736,7 @@ package body Sem_Prag is
                      elsif Contains (Inputs_Seen, Input_Id) then
                         SPARK_Msg_N ("duplicate input item", Input);
 
-<<<<<<< HEAD
                      --  Input is legal, add it to the list of processed inputs
-=======
-      procedure Check_Loop_Pragma_Placement;
-      --  Verify whether pragmas Loop_Invariant, Loop_Optimize and Loop_Variant
-      --  appear immediately within a construct restricted to loops, and that
-      --  pragmas Loop_Invariant and Loop_Variant are grouped together.
->>>>>>> gcc-mirror/trunk
 
                      else
                         Append_New_Elmt (Input_Id, Inputs_Seen);
@@ -3649,8 +3754,17 @@ package body Sem_Prag is
                         end if;
                      end if;
 
+<<<<<<< HEAD
                   --  The input references something that is not a state or an
                   --  object (SPARK RM 7.1.5(3)).
+=======
+      procedure Check_Static_Boolean_Expression (Expr : Node_Id);
+      --  Subsidiary to the analysis of pragmas Async_Readers, Async_Writers,
+      --  Constant_After_Elaboration, Effective_Reads, Effective_Writes,
+      --  Extensions_Visible and Volatile_Function. Ensure that expression Expr
+      --  is an OK static boolean expression. Emit an error if this is not the
+      --  case.
+>>>>>>> gcc-mirror/master
 
                   else
                      SPARK_Msg_N
@@ -3660,33 +3774,19 @@ package body Sem_Prag is
                --  Some form of illegal construct masquerading as a name
                --  (SPARK RM 7.1.5(3)). This is a syntax error, always report.
 
-<<<<<<< HEAD
                else
                   Error_Msg_N
                     ("input item must denote object or state", Input);
                end if;
             end if;
          end Analyze_Input_Item;
-=======
-      procedure Check_Static_Boolean_Expression (Expr : Node_Id);
-      --  Subsidiary to the analysis of pragmas Async_Readers, Async_Writers,
-      --  Constant_After_Elaboration, Effective_Reads, Effective_Writes,
-      --  Extensions_Visible and Volatile_Function. Ensure that expression Expr
-      --  is an OK static boolean expression. Emit an error if this is not the
-      --  case.
->>>>>>> gcc-mirror/trunk
 
          --  Local variables
 
+<<<<<<< HEAD
          Inputs : constant Node_Id := Expression (Item);
          Elmt   : Node_Id;
          Input  : Node_Id;
-
-         Name_Seen : Boolean := False;
-         --  A flag used to detect multiple item names
-
-<<<<<<< HEAD
-      --  Start of processing for Analyze_Initialization_Item_With_Inputs
 =======
       procedure Ensure_Aggregate_Form (Arg : Node_Id);
       --  Subsidiary routine to the processing of pragmas Abstract_State,
@@ -3702,23 +3802,16 @@ package body Sem_Prag is
       --  that will be replaced with the pragma name, and the flag is placed
       --  on the pragma itself. Pragma_Exit is then raised. Note: this routine
       --  calls Fix_Error (see spec of that procedure for details).
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-      begin
-         --  Inspect the name of an item with inputs
+         Name_Seen : Boolean := False;
+         --  A flag used to detect multiple item names
 
-         Elmt := First (Choices (Item));
-         while Present (Elmt) loop
-            if Name_Seen then
-               SPARK_Msg_N ("only one item allowed in initialization", Elmt);
-            else
-               Name_Seen := True;
-               Analyze_Initialization_Item (Elmt);
-            end if;
+      --  Start of processing for Analyze_Initialization_Item_With_Inputs
 
 <<<<<<< HEAD
-            Next (Elmt);
-         end loop;
+      begin
+         --  Inspect the name of an item with inputs
 =======
       procedure Error_Pragma_Arg_Ident (Msg : String; Arg : Node_Id);
       pragma No_Return (Error_Pragma_Arg_Ident);
@@ -3731,7 +3824,19 @@ package body Sem_Prag is
       --  the identifier. After placing the message, Pragma_Exit is raised.
       --  Note: this routine calls Fix_Error (see spec of that procedure for
       --  details).
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+         Elmt := First (Choices (Item));
+         while Present (Elmt) loop
+            if Name_Seen then
+               SPARK_Msg_N ("only one item allowed in initialization", Elmt);
+            else
+               Name_Seen := True;
+               Analyze_Initialization_Item (Elmt);
+            end if;
+
+            Next (Elmt);
+         end loop;
 
          --  Multiple input items appear as an aggregate
 
@@ -3744,18 +3849,11 @@ package body Sem_Prag is
                end loop;
             end if;
 
+<<<<<<< HEAD
             if Present (Component_Associations (Inputs)) then
                SPARK_Msg_N
                  ("inputs must appear in named association form", Inputs);
             end if;
-
-         --  Single input item
-
-<<<<<<< HEAD
-         else
-            Analyze_Input_Item (Inputs);
-         end if;
-      end Analyze_Initialization_Item_With_Inputs;
 =======
       function Fix_Error (Msg : String) return String;
       --  This is called prior to issuing an error message. Msg is the normal
@@ -3778,8 +3876,16 @@ package body Sem_Prag is
       --  be different from the pragma name). If the current pragma results
       --  from rewriting another pragma, then Error_Msg_Name_1 is set to the
       --  original pragma name.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
+         --  Single input item
+
+         else
+            Analyze_Input_Item (Inputs);
+         end if;
+      end Analyze_Initialization_Item_With_Inputs;
+
+<<<<<<< HEAD
       --------------------------------
       -- Collect_States_And_Objects --
       --------------------------------
@@ -3787,24 +3893,33 @@ package body Sem_Prag is
       procedure Collect_States_And_Objects is
          Pack_Spec : constant Node_Id := Specification (Pack_Decl);
          Decl      : Node_Id;
-
-<<<<<<< HEAD
-      begin
-         --  Collect the abstract states defined in the package (if any)
-
-         if Present (Abstract_States (Pack_Id)) then
-            States_And_Objs := New_Copy_Elist (Abstract_States (Pack_Id));
-         end if;
 =======
       function Is_Before_First_Decl
         (Pragma_Node : Node_Id;
          Decls       : List_Id) return Boolean;
       --  Return True if Pragma_Node is before the first declarative item in
       --  Decls where Decls is the list of declarative items.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
+      begin
+         --  Collect the abstract states defined in the package (if any)
+
+         if Present (Abstract_States (Pack_Id)) then
+            States_And_Objs := New_Copy_Elist (Abstract_States (Pack_Id));
+         end if;
+
+<<<<<<< HEAD
          --  Collect all objects the appear in the visible declarations of the
          --  related package.
+=======
+      function Is_Static_String_Expression (Arg : Node_Id) return Boolean;
+      --  Analyzes the argument, and determines if it is a static string
+      --  expression, returns True if so, False if non-static or not String.
+      --  A special case is that a string literal returns True in Ada 83 mode
+      --  (which has no such thing as static string expressions). Note that
+      --  the call analyzes its argument, so this cannot be used for the case
+      --  where an identifier might not be declared.
+>>>>>>> gcc-mirror/master
 
          if Present (Visible_Declarations (Pack_Spec)) then
             Decl := First (Visible_Declarations (Pack_Spec));
@@ -3821,40 +3936,24 @@ package body Sem_Prag is
          end if;
       end Collect_States_And_Objects;
 =======
-      function Is_Static_String_Expression (Arg : Node_Id) return Boolean;
-      --  Analyzes the argument, and determines if it is a static string
-      --  expression, returns True if so, False if non-static or not String.
-      --  A special case is that a string literal returns True in Ada 83 mode
-      --  (which has no such thing as static string expressions). Note that
-      --  the call analyzes its argument, so this cannot be used for the case
-      --  where an identifier might not be declared.
->>>>>>> gcc-mirror/trunk
-
-      --  Local variables
-
-<<<<<<< HEAD
-      Inits : constant Node_Id := Expression (Get_Argument (N, Pack_Id));
-      Init  : Node_Id;
-=======
       procedure Process_Atomic_Independent_Shared_Volatile;
       --  Common processing for pragmas Atomic, Independent, Shared, Volatile,
       --  Volatile_Full_Access. Note that Shared is an obsolete Ada 83 pragma
       --  and treated as being identical in effect to pragma Atomic.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+      --  Local variables
+
+      Inits : constant Node_Id := Expression (Get_Argument (N, Pack_Id));
+      Init  : Node_Id;
 
    --  Start of processing for Analyze_Initializes_In_Decl_Part
 
+<<<<<<< HEAD
    begin
       --  Do not analyze the pragma multiple times
 
       if Is_Analyzed_Pragma (N) then
-         return;
-      end if;
-
-<<<<<<< HEAD
-      --  Nothing to do when the initialization list is empty
-
-      if Nkind (Inits) = N_Null then
          return;
       end if;
 =======
@@ -3866,14 +3965,14 @@ package body Sem_Prag is
       --  arguments correspond to the three named parameters of the pragmas. An
       --  argument is empty if the corresponding parameter is not present in
       --  the pragma.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-      --  Single and multiple initialization clauses appear as an aggregate. If
-      --  this is not the case, then either the parser or the analysis of the
-      --  pragma failed to produce an aggregate.
+      --  Nothing to do when the initialization list is empty
 
 <<<<<<< HEAD
-      pragma Assert (Nkind (Inits) = N_Aggregate);
+      if Nkind (Inits) = N_Null then
+         return;
+      end if;
 =======
       procedure Process_Extended_Import_Export_Subprogram_Pragma
         (Arg_Internal                 : Node_Id;
@@ -3887,16 +3986,22 @@ package body Sem_Prag is
       --  the pragma in question (for example, Arg_Result_Type can be non-Empty
       --  only in the Import_Function and Export_Function cases). The argument
       --  names correspond to the allowed pragma association identifiers.
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-      --  Initialize the various lists used during analysis
+      --  Single and multiple initialization clauses appear as an aggregate. If
+      --  this is not the case, then either the parser or the analysis of the
+      --  pragma failed to produce an aggregate.
 
 <<<<<<< HEAD
-      Collect_States_And_Objects;
+      pragma Assert (Nkind (Inits) = N_Aggregate);
 =======
       procedure Process_Import_Or_Interface;
       --  Common processing for Import or Interface
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+      --  Initialize the various lists used during analysis
+
+      Collect_States_And_Objects;
 
       if Present (Expressions (Inits)) then
          Init := First (Expressions (Inits));
@@ -3925,9 +4030,21 @@ package body Sem_Prag is
       Set_Is_Analyzed_Pragma (N);
    end Analyze_Initializes_In_Decl_Part;
 
+<<<<<<< HEAD
    ---------------------
    -- Analyze_Part_Of --
    ---------------------
+=======
+      procedure Record_Independence_Check (N : Node_Id; E : Entity_Id);
+      --  Subsidiary to the analysis of pragmas Independent[_Components].
+      --  Record such a pragma N applied to entity E for future checks.
+
+      procedure Set_Exported (E : Entity_Id; Arg : Node_Id);
+      --  This procedure sets the Is_Exported flag for the given entity,
+      --  checking that the entity was not previously imported. Arg is
+      --  the argument that specified the entity. A check is also made
+      --  for exporting inappropriate entities.
+>>>>>>> gcc-mirror/master
 
    procedure Analyze_Part_Of
      (Indic    : Node_Id;
@@ -3942,20 +4059,8 @@ package body Sem_Prag is
       Placement   : State_Space_Kind;
       Parent_Unit : Entity_Id;
 
-<<<<<<< HEAD
    begin
       --  Assume that the indicator is illegal
-=======
-      procedure Record_Independence_Check (N : Node_Id; E : Entity_Id);
-      --  Subsidiary to the analysis of pragmas Independent[_Components].
-      --  Record such a pragma N applied to entity E for future checks.
-
-      procedure Set_Exported (E : Entity_Id; Arg : Node_Id);
-      --  This procedure sets the Is_Exported flag for the given entity,
-      --  checking that the entity was not previously imported. Arg is
-      --  the argument that specified the entity. A check is also made
-      --  for exporting inappropriate entities.
->>>>>>> gcc-mirror/trunk
 
       Encap_Id := Empty;
       Legal    := False;
@@ -3967,13 +4072,8 @@ package body Sem_Prag is
          Analyze       (Encap);
          Resolve_State (Encap);
 
-         Encap_Id := Entity (Encap);
-
-         --  The encapsulator is an abstract state
-
 <<<<<<< HEAD
-         if Ekind (Encap_Id) = E_Abstract_State then
-            null;
+         Encap_Id := Entity (Encap);
 =======
       procedure Set_Ravenscar_Profile (Profile : Profile_Name; N : Node_Id);
       --  Activate the set of configuration pragmas and restrictions that make
@@ -4006,7 +4106,12 @@ package body Sem_Prag is
             Name_Buffer (Name_Len) := '*';
          end if;
       end Acquire_Warning_Match_String;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+         --  The encapsulator is an abstract state
+
+         if Ekind (Encap_Id) = E_Abstract_State then
+            null;
 
          --  The encapsulator is a single concurrent type (SPARK RM 9.3)
 
@@ -4022,8 +4127,18 @@ package body Sem_Prag is
             return;
          end if;
 
-<<<<<<< HEAD
       --  This is a syntax error, always report
+
+      else
+         Error_Msg_N
+           ("indicator Part_Of must denote abstract state, single protected "
+            & "type or single task type", Encap);
+         return;
+      end if;
+
+<<<<<<< HEAD
+      --  Catch a case where indicator Part_Of denotes the abstract view of a
+      --  variable which appears as an abstract state (SPARK RM 10.1.2 2).
 =======
       ----------------------------
       -- Analyze_Depends_Global --
@@ -4450,6 +4565,1726 @@ package body Sem_Prag is
       --------------------------
       -- Check_Ada_83_Warning --
       --------------------------
+>>>>>>> gcc-mirror/master
+
+      if From_Limited_With (Encap_Id)
+        and then Present (Non_Limited_View (Encap_Id))
+        and then Ekind (Non_Limited_View (Encap_Id)) = E_Variable
+      then
+         SPARK_Msg_N ("indicator Part_Of must denote abstract state", Encap);
+         SPARK_Msg_N ("\& denotes abstract view of object", Encap);
+         return;
+      end if;
+
+      --  The encapsulator is an abstract state
+
+      if Ekind (Encap_Id) = E_Abstract_State then
+
+         --  Determine where the object, package instantiation or state lives
+         --  with respect to the enclosing packages or package bodies.
+
+         Find_Placement_In_State_Space
+           (Item_Id   => Item_Id,
+            Placement => Placement,
+            Pack_Id   => Pack_Id);
+
+         --  The item appears in a non-package construct with a declarative
+         --  part (subprogram, block, etc). As such, the item is not allowed
+         --  to be a part of an encapsulating state because the item is not
+         --  visible.
+
+         if Placement = Not_In_Package then
+            SPARK_Msg_N
+              ("indicator Part_Of cannot appear in this context "
+               & "(SPARK RM 7.2.6(5))", Indic);
+            Error_Msg_Name_1 := Chars (Scope (Encap_Id));
+            SPARK_Msg_NE
+              ("\& is not part of the hidden state of package %",
+               Indic, Item_Id);
+
+         --  The item appears in the visible state space of some package. In
+         --  general this scenario does not warrant Part_Of except when the
+         --  package is a private child unit and the encapsulating state is
+         --  declared in a parent unit or a public descendant of that parent
+         --  unit.
+
+         elsif Placement = Visible_State_Space then
+            if Is_Child_Unit (Pack_Id)
+              and then Is_Private_Descendant (Pack_Id)
+            then
+               --  A variable or state abstraction which is part of the visible
+               --  state of a private child unit (or one of its public
+               --  descendants) must have its Part_Of indicator specified. The
+               --  Part_Of indicator must denote a state abstraction declared
+               --  by either the parent unit of the private unit or by a public
+               --  descendant of that parent unit.
+
+               --  Find nearest private ancestor (which can be the current unit
+               --  itself).
+
+               Parent_Unit := Pack_Id;
+               while Present (Parent_Unit) loop
+                  exit when
+                    Private_Present
+                      (Parent (Unit_Declaration_Node (Parent_Unit)));
+                  Parent_Unit := Scope (Parent_Unit);
+               end loop;
+
+               Parent_Unit := Scope (Parent_Unit);
+
+               if not Is_Child_Or_Sibling (Pack_Id, Scope (Encap_Id)) then
+                  SPARK_Msg_NE
+                    ("indicator Part_Of must denote abstract state or public "
+                     & "descendant of & (SPARK RM 7.2.6(3))",
+                     Indic, Parent_Unit);
+
+               elsif Scope (Encap_Id) = Parent_Unit
+                 or else
+                   (Is_Ancestor_Package (Parent_Unit, Scope (Encap_Id))
+                     and then not Is_Private_Descendant (Scope (Encap_Id)))
+               then
+                  null;
+
+               else
+                  SPARK_Msg_NE
+                    ("indicator Part_Of must denote abstract state or public "
+                     & "descendant of & (SPARK RM 7.2.6(3))",
+                     Indic, Parent_Unit);
+               end if;
+
+            --  Indicator Part_Of is not needed when the related package is not
+            --  a private child unit or a public descendant thereof.
+
+            else
+               SPARK_Msg_N
+                 ("indicator Part_Of cannot appear in this context "
+                  & "(SPARK RM 7.2.6(5))", Indic);
+               Error_Msg_Name_1 := Chars (Pack_Id);
+               SPARK_Msg_NE
+                 ("\& is declared in the visible part of package %",
+                  Indic, Item_Id);
+            end if;
+
+         --  When the item appears in the private state space of a package, the
+         --  encapsulating state must be declared in the same package.
+
+         elsif Placement = Private_State_Space then
+            if Scope (Encap_Id) /= Pack_Id then
+               SPARK_Msg_NE
+                 ("indicator Part_Of must designate an abstract state of "
+                  & "package & (SPARK RM 7.2.6(2))", Indic, Pack_Id);
+               Error_Msg_Name_1 := Chars (Pack_Id);
+               SPARK_Msg_NE
+                 ("\& is declared in the private part of package %",
+                  Indic, Item_Id);
+            end if;
+
+         --  Items declared in the body state space of a package do not need
+         --  Part_Of indicators as the refinement has already been seen.
+
+         else
+            SPARK_Msg_N
+              ("indicator Part_Of cannot appear in this context "
+               & "(SPARK RM 7.2.6(5))", Indic);
+
+            if Scope (Encap_Id) = Pack_Id then
+               Error_Msg_Name_1 := Chars (Pack_Id);
+               SPARK_Msg_NE
+                 ("\& is declared in the body of package %", Indic, Item_Id);
+            end if;
+         end if;
+
+      --  The encapsulator is a single concurrent type
+
+      else
+         Encap_Typ := Etype (Encap_Id);
+
+         --  Only abstract states and variables can act as constituents of an
+         --  encapsulating single concurrent type.
+
+         if Ekind_In (Item_Id, E_Abstract_State, E_Variable) then
+            null;
+
+<<<<<<< HEAD
+         --  The constituent is a constant
+=======
+            elsif Is_OK_Static_Expression (Argx) then
+               raise Pragma_Exit;
+>>>>>>> gcc-mirror/master
+
+         elsif Ekind (Item_Id) = E_Constant then
+            Error_Msg_Name_1 := Chars (Encap_Id);
+            SPARK_Msg_NE
+              (Fix_Msg (Encap_Typ, "consant & cannot act as constituent of "
+               & "single protected type %"), Indic, Item_Id);
+
+         --  The constituent is a package instantiation
+
+<<<<<<< HEAD
+         else
+            Error_Msg_Name_1 := Chars (Encap_Id);
+            SPARK_Msg_NE
+              (Fix_Msg (Encap_Typ, "package instantiation & cannot act as "
+               & "constituent of single protected type %"), Indic, Item_Id);
+=======
+               declare
+                  Msg : constant String :=
+                          "argument for pragma% must be a identifier or "
+                          & "static string expression!";
+               begin
+                  Flag_Non_Static_Expr (Fix_Error (Msg), Argx);
+                  raise Pragma_Exit;
+               end;
+            end if;
+>>>>>>> gcc-mirror/master
+         end if;
+
+         --  When the item denotes an abstract state of a nested package, use
+         --  the declaration of the package to detect proper placement.
+
+         --    package Pack is
+         --       task T;
+         --       package Nested
+         --         with Abstract_State => (State with Part_Of => T)
+
+         if Ekind (Item_Id) = E_Abstract_State then
+            Item_Decl := Unit_Declaration_Node (Scope (Item_Id));
+         else
+            Item_Decl := Declaration_Node (Item_Id);
+         end if;
+
+         --  Both the item and its encapsulating single concurrent type must
+         --  appear in the same declarative region (SPARK RM 9.3). Note that
+         --  privacy is ignored.
+
+         if Parent (Item_Decl) /= Parent (Declaration_Node (Encap_Id)) then
+            Error_Msg_Name_1 := Chars (Encap_Id);
+            SPARK_Msg_NE
+              (Fix_Msg (Encap_Typ, "constituent & must be declared "
+               & "immediately within the same region as single protected "
+               & "type %"), Indic, Item_Id);
+         end if;
+      end if;
+
+      Legal := True;
+   end Analyze_Part_Of;
+
+   ----------------------------------
+   -- Analyze_Part_Of_In_Decl_Part --
+   ----------------------------------
+
+   procedure Analyze_Part_Of_In_Decl_Part
+     (N         : Node_Id;
+      Freeze_Id : Entity_Id := Empty)
+   is
+      Encap    : constant Node_Id   :=
+                   Get_Pragma_Arg (First (Pragma_Argument_Associations (N)));
+      Errors   : constant Nat       := Serious_Errors_Detected;
+      Var_Decl : constant Node_Id   := Find_Related_Context (N);
+      Var_Id   : constant Entity_Id := Defining_Entity (Var_Decl);
+      Encap_Id : Entity_Id;
+      Legal    : Boolean;
+
+<<<<<<< HEAD
+   begin
+      --  Detect any discrepancies between the placement of the variable with
+      --  respect to general state space and the encapsulating state or single
+      --  concurrent type.
+=======
+         --  If it came from an aspect, we want to give the error just as if it
+         --  came from source.
+
+         if not Is_Library_Level_Entity (Entity (Get_Pragma_Arg (Arg)))
+           and then (Comes_From_Source (N)
+                       or else Present (Corresponding_Aspect (Parent (Arg))))
+         then
+            Error_Pragma_Arg
+              ("argument for pragma% must be library level entity", Arg);
+         end if;
+      end Check_Arg_Is_Library_Level_Local_Name;
+>>>>>>> gcc-mirror/master
+
+      Analyze_Part_Of
+        (Indic    => N,
+         Item_Id  => Var_Id,
+         Encap    => Encap,
+         Encap_Id => Encap_Id,
+         Legal    => Legal);
+
+      --  The Part_Of indicator turns the variable into a constituent of the
+      --  encapsulating state or single concurrent type.
+
+      if Legal then
+         pragma Assert (Present (Encap_Id));
+
+         Append_Elmt (Var_Id, Part_Of_Constituents (Encap_Id));
+         Set_Encapsulating_State (Var_Id, Encap_Id);
+      end if;
+
+      --  Emit a clarification message when the encapsulator is undefined,
+      --  possibly due to contract "freezing".
+
+      if Errors /= Serious_Errors_Detected
+        and then Present (Freeze_Id)
+        and then Has_Undefined_Reference (Encap)
+      then
+         Contract_Freeze_Error (Var_Id, Freeze_Id);
+      end if;
+   end Analyze_Part_Of_In_Decl_Part;
+>>>>>>> gcc-mirror/trunk
+
+            elsif Non_Null_Seen then
+               SPARK_Msg_N
+                 ("cannot mix null and non-null initialization items", Item);
+            else
+               Null_Seen := True;
+            end if;
+
+         --  Initialization item
+
+         else
+            Non_Null_Seen := True;
+
+<<<<<<< HEAD
+            if Null_Seen then
+               SPARK_Msg_N
+                 ("cannot mix null and non-null initialization items", Item);
+            end if;
+=======
+      Pragma_Exit : exception;
+      --  This exception is used to exit pragma processing completely. It
+      --  is used when an error is detected, and no further processing is
+      --  required. It is also used if an earlier error has left the tree in
+      --  a state where the pragma should not be processed.
+>>>>>>> gcc-mirror/trunk
+
+            Analyze       (Item);
+            Resolve_State (Item);
+
+            if Is_Entity_Name (Item) then
+               Item_Id := Entity_Of (Item);
+
+               if Ekind_In (Item_Id, E_Abstract_State,
+                                     E_Constant,
+                                     E_Variable)
+               then
+                  --  The state or variable must be declared in the visible
+                  --  declarations of the package (SPARK RM 7.1.5(7)).
+
+<<<<<<< HEAD
+                  if not Contains (States_And_Objs, Item_Id) then
+                     Error_Msg_Name_1 := Chars (Pack_Id);
+                     SPARK_Msg_NE
+                       ("initialization item & must appear in the visible "
+                        & "declarations of package %", Item, Item_Id);
+=======
+      -----------------------
+      -- Local Subprograms --
+      -----------------------
+
+      procedure Acquire_Warning_Match_String (Arg : Node_Id);
+      --  Used by pragma Warnings (Off, string), and Warn_As_Error (string) to
+      --  get the given string argument, and place it in Name_Buffer, adding
+      --  leading and trailing asterisks if they are not already present. The
+      --  caller has already checked that Arg is a static string expression.
+
+      procedure Ada_2005_Pragma;
+      --  Called for pragmas defined in Ada 2005, that are not in Ada 95. In
+      --  Ada 95 mode, these are implementation defined pragmas, so should be
+      --  caught by the No_Implementation_Pragmas restriction.
+>>>>>>> gcc-mirror/trunk
+
+                  --  Detect a duplicate use of the same initialization item
+                  --  (SPARK RM 7.1.5(5)).
+
+<<<<<<< HEAD
+                  elsif Contains (Items_Seen, Item_Id) then
+                     SPARK_Msg_N ("duplicate initialization item", Item);
+=======
+      procedure Analyze_Depends_Global
+        (Spec_Id   : out Entity_Id;
+         Subp_Decl : out Node_Id;
+         Legal     : out Boolean);
+      --  Subsidiary to the analysis of pragmas Depends and Global. Verify the
+      --  legality of the placement and related context of the pragma. Spec_Id
+      --  is the entity of the related subprogram. Subp_Decl is the declaration
+      --  of the related subprogram. Sets flag Legal when the pragma is legal.
+
+      procedure Analyze_If_Present (Id : Pragma_Id);
+      --  Inspect the remainder of the list containing pragma N and look for
+      --  a pragma that matches Id. If found, analyze the pragma.
+
+      procedure Analyze_Pre_Post_Condition;
+      --  Subsidiary to the analysis of pragmas Precondition and Postcondition
+
+      procedure Analyze_Refined_Depends_Global_Post
+        (Spec_Id : out Entity_Id;
+         Body_Id : out Entity_Id;
+         Legal   : out Boolean);
+      --  Subsidiary routine to the analysis of body pragmas Refined_Depends,
+      --  Refined_Global and Refined_Post. Verify the legality of the placement
+      --  and related context of the pragma. Spec_Id is the entity of the
+      --  related subprogram. Body_Id is the entity of the subprogram body.
+      --  Flag Legal is set when the pragma is legal.
+
+      procedure Check_Ada_83_Warning;
+      --  Issues a warning message for the current pragma if operating in Ada
+      --  83 mode (used for language pragmas that are not a standard part of
+      --  Ada 83). This procedure does not raise Pragma_Exit. Also notes use
+      --  of 95 pragma.
+>>>>>>> gcc-mirror/trunk
+
+                  --  The item is legal, add it to the list of processed states
+                  --  and variables.
+
+                  else
+                     Append_New_Elmt (Item_Id, Items_Seen);
+
+                     if Ekind (Item_Id) = E_Abstract_State then
+                        Append_New_Elmt (Item_Id, States_Seen);
+                     end if;
+
+                     if Present (Encapsulating_State (Item_Id)) then
+                        Append_New_Elmt (Item_Id, Constits_Seen);
+                     end if;
+                  end if;
+
+<<<<<<< HEAD
+               --  The item references something that is not a state or object
+               --  (SPARK RM 7.1.5(3)).
+=======
+               --  If this is an aspect applied to a subprogram body, the
+               --  pragma is inserted in its declarative part.
+
+               elsif From_Aspect_Specification (N)
+                 and then  Ent = Current_Scope
+                 and then
+                   Nkind (Unit_Declaration_Node (Ent)) = N_Subprogram_Body
+               then
+                  OK := True;
+
+               --  If the aspect is a predicate (possibly others ???)  and the
+               --  context is a record type, this is a discriminant expression
+               --  within a type declaration, that freezes the predicated
+               --  subtype.
+
+               elsif From_Aspect_Specification (N)
+                 and then Prag_Id = Pragma_Predicate
+                 and then Ekind (Current_Scope) = E_Record_Type
+                 and then Scop = Scope (Current_Scope)
+               then
+                  OK := True;
+
+               --  Default case, just check that the pragma occurs in the scope
+               --  of the entity denoted by the name.
+>>>>>>> gcc-mirror/master
+
+               else
+                  SPARK_Msg_N
+                    ("initialization item must denote object or state", Item);
+               end if;
+
+            --  Some form of illegal construct masquerading as a name
+            --  (SPARK RM 7.1.5(3)). This is a syntax error, always report.
+
+            else
+               Error_Msg_N
+                 ("initialization item must denote object or state", Item);
+            end if;
+         end if;
+      end Analyze_Initialization_Item;
+
+      ---------------------------------------------
+      -- Analyze_Initialization_Item_With_Inputs --
+      ---------------------------------------------
+
+      procedure Analyze_Initialization_Item_With_Inputs (Item : Node_Id) is
+         Inputs_Seen : Elist_Id := No_Elist;
+         --  A list of all inputs processed so far. This list is used to detect
+         --  duplicate uses of an input.
+
+         Non_Null_Seen : Boolean := False;
+         Null_Seen     : Boolean := False;
+         --  Flags used to check the legality of an input list
+
+<<<<<<< HEAD
+         procedure Analyze_Input_Item (Input : Node_Id);
+         --  Verify the legality of a single input item
+=======
+      procedure Check_Arg_Is_OK_Static_Expression
+        (Arg : Node_Id;
+         Typ : Entity_Id := Empty);
+      --  Check the specified argument Arg to make sure that it is a static
+      --  expression of the given type (i.e. it will be analyzed and resolved
+      --  using this type, which can be any valid argument to Resolve, e.g.
+      --  Any_Integer is OK). If not, given error and raise Pragma_Exit. If
+      --  Typ is left Empty, then any static expression is allowed. Includes
+      --  checking that the argument does not raise Constraint_Error.
+>>>>>>> gcc-mirror/trunk
+
+         ------------------------
+         -- Analyze_Input_Item --
+         ------------------------
+
+         procedure Analyze_Input_Item (Input : Node_Id) is
+            Input_Id : Entity_Id;
+
+         begin
+            --  Null input list
+
+            if Nkind (Input) = N_Null then
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("multiple null initializations not allowed", Item);
+
+               elsif Non_Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null initialization item", Item);
+               else
+                  Null_Seen := True;
+               end if;
+
+<<<<<<< HEAD
+            --  Input item
+
+            else
+               Non_Null_Seen := True;
+=======
+      procedure Check_Duplicate_Pragma (E : Entity_Id);
+      --  Check if a rep item of the same name as the current pragma is already
+      --  chained as a rep pragma to the given entity. If so give a message
+      --  about the duplicate, and then raise Pragma_Exit so does not return.
+      --  Note that if E is a type, then this routine avoids flagging a pragma
+      --  which applies to a parent type from which E is derived.
+>>>>>>> gcc-mirror/trunk
+
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null initialization item", Item);
+               end if;
+
+<<<<<<< HEAD
+               Analyze       (Input);
+               Resolve_State (Input);
+=======
+      procedure Check_Expr_Is_OK_Static_Expression
+        (Expr : Node_Id;
+         Typ  : Entity_Id := Empty);
+      --  Check the specified expression Expr to make sure that it is a static
+      --  expression of the given type (i.e. it will be analyzed and resolved
+      --  using this type, which can be any valid argument to Resolve, e.g.
+      --  Any_Integer is OK). If not, given error and raise Pragma_Exit. If
+      --  Typ is left Empty, then any static expression is allowed. Includes
+      --  checking that the expression does not raise Constraint_Error.
+>>>>>>> gcc-mirror/trunk
+
+               if Is_Entity_Name (Input) then
+                  Input_Id := Entity_Of (Input);
+
+                  if Ekind_In (Input_Id, E_Abstract_State,
+                                         E_Constant,
+                                         E_In_Parameter,
+                                         E_In_Out_Parameter,
+                                         E_Out_Parameter,
+                                         E_Variable)
+                  then
+                     --  The input cannot denote states or objects declared
+                     --  within the related package (SPARK RM 7.1.5(4)).
+
+                     if Within_Scope (Input_Id, Current_Scope) then
+                        Error_Msg_Name_1 := Chars (Pack_Id);
+                        SPARK_Msg_NE
+                          ("input item & cannot denote a visible object or "
+                           & "state of package %", Input, Input_Id);
+
+                     --  Detect a duplicate use of the same input item
+                     --  (SPARK RM 7.1.5(5)).
+
+                     elsif Contains (Inputs_Seen, Input_Id) then
+                        SPARK_Msg_N ("duplicate input item", Input);
+
+<<<<<<< HEAD
+                     --  Input is legal, add it to the list of processed inputs
+=======
+      procedure Check_Loop_Pragma_Placement;
+      --  Verify whether pragmas Loop_Invariant, Loop_Optimize and Loop_Variant
+      --  appear immediately within a construct restricted to loops, and that
+      --  pragmas Loop_Invariant and Loop_Variant are grouped together.
+>>>>>>> gcc-mirror/trunk
+
+                     else
+                        Append_New_Elmt (Input_Id, Inputs_Seen);
+
+                        if Ekind (Input_Id) = E_Abstract_State then
+                           Append_New_Elmt (Input_Id, States_Seen);
+                        end if;
+
+                        if Ekind_In (Input_Id, E_Abstract_State,
+                                               E_Constant,
+                                               E_Variable)
+                          and then Present (Encapsulating_State (Input_Id))
+                        then
+                           Append_New_Elmt (Input_Id, Constits_Seen);
+                        end if;
+                     end if;
+
+                  --  The input references something that is not a state or an
+                  --  object (SPARK RM 7.1.5(3)).
+
+                  else
+                     SPARK_Msg_N
+                       ("input item must denote object or state", Input);
+                  end if;
+
+               --  Some form of illegal construct masquerading as a name
+               --  (SPARK RM 7.1.5(3)). This is a syntax error, always report.
+
+<<<<<<< HEAD
+               else
+                  Error_Msg_N
+                    ("input item must denote object or state", Input);
+               end if;
+            end if;
+         end Analyze_Input_Item;
+=======
+      procedure Check_Static_Boolean_Expression (Expr : Node_Id);
+      --  Subsidiary to the analysis of pragmas Async_Readers, Async_Writers,
+      --  Constant_After_Elaboration, Effective_Reads, Effective_Writes,
+      --  Extensions_Visible and Volatile_Function. Ensure that expression Expr
+      --  is an OK static boolean expression. Emit an error if this is not the
+      --  case.
+>>>>>>> gcc-mirror/trunk
+
+         --  Local variables
+
+<<<<<<< HEAD
+         Inputs : constant Node_Id := Expression (Item);
+         Elmt   : Node_Id;
+         Input  : Node_Id;
+
+         Name_Seen : Boolean := False;
+         --  A flag used to detect multiple item names
+=======
+      ---------------------------------------
+      -- Check_Arg_Is_OK_Static_Expression --
+      ---------------------------------------
+
+      procedure Check_Arg_Is_OK_Static_Expression
+        (Arg : Node_Id;
+         Typ : Entity_Id := Empty)
+      is
+      begin
+         Check_Expr_Is_OK_Static_Expression (Get_Pragma_Arg (Arg), Typ);
+      end Check_Arg_Is_OK_Static_Expression;
+>>>>>>> gcc-mirror/master
+
+<<<<<<< HEAD
+      --  Start of processing for Analyze_Initialization_Item_With_Inputs
+=======
+      procedure Ensure_Aggregate_Form (Arg : Node_Id);
+      --  Subsidiary routine to the processing of pragmas Abstract_State,
+      --  Contract_Cases, Depends, Global, Initializes, Refined_Depends,
+      --  Refined_Global and Refined_State. Transform argument Arg into
+      --  an aggregate if not one already. N_Null is never transformed.
+      --  Arg may denote an aspect specification or a pragma argument
+      --  association.
+
+      procedure Error_Pragma (Msg : String);
+      pragma No_Return (Error_Pragma);
+      --  Outputs error message for current pragma. The message contains a %
+      --  that will be replaced with the pragma name, and the flag is placed
+      --  on the pragma itself. Pragma_Exit is then raised. Note: this routine
+      --  calls Fix_Error (see spec of that procedure for details).
+>>>>>>> gcc-mirror/trunk
+
+      begin
+<<<<<<< HEAD
+         --  Inspect the name of an item with inputs
+=======
+         Check_Arg_Is_Identifier (Argx);
+
+         if not Is_Task_Dispatching_Policy_Name (Chars (Argx)) then
+            Error_Pragma_Arg
+              ("& is not an allowed task dispatching policy name", Argx);
+         end if;
+      end Check_Arg_Is_Task_Dispatching_Policy;
+>>>>>>> gcc-mirror/master
+
+         Elmt := First (Choices (Item));
+         while Present (Elmt) loop
+            if Name_Seen then
+               SPARK_Msg_N ("only one item allowed in initialization", Elmt);
+            else
+               Name_Seen := True;
+               Analyze_Initialization_Item (Elmt);
+            end if;
+
+<<<<<<< HEAD
+            Next (Elmt);
+         end loop;
+=======
+      procedure Error_Pragma_Arg_Ident (Msg : String; Arg : Node_Id);
+      pragma No_Return (Error_Pragma_Arg_Ident);
+      --  Outputs error message for current pragma. The message may contain a %
+      --  that will be replaced with the pragma name. The parameter Arg must be
+      --  a pragma argument association with a non-empty identifier (i.e. its
+      --  Chars field must be set), and the error message is placed on the
+      --  identifier. The message is placed using Error_Msg_N so the message
+      --  may also contain an & insertion character which will reference
+      --  the identifier. After placing the message, Pragma_Exit is raised.
+      --  Note: this routine calls Fix_Error (see spec of that procedure for
+      --  details).
+>>>>>>> gcc-mirror/trunk
+
+         --  Multiple input items appear as an aggregate
+
+         if Nkind (Inputs) = N_Aggregate then
+            if Present (Expressions (Inputs)) then
+               Input := First (Expressions (Inputs));
+               while Present (Input) loop
+                  Analyze_Input_Item (Input);
+                  Next (Input);
+               end loop;
+            end if;
+
+            if Present (Component_Associations (Inputs)) then
+               SPARK_Msg_N
+                 ("inputs must appear in named association form", Inputs);
+            end if;
+
+         --  Single input item
+
+<<<<<<< HEAD
+         else
+            Analyze_Input_Item (Inputs);
+         end if;
+      end Analyze_Initialization_Item_With_Inputs;
+=======
+      function Fix_Error (Msg : String) return String;
+      --  This is called prior to issuing an error message. Msg is the normal
+      --  error message issued in the pragma case. This routine checks for the
+      --  case of a pragma coming from an aspect in the source, and returns a
+      --  message suitable for the aspect case as follows:
+      --
+      --    Each substring "pragma" is replaced by "aspect"
+      --
+      --    If "argument of" is at the start of the error message text, it is
+      --    replaced by "entity for".
+      --
+      --    If "argument" is at the start of the error message text, it is
+      --    replaced by "entity".
+      --
+      --  So for example, "argument of pragma X must be discrete type"
+      --  returns "entity for aspect X must be a discrete type".
+
+      --  Finally Error_Msg_Name_1 is set to the name of the aspect (which may
+      --  be different from the pragma name). If the current pragma results
+      --  from rewriting another pragma, then Error_Msg_Name_1 is set to the
+      --  original pragma name.
+>>>>>>> gcc-mirror/trunk
+
+      --------------------------------
+      -- Collect_States_And_Objects --
+      --------------------------------
+
+      procedure Collect_States_And_Objects is
+         Pack_Spec : constant Node_Id := Specification (Pack_Decl);
+         Decl      : Node_Id;
+
+<<<<<<< HEAD
+      begin
+         --  Collect the abstract states defined in the package (if any)
+
+         if Present (Abstract_States (Pack_Id)) then
+            States_And_Objs := New_Copy_Elist (Abstract_States (Pack_Id));
+         end if;
+=======
+      function Is_Before_First_Decl
+        (Pragma_Node : Node_Id;
+         Decls       : List_Id) return Boolean;
+      --  Return True if Pragma_Node is before the first declarative item in
+      --  Decls where Decls is the list of declarative items.
+>>>>>>> gcc-mirror/trunk
+
+         --  Collect all objects the appear in the visible declarations of the
+         --  related package.
+
+         if Present (Visible_Declarations (Pack_Spec)) then
+            Decl := First (Visible_Declarations (Pack_Spec));
+            while Present (Decl) loop
+               if Comes_From_Source (Decl)
+                 and then Nkind (Decl) = N_Object_Declaration
+               then
+                  Append_New_Elmt (Defining_Entity (Decl), States_And_Objs);
+               end if;
+
+<<<<<<< HEAD
+               Next (Decl);
+            end loop;
+         end if;
+      end Collect_States_And_Objects;
+=======
+      function Is_Static_String_Expression (Arg : Node_Id) return Boolean;
+      --  Analyzes the argument, and determines if it is a static string
+      --  expression, returns True if so, False if non-static or not String.
+      --  A special case is that a string literal returns True in Ada 83 mode
+      --  (which has no such thing as static string expressions). Note that
+      --  the call analyzes its argument, so this cannot be used for the case
+      --  where an identifier might not be declared.
+>>>>>>> gcc-mirror/trunk
+
+      --  Local variables
+
+<<<<<<< HEAD
+      Inits : constant Node_Id := Expression (Get_Argument (N, Pack_Id));
+      Init  : Node_Id;
+=======
+      procedure Process_Atomic_Independent_Shared_Volatile;
+      --  Common processing for pragmas Atomic, Independent, Shared, Volatile,
+      --  Volatile_Full_Access. Note that Shared is an obsolete Ada 83 pragma
+      --  and treated as being identical in effect to pragma Atomic.
+>>>>>>> gcc-mirror/trunk
+
+   --  Start of processing for Analyze_Initializes_In_Decl_Part
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+
+<<<<<<< HEAD
+      --  Nothing to do when the initialization list is empty
+
+      if Nkind (Inits) = N_Null then
+         return;
+      end if;
+=======
+      procedure Process_Extended_Import_Export_Object_Pragma
+        (Arg_Internal : Node_Id;
+         Arg_External : Node_Id;
+         Arg_Size     : Node_Id);
+      --  Common processing for the pragmas Import/Export_Object. The three
+      --  arguments correspond to the three named parameters of the pragmas. An
+      --  argument is empty if the corresponding parameter is not present in
+      --  the pragma.
+>>>>>>> gcc-mirror/trunk
+
+      --  Single and multiple initialization clauses appear as an aggregate. If
+      --  this is not the case, then either the parser or the analysis of the
+      --  pragma failed to produce an aggregate.
+
+<<<<<<< HEAD
+      pragma Assert (Nkind (Inits) = N_Aggregate);
+=======
+      procedure Process_Extended_Import_Export_Subprogram_Pragma
+        (Arg_Internal                 : Node_Id;
+         Arg_External                 : Node_Id;
+         Arg_Parameter_Types          : Node_Id;
+         Arg_Result_Type              : Node_Id := Empty;
+         Arg_Mechanism                : Node_Id;
+         Arg_Result_Mechanism         : Node_Id := Empty);
+      --  Common processing for all extended Import and Export pragmas applying
+      --  to subprograms. The caller omits any arguments that do not apply to
+      --  the pragma in question (for example, Arg_Result_Type can be non-Empty
+      --  only in the Import_Function and Export_Function cases). The argument
+      --  names correspond to the allowed pragma association identifiers.
+>>>>>>> gcc-mirror/trunk
+
+      --  Initialize the various lists used during analysis
+
+<<<<<<< HEAD
+      Collect_States_And_Objects;
+=======
+      procedure Process_Import_Or_Interface;
+      --  Common processing for Import or Interface
+>>>>>>> gcc-mirror/trunk
+
+      if Present (Expressions (Inits)) then
+         Init := First (Expressions (Inits));
+         while Present (Init) loop
+            Analyze_Initialization_Item (Init);
+            Next (Init);
+         end loop;
+      end if;
+
+      if Present (Component_Associations (Inits)) then
+         Init := First (Component_Associations (Inits));
+         while Present (Init) loop
+            Analyze_Initialization_Item_With_Inputs (Init);
+            Next (Init);
+         end loop;
+      end if;
+
+      --  Ensure that a state and a corresponding constituent do not appear
+      --  together in pragma Initializes.
+
+<<<<<<< HEAD
+      Check_State_And_Constituent_Use
+        (States   => States_Seen,
+         Constits => Constits_Seen,
+         Context  => N);
+
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Initializes_In_Decl_Part;
+=======
+         if Present (P) then
+
+            --  If the entity is a type, then we have to make sure that the
+            --  ostensible duplicate is not for a parent type from which this
+            --  type is derived.
+
+            if Is_Type (E) then
+               if Nkind (P) = N_Pragma then
+                  declare
+                     Args : constant List_Id :=
+                              Pragma_Argument_Associations (P);
+                  begin
+                     if Present (Args)
+                       and then Is_Entity_Name (Expression (First (Args)))
+                       and then Is_Type (Entity (Expression (First (Args))))
+                       and then Entity (Expression (First (Args))) /= E
+                     then
+                        return;
+                     end if;
+                  end;
+
+               elsif Nkind (P) = N_Aspect_Specification
+                 and then Is_Type (Entity (P))
+                 and then Entity (P) /= E
+               then
+                  return;
+               end if;
+            end if;
+
+            --  Here we have a definite duplicate
+
+            Error_Msg_Name_1 := Pragma_Name (N);
+            Error_Msg_Sloc := Sloc (P);
+
+            --  For a single protected or a single task object, the error is
+            --  issued on the original entity.
+>>>>>>> gcc-mirror/master
+
+   ---------------------
+   -- Analyze_Part_Of --
+   ---------------------
+
+   procedure Analyze_Part_Of
+     (Indic    : Node_Id;
+      Item_Id  : Entity_Id;
+      Encap    : Node_Id;
+      Encap_Id : out Entity_Id;
+      Legal    : out Boolean)
+   is
+      Encap_Typ   : Entity_Id;
+      Item_Decl   : Node_Id;
+      Pack_Id     : Entity_Id;
+      Placement   : State_Space_Kind;
+      Parent_Unit : Entity_Id;
+
+<<<<<<< HEAD
+   begin
+      --  Assume that the indicator is illegal
+=======
+      procedure Record_Independence_Check (N : Node_Id; E : Entity_Id);
+      --  Subsidiary to the analysis of pragmas Independent[_Components].
+      --  Record such a pragma N applied to entity E for future checks.
+
+      procedure Set_Exported (E : Entity_Id; Arg : Node_Id);
+      --  This procedure sets the Is_Exported flag for the given entity,
+      --  checking that the entity was not previously imported. Arg is
+      --  the argument that specified the entity. A check is also made
+      --  for exporting inappropriate entities.
+>>>>>>> gcc-mirror/trunk
+
+      Encap_Id := Empty;
+      Legal    := False;
+
+      if Nkind_In (Encap, N_Expanded_Name,
+                          N_Identifier,
+                          N_Selected_Component)
+      then
+         Analyze       (Encap);
+         Resolve_State (Encap);
+
+         Encap_Id := Entity (Encap);
+
+         --  The encapsulator is an abstract state
+
+<<<<<<< HEAD
+         if Ekind (Encap_Id) = E_Abstract_State then
+            null;
+=======
+      procedure Set_Ravenscar_Profile (Profile : Profile_Name; N : Node_Id);
+      --  Activate the set of configuration pragmas and restrictions that make
+      --  up the Profile. Profile must be either GNAT_Extended_Ravencar or
+      --  Ravenscar. N is the corresponding pragma node, which is used for
+      --  error messages on any constructs violating the profile.
+
+      ----------------------------------
+      -- Acquire_Warning_Match_String --
+      ----------------------------------
+
+      procedure Acquire_Warning_Match_String (Arg : Node_Id) is
+      begin
+         String_To_Name_Buffer
+           (Strval (Expr_Value_S (Get_Pragma_Arg (Arg))));
+
+         --  Add asterisk at start if not already there
+
+         if Name_Len > 0 and then Name_Buffer (1) /= '*' then
+            Name_Buffer (2 .. Name_Len + 1) :=
+              Name_Buffer (1 .. Name_Len);
+            Name_Buffer (1) := '*';
+            Name_Len := Name_Len + 1;
+         end if;
+
+<<<<<<< HEAD
+         --  Add asterisk at end if not already there
+
+         if Name_Buffer (Name_Len) /= '*' then
+            Name_Len := Name_Len + 1;
+            Name_Buffer (Name_Len) := '*';
+=======
+      ----------------------------------------
+      -- Check_Expr_Is_OK_Static_Expression --
+      ----------------------------------------
+
+      procedure Check_Expr_Is_OK_Static_Expression
+        (Expr : Node_Id;
+         Typ  : Entity_Id := Empty)
+      is
+      begin
+         if Present (Typ) then
+            Analyze_And_Resolve (Expr, Typ);
+         else
+            Analyze_And_Resolve (Expr);
+>>>>>>> gcc-mirror/master
+         end if;
+      end Acquire_Warning_Match_String;
+>>>>>>> gcc-mirror/trunk
+
+         --  The encapsulator is a single concurrent type (SPARK RM 9.3)
+
+         elsif Is_Single_Concurrent_Object (Encap_Id) then
+            null;
+
+         --  Otherwise the encapsulator is not a legal choice
+
+         else
+            SPARK_Msg_N
+              ("indicator Part_Of must denote abstract state, single "
+               & "protected type or single task type", Encap);
+            return;
+         end if;
+
+<<<<<<< HEAD
+      --  This is a syntax error, always report
+=======
+      ----------------------------
+      -- Analyze_Depends_Global --
+      ----------------------------
+
+<<<<<<< HEAD
+      procedure Analyze_Depends_Global
+        (Spec_Id   : out Entity_Id;
+         Subp_Decl : out Node_Id;
+         Legal     : out Boolean)
+      is
+      begin
+         --  Assume that the pragma is illegal
+=======
+         elsif Is_OK_Static_Expression (Expr) then
+            raise Pragma_Exit;
+>>>>>>> gcc-mirror/master
+
+         Spec_Id   := Empty;
+         Subp_Decl := Empty;
+         Legal     := False;
+
+<<<<<<< HEAD
+         GNAT_Pragma;
+         Check_Arg_Count (1);
+
+         --  Ensure the proper placement of the pragma. Depends/Global must be
+         --  associated with a subprogram declaration or a body that acts as a
+         --  spec.
+
+         Subp_Decl := Find_Related_Declaration_Or_Body (N, Do_Checks => True);
+=======
+         else
+            Error_Msg_Name_1 := Pname;
+            Flag_Non_Static_Expr
+              (Fix_Error ("argument for pragma% must be a static expression!"),
+               Expr);
+            raise Pragma_Exit;
+         end if;
+      end Check_Expr_Is_OK_Static_Expression;
+>>>>>>> gcc-mirror/master
+
+         --  Entry
+
+         if Nkind (Subp_Decl) = N_Entry_Declaration then
+            null;
+
+         --  Generic subprogram
+
+         elsif Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
+            null;
+
+         --  Object declaration of a single concurrent type
+
+         elsif Nkind (Subp_Decl) = N_Object_Declaration then
+            null;
+
+         --  Single task type
+
+         elsif Nkind (Subp_Decl) = N_Single_Task_Declaration then
+            null;
+
+         --  Subprogram body acts as spec
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Body
+           and then No (Corresponding_Spec (Subp_Decl))
+         then
+            null;
+
+         --  Subprogram body stub acts as spec
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
+           and then No (Corresponding_Spec_Of_Stub (Subp_Decl))
+         then
+            null;
+
+         --  Subprogram declaration
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
+            null;
+
+         --  Task type
+
+         elsif Nkind (Subp_Decl) = N_Task_Type_Declaration then
+            null;
+
+         else
+            Pragma_Misplaced;
+            return;
+         end if;
+
+         --  If we get here, then the pragma is legal
+
+         Legal   := True;
+         Spec_Id := Unique_Defining_Entity (Subp_Decl);
+
+<<<<<<< HEAD
+         --  When the related context is an entry, the entry must belong to a
+         --  protected unit (SPARK RM 6.1.4(6)).
+=======
+      begin
+         --  Must be in subprogram body
+>>>>>>> gcc-mirror/master
+
+         if Is_Entry_Declaration (Spec_Id)
+           and then Ekind (Scope (Spec_Id)) /= E_Protected_Type
+         then
+            Pragma_Misplaced;
+            return;
+
+         --  When the related context is an anonymous object created for a
+         --  simple concurrent type, the type must be a task
+         --  (SPARK RM 6.1.4(6)).
+
+         elsif Is_Single_Concurrent_Object (Spec_Id)
+           and then Ekind (Etype (Spec_Id)) /= E_Task_Type
+         then
+            Pragma_Misplaced;
+            return;
+         end if;
+
+         --  A pragma that applies to a Ghost entity becomes Ghost for the
+         --  purposes of legality checks and removal of ignored Ghost code.
+
+         Mark_Pragma_As_Ghost (N, Spec_Id);
+         Ensure_Aggregate_Form (Get_Argument (N, Spec_Id));
+      end Analyze_Depends_Global;
+
+      ------------------------
+      -- Analyze_If_Present --
+      ------------------------
+
+      procedure Analyze_If_Present (Id : Pragma_Id) is
+         Stmt : Node_Id;
+
+      begin
+         pragma Assert (Is_List_Member (N));
+
+         --  Inspect the declarations or statements following pragma N looking
+         --  for another pragma whose Id matches the caller's request. If it is
+         --  available, analyze it.
+
+         Stmt := Next (N);
+         while Present (Stmt) loop
+            if Nkind (Stmt) = N_Pragma and then Get_Pragma_Id (Stmt) = Id then
+               Analyze_Pragma (Stmt);
+               exit;
+
+            --  The first source declaration or statement immediately following
+            --  N ends the region where a pragma may appear.
+
+            elsif Comes_From_Source (Stmt) then
+               exit;
+            end if;
+
+<<<<<<< HEAD
+            Next (Stmt);
+         end loop;
+      end Analyze_If_Present;
+=======
+            --  For pragma case (as opposed to access case), check placement.
+            --  We don't need to do that for aspects, because we have the
+            --  check that they aspect applies an appropriate procedure.
+
+            if not From_Aspect_Specification (N)
+              and then Parent (N) /= Protected_Definition (Parent (Proc_Scope))
+            then
+               Error_Pragma ("pragma% must be in protected definition");
+            end if;
+         end if;
+>>>>>>> gcc-mirror/master
+
+      --------------------------------
+      -- Analyze_Pre_Post_Condition --
+      --------------------------------
+
+      procedure Analyze_Pre_Post_Condition is
+         Prag_Iden : constant Node_Id := Pragma_Identifier (N);
+         Subp_Decl : Node_Id;
+         Subp_Id   : Entity_Id;
+
+         Duplicates_OK : Boolean := False;
+         --  Flag set when a pre/postcondition allows multiple pragmas of the
+         --  same kind.
+
+         In_Body_OK : Boolean := False;
+         --  Flag set when a pre/postcondition is allowed to appear on a body
+         --  even though the subprogram may have a spec.
+
+         Is_Pre_Post : Boolean := False;
+         --  Flag set when the pragma is one of Pre, Pre_Class, Post or
+         --  Post_Class.
+
+      begin
+         --  Change the name of pragmas Pre, Pre_Class, Post and Post_Class to
+         --  offer uniformity among the various kinds of pre/postconditions by
+         --  rewriting the pragma identifier. This allows the retrieval of the
+         --  original pragma name by routine Original_Aspect_Pragma_Name.
+
+         if Comes_From_Source (N) then
+            if Nam_In (Pname, Name_Pre, Name_Pre_Class) then
+               Is_Pre_Post := True;
+               Set_Class_Present (N, Pname = Name_Pre_Class);
+               Rewrite (Prag_Iden, Make_Identifier (Loc, Name_Precondition));
+
+            elsif Nam_In (Pname, Name_Post, Name_Post_Class) then
+               Is_Pre_Post := True;
+               Set_Class_Present (N, Pname = Name_Post_Class);
+               Rewrite (Prag_Iden, Make_Identifier (Loc, Name_Postcondition));
+            end if;
+         end if;
+
+         --  Determine the semantics with respect to duplicates and placement
+         --  in a body. Pragmas Precondition and Postcondition were introduced
+         --  before aspects and are not subject to the same aspect-like rules.
+
+<<<<<<< HEAD
+         if Nam_In (Pname, Name_Precondition, Name_Postcondition) then
+            Duplicates_OK := True;
+            In_Body_OK    := True;
+         end if;
+
+         GNAT_Pragma;
+
+         --  Pragmas Pre, Pre_Class, Post and Post_Class allow for a single
+         --  argument without an identifier.
+=======
+      procedure Check_Loop_Pragma_Placement is
+         procedure Check_Loop_Pragma_Grouping (Loop_Stmt : Node_Id);
+         --  Verify whether the current pragma is properly grouped with other
+         --  pragma Loop_Invariant and/or Loop_Variant. Node Loop_Stmt is the
+         --  related loop where the pragma appears.
+
+         function Is_Loop_Pragma (Stmt : Node_Id) return Boolean;
+         --  Determine whether an arbitrary statement Stmt denotes pragma
+         --  Loop_Invariant or Loop_Variant.
+
+         procedure Placement_Error (Constr : Node_Id);
+         pragma No_Return (Placement_Error);
+         --  Node Constr denotes the last loop restricted construct before we
+         --  encountered an illegal relation between enclosing constructs. Emit
+         --  an error depending on what Constr was.
+
+         --------------------------------
+         -- Check_Loop_Pragma_Grouping --
+         --------------------------------
+
+         procedure Check_Loop_Pragma_Grouping (Loop_Stmt : Node_Id) is
+            Stop_Search : exception;
+            --  This exception is used to terminate the recursive descent of
+            --  routine Check_Grouping.
+
+            procedure Check_Grouping (L : List_Id);
+            --  Find the first group of pragmas in list L and if successful,
+            --  ensure that the current pragma is part of that group. The
+            --  routine raises Stop_Search once such a check is performed to
+            --  halt the recursive descent.
+
+            procedure Grouping_Error (Prag : Node_Id);
+            pragma No_Return (Grouping_Error);
+            --  Emit an error concerning the current pragma indicating that it
+            --  should be placed after pragma Prag.
+
+            --------------------
+            -- Check_Grouping --
+            --------------------
+
+            procedure Check_Grouping (L : List_Id) is
+               HSS  : Node_Id;
+               Prag : Node_Id;
+               Stmt : Node_Id;
+
+            begin
+               --  Inspect the list of declarations or statements looking for
+               --  the first grouping of pragmas:
+
+               --    loop
+               --       pragma Loop_Invariant ...;
+               --       pragma Loop_Variant ...;
+               --       . . .                     -- (1)
+               --       pragma Loop_Variant ...;  --  current pragma
+
+               --  If the current pragma is not in the grouping, then it must
+               --  either appear in a different declarative or statement list
+               --  or the construct at (1) is separating the pragma from the
+               --  grouping.
+
+               Stmt := First (L);
+               while Present (Stmt) loop
+
+                  --  Pragmas Loop_Invariant and Loop_Variant may only appear
+                  --  inside a loop or a block housed inside a loop. Inspect
+                  --  the declarations and statements of the block as they may
+                  --  contain the first grouping.
+
+                  if Nkind (Stmt) = N_Block_Statement then
+                     HSS := Handled_Statement_Sequence (Stmt);
+
+                     Check_Grouping (Declarations (Stmt));
+
+                     if Present (HSS) then
+                        Check_Grouping (Statements (HSS));
+                     end if;
+
+                  --  First pragma of the first topmost grouping has been found
+
+                  elsif Is_Loop_Pragma (Stmt) then
+
+                     --  The group and the current pragma are not in the same
+                     --  declarative or statement list.
+
+                     if List_Containing (Stmt) /= List_Containing (N) then
+                        Grouping_Error (Stmt);
+
+                     --  Try to reach the current pragma from the first pragma
+                     --  of the grouping while skipping other members:
+
+                     --    pragma Loop_Invariant ...;  --  first pragma
+                     --    pragma Loop_Variant ...;    --  member
+                     --    . . .
+                     --    pragma Loop_Variant ...;    --  current pragma
+
+                     else
+                        while Present (Stmt) loop
+
+                           --  The current pragma is either the first pragma
+                           --  of the group or is a member of the group. Stop
+                           --  the search as the placement is legal.
+
+                           if Stmt = N then
+                              raise Stop_Search;
+
+                           --  Skip group members, but keep track of the last
+                           --  pragma in the group.
+
+                           elsif Is_Loop_Pragma (Stmt) then
+                              Prag := Stmt;
+
+                           --  Skip declarations and statements generated by
+                           --  the compiler during expansion.
+
+                           elsif not Comes_From_Source (Stmt) then
+                              null;
+
+                           --  A non-pragma is separating the group from the
+                           --  current pragma, the placement is illegal.
+
+                           else
+                              Grouping_Error (Prag);
+                           end if;
+
+                           Next (Stmt);
+                        end loop;
+
+                        --  If the traversal did not reach the current pragma,
+                        --  then the list must be malformed.
+
+                        raise Program_Error;
+                     end if;
+                  end if;
+
+                  Next (Stmt);
+               end loop;
+            end Check_Grouping;
+
+            --------------------
+            -- Grouping_Error --
+            --------------------
+
+            procedure Grouping_Error (Prag : Node_Id) is
+            begin
+               Error_Msg_Sloc := Sloc (Prag);
+               Error_Pragma ("pragma% must appear next to pragma#");
+            end Grouping_Error;
+
+         --  Start of processing for Check_Loop_Pragma_Grouping
+
+         begin
+            --  Inspect the statements of the loop or nested blocks housed
+            --  within to determine whether the current pragma is part of the
+            --  first topmost grouping of Loop_Invariant and Loop_Variant.
+
+            Check_Grouping (Statements (Loop_Stmt));
+
+         exception
+            when Stop_Search => null;
+         end Check_Loop_Pragma_Grouping;
+
+         --------------------
+         -- Is_Loop_Pragma --
+         --------------------
+
+         function Is_Loop_Pragma (Stmt : Node_Id) return Boolean is
+         begin
+            --  Inspect the original node as Loop_Invariant and Loop_Variant
+            --  pragmas are rewritten to null when assertions are disabled.
+
+            if Nkind (Original_Node (Stmt)) = N_Pragma then
+               return
+                 Nam_In (Pragma_Name (Original_Node (Stmt)),
+                         Name_Loop_Invariant,
+                         Name_Loop_Variant);
+            else
+               return False;
+            end if;
+         end Is_Loop_Pragma;
+
+         ---------------------
+         -- Placement_Error --
+         ---------------------
+
+         procedure Placement_Error (Constr : Node_Id) is
+            LA : constant String := " with Loop_Entry";
+
+         begin
+            if Prag_Id = Pragma_Assert then
+               Error_Msg_String (1 .. LA'Length) := LA;
+               Error_Msg_Strlen := LA'Length;
+            else
+               Error_Msg_Strlen := 0;
+            end if;
+
+            if Nkind (Constr) = N_Pragma then
+               Error_Pragma
+                 ("pragma %~ must appear immediately within the statements "
+                  & "of a loop");
+            else
+               Error_Pragma_Arg
+                 ("block containing pragma %~ must appear immediately within "
+                  & "the statements of a loop", Constr);
+            end if;
+         end Placement_Error;
+>>>>>>> gcc-mirror/master
+
+         if Is_Pre_Post then
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+
+         --  Pragmas Precondition and Postcondition have complex argument
+         --  profile.
+
+         else
+            Check_At_Least_N_Arguments (1);
+            Check_At_Most_N_Arguments  (2);
+            Check_Optional_Identifier (Arg1, Name_Check);
+
+<<<<<<< HEAD
+            if Present (Arg2) then
+               Check_Optional_Identifier (Arg2, Name_Message);
+               Preanalyze_Spec_Expression
+                 (Get_Pragma_Arg (Arg2), Standard_String);
+            end if;
+         end if;
+=======
+      begin
+         --  Check that pragma appears immediately within a loop statement,
+         --  ignoring intervening block statements.
+
+         Prev := N;
+         Stmt := Parent (N);
+         while Present (Stmt) loop
+>>>>>>> gcc-mirror/master
+
+         --  For a pragma PPC in the extended main source unit, record enabled
+         --  status in SCO.
+         --  ??? nothing checks that the pragma is in the main source unit
+
+         if Is_Checked (N) and then not Split_PPC (N) then
+            Set_SCO_Pragma_Enabled (Loc);
+         end if;
+
+         --  Ensure the proper placement of the pragma
+
+         Subp_Decl :=
+           Find_Related_Declaration_Or_Body
+             (N, Do_Checks => not Duplicates_OK);
+
+         --  When a pre/postcondition pragma applies to an abstract subprogram,
+         --  its original form must be an aspect with 'Class.
+
+         if Nkind (Subp_Decl) = N_Abstract_Subprogram_Declaration then
+            if not From_Aspect_Specification (N) then
+               Error_Pragma
+                 ("pragma % cannot be applied to abstract subprogram");
+
+            elsif not Class_Present (N) then
+               Error_Pragma
+                 ("aspect % requires ''Class for abstract subprogram");
+            end if;
+
+<<<<<<< HEAD
+         --  Entry declaration
+=======
+               exit;
+>>>>>>> gcc-mirror/master
+
+         elsif Nkind (Subp_Decl) = N_Entry_Declaration then
+            null;
+
+         --  Generic subprogram declaration
+
+         elsif Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
+            null;
+
+<<<<<<< HEAD
+         --  Subprogram body
+=======
+            else
+               Placement_Error (Prev);
+               return;
+            end if;
+         end loop;
+
+         --  Check that the current pragma Loop_Invariant or Loop_Variant is
+         --  grouped together with other such pragmas.
+
+         if Is_Loop_Pragma (N) then
+
+            --  The previous check should have located the related loop
+
+            pragma Assert (Nkind (Stmt) = N_Loop_Statement);
+            Check_Loop_Pragma_Grouping (Stmt);
+         end if;
+      end Check_Loop_Pragma_Placement;
+>>>>>>> gcc-mirror/master
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Body
+           and then (No (Corresponding_Spec (Subp_Decl)) or In_Body_OK)
+         then
+            null;
+
+         --  Subprogram body stub
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
+           and then (No (Corresponding_Spec_Of_Stub (Subp_Decl)) or In_Body_OK)
+         then
+            null;
+
+         --  Subprogram declaration
+
+         elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
+
+            --  AI05-0230: When a pre/postcondition pragma applies to a null
+            --  procedure, its original form must be an aspect with 'Class.
+
+            if Nkind (Specification (Subp_Decl)) = N_Procedure_Specification
+              and then Null_Present (Specification (Subp_Decl))
+              and then From_Aspect_Specification (N)
+              and then not Class_Present (N)
+            then
+               Error_Pragma ("aspect % requires ''Class for null procedure");
+            end if;
+
+         --  Otherwise the placement is illegal
+
+         else
+            Pragma_Misplaced;
+            return;
+         end if;
+
+         Subp_Id := Defining_Entity (Subp_Decl);
+
+         --  Chain the pragma on the contract for further processing by
+         --  Analyze_Pre_Post_Condition_In_Decl_Part.
+
+         Add_Contract_Item (N, Defining_Entity (Subp_Decl));
+
+         --  A pragma that applies to a Ghost entity becomes Ghost for the
+         --  purposes of legality checks and removal of ignored Ghost code.
+
+         Mark_Pragma_As_Ghost (N, Subp_Id);
+
+         --  Fully analyze the pragma when it appears inside an entry or
+         --  subprogram body because it cannot benefit from forward references.
+
+         if Nkind_In (Subp_Decl, N_Entry_Body,
+                                 N_Subprogram_Body,
+                                 N_Subprogram_Body_Stub)
+         then
+            --  The legality checks of pragmas Precondition and Postcondition
+            --  are affected by the SPARK mode in effect and the volatility of
+            --  the context. Analyze all pragmas in a specific order.
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+            Analyze_If_Present (Pragma_Volatile_Function);
+            Analyze_Pre_Post_Condition_In_Decl_Part (N);
+         end if;
+      end Analyze_Pre_Post_Condition;
+
+      -----------------------------------------
+      -- Analyze_Refined_Depends_Global_Post --
+      -----------------------------------------
+
+<<<<<<< HEAD
+      procedure Analyze_Refined_Depends_Global_Post
+        (Spec_Id : out Entity_Id;
+         Body_Id : out Entity_Id;
+         Legal   : out Boolean)
+      is
+         Body_Decl : Node_Id;
+         Spec_Decl : Node_Id;
+
+      begin
+         --  Assume that the pragma is illegal
+
+         Spec_Id := Empty;
+         Body_Id := Empty;
+         Legal   := False;
+
+         GNAT_Pragma;
+         Check_Arg_Count (1);
+         Check_No_Identifiers;
+
+         --  Verify the placement of the pragma and check for duplicates. The
+         --  pragma must apply to a subprogram body [stub].
+
+         Body_Decl := Find_Related_Declaration_Or_Body (N, Do_Checks => True);
+
+         --  Entry body
+
+         if Nkind (Body_Decl) = N_Entry_Body then
+            null;
+
+         --  Subprogram body
+
+         elsif Nkind (Body_Decl) = N_Subprogram_Body then
+            null;
+
+         --  Subprogram body stub
+
+         elsif Nkind (Body_Decl) = N_Subprogram_Body_Stub then
+            null;
+
+         --  Task body
+
+         elsif Nkind (Body_Decl) = N_Task_Body then
+            null;
+
+         else
+            Pragma_Misplaced;
+            return;
+         end if;
+
+         Body_Id := Defining_Entity (Body_Decl);
+         Spec_Id := Unique_Defining_Entity (Body_Decl);
+
+         --  The pragma must apply to the second declaration of a subprogram.
+         --  In other words, the body [stub] cannot acts as a spec.
+
+         if No (Spec_Id) then
+            Error_Pragma ("pragma % cannot apply to a stand alone body");
+            return;
+
+         --  Catch the case where the subprogram body is a subunit and acts as
+         --  the third declaration of the subprogram.
+
+         elsif Nkind (Parent (Body_Decl)) = N_Subunit then
+            Error_Pragma ("pragma % cannot apply to a subunit");
+            return;
+         end if;
+
+         --  A refined pragma can only apply to the body [stub] of a subprogram
+         --  declared in the visible part of a package. Retrieve the context of
+         --  the subprogram declaration.
+
+         Spec_Decl := Unit_Declaration_Node (Spec_Id);
+
+         --  When dealing with protected entries or protected subprograms, use
+         --  the enclosing protected type as the proper context.
+
+         if Ekind_In (Spec_Id, E_Entry,
+                               E_Entry_Family,
+                               E_Function,
+                               E_Procedure)
+           and then Ekind (Scope (Spec_Id)) = E_Protected_Type
+         then
+            Spec_Decl := Declaration_Node (Scope (Spec_Id));
+         end if;
+
+         if Nkind (Parent (Spec_Decl)) /= N_Package_Specification then
+            Error_Pragma
+              (Fix_Msg (Spec_Id, "pragma % must apply to the body of "
+               & "subprogram declared in a package specification"));
+            return;
+         end if;
+
+         --  If we get here, then the pragma is legal
+
+         Legal := True;
+
+         --  A pragma that applies to a Ghost entity becomes Ghost for the
+         --  purposes of legality checks and removal of ignored Ghost code.
+
+         Mark_Pragma_As_Ghost (N, Spec_Id);
+
+         if Nam_In (Pname, Name_Refined_Depends, Name_Refined_Global) then
+            Ensure_Aggregate_Form (Get_Argument (N, Spec_Id));
+         end if;
+      end Analyze_Refined_Depends_Global_Post;
+
+      --------------------------
+      -- Check_Ada_83_Warning --
+      --------------------------
 >>>>>>> gcc-mirror/trunk
 
       else
@@ -4606,6 +6441,27 @@ package body Sem_Prag is
          end if;
 
       --  The encapsulator is a single concurrent type
+=======
+      -------------------------------------
+      -- Check_Static_Boolean_Expression --
+      -------------------------------------
+
+      procedure Check_Static_Boolean_Expression (Expr : Node_Id) is
+      begin
+         if Present (Expr) then
+            Analyze_And_Resolve (Expr, Standard_Boolean);
+
+            if not Is_OK_Static_Expression (Expr) then
+               Error_Pragma_Arg
+                 ("expression of pragma % must be static", Expr);
+            end if;
+         end if;
+      end Check_Static_Boolean_Expression;
+
+      -----------------------------
+      -- Check_Static_Constraint --
+      -----------------------------
+>>>>>>> gcc-mirror/master
 
       else
          Encap_Typ := Etype (Encap_Id);
@@ -4664,6 +6520,7 @@ package body Sem_Prag is
          --  appear in the same declarative region (SPARK RM 9.3). Note that
          --  privacy is ignored.
 
+<<<<<<< HEAD
          if Parent (Item_Decl) /= Parent (Declaration_Node (Encap_Id)) then
             Error_Msg_Name_1 := Chars (Encap_Id);
             SPARK_Msg_NE
@@ -7208,6 +9065,27 @@ package body Sem_Prag is
       -------------------------------------
 
 >>>>>>> master
+=======
+      --------------------------------------
+      -- Check_Valid_Configuration_Pragma --
+      --------------------------------------
+
+      --  A configuration pragma must appear in the context clause of a
+      --  compilation unit, and only other pragmas may precede it. Note that
+      --  the test also allows use in a configuration pragma file.
+
+      procedure Check_Valid_Configuration_Pragma is
+      begin
+         if not Is_Configuration_Pragma then
+            Error_Pragma ("incorrect placement for configuration pragma%");
+         end if;
+      end Check_Valid_Configuration_Pragma;
+
+      -------------------------------------
+      -- Check_Valid_Library_Unit_Pragma --
+      -------------------------------------
+
+>>>>>>> gcc-mirror/master
       procedure Check_Valid_Library_Unit_Pragma is
          Plist       : List_Id;
          Parent_Node : Node_Id;
@@ -7215,6 +9093,7 @@ package body Sem_Prag is
          Unit_Kind   : Node_Kind;
          Unit_Node   : Node_Id;
          Sindex      : Source_File_Index;
+<<<<<<< HEAD
 
       begin
          if not Is_List_Member (N) then
@@ -25079,6 +26958,8 @@ package body Sem_Prag is
             Check_Valid_Configuration_Pragma;
             Get_Name_String (Chars (Get_Pragma_Arg (Arg1)));
             DP := Fold_Upper (Name_Buffer (1));
+=======
+>>>>>>> gcc-mirror/master
 
             Lower_Bound := Get_Pragma_Arg (Arg2);
             Check_Arg_Is_OK_Static_Expression (Lower_Bound, Standard_Integer);
@@ -25420,8 +27301,17 @@ package body Sem_Prag is
 =======
             Check_Arg_Is_One_Of (Arg1, Name_Static, Name_Dynamic);
 
+<<<<<<< HEAD
             --  Set flag accordingly (ignore attempt at dynamic elaboration
             --  checks in SPARK mode).
+=======
+                  elsif (Nkind (Parent_Node) = N_Generic_Package_Declaration
+                          or else Nkind (Parent_Node) =
+                                             N_Generic_Subprogram_Declaration)
+                    and then Plist = Generic_Formal_Declarations (Parent_Node)
+                  then
+                     Pragma_Misplaced;
+>>>>>>> gcc-mirror/master
 
             Dynamic_Elaboration_Checks :=
               (Chars (Get_Pragma_Arg (Arg1)) = Name_Dynamic)
@@ -25455,6 +27345,7 @@ package body Sem_Prag is
 
                --  Apply error checks
 
+<<<<<<< HEAD
                if not Is_First_Subtype (Ent) then
                   Error_Pragma_Arg
                     ("cannot apply pragma %",
@@ -25466,6 +27357,105 @@ package body Sem_Prag is
                     ("cannot apply pragma %",
                      "\& is not an integer type",
                      Arg1);
+=======
+      ---------------------------
+      -- Ensure_Aggregate_Form --
+      ---------------------------
+
+      procedure Ensure_Aggregate_Form (Arg : Node_Id) is
+         CFSD    : constant Boolean    := Get_Comes_From_Source_Default;
+         Expr    : constant Node_Id    := Expression (Arg);
+         Loc     : constant Source_Ptr := Sloc (Expr);
+         Comps   : List_Id := No_List;
+         Exprs   : List_Id := No_List;
+         Nam     : Name_Id := No_Name;
+         Nam_Loc : Source_Ptr;
+
+      begin
+         --  The pragma argument is in positional form:
+
+         --    pragma Depends (Nam => ...)
+         --                    ^
+         --                    Chars field
+
+         --  Note that the Sloc of the Chars field is the Sloc of the pragma
+         --  argument association.
+
+         if Nkind (Arg) = N_Pragma_Argument_Association then
+            Nam     := Chars (Arg);
+            Nam_Loc := Sloc (Arg);
+
+            --  Remove the pragma argument name as this will be captured in the
+            --  aggregate.
+
+            Set_Chars (Arg, No_Name);
+         end if;
+
+         --  The argument is already in aggregate form, but the presence of a
+         --  name causes this to be interpreted as named association which in
+         --  turn must be converted into an aggregate.
+
+         --    pragma Global (In_Out => (A, B, C))
+         --                   ^         ^
+         --                   name      aggregate
+
+         --    pragma Global ((In_Out => (A, B, C)))
+         --                   ^          ^
+         --                   aggregate  aggregate
+
+         if Nkind (Expr) = N_Aggregate then
+            if Nam = No_Name then
+               return;
+            end if;
+
+         --  Do not transform a null argument into an aggregate as N_Null has
+         --  special meaning in formal verification pragmas.
+
+         elsif Nkind (Expr) = N_Null then
+            return;
+         end if;
+
+         --  Everything comes from source if the original comes from source
+
+         Set_Comes_From_Source_Default (Comes_From_Source (Arg));
+
+         --  Positional argument is transformed into an aggregate with an
+         --  Expressions list.
+
+         if Nam = No_Name then
+            Exprs := New_List (Relocate_Node (Expr));
+
+         --  An associative argument is transformed into an aggregate with
+         --  Component_Associations.
+
+         else
+            Comps := New_List (
+              Make_Component_Association (Loc,
+                Choices    => New_List (Make_Identifier (Nam_Loc, Nam)),
+                Expression => Relocate_Node (Expr)));
+         end if;
+
+         Set_Expression (Arg,
+           Make_Aggregate (Loc,
+             Component_Associations => Comps,
+             Expressions            => Exprs));
+
+         --  Restore Comes_From_Source default
+
+         Set_Comes_From_Source_Default (CFSD);
+      end Ensure_Aggregate_Form;
+
+      ------------------
+      -- Error_Pragma --
+      ------------------
+
+      procedure Error_Pragma (Msg : String) is
+      begin
+         Error_Msg_Name_1 := Pname;
+         Error_Msg_N (Fix_Error (Msg), N);
+         raise Pragma_Exit;
+      end Error_Pragma;
+>>>>>>> gcc-mirror/master
 
                elsif Has_Shift_Operator (Ent) then
                   Error_Pragma_Arg
@@ -25473,6 +27463,7 @@ package body Sem_Prag is
                      "\& already has declared shift operators",
                      Arg1);
 
+<<<<<<< HEAD
                elsif Is_Frozen (Ent) then
                   Error_Pragma_Arg
                     ("pragma % appears too late",
@@ -25483,6 +27474,21 @@ package body Sem_Prag is
                --  Now declare the operators. We do this during analysis rather
                --  than expansion, since we want the operators available if we
                --  are operating in -gnatc or ASIS mode.
+=======
+      procedure Error_Pragma_Arg (Msg : String; Arg : Node_Id) is
+      begin
+         Error_Msg_Name_1 := Pname;
+         Error_Msg_N (Fix_Error (Msg), Get_Pragma_Arg (Arg));
+         raise Pragma_Exit;
+      end Error_Pragma_Arg;
+
+      procedure Error_Pragma_Arg (Msg1, Msg2 : String; Arg : Node_Id) is
+      begin
+         Error_Msg_Name_1 := Pname;
+         Error_Msg_N (Fix_Error (Msg1), Get_Pragma_Arg (Arg));
+         Error_Pragma_Arg (Msg2, Arg);
+      end Error_Pragma_Arg;
+>>>>>>> gcc-mirror/master
 
                Declare_Shift_Operator (Name_Rotate_Left);
                Declare_Shift_Operator (Name_Rotate_Right);
@@ -25492,17 +27498,36 @@ package body Sem_Prag is
             end if;
          end Provide_Shift_Operators;
 
+<<<<<<< HEAD
          ------------------
          -- Psect_Object --
          ------------------
 =======
 >>>>>>> master
+=======
+      procedure Error_Pragma_Arg_Ident (Msg : String; Arg : Node_Id) is
+      begin
+         Error_Msg_Name_1 := Pname;
+         Error_Msg_N (Fix_Error (Msg), Arg);
+         raise Pragma_Exit;
+      end Error_Pragma_Arg_Ident;
+>>>>>>> gcc-mirror/master
 
          --  pragma Provide_Shift_Operators (integer_subtype_LOCAL_NAME);
 
+<<<<<<< HEAD
          when Pragma_Provide_Shift_Operators =>
          Provide_Shift_Operators : declare
             Ent : Entity_Id;
+=======
+      procedure Error_Pragma_Ref (Msg : String; Ref : Entity_Id) is
+      begin
+         Error_Msg_Name_1 := Pname;
+         Error_Msg_Sloc := Sloc (Ref);
+         Error_Msg_NE (Fix_Error (Msg), N, Ref);
+         raise Pragma_Exit;
+      end Error_Pragma_Ref;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
             procedure Declare_Shift_Operator (Nam : Name_Id);
@@ -25583,7 +27608,15 @@ package body Sem_Prag is
             Check_Arg_Is_Local_Name (Arg1);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             Arg1 := Get_Pragma_Arg (Arg1);
+=======
+            if Nkind_In (Unit_Kind, N_Subprogram_Declaration,
+                                    N_Package_Declaration)
+              or else Unit_Kind in N_Generic_Declaration
+            then
+               Unit_Name := Defining_Entity (Unit (P));
+>>>>>>> gcc-mirror/master
 
             --  We must have an entity name
 
@@ -25657,12 +27690,22 @@ package body Sem_Prag is
                      "\& already has declared shift operators",
                      Arg1);
 
+<<<<<<< HEAD
                elsif Is_Frozen (Ent) then
                   Error_Pragma_Arg
                     ("pragma % appears too late",
                      "\& is already frozen",
                      Arg1);
                end if;
+=======
+      function Fix_Error (Msg : String) return String is
+         Res      : String (Msg'Range) := Msg;
+         Res_Last : Natural            := Msg'Last;
+         J        : Natural;
+
+      begin
+         --  If we have a rewriting of another pragma, go to that pragma
+>>>>>>> gcc-mirror/master
 
                --  Now declare the operators. We do this during analysis rather
                --  than expansion, since we want the operators available if we
@@ -25686,6 +27729,7 @@ package body Sem_Prag is
          --     [, [External =>] EXTERNAL_SYMBOL]
          --     [, [Size     =>] EXTERNAL_SYMBOL]);
 
+<<<<<<< HEAD
          when Pragma_Psect_Object | Pragma_Common_Object =>
          Psect_Object : declare
             Args  : Args_List (1 .. 3);
@@ -25699,6 +27743,50 @@ package body Sem_Prag is
             Size     : Node_Id renames Args (3);
 
             Def_Id : Entity_Id;
+=======
+            J := Res'First;
+            while J <= Res_Last - 5 loop
+               if Res (J .. J + 5) = "pragma" then
+                  Res (J .. J + 5) := "aspect";
+                  J := J + 6;
+
+               else
+                  J := J + 1;
+               end if;
+            end loop;
+
+            --  Change "argument of" at start of message to "entity for"
+
+            if Res'Length > 11
+              and then Res (Res'First .. Res'First + 10) = "argument of"
+            then
+               Res (Res'First .. Res'First + 9) := "entity for";
+               Res (Res'First + 10 .. Res_Last - 1) :=
+                 Res (Res'First + 11 .. Res_Last);
+               Res_Last := Res_Last - 1;
+            end if;
+
+            --  Change "argument" at start of message to "entity"
+
+            if Res'Length > 8
+              and then Res (Res'First .. Res'First + 7) = "argument"
+            then
+               Res (Res'First .. Res'First + 5) := "entity";
+               Res (Res'First + 6 .. Res_Last - 2) :=
+                 Res (Res'First + 8 .. Res_Last);
+               Res_Last := Res_Last - 2;
+            end if;
+
+            --  Get name from corresponding aspect
+
+            Error_Msg_Name_1 := Original_Aspect_Pragma_Name (N);
+         end if;
+
+         --  Return possibly modified message
+
+         return Res (Res'First .. Res_Last);
+      end Fix_Error;
+>>>>>>> gcc-mirror/master
 
             procedure Check_Arg (Arg : Node_Id);
             --  Checks that argument is either a string literal or an
@@ -25909,6 +27997,7 @@ package body Sem_Prag is
                   exit when No (E) or else Scope (E) /= Current_Scope;
                end loop;
 
+<<<<<<< HEAD
                if not Effective
                  and then Warn_On_Redundant_Constructs
                then
@@ -25922,6 +28011,30 @@ package body Sem_Prag is
          --------------------
          -- Queuing_Policy --
          --------------------
+=======
+      function Is_Static_String_Expression (Arg : Node_Id) return Boolean is
+         Argx : constant Node_Id := Get_Pragma_Arg (Arg);
+         Lit  : constant Boolean := Nkind (Argx) = N_String_Literal;
+
+      begin
+         Analyze_And_Resolve (Argx);
+
+         --  Special case Ada 83, where the expression will never be static,
+         --  but we will return true if we had a string literal to start with.
+
+         if Ada_Version = Ada_83 then
+            return Lit;
+
+         --  Normal case, true only if we end up with a string literal that
+         --  is marked as being the result of evaluating a static expression.
+
+         else
+            return Is_OK_Static_Expression (Argx)
+              and then Nkind (Argx) = N_String_Literal;
+         end if;
+
+      end Is_Static_String_Expression;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
          --  pragma Queuing_Policy (policy_IDENTIFIER);
@@ -25932,6 +28045,7 @@ package body Sem_Prag is
             Check_Optional_Identifier (Arg1, Name_Value);
             Check_Arg_Is_OK_Static_Expression (Arg1, Any_Integer);
 
+<<<<<<< HEAD
             Check_Optional_Identifier (Arg2, Name_Link_Name);
             Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
 >>>>>>> gcc-mirror/trunk
@@ -25956,12 +28070,47 @@ package body Sem_Prag is
 
             else
                Queuing_Policy := QP;
+=======
+      ------------------------------------------------
+      -- Process_Atomic_Independent_Shared_Volatile --
+      ------------------------------------------------
+
+      procedure Process_Atomic_Independent_Shared_Volatile is
+         D    : Node_Id;
+         E    : Entity_Id;
+         E_Id : Node_Id;
+         K    : Node_Kind;
+
+         procedure Set_Atomic_VFA (E : Entity_Id);
+         --  Set given type as Is_Atomic or Is_Volatile_Full_Access. Also, if
+         --  no explicit alignment was given, set alignment to unknown, since
+         --  back end knows what the alignment requirements are for atomic and
+         --  full access arrays. Note: this is necessary for derived types.
+
+         --------------------
+         -- Set_Atomic_VFA --
+         --------------------
+
+         procedure Set_Atomic_VFA (E : Entity_Id) is
+         begin
+            if Prag_Id = Pragma_Volatile_Full_Access then
+               Set_Is_Volatile_Full_Access (E);
+            else
+               Set_Is_Atomic (E);
+            end if;
+>>>>>>> gcc-mirror/master
 
                if Queuing_Policy_Sloc /= System_Location then
                   Queuing_Policy_Sloc := Loc;
                end if;
             end if;
+<<<<<<< HEAD
          end;
+=======
+         end Set_Atomic_VFA;
+
+      --  Start of processing for Process_Atomic_Independent_Shared_Volatile
+>>>>>>> gcc-mirror/master
 
          --------------
          -- Rational --
@@ -25973,6 +28122,7 @@ package body Sem_Prag is
          when Pragma_Rational =>
             Set_Rational_Profile;
 
+<<<<<<< HEAD
          ---------------------
          -- Refined_Depends --
          ---------------------
@@ -25981,17 +28131,79 @@ package body Sem_Prag is
          --    Value
          --  | Reference
 >>>>>>> gcc-mirror/trunk
+=======
+         --  A pragma that applies to a Ghost entity becomes Ghost for the
+         --  purposes of legality checks and removal of ignored Ghost code.
+
+         Mark_Pragma_As_Ghost (N, E);
+
+         --  Check duplicate before we chain ourselves
+>>>>>>> gcc-mirror/master
 
          --  pragma Refined_Depends (DEPENDENCY_RELATION);
 
+<<<<<<< HEAD
          --  DEPENDENCY_RELATION ::=
          --     null
          --  | (DEPENDENCY_CLAUSE {, DEPENDENCY_CLAUSE})
+=======
+         --  Check Atomic and VFA used together
+
+         if (Is_Atomic (E) and then Prag_Id = Pragma_Volatile_Full_Access)
+           or else (Is_Volatile_Full_Access (E)
+                     and then (Prag_Id = Pragma_Atomic
+                                 or else
+                               Prag_Id = Pragma_Shared))
+         then
+            Error_Pragma
+              ("cannot have Volatile_Full_Access and Atomic for same entity");
+         end if;
+
+         --  Check for applying VFA to an entity which has aliased component
+
+         if Prag_Id = Pragma_Volatile_Full_Access then
+            declare
+               Comp         : Entity_Id;
+               Aliased_Comp : Boolean := False;
+               --  Set True if aliased component present
+
+            begin
+               if Is_Array_Type (Etype (E)) then
+                  Aliased_Comp := Has_Aliased_Components (Etype (E));
+
+               --  Record case, too bad Has_Aliased_Components is not also
+               --  set for records, should it be ???
+
+               elsif Is_Record_Type (Etype (E)) then
+                  Comp := First_Component_Or_Discriminant (Etype (E));
+                  while Present (Comp) loop
+                     if Is_Aliased (Comp)
+                       or else Is_Aliased (Etype (Comp))
+                     then
+                        Aliased_Comp := True;
+                        exit;
+                     end if;
+
+                     Next_Component_Or_Discriminant (Comp);
+                  end loop;
+               end if;
+
+               if Aliased_Comp then
+                  Error_Pragma
+                    ("cannot apply Volatile_Full_Access (aliased component "
+                     & "present)");
+               end if;
+            end;
+         end if;
+
+         --  Now check appropriateness of the entity
+>>>>>>> gcc-mirror/master
 
          --  DEPENDENCY_CLAUSE ::=
          --    OUTPUT_LIST =>[+] INPUT_LIST
          --  | NULL_DEPENDENCY_CLAUSE
 
+<<<<<<< HEAD
          --  NULL_DEPENDENCY_CLAUSE ::= null => INPUT_LIST
 
          --  OUTPUT_LIST ::= OUTPUT | (OUTPUT {, OUTPUT})
@@ -26000,15 +28212,68 @@ package body Sem_Prag is
 
          --  OUTPUT ::= NAME | FUNCTION_RESULT
          --  INPUT  ::= NAME
+=======
+            --  Attribute belongs on the base type. If the view of the type is
+            --  currently private, it also belongs on the underlying type.
+
+            if Prag_Id = Pragma_Atomic
+                 or else
+               Prag_Id = Pragma_Shared
+                 or else
+               Prag_Id = Pragma_Volatile_Full_Access
+            then
+               Set_Atomic_VFA (E);
+               Set_Atomic_VFA (Base_Type (E));
+               Set_Atomic_VFA (Underlying_Type (E));
+            end if;
+
+            --  Atomic/Shared/Volatile_Full_Access imply Independent
+
+            if Prag_Id /= Pragma_Volatile then
+               Set_Is_Independent (E);
+               Set_Is_Independent (Base_Type (E));
+               Set_Is_Independent (Underlying_Type (E));
+
+               if Prag_Id = Pragma_Independent then
+                  Record_Independence_Check (N, Base_Type (E));
+               end if;
+            end if;
+
+            --  Atomic/Shared/Volatile_Full_Access imply Volatile
+
+            if Prag_Id /= Pragma_Independent then
+               Set_Is_Volatile (E);
+               Set_Is_Volatile (Base_Type (E));
+               Set_Is_Volatile (Underlying_Type (E));
+
+               Set_Treat_As_Volatile (E);
+               Set_Treat_As_Volatile (Underlying_Type (E));
+            end if;
+>>>>>>> gcc-mirror/master
 
          --  where FUNCTION_RESULT is a function Result attribute_reference
 
+<<<<<<< HEAD
          --  Characteristics:
+=======
+            if Prag_Id = Pragma_Atomic
+                 or else
+               Prag_Id = Pragma_Shared
+                 or else
+               Prag_Id = Pragma_Volatile_Full_Access
+            then
+               if Prag_Id = Pragma_Volatile_Full_Access then
+                  Set_Is_Volatile_Full_Access (E);
+               else
+                  Set_Is_Atomic (E);
+               end if;
+>>>>>>> gcc-mirror/master
 
          --    * Analysis - The annotation undergoes initial checks to verify
          --    the legal placement and context. Secondary checks fully analyze
          --    the dependency clauses/global list in:
 
+<<<<<<< HEAD
          --       Analyze_Refined_Depends_In_Decl_Part
 
          --    * Expansion - None.
@@ -26037,18 +28302,84 @@ package body Sem_Prag is
          ------------------------
          -- Extensions_Visible --
          ------------------------
+=======
+               if Nkind (Parent (E)) = N_Object_Declaration
+                 and then Present (Expression (Parent (E)))
+               then
+                  Set_Has_Delayed_Freeze (E);
+               end if;
+            end if;
+
+            --  Atomic/Shared/Volatile_Full_Access imply Independent
+
+            if Prag_Id /= Pragma_Volatile then
+               Set_Is_Independent (E);
+
+               if Prag_Id = Pragma_Independent then
+                  Record_Independence_Check (N, E);
+               end if;
+            end if;
+
+            --  Atomic/Shared/Volatile_Full_Access imply Volatile
+
+            if Prag_Id /= Pragma_Independent then
+               Set_Is_Volatile (E);
+               Set_Treat_As_Volatile (E);
+            end if;
+
+         else
+            Error_Pragma_Arg ("inappropriate entity for pragma%", Arg1);
+         end if;
+
+         --  The following check is only relevant when SPARK_Mode is on as
+         --  this is not a standard Ada legality rule. Pragma Volatile can
+         --  only apply to a full type declaration or an object declaration
+         --  (SPARK RM C.6(1)).
+
+         if SPARK_Mode = On
+           and then Prag_Id = Pragma_Volatile
+           and then not Nkind_In (K, N_Full_Type_Declaration,
+                                     N_Object_Declaration)
+         then
+            Error_Pragma_Arg
+              ("argument of pragma % must denote a full type or object "
+               & "declaration", Arg1);
+         end if;
+      end Process_Atomic_Independent_Shared_Volatile;
+>>>>>>> gcc-mirror/master
 
          --  pragma Extensions_Visible [ (boolean_EXPRESSION) ];
 
          --  Characteristics:
 
+<<<<<<< HEAD
          --    * Analysis - The annotation is fully analyzed immediately upon
          --    elaboration as its expression must be static.
+=======
+      begin
+         Check_Arg_Count (2);
+         Check_No_Identifiers;
+         Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
+         Analyze_And_Resolve (Arg1x, Standard_Boolean);
+>>>>>>> gcc-mirror/master
 
          --    * Expansion - None.
 
+<<<<<<< HEAD
          --    * Template - The annotation utilizes the generic template of the
          --    related subprogram [body] when it is:
+=======
+                  Force : constant Boolean :=
+                            Prag_Id = Pragma_Compile_Time_Warning
+                              and then
+                                Is_Spec_Name (Unit_Name (Current_Sem_Unit))
+                              and then (Ekind (Cent) /= E_Package
+                                         or else not In_Private_Part (Cent));
+                  --  Set True if this is the warning case, and we are in the
+                  --  visible part of a package spec, or in a subprogram spec,
+                  --  in which case we want to force the client to see the
+                  --  warning, even though it is not in the main unit.
+>>>>>>> gcc-mirror/master
 
          --       aspect on subprogram declaration
          --       aspect on stand alone subprogram body
@@ -26082,13 +28413,34 @@ package body Sem_Prag is
 
             --  Abstract subprogram declaration
 
+<<<<<<< HEAD
             if Nkind (Subp_Decl) = N_Abstract_Subprogram_Declaration then
                null;
+=======
+                     if Force then
+                        if Cont = False then
+                           Error_Msg_N ("<<~!!", Arg1);
+                           Cont := True;
+                        else
+                           Error_Msg_N ("\<<~!!", Arg1);
+                        end if;
+>>>>>>> gcc-mirror/master
 
             --  Generic subprogram declaration
 
+<<<<<<< HEAD
             elsif Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
                null;
+=======
+                     else
+                        if Cont = False then
+                           Error_Msg_N ("<<~", Arg1);
+                           Cont := True;
+                        else
+                           Error_Msg_N ("\<<~", Arg1);
+                        end if;
+                     end if;
+>>>>>>> gcc-mirror/master
 
             --  Body acts as spec
 
@@ -26097,14 +28449,31 @@ package body Sem_Prag is
             then
                null;
 
+<<<<<<< HEAD
             --  Body stub acts as spec
+=======
+      procedure Process_Convention
+        (C   : out Convention_Id;
+         Ent : out Entity_Id)
+      is
+         Cname : Name_Id;
+>>>>>>> gcc-mirror/master
 
             elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
               and then No (Corresponding_Spec_Of_Stub (Subp_Decl))
             then
                null;
 
+<<<<<<< HEAD
             --  Subprogram declaration
+=======
+         procedure Set_Convention_From_Pragma (E : Entity_Id);
+         --  Set convention in entity E, and also flag that the entity has a
+         --  convention pragma. If entity is for a private or incomplete type,
+         --  also set convention and flag on underlying type. This procedure
+         --  also deals with the special case of C_Pass_By_Copy convention,
+         --  and error checks for inappropriate convention specification.
+>>>>>>> gcc-mirror/master
 
             elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
                null;
@@ -26245,6 +28614,7 @@ package body Sem_Prag is
          -- Refined_Global --
          --------------------
 
+<<<<<<< HEAD
          --  pragma Refined_Global (GLOBAL_SPECIFICATION);
 
          --  GLOBAL_SPECIFICATION ::=
@@ -26253,6 +28623,24 @@ package body Sem_Prag is
          --  | (MODED_GLOBAL_LIST {, MODED_GLOBAL_LIST})
 
          --  MODED_GLOBAL_LIST ::= MODE_SELECTOR => GLOBAL_LIST
+=======
+         procedure Set_Convention_From_Pragma (E : Entity_Id) is
+         begin
+            --  Ada 2005 (AI-430): Check invalid attempt to change convention
+            --  for an overridden dispatching operation. Technically this is
+            --  an amendment and should only be done in Ada 2005 mode. However,
+            --  this is clearly a mistake, since the problem that is addressed
+            --  by this AI is that there is a clear gap in the RM.
+
+            if Is_Dispatching_Operation (E)
+              and then Present (Overridden_Operation (E))
+              and then C /= Convention (Overridden_Operation (E))
+            then
+               Error_Pragma_Arg
+                 ("cannot change convention for overridden dispatching "
+                  & "operation", Arg1);
+            end if;
+>>>>>>> gcc-mirror/master
 
          --  MODE_SELECTOR ::= In_Out | Input | Output | Proof_In
          --  GLOBAL_LIST   ::= GLOBAL_ITEM | (GLOBAL_ITEM {, GLOBAL_ITEM})
@@ -26266,11 +28654,19 @@ package body Sem_Prag is
 
          --       Analyze_Refined_Global_In_Decl_Part
 
+<<<<<<< HEAD
          --    * Expansion - None.
+=======
+                  --  Note: make this unconditional so that if there is more
+                  --  than one call to which the pragma applies, we get a
+                  --  message for each call. Also don't use Error_Pragma,
+                  --  so that we get multiple messages.
+>>>>>>> gcc-mirror/master
 
          --    * Template - The annotation utilizes the generic template of the
          --    related subprogram body.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
          --    * Globals - Capture of global references must occur after full
          --    analysis.
@@ -26280,6 +28676,11 @@ package body Sem_Prag is
          ---------------
 
          --  pragma Fast_Math;
+=======
+               --  Subprograms are not allowed
+
+               elsif not Is_Subprogram_Or_Generic_Subprogram (E)
+>>>>>>> gcc-mirror/master
 
          when Pragma_Fast_Math =>
             GNAT_Pragma;
@@ -26320,7 +28721,44 @@ package body Sem_Prag is
             Mark_Pragma_As_Ghost (N, Typ);
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
             if Legal then
+=======
+            --  For the case of a record base type, also set the convention of
+            --  any anonymous access types declared in the record which do not
+            --  currently have a specified convention.
+
+            if Is_Record_Type (E) and then Is_Base_Type (E) then
+               declare
+                  Comp : Node_Id;
+
+               begin
+                  Comp := First_Component (E);
+                  while Present (Comp) loop
+                     if Present (Etype (Comp))
+                       and then Ekind_In (Etype (Comp),
+                                          E_Anonymous_Access_Type,
+                                          E_Anonymous_Access_Subprogram_Type)
+                       and then not Has_Convention_Pragma (Comp)
+                     then
+                        Set_Convention (Comp, C);
+                     end if;
+
+                     Next_Component (Comp);
+                  end loop;
+               end;
+            end if;
+
+            --  Deal with incomplete/private type case, where underlying type
+            --  is available, so set convention of that underlying type.
+
+            if Is_Incomplete_Or_Private_Type (E)
+              and then Present (Underlying_Type (E))
+            then
+               Set_Convention            (Underlying_Type (E), C);
+               Set_Has_Convention_Pragma (Underlying_Type (E), True);
+            end if;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
                --  Chain the pragma on the contract for further processing by
@@ -26350,9 +28788,26 @@ package body Sem_Prag is
          end Refined_Global;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
          ------------------
          -- Refined_Post --
          ------------------
+=======
+         --  Local variables
+
+         Comp_Unit : Unit_Number_Type;
+         E         : Entity_Id;
+         E1        : Entity_Id;
+         Id        : Node_Id;
+
+      --  Start of processing for Process_Convention
+
+      begin
+         Check_At_Least_N_Arguments (2);
+         Check_Optional_Identifier (Arg1, Name_Convention);
+         Check_Arg_Is_Identifier (Arg1);
+         Cname := Chars (Get_Pragma_Arg (Arg1));
+>>>>>>> gcc-mirror/master
 
          --  pragma Refined_Post (boolean_EXPRESSION);
 
@@ -26369,10 +28824,21 @@ package body Sem_Prag is
          --    * Expansion - The annotation is expanded during the expansion of
          --    the related subprogram body contract as performed in:
 
+<<<<<<< HEAD
          --       Expand_Subprogram_Contract
 
          --    * Template - The annotation utilizes the generic template of the
          --    related subprogram body.
+=======
+         --  Otherwise warn on unrecognized convention
+
+         else
+            if Warn_On_Export_Import then
+               Error_Msg_N
+                 ("??unrecognized convention name, C assumed",
+                  Get_Pragma_Arg (Arg1));
+            end if;
+>>>>>>> gcc-mirror/master
 
          --    * Globals - Capture of global references must occur after full
          --    analysis.
@@ -26402,14 +28868,30 @@ package body Sem_Prag is
                --  the SPARK mode in effect and the volatility of the context.
                --  Analyze all pragmas in a specific order.
 
+<<<<<<< HEAD
                Analyze_If_Present (Pragma_SPARK_Mode);
                Analyze_If_Present (Pragma_Volatile_Function);
                Analyze_Pre_Post_Condition_In_Decl_Part (N);
+=======
+            if Is_By_Reference_Type (E) then
+               Error_Pragma_Arg
+                 ("convention `Ada_Pass_By_Copy` not allowed for by-reference "
+                  & "type", Arg1);
+            end if;
+>>>>>>> gcc-mirror/master
 
                --  Currently it is not possible to inline pre/postconditions on
                --  a subprogram subject to pragma Inline_Always.
 
+<<<<<<< HEAD
                Check_Postcondition_Use_In_Inlined_Subprogram (N, Spec_Id);
+=======
+         elsif C = Convention_Ada_Pass_By_Reference then
+            if not Is_First_Subtype (E) then
+               Error_Pragma_Arg
+                 ("convention `Ada_Pass_By_Reference` only allowed for types",
+                  Arg2);
+>>>>>>> gcc-mirror/master
             end if;
          end Refined_Post;
 
@@ -26419,6 +28901,7 @@ package body Sem_Prag is
 
          --  pragma Refined_State (REFINEMENT_LIST);
 
+<<<<<<< HEAD
          --  REFINEMENT_LIST ::=
          --    (REFINEMENT_CLAUSE {, REFINEMENT_CLAUSE})
 
@@ -26428,6 +28911,11 @@ package body Sem_Prag is
          --     null
          --  |  CONSTITUENT
          --  | (CONSTITUENT {, CONSTITUENT})
+=======
+         --  Go to renamed subprogram if present, since convention applies to
+         --  the actual renamed entity, not to the renaming entity. If the
+         --  subprogram is inherited, go to parent subprogram.
+>>>>>>> gcc-mirror/master
 
          --  CONSTITUENT ::= object_NAME | state_NAME
 
@@ -26441,8 +28929,13 @@ package body Sem_Prag is
 
          --    * Expansion - None.
 
+<<<<<<< HEAD
          --    * Template - The annotation utilizes the template of the related
          --    package body.
+=======
+         --  Check that we are not applying this to a specless body. Relax this
+         --  check if Relaxed_RM_Semantics to accomodate other Ada compilers.
+>>>>>>> gcc-mirror/master
 
          --    * Globals - Capture of global references must occur after full
          --    analysis.
@@ -26479,15 +28972,43 @@ package body Sem_Prag is
             --  Chain the pragma on the contract for further processing by
             --  Analyze_Refined_State_In_Decl_Part.
 
+<<<<<<< HEAD
             Add_Contract_Item (N, Defining_Entity (Pack_Decl));
+=======
+         if C = Convention_Intrinsic
+           and then not Is_Subprogram_Or_Generic_Subprogram (E)
+         then
+            Error_Pragma_Arg
+              ("second argument of pragma% must be a subprogram", Arg2);
+         end if;
+>>>>>>> gcc-mirror/master
 
             --  The legality checks of pragma Refined_State are affected by the
             --  SPARK mode in effect. Analyze all pragmas in a specific order.
 
+<<<<<<< HEAD
             Analyze_If_Present (Pragma_SPARK_Mode);
 
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
+=======
+         if not Is_Subprogram_Or_Generic_Subprogram (E) then
+            Set_Convention_From_Pragma (E);
+
+            if Is_Type (E) then
+
+               --  The pragma must apply to a first subtype, but it can also
+               --  apply to a generic type in a generic formal part, in which
+               --  case it will also appear in the corresponding instance.
+
+               if Is_Generic_Type (E) or else In_Instance then
+                  null;
+               else
+                  Check_First_Subtype (Arg2);
+               end if;
+
+               Set_Convention_From_Pragma (Base_Type (E));
+>>>>>>> gcc-mirror/master
 
             Mark_Pragma_As_Ghost (N, Spec_Id);
 
@@ -26540,7 +29061,12 @@ package body Sem_Prag is
                Pragma_Misplaced;
             end if;
 
+<<<<<<< HEAD
             --  Check duplicate pragma before we set the corresponding flag
+=======
+            --  If the pragma comes from an aspect, it only applies to the
+            --  given entity, not its homonyms.
+>>>>>>> gcc-mirror/master
 
             if Has_Relative_Deadline_Pragma (P) then
                Error_Pragma ("duplicate pragma% not allowed");
@@ -26617,7 +29143,14 @@ package body Sem_Prag is
                   Error_Pragma ("pragma % cannot apply to a task type");
                   return;
 
+<<<<<<< HEAD
                --  Skip internally generated code
+=======
+      procedure Process_Disable_Enable_Atomic_Sync (Nam : Name_Id) is
+      begin
+         Check_No_Identifiers;
+         Check_At_Most_N_Arguments (1);
+>>>>>>> gcc-mirror/master
 
                elsif not Comes_From_Source (Stmt) then
                   Orig_Stmt := Original_Node (Stmt);
@@ -26638,6 +29171,7 @@ package body Sem_Prag is
                   --  When pragma Ghost applies to an expression function, the
                   --  expression function is transformed into a subprogram.
 
+<<<<<<< HEAD
                   elsif Nkind (Stmt) = N_Subprogram_Declaration
                     and then Comes_From_Source (Orig_Stmt)
                     and then Nkind (Orig_Stmt) = N_Expression_Function
@@ -26695,6 +29229,11 @@ package body Sem_Prag is
             end if;
 
             if No (Id) then
+=======
+      -------------------------------------------------
+      -- Process_Extended_Import_Export_Internal_Arg --
+      -------------------------------------------------
+>>>>>>> gcc-mirror/master
 
                --  When pragma Ghost is associated with a [generic] package, it
                --  appears in the visible declarations.
@@ -26815,9 +29354,26 @@ package body Sem_Prag is
             Set_Is_Ghost_Entity (Id);
          end Ghost;
 
+<<<<<<< HEAD
          ------------
          -- Global --
          ------------
+=======
+      procedure Process_Extended_Import_Export_Subprogram_Pragma
+        (Arg_Internal                 : Node_Id;
+         Arg_External                 : Node_Id;
+         Arg_Parameter_Types          : Node_Id;
+         Arg_Result_Type              : Node_Id := Empty;
+         Arg_Mechanism                : Node_Id;
+         Arg_Result_Mechanism         : Node_Id := Empty)
+      is
+         Ent       : Entity_Id;
+         Def_Id    : Entity_Id;
+         Hom_Id    : Entity_Id;
+         Formal    : Entity_Id;
+         Ambiguous : Boolean;
+         Match     : Boolean;
+>>>>>>> gcc-mirror/master
 
          --  pragma Global (GLOBAL_SPECIFICATION);
 
@@ -27180,6 +29736,7 @@ package body Sem_Prag is
             Check_Valid_Configuration_Pragma;
             Short_Circuit_And_Or := True;
 
+<<<<<<< HEAD
          -------------------
          -- Share_Generic --
          -------------------
@@ -27238,6 +29795,15 @@ package body Sem_Prag is
             if Nkind (N) = N_Null_Statement then
                return;
             end if;
+=======
+                        Next (Massoc);
+                     end loop;
+                  end if;
+               end if;
+            end;
+         end if;
+      end Process_Extended_Import_Export_Subprogram_Pragma;
+>>>>>>> gcc-mirror/master
 
             Cunit_Node := Cunit (Current_Sem_Unit);
             Cunit_Ent  := Cunit_Entity (Current_Sem_Unit);
@@ -27251,6 +29817,7 @@ package body Sem_Prag is
          -- Import_Function --
          ---------------------
 
+<<<<<<< HEAD
          --  pragma Import_Function (
          --        [Internal                 =>] LOCAL_NAME,
          --     [, [External                 =>] EXTERNAL_SYMBOL]
@@ -27259,6 +29826,14 @@ package body Sem_Prag is
          --     [, [Mechanism                =>] MECHANISM]
          --     [, [Result_Mechanism         =>] MECHANISM_NAME]);
 >>>>>>> gcc-mirror/trunk
+=======
+         --  Check all arguments are names of generic units or instances
+
+         Arg := Arg1;
+         while Present (Arg) loop
+            Exp := Get_Pragma_Arg (Arg);
+            Analyze (Exp);
+>>>>>>> gcc-mirror/master
 
             if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
                                                 N_Generic_Package_Declaration)
@@ -27356,8 +29931,44 @@ package body Sem_Prag is
 
             Mark_Pragma_As_Ghost (N, Typ);
 
+<<<<<<< HEAD
             --  We require the pragma to apply to a type declared in a package
             --  declaration, but not (immediately) within a package body.
+=======
+      begin
+         --  In Relaxed_RM_Semantics, support old Ada 83 style:
+         --  pragma Import (Entity, "external name");
+
+         if Relaxed_RM_Semantics
+           and then Arg_Count = 2
+           and then Prag_Id = Pragma_Import
+           and then Nkind (Expression (Arg2)) = N_String_Literal
+         then
+            C := Convention_C;
+            Def_Id := Get_Pragma_Arg (Arg1);
+            Analyze (Def_Id);
+
+            if not Is_Entity_Name (Def_Id) then
+               Error_Pragma_Arg ("entity name required", Arg1);
+            end if;
+
+            Def_Id := Entity (Def_Id);
+            Kill_Size_Check_Code (Def_Id);
+            Note_Possible_Modification (Get_Pragma_Arg (Arg1), Sure => False);
+
+         else
+            Process_Convention (C, Def_Id);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Def_Id);
+            Kill_Size_Check_Code (Def_Id);
+            Note_Possible_Modification (Get_Pragma_Arg (Arg2), Sure => False);
+         end if;
+
+         --  Various error checks
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
             if Ekind (Current_Scope) /= E_Package
@@ -27390,6 +30001,7 @@ package body Sem_Prag is
                Error_Pragma
                  ("pragma% can only apply to a private type that is limited");
 
+<<<<<<< HEAD
             elsif not Is_Record_Type (Typ)
               and then not Is_Private_Type (Typ)
             then
@@ -27399,6 +30011,31 @@ package body Sem_Prag is
 
             Record_Rep_Item (Typ, N);
          end Simple_Storage_Pool_Type;
+=======
+            elsif Present (Expression (Parent (Def_Id)))
+              and then Comes_From_Source
+                         (Original_Node (Expression (Parent (Def_Id))))
+            then
+               --  Set imported flag to prevent cascaded errors
+
+               Set_Is_Imported (Def_Id);
+
+               Error_Msg_Sloc := Sloc (Def_Id);
+               Error_Pragma_Arg
+                 ("no initialization allowed for declaration of& #",
+                  "\imported entities cannot be initialized (RM B.1(24))",
+                  Arg2);
+
+            else
+               --  If the pragma comes from an aspect specification the
+               --  Is_Imported flag has already been set.
+
+               if not From_Aspect_Specification (N) then
+                  Set_Imported (Def_Id);
+               end if;
+
+               Process_Interface_Name (Def_Id, Arg3, Arg4);
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
          ----------------------
@@ -27426,6 +30063,7 @@ package body Sem_Prag is
          --    Value
          --  | Reference
 
+<<<<<<< HEAD
          when Pragma_Import_Procedure => Import_Procedure : declare
             Args  : Args_List (1 .. 4);
             Names : constant Name_List (1 .. 4) := (
@@ -27433,6 +30071,14 @@ package body Sem_Prag is
                       Name_External,
                       Name_Parameter_Types,
                       Name_Mechanism);
+=======
+         elsif Is_Subprogram_Or_Generic_Subprogram (Def_Id) then
+
+            --  If the name is overloaded, pragma applies to all of the denoted
+            --  entities in the same declarative part, unless the pragma comes
+            --  from an aspect specification or was generated by the compiler
+            --  (such as for pragma Provide_Shift_Operators).
+>>>>>>> gcc-mirror/master
 
             Internal                 : Node_Id renames Args (1);
             External                 : Node_Id renames Args (2);
@@ -27482,9 +30128,14 @@ package body Sem_Prag is
          --  The only processing we defer to this point is the check for
          --  correct placement.
 
+<<<<<<< HEAD
          when Pragma_Source_File_Name =>
             GNAT_Pragma;
             Check_Valid_Configuration_Pragma;
+=======
+               elsif not Is_Subprogram_Or_Generic_Subprogram (Def_Id) then
+                  null;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
          ------------------------------
@@ -27504,6 +30155,7 @@ package body Sem_Prag is
          --    Value
          --  | Reference
 
+<<<<<<< HEAD
          when Pragma_Import_Valued_Procedure =>
          Import_Valued_Procedure : declare
             Args  : Args_List (1 .. 4);
@@ -27512,6 +30164,15 @@ package body Sem_Prag is
                       Name_External,
                       Name_Parameter_Types,
                       Name_Mechanism);
+=======
+               else
+                  --  If the pragma comes from an aspect specification the
+                  --  Is_Imported flag has already been set.
+
+                  if not From_Aspect_Specification (N) then
+                     Set_Imported (Def_Id);
+                  end if;
+>>>>>>> gcc-mirror/master
 
             Internal                 : Node_Id renames Args (1);
             External                 : Node_Id renames Args (2);
@@ -27560,6 +30221,7 @@ package body Sem_Prag is
 
          --  pragma Source_Reference (INTEGER_LITERAL [, STRING_LITERAL]);
 
+<<<<<<< HEAD
          --  Nothing to do, all processing completed in Par.Prag, since we need
          --  the information for possible parser messages that are output.
 
@@ -27569,6 +30231,11 @@ package body Sem_Prag is
          ----------------
          -- SPARK_Mode --
          ----------------
+=======
+                  --  Verify that the subprogram does not have a completion
+                  --  through a renaming declaration. For other completions the
+                  --  pragma appears as a too late representation.
+>>>>>>> gcc-mirror/master
 
          --  pragma SPARK_Mode [(On | Off)];
 
@@ -27651,10 +30318,45 @@ package body Sem_Prag is
                --  is the case, associate all error messages with the pragma
                --  itself.
 
+<<<<<<< HEAD
                if Present (Arg1) then
                   Err_N := Arg1;
                else
                   Err_N := N;
+=======
+                  --  If the pragma comes from an aspect specification, there
+                  --  must be an Import aspect specified as well. In the rare
+                  --  case where Import is set to False, the suprogram needs to
+                  --  have a local completion.
+
+                  declare
+                     Imp_Aspect : constant Node_Id :=
+                                    Find_Aspect (Def_Id, Aspect_Import);
+                     Expr       : Node_Id;
+
+                  begin
+                     if Present (Imp_Aspect)
+                       and then Present (Expression (Imp_Aspect))
+                     then
+                        Expr := Expression (Imp_Aspect);
+                        Analyze_And_Resolve (Expr, Standard_Boolean);
+
+                        if Is_Entity_Name (Expr)
+                          and then Entity (Expr) = Standard_True
+                        then
+                           Set_Has_Completion (Def_Id);
+                        end if;
+
+                     --  If there is no expression, the default is True, as for
+                     --  all boolean aspects. Same for the older pragma.
+
+                     else
+                        Set_Has_Completion (Def_Id);
+                     end if;
+                  end;
+
+                  Process_Interface_Name (Def_Id, Arg3, Arg4);
+>>>>>>> gcc-mirror/master
                end if;
 =======
          when Pragma_Independent =>
@@ -27671,6 +30373,7 @@ package body Sem_Prag is
                   --  Issue an error if the new mode is less restrictive than
                   --  that of the context.
 
+<<<<<<< HEAD
                   if Get_SPARK_Mode_From_Pragma (Context_Pragma) = Off
                     and then Get_SPARK_Mode_From_Pragma (N) = On
                   then
@@ -27680,10 +30383,28 @@ package body Sem_Prag is
                      Error_Msg_N ("\SPARK_Mode was set to Off#", Err_N);
                      raise Pragma_Exit;
                   end if;
+=======
+               --  If the pragma was created by the compiler, then we don't
+               --  want it to apply to other homonyms. This kind of case can
+               --  occur when using pragma Provide_Shift_Operators, which
+               --  generates implicit shift and rotate operators with Import
+               --  pragmas that might apply to earlier explicit or implicit
+               --  declarations marked with Import (for example, coming from
+               --  an earlier pragma Provide_Shift_Operators for another type),
+               --  and we don't generally want other homonyms being treated
+               --  as imported or the pragma flagged as an illegal duplicate.
+
+               elsif not Comes_From_Source (N) then
+                  exit;
+
+               else
+                  Hom_Id := Homonym (Hom_Id);
+>>>>>>> gcc-mirror/master
                end if;
 =======
          --  pragma Independent_Components (array_or_record_LOCAL_NAME);
 
+<<<<<<< HEAD
          when Pragma_Independent_Components => Independent_Components : declare
             C    : Node_Id;
             D    : Node_Id;
@@ -27697,6 +30418,9 @@ package body Sem_Prag is
                --  declaration.
 
                if Present (Entity) then
+=======
+         --  Import a CPP class
+>>>>>>> gcc-mirror/master
 
                   --  A simple protected or task type is transformed into an
                   --  anonymous type whose name cannot be used to issue error
@@ -27767,7 +30491,43 @@ package body Sem_Prag is
                Set_Has_Independent_Components (Base_Type (E));
                Record_Independence_Check (N, Base_Type (E));
 
+<<<<<<< HEAD
                --  For record type, set all components independent
+=======
+         --  Import a CPP exception
+
+         elsif C = Convention_CPP
+           and then Ekind (Def_Id) = E_Exception
+         then
+            if No (Arg3) then
+               Error_Pragma_Arg
+                 ("'External_'Name arguments is required for 'Cpp exception",
+                  Arg3);
+            else
+               --  As only a string is allowed, Check_Arg_Is_External_Name
+               --  isn't called.
+
+               Check_Arg_Is_OK_Static_Expression (Arg3, Standard_String);
+            end if;
+
+            if Present (Arg4) then
+               Error_Pragma_Arg
+                 ("Link_Name argument not allowed for imported Cpp exception",
+                  Arg4);
+            end if;
+
+            --  Do not call Set_Interface_Name as the name of the exception
+            --  shouldn't be modified (and in particular it shouldn't be
+            --  the External_Name). For exceptions, the External_Name is the
+            --  name of the RTTI structure.
+
+            --  ??? Emit an error if pragma Import/Export_Exception is present
+
+         elsif Nkind (Parent (Def_Id)) = N_Incomplete_Type_Declaration then
+            Check_No_Link_Name;
+            Check_Arg_Count (3);
+            Check_Arg_Is_OK_Static_Expression (Arg3, Standard_String);
+>>>>>>> gcc-mirror/master
 
                if Is_Record_Type (E) then
                   C := First_Component (E);
@@ -27807,11 +30567,28 @@ package body Sem_Prag is
          --    the legal placement and context. Secondary checks preanalyze the
          --    expression in:
 
+<<<<<<< HEAD
          --       Analyze_Initial_Condition_In_Decl_Part
 
          --    * Expansion - The annotation is expanded during the expansion of
          --    the package body whose declaration is subject to the annotation
          --    as done in:
+=======
+      procedure Process_Inline (Status : Inline_Status) is
+         Applies : Boolean;
+         Assoc   : Node_Id;
+         Decl    : Node_Id;
+         Subp    : Entity_Id;
+         Subp_Id : Node_Id;
+
+         Ghost_Error_Posted : Boolean := False;
+         --  Flag set when an error concerning the illegal mix of Ghost and
+         --  non-Ghost subprograms is emitted.
+
+         Ghost_Id : Entity_Id := Empty;
+         --  The entity of the first Ghost subprogram encountered while
+         --  processing the arguments of the pragma.
+>>>>>>> gcc-mirror/master
 
          --       Expand_Pragma_Initial_Condition
 
@@ -27874,6 +30651,7 @@ package body Sem_Prag is
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
 
+<<<<<<< HEAD
             Mark_Pragma_As_Ghost (N, Pack_Id);
          end Initial_Condition;
 
@@ -27886,6 +30664,9 @@ package body Sem_Prag is
                begin
                   if Ekind_In (E, E_Entry, E_Entry_Family) then
                      Add_Str_To_Name_Buffer ("entry");
+=======
+            --  If inlining is not possible, for now do not treat as an error
+>>>>>>> gcc-mirror/master
 
                   elsif Ekind_In (E, E_Generic_Package,
                                      E_Package,
@@ -28005,15 +30786,67 @@ package body Sem_Prag is
 
             Add_Contract_Item (N, Pack_Id);
 
+<<<<<<< HEAD
             --  The legality checks of pragmas Abstract_State, Initializes, and
             --  Initial_Condition are affected by the SPARK mode in effect. In
             --  addition, these three pragmas are subject to an inherent order:
+=======
+               if not Has_Pragma_Inline (Subp) then
+                  Set_Has_Pragma_Inline (Subp);
+               end if;
+            end if;
+>>>>>>> gcc-mirror/master
 
             --    1) Abstract_State
             --    2) Initializes
             --    3) Initial_Condition
 
+<<<<<<< HEAD
             --  Analyze all these pragmas in the order outlined above
+=======
+            case Status is
+               when Suppressed =>
+                  Set_Is_Inlined (Subp, False);
+               when Disabled =>
+                  null;
+               when Enabled =>
+                  if not Has_Pragma_No_Inline (Subp) then
+                     Set_Is_Inlined (Subp, True);
+                  end if;
+            end case;
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Subp);
+
+            --  Capture the entity of the first Ghost subprogram being
+            --  processed for error detection purposes.
+
+            if Is_Ghost_Entity (Subp) then
+               if No (Ghost_Id) then
+                  Ghost_Id := Subp;
+               end if;
+
+            --  Otherwise the subprogram is non-Ghost. It is illegal to mix
+            --  references to Ghost and non-Ghost entities (SPARK RM 6.9).
+
+            elsif Present (Ghost_Id) and then not Ghost_Error_Posted then
+               Ghost_Error_Posted := True;
+
+               Error_Msg_Name_1 := Pname;
+               Error_Msg_N
+                 ("pragma % cannot mention ghost and non-ghost subprograms",
+                  N);
+
+               Error_Msg_Sloc := Sloc (Ghost_Id);
+               Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+
+               Error_Msg_Sloc := Sloc (Subp);
+               Error_Msg_NE ("\& # declared as non-ghost", N, Subp);
+            end if;
+         end Set_Inline_Flags;
+>>>>>>> gcc-mirror/master
 
             Analyze_If_Present (Pragma_SPARK_Mode);
             Analyze_If_Present (Pragma_Abstract_State);
@@ -28035,11 +30868,16 @@ package body Sem_Prag is
 
          when Pragma_Inline =>
 
+<<<<<<< HEAD
             --  Pragma always active unless in GNATprove mode. It is disabled
             --  in GNATprove mode because frontend inlining is applied
             --  independently of pragmas Inline and Inline_Always for
             --  formal verification, see Can_Be_Inlined_In_GNATprove_Mode
             --  in inline.ads.
+=======
+                  Check_Error_Detected;
+                  Applies := True;
+>>>>>>> gcc-mirror/master
 
             if not GNATprove_Mode then
 
@@ -28053,6 +30891,7 @@ package body Sem_Prag is
             end if;
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
                   Name_Len := 0;
                   Add_Str_To_Name_Buffer ("\& is not a library-level ");
                   Add_Entity_To_Name_Buffer;
@@ -28083,6 +30922,10 @@ package body Sem_Prag is
 
             if not CodePeer_Mode and not GNATprove_Mode then
                Process_Inline (Enabled);
+=======
+            if not Applies then
+               Error_Pragma_Arg ("inappropriate argument for pragma%", Assoc);
+>>>>>>> gcc-mirror/master
             end if;
 >>>>>>> gcc-mirror/trunk
 
@@ -28096,13 +30939,28 @@ package body Sem_Prag is
 
                Check_Library_Level_Entity (Body_Id);
 
+<<<<<<< HEAD
                --  For entry bodies, verify the legality against:
                --    * The mode of the context
                --    * The mode of the spec (if any)
+=======
+         procedure Check_Form_Of_Interface_Name (SN : Node_Id);
+         --  SN is a string literal node for an interface name. This routine
+         --  performs some minimal checks that the name is reasonable. In
+         --  particular that no spaces or other obviously incorrect characters
+         --  appear. This is only a warning, since any characters are allowed.
+>>>>>>> gcc-mirror/master
 
                if Nkind_In (Decl, N_Entry_Body, N_Subprogram_Body) then
 
+<<<<<<< HEAD
                   --  A stand alone subprogram body
+=======
+         procedure Check_Form_Of_Interface_Name (SN : Node_Id) is
+            S  : constant String_Id := Strval (Expr_Value_S (SN));
+            SL : constant Nat       := String_Length (S);
+            C  : Char_Code;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
                   if Body_Id = Spec_Id then
@@ -28131,6 +30989,7 @@ package body Sem_Prag is
                         Entity_Pragma  => SPARK_Pragma (Spec_Id));
                   end if;
 
+<<<<<<< HEAD
                   Set_SPARK_Context;
                   Set_SPARK_Pragma           (Body_Id, N);
                   Set_SPARK_Pragma_Inherited (Body_Id, False);
@@ -28186,6 +31045,18 @@ package body Sem_Prag is
                   Set_SPARK_Context;
                   Set_SPARK_Pragma           (Body_Id, N);
                   Set_SPARK_Pragma_Inherited (Body_Id, False);
+=======
+                 --  Commas, spaces and (back)slashes are dubious
+
+                 or else Get_Character (C) = ','
+                 or else Get_Character (C) = '\'
+                 or else Get_Character (C) = ' '
+                 or else Get_Character (C) = '/'
+               then
+                  Error_Msg
+                    ("??interface name contains illegal character",
+                     Sloc (SN) + Source_Ptr (J));
+>>>>>>> gcc-mirror/master
                end if;
             end Process_Body;
 
@@ -28193,6 +31064,7 @@ package body Sem_Prag is
             -- Process_Overloadable --
             --------------------------
 
+<<<<<<< HEAD
             procedure Process_Overloadable (Decl : Node_Id) is
                Spec_Id  : constant Entity_Id := Defining_Entity (Decl);
                Spec_Typ : constant Entity_Id := Etype (Spec_Id);
@@ -28232,6 +31104,12 @@ package body Sem_Prag is
             --------------------------
             -- Process_Private_Part --
             --------------------------
+=======
+      begin
+         if No (Link_Arg) then
+            if No (Ext_Arg) then
+               return;
+>>>>>>> gcc-mirror/master
 
             procedure Process_Private_Part (Decl : Node_Id) is
                Spec_Id : constant Entity_Id := Defining_Entity (Decl);
@@ -28247,10 +31125,16 @@ package body Sem_Prag is
                   Entity         => Spec_Id,
                   Entity_Pragma  => SPARK_Pragma (Spec_Id));
 
+<<<<<<< HEAD
                Set_SPARK_Context;
                Set_SPARK_Aux_Pragma           (Spec_Id, N);
                Set_SPARK_Aux_Pragma_Inherited (Spec_Id, False);
             end Process_Private_Part;
+=======
+         if Present (Ext_Nam) then
+            Check_Arg_Is_OK_Static_Expression (Ext_Nam, Standard_String);
+            Check_Form_Of_Interface_Name (Ext_Nam);
+>>>>>>> gcc-mirror/master
 
             ----------------------------
             -- Process_Statement_Part --
@@ -28260,15 +31144,46 @@ package body Sem_Prag is
                Body_Id : constant Entity_Id := Defining_Entity (Decl);
 
             begin
+<<<<<<< HEAD
                Check_Library_Level_Entity (Body_Id);
+=======
+               if Prag_Id = Pragma_Import then
+                  String_To_Name_Buffer (Strval (Expr_Value_S (Ext_Nam)));
+                  Nam := Name_Find;
+                  E   := Entity_Id (Get_Name_Table_Int (Nam));
+
+                  if Nam /= Chars (Subprogram_Def)
+                    and then Present (E)
+                    and then not Is_Overloadable (E)
+                    and then Is_Immediately_Visible (E)
+                    and then not Is_Imported (E)
+                    and then Ekind (Scope (E)) = E_Package
+                  then
+                     Par := Parent (E);
+                     while Present (Par) loop
+                        if Nkind (Par) = N_Package_Body then
+                           Error_Msg_Sloc := Sloc (E);
+                           Error_Msg_NE
+                             ("imported entity is hidden by & declared#",
+                              Ext_Arg, E);
+                           exit;
+                        end if;
+>>>>>>> gcc-mirror/master
 
                --  Verify the legality against:
                --    * The mode of the body declarations
 
+<<<<<<< HEAD
                Check_Pragma_Conformance
                  (Context_Pragma => Empty,
                   Entity         => Body_Id,
                   Entity_Pragma  => SPARK_Pragma (Body_Id));
+=======
+         if Present (Link_Nam) then
+            Check_Arg_Is_OK_Static_Expression (Link_Nam, Standard_String);
+            Check_Form_Of_Interface_Name (Link_Nam);
+         end if;
+>>>>>>> gcc-mirror/master
 
                Set_SPARK_Context;
                Set_SPARK_Aux_Pragma           (Body_Id, N);
@@ -28283,6 +31198,7 @@ package body Sem_Prag is
                Spec_Id : constant Entity_Id := Defining_Entity (Decl);
                Obj_Id  : Entity_Id;
 
+<<<<<<< HEAD
             begin
                Check_Library_Level_Entity (Spec_Id);
 
@@ -28293,6 +31209,17 @@ package body Sem_Prag is
                  (Context_Pragma => SPARK_Pragma (Spec_Id),
                   Entity         => Empty,
                   Entity_Pragma  => Empty);
+=======
+         else
+            Start_String;
+            Store_String_Char (Get_Char_Code ('*'));
+            String_Val := Strval (Expr_Value_S (Link_Nam));
+            Store_String_Chars (String_Val);
+            Link_Nam :=
+              Make_String_Literal (Sloc (Link_Nam),
+                Strval => End_String);
+         end if;
+>>>>>>> gcc-mirror/master
 
                --  A task unit declared without a definition does not set the
                --  SPARK_Mode of the context because the task does not have any
@@ -28304,6 +31231,7 @@ package body Sem_Prag is
                   Set_SPARK_Context;
                end if;
 
+<<<<<<< HEAD
                Set_SPARK_Pragma               (Spec_Id, N);
                Set_SPARK_Pragma_Inherited     (Spec_Id, False);
                Set_SPARK_Aux_Pragma           (Spec_Id, N);
@@ -28311,25 +31239,53 @@ package body Sem_Prag is
 
                --  When the pragma applies to a single protected or task type,
                --  decorate the corresponding anonymous object as well.
+=======
+         Check_Duplicated_Export_Name (Link_Nam);
+      end Process_Interface_Name;
+>>>>>>> gcc-mirror/master
 
                --    protected Anon_Prot_Typ is
                --       pragma SPARK_Mode ...;
                --       ...
                --    end Anon_Prot_Typ;
 
+<<<<<<< HEAD
                --    Obj : Anon_Prot_Typ;
 
                if Is_Single_Concurrent_Type (Spec_Id) then
                   Obj_Id := Anonymous_Object (Spec_Id);
+=======
+      procedure Process_Interrupt_Or_Attach_Handler is
+         Handler  : constant Entity_Id := Entity (Get_Pragma_Arg (Arg1));
+         Prot_Typ : constant Entity_Id := Scope (Handler);
+
+      begin
+         --  A pragma that applies to a Ghost entity becomes Ghost for the
+         --  purposes of legality checks and removal of ignored Ghost code.
+
+         Mark_Pragma_As_Ghost (N, Handler);
+         Set_Is_Interrupt_Handler (Handler);
+>>>>>>> gcc-mirror/master
 
                   Set_SPARK_Pragma           (Obj_Id, N);
                   Set_SPARK_Pragma_Inherited (Obj_Id, False);
                end if;
             end Process_Visible_Part;
 
+<<<<<<< HEAD
             -----------------------
             -- Set_SPARK_Context --
             -----------------------
+=======
+         if Ekind (Prot_Typ) = E_Protected_Type then
+            Record_Rep_Item (Prot_Typ, N);
+         end if;
+
+         --  Chain the pragma on the contract for completeness
+
+         Add_Contract_Item (N, Handler);
+      end Process_Interrupt_Or_Attach_Handler;
+>>>>>>> gcc-mirror/master
 
             procedure Set_SPARK_Context is
             begin
@@ -28343,6 +31299,7 @@ package body Sem_Prag is
 
             --  Local variables
 
+<<<<<<< HEAD
             Context : Node_Id;
             Mode    : Name_Id;
             Stmt    : Node_Id;
@@ -28365,6 +31322,10 @@ package body Sem_Prag is
             Check_At_Most_N_Arguments (1);
 
             --  Check the legality of the mode (no argument = ON)
+=======
+      begin
+         --  Ignore all Restrictions pragmas in CodePeer mode
+>>>>>>> gcc-mirror/master
 
             if Arg_Count = 1 then
                Check_Arg_Is_One_Of (Arg1, Name_On, Name_Off);
@@ -28465,7 +31426,14 @@ package body Sem_Prag is
                      Process_Overloadable (Stmt);
                      return;
 
+<<<<<<< HEAD
                   --  Skip internally generated code
+=======
+                  --  If we accept a No_Elaboration_Code restriction, then it
+                  --  needs to be added to the configuration restriction set so
+                  --  that we get proper application to other units in the main
+                  --  extended source as required.
+>>>>>>> gcc-mirror/master
 
                   elsif not Comes_From_Source (Stmt) then
                      null;
@@ -28505,6 +31473,7 @@ package body Sem_Prag is
                --  a compilation unit.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                --    procedure Proc ...;
                --    pragma SPARK_Mode ...;
 =======
@@ -28512,16 +31481,42 @@ package body Sem_Prag is
                Check_Arg_Is_OK_Static_Expression (Arg1, Any_Integer);
                Int_Val := Expr_Value (Arg1X);
 >>>>>>> gcc-mirror/trunk
+=======
+               --  Ignore the effect of pragma Restrictions (No_Exceptions) on
+               --  run-time checks in CodePeer and GNATprove modes: we want to
+               --  generate checks for analysis purposes, as set respectively
+               --  by -gnatC and -gnatd.F
+
+               if not Warn
+                 and then not (CodePeer_Mode or GNATprove_Mode)
+                 and then R_Id = No_Exceptions
+               then
+                  for J in Scope_Suppress.Suppress'Range loop
+                     if J /= Atomic_Synchronization then
+                        Scope_Suppress.Suppress (J) := True;
+                     end if;
+                  end loop;
+               end if;
+>>>>>>> gcc-mirror/master
 
                if Nkind (Context) = N_Compilation_Unit_Aux then
                   Context := Unit (Parent (Context));
                end if;
 
+<<<<<<< HEAD
                --  The pragma appears at the top of entry, package, protected
                --  unit, subprogram or task unit body declarations.
 
                --    entry Ent when ... is
                --       pragma SPARK_Mode ...;
+=======
+            elsif Id = Name_No_Dependence then
+               if not OK_No_Dependence_Unit_Name (Expr) then
+                  raise Pragma_Exit;
+               end if;
+
+            --  Case of No_Specification_Of_Aspect => aspect-identifier
+>>>>>>> gcc-mirror/master
 
                --    package body Pack is
                --       pragma SPARK_Mode ...;
@@ -28532,6 +31527,7 @@ package body Sem_Prag is
                --    protected body Prot is
                --       pragma SPARK_Mode ...;
 
+<<<<<<< HEAD
                if Nkind_In (Context, N_Entry_Body,
                                      N_Package_Body,
                                      N_Protected_Body,
@@ -28547,6 +31543,50 @@ package body Sem_Prag is
                --       pragma SPARK_Mode ...;
                --    private
                --       pragma SPARK_Mode ...;
+=======
+            --  Case of No_Use_Of_Attribute => attribute-identifier
+
+            elsif Id = Name_No_Use_Of_Attribute then
+               if Nkind (Expr) /= N_Identifier
+                 or else not Is_Attribute_Name (Chars (Expr))
+               then
+                  Error_Msg_N ("unknown attribute name??", Expr);
+
+               else
+                  Set_Restriction_No_Use_Of_Attribute (Expr, Warn);
+               end if;
+
+            --  Case of No_Use_Of_Entity => fully-qualified-name
+
+            elsif Id = Name_No_Use_Of_Entity then
+
+               --  Restriction is only recognized within a configuration
+               --  pragma file, or within a unit of the main extended
+               --  program. Note: the test for Main_Unit is needed to
+               --  properly include the case of configuration pragma files.
+
+               if Current_Sem_Unit = Main_Unit
+                 or else In_Extended_Main_Source_Unit (N)
+               then
+                  if not OK_No_Dependence_Unit_Name (Expr) then
+                     Error_Msg_N ("wrong form for entity name", Expr);
+                  else
+                     Set_Restriction_No_Use_Of_Entity
+                       (Expr, Warn, No_Profile);
+                  end if;
+               end if;
+
+            --  Case of No_Use_Of_Pragma => pragma-identifier
+
+            elsif Id = Name_No_Use_Of_Pragma then
+               if Nkind (Expr) /= N_Identifier
+                 or else not Is_Pragma_Name (Chars (Expr))
+               then
+                  Error_Msg_N ("unknown pragma name??", Expr);
+               else
+                  Set_Restriction_No_Use_Of_Pragma (Expr, Warn);
+               end if;
+>>>>>>> gcc-mirror/master
 
                --    protected [type] Prot is
                --       pragma SPARK_Mode ...;
@@ -28612,6 +31652,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
             Check_At_Most_N_Arguments (1);
 
+<<<<<<< HEAD
             if Is_Compilation_Unit (Current_Scope)
               and then Ekind (Current_Scope) = E_Package
             then
@@ -28623,6 +31664,12 @@ package body Sem_Prag is
             Check_At_Most_N_Arguments  (3);
             Check_Optional_Identifier (Arg1, Name_Entity);
             Check_Optional_Identifier (Arg2, Name_Check);
+=======
+      procedure Process_Suppress_Unsuppress (Suppress_Case : Boolean) is
+         C    : Check_Id;
+         E    : Entity_Id;
+         E_Id : Node_Id;
+>>>>>>> gcc-mirror/master
 
             if Arg_Count = 3 then
                Check_Optional_Identifier (Arg3, Name_Message);
@@ -28671,6 +31718,7 @@ package body Sem_Prag is
             elsif Is_Interface (Typ) then
                null;
 
+<<<<<<< HEAD
             --  An invariant must apply to a private type, or appear in the
             --  private part of a package spec and apply to a completion.
             --  a class-wide invariant can only appear on a private declaration
@@ -28680,6 +31728,18 @@ package body Sem_Prag is
                Record_Rep_Item (Defining_Identifier (Parent (P)), N);
             end if;
          end Storage_Size;
+=======
+      begin
+         --  Ignore pragma Suppress/Unsuppress in CodePeer and GNATprove modes
+         --  on user code: we want to generate checks for analysis purposes, as
+         --  set respectively by -gnatC and -gnatd.F
+
+         if Comes_From_Source (N)
+           and then (CodePeer_Mode or GNATprove_Mode)
+         then
+            return;
+         end if;
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
          ------------------
@@ -28711,9 +31771,24 @@ package body Sem_Prag is
             end if;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
          --------------------
          -- Stream_Convert --
          --------------------
+=======
+         --  Warn that suppress of Elaboration_Check has no effect in SPARK
+
+         if C = Elaboration_Check and then SPARK_Mode = On then
+            Error_Pragma_Arg
+              ("Suppress of Elaboration_Check ignored in SPARK??",
+               "\elaboration checking rules are statically enforced "
+               & "(SPARK RM 7.7)", Arg1);
+         end if;
+
+         --  One-argument case
+
+         if Arg_Count = 1 then
+>>>>>>> gcc-mirror/master
 
          --  pragma Stream_Convert (
          --    [Entity =>] type_LOCAL_NAME,
@@ -28792,6 +31867,7 @@ package body Sem_Prag is
 
                --  Return if previous error
 
+<<<<<<< HEAD
                if Etype (Typ) = Any_Type
                     or else
                   Etype (Read) = Any_Type
@@ -28800,6 +31876,18 @@ package body Sem_Prag is
                then
                   return;
                end if;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            --  Enforce RM 11.5(7) which requires that for a pragma that
+            --  appears within a package spec, the named entity must be
+            --  within the package spec. We allow the package name itself
+            --  to be mentioned since that makes sense, although it is not
+            --  strictly allowed by 11.5(7).
+>>>>>>> gcc-mirror/master
 
                --  Error checks
 
@@ -28829,9 +31917,30 @@ package body Sem_Prag is
 
          --  pragma Style_Checks (On | Off | ALL_CHECKS | STRING_LITERAL);
 
+<<<<<<< HEAD
          --  This is processed by the parser since some of the style checks
          --  take place during source scanning and parsing. This means that
          --  we don't need to issue error messages here.
+=======
+      -------------------------------
+      -- Record_Independence_Check --
+      -------------------------------
+
+      procedure Record_Independence_Check (N : Node_Id; E : Entity_Id) is
+      begin
+         --  For GCC back ends the validation is done a priori
+
+         if not AAMP_On_Target then
+            return;
+         end if;
+
+         Independence_Checks.Append ((N, E));
+      end Record_Independence_Check;
+
+      ------------------
+      -- Set_Exported --
+      ------------------
+>>>>>>> gcc-mirror/master
 
          when Pragma_Style_Checks => Style_Checks : declare
             A  : constant Node_Id   := Get_Pragma_Arg (Arg1);
@@ -28880,10 +31989,36 @@ package body Sem_Prag is
             --  One argument form
 
             else
+<<<<<<< HEAD
                Check_Arg_Count (1);
 
                if Nkind (A) = N_String_Literal then
                   S   := Strval (A);
+=======
+               Set_Is_Public (E);
+               Set_Is_Statically_Allocated (E);
+
+               --  Warn if the corresponding W flag is set
+
+               if Warn_On_Export_Import
+
+                 --  Only do this for something that was in the source. Not
+                 --  clear if this can be False now (there used for sure to be
+                 --  cases on some systems where it was False), but anyway the
+                 --  test is harmless if not needed, so it is retained.
+
+                 and then Comes_From_Source (Arg)
+               then
+                  Error_Msg_NE
+                    ("?x?& has been made static as a result of Export",
+                     Arg, E);
+                  Error_Msg_N
+                    ("\?x?this usage is non-standard and non-portable",
+                     Arg);
+               end if;
+            end if;
+         end if;
+>>>>>>> gcc-mirror/master
 
                   declare
                      Slen    : constant Natural := Natural (String_Length (S));
@@ -28943,12 +32078,31 @@ package body Sem_Prag is
 
          --  pragma Subtitle ([Subtitle =>] STRING_LITERAL);
 
+<<<<<<< HEAD
          when Pragma_Subtitle =>
             GNAT_Pragma;
             Check_Arg_Count (1);
             Check_Optional_Identifier (Arg1, Name_Subtitle);
             Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
             Store_Note (N);
+=======
+         if Present (Interface_Name (Internal_Ent)) then
+
+            --  Ignore mismatching names in CodePeer mode, to support some
+            --  old compilers which would export the same procedure under
+            --  different names, e.g:
+            --     procedure P;
+            --     pragma Export_Procedure (P, "a");
+            --     pragma Export_Procedure (P, "b");
+
+            if CodePeer_Mode then
+               return;
+            end if;
+
+            Check_Matching_Internal_Names : declare
+               S1 : constant String_Id := Strval (Old_Name);
+               S2 : constant String_Id := Strval (New_Name);
+>>>>>>> gcc-mirror/master
 
          --------------
          -- Suppress --
@@ -29042,9 +32196,22 @@ package body Sem_Prag is
             Set_Debug_Info_Off (Nam_Id);
          end Suppress_Debug_Info;
 
+<<<<<<< HEAD
          ----------------------------------
          -- Suppress_Exception_Locations --
          ----------------------------------
+=======
+            --  For subprogram, set Import_Pragma field
+
+            if Is_Subprogram (E) then
+               Set_Import_Pragma (E, N);
+            end if;
+
+            --  If the entity is an object that is not at the library level,
+            --  then it is statically allocated. We do not worry about objects
+            --  with address clauses in this context since they are not really
+            --  imported in the linker sense.
+>>>>>>> gcc-mirror/master
 
          --  pragma Suppress_Exception_Locations;
 
@@ -29062,6 +32229,7 @@ package body Sem_Prag is
                return;
             end if;
 
+<<<<<<< HEAD
             Check_Arg_Count (1);
             Check_No_Identifiers;
 >>>>>>> gcc-mirror/trunk
@@ -29085,6 +32253,16 @@ package body Sem_Prag is
             Check_Arg_Is_Local_Name (Arg1);
 
             E_Id := Get_Pragma_Arg (Arg1);
+=======
+      procedure Set_Mechanism_Value (Ent : Entity_Id; Mech_Name : Node_Id) is
+         procedure Bad_Mechanism;
+         pragma No_Return (Bad_Mechanism);
+         --  Signal bad mechanism name
+
+         -------------------------
+         -- Bad_Mechanism_Value --
+         -------------------------
+>>>>>>> gcc-mirror/master
 
             if Etype (E_Id) = Any_Type then
                return;
@@ -29095,7 +32273,11 @@ package body Sem_Prag is
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
 
+<<<<<<< HEAD
             Mark_Pragma_As_Ghost (N, E);
+=======
+         --  MECHANISM_NAME ::= value | reference
+>>>>>>> gcc-mirror/master
 
             if not Is_Type (E) and then Ekind (E) /= E_Variable then
                Error_Pragma_Arg
@@ -29124,6 +32306,7 @@ package body Sem_Prag is
                   --  single null character (this is one of the differences
                   --  in processing between Link_With and Linker_Options).
 
+<<<<<<< HEAD
                   Arg_Store : declare
                      C : constant Char_Code := Get_Char_Code (' ');
                      S : constant String_Id :=
@@ -29148,12 +32331,18 @@ package body Sem_Prag is
                Set_Suppress_Initialization (Base_Type (E));
 
             --  For other than first subtype, set flag on subtype or variable
+=======
+            elsif Chars (Mech_Name) = Name_Copy then
+               Error_Pragma_Arg
+                 ("bad mechanism name, Value assumed", Mech_Name);
+>>>>>>> gcc-mirror/master
 
             else
                Set_Suppress_Initialization (E);
             end if;
          end Suppress_Init;
 
+<<<<<<< HEAD
          -----------------
          -- System_Name --
          -----------------
@@ -29267,13 +32456,24 @@ package body Sem_Prag is
          ---------------
          -- Task_Name --
          ---------------
+=======
+         else
+            Bad_Mechanism;
+         end if;
+      end Set_Mechanism_Value;
+>>>>>>> gcc-mirror/master
 
          --  pragma Task_Name (string_EXPRESSION);
 
+<<<<<<< HEAD
          when Pragma_Task_Name => Task_Name : declare
             P   : constant Node_Id := Parent (N);
             Arg : Node_Id;
             Ent : Entity_Id;
+=======
+      --  The Rational profile includes Implicit_Packing, Use_Vads_Size, and
+      --  extension to the semantics of renaming declarations.
+>>>>>>> gcc-mirror/master
 
          begin
             Check_No_Identifiers;
@@ -29313,15 +32513,48 @@ package body Sem_Prag is
             --  Check duplicate pragma before we chain the pragma in the Rep
             --  Item chain of Ent.
 
+<<<<<<< HEAD
             if Has_Rep_Pragma
                  (Ent, Name_Task_Name, Check_Parents => False)
             then
                Error_Pragma ("duplicate pragma% not allowed");
             end if;
+=======
+      procedure Set_Ravenscar_Profile (Profile : Profile_Name; N : Node_Id) is
+         procedure Set_Error_Msg_To_Profile_Name;
+         --  Set Error_Msg_String and Error_Msg_Strlen to the name of the
+         --  profile.
+
+         -----------------------------------
+         -- Set_Error_Msg_To_Profile_Name --
+         -----------------------------------
+
+         procedure Set_Error_Msg_To_Profile_Name is
+            Prof_Nam : constant Node_Id :=
+                         Get_Pragma_Arg
+                           (First (Pragma_Argument_Associations (N)));
+
+         begin
+            Get_Name_String (Chars (Prof_Nam));
+            Adjust_Name_Case (Sloc (Prof_Nam));
+            Error_Msg_Strlen := Name_Len;
+            Error_Msg_String (1 .. Name_Len) := Name_Buffer (1 .. Name_Len);
+         end Set_Error_Msg_To_Profile_Name;
+
+         --  Local variables
+
+         Nod     : Node_Id;
+         Pref    : Node_Id;
+         Pref_Id : Node_Id;
+         Sel_Id  : Node_Id;
+
+      --  Start of processing for Set_Ravenscar_Profile
+>>>>>>> gcc-mirror/master
 
             Record_Rep_Item (Ent, N);
          end Task_Name;
 
+<<<<<<< HEAD
          ------------------
          -- Task_Storage --
          ------------------
@@ -29329,6 +32562,14 @@ package body Sem_Prag is
          --  pragma Linker_Section (
          --      [Entity  =>] LOCAL_NAME
          --      [Section =>] static_string_EXPRESSION);
+=======
+         if Task_Dispatching_Policy /= ' '
+           and then Task_Dispatching_Policy /= 'F'
+         then
+            Error_Msg_Sloc := Task_Dispatching_Policy_Sloc;
+            Set_Error_Msg_To_Profile_Name;
+            Error_Pragma ("Profile (~) incompatible with policy#");
+>>>>>>> gcc-mirror/master
 
          when Pragma_Linker_Section => Linker_Section : declare
             Arg : Node_Id;
@@ -29352,7 +32593,16 @@ package body Sem_Prag is
             Check_Arg_Is_Library_Level_Local_Name (Arg1);
             Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
 
+<<<<<<< HEAD
             --  Check kind of entity
+=======
+         if Locking_Policy /= ' '
+           and then Locking_Policy /= 'C'
+         then
+            Error_Msg_Sloc := Locking_Policy_Sloc;
+            Set_Error_Msg_To_Profile_Name;
+            Error_Pragma ("Profile (~) incompatible with policy#");
+>>>>>>> gcc-mirror/master
 
             Arg := Get_Pragma_Arg (Arg1);
             Ent := Entity (Arg);
@@ -29374,9 +32624,14 @@ package body Sem_Prag is
 
                   Set_Linker_Section_Pragma (Ent, N);
 
+<<<<<<< HEAD
                   --  A pragma that applies to a Ghost entity becomes Ghost for
                   --  the purposes of legality checks and removal of ignored
                   --  Ghost code.
+=======
+         Set_Profile_Restrictions
+           (Profile, N, Warn => Treat_Restrictions_As_Warnings);
+>>>>>>> gcc-mirror/master
 
                   Mark_Pragma_As_Ghost (N, Ent);
 
@@ -29384,15 +32639,28 @@ package body Sem_Prag is
 
                when Subprogram_Kind =>
 
+<<<<<<< HEAD
                   --  Aspect case, entity already set
 
                   if From_Aspect_Specification (N) then
                      Set_Linker_Section_Pragma
                        (Entity (Corresponding_Aspect (N)), N);
+=======
+         --  ??? The use of Name_Buffer here is suspicious. The names should
+         --  be registered in snames.ads-tmpl and used to build the qualified
+         --  names of units.
+
+         if Ada_Version >= Ada_2005 then
+            Name_Buffer (1 .. 3) := "ada";
+            Name_Len := 3;
+
+            Pref_Id := Make_Identifier (Loc, Name_Find);
+>>>>>>> gcc-mirror/master
 
                   --  Pragma case, we must climb the homonym chain, but skip
                   --  any for which the linker section is already set.
 
+<<<<<<< HEAD
                   else
                      loop
                         if No (Linker_Section_Pragma (Ent)) then
@@ -29401,9 +32669,19 @@ package body Sem_Prag is
                            --  A pragma that applies to a Ghost entity becomes
                            --  Ghost for the purposes of legality checks and
                            --  removal of ignored Ghost code.
+=======
+            Sel_Id := Make_Identifier (Loc, Name_Find);
+
+            Pref :=
+              Make_Selected_Component
+                (Sloc          => Loc,
+                 Prefix        => Pref_Id,
+                 Selector_Name => Sel_Id);
+>>>>>>> gcc-mirror/master
 
                            Mark_Pragma_As_Ghost (N, Ent);
 
+<<<<<<< HEAD
                            --  Capture the entity of the first Ghost subprogram
                            --  being processed for error detection purposes.
 
@@ -29415,12 +32693,27 @@ package body Sem_Prag is
                            --  Otherwise the subprogram is non-Ghost. It is
                            --  illegal to mix references to Ghost and non-Ghost
                            --  entities (SPARK RM 6.9).
+=======
+            Sel_Id := Make_Identifier (Loc, Name_Find);
+
+            Nod :=
+              Make_Selected_Component
+                (Sloc          => Loc,
+                 Prefix        => Pref,
+                 Selector_Name => Sel_Id);
+
+            Set_Restriction_No_Dependence
+              (Unit    => Nod,
+               Warn    => Treat_Restrictions_As_Warnings,
+               Profile => Ravenscar);
+>>>>>>> gcc-mirror/master
 
                            elsif Present (Ghost_Id)
                              and then not Ghost_Error_Posted
                            then
                               Ghost_Error_Posted := True;
 
+<<<<<<< HEAD
                               Error_Msg_Name_1 := Pname;
                               Error_Msg_N
                                 ("pragma % cannot mention ghost and "
@@ -29441,9 +32734,29 @@ package body Sem_Prag is
                           or else Scope (Ent) /= Current_Scope;
                      end loop;
                   end if;
+=======
+            Sel_Id := Make_Identifier (Loc, Name_Find);
+
+            Nod :=
+              Make_Selected_Component
+                (Sloc          => Loc,
+                 Prefix        => Pref,
+                 Selector_Name => Sel_Id);
+
+            Set_Restriction_No_Dependence
+              (Unit    => Nod,
+               Warn    => Treat_Restrictions_As_Warnings,
+               Profile => Ravenscar);
+         end if;
+
+         --  Set the following restriction which was added to Ada 2012 (see
+         --  AI-0171):
+         --    No_Dependence => System.Multiprocessors.Dispatching_Domains
+>>>>>>> gcc-mirror/master
 
                --  All other cases are illegal
 
+<<<<<<< HEAD
                when others =>
                   Error_Pragma_Arg
                     ("pragma% applies only to objects, subprograms, and types",
@@ -29451,11 +32764,15 @@ package body Sem_Prag is
             end case;
          end Linker_Section;
 >>>>>>> gcc-mirror/trunk
+=======
+            Pref_Id := Make_Identifier (Loc, Name_Find);
+>>>>>>> gcc-mirror/master
 
          --  pragma Task_Storage (
          --     [Task_Type =>] LOCAL_NAME,
          --     [Top_Guard =>] static_integer_EXPRESSION);
 
+<<<<<<< HEAD
          when Pragma_Task_Storage => Task_Storage : declare
             Args  : Args_List (1 .. 2);
             Names : constant Name_List (1 .. 2) := (
@@ -29464,9 +32781,19 @@ package body Sem_Prag is
 
             Task_Type : Node_Id renames Args (1);
             Top_Guard : Node_Id renames Args (2);
+=======
+            Sel_Id := Make_Identifier (Loc, Name_Find);
+
+            Pref :=
+              Make_Selected_Component
+                (Sloc          => Loc,
+                 Prefix        => Pref_Id,
+                 Selector_Name => Sel_Id);
+>>>>>>> gcc-mirror/master
 
             Ent : Entity_Id;
 
+<<<<<<< HEAD
          begin
             GNAT_Pragma;
             Gather_Associations (Names, Args);
@@ -29498,6 +32825,35 @@ package body Sem_Prag is
                raise Pragma_Exit;
             end if;
          end Task_Storage;
+=======
+            Sel_Id := Make_Identifier (Loc, Name_Find);
+
+            Nod :=
+              Make_Selected_Component
+                (Sloc          => Loc,
+                 Prefix        => Pref,
+                 Selector_Name => Sel_Id);
+
+            Set_Restriction_No_Dependence
+              (Unit    => Nod,
+               Warn    => Treat_Restrictions_As_Warnings,
+               Profile => Ravenscar);
+         end if;
+      end Set_Ravenscar_Profile;
+
+   --  Start of processing for Analyze_Pragma
+
+   begin
+      --  The following code is a defense against recursion. Not clear that
+      --  this can happen legitimately, but perhaps some error situations can
+      --  cause it, and we did see this recursion during testing.
+
+      if Analyzed (N) then
+         return;
+      else
+         Set_Analyzed (N);
+      end if;
+>>>>>>> gcc-mirror/master
 
          ---------------
          -- Test_Case --
@@ -29517,6 +32873,7 @@ package body Sem_Prag is
          --    the legal placement and context. Secondary checks preanalyze the
          --    expressions in:
 
+<<<<<<< HEAD
          --       Analyze_Test_Case_In_Decl_Part
 
          --    * Expansion - None.
@@ -29525,6 +32882,54 @@ package body Sem_Prag is
          --    related subprogram when it is:
 
          --       aspect on subprogram declaration
+=======
+      --  Ignore pragma if Ignore_Pragma applies
+
+      if Get_Name_Table_Boolean3 (Pname) then
+         return;
+      end if;
+
+      --  Here to start processing for recognized pragma
+
+      Prag_Id := Get_Pragma_Id (Pname);
+      Pname   := Original_Aspect_Pragma_Name (N);
+
+      --  Capture setting of Opt.Uneval_Old
+
+      case Opt.Uneval_Old is
+         when 'A' =>
+            Set_Uneval_Old_Accept (N);
+         when 'E' =>
+            null;
+         when 'W' =>
+            Set_Uneval_Old_Warn (N);
+         when others =>
+            raise Program_Error;
+      end case;
+
+      --  Check applicable policy. We skip this if Is_Checked or Is_Ignored
+      --  is already set, indicating that we have already checked the policy
+      --  at the right point. This happens for example in the case of a pragma
+      --  that is derived from an Aspect.
+
+      if Is_Ignored (N) or else Is_Checked (N) then
+         null;
+
+      --  For a pragma that is a rewriting of another pragma, copy the
+      --  Is_Checked/Is_Ignored status from the rewritten pragma.
+
+      elsif Is_Rewrite_Substitution (N)
+        and then Nkind (Original_Node (N)) = N_Pragma
+        and then Original_Node (N) /= N
+      then
+         Set_Is_Ignored (N, Is_Ignored (Original_Node (N)));
+         Set_Is_Checked (N, Is_Checked (Original_Node (N)));
+
+      --  Otherwise query the applicable policy at this point
+
+      else
+         Check_Applicable_Policy (N);
+>>>>>>> gcc-mirror/master
 
          --    The annotation must prepare its own template when it is:
 
@@ -29631,6 +33036,7 @@ package body Sem_Prag is
 
             Subp_Decl := Find_Related_Declaration_Or_Body (N);
 
+<<<<<<< HEAD
             --  Find the enclosing context
 
             Context := Parent (Subp_Decl);
@@ -29670,6 +33076,65 @@ package body Sem_Prag is
                                           N_Package_Declaration)
             then
                null;
+=======
+         --  pragma Abstract_State (ABSTRACT_STATE_LIST);
+
+         --  ABSTRACT_STATE_LIST ::=
+         --     null
+         --  |  STATE_NAME_WITH_OPTIONS
+         --  | (STATE_NAME_WITH_OPTIONS {, STATE_NAME_WITH_OPTIONS})
+
+         --  STATE_NAME_WITH_OPTIONS ::=
+         --     STATE_NAME
+         --  | (STATE_NAME with OPTION_LIST)
+
+         --  OPTION_LIST ::= OPTION {, OPTION}
+
+         --  OPTION ::=
+         --    SIMPLE_OPTION
+         --  | NAME_VALUE_OPTION
+
+         --  SIMPLE_OPTION ::= Ghost | Synchronous
+
+         --  NAME_VALUE_OPTION ::=
+         --    Part_Of => ABSTRACT_STATE
+         --  | External [=> EXTERNAL_PROPERTY_LIST]
+
+         --  EXTERNAL_PROPERTY_LIST ::=
+         --     EXTERNAL_PROPERTY
+         --  | (EXTERNAL_PROPERTY {, EXTERNAL_PROPERTY})
+
+         --  EXTERNAL_PROPERTY ::=
+         --    Async_Readers    [=> boolean_EXPRESSION]
+         --  | Async_Writers    [=> boolean_EXPRESSION]
+         --  | Effective_Reads  [=> boolean_EXPRESSION]
+         --  | Effective_Writes [=> boolean_EXPRESSION]
+         --    others            => boolean_EXPRESSION
+
+         --  STATE_NAME ::= defining_identifier
+
+         --  ABSTRACT_STATE ::= name
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation is fully analyzed immediately upon
+         --    elaboration as it cannot forward reference entities.
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related package declaration.
+
+         --    * Globals - The annotation cannot reference global entities.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic package is instantiated.
+
+         when Pragma_Abstract_State => Abstract_State : declare
+            Missing_Parentheses : Boolean := False;
+            --  Flag set when a state declaration with options is not properly
+            --  parenthesized.
+>>>>>>> gcc-mirror/master
 
             --  Otherwise the placement is illegal
 
@@ -29690,21 +33155,349 @@ package body Sem_Prag is
             end loop;
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
             Subp_Id := Defining_Entity (Subp_Decl);
+=======
+            procedure Analyze_Abstract_State
+              (State   : Node_Id;
+               Pack_Id : Entity_Id);
+            --  Verify the legality of a single state declaration. Create and
+            --  decorate a state abstraction entity and introduce it into the
+            --  visibility chain. Pack_Id denotes the entity or the related
+            --  package where pragma Abstract_State appears.
+
+            procedure Malformed_State_Error (State : Node_Id);
+            --  Emit an error concerning the illegal declaration of abstract
+            --  state State. This routine diagnoses syntax errors that lead to
+            --  a different parse tree. The error is issued regardless of the
+            --  SPARK mode in effect.
+>>>>>>> gcc-mirror/master
 
             --  Chain the pragma on the contract for further processing by
             --  Analyze_Test_Case_In_Decl_Part.
 
+<<<<<<< HEAD
             Add_Contract_Item (N, Subp_Id);
+=======
+            procedure Analyze_Abstract_State
+              (State   : Node_Id;
+               Pack_Id : Entity_Id)
+            is
+               --  Flags used to verify the consistency of options
+
+               AR_Seen          : Boolean := False;
+               AW_Seen          : Boolean := False;
+               ER_Seen          : Boolean := False;
+               EW_Seen          : Boolean := False;
+               External_Seen    : Boolean := False;
+               Ghost_Seen       : Boolean := False;
+               Others_Seen      : Boolean := False;
+               Part_Of_Seen     : Boolean := False;
+               Synchronous_Seen : Boolean := False;
+
+               --  Flags used to store the static value of all external states'
+               --  expressions.
+
+               AR_Val : Boolean := False;
+               AW_Val : Boolean := False;
+               ER_Val : Boolean := False;
+               EW_Val : Boolean := False;
+
+               State_Id : Entity_Id := Empty;
+               --  The entity to be generated for the current state declaration
+
+               procedure Analyze_External_Option (Opt : Node_Id);
+               --  Verify the legality of option External
+
+               procedure Analyze_External_Property
+                 (Prop : Node_Id;
+                  Expr : Node_Id := Empty);
+               --  Verify the legailty of a single external property. Prop
+               --  denotes the external property. Expr is the expression used
+               --  to set the property.
+
+               procedure Analyze_Part_Of_Option (Opt : Node_Id);
+               --  Verify the legality of option Part_Of
+
+               procedure Check_Duplicate_Option
+                 (Opt    : Node_Id;
+                  Status : in out Boolean);
+               --  Flag Status denotes whether a particular option has been
+               --  seen while processing a state. This routine verifies that
+               --  Opt is not a duplicate option and sets the flag Status
+               --  (SPARK RM 7.1.4(1)).
+
+               procedure Check_Duplicate_Property
+                 (Prop   : Node_Id;
+                  Status : in out Boolean);
+               --  Flag Status denotes whether a particular property has been
+               --  seen while processing option External. This routine verifies
+               --  that Prop is not a duplicate property and sets flag Status.
+               --  Opt is not a duplicate property and sets the flag Status.
+               --  (SPARK RM 7.1.4(2))
+
+               procedure Check_Ghost_Synchronous;
+               --  Ensure that the abstract state is not subject to both Ghost
+               --  and Synchronous simple options. Emit an error if this is the
+               --  case.
+
+               procedure Create_Abstract_State
+                 (Nam     : Name_Id;
+                  Decl    : Node_Id;
+                  Loc     : Source_Ptr;
+                  Is_Null : Boolean);
+               --  Generate an abstract state entity with name Nam and enter it
+               --  into visibility. Decl is the "declaration" of the state as
+               --  it appears in pragma Abstract_State. Loc is the location of
+               --  the related state "declaration". Flag Is_Null should be set
+               --  when the associated Abstract_State pragma defines a null
+               --  state.
+
+               -----------------------------
+               -- Analyze_External_Option --
+               -----------------------------
+
+               procedure Analyze_External_Option (Opt : Node_Id) is
+                  Errors : constant Nat := Serious_Errors_Detected;
+                  Prop   : Node_Id;
+                  Props  : Node_Id := Empty;
+
+               begin
+                  if Nkind (Opt) = N_Component_Association then
+                     Props := Expression (Opt);
+                  end if;
+
+                  --  External state with properties
+
+                  if Present (Props) then
+
+                     --  Multiple properties appear as an aggregate
+
+                     if Nkind (Props) = N_Aggregate then
+
+                        --  Simple property form
+
+                        Prop := First (Expressions (Props));
+                        while Present (Prop) loop
+                           Analyze_External_Property (Prop);
+                           Next (Prop);
+                        end loop;
+
+                        --  Property with expression form
+
+                        Prop := First (Component_Associations (Props));
+                        while Present (Prop) loop
+                           Analyze_External_Property
+                             (Prop => First (Choices (Prop)),
+                              Expr => Expression (Prop));
+
+                           Next (Prop);
+                        end loop;
+
+                     --  Single property
+
+                     else
+                        Analyze_External_Property (Props);
+                     end if;
+
+                  --  An external state defined without any properties defaults
+                  --  all properties to True.
+
+                  else
+                     AR_Val := True;
+                     AW_Val := True;
+                     ER_Val := True;
+                     EW_Val := True;
+                  end if;
+
+                  --  Once all external properties have been processed, verify
+                  --  their mutual interaction. Do not perform the check when
+                  --  at least one of the properties is illegal as this will
+                  --  produce a bogus error.
+
+                  if Errors = Serious_Errors_Detected then
+                     Check_External_Properties
+                       (State, AR_Val, AW_Val, ER_Val, EW_Val);
+                  end if;
+               end Analyze_External_Option;
+
+               -------------------------------
+               -- Analyze_External_Property --
+               -------------------------------
+
+               procedure Analyze_External_Property
+                 (Prop : Node_Id;
+                  Expr : Node_Id := Empty)
+               is
+                  Expr_Val : Boolean;
+
+               begin
+                  --  Check the placement of "others" (if available)
+
+                  if Nkind (Prop) = N_Others_Choice then
+                     if Others_Seen then
+                        SPARK_Msg_N
+                          ("only one others choice allowed in option External",
+                           Prop);
+                     else
+                        Others_Seen := True;
+                     end if;
+
+                  elsif Others_Seen then
+                     SPARK_Msg_N
+                       ("others must be the last property in option External",
+                        Prop);
+
+                  --  The only remaining legal options are the four predefined
+                  --  external properties.
+
+                  elsif Nkind (Prop) = N_Identifier
+                    and then Nam_In (Chars (Prop), Name_Async_Readers,
+                                                   Name_Async_Writers,
+                                                   Name_Effective_Reads,
+                                                   Name_Effective_Writes)
+                  then
+                     null;
+
+                  --  Otherwise the construct is not a valid property
+
+                  else
+                     SPARK_Msg_N ("invalid external state property", Prop);
+                     return;
+                  end if;
+
+                  --  Ensure that the expression of the external state property
+                  --  is static Boolean (if applicable) (SPARK RM 7.1.2(5)).
+
+                  if Present (Expr) then
+                     Analyze_And_Resolve (Expr, Standard_Boolean);
+
+                     if Is_OK_Static_Expression (Expr) then
+                        Expr_Val := Is_True (Expr_Value (Expr));
+                     else
+                        SPARK_Msg_N
+                          ("expression of external state property must be "
+                           & "static", Expr);
+                     end if;
+
+                  --  The lack of expression defaults the property to True
+
+                  else
+                     Expr_Val := True;
+                  end if;
+
+                  --  Named properties
+
+                  if Nkind (Prop) = N_Identifier then
+                     if Chars (Prop) = Name_Async_Readers then
+                        Check_Duplicate_Property (Prop, AR_Seen);
+                        AR_Val := Expr_Val;
+
+                     elsif Chars (Prop) = Name_Async_Writers then
+                        Check_Duplicate_Property (Prop, AW_Seen);
+                        AW_Val := Expr_Val;
+
+                     elsif Chars (Prop) = Name_Effective_Reads then
+                        Check_Duplicate_Property (Prop, ER_Seen);
+                        ER_Val := Expr_Val;
+
+                     else
+                        Check_Duplicate_Property (Prop, EW_Seen);
+                        EW_Val := Expr_Val;
+                     end if;
+
+                  --  The handling of property "others" must take into account
+                  --  all other named properties that have been encountered so
+                  --  far. Only those that have not been seen are affected by
+                  --  "others".
+
+                  else
+                     if not AR_Seen then
+                        AR_Val := Expr_Val;
+                     end if;
+
+                     if not AW_Seen then
+                        AW_Val := Expr_Val;
+                     end if;
+
+                     if not ER_Seen then
+                        ER_Val := Expr_Val;
+                     end if;
+
+                     if not EW_Seen then
+                        EW_Val := Expr_Val;
+                     end if;
+                  end if;
+               end Analyze_External_Property;
+
+               ----------------------------
+               -- Analyze_Part_Of_Option --
+               ----------------------------
+
+               procedure Analyze_Part_Of_Option (Opt : Node_Id) is
+                  Encap    : constant Node_Id := Expression (Opt);
+                  Encap_Id : Entity_Id;
+                  Legal    : Boolean;
+
+               begin
+                  Check_Duplicate_Option (Opt, Part_Of_Seen);
+
+                  Analyze_Part_Of
+                    (Indic    => First (Choices (Opt)),
+                     Item_Id  => State_Id,
+                     Encap    => Encap,
+                     Encap_Id => Encap_Id,
+                     Legal    => Legal);
+
+                  --  The Part_Of indicator transforms the abstract state into
+                  --  a constituent of the encapsulating state or single
+                  --  concurrent type.
+
+                  if Legal then
+                     pragma Assert (Present (Encap_Id));
+
+                     Append_Elmt (State_Id, Part_Of_Constituents (Encap_Id));
+                     Set_Encapsulating_State (State_Id, Encap_Id);
+                  end if;
+               end Analyze_Part_Of_Option;
+
+               ----------------------------
+               -- Check_Duplicate_Option --
+               ----------------------------
+
+               procedure Check_Duplicate_Option
+                 (Opt    : Node_Id;
+                  Status : in out Boolean)
+               is
+               begin
+                  if Status then
+                     SPARK_Msg_N ("duplicate state option", Opt);
+                  end if;
+
+                  Status := True;
+               end Check_Duplicate_Option;
+>>>>>>> gcc-mirror/master
 
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
 
+<<<<<<< HEAD
             Mark_Pragma_As_Ghost (N, Subp_Id);
+=======
+               procedure Check_Duplicate_Property
+                 (Prop   : Node_Id;
+                  Status : in out Boolean)
+               is
+               begin
+                  if Status then
+                     SPARK_Msg_N ("duplicate external property", Prop);
+                  end if;
+>>>>>>> gcc-mirror/master
 
             --  Preanalyze the original aspect argument "Name" for ASIS or for
             --  a generic subprogram to properly capture global references.
 
+<<<<<<< HEAD
             if ASIS_Mode or else Is_Generic_Subprogram (Subp_Id) then
                Asp_Arg := Test_Case_Arg (N, Name_Name, From_Aspect => True);
 
@@ -29716,6 +33509,92 @@ package body Sem_Prag is
                   if Nkind (Asp_Arg) = N_Component_Association then
                      Asp_Arg := Expression (Asp_Arg);
                   end if;
+=======
+               -----------------------------
+               -- Check_Ghost_Synchronous --
+               -----------------------------
+
+               procedure Check_Ghost_Synchronous is
+               begin
+                  --  A synchronized abstract state cannot be Ghost and vice
+                  --  versa (SPARK RM 6.9(19)).
+
+                  if Ghost_Seen and Synchronous_Seen then
+                     SPARK_Msg_N ("synchronized state cannot be ghost", State);
+                  end if;
+               end Check_Ghost_Synchronous;
+
+               ---------------------------
+               -- Create_Abstract_State --
+               ---------------------------
+
+               procedure Create_Abstract_State
+                 (Nam     : Name_Id;
+                  Decl    : Node_Id;
+                  Loc     : Source_Ptr;
+                  Is_Null : Boolean)
+               is
+               begin
+                  --  The abstract state may be semi-declared when the related
+                  --  package was withed through a limited with clause. In that
+                  --  case reuse the entity to fully declare the state.
+
+                  if Present (Decl) and then Present (Entity (Decl)) then
+                     State_Id := Entity (Decl);
+
+                  --  Otherwise the elaboration of pragma Abstract_State
+                  --  declares the state.
+
+                  else
+                     State_Id := Make_Defining_Identifier (Loc, Nam);
+
+                     if Present (Decl) then
+                        Set_Entity (Decl, State_Id);
+                     end if;
+                  end if;
+
+                  --  Null states never come from source
+
+                  Set_Comes_From_Source       (State_Id, not Is_Null);
+                  Set_Parent                  (State_Id, State);
+                  Set_Ekind                   (State_Id, E_Abstract_State);
+                  Set_Etype                   (State_Id, Standard_Void_Type);
+                  Set_Encapsulating_State     (State_Id, Empty);
+                  Set_Refinement_Constituents (State_Id, New_Elmt_List);
+                  Set_Part_Of_Constituents    (State_Id, New_Elmt_List);
+
+                  --  An abstract state declared within a Ghost region becomes
+                  --  Ghost (SPARK RM 6.9(2)).
+
+                  if Ghost_Mode > None or else Is_Ghost_Entity (Pack_Id) then
+                     Set_Is_Ghost_Entity (State_Id);
+                  end if;
+
+                  --  Establish a link between the state declaration and the
+                  --  abstract state entity. Note that a null state remains as
+                  --  N_Null and does not carry any linkages.
+
+                  if not Is_Null then
+                     if Present (Decl) then
+                        Set_Entity (Decl, State_Id);
+                        Set_Etype  (Decl, Standard_Void_Type);
+                     end if;
+
+                     --  Every non-null state must be defined, nameable and
+                     --  resolvable.
+
+                     Push_Scope (Pack_Id);
+                     Generate_Definition (State_Id);
+                     Enter_Name (State_Id);
+                     Pop_Scope;
+                  end if;
+               end Create_Abstract_State;
+
+               --  Local variables
+
+               Opt     : Node_Id;
+               Opt_Nam : Node_Id;
+>>>>>>> gcc-mirror/master
 
                   Check_Expr_Is_OK_Static_Expression
                     (Asp_Arg, Standard_String);
@@ -29725,12 +33604,19 @@ package body Sem_Prag is
             --  Ensure that the all Test_Case pragmas of the related subprogram
             --  have distinct names.
 
+<<<<<<< HEAD
             Check_Distinct_Name (Subp_Id);
+=======
+               if Null_Seen then
+                  SPARK_Msg_NE
+                    ("package & has null abstract state", State, Pack_Id);
+>>>>>>> gcc-mirror/master
 
             --  Fully analyze the pragma when it appears inside an entry
             --  or subprogram body because it cannot benefit from forward
             --  references.
 
+<<<<<<< HEAD
             if Nkind_In (Subp_Decl, N_Entry_Body,
                                     N_Subprogram_Body,
                                     N_Subprogram_Body_Stub)
@@ -29752,17 +33638,35 @@ package body Sem_Prag is
 >>>>>>> gcc-mirror/trunk
             end if;
          end Test_Case;
+=======
+               elsif Nkind (State) = N_Null then
+                  Create_Abstract_State
+                    (Nam     => New_Internal_Name ('S'),
+                     Decl    => Empty,
+                     Loc     => Sloc (State),
+                     Is_Null => True);
+                  Null_Seen := True;
+>>>>>>> gcc-mirror/master
 
          --------------------------
          -- Thread_Local_Storage --
          --------------------------
 
+<<<<<<< HEAD
          --  pragma Thread_Local_Storage ([Entity =>] LOCAL_NAME);
+=======
+                  if Non_Null_Seen then
+                     SPARK_Msg_NE
+                       ("package & has non-null abstract state",
+                        State, Pack_Id);
+                  end if;
+>>>>>>> gcc-mirror/master
 
          when Pragma_Thread_Local_Storage => Thread_Local_Storage : declare
             E  : Entity_Id;
             Id : Node_Id;
 
+<<<<<<< HEAD
          begin
             GNAT_Pragma;
             Check_Arg_Count (1);
@@ -29930,6 +33834,204 @@ package body Sem_Prag is
          ---------------------
 
          --  pragma Unchecked_Union (first_subtype_LOCAL_NAME)
+=======
+               elsif Nkind (State) = N_Identifier then
+                  Create_Abstract_State
+                    (Nam     => Chars (State),
+                     Decl    => State,
+                     Loc     => Sloc (State),
+                     Is_Null => False);
+                  Non_Null_Seen := True;
+
+               --  State declaration with various options. This construct
+               --  appears as an extension aggregate in the tree.
+
+               elsif Nkind (State) = N_Extension_Aggregate then
+                  if Nkind (Ancestor_Part (State)) = N_Identifier then
+                     Create_Abstract_State
+                       (Nam     => Chars (Ancestor_Part (State)),
+                        Decl    => Ancestor_Part (State),
+                        Loc     => Sloc (Ancestor_Part (State)),
+                        Is_Null => False);
+                     Non_Null_Seen := True;
+                  else
+                     SPARK_Msg_N
+                       ("state name must be an identifier",
+                        Ancestor_Part (State));
+                  end if;
+
+                  --  Options External, Ghost and Synchronous appear as
+                  --  expressions.
+
+                  Opt := First (Expressions (State));
+                  while Present (Opt) loop
+                     if Nkind (Opt) = N_Identifier then
+
+                        --  External
+
+                        if Chars (Opt) = Name_External then
+                           Check_Duplicate_Option (Opt, External_Seen);
+                           Analyze_External_Option (Opt);
+
+                        --  Ghost
+
+                        elsif Chars (Opt) = Name_Ghost then
+                           Check_Duplicate_Option (Opt, Ghost_Seen);
+                           Check_Ghost_Synchronous;
+
+                           if Present (State_Id) then
+                              Set_Is_Ghost_Entity (State_Id);
+                           end if;
+
+                        --  Synchronous
+
+                        elsif Chars (Opt) = Name_Synchronous then
+                           Check_Duplicate_Option (Opt, Synchronous_Seen);
+                           Check_Ghost_Synchronous;
+
+                        --  Option Part_Of without an encapsulating state is
+                        --  illegal (SPARK RM 7.1.4(9)).
+
+                        elsif Chars (Opt) = Name_Part_Of then
+                           SPARK_Msg_N
+                             ("indicator Part_Of must denote abstract state, "
+                              & "single protected type or single task type",
+                              Opt);
+
+                        --  Do not emit an error message when a previous state
+                        --  declaration with options was not parenthesized as
+                        --  the option is actually another state declaration.
+                        --
+                        --    with Abstract_State
+                        --      (State_1 with ...,   --  missing parentheses
+                        --      (State_2 with ...),
+                        --       State_3)            --  ok state declaration
+
+                        elsif Missing_Parentheses then
+                           null;
+
+                        --  Otherwise the option is not allowed. Note that it
+                        --  is not possible to distinguish between an option
+                        --  and a state declaration when a previous state with
+                        --  options not properly parentheses.
+                        --
+                        --    with Abstract_State
+                        --      (State_1 with ...,  --  missing parentheses
+                        --       State_2);          --  could be an option
+
+                        else
+                           SPARK_Msg_N
+                             ("simple option not allowed in state declaration",
+                              Opt);
+                        end if;
+
+                     --  Catch a case where missing parentheses around a state
+                     --  declaration with options cause a subsequent state
+                     --  declaration with options to be treated as an option.
+                     --
+                     --    with Abstract_State
+                     --      (State_1 with ...,   --  missing parentheses
+                     --      (State_2 with ...))
+
+                     elsif Nkind (Opt) = N_Extension_Aggregate then
+                        Missing_Parentheses := True;
+                        SPARK_Msg_N
+                          ("state declaration must be parenthesized",
+                           Ancestor_Part (State));
+
+                     --  Otherwise the option is malformed
+
+                     else
+                        SPARK_Msg_N ("malformed option", Opt);
+                     end if;
+
+                     Next (Opt);
+                  end loop;
+
+                  --  Options External and Part_Of appear as component
+                  --  associations.
+
+                  Opt := First (Component_Associations (State));
+                  while Present (Opt) loop
+                     Opt_Nam := First (Choices (Opt));
+
+                     if Nkind (Opt_Nam) = N_Identifier then
+                        if Chars (Opt_Nam) = Name_External then
+                           Analyze_External_Option (Opt);
+
+                        elsif Chars (Opt_Nam) = Name_Part_Of then
+                           Analyze_Part_Of_Option (Opt);
+
+                        else
+                           SPARK_Msg_N ("invalid state option", Opt);
+                        end if;
+                     else
+                        SPARK_Msg_N ("invalid state option", Opt);
+                     end if;
+
+                     Next (Opt);
+                  end loop;
+
+               --  Any other attempt to declare a state is illegal
+
+               else
+                  Malformed_State_Error (State);
+                  return;
+               end if;
+
+               --  Guard against a junk state. In such cases no entity is
+               --  generated and the subsequent checks cannot be applied.
+
+               if Present (State_Id) then
+
+                  --  Verify whether the state does not introduce an illegal
+                  --  hidden state within a package subject to a null abstract
+                  --  state.
+
+                  Check_No_Hidden_State (State_Id);
+
+                  --  Check whether the lack of option Part_Of agrees with the
+                  --  placement of the abstract state with respect to the state
+                  --  space.
+
+                  if not Part_Of_Seen then
+                     Check_Missing_Part_Of (State_Id);
+                  end if;
+
+                  --  Associate the state with its related package
+
+                  if No (Abstract_States (Pack_Id)) then
+                     Set_Abstract_States (Pack_Id, New_Elmt_List);
+                  end if;
+
+                  Append_Elmt (State_Id, Abstract_States (Pack_Id));
+               end if;
+            end Analyze_Abstract_State;
+
+            ---------------------------
+            -- Malformed_State_Error --
+            ---------------------------
+
+            procedure Malformed_State_Error (State : Node_Id) is
+            begin
+               Error_Msg_N ("malformed abstract state declaration", State);
+
+               --  An abstract state with a simple option is being declared
+               --  with "=>" rather than the legal "with". The state appears
+               --  as a component association.
+
+               if Nkind (State) = N_Component_Association then
+                  Error_Msg_N ("\use WITH to specify simple option", State);
+               end if;
+            end Malformed_State_Error;
+
+            --  Local variables
+
+            Pack_Decl : Node_Id;
+            Pack_Id   : Entity_Id;
+            State     : Node_Id;
+            States    : Node_Id;
+>>>>>>> gcc-mirror/master
 
          when Pragma_Unchecked_Union => Unchecked_Union : declare
             Assoc   : constant Node_Id := Arg1;
@@ -29942,11 +34044,16 @@ package body Sem_Prag is
             Vpart   : Node_Id;
 
          begin
+<<<<<<< HEAD
             Ada_2005_Pragma;
+=======
+            GNAT_Pragma;
+>>>>>>> gcc-mirror/master
             Check_No_Identifiers;
             Check_Arg_Count (1);
             Check_Arg_Is_Local_Name (Arg1);
 
+<<<<<<< HEAD
             Find_Type (Type_Id);
 
             Typ := Entity (Type_Id);
@@ -29968,6 +34075,88 @@ package body Sem_Prag is
          -----------------------------
          -- No_Elaboration_Code_All --
          -----------------------------
+=======
+            Pack_Decl := Find_Related_Package_Or_Body (N, Do_Checks => True);
+
+            --  Ensure the proper placement of the pragma. Abstract states must
+            --  be associated with a package declaration.
+
+            if Nkind_In (Pack_Decl, N_Generic_Package_Declaration,
+                                    N_Package_Declaration)
+            then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construct
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Pack_Id := Defining_Entity (Pack_Decl);
+
+            --  Chain the pragma on the contract for completeness
+
+            Add_Contract_Item (N, Pack_Id);
+
+            --  The legality checks of pragmas Abstract_State, Initializes, and
+            --  Initial_Condition are affected by the SPARK mode in effect. In
+            --  addition, these three pragmas are subject to an inherent order:
+
+            --    1) Abstract_State
+            --    2) Initializes
+            --    3) Initial_Condition
+
+            --  Analyze all these pragmas in the order outlined above
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Pack_Id);
+            Ensure_Aggregate_Form (Get_Argument (N, Pack_Id));
+
+            States := Expression (Get_Argument (N, Pack_Id));
+
+            --  Multiple non-null abstract states appear as an aggregate
+
+            if Nkind (States) = N_Aggregate then
+               State := First (Expressions (States));
+               while Present (State) loop
+                  Analyze_Abstract_State (State, Pack_Id);
+                  Next (State);
+               end loop;
+
+               --  An abstract state with a simple option is being illegaly
+               --  declared with "=>" rather than "with". In this case the
+               --  state declaration appears as a component association.
+
+               if Present (Component_Associations (States)) then
+                  State := First (Component_Associations (States));
+                  while Present (State) loop
+                     Malformed_State_Error (State);
+                     Next (State);
+                  end loop;
+               end if;
+
+            --  Various forms of a single abstract state. Note that these may
+            --  include malformed state declarations.
+
+            else
+               Analyze_Abstract_State (States, Pack_Id);
+            end if;
+
+            Analyze_If_Present (Pragma_Initializes);
+            Analyze_If_Present (Pragma_Initial_Condition);
+         end Abstract_State;
+
+         ------------
+         -- Ada_83 --
+         ------------
+
+         --  pragma Ada_83;
+>>>>>>> gcc-mirror/master
 
          --  pragma No_Elaboration_Code_All;
 
@@ -29979,7 +34168,21 @@ package body Sem_Prag is
                return;
             end if;
 
+<<<<<<< HEAD
             --  Must appear for a spec or generic spec
+=======
+            --  Now set Ada 83 mode
+
+            Ada_Version          := Ada_83;
+            Ada_Version_Explicit := Ada_83;
+            Ada_Version_Pragma   := N;
+
+         ------------
+         -- Ada_95 --
+         ------------
+
+         --  pragma Ada_95;
+>>>>>>> gcc-mirror/master
 
             if not Nkind_In (Unit (Cunit (Current_Sem_Unit)),
                              N_Generic_Package_Declaration,
@@ -30007,11 +34210,17 @@ package body Sem_Prag is
             --  then we also add it to the configuration restrictions so that
             --  it will apply to all units in the extended main source.
 
+<<<<<<< HEAD
             if Current_Sem_Unit = Main_Unit
               or else In_Extended_Main_Source_Unit (N)
             then
                Add_To_Config_Boolean_Restrictions (No_Elaboration_Code);
             end if;
+=======
+            Ada_Version          := Ada_95;
+            Ada_Version_Explicit := Ada_95;
+            Ada_Version_Pragma   := N;
+>>>>>>> gcc-mirror/master
 
             --  If in main extended unit, activate transitive with test
 
@@ -30028,7 +34237,22 @@ package body Sem_Prag is
                return;
             end if;
 
+<<<<<<< HEAD
             Check_First_Subtype (Arg1);
+=======
+         --  The one argument form is used for managing the transition from
+         --  Ada 95 to Ada 2005 in the run-time library. If an entity is marked
+         --  as Ada_2005 only, then referencing the entity in Ada_83 or Ada_95
+         --  mode will generate a warning. In addition, in Ada_83 or Ada_95
+         --  mode, a preference rule is established which does not choose
+         --  such an entity unless it is unambiguously specified. This avoids
+         --  extra subprograms marked this way from generating ambiguities in
+         --  otherwise legal pre-Ada_2005 programs. The one argument form is
+         --  intended for exclusive use in the GNAT run-time library.
+
+         when Pragma_Ada_05 | Pragma_Ada_2005 => declare
+            E_Id : Node_Id;
+>>>>>>> gcc-mirror/master
 
             --  Note remaining cases are references to a type in the current
             --  declarative part. If we find an error, we post the error on
@@ -30070,7 +34294,15 @@ package body Sem_Prag is
             --  Similarly, GNAT used to require that all discriminants have
             --  default values, but this is not mandated by the RM.
 
+<<<<<<< HEAD
             --  Proceed with basic error checks completed
+=======
+               Ada_Version          := Ada_2005;
+               Ada_Version_Explicit := Ada_2005;
+               Ada_Version_Pragma   := N;
+            end if;
+         end;
+>>>>>>> gcc-mirror/master
 
             else
                Tdef  := Type_Definition (Declaration_Node (Typ));
@@ -30089,12 +34321,27 @@ package body Sem_Prag is
 =======
                E := Entity (Id);
 
+<<<<<<< HEAD
                Found := False;
                while Present (E)
                  and then Scope (E) = Current_Scope
                loop
                   if Ekind_In (E, E_Procedure, E_Generic_Procedure) then
                      Set_No_Return (E);
+=======
+         --  The one argument form is used for managing the transition from Ada
+         --  2005 to Ada 2012 in the run-time library. If an entity is marked
+         --  as Ada_201 only, then referencing the entity in any pre-Ada_2012
+         --  mode will generate a warning. In addition, in any pre-Ada_2012
+         --  mode, a preference rule is established which does not choose
+         --  such an entity unless it is unambiguously specified. This avoids
+         --  extra subprograms marked this way from generating ambiguities in
+         --  otherwise legal pre-Ada_2012 programs. The one argument form is
+         --  intended for exclusive use in the GNAT run-time library.
+
+         when Pragma_Ada_12 | Pragma_Ada_2012 => declare
+            E_Id : Node_Id;
+>>>>>>> gcc-mirror/master
 
                      --  A pragma that applies to a Ghost entity becomes Ghost
                      --  for the purposes of legality checks and removal of
@@ -30127,9 +34374,17 @@ package body Sem_Prag is
                         Error_Msg_Sloc := Sloc (Ghost_Id);
                         Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
 
+<<<<<<< HEAD
                         Error_Msg_Sloc := Sloc (E);
                         Error_Msg_NE ("\& # declared as non-ghost", N, E);
                      end if;
+=======
+               Ada_Version          := Ada_2012;
+               Ada_Version_Explicit := Ada_2012;
+               Ada_Version_Pragma   := N;
+            end if;
+         end;
+>>>>>>> gcc-mirror/master
 
                      --  Set flag on any alias as well
 >>>>>>> gcc-mirror/trunk
@@ -30161,6 +34416,7 @@ package body Sem_Prag is
                --  If entity in not in current scope it may be the enclosing
                --  suprogram body to which the aspect applies.
 
+<<<<<<< HEAD
                if not Found then
                   if Entity (Id) = Current_Scope
                     and then From_Aspect_Specification (N)
@@ -30175,9 +34431,22 @@ package body Sem_Prag is
          ------------------------
          -- Unimplemented_Unit --
          ------------------------
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Lib_Entity);
+
+            --  This pragma should only apply to a RCI unit (RM E.2.3(23))
+
+            if Present (Lib_Entity) and then not Debug_Flag_U then
+               if not Is_Remote_Call_Interface (Lib_Entity) then
+                  Error_Pragma ("pragma% only apply to rci unit");
+>>>>>>> gcc-mirror/master
 
          --  pragma Unimplemented_Unit;
 
+<<<<<<< HEAD
          --  Note: this only gives an error if we are generating code, or if
          --  we are in a generic library unit (where the pragma appears in the
          --  body, not in the spec).
@@ -30205,11 +34474,47 @@ package body Sem_Prag is
                raise Unrecoverable_Error;
             end if;
          end Unimplemented_Unit;
+=======
+               else
+                  Set_Has_All_Calls_Remote (Lib_Entity);
+               end if;
+            end if;
+         end All_Calls_Remote;
+
+         ---------------------------
+         -- Allow_Integer_Address --
+         ---------------------------
+
+         --  pragma Allow_Integer_Address;
+
+         when Pragma_Allow_Integer_Address =>
+            GNAT_Pragma;
+            Check_Valid_Configuration_Pragma;
+            Check_Arg_Count (0);
+
+            --  If Address is a private type, then set the flag to allow
+            --  integer address values. If Address is not private, then this
+            --  pragma has no purpose, so it is simply ignored. Not clear if
+            --  there are any such targets now.
+
+            if Opt.Address_Is_Private then
+               Opt.Allow_Integer_Address := True;
+            end if;
+
+         --------------
+         -- Annotate --
+         --------------
+
+         --  pragma Annotate
+         --    (IDENTIFIER [, IDENTIFIER {, ARG}] [,Entity => local_NAME]);
+         --  ARG ::= NAME | EXPRESSION
+>>>>>>> gcc-mirror/master
 
          ------------------------
          -- Universal_Aliasing --
          ------------------------
 
+<<<<<<< HEAD
          --  pragma Universal_Aliasing [([Entity =>] type_LOCAL_NAME)];
 
          when Pragma_Universal_Aliasing => Universal_Alias : declare
@@ -30231,6 +34536,59 @@ package body Sem_Prag is
 
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
+=======
+         when Pragma_Annotate => Annotate : declare
+            Arg     : Node_Id;
+            Expr    : Node_Id;
+            Nam_Arg : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (1);
+
+            Nam_Arg := Last (Pragma_Argument_Associations (N));
+
+            --  Determine whether the last argument is "Entity => local_NAME"
+            --  and if it is, perform the required semantic checks. Remove the
+            --  argument from further processing.
+
+            if Nkind (Nam_Arg) = N_Pragma_Argument_Association
+              and then Chars (Nam_Arg) = Name_Entity
+            then
+               Check_Arg_Is_Local_Name (Nam_Arg);
+               Arg_Count := Arg_Count - 1;
+
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               if Is_Entity_Name (Get_Pragma_Arg (Nam_Arg))
+                 and then Present (Entity (Get_Pragma_Arg (Nam_Arg)))
+               then
+                  Mark_Pragma_As_Ghost (N, Entity (Get_Pragma_Arg (Nam_Arg)));
+               end if;
+
+               --  Not allowed in compiler units (bootstrap issues)
+
+               Check_Compiler_Unit ("Entity for pragma Annotate", N);
+            end if;
+
+            --  Continue the processing with last argument removed for now
+
+            Check_Arg_Is_Identifier (Arg1);
+            Check_No_Identifiers;
+            Store_Note (N);
+
+            --  The second parameter is optional, it is never analyzed
+
+            if No (Arg2) then
+               null;
+
+            --  Otherwise there is a second parameter
+
+            else
+               --  The second parameter must be an identifier
+>>>>>>> gcc-mirror/master
 
             Mark_Pragma_As_Ghost (N, E_Id);
             Set_Universal_Aliasing (Implementation_Base_Type (E_Id));
@@ -30241,6 +34599,7 @@ package body Sem_Prag is
             -- No_Tagged_Streams --
             -----------------------
 
+<<<<<<< HEAD
             --  pragma No_Tagged_Streams;
             --  pragma No_Tagged_Streams ([Entity => ]tagged_type_local_NAME);
 
@@ -30251,9 +34610,21 @@ package body Sem_Prag is
          begin
             GNAT_Pragma;
             Check_At_Most_N_Arguments (1);
+=======
+               --  Process the remaining parameters (if any)
+
+               Arg := Next (Arg2);
+               while Present (Arg) loop
+                  Expr := Get_Pragma_Arg (Arg);
+                  Analyze (Expr);
+
+                  if Is_Entity_Name (Expr) then
+                     null;
+>>>>>>> gcc-mirror/master
 
             --  One argument case
 
+<<<<<<< HEAD
             if Arg_Count = 1 then
                Check_Optional_Identifier (Arg1, Name_Entity);
                Check_Arg_Is_Local_Name (Arg1);
@@ -30264,6 +34635,23 @@ package body Sem_Prag is
                end if;
 
                E := Entity (E_Id);
+=======
+                  elsif Nkind (Expr) = N_String_Literal then
+                     if Has_Wide_Wide_Character (Expr) then
+                        Resolve (Expr, Standard_Wide_Wide_String);
+                     elsif Has_Wide_Character (Expr) then
+                        Resolve (Expr, Standard_Wide_String);
+                     else
+                        Resolve (Expr, Standard_String);
+                     end if;
+
+                  elsif Is_Overloaded (Expr) then
+                     Error_Pragma_Arg ("ambiguous argument for pragma%", Expr);
+
+                  else
+                     Resolve (Expr);
+                  end if;
+>>>>>>> gcc-mirror/master
 
                Check_Duplicate_Pragma (E);
 
@@ -30294,9 +34682,62 @@ package body Sem_Prag is
          ------------------------
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
          --------------------
          -- Universal_Data --
          --------------------
+=======
+         when Pragma_Assert         |
+              Pragma_Assert_And_Cut |
+              Pragma_Assume         |
+              Pragma_Loop_Invariant =>
+         Assert : declare
+            function Contains_Loop_Entry (Expr : Node_Id) return Boolean;
+            --  Determine whether expression Expr contains a Loop_Entry
+            --  attribute reference.
+
+            -------------------------
+            -- Contains_Loop_Entry --
+            -------------------------
+
+            function Contains_Loop_Entry (Expr : Node_Id) return Boolean is
+               Has_Loop_Entry : Boolean := False;
+
+               function Process (N : Node_Id) return Traverse_Result;
+               --  Process function for traversal to look for Loop_Entry
+
+               -------------
+               -- Process --
+               -------------
+
+               function Process (N : Node_Id) return Traverse_Result is
+               begin
+                  if Nkind (N) = N_Attribute_Reference
+                    and then Attribute_Name (N) = Name_Loop_Entry
+                  then
+                     Has_Loop_Entry := True;
+                     return Abandon;
+                  else
+                     return OK;
+                  end if;
+               end Process;
+
+               procedure Traverse is new Traverse_Proc (Process);
+
+            --  Start of processing for Contains_Loop_Entry
+
+            begin
+               Traverse (Expr);
+               return Has_Loop_Entry;
+            end Contains_Loop_Entry;
+
+            --  Local variables
+
+            Expr     : Node_Id;
+            New_Args : List_Id;
+
+         --  Start of processing for Assert
+>>>>>>> gcc-mirror/master
 
          --  pragma Universal_Data [(library_unit_NAME)];
 
@@ -30315,6 +34756,7 @@ package body Sem_Prag is
                Check_Valid_Library_Unit_Pragma;
             end if;
 
+<<<<<<< HEAD
             if not AAMP_On_Target then
                Error_Pragma ("??pragma% ignored (applies only to AAMP)");
             end if;
@@ -30346,6 +34788,29 @@ package body Sem_Prag is
             if not (CodePeer_Mode or GNATprove_Mode) then
                Normalize_Scalars := True;
                Init_Or_Norm_Scalars := True;
+=======
+            Check_At_Least_N_Arguments (1);
+            Check_At_Most_N_Arguments (2);
+            Check_Arg_Order ((Name_Check, Name_Message));
+            Check_Optional_Identifier (Arg1, Name_Check);
+            Expr := Get_Pragma_Arg (Arg1);
+
+            --  Special processing for Loop_Invariant, Loop_Variant or for
+            --  other cases where a Loop_Entry attribute is present. If the
+            --  assertion pragma contains attribute Loop_Entry, ensure that
+            --  the related pragma is within a loop.
+
+            if        Prag_Id = Pragma_Loop_Invariant
+              or else Prag_Id = Pragma_Loop_Variant
+              or else Contains_Loop_Entry (Expr)
+            then
+               Check_Loop_Pragma_Placement;
+
+               --  Perform preanalysis to deal with embedded Loop_Entry
+               --  attributes.
+
+               Preanalyze_Assert_Expression (Expr, Any_Boolean);
+>>>>>>> gcc-mirror/master
             end if;
 >>>>>>> gcc-mirror/trunk
 
@@ -30355,6 +34820,7 @@ package body Sem_Prag is
 
             --  Loop through arguments
 
+<<<<<<< HEAD
             Arg := Arg1;
             while Present (Arg) loop
                Check_No_Identifier (Arg);
@@ -30375,6 +34841,33 @@ package body Sem_Prag is
             Decl  : Node_Id;
             Ename : Node_Id;
 >>>>>>> gcc-mirror/trunk
+=======
+            New_Args := New_List (
+              Make_Pragma_Argument_Association (Loc,
+                Expression => Make_Identifier (Loc, Pname)),
+              Make_Pragma_Argument_Association (Sloc (Expr),
+                Expression => Expr));
+
+            if Arg_Count > 1 then
+               Check_Optional_Identifier (Arg2, Name_Message);
+
+               --  Provide semantic annnotations for optional argument, for
+               --  ASIS use, before rewriting.
+
+               Preanalyze_And_Resolve (Expression (Arg2), Standard_String);
+               Append_To (New_Args, New_Copy_Tree (Arg2));
+            end if;
+
+            --  Rewrite as Check pragma
+
+            Rewrite (N,
+              Make_Pragma (Loc,
+                Chars                        => Name_Check,
+                Pragma_Argument_Associations => New_Args));
+
+            Analyze (N);
+         end Assert;
+>>>>>>> gcc-mirror/master
 
                if Is_Entity_Name (Arg_Expr) then
                   Arg_Id := Entity (Arg_Expr);
@@ -30398,27 +34891,67 @@ package body Sem_Prag is
 
                Mark_Pragma_As_Ghost (N, E);
 
+<<<<<<< HEAD
                --  Entity name was given
 >>>>>>> gcc-mirror/trunk
+=======
+         --  ID_ASSERTION_KIND ::= Assert_And_Cut            |
+         --                        Assume                    |
+         --                        Contract_Cases            |
+         --                        Debug                     |
+         --                        Default_Initial_Condition |
+         --                        Ghost                     |
+         --                        Initial_Condition         |
+         --                        Loop_Invariant            |
+         --                        Loop_Variant              |
+         --                        Postcondition             |
+         --                        Precondition              |
+         --                        Predicate                 |
+         --                        Refined_Post              |
+         --                        Statement_Assertions
+
+         --  Note: The RM_ASSERTION_KIND list is language-defined, and the
+         --  ID_ASSERTION_KIND list contains implementation-defined additions
+         --  recognized by GNAT. The effect is to control the behavior of
+         --  identically named aspects and pragmas, depending on the specified
+         --  policy identifier:
+>>>>>>> gcc-mirror/master
 
                      if Is_Ghost_Entity (Arg_Id) then
                         if No (Ghost_Id) then
                            Ghost_Id := Arg_Id;
                         end if;
 
+<<<<<<< HEAD
                      --  Otherwise the variable is non-Ghost. It is illegal
                      --  to mix references to Ghost and non-Ghost entities
                      --  (SPARK RM 6.9).
+=======
+         --  Note: Check and Ignore are language-defined. Disable is a GNAT
+         --  implementation-defined addition that results in totally ignoring
+         --  the corresponding assertion. If Disable is specified, then the
+         --  argument of the assertion is not even analyzed. This is useful
+         --  when the aspect/pragma argument references entities in a with'ed
+         --  package that is replaced by a dummy package in the final build.
+>>>>>>> gcc-mirror/master
 
                      elsif Present (Ghost_Id)
                        and then not Ghost_Error_Posted
                      then
                         Ghost_Error_Posted := True;
 
+<<<<<<< HEAD
                         Error_Msg_Name_1 := Pname;
                         Error_Msg_N
                           ("pragma % cannot mention ghost and non-ghost "
                            & "variables", N);
+=======
+         when Pragma_Assertion_Policy => Assertion_Policy : declare
+            Arg    : Node_Id;
+            Kind   : Name_Id;
+            LocP   : Source_Ptr;
+            Policy : Node_Id;
+>>>>>>> gcc-mirror/master
 
                         Error_Msg_Sloc := Sloc (Ghost_Id);
                         Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
@@ -30524,16 +35057,37 @@ package body Sem_Prag is
                   --  before the Has_Pragma_Unreferenced flag is set, so that
                   --  no warning is generated for this reference.
 
+<<<<<<< HEAD
                   Check_Arg_Is_Local_Name (Arg);
                   Arg_Expr := Get_Pragma_Arg (Arg);
+=======
+                  --  Rewrite the Assertion_Policy pragma as a series of
+                  --  Check_Policy pragmas of the form:
+>>>>>>> gcc-mirror/master
 
                   if Is_Entity_Name (Arg_Expr) then
                      Arg_Id := Entity (Arg_Expr);
 
+<<<<<<< HEAD
                      --  If the entity is overloaded, the pragma applies to the
                      --  most recent overloading, as documented. In this case,
                      --  name resolution does not generate a reference, so it
                      --  must be done here explicitly.
+=======
+                  --  Note: the insertion of the pragmas cannot be done with
+                  --  Insert_Action because in the configuration case, there
+                  --  are no scopes on the scope stack and the mechanism will
+                  --  fail.
+
+                  Insert_Before_And_Analyze (N,
+                    Make_Pragma (LocP,
+                      Chars                        => Name_Check_Policy,
+                      Pragma_Argument_Associations => New_List (
+                         Make_Pragma_Argument_Association (LocP,
+                           Expression => Make_Identifier (LocP, Kind)),
+                         Make_Pragma_Argument_Association (LocP,
+                           Expression => Get_Pragma_Arg (Arg)))));
+>>>>>>> gcc-mirror/master
 
                      if Is_Overloaded (Arg_Expr) then
                         Generate_Reference (Arg_Id, N);
@@ -30622,6 +35176,7 @@ package body Sem_Prag is
             GNAT_Pragma;
             Check_At_Least_N_Arguments (1);
 
+<<<<<<< HEAD
             Arg := Arg1;
             while Present (Arg) loop
                Check_No_Identifier (Arg);
@@ -30642,10 +35197,29 @@ package body Sem_Prag is
             Assoc   : constant Node_Id := Arg1;
             Type_Id : Node_Id;
             Typ     : Entity_Id;
+=======
+         ------------------------------------------------------------------
+         -- Async_Readers/Async_Writers/Effective_Reads/Effective_Writes --
+         ------------------------------------------------------------------
+
+         --  pragma Asynch_Readers   [ (boolean_EXPRESSION) ];
+         --  pragma Asynch_Writers   [ (boolean_EXPRESSION) ];
+         --  pragma Effective_Reads  [ (boolean_EXPRESSION) ];
+         --  pragma Effective_Writes [ (boolean_EXPRESSION) ];
+
+         when Pragma_Async_Readers    |
+              Pragma_Async_Writers    |
+              Pragma_Effective_Reads  |
+              Pragma_Effective_Writes =>
+         Async_Effective : declare
+            Obj_Decl : Node_Id;
+            Obj_Id   : Entity_Id;
+>>>>>>> gcc-mirror/master
 
          begin
             GNAT_Pragma;
             Check_No_Identifiers;
+<<<<<<< HEAD
             Check_Arg_Count (1);
             Check_Arg_Is_Local_Name (Arg1);
 
@@ -30680,6 +35254,55 @@ package body Sem_Prag is
                      --  ignored Ghost code.
 
                      Mark_Pragma_As_Ghost (N, Arg_Id);
+=======
+            Check_At_Most_N_Arguments  (1);
+
+            Obj_Decl := Find_Related_Context (N, Do_Checks => True);
+
+            --  Object declaration
+
+            if Nkind (Obj_Decl) = N_Object_Declaration then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construact
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Obj_Id := Defining_Entity (Obj_Decl);
+
+            --  Perform minimal verification to ensure that the argument is at
+            --  least a variable. Subsequent finer grained checks will be done
+            --  at the end of the declarative region the contains the pragma.
+
+            if Ekind (Obj_Id) = E_Variable then
+
+               --  Chain the pragma on the contract for further processing by
+               --  Analyze_External_Property_In_Decl_Part.
+
+               Add_Contract_Item (N, Obj_Id);
+
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               Mark_Pragma_As_Ghost (N, Obj_Id);
+
+               --  Analyze the Boolean expression (if any)
+
+               if Present (Arg1) then
+                  Check_Static_Boolean_Expression (Get_Pragma_Arg (Arg1));
+               end if;
+
+            --  Otherwise the external property applies to a constant
+
+            else
+               Error_Pragma ("pragma % must apply to a volatile object");
+            end if;
+         end Async_Effective;
+>>>>>>> gcc-mirror/master
 
                      --  Capture the entity of the first Ghost type being
                      --  processed for error detection purposes.
@@ -30689,9 +35312,19 @@ package body Sem_Prag is
                            Ghost_Id := Arg_Id;
                         end if;
 
+<<<<<<< HEAD
                      --  Otherwise the type is non-Ghost. It is illegal to mix
                      --  references to Ghost and non-Ghost entities
                      --  (SPARK RM 6.9).
+=======
+         when Pragma_Asynchronous => Asynchronous : declare
+            C_Ent  : Entity_Id;
+            Decl   : Node_Id;
+            Formal : Entity_Id;
+            L      : List_Id;
+            Nm     : Entity_Id;
+            S      : Node_Id;
+>>>>>>> gcc-mirror/master
 
                      elsif Present (Ghost_Id)
                        and then not Ghost_Error_Posted
@@ -30754,7 +35387,20 @@ package body Sem_Prag is
          -- Unsuppress --
          ----------------
 
+<<<<<<< HEAD
          --  pragma Unsuppress (IDENTIFIER [, [On =>] NAME]);
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Nm);
+
+            if not Is_Remote_Call_Interface (C_Ent)
+              and then not Is_Remote_Types (C_Ent)
+            then
+               --  This pragma should only appear in an RCI or Remote Types
+               --  unit (RM E.4.1(4)).
+>>>>>>> gcc-mirror/master
 
          when Pragma_Unsuppress =>
             Ada_2005_Pragma;
@@ -30772,13 +35418,19 @@ package body Sem_Prag is
             Check_No_Identifiers;
             Check_Arg_Is_One_Of (Arg1, Name_Error, Name_Warn, Name_Allow);
 
+<<<<<<< HEAD
             --  Suppress/Unsuppress can appear as a configuration pragma, or in
             --  a declarative part or a package spec.
+=======
+            elsif Is_Remote_Access_To_Subprogram_Type (Nm) then
+               if Is_Record_Type (Nm) then
+>>>>>>> gcc-mirror/master
 
             if not Is_Configuration_Pragma then
                Check_Is_In_Decl_Part_Or_Package_Spec;
             end if;
 
+<<<<<<< HEAD
             --  Store proper setting of Uneval_Old
 
             Get_Name_String (Chars (Get_Pragma_Arg (Arg1)));
@@ -30795,6 +35447,22 @@ package body Sem_Prag is
             Check_Arg_Count (0);
             Check_Valid_Configuration_Pragma;
             Overriding_Renamings := True;
+=======
+                  Decl := Declaration_Node (Corresponding_Remote_Type (Nm));
+
+               else
+                  --  A non-expanded RAS type (distribution is not enabled)
+
+                  Decl := Declaration_Node (Nm);
+               end if;
+
+               if Nkind (Decl) = N_Full_Type_Declaration
+                 and then Nkind (Type_Definition (Decl)) =
+                                     N_Access_Procedure_Definition
+               then
+                  L := Parameter_Specifications (Type_Definition (Decl));
+                  Process_Async_Pragma;
+>>>>>>> gcc-mirror/master
 
          ----------
          -- Pack --
@@ -30831,10 +35499,15 @@ package body Sem_Prag is
          -------------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  pragma Use_VADS_Size;
 =======
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
+=======
+         when Pragma_Atomic =>
+            Process_Atomic_Independent_Shared_Volatile;
+>>>>>>> gcc-mirror/master
 
             Mark_Pragma_As_Ghost (N, Typ);
 
@@ -30849,6 +35522,7 @@ package body Sem_Prag is
             Check_Valid_Configuration_Pragma;
             Use_VADS_Size := True;
 
+<<<<<<< HEAD
          ---------------------
          -- Validity_Checks --
          ---------------------
@@ -30859,6 +35533,15 @@ package body Sem_Prag is
             A  : constant Node_Id := Get_Pragma_Arg (Arg1);
             S  : String_Id;
             C  : Char_Code;
+=======
+         when Pragma_Atomic_Components   |
+              Pragma_Volatile_Components =>
+         Atomic_Components : declare
+            D    : Node_Id;
+            E    : Entity_Id;
+            E_Id : Node_Id;
+            K    : Node_Kind;
+>>>>>>> gcc-mirror/master
 
          begin
             GNAT_Pragma;
@@ -30873,10 +35556,18 @@ package body Sem_Prag is
                   S := Strval (A);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                   declare
                      Slen    : constant Natural := Natural (String_Length (S));
                      Options : String (1 .. Slen);
                      J       : Natural;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+            Check_Duplicate_Pragma (E);
+>>>>>>> gcc-mirror/master
 
                   begin
                      --  Couldn't we use a for loop here over Options'Range???
@@ -30896,6 +35587,7 @@ package body Sem_Prag is
                   --  expansions related to pragma Pack, so disable handling
                   --  of pragma Pack.
 
+<<<<<<< HEAD
                   if CodePeer_Mode then
                      null;
 
@@ -30910,6 +35602,21 @@ package body Sem_Prag is
                         end if;
                      end loop;
                   end;
+=======
+               --  Atomic implies both Independent and Volatile
+
+               if Prag_Id = Pragma_Atomic_Components then
+                  Set_Has_Atomic_Components (E);
+                  Set_Has_Independent_Components (E);
+               end if;
+
+               Set_Has_Volatile_Components (E);
+
+            else
+               Error_Pragma_Arg ("inappropriate entity for pragma%", Arg1);
+            end if;
+         end Atomic_Components;
+>>>>>>> gcc-mirror/master
 
                elsif Nkind (A) = N_Identifier then
                   if Chars (A) = Name_All_Checks then
@@ -30937,6 +35644,7 @@ package body Sem_Prag is
          -- Volatile_Components --
          -------------------------
 
+<<<<<<< HEAD
          --  pragma Volatile_Components (array_LOCAL_NAME);
 =======
             --  For record types, the pack is always effective
@@ -30947,6 +35655,36 @@ package body Sem_Prag is
                   Set_Has_Pragma_Pack      (Base_Type (Typ));
                   Set_Has_Non_Standard_Rep (Base_Type (Typ));
                end if;
+=======
+               declare
+                  Temp  : Node_Id;
+                  Typ   : Node_Id;
+                  Parg2 : constant Node_Id := Get_Pragma_Arg (Arg2);
+
+               begin
+                  --  In Relaxed_RM_Semantics mode, we allow any static
+                  --  integer value, for compatibility with other compilers.
+
+                  if Relaxed_RM_Semantics
+                    and then Nkind (Parg2) = N_Integer_Literal
+                  then
+                     Typ := Standard_Integer;
+                  else
+                     Typ := RTE (RE_Interrupt_ID);
+                  end if;
+
+                  if Expander_Active then
+                     Temp := New_Copy_Tree (Parg2);
+                     Set_Parent (Temp, N);
+                     Preanalyze_And_Resolve (Temp, Typ);
+                  else
+                     Analyze (Parg2);
+                     Resolve (Parg2, Typ);
+                  end if;
+               end;
+
+               Process_Interrupt_Or_Attach_Handler;
+>>>>>>> gcc-mirror/master
             end if;
          end Pack;
 >>>>>>> gcc-mirror/trunk
@@ -30964,6 +35702,7 @@ package body Sem_Prag is
             Process_Atomic_Independent_Shared_Volatile;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
          -----------------------
          -- Volatile_Function --
          -----------------------
@@ -30971,6 +35710,10 @@ package body Sem_Prag is
          -------------
          -- Part_Of --
          -------------
+=======
+            Arg := Get_Pragma_Arg (Arg1);
+            Check_Arg_Is_OK_Static_Expression (Arg, Any_Integer);
+>>>>>>> gcc-mirror/master
 
          --  pragma Part_Of (ABSTRACT_STATE);
 
@@ -30986,9 +35729,15 @@ package body Sem_Prag is
             --  denoted by Pack_Id. State_Id is the encapsulating state.
             --  Instance is the package instantiation node.
 
+<<<<<<< HEAD
             -----------------------
             -- Propagate_Part_Of --
             -----------------------
+=======
+            --  If a giant value is given, Int'Last will do well enough.
+            --  If sometime someone complains that a record larger than
+            --  two gigabytes is not copied, we will worry about it then.
+>>>>>>> gcc-mirror/master
 
             procedure Propagate_Part_Of
               (Pack_Id  : Entity_Id;
@@ -31016,6 +35765,7 @@ package body Sem_Prag is
                   --  attributes of abstract states and objects declared in the
                   --  visible state space of the package.
 
+<<<<<<< HEAD
                   Item_Id := First_Entity (Pack_Id);
                   while Present (Item_Id)
                     and then not In_Private_Part (Item_Id)
@@ -31027,6 +35777,28 @@ package body Sem_Prag is
 
                      --  The Part_Of indicator turns an abstract state or an
                      --  object into a constituent of the encapsulating state.
+=======
+         when Pragma_Check => Check : declare
+            Cname : Name_Id;
+            Eloc  : Source_Ptr;
+            Expr  : Node_Id;
+            Str   : Node_Id;
+
+            Save_Ghost_Mode : constant Ghost_Mode_Type := Ghost_Mode;
+
+         begin
+            --  Pragma Check is Ghost when it applies to a Ghost entity. Set
+            --  the mode now to ensure that any nodes generated during analysis
+            --  and expansion are marked as Ghost.
+
+            Set_Ghost_Mode (N);
+
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (2);
+            Check_At_Most_N_Arguments (3);
+            Check_Optional_Identifier (Arg1, Name_Name);
+            Check_Optional_Identifier (Arg2, Name_Check);
+>>>>>>> gcc-mirror/master
 
                      elsif Ekind_In (Item_Id, E_Abstract_State,
                                               E_Constant,
@@ -31039,9 +35811,17 @@ package body Sem_Prag is
 
                      --  Recursively handle nested packages and instantiations
 
+<<<<<<< HEAD
                      elsif Ekind (Item_Id) = E_Package then
                         Propagate_Part_Of (Item_Id);
                      end if;
+=======
+            case Cname is
+               when Name_Assertions =>
+                  Error_Pragma_Arg
+                    ("""Assertions"" is not allowed as a check kind for "
+                     & "pragma%", Arg1);
+>>>>>>> gcc-mirror/master
 
                      Next_Entity (Item_Id);
                   end loop;
@@ -31049,6 +35829,7 @@ package body Sem_Prag is
 
             --  Start of processing for Propagate_Part_Of
 
+<<<<<<< HEAD
             begin
                Propagate_Part_Of (Pack_Id);
 
@@ -31071,6 +35852,35 @@ package body Sem_Prag is
             Stmt     : Node_Id;
 
          --  Start of processing for Part_Of
+=======
+            --  Check applicable policy. We skip this if Checked/Ignored status
+            --  is already set (e.g. in the case of a pragma from an aspect).
+
+            if Is_Checked (N) or else Is_Ignored (N) then
+               null;
+
+            --  For a non-source pragma that is a rewriting of another pragma,
+            --  copy the Is_Checked/Ignored status from the rewritten pragma.
+
+            elsif Is_Rewrite_Substitution (N)
+              and then Nkind (Original_Node (N)) = N_Pragma
+              and then Original_Node (N) /= N
+            then
+               Set_Is_Ignored (N, Is_Ignored (Original_Node (N)));
+               Set_Is_Checked (N, Is_Checked (Original_Node (N)));
+
+            --  Otherwise query the applicable policy at this point
+
+            else
+               case Check_Kind (Cname) is
+                  when Name_Ignore =>
+                     Set_Is_Ignored (N, True);
+                     Set_Is_Checked (N, False);
+
+                  when Name_Check =>
+                     Set_Is_Ignored (N, False);
+                     Set_Is_Checked (N, True);
+>>>>>>> gcc-mirror/master
 
          begin
             GNAT_Pragma;
@@ -31112,6 +35922,7 @@ package body Sem_Prag is
             Item_Id := Defining_Entity (Stmt);
             Encap   := Get_Pragma_Arg (Arg1);
 
+<<<<<<< HEAD
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
 
@@ -31138,6 +35949,26 @@ package body Sem_Prag is
                --  Detect any discrepancies between the placement of the
                --  constant or package instantiation with respect to state
                --  space and the encapsulating state.
+=======
+            case Cname is
+
+               --  Nothing to do for invariants and predicates as the checks
+               --  occur in the client units. The SCO for the aspect in the
+               --  declaration unit is conservatively always enabled.
+
+               when Name_Invariant | Name_Predicate =>
+                  null;
+
+               --  Otherwise mark aspect/pragma SCO as enabled
+
+               when others =>
+                  if Is_Checked (N) and then not Split_PPC (N) then
+                     Set_SCO_Pragma_Enabled (Loc);
+                  end if;
+            end case;
+
+            --  Deal with analyzing the string argument
+>>>>>>> gcc-mirror/master
 
                Analyze_Part_Of
                  (Indic    => N,
@@ -31149,9 +35980,14 @@ package body Sem_Prag is
                if Legal then
                   pragma Assert (Present (Encap_Id));
 
+<<<<<<< HEAD
                   if Ekind (Item_Id) = E_Constant then
                      Append_Elmt (Item_Id, Part_Of_Constituents (Encap_Id));
                      Set_Encapsulating_State (Item_Id, Encap_Id);
+=======
+               if Is_Ignored (N) then
+                  Preanalyze_And_Resolve (Str, Standard_String);
+>>>>>>> gcc-mirror/master
 
                   --  Propagate the Part_Of indicator to the visible state
                   --  space of the package instantiation.
@@ -31191,13 +36027,22 @@ package body Sem_Prag is
             if Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
                null;
 
+<<<<<<< HEAD
             --  Body acts as spec
+=======
+            --  The reason we do this rewriting during semantic analysis rather
+            --  than as part of normal expansion is that we cannot analyze and
+            --  expand the code for the boolean expression directly, or it may
+            --  cause insertion of actions that would escape the attempt to
+            --  suppress the check code.
+>>>>>>> gcc-mirror/master
 
             elsif Nkind (Subp_Decl) = N_Subprogram_Body
               and then No (Corresponding_Spec (Subp_Decl))
             then
                null;
 
+<<<<<<< HEAD
             --  Body stub acts as spec
 
             elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
@@ -31206,6 +36051,51 @@ package body Sem_Prag is
                null;
 
             --  Subprogram
+=======
+            if Expander_Active and Is_Ignored (N) then
+               Eloc := Sloc (Expr);
+
+               Rewrite (N,
+                 Make_If_Statement (Eloc,
+                   Condition =>
+                     Make_And_Then (Eloc,
+                       Left_Opnd  => Make_Identifier (Eloc, Name_False),
+                       Right_Opnd => Expr),
+                   Then_Statements => New_List (
+                     Make_Null_Statement (Eloc))));
+
+               --  Now go ahead and analyze the if statement
+
+               In_Assertion_Expr := In_Assertion_Expr + 1;
+
+               --  One rather special treatment. If we are now in Eliminated
+               --  overflow mode, then suppress overflow checking since we do
+               --  not want to drag in the bignum stuff if we are in Ignore
+               --  mode anyway. This is particularly important if we are using
+               --  a configurable run time that does not support bignum ops.
+
+               if Scope_Suppress.Overflow_Mode_Assertions = Eliminated then
+                  declare
+                     Svo : constant Boolean :=
+                             Scope_Suppress.Suppress (Overflow_Check);
+                  begin
+                     Scope_Suppress.Overflow_Mode_Assertions  := Strict;
+                     Scope_Suppress.Suppress (Overflow_Check) := True;
+                     Analyze (N);
+                     Scope_Suppress.Suppress (Overflow_Check) := Svo;
+                     Scope_Suppress.Overflow_Mode_Assertions  := Eliminated;
+                  end;
+
+               --  Not that special case
+
+               else
+                  Analyze (N);
+               end if;
+
+               --  All done with this check
+
+               In_Assertion_Expr := In_Assertion_Expr - 1;
+>>>>>>> gcc-mirror/master
 
             elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
                null;
@@ -31214,21 +36104,48 @@ package body Sem_Prag is
                Pragma_Misplaced;
                return;
             end if;
+<<<<<<< HEAD
+=======
+
+            Ghost_Mode := Save_Ghost_Mode;
+         end Check;
+
+         --------------------------
+         -- Check_Float_Overflow --
+         --------------------------
+>>>>>>> gcc-mirror/master
 
             Spec_Id := Unique_Defining_Entity (Subp_Decl);
 
+<<<<<<< HEAD
             if not Ekind_In (Spec_Id, E_Function, E_Generic_Function) then
                Pragma_Misplaced;
                return;
             end if;
+=======
+         when Pragma_Check_Float_Overflow =>
+            GNAT_Pragma;
+            Check_Valid_Configuration_Pragma;
+            Check_Arg_Count (0);
+            Check_Float_Overflow := not Machine_Overflows_On_Target;
+>>>>>>> gcc-mirror/master
 
             --  Chain the pragma on the contract for completeness
 
             Add_Contract_Item (N, Spec_Id);
 
+<<<<<<< HEAD
             --  The legality checks of pragma Volatile_Function are affected by
             --  the SPARK mode in effect. Analyze all pragmas in a specific
             --  order.
+=======
+         when Pragma_Check_Name =>
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Valid_Configuration_Pragma;
+            Check_Arg_Count (1);
+            Check_Arg_Is_Identifier (Arg1);
+>>>>>>> gcc-mirror/master
 
             Analyze_If_Present (Pragma_SPARK_Mode);
 
@@ -31272,7 +36189,13 @@ package body Sem_Prag is
          -- Warning_As_Error --
          ----------------------
 
+<<<<<<< HEAD
          --  pragma Warning_As_Error (static_string_EXPRESSION);
+=======
+         when Pragma_Check_Policy => Check_Policy : declare
+            Ident : Node_Id;
+            Kind  : Node_Id;
+>>>>>>> gcc-mirror/master
 
          when Pragma_Warning_As_Error =>
             GNAT_Pragma;
@@ -31296,10 +36219,17 @@ package body Sem_Prag is
             --  private part after the full view.
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
             if not Is_Static_String_Expression (Arg1) then
                Error_Pragma_Arg
                  ("argument of pragma% must be static string expression",
                   Arg1);
+=======
+            if Nkind (Arg1) /= N_Pragma_Argument_Association
+              or else Nam_In (Chars (Arg1), No_Name, Name_Name)
+            then
+               --  Old syntax
+>>>>>>> gcc-mirror/master
 
 <<<<<<< HEAD
             --  OK static string expression
@@ -31312,18 +36242,56 @@ package body Sem_Prag is
 =======
             --  Check appropriate type argument
 
+<<<<<<< HEAD
             elsif Is_Private_Type (Ent)
               or else Is_Protected_Type (Ent)
               or else (Is_Generic_Type (Ent) and then Is_Derived_Type (Ent))
+=======
+               if Nam_In (Chars (Kind), Name_Name, Name_Policy) then
+                  Error_Msg_Name_2 := Chars (Kind);
+                  Error_Pragma_Arg
+                    ("pragma% does not allow% as check name", Arg1);
+               end if;
+>>>>>>> gcc-mirror/master
 
               --  AI05-0028: The pragma applies to all composite types. Note
               --  that we apply this binding interpretation to earlier versions
               --  of Ada, so there is no Ada 2012 guard. Seems a reasonable
               --  choice since there are other compilers that do the same.
 
+<<<<<<< HEAD
               or else Is_Composite_Type (Ent)
             then
                null;
+=======
+               Check_Optional_Identifier (Arg2, Name_Policy);
+               Check_Arg_Is_One_Of
+                 (Arg2,
+                  Name_On, Name_Off, Name_Check, Name_Disable, Name_Ignore);
+               Ident := Get_Pragma_Arg (Arg2);
+
+               if Chars (Kind) = Name_Ghost then
+
+                  --  Pragma Check_Policy specifying a Ghost policy cannot
+                  --  occur within a ghost subprogram or package.
+
+                  if Ghost_Mode > None then
+                     Error_Pragma
+                       ("pragma % cannot appear within ghost subprogram or "
+                        & "package");
+
+                  --  The policy identifier of pragma Ghost must be either
+                  --  Check or Ignore (SPARK RM 6.9(7)).
+
+                  elsif not Nam_In (Chars (Ident), Name_Check,
+                                                   Name_Ignore)
+                  then
+                     Error_Pragma_Arg
+                       ("argument of pragma % Ghost must be Check or Ignore",
+                        Arg2);
+                  end if;
+               end if;
+>>>>>>> gcc-mirror/master
 
             else
                Error_Pragma_Arg
@@ -31373,6 +36341,7 @@ package body Sem_Prag is
                Last_Arg : constant Node_Id :=
                             Last (Pragma_Argument_Associations (N));
 
+<<<<<<< HEAD
             begin
                if Nkind (Last_Arg) = N_Pragma_Argument_Association
                  and then Chars (Last_Arg) = Name_Reason
@@ -31387,6 +36356,11 @@ package body Sem_Prag is
                   Check_Compiler_Unit ("Reason for pragma Warnings", N);
 
                --  No REASON string, set null string as reason
+=======
+         -------------
+         -- Comment --
+         -------------
+>>>>>>> gcc-mirror/master
 
                else
                   Reason := Null_String_Id;
@@ -31450,6 +36424,7 @@ package body Sem_Prag is
                   --  At this point, the pragma Warnings applies to the tool,
                   --  so continue with shifted arguments.
 
+<<<<<<< HEAD
                   Arg_Count := Arg_Count - 1;
 
 <<<<<<< HEAD
@@ -31465,6 +36440,49 @@ package body Sem_Prag is
                   else
                      raise Program_Error;
                   end if;
+=======
+         ---------------------------
+         -- Compiler_Unit_Warning --
+         ---------------------------
+
+         --  pragma Compiler_Unit_Warning;
+
+         --  Historical note
+
+         --  Originally, we had only pragma Compiler_Unit, and it resulted in
+         --  errors not warnings. This means that we had introduced a big extra
+         --  inertia to compiler changes, since even if we implemented a new
+         --  feature, and even if all versions to be used for bootstrapping
+         --  implemented this new feature, we could not use it, since old
+         --  compilers would give errors for using this feature in units
+         --  having Compiler_Unit pragmas.
+
+         --  By changing Compiler_Unit to Compiler_Unit_Warning, we solve the
+         --  problem. We no longer have any units mentioning Compiler_Unit,
+         --  so old compilers see Compiler_Unit_Warning which is unrecognized,
+         --  and thus generates a warning which can be ignored. So that deals
+         --  with the problem of old compilers not implementing the newer form
+         --  of the pragma.
+
+         --  Newer compilers recognize the new pragma, but generate warning
+         --  messages instead of errors, which again can be ignored in the
+         --  case of an old compiler which implements a wanted new feature
+         --  but at the time felt like warning about it for older compilers.
+
+         --  We retain Compiler_Unit so that new compilers can be used to build
+         --  older run-times that use this pragma. That's an unusual case, but
+         --  it's easy enough to handle, so why not?
+
+         when Pragma_Compiler_Unit | Pragma_Compiler_Unit_Warning =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+
+            --  Only recognized in main unit
+
+            if Current_Sem_Unit = Main_Unit then
+               Compiler_Unit := True;
+            end if;
+>>>>>>> gcc-mirror/master
 
                   Rewrite (N,
                     Make_Pragma (Loc,
@@ -31619,7 +36637,109 @@ package body Sem_Prag is
          --    the legal placement and context. Secondary checks preanalyze the
          --    expression in:
 
+<<<<<<< HEAD
          --       Analyze_Pre_Post_Condition_In_Decl_Part
+
+         --    * Expansion - The annotation is expanded during the expansion of
+         --    the related subprogram [body] contract as performed in:
+
+         --       Expand_Subprogram_Contract
+=======
+         --------------------------------
+         -- Constant_After_Elaboration --
+         --------------------------------
+
+         --  pragma Constant_After_Elaboration [ (boolean_EXPRESSION) ];
+
+         when Pragma_Constant_After_Elaboration => Constant_After_Elaboration :
+         declare
+            Obj_Decl : Node_Id;
+            Obj_Id   : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+            Obj_Decl := Find_Related_Context (N, Do_Checks => True);
+
+            --  Object declaration
+
+            if Nkind (Obj_Decl) = N_Object_Declaration then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construct
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Obj_Id := Defining_Entity (Obj_Decl);
+
+            --  The object declaration must be a library-level variable which
+            --  is either explicitly initialized or obtains a value during the
+            --  elaboration of a package body (SPARK RM 3.3.1).
+
+            if Ekind (Obj_Id) = E_Variable then
+               if not Is_Library_Level_Entity (Obj_Id) then
+                  Error_Pragma
+                    ("pragma % must apply to a library level variable");
+                  return;
+               end if;
+
+            --  Otherwise the pragma applies to a constant, which is illegal
+
+            else
+               Error_Pragma ("pragma % must apply to a variable declaration");
+               return;
+            end if;
+
+            --  Chain the pragma on the contract for completeness
+
+            Add_Contract_Item (N, Obj_Id);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Obj_Id);
+
+            --  Analyze the Boolean expression (if any)
+
+            if Present (Arg1) then
+               Check_Static_Boolean_Expression (Get_Pragma_Arg (Arg1));
+            end if;
+         end Constant_After_Elaboration;
+
+         --------------------
+         -- Contract_Cases --
+         --------------------
+
+         --  pragma Contract_Cases ((CONTRACT_CASE {, CONTRACT_CASE));
+>>>>>>> gcc-mirror/master
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+<<<<<<< HEAD
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+=======
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expressions in:
+
+         --       Analyze_Contract_Cases_In_Decl_Part
 
          --    * Expansion - The annotation is expanded during the expansion of
          --    the related subprogram [body] contract as performed in:
@@ -31645,6 +36765,22 @@ package body Sem_Prag is
          --    the "pragma on subprogram declaration" case. In that scenario
          --    the annotation must instantiate itself.
 
+         when Pragma_Contract_Cases => Contract_Cases : declare
+            Spec_Id   : Entity_Id;
+            Subp_Decl : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+>>>>>>> gcc-mirror/master
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+<<<<<<< HEAD
          when Pragma_Pre          |
               Pragma_Pre_Class    |
               Pragma_Precondition =>
@@ -31689,6 +36825,75 @@ package body Sem_Prag is
 
                      if Is_Entity_Name (E_Id) then
                         E := Entity (E_Id);
+=======
+            Subp_Decl :=
+              Find_Related_Declaration_Or_Body (N, Do_Checks => True);
+
+            --  Entry
+
+            if Nkind (Subp_Decl) = N_Entry_Declaration then
+               null;
+
+            --  Generic subprogram
+
+            elsif Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
+               null;
+
+            --  Body acts as spec
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body
+              and then No (Corresponding_Spec (Subp_Decl))
+            then
+               null;
+
+            --  Body stub acts as spec
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
+              and then No (Corresponding_Spec_Of_Stub (Subp_Decl))
+            then
+               null;
+
+            --  Subprogram
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
+               null;
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Spec_Id := Unique_Defining_Entity (Subp_Decl);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Contract_Cases_In_Decl_Part.
+
+            Add_Contract_Item (N, Defining_Entity (Subp_Decl));
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Spec_Id);
+            Ensure_Aggregate_Form (Get_Argument (N, Spec_Id));
+
+            --  Fully analyze the pragma when it appears inside an entry
+            --  or subprogram body because it cannot benefit from forward
+            --  references.
+
+            if Nkind_In (Subp_Decl, N_Entry_Body,
+                                    N_Subprogram_Body,
+                                    N_Subprogram_Body_Stub)
+            then
+               --  The legality checks of pragma Contract_Cases are affected by
+               --  the SPARK mode in effect and the volatility of the context.
+               --  Analyze all pragmas in a specific order.
+
+               Analyze_If_Present (Pragma_SPARK_Mode);
+               Analyze_If_Present (Pragma_Volatile_Function);
+               Analyze_Contract_Cases_In_Decl_Part (N);
+            end if;
+         end Contract_Cases;
+>>>>>>> gcc-mirror/master
 
                         if E = Any_Id then
                            return;
@@ -31741,7 +36946,26 @@ package body Sem_Prag is
                            end loop;
                         end if;
 
+<<<<<<< HEAD
                      --  Error if not entity or static string expression case
+=======
+         when Pragma_Convention => Convention : declare
+            C : Convention_Id;
+            E : Entity_Id;
+            pragma Warnings (Off, C);
+            pragma Warnings (Off, E);
+         begin
+            Check_Arg_Order ((Name_Convention, Name_Entity));
+            Check_Ada_83_Warning;
+            Check_Arg_Count (2);
+            Process_Convention (C, E);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+         end Convention;
+>>>>>>> gcc-mirror/master
 
                      elsif not Is_Static_String_Expression (Arg2) then
                         Error_Pragma_Arg
@@ -31767,7 +36991,11 @@ package body Sem_Prag is
             Check_Optional_Identifier (Arg1, Name_Entity);
             Check_Optional_Identifier (Arg2, Name_Message);
 
+<<<<<<< HEAD
             Check_Arg_Is_Local_Name (Arg1);
+=======
+         --  pragma CPP_Class ([Entity =>] LOCAL_NAME)
+>>>>>>> gcc-mirror/master
 
             Type_Id := Get_Pragma_Arg (Arg1);
             Find_Type (Type_Id);
@@ -31893,10 +37121,17 @@ package body Sem_Prag is
             Check_Arg_Is_Library_Level_Local_Name (Arg1);
             Ent := Entity (Get_Pragma_Arg (Arg1));
 
+<<<<<<< HEAD
             if Rep_Item_Too_Early (Ent, N) then
                return;
             else
                Ent := Underlying_Type (Ent);
+=======
+            if Warn_On_Obsolescent_Feature then
+               Error_Msg_N
+                 ("'G'N'A'T pragma Cpp'_Virtual is now obsolete and has no "
+                  & "effect?j?", N);
+>>>>>>> gcc-mirror/master
             end if;
 
             --  The only processing required is to link this item on to the
@@ -31904,10 +37139,17 @@ package body Sem_Prag is
             --  by the call to Rep_Item_Too_Late (when no error is detected
             --  and False is returned).
 
+<<<<<<< HEAD
             if Rep_Item_Too_Late (Ent, N) then
                return;
             else
                Set_Has_Gigi_Rep_Item (Ent);
+=======
+            if Warn_On_Obsolescent_Feature then
+               Error_Msg_N
+                 ("'G'N'A'T pragma Cpp'_Vtable is now obsolete and has no "
+                  & "effect?j?", N);
+>>>>>>> gcc-mirror/master
             end if;
          end Weak_External;
 =======
@@ -31951,8 +37193,11 @@ package body Sem_Prag is
             --  source program.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             null;
 =======
+=======
+>>>>>>> gcc-mirror/master
                if not Is_OK_Static_Expression (Arg) then
                   Flag_Non_Static_Expr
                     ("main subprogram priority is not static!", Arg);
@@ -32227,8 +37472,30 @@ package body Sem_Prag is
             end if;
          end if;
 
+<<<<<<< HEAD
          Replace_Types (Expr);
       end Process_Class_Wide_Condition;
+=======
+            Rewrite (N,
+              Make_Implicit_If_Statement (N,
+                Condition       => Cond,
+                Then_Statements => New_List (
+                  Make_Block_Statement (Loc,
+                    Handled_Statement_Sequence =>
+                      Make_Handled_Sequence_Of_Statements (Loc,
+                        Statements => New_List (Relocate_Node (Call)))))));
+            Analyze (N);
+
+            --  Ignore pragma Debug in GNATprove mode. Do this rewriting
+            --  after analysis of the normally rewritten node, to capture all
+            --  references to entities, which avoids issuing wrong warnings
+            --  about unused entities.
+
+            if GNATprove_Mode then
+               Rewrite (N, Make_Null_Statement (Loc));
+            end if;
+         end Debug;
+>>>>>>> gcc-mirror/master
 
       --  Local variables
 
@@ -32252,6 +37519,7 @@ package body Sem_Prag is
                   Set_Ravenscar_Profile (GNAT_Extended_Ravenscar, N);
 >>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
    begin
       --  Do not analyze the pragma multiple times
 
@@ -32359,6 +37627,117 @@ package body Sem_Prag is
       --  Try to match a single dependency clause Dep_Clause against one or
       --  more refinement clauses found in list Refinements. Each successful
       --  match eliminates at least one refinement clause from Refinements.
+=======
+         -------------------------------
+         -- Default_Initial_Condition --
+         -------------------------------
+
+         --  pragma Default_Initial_Condition [ (null | boolean_EXPRESSION) ];
+
+         when Pragma_Default_Initial_Condition => Default_Init_Cond : declare
+            Discard : Boolean;
+            Stmt    : Node_Id;
+            Typ     : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+            Stmt := Prev (N);
+            while Present (Stmt) loop
+
+               --  Skip prior pragmas, but check for duplicates
+
+               if Nkind (Stmt) = N_Pragma then
+                  if Pragma_Name (Stmt) = Pname then
+                     Error_Msg_Name_1 := Pname;
+                     Error_Msg_Sloc   := Sloc (Stmt);
+                     Error_Msg_N ("pragma % duplicates pragma declared#", N);
+                  end if;
+
+               --  Skip internally generated code
+
+               elsif not Comes_From_Source (Stmt) then
+                  null;
+
+               --  The associated private type [extension] has been found, stop
+               --  the search.
+
+               elsif Nkind_In (Stmt, N_Private_Extension_Declaration,
+                                     N_Private_Type_Declaration)
+               then
+                  Typ := Defining_Entity (Stmt);
+                  exit;
+
+               --  The pragma does not apply to a legal construct, issue an
+               --  error and stop the analysis.
+
+               else
+                  Pragma_Misplaced;
+                  return;
+               end if;
+
+               Stmt := Prev (Stmt);
+            end loop;
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+            Set_Has_Default_Init_Cond (Typ);
+            Set_Has_Inherited_Default_Init_Cond (Typ, False);
+
+            --  Chain the pragma on the rep item chain for further processing
+
+            Discard := Rep_Item_Too_Late (Typ, N, FOnly => True);
+         end Default_Init_Cond;
+
+         ----------------------------------
+         -- Default_Scalar_Storage_Order --
+         ----------------------------------
+
+         --  pragma Default_Scalar_Storage_Order
+         --           (High_Order_First | Low_Order_First);
+
+         when Pragma_Default_Scalar_Storage_Order => DSSO : declare
+            Default : Character;
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+
+            --  Default_Scalar_Storage_Order can appear as a configuration
+            --  pragma, or in a declarative part of a package spec.
+
+            if not Is_Configuration_Pragma then
+               Check_Is_In_Decl_Part_Or_Package_Spec;
+            end if;
+
+            Check_No_Identifiers;
+            Check_Arg_Is_One_Of
+              (Arg1, Name_High_Order_First, Name_Low_Order_First);
+            Get_Name_String (Chars (Get_Pragma_Arg (Arg1)));
+            Default := Fold_Upper (Name_Buffer (1));
+
+            if not Support_Nondefault_SSO_On_Target
+              and then (Ttypes.Bytes_Big_Endian /= (Default = 'H'))
+            then
+               if Warn_On_Unrecognized_Pragma then
+                  Error_Msg_N
+                    ("non-default Scalar_Storage_Order not supported "
+                     & "on target?g?", N);
+                  Error_Msg_N
+                    ("\pragma Default_Scalar_Storage_Order ignored?g?", N);
+               end if;
+
+            --  Here set the specified default
+
+            else
+               Opt.Default_SSO := Default;
+            end if;
+         end DSSO;
+>>>>>>> gcc-mirror/master
 
       procedure Check_Output_States;
       --  Determine whether pragma Depends contains an output state with a
@@ -32370,12 +37749,24 @@ package body Sem_Prag is
       --  each clause by creating multiple dependencies with exactly one input
       --  and one output.
 
+<<<<<<< HEAD
       procedure Report_Extra_Clauses;
       --  Emit an error for each extra clause found in list Refinements
 
       -----------------------------
       -- Check_Dependency_Clause --
       -----------------------------
+=======
+         when Pragma_Default_Storage_Pool => Default_Storage_Pool : declare
+            Pool : Node_Id;
+
+         begin
+            Ada_2012_Pragma;
+            Check_Arg_Count (1);
+
+            --  Default_Storage_Pool can appear as a configuration pragma, or
+            --  in a declarative part of a package spec.
+>>>>>>> gcc-mirror/master
 
       procedure Check_Dependency_Clause (Dep_Clause : Node_Id) is
          Dep_Input  : constant Node_Id := Expression (Dep_Clause);
@@ -32418,9 +37809,8399 @@ package body Sem_Prag is
          procedure Record_Item (Item_Id : Entity_Id);
          --  Store the entity of an item denoted by Item_Id in Matched_Items
 
+<<<<<<< HEAD
          ----------------------------
          -- Is_In_Out_State_Clause --
          ----------------------------
+=======
+            if Warn_On_Obsolescent_Feature then
+               Error_Msg_N
+                 ("'G'N'A'T pragma Propagate'_Exceptions is now obsolete " &
+                  "and has no effect?j?", N);
+            end if;
+
+         -----------------------------
+         -- Provide_Shift_Operators --
+         -----------------------------
+
+         --  pragma Provide_Shift_Operators (integer_subtype_LOCAL_NAME);
+
+         when Pragma_Provide_Shift_Operators =>
+         Provide_Shift_Operators : declare
+            Ent : Entity_Id;
+
+            procedure Declare_Shift_Operator (Nam : Name_Id);
+            --  Insert declaration and pragma Instrinsic for named shift op
+
+            ----------------------------
+            -- Declare_Shift_Operator --
+            ----------------------------
+
+            procedure Declare_Shift_Operator (Nam : Name_Id) is
+               Func   : Node_Id;
+               Import : Node_Id;
+
+            begin
+               Func :=
+                 Make_Subprogram_Declaration (Loc,
+                   Make_Function_Specification (Loc,
+                     Defining_Unit_Name       =>
+                       Make_Defining_Identifier (Loc, Chars => Nam),
+
+                     Result_Definition        =>
+                       Make_Identifier (Loc, Chars => Chars (Ent)),
+
+                     Parameter_Specifications => New_List (
+                       Make_Parameter_Specification (Loc,
+                         Defining_Identifier  =>
+                           Make_Defining_Identifier (Loc, Name_Value),
+                         Parameter_Type       =>
+                           Make_Identifier (Loc, Chars => Chars (Ent))),
+
+                       Make_Parameter_Specification (Loc,
+                         Defining_Identifier  =>
+                           Make_Defining_Identifier (Loc, Name_Amount),
+                         Parameter_Type       =>
+                           New_Occurrence_Of (Standard_Natural, Loc)))));
+
+               Import :=
+                 Make_Pragma (Loc,
+                   Pragma_Identifier => Make_Identifier (Loc, Name_Import),
+                   Pragma_Argument_Associations => New_List (
+                     Make_Pragma_Argument_Association (Loc,
+                       Expression => Make_Identifier (Loc, Name_Intrinsic)),
+                     Make_Pragma_Argument_Association (Loc,
+                       Expression => Make_Identifier (Loc, Nam))));
+
+               Insert_After (N, Import);
+               Insert_After (N, Func);
+            end Declare_Shift_Operator;
+
+         --  Start of processing for Provide_Shift_Operators
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Arg_Is_Local_Name (Arg1);
+=======
+            if Present (Arg1) then
+               Pool := Get_Pragma_Arg (Arg1);
+
+               --  Case of Default_Storage_Pool (null);
+
+               if Nkind (Pool) = N_Null then
+                  Analyze (Pool);
+
+                  --  This is an odd case, this is not really an expression,
+                  --  so we don't have a type for it. So just set the type to
+                  --  Empty.
+
+                  Set_Etype (Pool, Empty);
+
+               --  Case of Default_Storage_Pool (storage_pool_NAME);
+
+               else
+                  --  If it's a configuration pragma, then the only allowed
+                  --  argument is "null".
+
+                  if Is_Configuration_Pragma then
+                     Error_Pragma_Arg ("NULL expected", Arg1);
+                  end if;
+
+                  --  The expected type for a non-"null" argument is
+                  --  Root_Storage_Pool'Class, and the pool must be a variable.
+
+                  Analyze_And_Resolve
+                    (Pool, Class_Wide_Type (RTE (RE_Root_Storage_Pool)));
+
+                  if Is_Variable (Pool) then
+
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+
+                     Mark_Pragma_As_Ghost (N, Entity (Pool));
+
+                  else
+                     Error_Pragma_Arg
+                       ("default storage pool must be a variable", Arg1);
+                  end if;
+               end if;
+
+               --  Record the pool name (or null). Freeze.Freeze_Entity for an
+               --  access type will use this information to set the appropriate
+               --  attributes of the access type.
+
+               Default_Pool := Pool;
+            end if;
+         end Default_Storage_Pool;
+
+         -------------
+         -- Depends --
+         -------------
+
+         --  pragma Depends (DEPENDENCY_RELATION);
+
+         --  DEPENDENCY_RELATION ::=
+         --     null
+         --  | (DEPENDENCY_CLAUSE {, DEPENDENCY_CLAUSE})
+
+         --  DEPENDENCY_CLAUSE ::=
+         --    OUTPUT_LIST =>[+] INPUT_LIST
+         --  | NULL_DEPENDENCY_CLAUSE
+
+         --  NULL_DEPENDENCY_CLAUSE ::= null => INPUT_LIST
+
+         --  OUTPUT_LIST ::= OUTPUT | (OUTPUT {, OUTPUT})
+
+         --  INPUT_LIST ::= null | INPUT | (INPUT {, INPUT})
+
+         --  OUTPUT ::= NAME | FUNCTION_RESULT
+         --  INPUT  ::= NAME
+
+         --  where FUNCTION_RESULT is a function Result attribute_reference
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks fully analyze
+         --    the dependency clauses in:
+
+         --       Analyze_Depends_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+         when Pragma_Depends => Depends : declare
+            Legal     : Boolean;
+            Spec_Id   : Entity_Id;
+            Subp_Decl : Node_Id;
+
+         begin
+            Analyze_Depends_Global (Spec_Id, Subp_Decl, Legal);
+
+            if Legal then
+
+               --  Chain the pragma on the contract for further processing by
+               --  Analyze_Depends_In_Decl_Part.
+
+               Add_Contract_Item (N, Spec_Id);
+
+               --  Fully analyze the pragma when it appears inside an entry
+               --  or subprogram body because it cannot benefit from forward
+               --  references.
+
+               if Nkind_In (Subp_Decl, N_Entry_Body,
+                                       N_Subprogram_Body,
+                                       N_Subprogram_Body_Stub)
+               then
+                  --  The legality checks of pragmas Depends and Global are
+                  --  affected by the SPARK mode in effect and the volatility
+                  --  of the context. In addition these two pragmas are subject
+                  --  to an inherent order:
+
+                  --    1) Global
+                  --    2) Depends
+
+                  --  Analyze all these pragmas in the order outlined above
+
+                  Analyze_If_Present (Pragma_SPARK_Mode);
+                  Analyze_If_Present (Pragma_Volatile_Function);
+                  Analyze_If_Present (Pragma_Global);
+                  Analyze_Depends_In_Decl_Part (N);
+               end if;
+            end if;
+         end Depends;
+
+         ---------------------
+         -- Detect_Blocking --
+         ---------------------
+
+         --  pragma Detect_Blocking;
+
+         when Pragma_Detect_Blocking =>
+            Ada_2005_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Detect_Blocking := True;
+>>>>>>> gcc-mirror/master
+
+            Arg1 := Get_Pragma_Arg (Arg1);
+
+            --  We must have an entity name
+
+<<<<<<< HEAD
+            if not Is_Entity_Name (Arg1) then
+               Error_Pragma_Arg
+                 ("pragma % must apply to integer first subtype", Arg1);
+            end if;
+=======
+         when Pragma_Disable_Atomic_Synchronization =>
+            GNAT_Pragma;
+            Process_Disable_Enable_Atomic_Sync (Name_Suppress);
+>>>>>>> gcc-mirror/master
+
+            --  If no Entity, means there was a prior error so ignore
+
+            if Present (Entity (Arg1)) then
+               Ent := Entity (Arg1);
+
+<<<<<<< HEAD
+               --  Apply error checks
+=======
+         when Pragma_Discard_Names => Discard_Names : declare
+            E    : Entity_Id;
+            E_Id : Node_Id;
+>>>>>>> gcc-mirror/master
+
+               if not Is_First_Subtype (Ent) then
+                  Error_Pragma_Arg
+                    ("cannot apply pragma %",
+                     "\& is not a first subtype",
+                     Arg1);
+
+               elsif not Is_Integer_Type (Ent) then
+                  Error_Pragma_Arg
+                    ("cannot apply pragma %",
+                     "\& is not an integer type",
+                     Arg1);
+
+               elsif Has_Shift_Operator (Ent) then
+                  Error_Pragma_Arg
+                    ("cannot apply pragma %",
+                     "\& already has declared shift operators",
+                     Arg1);
+
+               elsif Is_Frozen (Ent) then
+                  Error_Pragma_Arg
+                    ("pragma % appears too late",
+                     "\& is already frozen",
+                     Arg1);
+               end if;
+
+               --  Now declare the operators. We do this during analysis rather
+               --  than expansion, since we want the operators available if we
+               --  are operating in -gnatc or ASIS mode.
+
+               Declare_Shift_Operator (Name_Rotate_Left);
+               Declare_Shift_Operator (Name_Rotate_Right);
+               Declare_Shift_Operator (Name_Shift_Left);
+               Declare_Shift_Operator (Name_Shift_Right);
+               Declare_Shift_Operator (Name_Shift_Right_Arithmetic);
+            end if;
+         end Provide_Shift_Operators;
+
+         ------------------
+         -- Psect_Object --
+         ------------------
+
+         --  pragma Psect_Object (
+         --        [Internal =>] LOCAL_NAME,
+         --     [, [External =>] EXTERNAL_SYMBOL]
+         --     [, [Size     =>] EXTERNAL_SYMBOL]);
+
+         when Pragma_Psect_Object | Pragma_Common_Object =>
+         Psect_Object : declare
+            Args  : Args_List (1 .. 3);
+            Names : constant Name_List (1 .. 3) := (
+                      Name_Internal,
+                      Name_External,
+                      Name_Size);
+
+            Internal : Node_Id renames Args (1);
+            External : Node_Id renames Args (2);
+            Size     : Node_Id renames Args (3);
+
+            Def_Id : Entity_Id;
+
+<<<<<<< HEAD
+            procedure Check_Arg (Arg : Node_Id);
+            --  Checks that argument is either a string literal or an
+            --  identifier, and posts error message if not.
+
+            ---------------
+            -- Check_Arg --
+            ---------------
+
+            procedure Check_Arg (Arg : Node_Id) is
+            begin
+               if not Nkind_In (Original_Node (Arg),
+                                N_String_Literal,
+                                N_Identifier)
+               then
+                  Error_Pragma_Arg
+                    ("inappropriate argument for pragma %", Arg);
+=======
+                  --  A pragma that applies to a Ghost entity becomes Ghost for
+                  --  the purposes of legality checks and removal of ignored
+                  --  Ghost code.
+
+                  Mark_Pragma_As_Ghost (N, E);
+
+                  if (Is_First_Subtype (E)
+                      and then
+                        (Is_Enumeration_Type (E) or else Is_Tagged_Type (E)))
+                    or else Ekind (E) = E_Exception
+                  then
+                     Set_Discard_Names (E);
+                     Record_Rep_Item (E, N);
+
+                  else
+                     Error_Pragma_Arg
+                       ("inappropriate entity for pragma%", Arg1);
+                  end if;
+>>>>>>> gcc-mirror/master
+               end if;
+            end Check_Arg;
+>>>>>>> gcc-mirror/trunk
+
+         function Is_In_Out_State_Clause return Boolean is
+            Dep_Input_Id  : Entity_Id;
+            Dep_Output_Id : Entity_Id;
+
+         begin
+            --  Detect the following clause:
+            --    State => State
+
+            if Is_Entity_Name (Dep_Input)
+              and then Is_Entity_Name (Dep_Output)
+            then
+               --  Handle abstract views generated for limited with clauses
+
+               Dep_Input_Id  := Available_View (Entity_Of (Dep_Input));
+               Dep_Output_Id := Available_View (Entity_Of (Dep_Output));
+
+               return
+                 Ekind (Dep_Input_Id) = E_Abstract_State
+                   and then Dep_Input_Id = Dep_Output_Id;
+            else
+               return False;
+            end if;
+         end Is_In_Out_State_Clause;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+         ---------------------------
+         -- Is_Null_Refined_State --
+         ---------------------------
+=======
+            Check_Arg (Internal);
+>>>>>>> gcc-mirror/trunk
+=======
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               Mark_Pragma_As_Ghost (N, Ent);
+
+               --  The expression must be analyzed in the special manner
+               --  described in "Handling of Default and Per-Object
+               --  Expressions" in sem.ads.
+>>>>>>> gcc-mirror/master
+
+         function Is_Null_Refined_State (Item : Node_Id) return Boolean is
+            Item_Id : Entity_Id;
+
+         begin
+            if Is_Entity_Name (Item) then
+
+               --  Handle abstract views generated for limited with clauses
+
+               Item_Id := Available_View (Entity_Of (Item));
+
+               return
+                 Ekind (Item_Id) = E_Abstract_State
+                   and then Has_Null_Visible_Refinement (Item_Id);
+            else
+               return False;
+            end if;
+         end Is_Null_Refined_State;
+
+         -----------------
+         -- Match_Items --
+         -----------------
+
+         procedure Match_Items
+           (Dep_Item : Node_Id;
+            Ref_Item : Node_Id;
+            Matched  : out Boolean)
+         is
+            Dep_Item_Id : Entity_Id;
+            Ref_Item_Id : Entity_Id;
+
+         begin
+            --  Assume that the two items do not match
+
+            Matched := False;
+
+            --  A null matches null or Empty (special case)
+
+            if Nkind (Dep_Item) = N_Null
+              and then (No (Ref_Item) or else Nkind (Ref_Item) = N_Null)
+            then
+               Matched := True;
+
+            --  Attribute 'Result matches attribute 'Result
+
+            elsif Is_Attribute_Result (Dep_Item)
+              and then Is_Attribute_Result (Dep_Item)
+            then
+               Matched := True;
+
+            --  Abstract states, current instances of concurrent types,
+            --  discriminants, formal parameters and objects.
+
+            elsif Is_Entity_Name (Dep_Item) then
+
+<<<<<<< HEAD
+               --  Handle abstract views generated for limited with clauses
+=======
+            Arg := Arg1;
+            Outer : while Present (Arg) loop
+               Citem := First (List_Containing (N));
+               Inner : while Citem /= N loop
+                  if Nkind (Citem) = N_With_Clause
+                    and then Same_Name (Name (Citem), Get_Pragma_Arg (Arg))
+                  then
+                     Set_Elaborate_Present (Citem, True);
+                     Set_Elab_Unit_Name (Get_Pragma_Arg (Arg), Name (Citem));
+>>>>>>> gcc-mirror/master
+
+               Dep_Item_Id := Available_View (Entity_Of (Dep_Item));
+
+<<<<<<< HEAD
+               if Ekind (Dep_Item_Id) = E_Abstract_State then
+
+                  --  An abstract state with visible null refinement matches
+                  --  null or Empty (special case).
+
+                  if Has_Null_Visible_Refinement (Dep_Item_Id)
+                    and then (No (Ref_Item) or else Nkind (Ref_Item) = N_Null)
+                  then
+                     Record_Item (Dep_Item_Id);
+                     Matched := True;
+
+                  --  An abstract state with visible non-null refinement
+                  --  matches one of its constituents.
+
+                  elsif Has_Non_Null_Visible_Refinement (Dep_Item_Id) then
+                     if Is_Entity_Name (Ref_Item) then
+                        Ref_Item_Id := Entity_Of (Ref_Item);
+
+                        if Ekind_In (Ref_Item_Id, E_Abstract_State,
+                                                  E_Constant,
+                                                  E_Variable)
+                          and then Present (Encapsulating_State (Ref_Item_Id))
+                          and then Encapsulating_State (Ref_Item_Id) =
+                                     Dep_Item_Id
+                        then
+                           Record_Item (Dep_Item_Id);
+                           Matched := True;
+=======
+                     if In_Extended_Main_Source_Unit (N) then
+
+                        --  This does not apply in SPARK mode, where we allow
+                        --  pragma Elaborate, but we don't trust it to be right
+                        --  so we will still insist on the Elaborate_All.
+
+                        if SPARK_Mode /= On then
+                           Set_Suppress_Elaboration_Warnings
+                             (Entity (Name (Citem)));
+>>>>>>> gcc-mirror/master
+                        end if;
+                     end if;
+
+                  --  An abstract state without a visible refinement matches
+                  --  itself.
+
+                  elsif Is_Entity_Name (Ref_Item)
+                    and then Entity_Of (Ref_Item) = Dep_Item_Id
+                  then
+                     Record_Item (Dep_Item_Id);
+                     Matched := True;
+                  end if;
+
+               --  A current instance of a concurrent type, discriminant,
+               --  formal parameter or an object matches itself.
+
+               elsif Is_Entity_Name (Ref_Item)
+                 and then Entity_Of (Ref_Item) = Dep_Item_Id
+               then
+                  Record_Item (Dep_Item_Id);
+                  Matched := True;
+               end if;
+            end if;
+         end Match_Items;
+
+<<<<<<< HEAD
+         -----------------
+         -- Record_Item --
+         -----------------
+
+         procedure Record_Item (Item_Id : Entity_Id) is
+         begin
+            if not Contains (Matched_Items, Item_Id) then
+               Append_New_Elmt (Item_Id, Matched_Items);
+=======
+               Next (Arg);
+            end loop Outer;
+
+            --  Give a warning if operating in static mode with one of the
+            --  gnatwl/-gnatwE (elaboration warnings enabled) switches set.
+
+            if Elab_Warnings
+              and not Dynamic_Elaboration_Checks
+
+              --  pragma Elaborate not allowed in SPARK mode anyway. We
+              --  already complained about it, no point in generating any
+              --  further complaint.
+
+              and SPARK_Mode /= On
+            then
+               Error_Msg_N
+                 ("?l?use of pragma Elaborate may not be safe", N);
+               Error_Msg_N
+                 ("?l?use pragma Elaborate_All instead if possible", N);
+>>>>>>> gcc-mirror/master
+            end if;
+         end Record_Item;
+
+<<<<<<< HEAD
+         --  Local variables
+
+         Clause_Matched  : Boolean := False;
+         Dummy           : Boolean := False;
+         Inputs_Match    : Boolean;
+         Next_Ref_Clause : Node_Id;
+         Outputs_Match   : Boolean;
+         Ref_Clause      : Node_Id;
+         Ref_Input       : Node_Id;
+         Ref_Output      : Node_Id;
+=======
+            if Present (Size) then
+               Check_Arg (Size);
+            end if;
+
+            if Present (External) then
+               Check_Arg_Is_External_Name (External);
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+      --  Start of processing for Check_Dependency_Clause
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            return;
+         end if;
+
+         --  Examine all refinement clauses and compare them against the
+         --  dependence clause.
+
+         Ref_Clause := First (Refinements);
+         while Present (Ref_Clause) loop
+            Next_Ref_Clause := Next (Ref_Clause);
+
+            --  Obtain the attributes of the current refinement clause
+
+            Ref_Input  := Expression (Ref_Clause);
+            Ref_Output := First (Choices (Ref_Clause));
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+            --  The current refinement clause matches the dependence clause
+            --  when both outputs match and both inputs match. See routine
+            --  Match_Items for all possible conformance scenarios.
+=======
+            Arg := Arg1;
+            Outr : while Present (Arg) loop
+               Citem := First (List_Containing (N));
+               Innr : while Citem /= N loop
+                  if Nkind (Citem) = N_With_Clause
+                    and then Same_Name (Name (Citem), Get_Pragma_Arg (Arg))
+                  then
+                     Set_Elaborate_All_Present (Citem, True);
+                     Set_Elab_Unit_Name (Get_Pragma_Arg (Arg), Name (Citem));
+>>>>>>> gcc-mirror/master
+
+            --    Depends           Dep_Output => Dep_Input
+            --                          ^             ^
+            --                        match ?       match ?
+            --                          v             v
+            --    Refined_Depends   Ref_Output => Ref_Input
+
+            Match_Items
+              (Dep_Item => Dep_Input,
+               Ref_Item => Ref_Input,
+               Matched  => Inputs_Match);
+
+            Match_Items
+              (Dep_Item => Dep_Output,
+               Ref_Item => Ref_Output,
+               Matched  => Outputs_Match);
+
+            --  An In_Out state clause may be matched against a refinement with
+            --  a null input or null output as long as the non-null side of the
+            --  relation contains a valid constituent of the In_Out_State.
+
+            if Is_In_Out_State_Clause then
+
+               --  Depends         => (State => State)
+               --  Refined_Depends => (null => Constit)  --  OK
+
+               if Inputs_Match
+                 and then not Outputs_Match
+                 and then Nkind (Ref_Output) = N_Null
+               then
+                  Outputs_Match := True;
+               end if;
+
+               --  Depends         => (State => State)
+               --  Refined_Depends => (Constit => null)  --  OK
+
+               if not Inputs_Match
+                 and then Outputs_Match
+                 and then Nkind (Ref_Input) = N_Null
+               then
+                  Inputs_Match := True;
+               end if;
+            end if;
+
+            --  The current refinement clause is legally constructed following
+            --  the rules in SPARK RM 7.2.5, therefore it can be removed from
+            --  the pool of candidates. The seach continues because a single
+            --  dependence clause may have multiple matching refinements.
+
+            if Inputs_Match and then Outputs_Match then
+               Clause_Matched := True;
+               Remove (Ref_Clause);
+            end if;
+
+            Ref_Clause := Next_Ref_Clause;
+         end loop;
+
+<<<<<<< HEAD
+         --  Depending on the order or composition of refinement clauses, an
+         --  In_Out state clause may not be directly refinable.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if Nkind_In (Unit (Cunit_Node), N_Package_Body,
+                                            N_Subprogram_Body)
+            then
+               Error_Pragma ("pragma% must refer to a spec, not a body");
+            else
+               Set_Body_Required (Cunit_Node, True);
+               Set_Has_Pragma_Elaborate_Body (Cunit_Ent);
+>>>>>>> gcc-mirror/master
+
+         --    Depends         => ((Output, State) => (Input, State))
+         --    Refined_State   => (State => (Constit_1, Constit_2))
+         --    Refined_Depends => (Constit_1 => Input, Output => Constit_2)
+
+         --  Matching normalized clause (State => State) fails because there is
+         --  no direct refinement capable of satisfying this relation. Another
+         --  similar case arises when clauses (Constit_1 => Input) and (Output
+         --  => Constit_2) are matched first, leaving no candidates for clause
+         --  (State => State). Both scenarios are legal as long as one of the
+         --  previous clauses mentioned a valid constituent of State.
+
+         if not Clause_Matched
+           and then Is_In_Out_State_Clause
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
+         then
+            Clause_Matched := True;
+         end if;
+
+         --  A clause where the input is an abstract state with visible null
+         --  refinement is implicitly matched when the output has already been
+         --  matched in a previous clause.
+
+         --    Depends         => (Output => State)  --  implicitly OK
+         --    Refined_State   => (State => null)
+         --    Refined_Depends => (Output => ...)
+
+         if not Clause_Matched
+           and then Is_Null_Refined_State (Dep_Input)
+           and then Is_Entity_Name (Dep_Output)
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Output)))
+         then
+            Clause_Matched := True;
+         end if;
+
+<<<<<<< HEAD
+         --  A clause where the output is an abstract state with visible null
+         --  refinement is implicitly matched when the input has already been
+         --  matched in a previous clause.
+=======
+            Ent := Find_Lib_Unit_Name;
+=======
+         when Pragma_Elaboration_Checks =>
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Arg_Is_One_Of (Arg1, Name_Static, Name_Dynamic);
+
+            --  Set flag accordingly (ignore attempt at dynamic elaboration
+            --  checks in SPARK mode).
+
+            Dynamic_Elaboration_Checks :=
+              (Chars (Get_Pragma_Arg (Arg1)) = Name_Dynamic)
+                and then SPARK_Mode /= On;
+>>>>>>> gcc-mirror/master
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Ent);
+
+            if not Debug_Flag_U then
+               Set_Is_Pure (Ent);
+               Set_Has_Pragma_Pure (Ent);
+               Set_Suppress_Elaboration_Warnings (Ent);
+            end if;
+         end Pure;
+>>>>>>> gcc-mirror/trunk
+
+         --    Depends           => (State => Input)  --  implicitly OK
+         --    Refined_State     => (State => null)
+         --    Refined_Depends   => (... => Input)
+
+         if not Clause_Matched
+           and then Is_Null_Refined_State (Dep_Output)
+           and then Is_Entity_Name (Dep_Input)
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
+         then
+            Clause_Matched := True;
+         end if;
+
+<<<<<<< HEAD
+         --  At this point either all refinement clauses have been examined or
+         --  pragma Refined_Depends contains a solitary null. Only an abstract
+         --  state with null refinement can possibly match these cases.
+=======
+         when Pragma_Pure_Function => Pure_Function : declare
+            Def_Id    : Entity_Id;
+            E         : Entity_Id;
+            E_Id      : Node_Id;
+            Effective : Boolean := False;
+>>>>>>> gcc-mirror/trunk
+
+         --    Depends         => (State => null)
+         --    Refined_State   => (State => null)
+         --    Refined_Depends =>  null            --  OK
+
+         if not Clause_Matched then
+            Match_Items
+              (Dep_Item => Dep_Input,
+               Ref_Item => Empty,
+               Matched  => Inputs_Match);
+
+            Match_Items
+              (Dep_Item => Dep_Output,
+               Ref_Item => Empty,
+               Matched  => Outputs_Match);
+
+            Clause_Matched := Inputs_Match and Outputs_Match;
+         end if;
+
+<<<<<<< HEAD
+         --  If the contents of Refined_Depends are legal, then the current
+         --  dependence clause should be satisfied either by an explicit match
+         --  or by one of the special cases.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if Present (E) then
+               loop
+                  Def_Id := Get_Base_Subprogram (E);
+>>>>>>> gcc-mirror/trunk
+
+         if not Clause_Matched then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "dependence clause of subprogram & has no "
+               & "matching refinement in body"), Dep_Clause, Spec_Id);
+         end if;
+      end Check_Dependency_Clause;
+
+      -------------------------
+      -- Check_Output_States --
+      -------------------------
+
+      procedure Check_Output_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether all constituents of state State_Id with visible
+         --  refinement are used as outputs in pragma Refined_Depends. Emit an
+         --  error if this is not the case.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+<<<<<<< HEAD
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Posted       : Boolean := False;
+=======
+         when Pragma_Enable_Atomic_Synchronization =>
+            GNAT_Pragma;
+            Process_Disable_Enable_Atomic_Sync (Name_Unsuppress);
+>>>>>>> gcc-mirror/master
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+<<<<<<< HEAD
+               --  The constituent acts as an input (SPARK RM 7.2.5(3))
+=======
+         --  pragma Export (
+         --    [   Convention    =>] convention_IDENTIFIER,
+         --    [   Entity        =>] LOCAL_NAME
+         --    [, [External_Name =>] static_string_EXPRESSION ]
+         --    [, [Link_Name     =>] static_string_EXPRESSION ]);
+>>>>>>> gcc-mirror/master
+
+               if Present (Body_Inputs)
+                 and then Appears_In (Body_Inputs, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must act as output in "
+                     & "dependence refinement", N, Constit_Id);
+
+               --  The constituent is altogether missing (SPARK RM 7.2.5(3))
+
+               elsif No (Body_Outputs)
+                 or else not Appears_In (Body_Outputs, Constit_Id)
+               then
+                  if not Posted then
+                     Posted := True;
+                     SPARK_Msg_NE
+                       ("output state & must be replaced by all its "
+                        & "constituents in dependence refinement",
+                        N, State_Id);
+                  end if;
+
+<<<<<<< HEAD
+                  SPARK_Msg_NE
+                    ("\constituent & is missing in output list",
+                     N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item      : Node_Id;
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+=======
+            Check_At_Least_N_Arguments (2);
+            Check_At_Most_N_Arguments  (4);
+
+            --  In Relaxed_RM_Semantics, support old Ada 83 style:
+            --  pragma Export (Entity, "external name");
+
+            if Relaxed_RM_Semantics
+              and then Arg_Count = 2
+              and then Nkind (Expression (Arg2)) = N_String_Literal
+            then
+               C := Convention_C;
+               Def_Id := Get_Pragma_Arg (Arg1);
+               Analyze (Def_Id);
+
+               if not Is_Entity_Name (Def_Id) then
+                  Error_Pragma_Arg ("entity name required", Arg1);
+               end if;
+
+               Def_Id := Entity (Def_Id);
+               Set_Exported (Def_Id, Arg1);
+
+            else
+               Process_Convention (C, Def_Id);
+
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               Mark_Pragma_As_Ghost (N, Def_Id);
+
+               if Ekind (Def_Id) /= E_Constant then
+                  Note_Possible_Modification
+                    (Get_Pragma_Arg (Arg2), Sure => False);
+               end if;
+
+               Process_Interface_Name (Def_Id, Arg3, Arg4);
+               Set_Exported (Def_Id, Arg2);
+            end if;
+>>>>>>> gcc-mirror/master
+
+      --  Start of processing for Check_Output_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+<<<<<<< HEAD
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the outputs of pragma Depends looking for a state with a
+         --  visible refinement.
+
+         elsif Present (Spec_Outputs) then
+            Item_Elmt := First_Elmt (Spec_Outputs);
+            while Present (Item_Elmt) loop
+               Item := Node (Item_Elmt);
+
+               --  Deal with the mixed nature of the input and output lists
+
+               if Nkind (Item) = N_Defining_Identifier then
+                  Item_Id := Item;
+               else
+                  Item_Id := Available_View (Entity_Of (Item));
+               end if;
+
+               if Ekind (Item_Id) = E_Abstract_State then
+
+                  --  The state acts as an input-output, skip it
+
+                  if Present (Spec_Inputs)
+                    and then Appears_In (Spec_Inputs, Item_Id)
+                  then
+                     null;
+
+<<<<<<< HEAD
+                  --  Ensure that all of the constituents are utilized as
+                  --  outputs in pragma Refined_Depends.
+=======
+=======
+>>>>>>> gcc-mirror/master
+         ---------------------
+         -- Refined_Depends --
+         ---------------------
+
+         --  pragma Refined_Depends (DEPENDENCY_RELATION);
+
+         --  DEPENDENCY_RELATION ::=
+         --     null
+         --  | (DEPENDENCY_CLAUSE {, DEPENDENCY_CLAUSE})
+
+         --  DEPENDENCY_CLAUSE ::=
+         --    OUTPUT_LIST =>[+] INPUT_LIST
+         --  | NULL_DEPENDENCY_CLAUSE
+
+         --  NULL_DEPENDENCY_CLAUSE ::= null => INPUT_LIST
+
+         --  OUTPUT_LIST ::= OUTPUT | (OUTPUT {, OUTPUT})
+
+         --  INPUT_LIST ::= null | INPUT | (INPUT {, INPUT})
+
+<<<<<<< HEAD
+         --  OUTPUT ::= NAME | FUNCTION_RESULT
+         --  INPUT  ::= NAME
+
+         --  where FUNCTION_RESULT is a function Result attribute_reference
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+>>>>>>> gcc-mirror/master
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks fully analyze
+         --    the dependency clauses/global list in:
+
+         --       Analyze_Refined_Depends_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram body.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram body is instantiated.
+
+         when Pragma_Refined_Depends => Refined_Depends : declare
+            Body_Id : Entity_Id;
+            Legal   : Boolean;
+            Spec_Id : Entity_Id;
+
+         begin
+            Analyze_Refined_Depends_Global_Post (Spec_Id, Body_Id, Legal);
+
+            if Legal then
+
+<<<<<<< HEAD
+               --  Chain the pragma on the contract for further processing by
+               --  Analyze_Refined_Depends_In_Decl_Part.
+
+               Add_Contract_Item (N, Body_Id);
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+>>>>>>> gcc-mirror/master
+
+               --  The legality checks of pragmas Refined_Depends and
+               --  Refined_Global are affected by the SPARK mode in effect and
+               --  the volatility of the context. In addition these two pragmas
+               --  are subject to an inherent order:
+
+               --    1) Refined_Global
+               --    2) Refined_Depends
+
+               --  Analyze all these pragmas in the order outlined above
+
+               Analyze_If_Present (Pragma_SPARK_Mode);
+               Analyze_If_Present (Pragma_Volatile_Function);
+               Analyze_If_Present (Pragma_Refined_Global);
+               Analyze_Refined_Depends_In_Decl_Part (N);
+            end if;
+         end Refined_Depends;
+
+         --------------------
+         -- Refined_Global --
+         --------------------
+
+         --  pragma Refined_Global (GLOBAL_SPECIFICATION);
+
+         --  GLOBAL_SPECIFICATION ::=
+         --     null
+         --  | (GLOBAL_LIST)
+         --  | (MODED_GLOBAL_LIST {, MODED_GLOBAL_LIST})
+
+         --  MODED_GLOBAL_LIST ::= MODE_SELECTOR => GLOBAL_LIST
+
+         --  MODE_SELECTOR ::= In_Out | Input | Output | Proof_In
+         --  GLOBAL_LIST   ::= GLOBAL_ITEM | (GLOBAL_ITEM {, GLOBAL_ITEM})
+         --  GLOBAL_ITEM   ::= NAME
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks fully analyze
+         --    the dependency clauses/global list in:
+
+         --       Analyze_Refined_Global_In_Decl_Part
+
+         --    * Expansion - None.
+
+<<<<<<< HEAD
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram body.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+>>>>>>> gcc-mirror/master
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram body is instantiated.
+
+         when Pragma_Refined_Global => Refined_Global : declare
+            Body_Id : Entity_Id;
+            Legal   : Boolean;
+            Spec_Id : Entity_Id;
+
+         begin
+            Analyze_Refined_Depends_Global_Post (Spec_Id, Body_Id, Legal);
+
+            if Legal then
+
+               --  Chain the pragma on the contract for further processing by
+               --  Analyze_Refined_Global_In_Decl_Part.
+
+               Add_Contract_Item (N, Body_Id);
+
+               --  The legality checks of pragmas Refined_Depends and
+               --  Refined_Global are affected by the SPARK mode in effect and
+               --  the volatility of the context. In addition these two pragmas
+               --  are subject to an inherent order:
+
+               --    1) Refined_Global
+               --    2) Refined_Depends
+
+               --  Analyze all these pragmas in the order outlined above
+
+               Analyze_If_Present (Pragma_SPARK_Mode);
+               Analyze_If_Present (Pragma_Volatile_Function);
+               Analyze_Refined_Global_In_Decl_Part (N);
+               Analyze_If_Present (Pragma_Refined_Depends);
+            end if;
+         end Refined_Global;
+
+         ------------------
+         -- Refined_Post --
+         ------------------
+
+         --  pragma Refined_Post (boolean_EXPRESSION);
+
+         --  Characteristics:
+
+<<<<<<< HEAD
+         --    * Analysis - The annotation is fully analyzed immediately upon
+         --    elaboration as it cannot forward reference entities.
+
+         --    * Expansion - The annotation is expanded during the expansion of
+         --    the related subprogram body contract as performed in:
+=======
+            Check_Optional_Identifier (Arg1, Name_Value);
+            Check_Arg_Is_OK_Static_Expression (Arg1, Any_Integer);
+
+            Check_Optional_Identifier (Arg2, Name_Link_Name);
+            Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
+>>>>>>> gcc-mirror/master
+
+         --       Expand_Subprogram_Contract
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram body.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram body is instantiated.
+
+         when Pragma_Refined_Post => Refined_Post : declare
+            Body_Id : Entity_Id;
+            Legal   : Boolean;
+            Spec_Id : Entity_Id;
+
+         begin
+            Analyze_Refined_Depends_Global_Post (Spec_Id, Body_Id, Legal);
+
+            --  Fully analyze the pragma when it appears inside a subprogram
+            --  body because it cannot benefit from forward references.
+
+<<<<<<< HEAD
+            if Legal then
+
+               --  Chain the pragma on the contract for completeness
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+>>>>>>> gcc-mirror/master
+
+               Add_Contract_Item (N, Body_Id);
+
+               --  The legality checks of pragma Refined_Post are affected by
+               --  the SPARK mode in effect and the volatility of the context.
+               --  Analyze all pragmas in a specific order.
+
+               Analyze_If_Present (Pragma_SPARK_Mode);
+               Analyze_If_Present (Pragma_Volatile_Function);
+               Analyze_Pre_Post_Condition_In_Decl_Part (N);
+
+               --  Currently it is not possible to inline pre/postconditions on
+               --  a subprogram subject to pragma Inline_Always.
+
+               Check_Postcondition_Use_In_Inlined_Subprogram (N, Spec_Id);
+            end if;
+         end Refined_Post;
+
+         -------------------
+         -- Refined_State --
+         -------------------
+
+         --  pragma Refined_State (REFINEMENT_LIST);
+
+         --  REFINEMENT_LIST ::=
+         --    (REFINEMENT_CLAUSE {, REFINEMENT_CLAUSE})
+
+         --  REFINEMENT_CLAUSE ::= state_NAME => CONSTITUENT_LIST
+
+         --  CONSTITUENT_LIST ::=
+         --     null
+         --  |  CONSTITUENT
+         --  | (CONSTITUENT {, CONSTITUENT})
+
+         --  CONSTITUENT ::= object_NAME | state_NAME
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    refinement clauses in:
+
+         --       Analyze_Refined_State_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the template of the related
+         --    package body.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic package body is instantiated.
+
+         when Pragma_Refined_State => Refined_State : declare
+            Pack_Decl : Node_Id;
+            Spec_Id   : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+
+            Pack_Decl := Find_Related_Package_Or_Body (N, Do_Checks => True);
+
+            --  Ensure the proper placement of the pragma. Refined states must
+            --  be associated with a package body.
+
+            if Nkind (Pack_Decl) = N_Package_Body then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construct
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Spec_Id := Corresponding_Spec (Pack_Decl);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Refined_State_In_Decl_Part.
+
+            Add_Contract_Item (N, Defining_Entity (Pack_Decl));
+
+            --  The legality checks of pragma Refined_State are affected by the
+            --  SPARK mode in effect. Analyze all pragmas in a specific order.
+
+<<<<<<< HEAD
+            Analyze_If_Present (Pragma_SPARK_Mode);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Spec_Id);
+
+            --  State refinement is allowed only when the corresponding package
+            --  declaration has non-null pragma Abstract_State. Refinement not
+            --  enforced when SPARK checks are suppressed (SPARK RM 7.2.2(3)).
+
+            if SPARK_Mode /= Off
+              and then
+                (No (Abstract_States (Spec_Id))
+                  or else Has_Null_Abstract_State (Spec_Id))
+            then
+               Error_Msg_NE
+                 ("useless refinement, package & does not define abstract "
+                  & "states", N, Spec_Id);
+               return;
+            end if;
+         end Refined_State;
+=======
+            else
+               Extensions_Allowed := False;
+               Ada_Version := Ada_Version_Explicit;
+               Ada_Version_Pragma := Empty;
+            end if;
+
+         ------------------------
+         -- Extensions_Visible --
+         ------------------------
+
+         --  pragma Extensions_Visible [ (boolean_EXPRESSION) ];
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation is fully analyzed immediately upon
+         --    elaboration as its expression must be static.
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+         when Pragma_Extensions_Visible => Extensions_Visible : declare
+            Formal        : Entity_Id;
+            Has_OK_Formal : Boolean := False;
+            Spec_Id       : Entity_Id;
+            Subp_Decl     : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+            Subp_Decl :=
+              Find_Related_Declaration_Or_Body (N, Do_Checks => True);
+
+            --  Abstract subprogram declaration
+
+            if Nkind (Subp_Decl) = N_Abstract_Subprogram_Declaration then
+               null;
+
+            --  Generic subprogram declaration
+
+            elsif Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
+               null;
+
+            --  Body acts as spec
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body
+              and then No (Corresponding_Spec (Subp_Decl))
+            then
+               null;
+
+            --  Body stub acts as spec
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
+              and then No (Corresponding_Spec_Of_Stub (Subp_Decl))
+            then
+               null;
+
+            --  Subprogram declaration
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construct
+
+            else
+               Error_Pragma ("pragma % must apply to a subprogram");
+               return;
+            end if;
+
+            --  Chain the pragma on the contract for completeness
+
+            Add_Contract_Item (N, Defining_Entity (Subp_Decl));
+
+            --  The legality checks of pragma Extension_Visible are affected
+            --  by the SPARK mode in effect. Analyze all pragmas in specific
+            --  order.
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+
+            --  Mark the pragma as Ghost if the related subprogram is also
+            --  Ghost. This also ensures that any expansion performed further
+            --  below will produce Ghost nodes.
+
+            Spec_Id := Unique_Defining_Entity (Subp_Decl);
+            Mark_Pragma_As_Ghost (N, Spec_Id);
+
+            --  Examine the formals of the related subprogram
+
+            Formal := First_Formal (Spec_Id);
+            while Present (Formal) loop
+
+               --  At least one of the formals is of a specific tagged type,
+               --  the pragma is legal.
+
+               if Is_Specific_Tagged_Type (Etype (Formal)) then
+                  Has_OK_Formal := True;
+                  exit;
+
+               --  A generic subprogram with at least one formal of a private
+               --  type ensures the legality of the pragma because the actual
+               --  may be specifically tagged. Note that this is verified by
+               --  the check above at instantiation time.
+
+               elsif Is_Private_Type (Etype (Formal))
+                 and then Is_Generic_Type (Etype (Formal))
+               then
+                  Has_OK_Formal := True;
+                  exit;
+               end if;
+
+               Next_Formal (Formal);
+            end loop;
+
+            if not Has_OK_Formal then
+               Error_Msg_Name_1 := Pname;
+               Error_Msg_N (Fix_Error ("incorrect placement of pragma %"), N);
+               Error_Msg_NE
+                 ("\subprogram & lacks parameter of specific tagged or "
+                  & "generic private type", N, Spec_Id);
+
+               return;
+            end if;
+
+            --  Analyze the Boolean expression (if any)
+
+            if Present (Arg1) then
+               Check_Static_Boolean_Expression
+                 (Expression (Get_Argument (N, Spec_Id)));
+            end if;
+         end Extensions_Visible;
+>>>>>>> gcc-mirror/master
+
+         -----------------------
+         -- Relative_Deadline --
+         -----------------------
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+                  elsif Has_Non_Null_Visible_Refinement (Item_Id) then
+                     Check_Constituent_Usage (Item_Id);
+                  end if;
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_Output_States;
+
+      -----------------------
+      -- Normalize_Clauses --
+      -----------------------
+
+      procedure Normalize_Clauses (Clauses : List_Id) is
+         procedure Normalize_Inputs (Clause : Node_Id);
+         --  Normalize clause Clause by creating multiple clauses for each
+         --  input item of Clause. It is assumed that Clause has exactly one
+         --  output. The transformation is as follows:
+         --
+         --    Output => (Input_1, Input_2)      --  original
+         --
+         --    Output => Input_1                 --  normalizations
+         --    Output => Input_2
+=======
+         --  pragma External (
+         --    [   Convention    =>] convention_IDENTIFIER,
+         --    [   Entity        =>] LOCAL_NAME
+         --    [, [External_Name =>] static_string_EXPRESSION ]
+         --    [, [Link_Name     =>] static_string_EXPRESSION ]);
+
+         when Pragma_External => External : declare
+            C : Convention_Id;
+            E : Entity_Id;
+            pragma Warnings (Off, C);
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Order
+              ((Name_Convention,
+                Name_Entity,
+                Name_External_Name,
+                Name_Link_Name));
+            Check_At_Least_N_Arguments (2);
+            Check_At_Most_N_Arguments  (4);
+            Process_Convention (C, E);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            Note_Possible_Modification
+              (Get_Pragma_Arg (Arg2), Sure => False);
+            Process_Interface_Name (E, Arg3, Arg4);
+            Set_Exported (E, Arg2);
+         end External;
+>>>>>>> gcc-mirror/master
+
+         procedure Normalize_Outputs (Clause : Node_Id);
+         --  Normalize clause Clause by creating multiple clause for each
+         --  output item of Clause. The transformation is as follows:
+         --
+         --    (Output_1, Output_2) => Input     --  original
+         --
+         --     Output_1 => Input                --  normalization
+         --     Output_2 => Input
+
+         ----------------------
+         -- Normalize_Inputs --
+         ----------------------
+
+         procedure Normalize_Inputs (Clause : Node_Id) is
+            Inputs     : constant Node_Id    := Expression (Clause);
+            Loc        : constant Source_Ptr := Sloc (Clause);
+            Output     : constant List_Id    := Choices (Clause);
+            Last_Input : Node_Id;
+            Input      : Node_Id;
+            New_Clause : Node_Id;
+            Next_Input : Node_Id;
+
+         begin
+            --  Normalization is performed only when the original clause has
+            --  more than one input. Multiple inputs appear as an aggregate.
+
+            if Nkind (Inputs) = N_Aggregate then
+               Last_Input := Last (Expressions (Inputs));
+
+               --  Create a new clause for each input
+
+               Input := First (Expressions (Inputs));
+               while Present (Input) loop
+                  Next_Input := Next (Input);
+
+                  --  Unhook the current input from the original input list
+                  --  because it will be relocated to a new clause.
+
+                  Remove (Input);
+
+                  --  Special processing for the last input. At this point the
+                  --  original aggregate has been stripped down to one element.
+                  --  Replace the aggregate by the element itself.
+
+                  if Input = Last_Input then
+                     Rewrite (Inputs, Input);
+
+                  --  Generate a clause of the form:
+                  --    Output => Input
+
+                  else
+                     New_Clause :=
+                       Make_Component_Association (Loc,
+                         Choices    => New_Copy_List_Tree (Output),
+                         Expression => Input);
+
+                     --  The new clause contains replicated content that has
+                     --  already been analyzed, mark the clause as analyzed.
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+                     Set_Analyzed (New_Clause);
+                     Insert_After (Clause, New_Clause);
+                  end if;
+=======
+            Set_Has_Relative_Deadline_Pragma (P);
+         end Relative_Deadline;
+>>>>>>> gcc-mirror/trunk
+=======
+         ---------------
+         -- Fast_Math --
+         ---------------
+
+         --  pragma Fast_Math;
+
+         when Pragma_Fast_Math =>
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Valid_Configuration_Pragma;
+            Fast_Math := True;
+
+         --------------------------
+         -- Favor_Top_Level --
+         --------------------------
+>>>>>>> gcc-mirror/master
+
+                  Input := Next_Input;
+               end loop;
+            end if;
+         end Normalize_Inputs;
+
+         -----------------------
+         -- Normalize_Outputs --
+         -----------------------
+
+         procedure Normalize_Outputs (Clause : Node_Id) is
+            Inputs      : constant Node_Id    := Expression (Clause);
+            Loc         : constant Source_Ptr := Sloc (Clause);
+            Outputs     : constant Node_Id    := First (Choices (Clause));
+            Last_Output : Node_Id;
+            New_Clause  : Node_Id;
+            Next_Output : Node_Id;
+            Output      : Node_Id;
+
+         begin
+            --  Multiple outputs appear as an aggregate. Nothing to do when
+            --  the clause has exactly one output.
+
+            if Nkind (Outputs) = N_Aggregate then
+               Last_Output := Last (Expressions (Outputs));
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+               --  Create a clause for each output. Note that each time a new
+               --  clause is created, the original output list slowly shrinks
+               --  until there is one item left.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+=======
+         when Pragma_Favor_Top_Level => Favor_Top_Level : declare
+            Typ : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+            Check_Arg_Is_Local_Name (Arg1);
+            Typ := Entity (Get_Pragma_Arg (Arg1));
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+>>>>>>> gcc-mirror/master
+
+            if Nkind (Parent (E)) = N_Formal_Type_Declaration
+              and then Ekind (E) = E_General_Access_Type
+              and then Is_Class_Wide_Type (Directly_Designated_Type (E))
+              and then Scope (Root_Type (Directly_Designated_Type (E)))
+                         = Scope (E)
+              and then Is_Valid_Remote_Object_Type
+                         (Root_Type (Directly_Designated_Type (E)))
+            then
+               Set_Is_Remote_Types (E);
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+               Output := First (Expressions (Outputs));
+               while Present (Output) loop
+                  Next_Output := Next (Output);
+=======
+            if Is_Access_Subprogram_Type (Typ) then
+               Set_Can_Use_Internal_Rep (Typ, False);
+>>>>>>> gcc-mirror/master
+
+                  --  Unhook the output from the original output list as it
+                  --  will be relocated to a new clause.
+
+                  Remove (Output);
+
+<<<<<<< HEAD
+                  --  Special processing for the last output. At this point
+                  --  the original aggregate has been stripped down to one
+                  --  element. Replace the aggregate by the element itself.
+
+                  if Output = Last_Output then
+                     Rewrite (Outputs, Output);
+
+                  else
+                     --  Generate a clause of the form:
+                     --    (Output => Inputs)
+
+                     New_Clause :=
+                       Make_Component_Association (Loc,
+                         Choices    => New_List (Output),
+                         Expression => New_Copy_Tree (Inputs));
+=======
+         ---------------------------
+         -- Finalize_Storage_Only --
+         ---------------------------
+>>>>>>> gcc-mirror/master
+
+                     --  The new clause contains replicated content that has
+                     --  already been analyzed. There is not need to reanalyze
+                     --  them.
+
+<<<<<<< HEAD
+                     Set_Analyzed (New_Clause);
+                     Insert_After (Clause, New_Clause);
+                  end if;
+
+                  Output := Next_Output;
+               end loop;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if K = N_Package_Declaration
+              or else K = N_Generic_Package_Declaration
+              or else K = N_Subprogram_Declaration
+              or else K = N_Generic_Subprogram_Declaration
+              or else (K = N_Subprogram_Body
+                         and then Acts_As_Spec (Unit (Cunit_Node)))
+            then
+               null;
+            else
+               Error_Pragma (
+                 "pragma% must apply to package or subprogram declaration");
+>>>>>>> gcc-mirror/trunk
+            end if;
+         end Normalize_Outputs;
+
+         --  Local variables
+
+         Clause : Node_Id;
+
+      --  Start of processing for Normalize_Clauses
+
+      begin
+         Clause := First (Clauses);
+         while Present (Clause) loop
+            Normalize_Outputs (Clause);
+            Next (Clause);
+         end loop;
+
+<<<<<<< HEAD
+         Clause := First (Clauses);
+         while Present (Clause) loop
+            Normalize_Inputs (Clause);
+            Next (Clause);
+         end loop;
+      end Normalize_Clauses;
+
+      --------------------------
+      -- Report_Extra_Clauses --
+      --------------------------
+
+      procedure Report_Extra_Clauses is
+         Clause : Node_Id;
+
+<<<<<<< HEAD
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
+                                                N_Generic_Package_Declaration)
+            then
+               Error_Pragma
+                 ("pragma% can only apply to a package declaration");
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         elsif Present (Refinements) then
+            Clause := First (Refinements);
+            while Present (Clause) loop
+
+               --  Do not complain about a null input refinement, since a null
+               --  input legitimately matches anything.
+
+<<<<<<< HEAD
+               if Nkind (Clause) = N_Component_Association
+                 and then Nkind (Expression (Clause)) = N_Null
+               then
+                  null;
+=======
+         when Pragma_Ravenscar =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Set_Ravenscar_Profile (Ravenscar, N);
+>>>>>>> gcc-mirror/trunk
+
+               else
+                  SPARK_Msg_N
+                    ("unmatched or extra clause in dependence refinement",
+                     Clause);
+               end if;
+
+               Next (Clause);
+            end loop;
+         end if;
+      end Report_Extra_Clauses;
+
+      --  Local variables
+
+      Body_Decl : constant Node_Id   := Find_Related_Declaration_Or_Body (N);
+      Body_Id   : constant Entity_Id := Defining_Entity (Body_Decl);
+      Errors    : constant Nat       := Serious_Errors_Detected;
+      Clause    : Node_Id;
+      Deps      : Node_Id;
+      Dummy     : Boolean;
+      Refs      : Node_Id;
+
+   --  Start of processing for Analyze_Refined_Depends_In_Decl_Part
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+
+      Spec_Id := Unique_Defining_Entity (Body_Decl);
+
+      --  Use the anonymous object as the proper spec when Refined_Depends
+      --  applies to the body of a single task type. The object carries the
+      --  proper Chars as well as all non-refined versions of pragmas.
+
+      if Is_Single_Concurrent_Type (Spec_Id) then
+         Spec_Id := Anonymous_Object (Spec_Id);
+      end if;
+
+      Depends := Get_Pragma (Spec_Id, Pragma_Depends);
+
+      --  Subprogram declarations lacks pragma Depends. Refined_Depends is
+      --  rendered useless as there is nothing to refine (SPARK RM 7.2.5(2)).
+
+      if No (Depends) then
+         SPARK_Msg_NE
+           (Fix_Msg (Spec_Id, "useless refinement, declaration of subprogram "
+            & "& lacks aspect or pragma Depends"), N, Spec_Id);
+         goto Leave;
+      end if;
+
+      Deps := Expression (Get_Argument (Depends, Spec_Id));
+
+      --  A null dependency relation renders the refinement useless because it
+      --  cannot possibly mention abstract states with visible refinement. Note
+      --  that the inverse is not true as states may be refined to null
+      --  (SPARK RM 7.2.5(2)).
+
+      if Nkind (Deps) = N_Null then
+         SPARK_Msg_NE
+           (Fix_Msg (Spec_Id, "useless refinement, subprogram & does not "
+            & "depend on abstract state with visible refinement"), N, Spec_Id);
+         goto Leave;
+      end if;
+
+      --  Analyze Refined_Depends as if it behaved as a regular pragma Depends.
+      --  This ensures that the categorization of all refined dependency items
+      --  is consistent with their role.
+
+      Analyze_Depends_In_Decl_Part (N);
+
+      --  Do not match dependencies against refinements if Refined_Depends is
+      --  illegal to avoid emitting misleading error.
+
+<<<<<<< HEAD
+      if Serious_Errors_Detected = Errors then
+=======
+         --  pragma Short_Circuit_And_Or;
+
+         when Pragma_Short_Circuit_And_Or =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Short_Circuit_And_Or := True;
+>>>>>>> gcc-mirror/trunk
+
+         --  The related subprogram lacks pragma [Refined_]Global. Synthesize
+         --  the inputs and outputs of the subprogram spec and body to verify
+         --  the use of states with visible refinement and their constituents.
+
+<<<<<<< HEAD
+         if No (Get_Pragma (Spec_Id, Pragma_Global))
+           or else No (Get_Pragma (Body_Id, Pragma_Refined_Global))
+         then
+            Collect_Subprogram_Inputs_Outputs
+              (Subp_Id      => Spec_Id,
+               Synthesize   => True,
+               Subp_Inputs  => Spec_Inputs,
+               Subp_Outputs => Spec_Outputs,
+               Global_Seen  => Dummy);
+
+            Collect_Subprogram_Inputs_Outputs
+              (Subp_Id      => Body_Id,
+               Synthesize   => True,
+               Subp_Inputs  => Body_Inputs,
+               Subp_Outputs => Body_Outputs,
+               Global_Seen  => Dummy);
+
+            --  For an output state with a visible refinement, ensure that all
+            --  constituents appear as outputs in the dependency refinement.
+
+            Check_Output_States;
+         end if;
+=======
+         --  pragma Share_Generic (GNAME {, GNAME});
+
+         --  GNAME ::= generic_unit_NAME | generic_instance_NAME
+>>>>>>> gcc-mirror/trunk
+
+         --  Matching is disabled in ASIS because clauses are not normalized as
+         --  this is a tree altering activity similar to expansion.
+
+         if ASIS_Mode then
+            goto Leave;
+         end if;
+
+         --  Multiple dependency clauses appear as component associations of an
+         --  aggregate. Note that the clauses are copied because the algorithm
+         --  modifies them and this should not be visible in Depends.
+
+<<<<<<< HEAD
+         pragma Assert (Nkind (Deps) = N_Aggregate);
+         Dependencies := New_Copy_List_Tree (Component_Associations (Deps));
+         Normalize_Clauses (Dependencies);
+=======
+         when Pragma_Shared =>
+            GNAT_Pragma;
+            Process_Atomic_Independent_Shared_Volatile;
+>>>>>>> gcc-mirror/trunk
+
+         Refs := Expression (Get_Argument (N, Spec_Id));
+
+         if Nkind (Refs) = N_Null then
+            Refinements := No_List;
+
+         --  Multiple dependency clauses appear as component associations of an
+         --  aggregate. Note that the clauses are copied because the algorithm
+         --  modifies them and this should not be visible in Refined_Depends.
+
+         else pragma Assert (Nkind (Refs) = N_Aggregate);
+            Refinements := New_Copy_List_Tree (Component_Associations (Refs));
+            Normalize_Clauses (Refinements);
+         end if;
+
+         --  At this point the clauses of pragmas Depends and Refined_Depends
+         --  have been normalized into simple dependencies between one output
+         --  and one input. Examine all clauses of pragma Depends looking for
+         --  matching clauses in pragma Refined_Depends.
+
+         Clause := First (Dependencies);
+         while Present (Clause) loop
+            Check_Dependency_Clause (Clause);
+            Next (Clause);
+         end loop;
+
+         if Serious_Errors_Detected = Errors then
+            Report_Extra_Clauses;
+         end if;
+      end if;
+
+<<<<<<< HEAD
+      <<Leave>>
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Refined_Depends_In_Decl_Part;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
+                                                N_Generic_Package_Declaration)
+            then
+               Error_Pragma
+                 ("pragma% can only apply to a package declaration");
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+   -----------------------------------------
+   -- Analyze_Refined_Global_In_Decl_Part --
+   -----------------------------------------
+=======
+         -----------
+         -- Ghost --
+         -----------
+
+         --  pragma Ghost [ (boolean_EXPRESSION) ];
+
+         when Pragma_Ghost => Ghost : declare
+            Context   : Node_Id;
+            Expr      : Node_Id;
+            Id        : Entity_Id;
+            Orig_Stmt : Node_Id;
+            Prev_Id   : Entity_Id;
+            Stmt      : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+            Id   := Empty;
+            Stmt := Prev (N);
+            while Present (Stmt) loop
+
+               --  Skip prior pragmas, but check for duplicates
+
+               if Nkind (Stmt) = N_Pragma then
+                  if Pragma_Name (Stmt) = Pname then
+                     Error_Msg_Name_1 := Pname;
+                     Error_Msg_Sloc   := Sloc (Stmt);
+                     Error_Msg_N ("pragma % duplicates pragma declared#", N);
+                  end if;
+
+               --  Task unit declared without a definition cannot be subject to
+               --  pragma Ghost (SPARK RM 6.9(19)).
+
+               elsif Nkind_In (Stmt, N_Single_Task_Declaration,
+                                     N_Task_Type_Declaration)
+               then
+                  Error_Pragma ("pragma % cannot apply to a task type");
+                  return;
+
+               --  Skip internally generated code
+
+               elsif not Comes_From_Source (Stmt) then
+                  Orig_Stmt := Original_Node (Stmt);
+
+                  --  When pragma Ghost applies to an untagged derivation, the
+                  --  derivation is transformed into a [sub]type declaration.
+
+                  if Nkind_In (Stmt, N_Full_Type_Declaration,
+                                     N_Subtype_Declaration)
+                    and then Comes_From_Source (Orig_Stmt)
+                    and then Nkind (Orig_Stmt) = N_Full_Type_Declaration
+                    and then Nkind (Type_Definition (Orig_Stmt)) =
+                               N_Derived_Type_Definition
+                  then
+                     Id := Defining_Entity (Stmt);
+                     exit;
+
+                  --  When pragma Ghost applies to an expression function, the
+                  --  expression function is transformed into a subprogram.
+
+                  elsif Nkind (Stmt) = N_Subprogram_Declaration
+                    and then Comes_From_Source (Orig_Stmt)
+                    and then Nkind (Orig_Stmt) = N_Expression_Function
+                  then
+                     Id := Defining_Entity (Stmt);
+                     exit;
+                  end if;
+
+               --  The pragma applies to a legal construct, stop the traversal
+
+               elsif Nkind_In (Stmt, N_Abstract_Subprogram_Declaration,
+                                     N_Full_Type_Declaration,
+                                     N_Generic_Subprogram_Declaration,
+                                     N_Object_Declaration,
+                                     N_Private_Extension_Declaration,
+                                     N_Private_Type_Declaration,
+                                     N_Subprogram_Declaration,
+                                     N_Subtype_Declaration)
+               then
+                  Id := Defining_Entity (Stmt);
+                  exit;
+
+               --  The pragma does not apply to a legal construct, issue an
+               --  error and stop the analysis.
+
+               else
+                  Error_Pragma
+                    ("pragma % must apply to an object, package, subprogram "
+                     & "or type");
+                  return;
+               end if;
+
+               Stmt := Prev (Stmt);
+            end loop;
+
+            Context := Parent (N);
+
+            --  Handle compilation units
+
+            if Nkind (Context) = N_Compilation_Unit_Aux then
+               Context := Unit (Parent (Context));
+            end if;
+
+            --  Protected and task types cannot be subject to pragma Ghost
+            --  (SPARK RM 6.9(19)).
+
+            if Nkind_In (Context, N_Protected_Body, N_Protected_Definition)
+            then
+               Error_Pragma ("pragma % cannot apply to a protected type");
+               return;
+
+            elsif Nkind_In (Context, N_Task_Body, N_Task_Definition) then
+               Error_Pragma ("pragma % cannot apply to a task type");
+               return;
+            end if;
+
+            if No (Id) then
+
+               --  When pragma Ghost is associated with a [generic] package, it
+               --  appears in the visible declarations.
+
+               if Nkind (Context) = N_Package_Specification
+                 and then Present (Visible_Declarations (Context))
+                 and then List_Containing (N) = Visible_Declarations (Context)
+               then
+                  Id := Defining_Entity (Context);
+
+               --  Pragma Ghost applies to a stand alone subprogram body
+
+               elsif Nkind (Context) = N_Subprogram_Body
+                 and then No (Corresponding_Spec (Context))
+               then
+                  Id := Defining_Entity (Context);
+               end if;
+            end if;
+
+            if No (Id) then
+               Error_Pragma
+                 ("pragma % must apply to an object, package, subprogram or "
+                  & "type");
+               return;
+            end if;
+
+            --  A derived type or type extension cannot be subject to pragma
+            --  Ghost if either the parent type or one of the progenitor types
+            --  is not Ghost (SPARK RM 6.9(9)).
+
+            if Is_Derived_Type (Id) then
+               Check_Ghost_Derivation (Id);
+            end if;
+
+            --  Handle completions of types and constants that are subject to
+            --  pragma Ghost.
+
+            if Is_Record_Type (Id) or else Ekind (Id) = E_Constant then
+               Prev_Id := Incomplete_Or_Partial_View (Id);
+
+               if Present (Prev_Id) and then not Is_Ghost_Entity (Prev_Id) then
+                  Error_Msg_Name_1 := Pname;
+
+                  --  The full declaration of a deferred constant cannot be
+                  --  subject to pragma Ghost unless the deferred declaration
+                  --  is also Ghost (SPARK RM 6.9(10)).
+
+                  if Ekind (Prev_Id) = E_Constant then
+                     Error_Msg_Name_1 := Pname;
+                     Error_Msg_NE (Fix_Error
+                       ("pragma % must apply to declaration of deferred "
+                        & "constant &"), N, Id);
+                     return;
+
+                  --  Pragma Ghost may appear on the full view of an incomplete
+                  --  type because the incomplete declaration lacks aspects and
+                  --  cannot be subject to pragma Ghost.
+
+                  elsif Ekind (Prev_Id) = E_Incomplete_Type then
+                     null;
+
+                  --  The full declaration of a type cannot be subject to
+                  --  pragma Ghost unless the partial view is also Ghost
+                  --  (SPARK RM 6.9(10)).
+
+                  else
+                     Error_Msg_NE (Fix_Error
+                       ("pragma % must apply to partial view of type &"),
+                        N, Id);
+                     return;
+                  end if;
+               end if;
+
+            --  A synchronized object cannot be subject to pragma Ghost
+            --  (SPARK RM 6.9(19)).
+
+            elsif Ekind (Id) = E_Variable then
+               if Is_Protected_Type (Etype (Id)) then
+                  Error_Pragma ("pragma % cannot apply to a protected object");
+                  return;
+
+               elsif Is_Task_Type (Etype (Id)) then
+                  Error_Pragma ("pragma % cannot apply to a task object");
+                  return;
+               end if;
+            end if;
+
+            --  Analyze the Boolean expression (if any)
+
+            if Present (Arg1) then
+               Expr := Get_Pragma_Arg (Arg1);
+
+               Analyze_And_Resolve (Expr, Standard_Boolean);
+
+               if Is_OK_Static_Expression (Expr) then
+
+                  --  "Ghostness" cannot be turned off once enabled within a
+                  --  region (SPARK RM 6.9(7)).
+
+                  if Is_False (Expr_Value (Expr))
+                    and then Ghost_Mode > None
+                  then
+                     Error_Pragma
+                       ("pragma % with value False cannot appear in enabled "
+                        & "ghost region");
+                     return;
+                  end if;
+
+               --  Otherwie the expression is not static
+
+               else
+                  Error_Pragma_Arg
+                    ("expression of pragma % must be static", Expr);
+                  return;
+               end if;
+            end if;
+
+            Set_Is_Ghost_Entity (Id);
+         end Ghost;
+
+         ------------
+         -- Global --
+         ------------
+
+         --  pragma Global (GLOBAL_SPECIFICATION);
+
+         --  GLOBAL_SPECIFICATION ::=
+         --     null
+         --  | (GLOBAL_LIST)
+         --  | (MODED_GLOBAL_LIST {, MODED_GLOBAL_LIST})
+
+         --  MODED_GLOBAL_LIST ::= MODE_SELECTOR => GLOBAL_LIST
+
+         --  MODE_SELECTOR ::= In_Out | Input | Output | Proof_In
+         --  GLOBAL_LIST   ::= GLOBAL_ITEM | (GLOBAL_ITEM {, GLOBAL_ITEM})
+         --  GLOBAL_ITEM   ::= NAME
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks fully analyze
+         --    the dependency clauses in:
+
+         --       Analyze_Global_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+         when Pragma_Global => Global : declare
+            Legal     : Boolean;
+            Spec_Id   : Entity_Id;
+            Subp_Decl : Node_Id;
+
+         begin
+            Analyze_Depends_Global (Spec_Id, Subp_Decl, Legal);
+
+            if Legal then
+
+               --  Chain the pragma on the contract for further processing by
+               --  Analyze_Global_In_Decl_Part.
+
+               Add_Contract_Item (N, Spec_Id);
+
+               --  Fully analyze the pragma when it appears inside an entry
+               --  or subprogram body because it cannot benefit from forward
+               --  references.
+
+               if Nkind_In (Subp_Decl, N_Entry_Body,
+                                       N_Subprogram_Body,
+                                       N_Subprogram_Body_Stub)
+               then
+                  --  The legality checks of pragmas Depends and Global are
+                  --  affected by the SPARK mode in effect and the volatility
+                  --  of the context. In addition these two pragmas are subject
+                  --  to an inherent order:
+
+                  --    1) Global
+                  --    2) Depends
+
+                  --  Analyze all these pragmas in the order outlined above
+
+                  Analyze_If_Present (Pragma_SPARK_Mode);
+                  Analyze_If_Present (Pragma_Volatile_Function);
+                  Analyze_Global_In_Decl_Part (N);
+                  Analyze_If_Present (Pragma_Depends);
+               end if;
+            end if;
+         end Global;
+
+         -----------
+         -- Ident --
+         -----------
+
+         --  pragma Ident (static_string_EXPRESSION)
+
+         --  Note: pragma Comment shares this processing. Pragma Ident is
+         --  identical in effect to pragma Commment.
+
+         when Pragma_Ident | Pragma_Comment => Ident : declare
+            Str : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+            Store_Note (N);
+
+            Str := Expr_Value_S (Get_Pragma_Arg (Arg1));
+
+            declare
+               CS : Node_Id;
+               GP : Node_Id;
+>>>>>>> gcc-mirror/master
+
+   procedure Analyze_Refined_Global_In_Decl_Part (N : Node_Id) is
+      Global : Node_Id;
+      --  The corresponding Global pragma
+
+      Has_In_State       : Boolean := False;
+      Has_In_Out_State   : Boolean := False;
+      Has_Out_State      : Boolean := False;
+      Has_Proof_In_State : Boolean := False;
+      --  These flags are set when the corresponding Global pragma has a state
+      --  of mode Input, In_Out, Output or Proof_In respectively with a visible
+      --  refinement.
+
+      Has_Null_State : Boolean := False;
+      --  This flag is set when the corresponding Global pragma has at least
+      --  one state with a null refinement.
+
+      In_Constits       : Elist_Id := No_Elist;
+      In_Out_Constits   : Elist_Id := No_Elist;
+      Out_Constits      : Elist_Id := No_Elist;
+      Proof_In_Constits : Elist_Id := No_Elist;
+      --  These lists contain the entities of all Input, In_Out, Output and
+      --  Proof_In constituents that appear in Refined_Global and participate
+      --  in state refinement.
+
+      In_Items       : Elist_Id := No_Elist;
+      In_Out_Items   : Elist_Id := No_Elist;
+      Out_Items      : Elist_Id := No_Elist;
+      Proof_In_Items : Elist_Id := No_Elist;
+      --  These list contain the entities of all Input, In_Out, Output and
+      --  Proof_In items defined in the corresponding Global pragma.
+
+      Spec_Id : Entity_Id;
+      --  The entity of the subprogram subject to pragma Refined_Global
+
+      States : Elist_Id := No_Elist;
+      --  A list of all states with visible refinement found in pragma Global
+
+      procedure Check_In_Out_States;
+      --  Determine whether the corresponding Global pragma mentions In_Out
+      --  states with visible refinement and if so, ensure that one of the
+      --  following completions apply to the constituents of the state:
+      --    1) there is at least one constituent of mode In_Out
+      --    2) there is at least one Input and one Output constituent
+      --    3) not all constituents are present and one of them is of mode
+      --       Output.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Input_States;
+      --  Determine whether the corresponding Global pragma mentions Input
+      --  states with visible refinement and if so, ensure that at least one of
+      --  its constituents appears as an Input item in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Output_States;
+      --  Determine whether the corresponding Global pragma mentions Output
+      --  states with visible refinement and if so, ensure that all of its
+      --  constituents appear as Output items in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Proof_In_States;
+      --  Determine whether the corresponding Global pragma mentions Proof_In
+      --  states with visible refinement and if so, ensure that at least one of
+      --  its constituents appears as a Proof_In item in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Refined_Global_List
+        (List        : Node_Id;
+         Global_Mode : Name_Id := Name_Input);
+      --  Verify the legality of a single global list declaration. Global_Mode
+      --  denotes the current mode in effect.
+
+      procedure Collect_Global_Items
+        (List : Node_Id;
+         Mode : Name_Id := Name_Input);
+      --  Gather all input, in out, output and Proof_In items from node List
+      --  and separate them in lists In_Items, In_Out_Items, Out_Items and
+      --  Proof_In_Items. Flags Has_In_State, Has_In_Out_State, Has_Out_State
+      --  and Has_Proof_In_State are set when there is at least one abstract
+      --  state with visible refinement available in the corresponding mode.
+      --  Flag Has_Null_State is set when at least state has a null refinement.
+      --  Mode enotes the current global mode in effect.
+
+      function Present_Then_Remove
+        (List : Elist_Id;
+         Item : Entity_Id) return Boolean;
+      --  Search List for a particular entity Item. If Item has been found,
+      --  remove it from List. This routine is used to strip lists In_Constits,
+      --  In_Out_Constits and Out_Constits of valid constituents.
+
+      procedure Report_Extra_Constituents;
+      --  Emit an error for each constituent found in lists In_Constits,
+      --  In_Out_Constits and Out_Constits.
+
+<<<<<<< HEAD
+      -------------------------
+      -- Check_In_Out_States --
+      -------------------------
+=======
+         --  Recognize and validate, but otherwise ignore
+
+         when Pragma_Short_Descriptors =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+>>>>>>> gcc-mirror/trunk
+
+      procedure Check_In_Out_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether one of the following coverage scenarios is in
+         --  effect:
+         --    1) there is at least one constituent of mode In_Out
+         --    2) there is at least one Input and one Output constituent
+         --    3) not all constituents are present and one of them is of mode
+         --       Output.
+         --  If this is not the case, emit an error.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+<<<<<<< HEAD
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Has_Missing  : Boolean := False;
+            In_Out_Seen  : Boolean := False;
+            In_Seen      : Boolean := False;
+            Out_Seen     : Boolean := False;
+=======
+         when Pragma_Simple_Storage_Pool_Type =>
+         Simple_Storage_Pool_Type : declare
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+         begin
+            --  Process all the constituents of the state and note their modes
+            --  within the global refinement.
+
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               if Present_Then_Remove (In_Constits, Constit_Id) then
+                  In_Seen := True;
+
+<<<<<<< HEAD
+               elsif Present_Then_Remove (In_Out_Constits, Constit_Id) then
+                  In_Out_Seen := True;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            --  We require the pragma to apply to a type declared in a package
+            --  declaration, but not (immediately) within a package body.
+>>>>>>> gcc-mirror/trunk
+=======
+                     --  If we have multiple instances, concatenate them, but
+                     --  not in ASIS, where we want the original tree.
+
+                     if not ASIS_Mode then
+                        Start_String (Strval (CS));
+                        Store_String_Char (' ');
+                        Store_String_Chars (Strval (Str));
+                        Set_Strval (CS, End_String);
+                     end if;
+
+                  else
+                     Set_Ident_String (Current_Sem_Unit, Str);
+                  end if;
+>>>>>>> gcc-mirror/master
+
+               elsif Present_Then_Remove (Out_Constits, Constit_Id) then
+                  Out_Seen := True;
+
+<<<<<<< HEAD
+               --  A Proof_In constituent cannot participate in the completion
+               --  of an Output state (SPARK RM 7.2.4(5)).
+
+               elsif Present_Then_Remove (Proof_In_Constits, Constit_Id) then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Input, In_Out "
+                     & "or Output in global refinement", N, Constit_Id);
+
+               else
+                  Has_Missing := True;
+=======
+               elsif Nkind (GP) = N_Subunit then
+                  null;
+>>>>>>> gcc-mirror/master
+               end if;
+
+<<<<<<< HEAD
+               Next_Elmt (Constit_Elmt);
+            end loop;
+
+            --  A single In_Out constituent is a valid completion
+=======
+         -------------------
+         -- Ignore_Pragma --
+         -------------------
+
+         --  pragma Ignore_Pragma (pragma_IDENTIFIER);
+
+         --  Entirely handled in the parser, nothing to do here
+
+         when Pragma_Ignore_Pragma =>
+            null;
+
+         ----------------------------
+         -- Implementation_Defined --
+         ----------------------------
+
+         --  pragma Implementation_Defined (LOCAL_NAME);
+>>>>>>> gcc-mirror/master
+
+            if In_Out_Seen then
+               null;
+
+            --  A pair of one Input and one Output constituent is a valid
+            --  completion.
+
+            elsif In_Seen and Out_Seen then
+               null;
+
+            --  A single Output constituent is a valid completion only when
+            --  some of the other constituents are missing (SPARK RM 7.2.4(5)).
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+            elsif Out_Seen and Has_Missing then
+               null;
+=======
+            if Is_Record_Type (Typ)
+              and then not Is_Limited_View (Typ)
+            then
+               Error_Pragma
+                 ("pragma% can only apply to explicitly limited record type");
+>>>>>>> gcc-mirror/trunk
+=======
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+>>>>>>> gcc-mirror/master
+
+            --  The state lacks a completion
+
+            elsif not In_Seen and not In_Out_Seen and not Out_Seen then
+               SPARK_Msg_NE
+                 ("missing global refinement of state &", N, State_Id);
+
+            --  Otherwise the state has a malformed completion where at least
+            --  one of the constituents has a different mode.
+
+            else
+               SPARK_Msg_NE
+                 ("global refinement of state & redefines the mode of its "
+                  & "constituents", N, State_Id);
+            end if;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_In_Out_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the In_Out items of the corresponding Global pragma
+         --  looking for a state with a visible refinement.
+
+         elsif Has_In_Out_State and then Present (In_Out_Items) then
+            Item_Elmt := First_Elmt (In_Out_Items);
+            while Present (Item_Elmt) loop
+               Item_Id := Node (Item_Elmt);
+
+               --  Ensure that one of the three coverage variants is satisfied
+
+               if Ekind (Item_Id) = E_Abstract_State
+                 and then Has_Non_Null_Visible_Refinement (Item_Id)
+               then
+                  Check_Constituent_Usage (Item_Id);
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_In_Out_States;
+
+      ------------------------
+      -- Check_Input_States --
+      ------------------------
+
+      procedure Check_Input_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether at least one constituent of state State_Id with
+         --  visible refinement is used and has mode Input. Ensure that the
+         --  remaining constituents do not have In_Out, Output or Proof_In
+         --  modes.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            In_Seen      : Boolean := False;
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+<<<<<<< HEAD
+               --  At least one of the constituents appears as an Input
+=======
+                  --  In analysis-only mode, examine original protected type
+
+                  or else
+                    (Nkind (Parent (Typ)) = N_Protected_Type_Declaration
+                      and then Present (Interface_List (Parent (Typ))))
+
+                  --  Check for a private record extension with keyword
+                  --  "synchronized".
+>>>>>>> gcc-mirror/master
+
+               if Present_Then_Remove (In_Constits, Constit_Id) then
+                  In_Seen := True;
+
+               --  The constituent appears in the global refinement, but has
+               --  mode In_Out, Output or Proof_In (SPARK RM 7.2.4(5)).
+
+               elsif Present_Then_Remove (In_Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Proof_In_Constits, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Input in global "
+                     & "refinement", N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+
+            --  Not one of the constituents appeared as Input
+
+            if not In_Seen then
+               SPARK_Msg_NE
+                 ("global refinement of state & must include at least one "
+                  & "constituent of mode Input", N, State_Id);
+            end if;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_Input_States
+
+<<<<<<< HEAD
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+=======
+         ----------------
+         -- SPARK_Mode --
+         ----------------
+
+         --  pragma SPARK_Mode [(On | Off)];
+
+         when Pragma_SPARK_Mode => Do_SPARK_Mode : declare
+            Mode_Id : SPARK_Mode_Type;
+
+            procedure Check_Pragma_Conformance
+              (Context_Pragma : Node_Id;
+               Entity         : Entity_Id;
+               Entity_Pragma  : Node_Id);
+            --  Subsidiary to routines Process_xxx. Verify the SPARK_Mode
+            --  conformance of pragma N depending the following scenarios:
+            --
+            --  If pragma Context_Pragma is not Empty, verify that pragma N is
+            --  compatible with the pragma Context_Pragma that was inherited
+            --  from the context:
+            --    * If the mode of Context_Pragma is ON, then the new mode can
+            --      be anything.
+            --    * If the mode of Context_Pragma is OFF, then the only allowed
+            --      new mode is also OFF. Emit error if this is not the case.
+            --
+            --  If Entity is not Empty, verify that pragma N is compatible with
+            --  pragma Entity_Pragma that belongs to Entity.
+            --    * If Entity_Pragma is Empty, always issue an error as this
+            --      corresponds to the case where a previous section of Entity
+            --      has no SPARK_Mode set.
+            --    * If the mode of Entity_Pragma is ON, then the new mode can
+            --      be anything.
+            --    * If the mode of Entity_Pragma is OFF, then the only allowed
+            --      new mode is also OFF. Emit error if this is not the case.
+
+            procedure Check_Library_Level_Entity (E : Entity_Id);
+            --  Subsidiary to routines Process_xxx. Verify that the related
+            --  entity E subject to pragma SPARK_Mode is library-level.
+
+            procedure Process_Body (Decl : Node_Id);
+            --  Verify the legality of pragma SPARK_Mode when it appears as the
+            --  top of the body declarations of entry, package, protected unit,
+            --  subprogram or task unit body denoted by Decl.
+
+            procedure Process_Overloadable (Decl : Node_Id);
+            --  Verify the legality of pragma SPARK_Mode when it applies to an
+            --  entry or [generic] subprogram declaration denoted by Decl.
+
+            procedure Process_Private_Part (Decl : Node_Id);
+            --  Verify the legality of pragma SPARK_Mode when it appears at the
+            --  top of the private declarations of a package spec, protected or
+            --  task unit declaration denoted by Decl.
+
+            procedure Process_Statement_Part (Decl : Node_Id);
+            --  Verify the legality of pragma SPARK_Mode when it appears at the
+            --  top of the statement sequence of a package body denoted by node
+            --  Decl.
+
+            procedure Process_Visible_Part (Decl : Node_Id);
+            --  Verify the legality of pragma SPARK_Mode when it appears at the
+            --  top of the visible declarations of a package spec, protected or
+            --  task unit declaration denoted by Decl. The routine is also used
+            --  on protected or task units declared without a definition.
+
+            procedure Set_SPARK_Context;
+            --  Subsidiary to routines Process_xxx. Set the global variables
+            --  which represent the mode of the context from pragma N. Ensure
+            --  that Dynamic_Elaboration_Checks are off if the new mode is On.
+
+            ------------------------------
+            -- Check_Pragma_Conformance --
+            ------------------------------
+
+            procedure Check_Pragma_Conformance
+              (Context_Pragma : Node_Id;
+               Entity         : Entity_Id;
+               Entity_Pragma  : Node_Id)
+            is
+               Err_Id : Entity_Id;
+               Err_N  : Node_Id;
+
+            begin
+               --  The current pragma may appear without an argument. If this
+               --  is the case, associate all error messages with the pragma
+               --  itself.
+
+               if Present (Arg1) then
+                  Err_N := Arg1;
+               else
+                  Err_N := N;
+               end if;
+
+<<<<<<< HEAD
+               --  The mode of the current pragma is compared against that of
+               --  an enclosing context.
+=======
+         --  pragma Import (
+         --       [Convention    =>] convention_IDENTIFIER,
+         --       [Entity        =>] LOCAL_NAME
+         --    [, [External_Name =>] static_string_EXPRESSION ]
+         --    [, [Link_Name     =>] static_string_EXPRESSION ]);
+>>>>>>> gcc-mirror/master
+
+               if Present (Context_Pragma) then
+                  pragma Assert (Nkind (Context_Pragma) = N_Pragma);
+
+                  --  Issue an error if the new mode is less restrictive than
+                  --  that of the context.
+
+<<<<<<< HEAD
+                  if Get_SPARK_Mode_From_Pragma (Context_Pragma) = Off
+                    and then Get_SPARK_Mode_From_Pragma (N) = On
+                  then
+                     Error_Msg_N
+                       ("cannot change SPARK_Mode from Off to On", Err_N);
+                     Error_Msg_Sloc := Sloc (SPARK_Mode_Pragma);
+                     Error_Msg_N ("\SPARK_Mode was set to Off#", Err_N);
+                     raise Pragma_Exit;
+                  end if;
+               end if;
+
+               --  The mode of the current pragma is compared against that of
+               --  an initial package, protected type, subprogram or task type
+               --  declaration.
+
+               if Present (Entity) then
+
+                  --  A simple protected or task type is transformed into an
+                  --  anonymous type whose name cannot be used to issue error
+                  --  messages. Recover the original entity of the type.
+
+                  if Ekind_In (Entity, E_Protected_Type, E_Task_Type) then
+                     Err_Id :=
+                       Defining_Entity
+                         (Original_Node (Unit_Declaration_Node (Entity)));
+                  else
+                     Err_Id := Entity;
+                  end if;
+
+                  --  Both the initial declaration and the completion carry
+                  --  SPARK_Mode pragmas.
+
+                  if Present (Entity_Pragma) then
+                     pragma Assert (Nkind (Entity_Pragma) = N_Pragma);
+
+                     --  Issue an error if the new mode is less restrictive
+                     --  than that of the initial declaration.
+
+                     if Get_SPARK_Mode_From_Pragma (Entity_Pragma) = Off
+                       and then Get_SPARK_Mode_From_Pragma (N) = On
+                     then
+                        Error_Msg_N ("incorrect use of SPARK_Mode", Err_N);
+                        Error_Msg_Sloc := Sloc (Entity_Pragma);
+                        Error_Msg_NE
+                          ("\value Off was set for SPARK_Mode on&#",
+                           Err_N, Err_Id);
+                        raise Pragma_Exit;
+                     end if;
+
+                  --  Otherwise the initial declaration lacks a SPARK_Mode
+                  --  pragma in which case the current pragma is illegal as
+                  --  it cannot "complete".
+=======
+         ---------------------
+         -- Import_Function --
+         ---------------------
+
+         --  pragma Import_Function (
+         --        [Internal                 =>] LOCAL_NAME,
+         --     [, [External                 =>] EXTERNAL_SYMBOL]
+         --     [, [Parameter_Types          =>] (PARAMETER_TYPES)]
+         --     [, [Result_Type              =>] SUBTYPE_MARK]
+         --     [, [Mechanism                =>] MECHANISM]
+         --     [, [Result_Mechanism         =>] MECHANISM_NAME]);
+>>>>>>> gcc-mirror/master
+
+                  else
+                     Error_Msg_N ("incorrect use of SPARK_Mode", Err_N);
+                     Error_Msg_Sloc := Sloc (Err_Id);
+                     Error_Msg_NE
+                       ("\no value was set for SPARK_Mode on&#",
+                        Err_N, Err_Id);
+                     raise Pragma_Exit;
+                  end if;
+               end if;
+            end Check_Pragma_Conformance;
+
+            --------------------------------
+            -- Check_Library_Level_Entity --
+            --------------------------------
+
+            procedure Check_Library_Level_Entity (E : Entity_Id) is
+               procedure Add_Entity_To_Name_Buffer;
+               --  Add the E_Kind of entity E to the name buffer
+
+               -------------------------------
+               -- Add_Entity_To_Name_Buffer --
+               -------------------------------
+
+               procedure Add_Entity_To_Name_Buffer is
+               begin
+                  if Ekind_In (E, E_Entry, E_Entry_Family) then
+                     Add_Str_To_Name_Buffer ("entry");
+
+<<<<<<< HEAD
+                  elsif Ekind_In (E, E_Generic_Package,
+                                     E_Package,
+                                     E_Package_Body)
+                  then
+                     Add_Str_To_Name_Buffer ("package");
+
+                  elsif Ekind_In (E, E_Protected_Body, E_Protected_Type) then
+                     Add_Str_To_Name_Buffer ("protected type");
+
+                  elsif Ekind_In (E, E_Function,
+                                     E_Generic_Function,
+                                     E_Generic_Procedure,
+                                     E_Procedure,
+                                     E_Subprogram_Body)
+                  then
+                     Add_Str_To_Name_Buffer ("subprogram");
+
+                  else
+                     pragma Assert (Ekind_In (E, E_Task_Body, E_Task_Type));
+                     Add_Str_To_Name_Buffer ("task type");
+                  end if;
+               end Add_Entity_To_Name_Buffer;
+
+               --  Local variables
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+
+         when Pragma_Import_Function => Import_Function : declare
+            Args  : Args_List (1 .. 6);
+            Names : constant Name_List (1 .. 6) := (
+                      Name_Internal,
+                      Name_External,
+                      Name_Parameter_Types,
+                      Name_Result_Type,
+                      Name_Mechanism,
+                      Name_Result_Mechanism);
+
+            Internal                 : Node_Id renames Args (1);
+            External                 : Node_Id renames Args (2);
+            Parameter_Types          : Node_Id renames Args (3);
+            Result_Type              : Node_Id renames Args (4);
+            Mechanism                : Node_Id renames Args (5);
+            Result_Mechanism         : Node_Id renames Args (6);
+
+         begin
+            GNAT_Pragma;
+            Gather_Associations (Names, Args);
+            Process_Extended_Import_Export_Subprogram_Pragma (
+              Arg_Internal                 => Internal,
+              Arg_External                 => External,
+              Arg_Parameter_Types          => Parameter_Types,
+              Arg_Result_Type              => Result_Type,
+              Arg_Mechanism                => Mechanism,
+              Arg_Result_Mechanism         => Result_Mechanism);
+         end Import_Function;
+>>>>>>> gcc-mirror/master
+
+               Msg_1 : constant String := "incorrect placement of pragma%";
+               Msg_2 : Name_Id;
+
+            --  Start of processing for Check_Library_Level_Entity
+
+            begin
+               if not Is_Library_Level_Entity (E) then
+                  Error_Msg_Name_1 := Pname;
+                  Error_Msg_N (Fix_Error (Msg_1), N);
+
+                  Name_Len := 0;
+                  Add_Str_To_Name_Buffer ("\& is not a library-level ");
+                  Add_Entity_To_Name_Buffer;
+
+                  Msg_2 := Name_Find;
+                  Error_Msg_NE (Get_Name_String (Msg_2), N, E);
+
+                  raise Pragma_Exit;
+               end if;
+            end Check_Library_Level_Entity;
+
+            ------------------
+            -- Process_Body --
+            ------------------
+
+            procedure Process_Body (Decl : Node_Id) is
+               Body_Id : constant Entity_Id := Defining_Entity (Decl);
+               Spec_Id : constant Entity_Id := Unique_Defining_Entity (Decl);
+
+            begin
+               --  Ignore pragma when applied to the special body created for
+               --  inlining, recognized by its internal name _Parent.
+
+<<<<<<< HEAD
+               if Chars (Body_Id) = Name_uParent then
+                  return;
+               end if;
+=======
+         --  pragma Import_Procedure (
+         --        [Internal                 =>] LOCAL_NAME
+         --     [, [External                 =>] EXTERNAL_SYMBOL]
+         --     [, [Parameter_Types          =>] (PARAMETER_TYPES)]
+         --     [, [Mechanism                =>] MECHANISM]);
+>>>>>>> gcc-mirror/master
+
+               Check_Library_Level_Entity (Body_Id);
+
+               --  For entry bodies, verify the legality against:
+               --    * The mode of the context
+               --    * The mode of the spec (if any)
+
+               if Nkind_In (Decl, N_Entry_Body, N_Subprogram_Body) then
+
+                  --  A stand alone subprogram body
+
+                  if Body_Id = Spec_Id then
+                     Check_Pragma_Conformance
+                       (Context_Pragma => SPARK_Pragma (Body_Id),
+                        Entity         => Empty,
+                        Entity_Pragma  => Empty);
+
+<<<<<<< HEAD
+                  --  An entry or subprogram body that completes a previous
+                  --  declaration.
+
+                  else
+                     Check_Pragma_Conformance
+                       (Context_Pragma => SPARK_Pragma (Body_Id),
+                        Entity         => Spec_Id,
+                        Entity_Pragma  => SPARK_Pragma (Spec_Id));
+                  end if;
+
+                  Set_SPARK_Context;
+                  Set_SPARK_Pragma           (Body_Id, N);
+                  Set_SPARK_Pragma_Inherited (Body_Id, False);
+
+               --  For package bodies, verify the legality against:
+               --    * The mode of the context
+               --    * The mode of the private part
+
+               --  This case is separated from protected and task bodies
+               --  because the statement part of the package body inherits
+               --  the mode of the body declarations.
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+
+         when Pragma_Import_Procedure => Import_Procedure : declare
+            Args  : Args_List (1 .. 4);
+            Names : constant Name_List (1 .. 4) := (
+                      Name_Internal,
+                      Name_External,
+                      Name_Parameter_Types,
+                      Name_Mechanism);
+
+            Internal                 : Node_Id renames Args (1);
+            External                 : Node_Id renames Args (2);
+            Parameter_Types          : Node_Id renames Args (3);
+            Mechanism                : Node_Id renames Args (4);
+
+         begin
+            GNAT_Pragma;
+            Gather_Associations (Names, Args);
+            Process_Extended_Import_Export_Subprogram_Pragma (
+              Arg_Internal                 => Internal,
+              Arg_External                 => External,
+              Arg_Parameter_Types          => Parameter_Types,
+              Arg_Mechanism                => Mechanism);
+         end Import_Procedure;
+>>>>>>> gcc-mirror/master
+
+               elsif Nkind (Decl) = N_Package_Body then
+                  Check_Pragma_Conformance
+                    (Context_Pragma => SPARK_Pragma (Body_Id),
+                     Entity         => Spec_Id,
+                     Entity_Pragma  => SPARK_Aux_Pragma (Spec_Id));
+
+<<<<<<< HEAD
+                  Set_SPARK_Context;
+                  Set_SPARK_Pragma               (Body_Id, N);
+                  Set_SPARK_Pragma_Inherited     (Body_Id, False);
+                  Set_SPARK_Aux_Pragma           (Body_Id, N);
+                  Set_SPARK_Aux_Pragma_Inherited (Body_Id, True);
+=======
+         --  pragma Import_Valued_Procedure (
+         --        [Internal                 =>] LOCAL_NAME
+         --     [, [External                 =>] EXTERNAL_SYMBOL]
+         --     [, [Parameter_Types          =>] (PARAMETER_TYPES)]
+         --     [, [Mechanism                =>] MECHANISM]);
+>>>>>>> gcc-mirror/master
+
+               --  For protected and task bodies, verify the legality against:
+               --    * The mode of the context
+               --    * The mode of the private part
+
+               else
+                  pragma Assert
+                    (Nkind_In (Decl, N_Protected_Body, N_Task_Body));
+
+                  Check_Pragma_Conformance
+                    (Context_Pragma => SPARK_Pragma (Body_Id),
+                     Entity         => Spec_Id,
+                     Entity_Pragma  => SPARK_Aux_Pragma (Spec_Id));
+
+                  Set_SPARK_Context;
+                  Set_SPARK_Pragma           (Body_Id, N);
+                  Set_SPARK_Pragma_Inherited (Body_Id, False);
+               end if;
+            end Process_Body;
+
+            --------------------------
+            -- Process_Overloadable --
+            --------------------------
+
+<<<<<<< HEAD
+            procedure Process_Overloadable (Decl : Node_Id) is
+               Spec_Id  : constant Entity_Id := Defining_Entity (Decl);
+               Spec_Typ : constant Entity_Id := Etype (Spec_Id);
+
+            begin
+               Check_Library_Level_Entity (Spec_Id);
+
+               --  Verify the legality against:
+               --    * The mode of the context
+
+               Check_Pragma_Conformance
+                 (Context_Pragma => SPARK_Pragma (Spec_Id),
+                  Entity         => Empty,
+                  Entity_Pragma  => Empty);
+
+               Set_SPARK_Pragma           (Spec_Id, N);
+               Set_SPARK_Pragma_Inherited (Spec_Id, False);
+
+               --  When the pragma applies to the anonymous object created for
+               --  a single task type, decorate the type as well. This scenario
+               --  arises when the single task type lacks a task definition,
+               --  therefore there is no issue with respect to a potential
+               --  pragma SPARK_Mode in the private part.
+
+               --    task type Anon_Task_Typ;
+               --    Obj : Anon_Task_Typ;
+               --    pragma SPARK_Mode ...;
+
+               if Is_Single_Task_Object (Spec_Id) then
+                  Set_SPARK_Pragma               (Spec_Typ, N);
+                  Set_SPARK_Pragma_Inherited     (Spec_Typ, False);
+                  Set_SPARK_Aux_Pragma           (Spec_Typ, N);
+                  Set_SPARK_Aux_Pragma_Inherited (Spec_Typ, True);
+               end if;
+            end Process_Overloadable;
+
+            --------------------------
+            -- Process_Private_Part --
+            --------------------------
+
+            procedure Process_Private_Part (Decl : Node_Id) is
+               Spec_Id : constant Entity_Id := Defining_Entity (Decl);
+
+            begin
+               Check_Library_Level_Entity (Spec_Id);
+=======
+         --  MECHANISM_NAME ::=
+         --    Value
+         --  | Reference
+
+         when Pragma_Import_Valued_Procedure =>
+         Import_Valued_Procedure : declare
+            Args  : Args_List (1 .. 4);
+            Names : constant Name_List (1 .. 4) := (
+                      Name_Internal,
+                      Name_External,
+                      Name_Parameter_Types,
+                      Name_Mechanism);
+
+            Internal                 : Node_Id renames Args (1);
+            External                 : Node_Id renames Args (2);
+            Parameter_Types          : Node_Id renames Args (3);
+            Mechanism                : Node_Id renames Args (4);
+
+         begin
+            GNAT_Pragma;
+            Gather_Associations (Names, Args);
+            Process_Extended_Import_Export_Subprogram_Pragma (
+              Arg_Internal                 => Internal,
+              Arg_External                 => External,
+              Arg_Parameter_Types          => Parameter_Types,
+              Arg_Mechanism                => Mechanism);
+         end Import_Valued_Procedure;
+>>>>>>> gcc-mirror/master
+
+               --  Verify the legality against:
+               --    * The mode of the visible declarations
+
+               Check_Pragma_Conformance
+                 (Context_Pragma => Empty,
+                  Entity         => Spec_Id,
+                  Entity_Pragma  => SPARK_Pragma (Spec_Id));
+
+<<<<<<< HEAD
+               Set_SPARK_Context;
+               Set_SPARK_Aux_Pragma           (Spec_Id, N);
+               Set_SPARK_Aux_Pragma_Inherited (Spec_Id, False);
+            end Process_Private_Part;
+
+            ----------------------------
+            -- Process_Statement_Part --
+            ----------------------------
+
+            procedure Process_Statement_Part (Decl : Node_Id) is
+               Body_Id : constant Entity_Id := Defining_Entity (Decl);
+
+            begin
+               Check_Library_Level_Entity (Body_Id);
+
+               --  Verify the legality against:
+               --    * The mode of the body declarations
+
+               Check_Pragma_Conformance
+                 (Context_Pragma => Empty,
+                  Entity         => Body_Id,
+                  Entity_Pragma  => SPARK_Pragma (Body_Id));
+
+               Set_SPARK_Context;
+               Set_SPARK_Aux_Pragma           (Body_Id, N);
+               Set_SPARK_Aux_Pragma_Inherited (Body_Id, False);
+            end Process_Statement_Part;
+
+            --------------------------
+            -- Process_Visible_Part --
+            --------------------------
+
+            procedure Process_Visible_Part (Decl : Node_Id) is
+               Spec_Id : constant Entity_Id := Defining_Entity (Decl);
+               Obj_Id  : Entity_Id;
+
+            begin
+               Check_Library_Level_Entity (Spec_Id);
+
+               --  Verify the legality against:
+               --    * The mode of the context
+=======
+         when Pragma_Independent =>
+            Process_Atomic_Independent_Shared_Volatile;
+>>>>>>> gcc-mirror/master
+
+               Check_Pragma_Conformance
+                 (Context_Pragma => SPARK_Pragma (Spec_Id),
+                  Entity         => Empty,
+                  Entity_Pragma  => Empty);
+
+<<<<<<< HEAD
+               --  A task unit declared without a definition does not set the
+               --  SPARK_Mode of the context because the task does not have any
+               --  entries that could inherit the mode.
+
+               if not Nkind_In (Decl, N_Single_Task_Declaration,
+                                      N_Task_Type_Declaration)
+               then
+                  Set_SPARK_Context;
+               end if;
+
+               Set_SPARK_Pragma               (Spec_Id, N);
+               Set_SPARK_Pragma_Inherited     (Spec_Id, False);
+               Set_SPARK_Aux_Pragma           (Spec_Id, N);
+               Set_SPARK_Aux_Pragma_Inherited (Spec_Id, True);
+=======
+         --  pragma Independent_Components (array_or_record_LOCAL_NAME);
+
+         when Pragma_Independent_Components => Independent_Components : declare
+            C    : Node_Id;
+            D    : Node_Id;
+            E_Id : Node_Id;
+            E    : Entity_Id;
+            K    : Node_Kind;
+>>>>>>> gcc-mirror/master
+
+               --  When the pragma applies to a single protected or task type,
+               --  decorate the corresponding anonymous object as well.
+
+               --    protected Anon_Prot_Typ is
+               --       pragma SPARK_Mode ...;
+               --       ...
+               --    end Anon_Prot_Typ;
+
+               --    Obj : Anon_Prot_Typ;
+
+<<<<<<< HEAD
+               if Is_Single_Concurrent_Type (Spec_Id) then
+                  Obj_Id := Anonymous_Object (Spec_Id);
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            --  Check duplicate before we chain ourselves
+>>>>>>> gcc-mirror/master
+
+                  Set_SPARK_Pragma           (Obj_Id, N);
+                  Set_SPARK_Pragma_Inherited (Obj_Id, False);
+               end if;
+            end Process_Visible_Part;
+
+            -----------------------
+            -- Set_SPARK_Context --
+            -----------------------
+
+            procedure Set_SPARK_Context is
+            begin
+               SPARK_Mode := Mode_Id;
+               SPARK_Mode_Pragma := N;
+
+               if SPARK_Mode = On then
+                  Dynamic_Elaboration_Checks := False;
+               end if;
+            end Set_SPARK_Context;
+
+<<<<<<< HEAD
+            --  Local variables
+
+            Context : Node_Id;
+            Mode    : Name_Id;
+            Stmt    : Node_Id;
+=======
+            --  The flag is set on the base type, or on the object
+
+            if K = N_Full_Type_Declaration
+              and then (Is_Array_Type (E) or else Is_Record_Type (E))
+            then
+               Set_Has_Independent_Components (Base_Type (E));
+               Record_Independence_Check (N, Base_Type (E));
+
+               --  For record type, set all components independent
+
+               if Is_Record_Type (E) then
+                  C := First_Component (E);
+                  while Present (C) loop
+                     Set_Is_Independent (C);
+                     Next_Component (C);
+                  end loop;
+               end if;
+
+            elsif (Ekind (E) = E_Constant or else Ekind (E) = E_Variable)
+              and then Nkind (D) = N_Object_Declaration
+              and then Nkind (Object_Definition (D)) =
+                                           N_Constrained_Array_Definition
+            then
+               Set_Has_Independent_Components (E);
+               Record_Independence_Check (N, E);
+>>>>>>> gcc-mirror/master
+
+         --  Start of processing for Do_SPARK_Mode
+
+<<<<<<< HEAD
+         begin
+            --  When a SPARK_Mode pragma appears inside an instantiation whose
+            --  enclosing context has SPARK_Mode set to "off", the pragma has
+            --  no semantic effect.
+=======
+         -----------------------
+         -- Initial_Condition --
+         -----------------------
+
+         --  pragma Initial_Condition (boolean_EXPRESSION);
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expression in:
+
+         --       Analyze_Initial_Condition_In_Decl_Part
+
+         --    * Expansion - The annotation is expanded during the expansion of
+         --    the package body whose declaration is subject to the annotation
+         --    as done in:
+
+         --       Expand_Pragma_Initial_Condition
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related package declaration.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic package is instantiated.
+
+         when Pragma_Initial_Condition => Initial_Condition : declare
+            Pack_Decl : Node_Id;
+            Pack_Id   : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+
+            Pack_Decl := Find_Related_Package_Or_Body (N, Do_Checks => True);
+
+            --  Ensure the proper placement of the pragma. Initial_Condition
+            --  must be associated with a package declaration.
+
+            if Nkind_In (Pack_Decl, N_Generic_Package_Declaration,
+                                    N_Package_Declaration)
+            then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal context
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Pack_Id := Defining_Entity (Pack_Decl);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Initial_Condition_In_Decl_Part.
+
+            Add_Contract_Item (N, Pack_Id);
+
+            --  The legality checks of pragmas Abstract_State, Initializes, and
+            --  Initial_Condition are affected by the SPARK mode in effect. In
+            --  addition, these three pragmas are subject to an inherent order:
+
+            --    1) Abstract_State
+            --    2) Initializes
+            --    3) Initial_Condition
+
+            --  Analyze all these pragmas in the order outlined above
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+            Analyze_If_Present (Pragma_Abstract_State);
+            Analyze_If_Present (Pragma_Initializes);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Pack_Id);
+         end Initial_Condition;
+
+         ------------------------
+         -- Initialize_Scalars --
+         ------------------------
+>>>>>>> gcc-mirror/master
+
+            if Ignore_Pragma_SPARK_Mode then
+               Rewrite (N, Make_Null_Statement (Loc));
+               Analyze (N);
+               return;
+            end if;
+
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+<<<<<<< HEAD
+            --  Check the legality of the mode (no argument = ON)
+
+            if Arg_Count = 1 then
+               Check_Arg_Is_One_Of (Arg1, Name_On, Name_Off);
+               Mode := Chars (Get_Pragma_Arg (Arg1));
+            else
+               Mode := Name_On;
+            end if;
+
+            Mode_Id := Get_SPARK_Mode_Type (Mode);
+            Context := Parent (N);
+
+            --  The pragma appears in a configuration pragmas file
+
+            if No (Context) then
+               Check_Valid_Configuration_Pragma;
+
+               if Present (SPARK_Mode_Pragma) then
+                  Error_Msg_Sloc := Sloc (SPARK_Mode_Pragma);
+                  Error_Msg_N ("pragma% duplicates pragma declared#", N);
+                  raise Pragma_Exit;
+               end if;
+
+               Set_SPARK_Context;
+=======
+            --  Initialize_Scalars creates false positives in CodePeer, and
+            --  incorrect negative results in GNATprove mode, so ignore this
+            --  pragma in these modes.
+
+            if not Restriction_Active (No_Initialize_Scalars)
+              and then not (CodePeer_Mode or GNATprove_Mode)
+            then
+               Init_Or_Norm_Scalars := True;
+               Initialize_Scalars := True;
+            end if;
+
+         -----------------
+         -- Initializes --
+         -----------------
+
+         --  pragma Initializes (INITIALIZATION_LIST);
+
+         --  INITIALIZATION_LIST ::=
+         --     null
+         --  | (INITIALIZATION_ITEM {, INITIALIZATION_ITEM})
+
+         --  INITIALIZATION_ITEM ::= name [=> INPUT_LIST]
+
+         --  INPUT_LIST ::=
+         --     null
+         --  |  INPUT
+         --  | (INPUT {, INPUT})
+
+         --  INPUT ::= name
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expression in:
+
+         --       Analyze_Initializes_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related package declaration.
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic package is instantiated.
+
+         when Pragma_Initializes => Initializes : declare
+            Pack_Decl : Node_Id;
+            Pack_Id   : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+
+            Pack_Decl := Find_Related_Package_Or_Body (N, Do_Checks => True);
+
+            --  Ensure the proper placement of the pragma. Initializes must be
+            --  associated with a package declaration.
+
+            if Nkind_In (Pack_Decl, N_Generic_Package_Declaration,
+                                    N_Package_Declaration)
+            then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construc
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Pack_Id := Defining_Entity (Pack_Decl);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Initializes_In_Decl_Part.
+
+            Add_Contract_Item (N, Pack_Id);
+
+            --  The legality checks of pragmas Abstract_State, Initializes, and
+            --  Initial_Condition are affected by the SPARK mode in effect. In
+            --  addition, these three pragmas are subject to an inherent order:
+
+            --    1) Abstract_State
+            --    2) Initializes
+            --    3) Initial_Condition
+
+            --  Analyze all these pragmas in the order outlined above
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+            Analyze_If_Present (Pragma_Abstract_State);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Pack_Id);
+            Ensure_Aggregate_Form (Get_Argument (N, Pack_Id));
+
+            Analyze_If_Present (Pragma_Initial_Condition);
+         end Initializes;
+
+         ------------
+         -- Inline --
+         ------------
+
+         --  pragma Inline ( NAME {, NAME} );
+
+         when Pragma_Inline =>
+
+            --  Pragma always active unless in GNATprove mode. It is disabled
+            --  in GNATprove mode because frontend inlining is applied
+            --  independently of pragmas Inline and Inline_Always for
+            --  formal verification, see Can_Be_Inlined_In_GNATprove_Mode
+            --  in inline.ads.
+
+            if not GNATprove_Mode then
+
+               --  Inline status is Enabled if inlining option is active
+
+               if Inline_Active then
+                  Process_Inline (Enabled);
+               else
+                  Process_Inline (Disabled);
+               end if;
+            end if;
+>>>>>>> gcc-mirror/master
+
+            --  The pragma acts as a configuration pragma in a compilation unit
+
+            --    pragma SPARK_Mode ...;
+            --    package Pack is ...;
+
+            elsif Nkind (Context) = N_Compilation_Unit
+              and then List_Containing (N) = Context_Items (Context)
+            then
+               Check_Valid_Configuration_Pragma;
+               Set_SPARK_Context;
+
+<<<<<<< HEAD
+            --  Otherwise the placement of the pragma within the tree dictates
+            --  its associated construct. Inspect the declarative list where
+            --  the pragma resides to find a potential construct.
+
+            else
+               Stmt := Prev (N);
+               while Present (Stmt) loop
+=======
+            --  Pragma always active unless in CodePeer mode or GNATprove
+            --  mode. It is disabled in CodePeer mode because inlining is
+            --  not helpful, and enabling it caused walk order issues. It
+            --  is disabled in GNATprove mode because frontend inlining is
+            --  applied independently of pragmas Inline and Inline_Always for
+            --  formal verification, see Can_Be_Inlined_In_GNATprove_Mode in
+            --  inline.ads.
+
+            if not CodePeer_Mode and not GNATprove_Mode then
+               Process_Inline (Enabled);
+            end if;
+>>>>>>> gcc-mirror/master
+
+                  --  Skip prior pragmas, but check for duplicates. Note that
+                  --  this also takes care of pragmas generated for aspects.
+
+                  if Nkind (Stmt) = N_Pragma then
+                     if Pragma_Name (Stmt) = Pname then
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_Sloc   := Sloc (Stmt);
+                        Error_Msg_N ("pragma% duplicates pragma declared#", N);
+                        raise Pragma_Exit;
+                     end if;
+
+                  --  The pragma applies to an expression function that has
+                  --  already been rewritten into a subprogram declaration.
+
+                  --    function Expr_Func return ... is (...);
+                  --    pragma SPARK_Mode ...;
+
+                  elsif Nkind (Stmt) = N_Subprogram_Declaration
+                    and then Nkind (Original_Node (Stmt)) =
+                               N_Expression_Function
+                  then
+                     Process_Overloadable (Stmt);
+                     return;
+
+                  --  The pragma applies to the anonymous object created for a
+                  --  single concurrent type.
+
+<<<<<<< HEAD
+                  --    protected type Anon_Prot_Typ ...;
+                  --    Obj : Anon_Prot_Typ;
+                  --    pragma SPARK_Mode ...;
+=======
+         begin
+            ip;
+
+            if Arg_Count > 0 then
+               Arg := Arg1;
+               loop
+                  Exp := Get_Pragma_Arg (Arg);
+                  Analyze (Exp);
+>>>>>>> gcc-mirror/master
+
+                  elsif Nkind (Stmt) = N_Object_Declaration
+                    and then Is_Single_Concurrent_Object
+                               (Defining_Entity (Stmt))
+                  then
+                     Process_Overloadable (Stmt);
+                     return;
+
+                  --  Skip internally generated code
+
+<<<<<<< HEAD
+                  elsif not Comes_From_Source (Stmt) then
+                     null;
+=======
+         --  pragma Interface (
+         --    [   Convention    =>] convention_IDENTIFIER,
+         --    [   Entity        =>] LOCAL_NAME
+         --    [, [External_Name =>] static_string_EXPRESSION ]
+         --    [, [Link_Name     =>] static_string_EXPRESSION ]);
+>>>>>>> gcc-mirror/master
+
+                  --  The pragma applies to an entry or [generic] subprogram
+                  --  declaration.
+
+                  --    entry Ent ...;
+                  --    pragma SPARK_Mode ...;
+
+                  --    [generic]
+                  --    procedure Proc ...;
+                  --    pragma SPARK_Mode ...;
+
+                  elsif Nkind_In (Stmt, N_Generic_Subprogram_Declaration,
+                                        N_Subprogram_Declaration)
+                    or else (Nkind (Stmt) = N_Entry_Declaration
+                              and then Is_Protected_Type
+                                         (Scope (Defining_Entity (Stmt))))
+                  then
+                     Process_Overloadable (Stmt);
+                     return;
+
+                  --  Otherwise the pragma does not apply to a legal construct
+                  --  or it does not appear at the top of a declarative or a
+                  --  statement list. Issue an error and stop the analysis.
+
+<<<<<<< HEAD
+                  else
+                     Pragma_Misplaced;
+                     exit;
+                  end if;
+=======
+         --  pragma Interface_Name (
+         --    [  Entity        =>] LOCAL_NAME
+         --    [,[External_Name =>] static_string_EXPRESSION ]
+         --    [,[Link_Name     =>] static_string_EXPRESSION ]);
+>>>>>>> gcc-mirror/master
+
+                  Prev (Stmt);
+               end loop;
+
+               --  The pragma applies to a package or a subprogram that acts as
+               --  a compilation unit.
+
+               --    procedure Proc ...;
+               --    pragma SPARK_Mode ...;
+
+               if Nkind (Context) = N_Compilation_Unit_Aux then
+                  Context := Unit (Parent (Context));
+               end if;
+
+               --  The pragma appears at the top of entry, package, protected
+               --  unit, subprogram or task unit body declarations.
+
+               --    entry Ent when ... is
+               --       pragma SPARK_Mode ...;
+
+               --    package body Pack is
+               --       pragma SPARK_Mode ...;
+
+               --    procedure Proc ... is
+               --       pragma SPARK_Mode;
+
+               --    protected body Prot is
+               --       pragma SPARK_Mode ...;
+
+               if Nkind_In (Context, N_Entry_Body,
+                                     N_Package_Body,
+                                     N_Protected_Body,
+                                     N_Subprogram_Body,
+                                     N_Task_Body)
+               then
+                  Process_Body (Context);
+
+               --  The pragma appears at the top of the visible or private
+               --  declaration of a package spec, protected or task unit.
+
+               --    package Pack is
+               --       pragma SPARK_Mode ...;
+               --    private
+               --       pragma SPARK_Mode ...;
+
+               --    protected [type] Prot is
+               --       pragma SPARK_Mode ...;
+               --    private
+               --       pragma SPARK_Mode ...;
+
+               elsif Nkind_In (Context, N_Package_Specification,
+                                        N_Protected_Definition,
+                                        N_Task_Definition)
+               then
+                  if List_Containing (N) = Visible_Declarations (Context) then
+                     Process_Visible_Part (Parent (Context));
+                  else
+                     Process_Private_Part (Parent (Context));
+                  end if;
+
+               --  The pragma appears at the top of package body statements
+
+               --    package body Pack is
+               --    begin
+               --       pragma SPARK_Mode;
+
+               elsif Nkind (Context) = N_Handled_Sequence_Of_Statements
+                 and then Nkind (Parent (Context)) = N_Package_Body
+               then
+                  Process_Statement_Part (Parent (Context));
+
+               --  The pragma appeared as an aspect of a [generic] subprogram
+               --  declaration that acts as a compilation unit.
+
+               --    [generic]
+               --    procedure Proc ...;
+               --    pragma SPARK_Mode ...;
+
+               elsif Nkind_In (Context, N_Generic_Subprogram_Declaration,
+                                        N_Subprogram_Declaration)
+               then
+                  Process_Overloadable (Context);
+
+               --  The pragma does not apply to a legal construct, issue error
+
+               else
+                  Pragma_Misplaced;
+               end if;
+            end if;
+         end Do_SPARK_Mode;
+
+         --------------------------------
+         -- Static_Elaboration_Desired --
+         --------------------------------
+>>>>>>> gcc-mirror/trunk
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the Input items of the corresponding Global pragma looking
+         --  for a state with a visible refinement.
+
+         elsif Has_In_State and then Present (In_Items) then
+            Item_Elmt := First_Elmt (In_Items);
+            while Present (Item_Elmt) loop
+               Item_Id := Node (Item_Elmt);
+
+               --  Ensure that at least one of the constituents is utilized and
+               --  is of mode Input.
+
+               if Ekind (Item_Id) = E_Abstract_State
+                 and then Has_Non_Null_Visible_Refinement (Item_Id)
+               then
+                  Check_Constituent_Usage (Item_Id);
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_Input_States;
+
+      -------------------------
+      -- Check_Output_States --
+      -------------------------
+
+      procedure Check_Output_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether all constituents of state State_Id with visible
+         --  refinement are used and have mode Output. Emit an error if this is
+         --  not the case.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+<<<<<<< HEAD
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Posted       : Boolean := False;
+=======
+            if not Is_OK_Static_Expression (Arg) then
+               Check_Restriction (Static_Storage_Size, Arg);
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               if Present_Then_Remove (Out_Constits, Constit_Id) then
+                  null;
+
+               --  The constituent appears in the global refinement, but has
+               --  mode Input, In_Out or Proof_In (SPARK RM 7.2.4(5)).
+
+<<<<<<< HEAD
+               elsif Present_Then_Remove (In_Constits, Constit_Id)
+                 or else Present_Then_Remove (In_Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Proof_In_Constits, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Output in "
+                     & "global refinement", N, Constit_Id);
+=======
+               Check_Duplicate_Pragma (Ent);
+               Record_Rep_Item (Ent, N);
+
+               --  Check the No_Task_At_Interrupt_Priority restriction
+
+               if Nkind (P) = N_Task_Definition then
+                  Check_Restriction (No_Task_At_Interrupt_Priority, N);
+               end if;
+            end if;
+         end Interrupt_Priority;
+>>>>>>> gcc-mirror/master
+
+               --  The constituent is altogether missing (SPARK RM 7.2.5(3))
+
+               else
+                  if not Posted then
+                     Posted := True;
+                     SPARK_Msg_NE
+                       ("output state & must be replaced by all its "
+                        & "constituents in global refinement", N, State_Id);
+                  end if;
+
+                  SPARK_Msg_NE
+                    ("\constituent & is missing in output list",
+                     N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+         end Check_Constituent_Usage;
+
+<<<<<<< HEAD
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+=======
+         when Pragma_Interrupt_State => Interrupt_State : declare
+            Int_Id : constant Entity_Id := RTE (RE_Interrupt_ID);
+            --  This is the entity Ada.Interrupts.Interrupt_ID;
+>>>>>>> gcc-mirror/master
+
+      --  Start of processing for Check_Output_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the Output items of the corresponding Global pragma
+         --  looking for a state with a visible refinement.
+
+         elsif Has_Out_State and then Present (Out_Items) then
+            Item_Elmt := First_Elmt (Out_Items);
+            while Present (Item_Elmt) loop
+               Item_Id := Node (Item_Elmt);
+
+               --  Ensure that all of the constituents are utilized and they
+               --  have mode Output.
+
+               if Ekind (Item_Id) = E_Abstract_State
+                 and then Has_Non_Null_Visible_Refinement (Item_Id)
+               then
+                  Check_Constituent_Usage (Item_Id);
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_Output_States;
+
+      ---------------------------
+      -- Check_Proof_In_States --
+      ---------------------------
+
+      procedure Check_Proof_In_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether at least one constituent of state State_Id with
+         --  visible refinement is used and has mode Proof_In. Ensure that the
+         --  remaining constituents do not have Input, In_Out or Output modes.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt  : Elmt_Id;
+            Constit_Id    : Entity_Id;
+            Proof_In_Seen : Boolean := False;
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               --  At least one of the constituents appears as Proof_In
+
+<<<<<<< HEAD
+               if Present_Then_Remove (Proof_In_Constits, Constit_Id) then
+                  Proof_In_Seen := True;
+=======
+            else
+               Check_Arg_Is_OK_Static_Expression (Arg1, Any_Integer);
+               Int_Val := Expr_Value (Arg1X);
+>>>>>>> gcc-mirror/master
+
+               --  The constituent appears in the global refinement, but has
+               --  mode Input, In_Out or Output (SPARK RM 7.2.4(5)).
+
+               elsif Present_Then_Remove (In_Constits, Constit_Id)
+                 or else Present_Then_Remove (In_Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Out_Constits, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Proof_In in "
+                     & "global refinement", N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+
+            --  Not one of the constituents appeared as Proof_In
+
+            if not Proof_In_Seen then
+               SPARK_Msg_NE
+                 ("global refinement of state & must include at least one "
+                  & "constituent of mode Proof_In", N, State_Id);
+            end if;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_Proof_In_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the Proof_In items of the corresponding Global pragma
+         --  looking for a state with a visible refinement.
+
+         elsif Has_Proof_In_State and then Present (Proof_In_Items) then
+            Item_Elmt := First_Elmt (Proof_In_Items);
+            while Present (Item_Elmt) loop
+               Item_Id := Node (Item_Elmt);
+
+               --  Ensure that at least one of the constituents is utilized and
+               --  is of mode Proof_In
+
+               if Ekind (Item_Id) = E_Abstract_State
+                 and then Has_Non_Null_Visible_Refinement (Item_Id)
+               then
+                  Check_Constituent_Usage (Item_Id);
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_Proof_In_States;
+
+      -------------------------------
+      -- Check_Refined_Global_List --
+      -------------------------------
+
+      procedure Check_Refined_Global_List
+        (List        : Node_Id;
+         Global_Mode : Name_Id := Name_Input)
+      is
+         procedure Check_Refined_Global_Item
+           (Item        : Node_Id;
+            Global_Mode : Name_Id);
+         --  Verify the legality of a single global item declaration. Parameter
+         --  Global_Mode denotes the current mode in effect.
+
+<<<<<<< HEAD
+         -------------------------------
+         -- Check_Refined_Global_Item --
+         -------------------------------
+
+         procedure Check_Refined_Global_Item
+           (Item        : Node_Id;
+            Global_Mode : Name_Id)
+         is
+            Item_Id : constant Entity_Id := Entity_Of (Item);
+
+            procedure Inconsistent_Mode_Error (Expect : Name_Id);
+            --  Issue a common error message for all mode mismatches. Expect
+            --  denotes the expected mode.
+
+            -----------------------------
+            -- Inconsistent_Mode_Error --
+            -----------------------------
+
+            procedure Inconsistent_Mode_Error (Expect : Name_Id) is
+            begin
+               SPARK_Msg_NE
+                 ("global item & has inconsistent modes", Item, Item_Id);
+
+               Error_Msg_Name_1 := Global_Mode;
+               Error_Msg_Name_2 := Expect;
+               SPARK_Msg_N ("\expected mode %, found mode %", Item);
+            end Inconsistent_Mode_Error;
+
+         --  Start of processing for Check_Refined_Global_Item
+
+         begin
+            --  When the state or object acts as a constituent of another
+            --  state with a visible refinement, collect it for the state
+            --  completeness checks performed later on. Note that the item
+            --  acts as a constituent only when the encapsulating state is
+            --  present in pragma Global.
+
+            if Ekind_In (Item_Id, E_Abstract_State, E_Constant, E_Variable)
+             and then Present (Encapsulating_State (Item_Id))
+             and then Has_Visible_Refinement (Encapsulating_State (Item_Id))
+             and then Contains (States, Encapsulating_State (Item_Id))
+            then
+               if Global_Mode = Name_Input then
+                  Append_New_Elmt (Item_Id, In_Constits);
+
+               elsif Global_Mode = Name_In_Out then
+                  Append_New_Elmt (Item_Id, In_Out_Constits);
+=======
+         when Pragma_Invariant => Invariant : declare
+            Discard : Boolean;
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (2);
+            Check_At_Most_N_Arguments  (3);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Optional_Identifier (Arg2, Name_Check);
+
+            if Arg_Count = 3 then
+               Check_Optional_Identifier (Arg3, Name_Message);
+               Check_Arg_Is_OK_Static_Expression (Arg3, Standard_String);
+            end if;
+>>>>>>> gcc-mirror/master
+
+               elsif Global_Mode = Name_Output then
+                  Append_New_Elmt (Item_Id, Out_Constits);
+
+               elsif Global_Mode = Name_Proof_In then
+                  Append_New_Elmt (Item_Id, Proof_In_Constits);
+               end if;
+
+            --  When not a constituent, ensure that both occurrences of the
+            --  item in pragmas Global and Refined_Global match.
+
+<<<<<<< HEAD
+            elsif Contains (In_Items, Item_Id) then
+               if Global_Mode /= Name_Input then
+                  Inconsistent_Mode_Error (Name_Input);
+               end if;
+=======
+            --  Invariants allowed in interface types (RM 7.3.2(3/3))
+
+            elsif Is_Interface (Typ) then
+               null;
+
+            --  An invariant must apply to a private type, or appear in the
+            --  private part of a package spec and apply to a completion.
+            --  a class-wide invariant can only appear on a private declaration
+            --  or private extension, not a completion.
+>>>>>>> gcc-mirror/master
+
+            elsif Contains (In_Out_Items, Item_Id) then
+               if Global_Mode /= Name_In_Out then
+                  Inconsistent_Mode_Error (Name_In_Out);
+               end if;
+
+<<<<<<< HEAD
+            elsif Contains (Out_Items, Item_Id) then
+               if Global_Mode /= Name_Output then
+                  Inconsistent_Mode_Error (Name_Output);
+               end if;
+
+<<<<<<< HEAD
+            elsif Contains (Proof_In_Items, Item_Id) then
+=======
+            elsif In_Private_Part (Current_Scope)
+              and then Has_Private_Declaration (Typ)
+              and then not Class_Present (N)
+            then
+>>>>>>> gcc-mirror/master
+               null;
+=======
+         when Pragma_Subtitle =>
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Optional_Identifier (Arg1, Name_Subtitle);
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+            Store_Note (N);
+>>>>>>> gcc-mirror/trunk
+
+            --  The item does not appear in the corresponding Global pragma,
+            --  it must be an extra (SPARK RM 7.2.4(3)).
+
+            else
+               SPARK_Msg_NE ("extra global item &", Item, Item_Id);
+            end if;
+         end Check_Refined_Global_Item;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+         --  Local variables
+=======
+         when Pragma_Suppress =>
+            Process_Suppress_Unsuppress (Suppress_Case => True);
+>>>>>>> gcc-mirror/trunk
+
+         Item : Node_Id;
+
+      --  Start of processing for Check_Refined_Global_List
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         elsif Nkind (List) = N_Null then
+            null;
+
+         --  Single global item declaration
+
+<<<<<<< HEAD
+         elsif Nkind_In (List, N_Expanded_Name,
+                               N_Identifier,
+                               N_Selected_Component)
+         then
+            Check_Refined_Global_Item (List, Global_Mode);
+=======
+         when Pragma_Suppress_Debug_Info => Suppress_Debug_Info : declare
+            Nam_Id : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Arg_Is_Local_Name (Arg1);
+
+            Nam_Id := Entity (Get_Pragma_Arg (Arg1));
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Nam_Id);
+            Set_Debug_Info_Off (Nam_Id);
+         end Suppress_Debug_Info;
+>>>>>>> gcc-mirror/trunk
+
+         --  Simple global list or moded global list declaration
+
+         elsif Nkind (List) = N_Aggregate then
+
+            --  The declaration of a simple global list appear as a collection
+            --  of expressions.
+
+            if Present (Expressions (List)) then
+               Item := First (Expressions (List));
+               while Present (Item) loop
+                  Check_Refined_Global_Item (Item, Global_Mode);
+                  Next (Item);
+               end loop;
+
+            --  The declaration of a moded global list appears as a collection
+            --  of component associations where individual choices denote
+            --  modes.
+
+<<<<<<< HEAD
+            elsif Present (Component_Associations (List)) then
+               Item := First (Component_Associations (List));
+               while Present (Item) loop
+                  Check_Refined_Global_List
+                    (List        => Expression (Item),
+                     Global_Mode => Chars (First (Choices (Item))));
+=======
+         when Pragma_Suppress_Initialization => Suppress_Init : declare
+            E    : Entity_Id;
+            E_Id : Node_Id;
+>>>>>>> gcc-mirror/trunk
+
+                  Next (Item);
+               end loop;
+
+            --  Invalid tree
+
+            else
+               raise Program_Error;
+            end if;
+
+         --  Invalid list
+
+<<<<<<< HEAD
+         else
+            raise Program_Error;
+         end if;
+      end Check_Refined_Global_List;
+
+      --------------------------
+      -- Collect_Global_Items --
+      --------------------------
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if not Is_Type (E) and then Ekind (E) /= E_Variable then
+               Error_Pragma_Arg
+                 ("pragma% requires variable, type or subtype", Arg1);
+            end if;
+
+            if Rep_Item_Too_Early (E, N)
+                 or else
+               Rep_Item_Too_Late (E, N, FOnly => True)
+            then
+               return;
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+      procedure Collect_Global_Items
+        (List : Node_Id;
+         Mode : Name_Id := Name_Input)
+      is
+         procedure Collect_Global_Item
+           (Item      : Node_Id;
+            Item_Mode : Name_Id);
+         --  Add a single item to the appropriate list. Item_Mode denotes the
+         --  current mode in effect.
+
+         -------------------------
+         -- Collect_Global_Item --
+         -------------------------
+
+         procedure Collect_Global_Item
+           (Item      : Node_Id;
+            Item_Mode : Name_Id)
+         is
+            Item_Id : constant Entity_Id := Available_View (Entity_Of (Item));
+            --  The above handles abstract views of variables and states built
+            --  for limited with clauses.
+
+         begin
+            --  Signal that the global list contains at least one abstract
+            --  state with a visible refinement. Note that the refinement may
+            --  be null in which case there are no constituents.
+
+            if Ekind (Item_Id) = E_Abstract_State then
+               if Has_Null_Visible_Refinement (Item_Id) then
+                  Has_Null_State := True;
+
+               elsif Has_Non_Null_Visible_Refinement (Item_Id) then
+                  Append_New_Elmt (Item_Id, States);
+
+                  if Item_Mode = Name_Input then
+                     Has_In_State := True;
+                  elsif Item_Mode = Name_In_Out then
+                     Has_In_Out_State := True;
+                  elsif Item_Mode = Name_Output then
+                     Has_Out_State := True;
+                  elsif Item_Mode = Name_Proof_In then
+                     Has_Proof_In_State := True;
+                  end if;
+               end if;
+            end if;
+
+            --  Add the item to the proper list
+
+            if Item_Mode = Name_Input then
+               Append_New_Elmt (Item_Id, In_Items);
+            elsif Item_Mode = Name_In_Out then
+               Append_New_Elmt (Item_Id, In_Out_Items);
+            elsif Item_Mode = Name_Output then
+               Append_New_Elmt (Item_Id, Out_Items);
+            elsif Item_Mode = Name_Proof_In then
+               Append_New_Elmt (Item_Id, Proof_In_Items);
+            end if;
+         end Collect_Global_Item;
+
+<<<<<<< HEAD
+         --  Local variables
+=======
+            --  For other than first subtype, set flag on subtype or variable
+>>>>>>> gcc-mirror/trunk
+
+         Item : Node_Id;
+
+      --  Start of processing for Collect_Global_Items
+
+      begin
+         if Nkind (List) = N_Null then
+            null;
+
+         --  Single global item declaration
+
+         elsif Nkind_In (List, N_Expanded_Name,
+                               N_Identifier,
+                               N_Selected_Component)
+         then
+            Collect_Global_Item (List, Mode);
+
+         --  Single global list or moded global list declaration
+
+         elsif Nkind (List) = N_Aggregate then
+
+            --  The declaration of a simple global list appear as a collection
+            --  of expressions.
+
+            if Present (Expressions (List)) then
+               Item := First (Expressions (List));
+               while Present (Item) loop
+                  Collect_Global_Item (Item, Mode);
+                  Next (Item);
+               end loop;
+
+            --  The declaration of a moded global list appears as a collection
+            --  of component associations where individual choices denote mode.
+
+            elsif Present (Component_Associations (List)) then
+               Item := First (Component_Associations (List));
+               while Present (Item) loop
+                  Collect_Global_Items
+                    (List => Expression (Item),
+                     Mode => Chars (First (Choices (Item))));
+
+                  Next (Item);
+               end loop;
+
+            --  Invalid tree
+
+            else
+               raise Program_Error;
+            end if;
+
+         --  To accomodate partial decoration of disabled SPARK features, this
+         --  routine may be called with illegal input. If this is the case, do
+         --  not raise Program_Error.
+
+         else
+            null;
+         end if;
+      end Collect_Global_Items;
+
+      -------------------------
+      -- Present_Then_Remove --
+      -------------------------
+
+      function Present_Then_Remove
+        (List : Elist_Id;
+         Item : Entity_Id) return Boolean
+      is
+         Elmt : Elmt_Id;
+
+<<<<<<< HEAD
+      begin
+         if Present (List) then
+            Elmt := First_Elmt (List);
+            while Present (Elmt) loop
+               if Node (Elmt) = Item then
+                  Remove_Elmt (List, Elmt);
+                  return True;
+               end if;
+=======
+            if Warn_On_Obsolescent_Feature then
+               Error_Msg_N
+                 ("'G'N'A'T pragma Task_Info is now obsolete, use 'C'P'U "
+                  & "instead?j?", N);
+            end if;
+
+            if Nkind (P) /= N_Task_Definition then
+               Error_Pragma ("pragma% must appear in task definition");
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            --  Not allowed for abstract type in the non-class case (it is
+            --  allowed to use Invariant'Class for abstract types).
+
+            if Is_Abstract_Type (Typ) and then not Class_Present (N) then
+               Error_Pragma_Arg
+                 ("pragma% not allowed for abstract type", Arg1);
+            end if;
+
+            --  Link the pragma on to the rep item chain, for processing when
+            --  the type is frozen.
+
+            Discard := Rep_Item_Too_Late (Typ, N, FOnly => True);
+
+            --  Note that the type has at least one invariant, and also that
+            --  it has inheritable invariants if we have Invariant'Class
+            --  or Type_Invariant'Class. Build the corresponding invariant
+            --  procedure declaration, so that calls to it can be generated
+            --  before the body is built (e.g. within an expression function).
+
+            --  Interface types have no invariant procedure; their invariants
+            --  are propagated to the build invariant procedure of all the
+            --  types covering the interface type.
+
+            if not Is_Interface (Typ) then
+               Insert_After_And_Analyze
+                 (N, Build_Invariant_Procedure_Declaration (Typ));
+>>>>>>> gcc-mirror/master
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+               Next_Elmt (Elmt);
+            end loop;
+         end if;
+
+         return False;
+      end Present_Then_Remove;
+
+      -------------------------------
+      -- Report_Extra_Constituents --
+      -------------------------------
+=======
+            if Class_Present (N) then
+               Set_Has_Inheritable_Invariants (Typ);
+            end if;
+         end Invariant;
+>>>>>>> gcc-mirror/master
+
+      procedure Report_Extra_Constituents is
+         procedure Report_Extra_Constituents_In_List (List : Elist_Id);
+         --  Emit an error for every element of List
+
+<<<<<<< HEAD
+         ---------------------------------------
+         -- Report_Extra_Constituents_In_List --
+         ---------------------------------------
+=======
+         --  pragma Keep_Names ([On => ] LOCAL_NAME);
+>>>>>>> gcc-mirror/master
+
+         procedure Report_Extra_Constituents_In_List (List : Elist_Id) is
+            Constit_Elmt : Elmt_Id;
+
+         begin
+            if Present (List) then
+               Constit_Elmt := First_Elmt (List);
+               while Present (Constit_Elmt) loop
+                  SPARK_Msg_NE ("extra constituent &", N, Node (Constit_Elmt));
+                  Next_Elmt (Constit_Elmt);
+               end loop;
+            end if;
+         end Report_Extra_Constituents_In_List;
+
+      --  Start of processing for Report_Extra_Constituents
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         else
+            Report_Extra_Constituents_In_List (In_Constits);
+            Report_Extra_Constituents_In_List (In_Out_Constits);
+            Report_Extra_Constituents_In_List (Out_Constits);
+            Report_Extra_Constituents_In_List (Proof_In_Constits);
+         end if;
+      end Report_Extra_Constituents;
+
+      --  Local variables
+
+      Body_Decl : constant Node_Id := Find_Related_Declaration_Or_Body (N);
+      Errors    : constant Nat     := Serious_Errors_Detected;
+      Items     : Node_Id;
+
+<<<<<<< HEAD
+   --  Start of processing for Analyze_Refined_Global_In_Decl_Part
+=======
+         when Pragma_License =>
+            GNAT_Pragma;
+
+            --  Do not analyze pragma any further in CodePeer mode, to avoid
+            --  extraneous errors in this implementation-dependent pragma,
+            --  which has a different profile on other compilers.
+
+            if CodePeer_Mode then
+               return;
+            end if;
+
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_Valid_Configuration_Pragma;
+            Check_Arg_Is_Identifier (Arg1);
+>>>>>>> gcc-mirror/master
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+
+      Spec_Id := Unique_Defining_Entity (Body_Decl);
+
+      --  Use the anonymous object as the proper spec when Refined_Global
+      --  applies to the body of a single task type. The object carries the
+      --  proper Chars as well as all non-refined versions of pragmas.
+
+      if Is_Single_Concurrent_Type (Spec_Id) then
+         Spec_Id := Anonymous_Object (Spec_Id);
+      end if;
+
+      Global := Get_Pragma (Spec_Id, Pragma_Global);
+      Items  := Expression (Get_Argument (N, Spec_Id));
+
+      --  The subprogram declaration lacks pragma Global. This renders
+      --  Refined_Global useless as there is nothing to refine.
+
+      if No (Global) then
+         SPARK_Msg_NE
+           (Fix_Msg (Spec_Id, "useless refinement, declaration of subprogram "
+            & "& lacks aspect or pragma Global"), N, Spec_Id);
+         goto Leave;
+      end if;
+
+      --  Extract all relevant items from the corresponding Global pragma
+
+      Collect_Global_Items (Expression (Get_Argument (Global, Spec_Id)));
+
+<<<<<<< HEAD
+      --  Package and subprogram bodies are instantiated individually in
+      --  a separate compiler pass. Due to this mode of instantiation, the
+      --  refinement of a state may no longer be visible when a subprogram
+      --  body contract is instantiated. Since the generic template is legal,
+      --  do not perform this check in the instance to circumvent this oddity.
+
+      if Is_Generic_Instance (Spec_Id) then
+         null;
+=======
+            if Operating_Mode = Generate_Code
+              and then In_Extended_Main_Source_Unit (N)
+            then
+               Check_At_Least_N_Arguments (1);
+               Check_No_Identifiers;
+               Check_Is_In_Decl_Part_Or_Package_Spec;
+               Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+               Start_String;
+
+               Arg := Arg1;
+               while Present (Arg) loop
+                  Check_Arg_Is_OK_Static_Expression (Arg, Standard_String);
+>>>>>>> gcc-mirror/master
+
+      --  Non-instance case
+
+      else
+         --  The corresponding Global pragma must mention at least one state
+         --  witha visible refinement at the point Refined_Global is processed.
+         --  States with null refinements need Refined_Global pragma
+         --  (SPARK RM 7.2.4(2)).
+
+         if not Has_In_State
+           and then not Has_In_Out_State
+           and then not Has_Out_State
+           and then not Has_Proof_In_State
+           and then not Has_Null_State
+         then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "useless refinement, subprogram & does not "
+               & "depend on abstract state with visible refinement"),
+               N, Spec_Id);
+            goto Leave;
+
+         --  The global refinement of inputs and outputs cannot be null when
+         --  the corresponding Global pragma contains at least one item except
+         --  in the case where we have states with null refinements.
+
+         elsif Nkind (Items) = N_Null
+           and then
+             (Present (In_Items)
+               or else Present (In_Out_Items)
+               or else Present (Out_Items)
+               or else Present (Proof_In_Items))
+           and then not Has_Null_State
+         then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "refinement cannot be null, subprogram & has "
+               & "global items"), N, Spec_Id);
+            goto Leave;
+         end if;
+      end if;
+
+<<<<<<< HEAD
+      --  Analyze Refined_Global as if it behaved as a regular pragma Global.
+      --  This ensures that the categorization of all refined global items is
+      --  consistent with their role.
+=======
+            if No (Top_Guard) then
+               Error_Pragma_Arg
+                 ("pragma% takes two arguments", Task_Type);
+            else
+               Check_Arg_Is_OK_Static_Expression (Top_Guard, Any_Integer);
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+      Analyze_Global_In_Decl_Part (N);
+
+      --  Perform all refinement checks with respect to completeness and mode
+      --  matching.
+
+      if Serious_Errors_Detected = Errors then
+         Check_Refined_Global_List (Items);
+      end if;
+
+      --  For Input states with visible refinement, at least one constituent
+      --  must be used as an Input in the global refinement.
+
+      if Serious_Errors_Detected = Errors then
+         Check_Input_States;
+      end if;
+
+<<<<<<< HEAD
+      --  Verify all possible completion variants for In_Out states with
+      --  visible refinement.
+=======
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expressions in:
+
+         --       Analyze_Test_Case_In_Decl_Part
+
+         --    * Expansion - None.
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram when it is:
+
+         --       aspect on subprogram declaration
+
+<<<<<<< HEAD
+         --    The annotation must prepare its own template when it is:
+=======
+         when Pragma_Linker_Alias =>
+            GNAT_Pragma;
+            Check_Arg_Order ((Name_Entity, Name_Target));
+            Check_Arg_Count (2);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Optional_Identifier (Arg2, Name_Target);
+            Check_Arg_Is_Library_Level_Local_Name (Arg1);
+            Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
+>>>>>>> gcc-mirror/master
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram is instantiated except for the
+         --    "pragma on subprogram declaration" case. In that scenario the
+         --    annotation must instantiate itself.
+
+         when Pragma_Test_Case => Test_Case : declare
+            procedure Check_Distinct_Name (Subp_Id : Entity_Id);
+            --  Ensure that the contract of subprogram Subp_Id does not contain
+            --  another Test_Case pragma with the same Name as the current one.
+
+            -------------------------
+            -- Check_Distinct_Name --
+            -------------------------
+
+            procedure Check_Distinct_Name (Subp_Id : Entity_Id) is
+               Items : constant Node_Id   := Contract (Subp_Id);
+               Name  : constant String_Id := Get_Name_From_CTC_Pragma (N);
+               Prag  : Node_Id;
+
+            begin
+               --  Inspect all Test_Case pragma of the related subprogram
+               --  looking for one with a duplicate "Name" argument.
+
+               if Present (Items) then
+                  Prag := Contract_Test_Cases (Items);
+                  while Present (Prag) loop
+                     if Pragma_Name (Prag) = Name_Test_Case
+                       and then Prag /= N
+                       and then String_Equal
+                                  (Name, Get_Name_From_CTC_Pragma (Prag))
+                     then
+                        Error_Msg_Sloc := Sloc (Prag);
+                        Error_Pragma ("name for pragma % is already used #");
+                     end if;
+
+                     Prag := Next_Pragma (Prag);
+                  end loop;
+               end if;
+            end Check_Distinct_Name;
+
+            --  Local variables
+
+            Pack_Decl : constant Node_Id := Unit (Cunit (Current_Sem_Unit));
+            Asp_Arg   : Node_Id;
+            Context   : Node_Id;
+            Subp_Decl : Node_Id;
+            Subp_Id   : Entity_Id;
+
+         --  Start of processing for Test_Case
+
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (2);
+            Check_At_Most_N_Arguments (4);
+            Check_Arg_Order
+              ((Name_Name, Name_Mode, Name_Requires, Name_Ensures));
+
+            --  Argument "Name"
+
+            Check_Optional_Identifier (Arg1, Name_Name);
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+
+            --  Argument "Mode"
+
+            Check_Optional_Identifier (Arg2, Name_Mode);
+            Check_Arg_Is_One_Of (Arg2, Name_Nominal, Name_Robustness);
+
+            --  Arguments "Requires" and "Ensures"
+
+<<<<<<< HEAD
+            if Present (Arg3) then
+               if Present (Arg4) then
+                  Check_Identifier (Arg3, Name_Requires);
+                  Check_Identifier (Arg4, Name_Ensures);
+               else
+                  Check_Identifier_Is_One_Of
+                    (Arg3, Name_Requires, Name_Ensures);
+               end if;
+            end if;
+
+            --  Pragma Test_Case must be associated with a subprogram declared
+            --  in a library-level package. First determine whether the current
+            --  compilation unit is a legal context.
+=======
+         begin
+            Check_Ada_83_Warning;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+            Check_Is_In_Decl_Part_Or_Package_Spec;
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+            Start_String (Strval (Expr_Value_S (Get_Pragma_Arg (Arg1))));
+
+            Arg := Arg2;
+            while Present (Arg) loop
+               Check_Arg_Is_OK_Static_Expression (Arg, Standard_String);
+               Store_String_Char (ASCII.NUL);
+               Store_String_Chars
+                 (Strval (Expr_Value_S (Get_Pragma_Arg (Arg))));
+               Arg := Next (Arg);
+            end loop;
+>>>>>>> gcc-mirror/master
+
+            if Nkind_In (Pack_Decl, N_Package_Declaration,
+                                    N_Generic_Package_Declaration)
+            then
+               null;
+
+            --  Otherwise the placement is illegal
+
+<<<<<<< HEAD
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Subp_Decl := Find_Related_Declaration_Or_Body (N);
+
+            --  Find the enclosing context
+
+            Context := Parent (Subp_Decl);
+
+            if Present (Context) then
+               Context := Parent (Context);
+            end if;
+
+            --  Verify the placement of the pragma
+
+            if Nkind (Subp_Decl) = N_Abstract_Subprogram_Declaration then
+               Error_Pragma
+                 ("pragma % cannot be applied to abstract subprogram");
+               return;
+=======
+         --  pragma Linker_Section (
+         --      [Entity  =>] LOCAL_NAME
+         --      [Section =>] static_string_EXPRESSION);
+
+         when Pragma_Linker_Section => Linker_Section : declare
+            Arg : Node_Id;
+            Ent : Entity_Id;
+            LPE : Node_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost subprograms is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost subprogram encountered while
+            --  processing the arguments of the pragma.
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Order ((Name_Entity, Name_Section));
+            Check_Arg_Count (2);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Optional_Identifier (Arg2, Name_Section);
+            Check_Arg_Is_Library_Level_Local_Name (Arg1);
+            Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
+
+            --  Check kind of entity
+
+            Arg := Get_Pragma_Arg (Arg1);
+            Ent := Entity (Arg);
+
+            case Ekind (Ent) is
+
+               --  Objects (constants and variables) and types. For these cases
+               --  all we need to do is to set the Linker_Section_pragma field,
+               --  checking that we do not have a duplicate.
+
+               when E_Constant | E_Variable | Type_Kind =>
+                  LPE := Linker_Section_Pragma (Ent);
+
+                  if Present (LPE) then
+                     Error_Msg_Sloc := Sloc (LPE);
+                     Error_Msg_NE
+                       ("Linker_Section already specified for &#", Arg1, Ent);
+                  end if;
+
+                  Set_Linker_Section_Pragma (Ent, N);
+
+                  --  A pragma that applies to a Ghost entity becomes Ghost for
+                  --  the purposes of legality checks and removal of ignored
+                  --  Ghost code.
+
+                  Mark_Pragma_As_Ghost (N, Ent);
+
+               --  Subprograms
+
+               when Subprogram_Kind =>
+
+                  --  Aspect case, entity already set
+
+                  if From_Aspect_Specification (N) then
+                     Set_Linker_Section_Pragma
+                       (Entity (Corresponding_Aspect (N)), N);
+
+                  --  Pragma case, we must climb the homonym chain, but skip
+                  --  any for which the linker section is already set.
+
+                  else
+                     loop
+                        if No (Linker_Section_Pragma (Ent)) then
+                           Set_Linker_Section_Pragma (Ent, N);
+
+                           --  A pragma that applies to a Ghost entity becomes
+                           --  Ghost for the purposes of legality checks and
+                           --  removal of ignored Ghost code.
+
+                           Mark_Pragma_As_Ghost (N, Ent);
+
+                           --  Capture the entity of the first Ghost subprogram
+                           --  being processed for error detection purposes.
+
+                           if Is_Ghost_Entity (Ent) then
+                              if No (Ghost_Id) then
+                                 Ghost_Id := Ent;
+                              end if;
+
+                           --  Otherwise the subprogram is non-Ghost. It is
+                           --  illegal to mix references to Ghost and non-Ghost
+                           --  entities (SPARK RM 6.9).
+
+                           elsif Present (Ghost_Id)
+                             and then not Ghost_Error_Posted
+                           then
+                              Ghost_Error_Posted := True;
+
+                              Error_Msg_Name_1 := Pname;
+                              Error_Msg_N
+                                ("pragma % cannot mention ghost and "
+                                 & "non-ghost subprograms", N);
+
+                              Error_Msg_Sloc := Sloc (Ghost_Id);
+                              Error_Msg_NE
+                                ("\& # declared as ghost", N, Ghost_Id);
+
+                              Error_Msg_Sloc := Sloc (Ent);
+                              Error_Msg_NE
+                                ("\& # declared as non-ghost", N, Ent);
+                           end if;
+                        end if;
+
+                        Ent := Homonym (Ent);
+                        exit when No (Ent)
+                          or else Scope (Ent) /= Current_Scope;
+                     end loop;
+                  end if;
+
+               --  All other cases are illegal
+
+               when others =>
+                  Error_Pragma_Arg
+                    ("pragma% applies only to objects, subprograms, and types",
+                     Arg1);
+            end case;
+         end Linker_Section;
+>>>>>>> gcc-mirror/master
+
+            elsif Nkind (Subp_Decl) = N_Entry_Declaration then
+               Error_Pragma ("pragma % cannot be applied to entry");
+               return;
+
+            --  The context is a [generic] subprogram declared at the top level
+            --  of the [generic] package unit.
+
+            elsif Nkind_In (Subp_Decl, N_Generic_Subprogram_Declaration,
+                                       N_Subprogram_Declaration)
+              and then Present (Context)
+              and then Nkind_In (Context, N_Generic_Package_Declaration,
+                                          N_Package_Declaration)
+            then
+               null;
+
+            --  Otherwise the placement is illegal
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            Subp_Id := Defining_Entity (Subp_Decl);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Test_Case_In_Decl_Part.
+
+            Add_Contract_Item (N, Subp_Id);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Subp_Id);
+
+            --  Preanalyze the original aspect argument "Name" for ASIS or for
+            --  a generic subprogram to properly capture global references.
+
+            if ASIS_Mode or else Is_Generic_Subprogram (Subp_Id) then
+               Asp_Arg := Test_Case_Arg (N, Name_Name, From_Aspect => True);
+
+               if Present (Asp_Arg) then
+
+                  --  The argument appears with an identifier in association
+                  --  form.
+
+                  if Nkind (Asp_Arg) = N_Component_Association then
+                     Asp_Arg := Expression (Asp_Arg);
+                  end if;
+
+                  Check_Expr_Is_OK_Static_Expression
+                    (Asp_Arg, Standard_String);
+               end if;
+            end if;
+
+            --  Ensure that the all Test_Case pragmas of the related subprogram
+            --  have distinct names.
+
+            Check_Distinct_Name (Subp_Id);
+
+            --  Fully analyze the pragma when it appears inside an entry
+            --  or subprogram body because it cannot benefit from forward
+            --  references.
+
+            if Nkind_In (Subp_Decl, N_Entry_Body,
+                                    N_Subprogram_Body,
+                                    N_Subprogram_Body_Stub)
+            then
+               --  The legality checks of pragma Test_Case are affected by the
+               --  SPARK mode in effect and the volatility of the context.
+               --  Analyze all pragmas in a specific order.
+
+               Analyze_If_Present (Pragma_SPARK_Mode);
+               Analyze_If_Present (Pragma_Volatile_Function);
+               Analyze_Test_Case_In_Decl_Part (N);
+            end if;
+         end Test_Case;
+>>>>>>> gcc-mirror/trunk
+
+      if Serious_Errors_Detected = Errors then
+         Check_In_Out_States;
+      end if;
+
+      --  For Output states with visible refinement, all constituents must be
+      --  used as Outputs in the global refinement.
+
+<<<<<<< HEAD
+      if Serious_Errors_Detected = Errors then
+         Check_Output_States;
+      end if;
+=======
+         when Pragma_Thread_Local_Storage => Thread_Local_Storage : declare
+            E  : Entity_Id;
+            Id : Node_Id;
+>>>>>>> gcc-mirror/trunk
+
+      --  For Proof_In states with visible refinement, at least one constituent
+      --  must be used as Proof_In in the global refinement.
+
+      if Serious_Errors_Detected = Errors then
+         Check_Proof_In_States;
+      end if;
+
+      --  Emit errors for all constituents that belong to other states with
+      --  visible refinement that do not appear in Global.
+
+      if Serious_Errors_Detected = Errors then
+         Report_Extra_Constituents;
+      end if;
+
+<<<<<<< HEAD
+      <<Leave>>
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Refined_Global_In_Decl_Part;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if Rep_Item_Too_Early (E, N)
+                 or else
+               Rep_Item_Too_Late (E, N)
+            then
+               raise Pragma_Exit;
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+   ----------------------------------------
+   -- Analyze_Refined_State_In_Decl_Part --
+   ----------------------------------------
+
+   procedure Analyze_Refined_State_In_Decl_Part
+     (N         : Node_Id;
+      Freeze_Id : Entity_Id := Empty)
+   is
+      Body_Decl : constant Node_Id   := Find_Related_Package_Or_Body (N);
+      Body_Id   : constant Entity_Id := Defining_Entity (Body_Decl);
+      Spec_Id   : constant Entity_Id := Corresponding_Spec (Body_Decl);
+
+      Available_States : Elist_Id := No_Elist;
+      --  A list of all abstract states defined in the package declaration that
+      --  are available for refinement. The list is used to report unrefined
+      --  states.
+
+      Body_States : Elist_Id := No_Elist;
+      --  A list of all hidden states that appear in the body of the related
+      --  package. The list is used to report unused hidden states.
+
+<<<<<<< HEAD
+      Constituents_Seen : Elist_Id := No_Elist;
+      --  A list that contains all constituents processed so far. The list is
+      --  used to detect multiple uses of the same constituent.
+=======
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_In_Main_Program;
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_Duration);
+>>>>>>> gcc-mirror/trunk
+
+      Freeze_Posted : Boolean := False;
+      --  A flag that controls the output of a freezing-related error (see use
+      --  below).
+
+      Refined_States_Seen : Elist_Id := No_Elist;
+      --  A list that contains all refined states processed so far. The list is
+      --  used to detect duplicate refinements.
+
+      procedure Analyze_Refinement_Clause (Clause : Node_Id);
+      --  Perform full analysis of a single refinement clause
+
+      procedure Report_Unrefined_States (States : Elist_Id);
+      --  Emit errors for all unrefined abstract states found in list States
+
+      -------------------------------
+      -- Analyze_Refinement_Clause --
+      -------------------------------
+
+<<<<<<< HEAD
+      procedure Analyze_Refinement_Clause (Clause : Node_Id) is
+         AR_Constit : Entity_Id := Empty;
+         AW_Constit : Entity_Id := Empty;
+         ER_Constit : Entity_Id := Empty;
+         EW_Constit : Entity_Id := Empty;
+         --  The entities of external constituents that contain one of the
+         --  following enabled properties: Async_Readers, Async_Writers,
+         --  Effective_Reads and Effective_Writes.
+
+         External_Constit_Seen : Boolean := False;
+         --  Flag used to mark when at least one external constituent is part
+         --  of the state refinement.
+
+         Non_Null_Seen : Boolean := False;
+         Null_Seen     : Boolean := False;
+         --  Flags used to detect multiple uses of null in a single clause or a
+         --  mixture of null and non-null constituents.
+
+         Part_Of_Constits : Elist_Id := No_Elist;
+         --  A list of all candidate constituents subject to indicator Part_Of
+         --  where the encapsulating state is the current state.
+
+         State    : Node_Id;
+         State_Id : Entity_Id;
+         --  The current state being refined
+
+         procedure Analyze_Constituent (Constit : Node_Id);
+         --  Perform full analysis of a single constituent
+
+         procedure Check_External_Property
+           (Prop_Nam : Name_Id;
+            Enabled  : Boolean;
+            Constit  : Entity_Id);
+         --  Determine whether a property denoted by name Prop_Nam is present
+         --  in both the refined state and constituent Constit. Flag Enabled
+         --  should be set when the property applies to the refined state. If
+         --  this is not the case, emit an error message.
+
+         procedure Match_State;
+         --  Determine whether the state being refined appears in list
+         --  Available_States. Emit an error when attempting to re-refine the
+         --  state or when the state is not defined in the package declaration,
+         --  otherwise remove the state from Available_States.
+
+         procedure Report_Unused_Constituents (Constits : Elist_Id);
+         --  Emit errors for all unused Part_Of constituents in list Constits
+
+         -------------------------
+         -- Analyze_Constituent --
+         -------------------------
+
+         procedure Analyze_Constituent (Constit : Node_Id) is
+            procedure Match_Constituent (Constit_Id : Entity_Id);
+            --  Determine whether constituent Constit denoted by its entity
+            --  Constit_Id appears in Body_States. Emit an error when the
+            --  constituent is not a valid hidden state of the related package
+            --  or when it is used more than once. Otherwise remove the
+            --  constituent from Body_States.
+
+            -----------------------
+            -- Match_Constituent --
+            -----------------------
+
+            procedure Match_Constituent (Constit_Id : Entity_Id) is
+               procedure Collect_Constituent;
+               --  Verify the legality of constituent Constit_Id and add it to
+               --  the refinements of State_Id.
+
+               -------------------------
+               -- Collect_Constituent --
+               -------------------------
+
+               procedure Collect_Constituent is
+               begin
+                  if Is_Ghost_Entity (State_Id) then
+                     if Is_Ghost_Entity (Constit_Id) then
+
+<<<<<<< HEAD
+                        --  The Ghost policy in effect at the point of abstract
+                        --  state declaration and constituent must match
+                        --  (SPARK RM 6.9(16)).
+
+                        if Is_Checked_Ghost_Entity (State_Id)
+                          and then Is_Ignored_Ghost_Entity (Constit_Id)
+                        then
+                           Error_Msg_Sloc := Sloc (Constit);
+
+                           SPARK_Msg_N
+                             ("incompatible ghost policies in effect", State);
+                           SPARK_Msg_NE
+                             ("\abstract state & declared with ghost policy "
+                              & "Check", State, State_Id);
+                           SPARK_Msg_NE
+                             ("\constituent & declared # with ghost policy "
+                              & "Ignore", State, Constit_Id);
+
+                        elsif Is_Ignored_Ghost_Entity (State_Id)
+                          and then Is_Checked_Ghost_Entity (Constit_Id)
+                        then
+                           Error_Msg_Sloc := Sloc (Constit);
+
+                           SPARK_Msg_N
+                             ("incompatible ghost policies in effect", State);
+                           SPARK_Msg_NE
+                             ("\abstract state & declared with ghost policy "
+                              & "Ignore", State, State_Id);
+                           SPARK_Msg_NE
+                             ("\constituent & declared # with ghost policy "
+                              & "Check", State, Constit_Id);
+                        end if;
+=======
+            for J in 1 .. 2 loop
+               if Present (Args (J)) then
+                  Check_Arg_Is_OK_Static_Expression
+                    (Args (J), Standard_String);
+               end if;
+            end loop;
+         end Title;
+
+         ----------------------------
+         -- Type_Invariant[_Class] --
+         ----------------------------
+
+         --  pragma Type_Invariant[_Class]
+         --    ([Entity =>] type_LOCAL_NAME,
+         --     [Check  =>] EXPRESSION);
+
+         when Pragma_Type_Invariant       |
+              Pragma_Type_Invariant_Class =>
+         Type_Invariant : declare
+            I_Pragma : Node_Id;
+
+         begin
+            Check_Arg_Count (2);
+
+            --  Rewrite Type_Invariant[_Class] pragma as an Invariant pragma,
+            --  setting Class_Present for the Type_Invariant_Class case.
+
+            Set_Class_Present (N, Prag_Id = Pragma_Type_Invariant_Class);
+            I_Pragma := New_Copy (N);
+            Set_Pragma_Identifier
+              (I_Pragma, Make_Identifier (Loc, Name_Invariant));
+            Rewrite (N, I_Pragma);
+            Set_Analyzed (N, False);
+            Analyze (N);
+         end Type_Invariant;
+=======
+         -------------------
+         -- Loop_Optimize --
+         -------------------
+>>>>>>> gcc-mirror/master
+
+         ---------------------
+         -- Unchecked_Union --
+         ---------------------
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+                     --  A constituent of a Ghost abstract state must be a
+                     --  Ghost entity (SPARK RM 7.2.2(12)).
+=======
+         --  OPTIMIZATION_HINT ::=
+         --    Ivdep | No_Unroll | Unroll | No_Vector | Vector
+>>>>>>> gcc-mirror/master
+
+<<<<<<< HEAD
+                     else
+                        SPARK_Msg_NE
+                          ("constituent of ghost state & must be ghost",
+                           Constit, State_Id);
+                     end if;
+                  end if;
+=======
+         when Pragma_Unchecked_Union => Unchecked_Union : declare
+            Assoc   : constant Node_Id := Arg1;
+            Type_Id : constant Node_Id := Get_Pragma_Arg (Assoc);
+            Clist   : Node_Id;
+            Comp    : Node_Id;
+            Tdef    : Node_Id;
+            Typ     : Entity_Id;
+            Variant : Node_Id;
+            Vpart   : Node_Id;
+>>>>>>> gcc-mirror/trunk
+
+                  --  A synchronized state must be refined by a synchronized
+                  --  object or another synchronized state (SPARK RM 9.6).
+
+<<<<<<< HEAD
+                  if Is_Synchronized_State (State_Id)
+                    and then not Is_Synchronized_Object (Constit_Id)
+                    and then not Is_Synchronized_State (Constit_Id)
+                  then
+                     SPARK_Msg_NE
+                       ("constituent of synchronized state & must be "
+                        & "synchronized", Constit, State_Id);
+                  end if;
+=======
+            Hint := First (Pragma_Argument_Associations (N));
+            while Present (Hint) loop
+               Check_Arg_Is_One_Of (Hint, Name_Ivdep,
+                                          Name_No_Unroll,
+                                          Name_Unroll,
+                                          Name_No_Vector,
+                                          Name_Vector);
+               Next (Hint);
+            end loop;
+>>>>>>> gcc-mirror/master
+
+                  --  Add the constituent to the list of processed items to aid
+                  --  with the detection of duplicates.
+
+<<<<<<< HEAD
+                  Append_New_Elmt (Constit_Id, Constituents_Seen);
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            if Typ = Any_Type
+              or else Rep_Item_Too_Early (Typ, N)
+            then
+               return;
+            else
+               Typ := Underlying_Type (Typ);
+            end if;
+>>>>>>> gcc-mirror/trunk
+
+                  --  Collect the constituent in the list of refinement items
+                  --  and establish a relation between the refined state and
+                  --  the item.
+
+                  Append_Elmt (Constit_Id, Refinement_Constituents (State_Id));
+                  Set_Encapsulating_State (Constit_Id, State_Id);
+
+                  --  The state has at least one legal constituent, mark the
+                  --  start of the refinement region. The region ends when the
+                  --  body declarations end (see routine Analyze_Declarations).
+
+                  Set_Has_Visible_Refinement (State_Id);
+
+                  --  When the constituent is external, save its relevant
+                  --  property for further checks.
+
+<<<<<<< HEAD
+                  if Async_Readers_Enabled (Constit_Id) then
+                     AR_Constit := Constit_Id;
+                     External_Constit_Seen := True;
+                  end if;
+=======
+            elsif not Has_Discriminants (Typ) then
+               Error_Msg_N
+                 ("unchecked union must have one discriminant", Typ);
+               return;
+>>>>>>> gcc-mirror/trunk
+
+                  if Async_Writers_Enabled (Constit_Id) then
+                     AW_Constit := Constit_Id;
+                     External_Constit_Seen := True;
+                  end if;
+
+                  if Effective_Reads_Enabled (Constit_Id) then
+                     ER_Constit := Constit_Id;
+                     External_Constit_Seen := True;
+                  end if;
+
+                  if Effective_Writes_Enabled (Constit_Id) then
+                     EW_Constit := Constit_Id;
+                     External_Constit_Seen := True;
+                  end if;
+               end Collect_Constituent;
+
+               --  Local variables
+
+               State_Elmt : Elmt_Id;
+
+<<<<<<< HEAD
+            --  Start of processing for Match_Constituent
+
+            begin
+               --  Detect a duplicate use of a constituent
+=======
+            if Arg_Count = 3 then
+               Check_Optional_Identifier (Arg3, Name_Info);
+               Check_Arg_Is_OK_Static_Expression (Arg3);
+            else
+               Check_Arg_Count (2);
+            end if;
+
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Optional_Identifier (Arg2, Name_Attribute_Name);
+            Check_Arg_Is_Local_Name (Arg1);
+            Check_Arg_Is_OK_Static_Expression (Arg2, Standard_String);
+            Def_Id := Entity (Get_Pragma_Arg (Arg1));
+>>>>>>> gcc-mirror/master
+
+               if Contains (Constituents_Seen, Constit_Id) then
+                  SPARK_Msg_NE
+                    ("duplicate use of constituent &", Constit, Constit_Id);
+                  return;
+               end if;
+
+               --  The constituent is subject to a Part_Of indicator
+
+               if Present (Encapsulating_State (Constit_Id)) then
+                  if Encapsulating_State (Constit_Id) = State_Id then
+                     Remove (Part_Of_Constits, Constit_Id);
+                     Collect_Constituent;
+
+                  --  The constituent is part of another state and is used
+                  --  incorrectly in the refinement of the current state.
+
+                  else
+                     Error_Msg_Name_1 := Chars (State_Id);
+                     SPARK_Msg_NE
+                       ("& cannot act as constituent of state %",
+                        Constit, Constit_Id);
+                     SPARK_Msg_NE
+                       ("\Part_Of indicator specifies encapsulator &",
+                        Constit, Encapsulating_State (Constit_Id));
+                  end if;
+
+               --  The only other source of legal constituents is the body
+               --  state space of the related package.
+
+               else
+                  if Present (Body_States) then
+                     State_Elmt := First_Elmt (Body_States);
+                     while Present (State_Elmt) loop
+
+                        --  Consume a valid constituent to signal that it has
+                        --  been encountered.
+
+                        if Node (State_Elmt) = Constit_Id then
+                           Remove_Elmt (Body_States, State_Elmt);
+                           Collect_Constituent;
+                           return;
+                        end if;
+
+                        Next_Elmt (State_Elmt);
+                     end loop;
+                  end if;
+
+                  --  Constants are part of the hidden state of a package, but
+                  --  the compiler cannot determine whether they have variable
+                  --  input (SPARK RM 7.1.1(2)) and cannot classify them as a
+                  --  hidden state. Accept the constant quietly even if it is
+                  --  a visible state or lacks a Part_Of indicator.
+
+<<<<<<< HEAD
+                  if Ekind (Constit_Id) = E_Constant then
+                     null;
+
+                  --  If we get here, then the constituent is not a hidden
+                  --  state of the related package and may not be used in a
+                  --  refinement (SPARK RM 7.2.2(9)).
+=======
+            for J in 1 .. 2 loop
+               if Present (Args (J)) then
+                  Check_Arg_Is_OK_Static_Expression (Args (J), Any_Integer);
+               end if;
+            end loop;
+
+            if Present (Args (3)) then
+               Check_Arg_Is_OK_Static_Expression (Args (3), Standard_Boolean);
+            end if;
+>>>>>>> gcc-mirror/master
+
+                  else
+                     Error_Msg_Name_1 := Chars (Spec_Id);
+                     SPARK_Msg_NE
+                       ("cannot use & in refinement, constituent is not a "
+                        & "hidden state of package %", Constit, Constit_Id);
+                  end if;
+               end if;
+            end Match_Constituent;
+
+            --  Local variables
+
+            Constit_Id : Entity_Id;
+
+         --  Start of processing for Analyze_Constituent
+
+<<<<<<< HEAD
+         begin
+            --  Detect multiple uses of null in a single refinement clause or a
+            --  mixture of null and non-null constituents.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E_Id);
+            Set_Universal_Aliasing (Implementation_Base_Type (E_Id));
+            Record_Rep_Item (E_Id, N);
+         end Universal_Alias;
+>>>>>>> gcc-mirror/trunk
+
+            if Nkind (Constit) = N_Null then
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("multiple null constituents not allowed", Constit);
+
+               elsif Non_Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null constituents", Constit);
+
+<<<<<<< HEAD
+               else
+                  Null_Seen := True;
+=======
+            for J in 1 .. 2 loop
+               if Present (Args (J)) then
+                  Check_Arg_Is_OK_Static_Expression (Args (J), Any_Integer);
+               end if;
+            end loop;
+>>>>>>> gcc-mirror/master
+
+                  --  Collect the constituent in the list of refinement items
+
+                  Append_Elmt (Constit, Refinement_Constituents (State_Id));
+
+                  --  The state has at least one legal constituent, mark the
+                  --  start of the refinement region. The region ends when the
+                  --  body declarations end (see Analyze_Declarations).
+
+                  Set_Has_Visible_Refinement (State_Id);
+               end if;
+
+<<<<<<< HEAD
+            --  Non-null constituents
+
+            else
+               Non_Null_Seen := True;
+=======
+         --  pragma Unmodified (LOCAL_NAME {, LOCAL_NAME});
+
+         when Pragma_Unmodified => Unmodified : declare
+            Arg      : Node_Id;
+            Arg_Expr : Node_Id;
+            Arg_Id   : Entity_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost variables is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost variable encountered while
+            --  processing the arguments of the pragma.
+>>>>>>> gcc-mirror/trunk
+
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null constituents", Constit);
+               end if;
+
+               Analyze       (Constit);
+               Resolve_State (Constit);
+
+               --  Ensure that the constituent denotes a valid state or a
+               --  whole object (SPARK RM 7.2.2(5)).
+
+               if Is_Entity_Name (Constit) then
+                  Constit_Id := Entity_Of (Constit);
+
+                  --  When a constituent is declared after a subprogram body
+                  --  that caused "freezing" of the related contract where
+                  --  pragma Refined_State resides, the constituent appears
+                  --  undefined and carries Any_Id as its entity.
+
+                  --    package body Pack
+                  --      with Refined_State => (State => Constit)
+                  --    is
+                  --       procedure Proc
+                  --         with Refined_Global => (Input => Constit)
+                  --       is
+                  --          ...
+                  --       end Proc;
+
+                  --       Constit : ...;
+                  --    end Pack;
+
+                  if Constit_Id = Any_Id then
+                     SPARK_Msg_NE ("& is undefined", Constit, Constit_Id);
+
+                     --  Emit a specialized info message when the contract of
+                     --  the related package body was "frozen" by another body.
+                     --  Note that it is not possible to precisely identify why
+                     --  the constituent is undefined because it is not visible
+                     --  when pragma Refined_State is analyzed. This message is
+                     --  a reasonable approximation.
+
+                     if Present (Freeze_Id) and then not Freeze_Posted then
+                        Freeze_Posted := True;
+
+                        Error_Msg_Name_1 := Chars (Body_Id);
+                        Error_Msg_Sloc   := Sloc (Freeze_Id);
+                        SPARK_Msg_NE
+                          ("body & declared # freezes the contract of %",
+                           N, Freeze_Id);
+                        SPARK_Msg_N
+                          ("\all constituents must be declared before body #",
+                           N);
+
+<<<<<<< HEAD
+                        --  A misplaced constituent is a critical error because
+                        --  pragma Refined_Depends or Refined_Global depends on
+                        --  the proper link between a state and a constituent.
+                        --  Stop the compilation, as this leads to a multitude
+                        --  of misleading cascaded errors.
+=======
+            Arg := Arg1;
+            while Present (Arg) loop
+               Check_No_Identifier (Arg);
+>>>>>>> gcc-mirror/trunk
+
+                        raise Program_Error;
+                     end if;
+
+<<<<<<< HEAD
+                  --  The constituent is a valid state or object
+
+<<<<<<< HEAD
+                  elsif Ekind_In (Constit_Id, E_Abstract_State,
+                                              E_Constant,
+                                              E_Variable)
+                  then
+                     Match_Constituent (Constit_Id);
+=======
+         -----------------------------
+         -- No_Elaboration_Code_All --
+         -----------------------------
+
+         --  pragma No_Elaboration_Code_All;
+
+         when Pragma_No_Elaboration_Code_All =>
+            GNAT_Pragma;
+            Check_Valid_Library_Unit_Pragma;
+
+            if Nkind (N) = N_Null_Statement then
+               return;
+            end if;
+
+            --  Must appear for a spec or generic spec
+
+            if not Nkind_In (Unit (Cunit (Current_Sem_Unit)),
+                             N_Generic_Package_Declaration,
+                             N_Generic_Subprogram_Declaration,
+                             N_Package_Declaration,
+                             N_Subprogram_Declaration)
+            then
+               Error_Pragma
+                 (Fix_Error
+                    ("pragma% can only occur for package "
+                     & "or subprogram spec"));
+            end if;
+
+            --  Set flag in unit table
+
+            Set_No_Elab_Code_All (Current_Sem_Unit);
+
+            --  Set restriction No_Elaboration_Code if this is the main unit
+
+            if Current_Sem_Unit = Main_Unit then
+               Set_Restriction (No_Elaboration_Code, N);
+            end if;
+
+            --  If we are in the main unit or in an extended main source unit,
+            --  then we also add it to the configuration restrictions so that
+            --  it will apply to all units in the extended main source.
+
+            if Current_Sem_Unit = Main_Unit
+              or else In_Extended_Main_Source_Unit (N)
+            then
+               Add_To_Config_Boolean_Restrictions (No_Elaboration_Code);
+            end if;
+
+            --  If in main extended unit, activate transitive with test
+
+            if In_Extended_Main_Source_Unit (N) then
+               Opt.No_Elab_Code_All_Pragma := N;
+            end if;
+
+         ---------------
+         -- No_Inline --
+         ---------------
+>>>>>>> gcc-mirror/master
+
+                     --  The variable may eventually become a constituent of a
+                     --  single protected/task type. Record the reference now
+                     --  and verify its legality when analyzing the contract of
+                     --  the variable (SPARK RM 9.3).
+
+                     if Ekind (Constit_Id) = E_Variable then
+                        Record_Possible_Part_Of_Reference
+                          (Var_Id => Constit_Id,
+                           Ref    => Constit);
+                     end if;
+
+                  --  Otherwise the constituent is illegal
+
+                  else
+                     SPARK_Msg_NE
+                       ("constituent & must denote object or state",
+                        Constit, Constit_Id);
+=======
+               Check_Arg_Is_Local_Name (Arg);
+               Arg_Expr := Get_Pragma_Arg (Arg);
+
+<<<<<<< HEAD
+               if Is_Entity_Name (Arg_Expr) then
+                  Arg_Id := Entity (Arg_Expr);
+=======
+         when Pragma_No_Return => No_Return : declare
+            Arg   : Node_Id;
+            E     : Entity_Id;
+            Found : Boolean;
+            Id    : Node_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost subprograms is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost procedure encountered while
+            --  processing the arguments of the pragma.
+>>>>>>> gcc-mirror/master
+
+                  if Is_Assignable (Arg_Id) then
+                     Set_Has_Pragma_Unmodified (Arg_Id);
+
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+
+                     Mark_Pragma_As_Ghost (N, Arg_Id);
+
+                     --  Capture the entity of the first Ghost variable being
+                     --  processed for error detection purposes.
+
+                     if Is_Ghost_Entity (Arg_Id) then
+                        if No (Ghost_Id) then
+                           Ghost_Id := Arg_Id;
+                        end if;
+
+                     --  Otherwise the variable is non-Ghost. It is illegal
+                     --  to mix references to Ghost and non-Ghost entities
+                     --  (SPARK RM 6.9).
+
+<<<<<<< HEAD
+                     elsif Present (Ghost_Id)
+                       and then not Ghost_Error_Posted
+                     then
+                        Ghost_Error_Posted := True;
+
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_N
+                          ("pragma % cannot mention ghost and non-ghost "
+                           & "variables", N);
+=======
+               E := Entity (Id);
+
+               Found := False;
+               while Present (E)
+                 and then Scope (E) = Current_Scope
+               loop
+                  if Ekind_In (E, E_Procedure, E_Generic_Procedure) then
+                     Set_No_Return (E);
+
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+
+                     Mark_Pragma_As_Ghost (N, E);
+
+                     --  Capture the entity of the first Ghost procedure being
+                     --  processed for error detection purposes.
+
+                     if Is_Ghost_Entity (E) then
+                        if No (Ghost_Id) then
+                           Ghost_Id := E;
+                        end if;
+
+                     --  Otherwise the subprogram is non-Ghost. It is illegal
+                     --  to mix references to Ghost and non-Ghost entities
+                     --  (SPARK RM 6.9).
+
+                     elsif Present (Ghost_Id)
+                       and then not Ghost_Error_Posted
+                     then
+                        Ghost_Error_Posted := True;
+
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_N
+                          ("pragma % cannot mention ghost and non-ghost "
+                           & "procedures", N);
+
+                        Error_Msg_Sloc := Sloc (Ghost_Id);
+                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+
+                        Error_Msg_Sloc := Sloc (E);
+                        Error_Msg_NE ("\& # declared as non-ghost", N, E);
+                     end if;
+
+                     --  Set flag on any alias as well
+>>>>>>> gcc-mirror/master
+
+                        Error_Msg_Sloc := Sloc (Ghost_Id);
+                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+
+                        Error_Msg_Sloc := Sloc (Arg_Id);
+                        Error_Msg_NE ("\& # declared as non-ghost", N, Arg_Id);
+                     end if;
+
+                  --  Otherwise the pragma referenced an illegal entity
+
+                  else
+                     Error_Pragma_Arg
+                       ("pragma% can only be applied to a variable", Arg_Expr);
+>>>>>>> gcc-mirror/trunk
+                  end if;
+
+               --  The constituent is illegal
+
+<<<<<<< HEAD
+               else
+                  SPARK_Msg_N ("malformed constituent", Constit);
+=======
+               --  If entity in not in current scope it may be the enclosing
+               --  suprogram body to which the aspect applies.
+
+               if not Found then
+                  if Entity (Id) = Current_Scope
+                    and then From_Aspect_Specification (N)
+                  then
+                     Set_No_Return (Entity (Id));
+                  else
+                     Error_Pragma_Arg ("no procedure& found for pragma%", Arg);
+                  end if;
+>>>>>>> gcc-mirror/master
+               end if;
+            end if;
+         end Analyze_Constituent;
+
+<<<<<<< HEAD
+         -----------------------------
+         -- Check_External_Property --
+         -----------------------------
+=======
+               Next (Arg);
+            end loop;
+         end Unmodified;
+>>>>>>> gcc-mirror/trunk
+
+         procedure Check_External_Property
+           (Prop_Nam : Name_Id;
+            Enabled  : Boolean;
+            Constit  : Entity_Id)
+         is
+         begin
+            Error_Msg_Name_1 := Prop_Nam;
+
+<<<<<<< HEAD
+            --  The property is enabled in the related Abstract_State pragma
+            --  that defines the state (SPARK RM 7.2.8(3)).
+=======
+         --  pragma Unreferenced (LOCAL_NAME {, LOCAL_NAME});
+>>>>>>> gcc-mirror/trunk
+
+            if Enabled then
+               if No (Constit) then
+                  SPARK_Msg_NE
+                    ("external state & requires at least one constituent with "
+                     & "property %", State, State_Id);
+               end if;
+
+            --  The property is missing in the declaration of the state, but
+            --  a constituent is introducing it in the state refinement
+            --  (SPARK RM 7.2.8(3)).
+
+<<<<<<< HEAD
+            elsif Present (Constit) then
+               Error_Msg_Name_2 := Chars (Constit);
+               SPARK_Msg_NE
+                 ("external state & lacks property % set by constituent %",
+                  State, State_Id);
+            end if;
+         end Check_External_Property;
+
+         -----------------
+         -- Match_State --
+         -----------------
+
+         procedure Match_State is
+            State_Elmt : Elmt_Id;
+=======
+         when Pragma_Unreferenced => Unreferenced : declare
+            Arg      : Node_Id;
+            Arg_Expr : Node_Id;
+            Arg_Id   : Entity_Id;
+            Citem    : Node_Id;
+>>>>>>> gcc-mirror/trunk
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost names is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost name encountered while processing
+            --  the arguments of the pragma.
+
+         begin
+            --  Detect a duplicate refinement of a state (SPARK RM 7.2.2(8))
+
+            if Contains (Refined_States_Seen, State_Id) then
+               SPARK_Msg_NE
+                 ("duplicate refinement of state &", State, State_Id);
+               return;
+            end if;
+
+            --  Inspect the abstract states defined in the package declaration
+            --  looking for a match.
+
+            State_Elmt := First_Elmt (Available_States);
+            while Present (State_Elmt) loop
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+               --  A valid abstract state is being refined in the body. Add
+               --  the state to the list of processed refined states to aid
+               --  with the detection of duplicate refinements. Remove the
+               --  state from Available_States to signal that it has already
+               --  been refined.
+=======
+               Arg := Arg1;
+               while Present (Arg) loop
+                  Citem := First (List_Containing (N));
+                  while Citem /= N loop
+                     Arg_Expr := Get_Pragma_Arg (Arg);
+=======
+            -----------------------
+            -- No_Tagged_Streams --
+            -----------------------
+
+            --  pragma No_Tagged_Streams;
+            --  pragma No_Tagged_Streams ([Entity => ]tagged_type_local_NAME);
+
+         when Pragma_No_Tagged_Streams => No_Tagged_Strms : declare
+            E    : Entity_Id;
+            E_Id : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_At_Most_N_Arguments (1);
+
+            --  One argument case
+
+            if Arg_Count = 1 then
+               Check_Optional_Identifier (Arg1, Name_Entity);
+               Check_Arg_Is_Local_Name (Arg1);
+               E_Id := Get_Pragma_Arg (Arg1);
+
+               if Etype (E_Id) = Any_Type then
+                  return;
+               end if;
+
+               E := Entity (E_Id);
+
+               Check_Duplicate_Pragma (E);
+
+               if not Is_Tagged_Type (E) or else Is_Derived_Type (E) then
+                  Error_Pragma_Arg
+                    ("argument for pragma% must be root tagged type", Arg1);
+               end if;
+
+               if Rep_Item_Too_Early (E, N)
+                    or else
+                  Rep_Item_Too_Late (E, N)
+               then
+                  return;
+               else
+                  Set_No_Tagged_Streams_Pragma (E, N);
+               end if;
+
+            --  Zero argument case
+
+            else
+               Check_Is_In_Decl_Part_Or_Package_Spec;
+               No_Tagged_Streams := N;
+            end if;
+         end No_Tagged_Strms;
+
+         ------------------------
+         -- No_Strict_Aliasing --
+         ------------------------
+>>>>>>> gcc-mirror/master
+
+                     if Nkind (Citem) = N_With_Clause
+                       and then Same_Name (Name (Citem), Arg_Expr)
+                     then
+                        Set_Has_Pragma_Unreferenced
+                          (Cunit_Entity
+                             (Get_Source_Unit
+                                (Library_Unit (Citem))));
+                        Set_Elab_Unit_Name (Arg_Expr, Name (Citem));
+                        exit;
+                     end if;
+>>>>>>> gcc-mirror/trunk
+
+               if Node (State_Elmt) = State_Id then
+                  Append_New_Elmt (State_Id, Refined_States_Seen);
+                  Remove_Elmt (Available_States, State_Elmt);
+                  return;
+               end if;
+
+<<<<<<< HEAD
+               Next_Elmt (State_Elmt);
+            end loop;
+
+            --  If we get here, we are refining a state that is not defined in
+            --  the package declaration.
+=======
+                  if Citem = N then
+                     Error_Pragma_Arg
+                       ("argument of pragma% is not withed unit", Arg);
+                  end if;
+
+                  Next (Arg);
+               end loop;
+>>>>>>> gcc-mirror/trunk
+
+            Error_Msg_Name_1 := Chars (Spec_Id);
+            SPARK_Msg_NE
+              ("cannot refine state, & is not defined in package %",
+               State, State_Id);
+         end Match_State;
+
+<<<<<<< HEAD
+         --------------------------------
+         -- Report_Unused_Constituents --
+         --------------------------------
+=======
+            else
+               Arg := Arg1;
+               while Present (Arg) loop
+                  Check_No_Identifier (Arg);
+>>>>>>> gcc-mirror/trunk
+
+         procedure Report_Unused_Constituents (Constits : Elist_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Posted       : Boolean := False;
+
+<<<<<<< HEAD
+         begin
+            if Present (Constits) then
+               Constit_Elmt := First_Elmt (Constits);
+               while Present (Constit_Elmt) loop
+                  Constit_Id := Node (Constit_Elmt);
+
+                  --  Generate an error message of the form:
+
+                  --    state ... has unused Part_Of constituents
+                  --      abstract state ... defined at ...
+                  --      constant ... defined at ...
+                  --      variable ... defined at ...
+
+                  if not Posted then
+                     Posted := True;
+                     SPARK_Msg_NE
+                       ("state & has unused Part_Of constituents",
+                        State, State_Id);
+                  end if;
+
+                  Error_Msg_Sloc := Sloc (Constit_Id);
+=======
+                  Check_Arg_Is_Local_Name (Arg);
+                  Arg_Expr := Get_Pragma_Arg (Arg);
+
+                  if Is_Entity_Name (Arg_Expr) then
+                     Arg_Id := Entity (Arg_Expr);
+>>>>>>> gcc-mirror/trunk
+
+                  if Ekind (Constit_Id) = E_Abstract_State then
+                     SPARK_Msg_NE
+                       ("\abstract state & defined #", State, Constit_Id);
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+                  elsif Ekind (Constit_Id) = E_Constant then
+                     SPARK_Msg_NE
+                       ("\constant & defined #", State, Constit_Id);
+
+                  else
+                     pragma Assert (Ekind (Constit_Id) = E_Variable);
+                     SPARK_Msg_NE ("\variable & defined #", State, Constit_Id);
+                  end if;
+=======
+            --  Normalize_Scalars creates false positives in CodePeer, and
+            --  incorrect negative results in GNATprove mode, so ignore this
+            --  pragma in these modes.
+
+            if not (CodePeer_Mode or GNATprove_Mode) then
+               Normalize_Scalars := True;
+               Init_Or_Norm_Scalars := True;
+            end if;
+>>>>>>> gcc-mirror/master
+
+                  Next_Elmt (Constit_Elmt);
+=======
+                     if Is_Overloaded (Arg_Expr) then
+                        Generate_Reference (Arg_Id, N);
+                     end if;
+
+                     Set_Has_Pragma_Unreferenced (Arg_Id);
+
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+
+                     Mark_Pragma_As_Ghost (N, Arg_Id);
+
+<<<<<<< HEAD
+                     --  Capture the entity of the first Ghost name being
+                     --  processed for error detection purposes.
+=======
+         when Pragma_Obsolescent => Obsolescent : declare
+            Decl  : Node_Id;
+            Ename : Node_Id;
+>>>>>>> gcc-mirror/master
+
+                     if Is_Ghost_Entity (Arg_Id) then
+                        if No (Ghost_Id) then
+                           Ghost_Id := Arg_Id;
+                        end if;
+
+                     --  Otherwise the name is non-Ghost. It is illegal to mix
+                     --  references to Ghost and non-Ghost entities
+                     --  (SPARK RM 6.9).
+
+                     elsif Present (Ghost_Id)
+                       and then not Ghost_Error_Posted
+                     then
+                        Ghost_Error_Posted := True;
+
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_N
+                          ("pragma % cannot mention ghost and non-ghost names",
+                           N);
+
+<<<<<<< HEAD
+                        Error_Msg_Sloc := Sloc (Ghost_Id);
+                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+=======
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               Mark_Pragma_As_Ghost (N, E);
+
+               --  Entity name was given
+>>>>>>> gcc-mirror/master
+
+                        Error_Msg_Sloc := Sloc (Arg_Id);
+                        Error_Msg_NE ("\& # declared as non-ghost", N, Arg_Id);
+                     end if;
+                  end if;
+
+                  Next (Arg);
+>>>>>>> gcc-mirror/trunk
+               end loop;
+            end if;
+         end Report_Unused_Constituents;
+
+         --  Local declarations
+
+<<<<<<< HEAD
+         Body_Ref      : Node_Id;
+         Body_Ref_Elmt : Elmt_Id;
+         Constit       : Node_Id;
+         Extra_State   : Node_Id;
+
+      --  Start of processing for Analyze_Refinement_Clause
+=======
+         --  pragma Unreferenced_Objects (LOCAL_NAME {, LOCAL_NAME});
+
+         when Pragma_Unreferenced_Objects => Unreferenced_Objects : declare
+            Arg      : Node_Id;
+            Arg_Expr : Node_Id;
+            Arg_Id   : Entity_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost types is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost type encountered while processing
+            --  the arguments of the pragma.
+>>>>>>> gcc-mirror/trunk
+
+      begin
+         --  A refinement clause appears as a component association where the
+         --  sole choice is the state and the expressions are the constituents.
+         --  This is a syntax error, always report.
+
+<<<<<<< HEAD
+         if Nkind (Clause) /= N_Component_Association then
+            Error_Msg_N ("malformed state refinement clause", Clause);
+            return;
+         end if;
+
+         --  Analyze the state name of a refinement clause
+
+         State := First (Choices (Clause));
+=======
+            Arg := Arg1;
+            while Present (Arg) loop
+               Check_No_Identifier (Arg);
+               Check_Arg_Is_Local_Name (Arg);
+               Arg_Expr := Get_Pragma_Arg (Arg);
+
+               if Is_Entity_Name (Arg_Expr) then
+                  Arg_Id := Entity (Arg_Expr);
+
+                  if Is_Type (Arg_Id) then
+                     Set_Has_Pragma_Unreferenced_Objects (Arg_Id);
+
+<<<<<<< HEAD
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+=======
+                  Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+                  S := Strval (Get_Pragma_Arg (Arg1));
+>>>>>>> gcc-mirror/master
+
+                     Mark_Pragma_As_Ghost (N, Arg_Id);
+
+                     --  Capture the entity of the first Ghost type being
+                     --  processed for error detection purposes.
+
+                     if Is_Ghost_Entity (Arg_Id) then
+                        if No (Ghost_Id) then
+                           Ghost_Id := Arg_Id;
+                        end if;
+
+                     --  Otherwise the type is non-Ghost. It is illegal to mix
+                     --  references to Ghost and non-Ghost entities
+                     --  (SPARK RM 6.9).
+
+                     elsif Present (Ghost_Id)
+                       and then not Ghost_Error_Posted
+                     then
+                        Ghost_Error_Posted := True;
+
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_N
+                          ("pragma % cannot mention ghost and non-ghost types",
+                           N);
+
+                        Error_Msg_Sloc := Sloc (Ghost_Id);
+                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+
+                        Error_Msg_Sloc := Sloc (Arg_Id);
+                        Error_Msg_NE ("\& # declared as non-ghost", N, Arg_Id);
+                     end if;
+                  else
+                     Error_Pragma_Arg
+                       ("argument for pragma% must be type or subtype", Arg);
+                  end if;
+               else
+                  Error_Pragma_Arg
+                    ("argument for pragma% must be type or subtype", Arg);
+               end if;
+
+               Next (Arg);
+            end loop;
+         end Unreferenced_Objects;
+>>>>>>> gcc-mirror/trunk
+
+         Analyze       (State);
+         Resolve_State (State);
+
+         --  Ensure that the state name denotes a valid abstract state that is
+         --  defined in the spec of the related package.
+
+         if Is_Entity_Name (State) then
+            State_Id := Entity_Of (State);
+
+            --  When the abstract state is undefined, it appears as Any_Id. Do
+            --  not continue with the analysis of the clause.
+
+            if State_Id = Any_Id then
+               return;
+
+            --  Catch any attempts to re-refine a state or refine a state that
+            --  is not defined in the package declaration.
+
+<<<<<<< HEAD
+            elsif Ekind (State_Id) = E_Abstract_State then
+               Match_State;
+=======
+         when Pragma_Unsuppress =>
+            Ada_2005_Pragma;
+            Process_Suppress_Unsuppress (Suppress_Case => False);
+
+         ----------------------------
+         -- Unevaluated_Use_Of_Old --
+         ----------------------------
+
+         --  pragma Unevaluated_Use_Of_Old (Error | Warn | Allow);
+
+         when Pragma_Unevaluated_Use_Of_Old =>
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_Arg_Is_One_Of (Arg1, Name_Error, Name_Warn, Name_Allow);
+
+            --  Suppress/Unsuppress can appear as a configuration pragma, or in
+            --  a declarative part or a package spec.
+
+            if not Is_Configuration_Pragma then
+               Check_Is_In_Decl_Part_Or_Package_Spec;
+            end if;
+
+            --  Store proper setting of Uneval_Old
+
+            Get_Name_String (Chars (Get_Pragma_Arg (Arg1)));
+            Uneval_Old := Fold_Upper (Name_Buffer (1));
+>>>>>>> gcc-mirror/trunk
+
+            else
+               SPARK_Msg_NE ("& must denote abstract state", State, State_Id);
+               return;
+            end if;
+
+            --  References to a state with visible refinement are illegal.
+            --  When nested packages are involved, detecting such references is
+            --  tricky because pragma Refined_State is analyzed later than the
+            --  offending pragma Depends or Global. References that occur in
+            --  such nested context are stored in a list. Emit errors for all
+            --  references found in Body_References (SPARK RM 6.1.4(8)).
+
+            if Present (Body_References (State_Id)) then
+               Body_Ref_Elmt := First_Elmt (Body_References (State_Id));
+               while Present (Body_Ref_Elmt) loop
+                  Body_Ref := Node (Body_Ref_Elmt);
+
+                  SPARK_Msg_N ("reference to & not allowed", Body_Ref);
+                  Error_Msg_Sloc := Sloc (State);
+                  SPARK_Msg_N ("\refinement of & is visible#", Body_Ref);
+
+<<<<<<< HEAD
+                  Next_Elmt (Body_Ref_Elmt);
+               end loop;
+            end if;
+
+<<<<<<< HEAD
+         --  The state name is illegal. This is a syntax error, always report.
+=======
+         when Pragma_Validity_Checks => Validity_Checks : declare
+            A  : constant Node_Id := Get_Pragma_Arg (Arg1);
+            S  : String_Id;
+            C  : Char_Code;
+>>>>>>> gcc-mirror/trunk
+=======
+            --  Cases where we must follow a declaration, including an
+            --  abstract subprogram declaration, which is not in the
+            --  other node subtypes.
+
+            else
+               if         Nkind (Decl) not in N_Declaration
+                 and then Nkind (Decl) not in N_Later_Decl_Item
+                 and then Nkind (Decl) not in N_Generic_Declaration
+                 and then Nkind (Decl) not in N_Renaming_Declaration
+                 and then Nkind (Decl) /= N_Abstract_Subprogram_Declaration
+               then
+                  Error_Pragma
+                    ("pragma% misplaced, "
+                     & "must immediately follow a declaration");
+>>>>>>> gcc-mirror/master
+
+         else
+            Error_Msg_N ("malformed state name in refinement clause", State);
+            return;
+         end if;
+
+<<<<<<< HEAD
+         --  A refinement clause may only refine one state at a time
+
+         Extra_State := Next (State);
+
+         if Present (Extra_State) then
+            SPARK_Msg_N
+              ("refinement clause cannot cover multiple states", Extra_State);
+         end if;
+
+         --  Replicate the Part_Of constituents of the refined state because
+         --  the algorithm will consume items.
+
+         Part_Of_Constits := New_Copy_Elist (Part_Of_Constituents (State_Id));
+
+         --  Analyze all constituents of the refinement. Multiple constituents
+         --  appear as an aggregate.
+
+         Constit := Expression (Clause);
+
+         if Nkind (Constit) = N_Aggregate then
+            if Present (Component_Associations (Constit)) then
+               SPARK_Msg_N
+                 ("constituents of refinement clause must appear in "
+                  & "positional form", Constit);
+
+            else pragma Assert (Present (Expressions (Constit)));
+               Constit := First (Expressions (Constit));
+               while Present (Constit) loop
+                  Analyze_Constituent (Constit);
+                  Next (Constit);
+               end loop;
+            end if;
+=======
+            --  Pragma always active unless in CodePeer or GNATprove modes,
+            --  which use a fixed configuration of validity checks.
+
+            if not (CodePeer_Mode or GNATprove_Mode) then
+               if Nkind (A) = N_String_Literal then
+                  S := Strval (A);
+
+<<<<<<< HEAD
+                  declare
+                     Slen    : constant Natural := Natural (String_Length (S));
+                     Options : String (1 .. Slen);
+                     J       : Natural;
+=======
+         -------------
+         -- Ordered --
+         -------------
+
+         --  pragma Ordered (first_enumeration_subtype_LOCAL_NAME);
+
+         when Pragma_Ordered => Ordered : declare
+            Assoc   : constant Node_Id := Arg1;
+            Type_Id : Node_Id;
+            Typ     : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+            Check_Arg_Is_Local_Name (Arg1);
+
+            Type_Id := Get_Pragma_Arg (Assoc);
+            Find_Type (Type_Id);
+            Typ := Entity (Type_Id);
+
+            if Typ = Any_Type then
+               return;
+            else
+               Typ := Underlying_Type (Typ);
+            end if;
+
+            if not Is_Enumeration_Type (Typ) then
+               Error_Pragma ("pragma% must specify enumeration type");
+            end if;
+
+            Check_First_Subtype (Arg1);
+            Set_Has_Pragma_Ordered (Base_Type (Typ));
+         end Ordered;
+
+         -------------------
+         -- Overflow_Mode --
+         -------------------
+>>>>>>> gcc-mirror/master
+
+                  begin
+                     --  Couldn't we use a for loop here over Options'Range???
+
+                     J := 1;
+                     loop
+                        C := Get_String_Char (S, Int (J));
+
+                        --  This is a weird test, it skips setting validity
+                        --  checks entirely if any element of S is out of
+                        --  range of Character, what is that about ???
+
+                        exit when not In_Character_Range (C);
+                        Options (J) := Get_Character (C);
+
+                        if J = Slen then
+                           Set_Validity_Check_Options (Options);
+                           exit;
+                        else
+                           J := J + 1;
+                        end if;
+                     end loop;
+                  end;
+
+               elsif Nkind (A) = N_Identifier then
+                  if Chars (A) = Name_All_Checks then
+                     Set_Validity_Check_Options ("a");
+                  elsif Chars (A) = Name_On then
+                     Validity_Checks_On := True;
+                  elsif Chars (A) = Name_Off then
+                     Validity_Checks_On := False;
+                  end if;
+               end if;
+            end if;
+         end Validity_Checks;
+
+         --------------
+         -- Volatile --
+         --------------
+
+         --  pragma Volatile (LOCAL_NAME);
+
+         when Pragma_Volatile =>
+            Process_Atomic_Independent_Shared_Volatile;
+
+         -------------------------
+         -- Volatile_Components --
+         -------------------------
+>>>>>>> gcc-mirror/trunk
+
+         --  Various forms of a single constituent. Note that these may include
+         --  malformed constituents.
+
+         else
+            Analyze_Constituent (Constit);
+         end if;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+         --  A refined external state is subject to special rules with respect
+         --  to its properties and constituents.
+=======
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (1);
+            Check_At_Most_N_Arguments  (2);
+>>>>>>> gcc-mirror/master
+
+         if Is_External_State (State_Id) then
+
+            --  The set of properties that all external constituents yield must
+            --  match that of the refined state. There are two cases to detect:
+            --  the refined state lacks a property or has an extra property.
+
+            if External_Constit_Seen then
+               Check_External_Property
+                 (Prop_Nam => Name_Async_Readers,
+                  Enabled  => Async_Readers_Enabled (State_Id),
+                  Constit  => AR_Constit);
+
+               Check_External_Property
+                 (Prop_Nam => Name_Async_Writers,
+                  Enabled  => Async_Writers_Enabled (State_Id),
+                  Constit  => AW_Constit);
+
+               Check_External_Property
+                 (Prop_Nam => Name_Effective_Reads,
+                  Enabled  => Effective_Reads_Enabled (State_Id),
+                  Constit  => ER_Constit);
+=======
+         --------------------------
+         -- Volatile_Full_Access --
+         --------------------------
+
+         --  pragma Volatile_Full_Access (LOCAL_NAME);
+
+<<<<<<< HEAD
+         when Pragma_Volatile_Full_Access =>
+            GNAT_Pragma;
+            Process_Atomic_Independent_Shared_Volatile;
+
+         -----------------------
+         -- Volatile_Function --
+         -----------------------
+
+         --  pragma Volatile_Function [ (boolean_EXPRESSION) ];
+
+         when Pragma_Volatile_Function => Volatile_Function : declare
+            Over_Id   : Entity_Id;
+            Spec_Id   : Entity_Id;
+            Subp_Decl : Node_Id;
+=======
+         --------------------------
+         -- Overriding Renamings --
+         --------------------------
+
+         --  pragma Overriding_Renamings;
+>>>>>>> gcc-mirror/master
+
+         when Pragma_Overriding_Renamings =>
+            GNAT_Pragma;
+<<<<<<< HEAD
+            Check_No_Identifiers;
+            Check_At_Most_N_Arguments (1);
+
+            Subp_Decl :=
+              Find_Related_Declaration_Or_Body (N, Do_Checks => True);
+
+            --  Generic subprogram
+
+            if Nkind (Subp_Decl) = N_Generic_Subprogram_Declaration then
+               null;
+
+            --  Body acts as spec
+=======
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Overriding_Renamings := True;
+>>>>>>> gcc-mirror/master
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body
+              and then No (Corresponding_Spec (Subp_Decl))
+            then
+               null;
+
+            --  Body stub acts as spec
+
+<<<<<<< HEAD
+            elsif Nkind (Subp_Decl) = N_Subprogram_Body_Stub
+              and then No (Corresponding_Spec_Of_Stub (Subp_Decl))
+            then
+               null;
+
+            --  Subprogram
+
+            elsif Nkind (Subp_Decl) = N_Subprogram_Declaration then
+               null;
+=======
+         when Pragma_Pack => Pack : declare
+            Assoc   : constant Node_Id := Arg1;
+            Ctyp    : Entity_Id;
+            Ignore  : Boolean := False;
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+
+         begin
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+            Check_Arg_Is_Local_Name (Arg1);
+            Type_Id := Get_Pragma_Arg (Assoc);
+
+            if not Is_Entity_Name (Type_Id)
+              or else not Is_Type (Entity (Type_Id))
+            then
+               Error_Pragma_Arg
+                 ("argument for pragma% must be type or subtype", Arg1);
+            end if;
+
+            Find_Type (Type_Id);
+            Typ := Entity (Type_Id);
+>>>>>>> gcc-mirror/master
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+<<<<<<< HEAD
+            Spec_Id := Unique_Defining_Entity (Subp_Decl);
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            if not Is_Array_Type (Typ) and then not Is_Record_Type (Typ) then
+               Error_Pragma ("pragma% must specify array or record type");
+            end if;
+>>>>>>> gcc-mirror/master
+
+            if not Ekind_In (Spec_Id, E_Function, E_Generic_Function) then
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            --  Chain the pragma on the contract for completeness
+
+            Add_Contract_Item (N, Spec_Id);
+
+            --  The legality checks of pragma Volatile_Function are affected by
+            --  the SPARK mode in effect. Analyze all pragmas in a specific
+            --  order.
+
+            Analyze_If_Present (Pragma_SPARK_Mode);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Spec_Id);
+
+<<<<<<< HEAD
+            --  A volatile function cannot override a non-volatile function
+            --  (SPARK RM 7.1.2(15)). Overriding checks are usually performed
+            --  in New_Overloaded_Entity, however at that point the pragma has
+            --  not been processed yet.
+
+            Over_Id := Overridden_Operation (Spec_Id);
+
+            if Present (Over_Id)
+              and then not Is_Volatile_Function (Over_Id)
+            then
+               Error_Msg_N
+                 ("incompatible volatile function values in effect", Spec_Id);
+
+               Error_Msg_Sloc := Sloc (Over_Id);
+               Error_Msg_N
+                 ("\& declared # with Volatile_Function value `False`",
+                  Spec_Id);
+
+               Error_Msg_Sloc := Sloc (Spec_Id);
+               Error_Msg_N
+                 ("\overridden # with Volatile_Function value `True`",
+                  Spec_Id);
+            end if;
+=======
+                  --  In CodePeer mode, we do not need complex front-end
+                  --  expansions related to pragma Pack, so disable handling
+                  --  of pragma Pack.
+
+                  if CodePeer_Mode then
+                     null;
+
+                  --  Normal case where we do the pack action
+>>>>>>> gcc-mirror/master
+
+            --  Analyze the Boolean expression (if any)
+
+            if Present (Arg1) then
+               Check_Static_Boolean_Expression (Get_Pragma_Arg (Arg1));
+            end if;
+         end Volatile_Function;
+
+         ----------------------
+         -- Warning_As_Error --
+         ----------------------
+
+<<<<<<< HEAD
+         --  pragma Warning_As_Error (static_string_EXPRESSION);
+
+         when Pragma_Warning_As_Error =>
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_Valid_Configuration_Pragma;
+
+            if not Is_Static_String_Expression (Arg1) then
+               Error_Pragma_Arg
+                 ("argument of pragma% must be static string expression",
+                  Arg1);
+
+            --  OK static string expression
+
+            else
+               Acquire_Warning_Match_String (Arg1);
+               Warnings_As_Errors_Count := Warnings_As_Errors_Count + 1;
+               Warnings_As_Errors (Warnings_As_Errors_Count) :=
+                 new String'(Name_Buffer (1 .. Name_Len));
+=======
+            else pragma Assert (Is_Record_Type (Typ));
+               if not Rep_Item_Too_Late (Typ, N) then
+                  Set_Is_Packed            (Base_Type (Typ));
+                  Set_Has_Pragma_Pack      (Base_Type (Typ));
+                  Set_Has_Non_Standard_Rep (Base_Type (Typ));
+               end if;
+>>>>>>> gcc-mirror/master
+            end if;
+
+         --------------
+         -- Warnings --
+         --------------
+
+         --  pragma Warnings ([TOOL_NAME,] DETAILS [, REASON]);
+
+         --  DETAILS ::= On | Off
+         --  DETAILS ::= On | Off, local_NAME
+         --  DETAILS ::= static_string_EXPRESSION
+         --  DETAILS ::= On | Off, static_string_EXPRESSION
+
+         --  TOOL_NAME ::= GNAT | GNATProve
+
+<<<<<<< HEAD
+         --  REASON ::= Reason => STRING_LITERAL {& STRING_LITERAL}
+=======
+         -------------
+         -- Part_Of --
+         -------------
+
+         --  pragma Part_Of (ABSTRACT_STATE);
+
+         --  ABSTRACT_STATE ::= NAME
+
+         when Pragma_Part_Of => Part_Of : declare
+            procedure Propagate_Part_Of
+              (Pack_Id  : Entity_Id;
+               State_Id : Entity_Id;
+               Instance : Node_Id);
+            --  Propagate the Part_Of indicator to all abstract states and
+            --  objects declared in the visible state space of a package
+            --  denoted by Pack_Id. State_Id is the encapsulating state.
+            --  Instance is the package instantiation node.
+
+            -----------------------
+            -- Propagate_Part_Of --
+            -----------------------
+
+            procedure Propagate_Part_Of
+              (Pack_Id  : Entity_Id;
+               State_Id : Entity_Id;
+               Instance : Node_Id)
+            is
+               Has_Item : Boolean := False;
+               --  Flag set when the visible state space contains at least one
+               --  abstract state or variable.
+
+               procedure Propagate_Part_Of (Pack_Id : Entity_Id);
+               --  Propagate the Part_Of indicator to all abstract states and
+               --  objects declared in the visible state space of a package
+               --  denoted by Pack_Id.
+
+               -----------------------
+               -- Propagate_Part_Of --
+               -----------------------
+
+               procedure Propagate_Part_Of (Pack_Id : Entity_Id) is
+                  Item_Id : Entity_Id;
+
+               begin
+                  --  Traverse the entity chain of the package and set relevant
+                  --  attributes of abstract states and objects declared in the
+                  --  visible state space of the package.
+
+                  Item_Id := First_Entity (Pack_Id);
+                  while Present (Item_Id)
+                    and then not In_Private_Part (Item_Id)
+                  loop
+                     --  Do not consider internally generated items
+
+                     if not Comes_From_Source (Item_Id) then
+                        null;
+
+                     --  The Part_Of indicator turns an abstract state or an
+                     --  object into a constituent of the encapsulating state.
+
+                     elsif Ekind_In (Item_Id, E_Abstract_State,
+                                              E_Constant,
+                                              E_Variable)
+                     then
+                        Has_Item := True;
+
+                        Append_Elmt (Item_Id, Part_Of_Constituents (State_Id));
+                        Set_Encapsulating_State (Item_Id, State_Id);
+
+                     --  Recursively handle nested packages and instantiations
+
+                     elsif Ekind (Item_Id) = E_Package then
+                        Propagate_Part_Of (Item_Id);
+                     end if;
+
+                     Next_Entity (Item_Id);
+                  end loop;
+               end Propagate_Part_Of;
+
+            --  Start of processing for Propagate_Part_Of
+
+            begin
+               Propagate_Part_Of (Pack_Id);
+
+               --  Detect a package instantiation that is subject to a Part_Of
+               --  indicator, but has no visible state.
+
+               if not Has_Item then
+                  SPARK_Msg_NE
+                    ("package instantiation & has Part_Of indicator but "
+                     & "lacks visible state", Instance, Pack_Id);
+               end if;
+            end Propagate_Part_Of;
+
+            --  Local variables
+
+            Encap    : Node_Id;
+            Encap_Id : Entity_Id;
+            Item_Id  : Entity_Id;
+            Legal    : Boolean;
+            Stmt     : Node_Id;
+
+         --  Start of processing for Part_Of
+
+         begin
+            GNAT_Pragma;
+            Check_No_Identifiers;
+            Check_Arg_Count (1);
+
+            Stmt := Find_Related_Context (N, Do_Checks => True);
+
+            --  Object declaration
+
+            if Nkind (Stmt) = N_Object_Declaration then
+               null;
+
+            --  Package instantiation
+
+            elsif Nkind (Stmt) = N_Package_Instantiation then
+               null;
+
+            --  Single concurrent type declaration
+
+            elsif Is_Single_Concurrent_Type_Declaration (Stmt) then
+               null;
+
+            --  Otherwise the pragma is associated with an illegal construct
+
+            else
+               Pragma_Misplaced;
+               return;
+            end if;
+
+            --  Extract the entity of the related object declaration or package
+            --  instantiation. In the case of the instantiation, use the entity
+            --  of the instance spec.
+
+            if Nkind (Stmt) = N_Package_Instantiation then
+               Stmt := Instance_Spec (Stmt);
+            end if;
+
+            Item_Id := Defining_Entity (Stmt);
+            Encap   := Get_Pragma_Arg (Arg1);
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Item_Id);
+
+            --  Chain the pragma on the contract for further processing by
+            --  Analyze_Part_Of_In_Decl_Part or for completeness.
+
+            Add_Contract_Item (N, Item_Id);
+
+            --  A variable may act as consituent of a single concurrent type
+            --  which in turn could be declared after the variable. Due to this
+            --  discrepancy, the full analysis of indicator Part_Of is delayed
+            --  until the end of the enclosing declarative region (see routine
+            --  Analyze_Part_Of_In_Decl_Part).
+
+            if Ekind (Item_Id) = E_Variable then
+               null;
+
+            --  Otherwise indicator Part_Of applies to a constant or a package
+            --  instantiation.
+
+            else
+               --  Detect any discrepancies between the placement of the
+               --  constant or package instantiation with respect to state
+               --  space and the encapsulating state.
+
+               Analyze_Part_Of
+                 (Indic    => N,
+                  Item_Id  => Item_Id,
+                  Encap    => Encap,
+                  Encap_Id => Encap_Id,
+                  Legal    => Legal);
+
+               if Legal then
+                  pragma Assert (Present (Encap_Id));
+
+                  if Ekind (Item_Id) = E_Constant then
+                     Append_Elmt (Item_Id, Part_Of_Constituents (Encap_Id));
+                     Set_Encapsulating_State (Item_Id, Encap_Id);
+
+                  --  Propagate the Part_Of indicator to the visible state
+                  --  space of the package instantiation.
+
+                  else
+                     Propagate_Part_Of
+                       (Pack_Id  => Item_Id,
+                        State_Id => Encap_Id,
+                        Instance => Stmt);
+                  end if;
+               end if;
+            end if;
+         end Part_Of;
+
+         ----------------------------------
+         -- Partition_Elaboration_Policy --
+         ----------------------------------
+>>>>>>> gcc-mirror/master
+
+         --  Note: If the first argument matches an allowed tool name, it is
+         --  always considered to be a tool name, even if there is a string
+         --  variable of that name.
+
+         --  Note if the second argument of DETAILS is a local_NAME then the
+         --  second form is always understood. If the intention is to use
+         --  the fourth form, then you can write NAME & "" to force the
+         --  intepretation as a static_string_EXPRESSION.
+
+         when Pragma_Warnings => Warnings : declare
+            Reason : String_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (1);
+
+            --  See if last argument is labeled Reason. If so, make sure we
+            --  have a string literal or a concatenation of string literals,
+            --  and acquire the REASON string. Then remove the REASON argument
+            --  by decreasing Num_Args by one; Remaining processing looks only
+            --  at first Num_Args arguments).
+
+            declare
+               Last_Arg : constant Node_Id :=
+                            Last (Pragma_Argument_Associations (N));
+
+            begin
+               if Nkind (Last_Arg) = N_Pragma_Argument_Association
+                 and then Chars (Last_Arg) = Name_Reason
+               then
+                  Start_String;
+                  Get_Reason_String (Get_Pragma_Arg (Last_Arg));
+                  Reason := End_String;
+                  Arg_Count := Arg_Count - 1;
+
+                  --  Not allowed in compiler units (bootstrap issues)
+
+                  Check_Compiler_Unit ("Reason for pragma Warnings", N);
+
+               --  No REASON string, set null string as reason
+
+               else
+                  Reason := Null_String_Id;
+               end if;
+            end;
+>>>>>>> gcc-mirror/trunk
+
+               Check_External_Property
+                 (Prop_Nam => Name_Effective_Writes,
+                  Enabled  => Effective_Writes_Enabled (State_Id),
+                  Constit  => EW_Constit);
+
+            --  An external state may be refined to null (SPARK RM 7.2.8(2))
+
+            elsif Null_Seen then
+               null;
+
+            --  The external state has constituents, but none of them are
+            --  external (SPARK RM 7.2.8(2)).
+
+            else
+               SPARK_Msg_NE
+                 ("external state & requires at least one external "
+                  & "constituent or null refinement", State, State_Id);
+            end if;
+
+         --  When a refined state is not external, it should not have external
+         --  constituents (SPARK RM 7.2.8(1)).
+
+<<<<<<< HEAD
+         elsif External_Constit_Seen then
+            SPARK_Msg_NE
+              ("non-external state & cannot contain external constituents in "
+               & "refinement", State, State_Id);
+         end if;
+
+         --  Ensure that all Part_Of candidate constituents have been mentioned
+         --  in the refinement clause.
+=======
+            declare
+               Argx : constant Node_Id := Get_Pragma_Arg (Arg1);
+               Shifted_Args : List_Id;
+
+            begin
+               --  See if first argument is a tool name, currently either
+               --  GNAT or GNATprove. If so, either ignore the pragma if the
+               --  tool used does not match, or continue as if no tool name
+               --  was given otherwise, by shifting the arguments.
+
+               if Nkind (Argx) = N_Identifier
+                 and then Nam_In (Chars (Argx), Name_Gnat, Name_Gnatprove)
+               then
+                  if Chars (Argx) = Name_Gnat then
+                     if CodePeer_Mode or GNATprove_Mode or ASIS_Mode then
+                        Rewrite (N, Make_Null_Statement (Loc));
+                        Analyze (N);
+                        raise Pragma_Exit;
+                     end if;
+
+<<<<<<< HEAD
+                  elsif Chars (Argx) = Name_Gnatprove then
+                     if not GNATprove_Mode then
+                        Rewrite (N, Make_Null_Statement (Loc));
+                        Analyze (N);
+                        raise Pragma_Exit;
+                     end if;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Ent);
+
+            --  The pragma may come from an aspect on a private declaration,
+            --  even if the freeze point at which this is analyzed in the
+            --  private part after the full view.
+>>>>>>> gcc-mirror/master
+
+                  else
+                     raise Program_Error;
+                  end if;
+
+<<<<<<< HEAD
+                  --  At this point, the pragma Warnings applies to the tool,
+                  --  so continue with shifted arguments.
+
+                  Arg_Count := Arg_Count - 1;
+=======
+            --  Check appropriate type argument
+
+            elsif Is_Private_Type (Ent)
+              or else Is_Protected_Type (Ent)
+              or else (Is_Generic_Type (Ent) and then Is_Derived_Type (Ent))
+
+              --  AI05-0028: The pragma applies to all composite types. Note
+              --  that we apply this binding interpretation to earlier versions
+              --  of Ada, so there is no Ada 2012 guard. Seems a reasonable
+              --  choice since there are other compilers that do the same.
+
+              or else Is_Composite_Type (Ent)
+            then
+               null;
+
+            else
+               Error_Pragma_Arg
+                 ("pragma % can only be applied to private, formal derived, "
+                  & "protected, or composite type", Arg1);
+            end if;
+>>>>>>> gcc-mirror/master
+
+                  if Arg_Count = 1 then
+                     Shifted_Args := New_List (New_Copy (Arg2));
+                  elsif Arg_Count = 2 then
+                     Shifted_Args := New_List (New_Copy (Arg2),
+                                               New_Copy (Arg3));
+                  elsif Arg_Count = 3 then
+                     Shifted_Args := New_List (New_Copy (Arg2),
+                                               New_Copy (Arg3),
+                                               New_Copy (Arg4));
+                  else
+                     raise Program_Error;
+                  end if;
+
+                  Rewrite (N,
+                    Make_Pragma (Loc,
+                      Chars                        => Name_Warnings,
+                      Pragma_Argument_Associations => Shifted_Args));
+                  Analyze (N);
+                  raise Pragma_Exit;
+               end if;
+
+               --  One argument case
+>>>>>>> gcc-mirror/trunk
+
+         Report_Unused_Constituents (Part_Of_Constits);
+      end Analyze_Refinement_Clause;
+
+      -----------------------------
+      -- Report_Unrefined_States --
+      -----------------------------
+
+      procedure Report_Unrefined_States (States : Elist_Id) is
+         State_Elmt : Elmt_Id;
+
+      begin
+         if Present (States) then
+            State_Elmt := First_Elmt (States);
+            while Present (State_Elmt) loop
+               SPARK_Msg_N
+                 ("abstract state & must be refined", Node (State_Elmt));
+
+               Next_Elmt (State_Elmt);
+            end loop;
+         end if;
+      end Report_Unrefined_States;
+
+      --  Local declarations
+
+      Clauses : constant Node_Id := Expression (Get_Argument (N, Spec_Id));
+      Clause  : Node_Id;
+
+   --  Start of processing for Analyze_Refined_State_In_Decl_Part
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+
+<<<<<<< HEAD
+      --  Replicate the abstract states declared by the package because the
+      --  matching algorithm will consume states.
+=======
+               --  A pragma that applies to a Ghost entity becomes Ghost for
+               --  the purposes of legality checks and removal of ignored Ghost
+               --  code.
+
+               Mark_Pragma_As_Ghost (N, Ent);
+
+               --  Check for duplication before inserting in list of
+               --  representation items.
+>>>>>>> gcc-mirror/master
+
+      Available_States := New_Copy_Elist (Abstract_States (Spec_Id));
+
+      --  Gather all abstract states and objects declared in the visible
+      --  state space of the package body. These items must be utilized as
+      --  constituents in a state refinement.
+
+      Body_States := Collect_Body_States (Body_Id);
+
+      --  Multiple non-null state refinements appear as an aggregate
+
+      if Nkind (Clauses) = N_Aggregate then
+         if Present (Expressions (Clauses)) then
+            SPARK_Msg_N
+              ("state refinements must appear as component associations",
+               Clauses);
+
+         else pragma Assert (Present (Component_Associations (Clauses)));
+            Clause := First (Component_Associations (Clauses));
+            while Present (Clause) loop
+               Analyze_Refinement_Clause (Clause);
+               Next (Clause);
+            end loop;
+         end if;
+
+      --  Various forms of a single state refinement. Note that these may
+      --  include malformed refinements.
+
+      else
+         Analyze_Refinement_Clause (Clauses);
+      end if;
+
+      --  List all abstract states that were left unrefined
+
+      Report_Unrefined_States (Available_States);
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Refined_State_In_Decl_Part;
+=======
+               else
+                  Check_Arg_Is_One_Of (Arg1, Name_On, Name_Off);
+                  Check_Arg_Count (2);
+>>>>>>> gcc-mirror/trunk
+
+   ------------------------------------
+   -- Analyze_Test_Case_In_Decl_Part --
+   ------------------------------------
+
+   procedure Analyze_Test_Case_In_Decl_Part (N : Node_Id) is
+      Subp_Decl : constant Node_Id   := Find_Related_Declaration_Or_Body (N);
+      Spec_Id   : constant Entity_Id := Unique_Defining_Entity (Subp_Decl);
+
+      procedure Preanalyze_Test_Case_Arg (Arg_Nam : Name_Id);
+      --  Preanalyze one of the optional arguments "Requires" or "Ensures"
+      --  denoted by Arg_Nam.
+
+      ------------------------------
+      -- Preanalyze_Test_Case_Arg --
+      ------------------------------
+
+      procedure Preanalyze_Test_Case_Arg (Arg_Nam : Name_Id) is
+         Arg : Node_Id;
+
+      begin
+         --  Preanalyze the original aspect argument for ASIS or for a generic
+         --  subprogram to properly capture global references.
+
+         if ASIS_Mode or else Is_Generic_Subprogram (Spec_Id) then
+            Arg :=
+              Test_Case_Arg
+                (Prag        => N,
+                 Arg_Nam     => Arg_Nam,
+                 From_Aspect => True);
+
+            if Present (Arg) then
+               Preanalyze_Assert_Expression
+                 (Expression (Arg), Standard_Boolean);
+            end if;
+         end if;
+
+<<<<<<< HEAD
+         Arg := Test_Case_Arg (N, Arg_Nam);
+=======
+                              if Chars (Get_Pragma_Arg (Arg1)) = Name_Off
+                                and then Warn_On_Warnings_Off
+                                and then not In_Instance
+                              then
+                                 Warnings_Off_Pragmas.Append ((N, E, Reason));
+                              end if;
+>>>>>>> gcc-mirror/trunk
+
+         if Present (Arg) then
+            Preanalyze_Assert_Expression (Expression (Arg), Standard_Boolean);
+         end if;
+      end Preanalyze_Test_Case_Arg;
+
+      --  Local variables
+
+<<<<<<< HEAD
+      Restore_Scope : Boolean := False;
+=======
+                     --  Error if not entity or static string expression case
+>>>>>>> gcc-mirror/trunk
+
+   --  Start of processing for Analyze_Test_Case_In_Decl_Part
+
+<<<<<<< HEAD
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+=======
+                     --  Static string expression case
+
+                     else
+                        Acquire_Warning_Match_String (Arg2);
+>>>>>>> gcc-mirror/trunk
+
+      --  Ensure that the formal parameters are visible when analyzing all
+      --  clauses. This falls out of the general rule of aspects pertaining
+      --  to subprogram declarations.
+
+      if not In_Open_Scopes (Spec_Id) then
+         Restore_Scope := True;
+         Push_Scope (Spec_Id);
+
+         if Is_Generic_Subprogram (Spec_Id) then
+            Install_Generic_Formals (Spec_Id);
+         else
+            Install_Formals (Spec_Id);
+         end if;
+      end if;
+
+<<<<<<< HEAD
+      Preanalyze_Test_Case_Arg (Name_Requires);
+      Preanalyze_Test_Case_Arg (Name_Ensures);
+=======
+                        if Chars (Argx) = Name_Off then
+                           Set_Specific_Warning_Off
+                             (Loc, Name_Buffer (1 .. Name_Len), Reason,
+                              Config => Is_Configuration_Pragma,
+                              Used   => Inside_A_Generic or else In_Instance);
+>>>>>>> gcc-mirror/trunk
+=======
+         -----------------------------------
+         -- Post/Post_Class/Postcondition --
+         -----------------------------------
+
+         --  pragma Post (Boolean_EXPRESSION);
+         --  pragma Post_Class (Boolean_EXPRESSION);
+         --  pragma Postcondition ([Check   =>] Boolean_EXPRESSION
+         --                      [,[Message =>] String_EXPRESSION]);
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expression in:
+
+         --       Analyze_Pre_Post_Condition_In_Decl_Part
+
+         --    * Expansion - The annotation is expanded during the expansion of
+         --    the related subprogram [body] contract as performed in:
+
+         --       Expand_Subprogram_Contract
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+         when Pragma_Post          |
+              Pragma_Post_Class    |
+              Pragma_Postcondition =>
+            Analyze_Pre_Post_Condition;
+
+         --------------------------------
+         -- Pre/Pre_Class/Precondition --
+         --------------------------------
+
+         --  pragma Pre (Boolean_EXPRESSION);
+         --  pragma Pre_Class (Boolean_EXPRESSION);
+         --  pragma Precondition ([Check   =>] Boolean_EXPRESSION
+         --                     [,[Message =>] String_EXPRESSION]);
+
+         --  Characteristics:
+
+         --    * Analysis - The annotation undergoes initial checks to verify
+         --    the legal placement and context. Secondary checks preanalyze the
+         --    expression in:
+
+         --       Analyze_Pre_Post_Condition_In_Decl_Part
+
+         --    * Expansion - The annotation is expanded during the expansion of
+         --    the related subprogram [body] contract as performed in:
+
+         --       Expand_Subprogram_Contract
+
+         --    * Template - The annotation utilizes the generic template of the
+         --    related subprogram [body] when it is:
+
+         --       aspect on subprogram declaration
+         --       aspect on stand alone subprogram body
+         --       pragma on stand alone subprogram body
+
+         --    The annotation must prepare its own template when it is:
+
+         --       pragma on subprogram declaration
+
+         --    * Globals - Capture of global references must occur after full
+         --    analysis.
+
+         --    * Instance - The annotation is instantiated automatically when
+         --    the related generic subprogram [body] is instantiated except for
+         --    the "pragma on subprogram declaration" case. In that scenario
+         --    the annotation must instantiate itself.
+
+         when Pragma_Pre          |
+              Pragma_Pre_Class    |
+              Pragma_Precondition =>
+            Analyze_Pre_Post_Condition;
+>>>>>>> gcc-mirror/master
+
+      if Restore_Scope then
+         End_Scope;
+      end if;
+
+<<<<<<< HEAD
+      --  Currently it is not possible to inline pre/postconditions on a
+      --  subprogram subject to pragma Inline_Always.
+
+      Check_Postcondition_Use_In_Inlined_Subprogram (N, Spec_Id);
+
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Test_Case_In_Decl_Part;
+=======
+         --  pragma Predicate
+         --    ([Entity =>] type_LOCAL_NAME,
+         --     [Check  =>] boolean_EXPRESSION);
+
+         when Pragma_Predicate => Predicate : declare
+            Discard : Boolean;
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+>>>>>>> gcc-mirror/master
+
+   ----------------
+   -- Appears_In --
+   ----------------
+
+   function Appears_In (List : Elist_Id; Item_Id : Entity_Id) return Boolean is
+      Elmt : Elmt_Id;
+      Id   : Entity_Id;
+
+   begin
+      if Present (List) then
+         Elmt := First_Elmt (List);
+         while Present (Elmt) loop
+            if Nkind (Node (Elmt)) = N_Defining_Identifier then
+               Id := Node (Elmt);
+            else
+               Id := Entity_Of (Node (Elmt));
+            end if;
+
+            if Id = Item_Id then
+               return True;
+            end if;
+
+<<<<<<< HEAD
+            Next_Elmt (Elmt);
+         end loop;
+      end if;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            --  The remaining processing is simply to link the pragma on to
+            --  the rep item chain, for processing when the type is frozen.
+            --  This is accomplished by a call to Rep_Item_Too_Late. We also
+            --  mark the type as having predicates.
+>>>>>>> gcc-mirror/master
+
+      return False;
+   end Appears_In;
+
+<<<<<<< HEAD
+   -----------------------------
+   -- Check_Applicable_Policy --
+   -----------------------------
+=======
+         -----------------------
+         -- Predicate_Failure --
+         -----------------------
+
+         --  pragma Predicate_Failure
+         --    ([Entity  =>] type_LOCAL_NAME,
+         --     [Message =>] string_EXPRESSION);
+
+         when Pragma_Predicate_Failure => Predicate_Failure : declare
+            Discard : Boolean;
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (2);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Optional_Identifier (Arg2, Name_Message);
+
+            Check_Arg_Is_Local_Name (Arg1);
+
+            Type_Id := Get_Pragma_Arg (Arg1);
+            Find_Type (Type_Id);
+            Typ := Entity (Type_Id);
+
+            if Typ = Any_Type then
+               return;
+            end if;
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            --  The remaining processing is simply to link the pragma on to
+            --  the rep item chain, for processing when the type is frozen.
+            --  This is accomplished by a call to Rep_Item_Too_Late.
+
+            Discard := Rep_Item_Too_Late (Typ, N, FOnly => True);
+         end Predicate_Failure;
+
+         ------------------
+         -- Preelaborate --
+         ------------------
+>>>>>>> gcc-mirror/master
+
+   procedure Check_Applicable_Policy (N : Node_Id) is
+      PP     : Node_Id;
+      Policy : Name_Id;
+
+      Ename : constant Name_Id := Original_Aspect_Pragma_Name (N);
+
+   begin
+      --  No effect if not valid assertion kind name
+
+      if not Is_Valid_Assertion_Kind (Ename) then
+         return;
+      end if;
+
+      --  Loop through entries in check policy list
+
+      PP := Opt.Check_Policy_List;
+      while Present (PP) loop
+         declare
+            PPA : constant List_Id := Pragma_Argument_Associations (PP);
+            Pnm : constant Name_Id := Chars (Get_Pragma_Arg (First (PPA)));
+
+         begin
+            if Ename = Pnm
+              or else Pnm = Name_Assertion
+              or else (Pnm = Name_Statement_Assertions
+                        and then Nam_In (Ename, Name_Assert,
+                                                Name_Assert_And_Cut,
+                                                Name_Assume,
+                                                Name_Loop_Invariant,
+                                                Name_Loop_Variant))
+            then
+               Policy := Chars (Get_Pragma_Arg (Last (PPA)));
+
+               case Policy is
+                  when Name_Off | Name_Ignore =>
+                     Set_Is_Ignored (N, True);
+                     Set_Is_Checked (N, False);
+
+                  when Name_On | Name_Check =>
+                     Set_Is_Checked (N, True);
+                     Set_Is_Ignored (N, False);
+
+                  when Name_Disable =>
+                     Set_Is_Ignored  (N, True);
+                     Set_Is_Checked  (N, False);
+                     Set_Is_Disabled (N, True);
+
+<<<<<<< HEAD
+                  --  That should be exhaustive, the null here is a defence
+                  --  against a malformed tree from previous errors.
+
+                  when others =>
+                     null;
+               end case;
+
+               return;
+=======
+            Ent := Find_Lib_Unit_Name;
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Ent);
+            Check_Duplicate_Pragma (Ent);
+
+            --  This filters out pragmas inside generic parents that show up
+            --  inside instantiations. Pragmas that come from aspects in the
+            --  unit are not ignored.
+
+            if Present (Ent) then
+               if Pk = N_Package_Specification
+                 and then Present (Generic_Parent (Pa))
+                 and then not From_Aspect_Specification (N)
+               then
+                  null;
+
+               else
+                  if not Debug_Flag_U then
+                     Set_Is_Preelaborated (Ent);
+                     Set_Suppress_Elaboration_Warnings (Ent);
+                  end if;
+               end if;
+>>>>>>> gcc-mirror/master
+            end if;
+
+<<<<<<< HEAD
+            PP := Next_Pragma (PP);
+         end;
+      end loop;
+
+      --  If there are no specific entries that matched, then we let the
+      --  setting of assertions govern. Note that this provides the needed
+      --  compatibility with the RM for the cases of assertion, invariant,
+      --  precondition, predicate, and postcondition.
+
+      if Assertions_Enabled then
+         Set_Is_Checked (N, True);
+         Set_Is_Ignored (N, False);
+      else
+         Set_Is_Checked (N, False);
+         Set_Is_Ignored (N, True);
+      end if;
+   end Check_Applicable_Policy;
+
+<<<<<<< HEAD
+   -------------------------------
+   -- Check_External_Properties --
+   -------------------------------
+
+   procedure Check_External_Properties
+     (Item : Node_Id;
+      AR   : Boolean;
+      AW   : Boolean;
+      ER   : Boolean;
+      EW   : Boolean)
+   is
+   begin
+      --  All properties enabled
+
+      if AR and AW and ER and EW then
+         null;
+
+      --  Async_Readers + Effective_Writes
+      --  Async_Readers + Async_Writers + Effective_Writes
+
+      elsif AR and EW and not ER then
+         null;
+
+      --  Async_Writers + Effective_Reads
+      --  Async_Readers + Async_Writers + Effective_Reads
+=======
+         -------------------------------
+         -- Prefix_Exception_Messages --
+         -------------------------------
+
+         --  pragma Prefix_Exception_Messages;
+
+         when Pragma_Prefix_Exception_Messages =>
+            GNAT_Pragma;
+            Check_Valid_Configuration_Pragma;
+            Check_Arg_Count (0);
+            Prefix_Exception_Messages := True;
+>>>>>>> gcc-mirror/master
+
+      elsif AW and ER and not EW then
+         null;
+
+      --  Async_Readers + Async_Writers
+
+      elsif AR and AW and not ER and not EW then
+         null;
+
+      --  Async_Readers
+
+      elsif AR and not AW and not ER and not EW then
+         null;
+
+      --  Async_Writers
+
+      elsif AW and not AR and not ER and not EW then
+         null;
+
+      else
+         SPARK_Msg_N
+           ("illegal combination of external properties (SPARK RM 7.1.2(6))",
+            Item);
+      end if;
+   end Check_External_Properties;
+=======
+   ---------------------------------------------
+   -- Analyze_Pre_Post_Condition_In_Decl_Part --
+   ---------------------------------------------
+
+   procedure Analyze_Pre_Post_Condition_In_Decl_Part
+     (N         : Node_Id;
+      Freeze_Id : Entity_Id := Empty)
+   is
+      procedure Process_Class_Wide_Condition
+        (Expr      : Node_Id;
+         Spec_Id   : Entity_Id;
+         Subp_Decl : Node_Id);
+      --  Replace the type of all references to the controlling formal of
+      --  subprogram Spec_Id found in expression Expr with the corresponding
+      --  class-wide type. Subp_Decl is the subprogram [body] declaration
+      --  where the pragma resides.
+
+      ----------------------------------
+      -- Process_Class_Wide_Condition --
+      ----------------------------------
+
+      procedure Process_Class_Wide_Condition
+        (Expr      : Node_Id;
+         Spec_Id   : Entity_Id;
+         Subp_Decl : Node_Id)
+      is
+         Disp_Typ : constant Entity_Id := Find_Dispatching_Type (Spec_Id);
+
+         ACW : Entity_Id := Empty;
+         --  Access to Disp_Typ'Class, created if there is a controlling formal
+         --  that is an access parameter.
+
+         function Access_Class_Wide_Type return Entity_Id;
+         --  If expression Expr contains a reference to a controlling access
+         --  parameter, create an access to Disp_Typ'Class for the necessary
+         --  conversions if one does not exist.
+
+         function Replace_Type (N : Node_Id) return Traverse_Result;
+         --  ARM 6.1.1: Within the expression for a Pre'Class or Post'Class
+         --  aspect for a primitive subprogram of a tagged type Disp_Typ, a
+         --  name that denotes a formal parameter of type Disp_Typ is treated
+         --  as having type Disp_Typ'Class. Similarly, a name that denotes a
+         --  formal access parameter of type access-to-Disp_Typ is interpreted
+         --  as with type access-to-Disp_Typ'Class. This ensures the expression
+         --  is well defined for a primitive subprogram of a type descended
+         --  from Disp_Typ.
+
+<<<<<<< HEAD
+         ----------------------------
+         -- Access_Class_Wide_Type --
+         ----------------------------
+=======
+               if not Is_OK_Static_Expression (Arg) then
+                  Flag_Non_Static_Expr
+                    ("main subprogram priority is not static!", Arg);
+                  raise Pragma_Exit;
+>>>>>>> gcc-mirror/master
+
+         function Access_Class_Wide_Type return Entity_Id is
+            Loc : constant Source_Ptr := Sloc (N);
+
+         begin
+            if No (ACW) then
+               ACW := Make_Temporary (Loc, 'T');
+
+<<<<<<< HEAD
+               Insert_Before_And_Analyze (Subp_Decl,
+                 Make_Full_Type_Declaration (Loc,
+                   Defining_Identifier => ACW,
+                   Type_Definition     =>
+                      Make_Access_To_Object_Definition (Loc,
+                        Subtype_Indication =>
+                          New_Occurrence_Of (Class_Wide_Type (Disp_Typ), Loc),
+                        All_Present        => True)));
+
+               Freeze_Before (Subp_Decl, ACW);
+            end if;
+
+            return ACW;
+         end Access_Class_Wide_Type;
+
+         ------------------
+         -- Replace_Type --
+         ------------------
+
+         function Replace_Type (N : Node_Id) return Traverse_Result is
+            Context : constant Node_Id    := Parent (N);
+            Loc     : constant Source_Ptr := Sloc (N);
+            CW_Typ  : Entity_Id := Empty;
+            Ent     : Entity_Id;
+            Typ     : Entity_Id;
+
+         begin
+            if Is_Entity_Name (N)
+              and then Present (Entity (N))
+              and then Is_Formal (Entity (N))
+            then
+               Ent := Entity (N);
+               Typ := Etype (Ent);
+=======
+               --  Otherwise check in range except if Relaxed_RM_Semantics
+               --  where we ignore the value if out of range.
+
+               else
+                  declare
+                     Val : constant Uint := Expr_Value (Arg);
+                  begin
+                     if not Relaxed_RM_Semantics
+                       and then
+                         (Val < 0
+                           or else Val > Expr_Value (Expression
+                                           (Parent (RTE (RE_Max_Priority)))))
+                     then
+                        Error_Pragma_Arg
+                          ("main subprogram priority is out of range", Arg1);
+                     else
+                        Set_Main_Priority
+                          (Current_Sem_Unit, UI_To_Int (Expr_Value (Arg)));
+                     end if;
+                  end;
+               end if;
+
+               --  Load an arbitrary entity from System.Tasking.Stages or
+               --  System.Tasking.Restricted.Stages (depending on the
+               --  supported profile) to make sure that one of these packages
+               --  is implicitly with'ed, since we need to have the tasking
+               --  run time active for the pragma Priority to have any effect.
+               --  Previously we with'ed the package System.Tasking, but this
+               --  package does not trigger the required initialization of the
+               --  run-time library.
+
+               declare
+                  Discard : Entity_Id;
+                  pragma Warnings (Off, Discard);
+               begin
+                  if Restricted_Profile then
+                     Discard := RTE (RE_Activate_Restricted_Tasks);
+                  else
+                     Discard := RTE (RE_Activate_Tasks);
+                  end if;
+               end;
+>>>>>>> gcc-mirror/master
+
+               --  Do not perform the type replacement for selector names in
+               --  parameter associations. These carry an entity for reference
+               --  purposes, but semantically they are just identifiers.
+
+               if Nkind (Context) = N_Type_Conversion then
+                  null;
+
+               elsif Nkind (Context) = N_Parameter_Association
+                 and then Selector_Name (Context) = N
+               then
+                  null;
+
+               elsif Typ = Disp_Typ then
+                  CW_Typ := Class_Wide_Type (Typ);
+
+<<<<<<< HEAD
+               elsif Is_Access_Type (Typ)
+                 and then Designated_Type (Typ) = Disp_Typ
+               then
+                  CW_Typ := Access_Class_Wide_Type;
+=======
+               if not Is_OK_Static_Expression (Arg) then
+                  Check_Restriction (Static_Priorities, Arg);
+>>>>>>> gcc-mirror/master
+               end if;
+
+               if Present (CW_Typ) then
+                  Rewrite (N,
+                    Make_Type_Conversion (Loc,
+                      Subtype_Mark => New_Occurrence_Of (CW_Typ, Loc),
+                      Expression   => New_Occurrence_Of (Ent, Loc)));
+                  Set_Etype (N, CW_Typ);
+               end if;
+            end if;
+
+            return OK;
+         end Replace_Type;
+
+         procedure Replace_Types is new Traverse_Proc (Replace_Type);
+>>>>>>> gcc-mirror/trunk
+
+      --  Start of processing for Process_Class_Wide_Condition
+
+      begin
+         --  The subprogram subject to Pre'Class/Post'Class does not have a
+         --  dispatching type, therefore the aspect/pragma is illegal.
+
+         if No (Disp_Typ) then
+            Error_Msg_Name_1 := Original_Aspect_Pragma_Name (N);
+
+            if From_Aspect_Specification (N) then
+               Error_Msg_N
+                 ("aspect % can only be specified for a primitive operation "
+                  & "of a tagged type", Corresponding_Aspect (N));
+
+<<<<<<< HEAD
+         begin
+            if Nam = Pnm
+              or else (Pnm = Name_Assertion
+                        and then Is_Valid_Assertion_Kind (Nam))
+              or else (Pnm = Name_Statement_Assertions
+                        and then Nam_In (Nam, Name_Assert,
+                                              Name_Assert_And_Cut,
+                                              Name_Assume,
+                                              Name_Loop_Invariant,
+                                              Name_Loop_Variant))
+            then
+               case (Chars (Get_Pragma_Arg (Last (PPA)))) is
+                  when Name_On | Name_Check =>
+                     return Name_Check;
+                  when Name_Off | Name_Ignore =>
+                     return Name_Ignore;
+                  when Name_Disable =>
+                     return Name_Disable;
+                  when others =>
+                     raise Program_Error;
+               end case;
+=======
+            --  The pragma is a source construct
+>>>>>>> gcc-mirror/trunk
+
+<<<<<<< HEAD
+            else
+               Error_Msg_N
+                 ("pragma % can only be specified for a primitive operation "
+                  & "of a tagged type", N);
+            end if;
+         end if;
+
+         Replace_Types (Expr);
+      end Process_Class_Wide_Condition;
+=======
+            Lower_Bound := Get_Pragma_Arg (Arg2);
+            Check_Arg_Is_OK_Static_Expression (Lower_Bound, Standard_Integer);
+            Lower_Val := Expr_Value (Lower_Bound);
+
+            Upper_Bound := Get_Pragma_Arg (Arg3);
+            Check_Arg_Is_OK_Static_Expression (Upper_Bound, Standard_Integer);
+            Upper_Val := Expr_Value (Upper_Bound);
+>>>>>>> gcc-mirror/master
+
+      --  Local variables
+
+<<<<<<< HEAD
+   ---------------------------
+   -- Check_Missing_Part_Of --
+   ---------------------------
+
+   procedure Check_Missing_Part_Of (Item_Id : Entity_Id) is
+      function Has_Visible_State (Pack_Id : Entity_Id) return Boolean;
+      --  Determine whether a package denoted by Pack_Id declares at least one
+      --  visible state.
+
+      -----------------------
+      -- Has_Visible_State --
+      -----------------------
+
+      function Has_Visible_State (Pack_Id : Entity_Id) return Boolean is
+         Item_Id : Entity_Id;
+
+      begin
+         --  Traverse the entity chain of the package trying to find at least
+         --  one visible abstract state, variable or a package [instantiation]
+         --  that declares a visible state.
+
+         Item_Id := First_Entity (Pack_Id);
+         while Present (Item_Id)
+           and then not In_Private_Part (Item_Id)
+         loop
+            --  Do not consider internally generated items
+
+            if not Comes_From_Source (Item_Id) then
+               null;
+
+            --  A visible state has been found
+
+<<<<<<< HEAD
+            elsif Ekind_In (Item_Id, E_Abstract_State, E_Variable) then
+               return True;
+=======
+            else
+               --  Check overlapping in the priority ranges specified in other
+               --  Priority_Specific_Dispatching pragmas within the same
+               --  partition. We can only check those we know about.
+>>>>>>> gcc-mirror/master
+
+            --  Recursively peek into nested packages and instantiations
+
+            elsif Ekind (Item_Id) = E_Package
+              and then Has_Visible_State (Item_Id)
+            then
+               return True;
+            end if;
+
+            Next_Entity (Item_Id);
+         end loop;
+
+         return False;
+      end Has_Visible_State;
+
+      --  Local variables
+
+      Pack_Id   : Entity_Id;
+      Placement : State_Space_Kind;
+
+   --  Start of processing for Check_Missing_Part_Of
+
+   begin
+      --  Do not consider abstract states, variables or package instantiations
+      --  coming from an instance as those always inherit the Part_Of indicator
+      --  of the instance itself.
+
+      if In_Instance then
+         return;
+
+      --  Do not consider internally generated entities as these can never
+      --  have a Part_Of indicator.
+
+      elsif not Comes_From_Source (Item_Id) then
+         return;
+
+      --  Perform these checks only when SPARK_Mode is enabled as they will
+      --  interfere with standard Ada rules and produce false positives.
+
+      elsif SPARK_Mode /= On then
+         return;
+
+      --  Do not consider constants, because the compiler cannot accurately
+      --  determine whether they have variable input (SPARK RM 7.1.1(2)) and
+      --  act as a hidden state of a package.
+
+      elsif Ekind (Item_Id) = E_Constant then
+         return;
+      end if;
+
+      --  Find where the abstract state, variable or package instantiation
+      --  lives with respect to the state space.
+
+      Find_Placement_In_State_Space
+        (Item_Id   => Item_Id,
+         Placement => Placement,
+         Pack_Id   => Pack_Id);
+
+      --  Items that appear in a non-package construct (subprogram, block, etc)
+      --  do not require a Part_Of indicator because they can never act as a
+      --  hidden state.
+
+<<<<<<< HEAD
+      if Placement = Not_In_Package then
+         null;
+=======
+            begin
+               if Chars (Argx) = Name_Ravenscar then
+                  Set_Ravenscar_Profile (Ravenscar, N);
+
+               elsif Chars (Argx) = Name_Gnat_Extended_Ravenscar then
+                  Set_Ravenscar_Profile (GNAT_Extended_Ravenscar, N);
+>>>>>>> gcc-mirror/master
+
+      --  An item declared in the body state space of a package always act as a
+      --  constituent and does not need explicit Part_Of indicator.
+
+      elsif Placement = Body_State_Space then
+         null;
+
+      --  In general an item declared in the visible state space of a package
+      --  does not require a Part_Of indicator. The only exception is when the
+      --  related package is a private child unit in which case Part_Of must
+      --  denote a state in the parent unit or in one of its descendants.
+
+      elsif Placement = Visible_State_Space then
+         if Is_Child_Unit (Pack_Id)
+           and then Is_Private_Descendant (Pack_Id)
+         then
+            --  A package instantiation does not need a Part_Of indicator when
+            --  the related generic template has no visible state.
+
+            if Ekind (Item_Id) = E_Package
+              and then Is_Generic_Instance (Item_Id)
+              and then not Has_Visible_State (Item_Id)
+            then
+               null;
+
+            --  All other cases require Part_Of
+
+            else
+               Error_Msg_N
+                 ("indicator Part_Of is required in this context "
+                  & "(SPARK RM 7.2.6(3))", Item_Id);
+               Error_Msg_Name_1 := Chars (Pack_Id);
+               Error_Msg_N
+                 ("\& is declared in the visible part of private child "
+                  & "unit %", Item_Id);
+            end if;
+         end if;
+
+      --  When the item appears in the private state space of a packge, it must
+      --  be a part of some state declared by the said package.
+=======
+      Subp_Decl : constant Node_Id   := Find_Related_Declaration_Or_Body (N);
+      Spec_Id   : constant Entity_Id := Unique_Defining_Entity (Subp_Decl);
+      Expr      : constant Node_Id   := Expression (Get_Argument (N, Spec_Id));
+
+      Save_Ghost_Mode : constant Ghost_Mode_Type := Ghost_Mode;
+
+      Errors        : Nat;
+      Restore_Scope : Boolean := False;
+
+   --  Start of processing for Analyze_Pre_Post_Condition_In_Decl_Part
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+
+      --  Set the Ghost mode in effect from the pragma. Due to the delayed
+      --  analysis of the pragma, the Ghost mode at point of declaration and
+      --  point of analysis may not necessarely be the same. Use the mode in
+      --  effect at the point of declaration.
+
+      Set_Ghost_Mode (N);
+
+      --  Ensure that the subprogram and its formals are visible when analyzing
+      --  the expression of the pragma.
+
+      if not In_Open_Scopes (Spec_Id) then
+         Restore_Scope := True;
+         Push_Scope (Spec_Id);
+
+<<<<<<< HEAD
+         if Is_Generic_Subprogram (Spec_Id) then
+            Install_Generic_Formals (Spec_Id);
+         else
+            Install_Formals (Spec_Id);
+         end if;
+      end if;
+
+      Errors := Serious_Errors_Detected;
+      Preanalyze_Assert_Expression (Expr, Standard_Boolean);
+
+      --  Emit a clarification message when the expression contains at least
+      --  one undefined reference, possibly due to contract "freezing".
+
+      if Errors /= Serious_Errors_Detected
+        and then Present (Freeze_Id)
+        and then Has_Undefined_Reference (Expr)
+      then
+         Contract_Freeze_Error (Spec_Id, Freeze_Id);
+      end if;
+
+      --  For a class-wide condition, a reference to a controlling formal must
+      --  be interpreted as having the class-wide type (or an access to such)
+      --  so that the inherited condition can be properly applied to any
+      --  overriding operation (see ARM12 6.6.1 (7)).
+
+      if Class_Present (N) then
+         Process_Class_Wide_Condition (Expr, Spec_Id, Subp_Decl);
+      end if;
+
+      if Restore_Scope then
+         End_Scope;
+      end if;
+
+      --  Currently it is not possible to inline pre/postconditions on a
+      --  subprogram subject to pragma Inline_Always.
+
+      Check_Postcondition_Use_In_Inlined_Subprogram (N, Spec_Id);
+      Ghost_Mode := Save_Ghost_Mode;
+
+      Set_Is_Analyzed_Pragma (N);
+   end Analyze_Pre_Post_Condition_In_Decl_Part;
+
+   ------------------------------------------
+   -- Analyze_Refined_Depends_In_Decl_Part --
+   ------------------------------------------
 =======
             if Warn_On_Obsolescent_Feature then
                Error_Msg_N
@@ -32586,8 +46367,105 @@ package body Sem_Prag is
                     ("inappropriate argument for pragma %", Arg);
                end if;
             end Check_Arg;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
+   procedure Analyze_Refined_Depends_In_Decl_Part (N : Node_Id) is
+      Body_Inputs  : Elist_Id := No_Elist;
+      Body_Outputs : Elist_Id := No_Elist;
+      --  The inputs and outputs of the subprogram body synthesized from pragma
+      --  Refined_Depends.
+
+      Dependencies : List_Id := No_List;
+      Depends      : Node_Id;
+      --  The corresponding Depends pragma along with its clauses
+
+      Matched_Items : Elist_Id := No_Elist;
+      --  A list containing the entities of all successfully matched items
+      --  found in pragma Depends.
+
+      Refinements : List_Id := No_List;
+      --  The clauses of pragma Refined_Depends
+
+<<<<<<< HEAD
+      Spec_Id : Entity_Id;
+      --  The entity of the subprogram subject to pragma Refined_Depends
+=======
+            Check_Arg (Internal);
+>>>>>>> gcc-mirror/master
+
+      Spec_Inputs  : Elist_Id := No_Elist;
+      Spec_Outputs : Elist_Id := No_Elist;
+      --  The inputs and outputs of the subprogram spec synthesized from pragma
+      --  Depends.
+
+      procedure Check_Dependency_Clause (Dep_Clause : Node_Id);
+      --  Try to match a single dependency clause Dep_Clause against one or
+      --  more refinement clauses found in list Refinements. Each successful
+      --  match eliminates at least one refinement clause from Refinements.
+
+      procedure Check_Output_States;
+      --  Determine whether pragma Depends contains an output state with a
+      --  visible refinement and if so, ensure that pragma Refined_Depends
+      --  mentions all its constituents as outputs.
+
+      procedure Normalize_Clauses (Clauses : List_Id);
+      --  Given a list of dependence or refinement clauses Clauses, normalize
+      --  each clause by creating multiple dependencies with exactly one input
+      --  and one output.
+
+      procedure Report_Extra_Clauses;
+      --  Emit an error for each extra clause found in list Refinements
+
+      -----------------------------
+      -- Check_Dependency_Clause --
+      -----------------------------
+
+      procedure Check_Dependency_Clause (Dep_Clause : Node_Id) is
+         Dep_Input  : constant Node_Id := Expression (Dep_Clause);
+         Dep_Output : constant Node_Id := First (Choices (Dep_Clause));
+
+         function Is_In_Out_State_Clause return Boolean;
+         --  Determine whether dependence clause Dep_Clause denotes an abstract
+         --  state that depends on itself (State => State).
+
+         function Is_Null_Refined_State (Item : Node_Id) return Boolean;
+         --  Determine whether item Item denotes an abstract state with visible
+         --  null refinement.
+
+         procedure Match_Items
+           (Dep_Item : Node_Id;
+            Ref_Item : Node_Id;
+            Matched  : out Boolean);
+         --  Try to match dependence item Dep_Item against refinement item
+         --  Ref_Item. To match against a possible null refinement (see 2, 7),
+         --  set Ref_Item to Empty. Flag Matched is set to True when one of
+         --  the following conformance scenarios is in effect:
+         --    1) Both items denote null
+         --    2) Dep_Item denotes null and Ref_Item is Empty (special case)
+         --    3) Both items denote attribute 'Result
+         --    4) Both items denote the same object
+         --    5) Both items denote the same formal parameter
+         --    6) Both items denote the same current instance of a type
+         --    7) Both items denote the same discriminant
+         --    8) Dep_Item is an abstract state with visible null refinement
+         --       and Ref_Item denotes null.
+         --    9) Dep_Item is an abstract state with visible null refinement
+         --       and Ref_Item is Empty (special case).
+         --   10) Dep_Item is an abstract state with visible non-null
+         --       refinement and Ref_Item denotes one of its constituents.
+         --   11) Dep_Item is an abstract state without a visible refinement
+         --       and Ref_Item denotes the same state.
+         --  When scenario 10 is in effect, the entity of the abstract state
+         --  denoted by Dep_Item is added to list Refined_States.
+
+         procedure Record_Item (Item_Id : Entity_Id);
+         --  Store the entity of an item denoted by Item_Id in Matched_Items
+
+         ----------------------------
+         -- Is_In_Out_State_Clause --
+         ----------------------------
+
+<<<<<<< HEAD
          function Is_In_Out_State_Clause return Boolean is
             Dep_Input_Id  : Entity_Id;
             Dep_Output_Id : Entity_Id;
@@ -32595,6 +46473,15 @@ package body Sem_Prag is
          begin
             --  Detect the following clause:
             --    State => State
+=======
+            if Present (Size) then
+               Check_Arg (Size);
+            end if;
+
+            if Present (External) then
+               Check_Arg_Is_External_Name (External);
+            end if;
+>>>>>>> gcc-mirror/master
 
             if Is_Entity_Name (Dep_Input)
               and then Is_Entity_Name (Dep_Output)
@@ -32612,13 +46499,9 @@ package body Sem_Prag is
             end if;
          end Is_In_Out_State_Clause;
 
-<<<<<<< HEAD
          ---------------------------
          -- Is_Null_Refined_State --
          ---------------------------
-=======
-            Check_Arg (Internal);
->>>>>>> gcc-mirror/trunk
 
          function Is_Null_Refined_State (Item : Node_Id) return Boolean is
             Item_Id : Entity_Id;
@@ -32638,6 +46521,7 @@ package body Sem_Prag is
             end if;
          end Is_Null_Refined_State;
 
+<<<<<<< HEAD
          -----------------
          -- Match_Items --
          -----------------
@@ -32740,8 +46624,22 @@ package body Sem_Prag is
                Append_New_Elmt (Item_Id, Matched_Items);
             end if;
          end Record_Item;
+=======
+            Ent := Find_Lib_Unit_Name;
 
-<<<<<<< HEAD
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Ent);
+
+            if not Debug_Flag_U then
+               Set_Is_Pure (Ent);
+               Set_Has_Pragma_Pure (Ent);
+               Set_Suppress_Elaboration_Warnings (Ent);
+            end if;
+         end Pure;
+>>>>>>> gcc-mirror/master
+
          --  Local variables
 
          Clause_Matched  : Boolean := False;
@@ -32752,17 +46650,16 @@ package body Sem_Prag is
          Ref_Clause      : Node_Id;
          Ref_Input       : Node_Id;
          Ref_Output      : Node_Id;
-=======
-            if Present (Size) then
-               Check_Arg (Size);
-            end if;
 
-            if Present (External) then
-               Check_Arg_Is_External_Name (External);
-            end if;
->>>>>>> gcc-mirror/trunk
-
+<<<<<<< HEAD
       --  Start of processing for Check_Dependency_Clause
+=======
+         when Pragma_Pure_Function => Pure_Function : declare
+            Def_Id    : Entity_Id;
+            E         : Entity_Id;
+            E_Id      : Node_Id;
+            Effective : Boolean := False;
+>>>>>>> gcc-mirror/master
 
       begin
          --  Do not perform this check in an instance because it was already
@@ -32779,12 +46676,22 @@ package body Sem_Prag is
          while Present (Ref_Clause) loop
             Next_Ref_Clause := Next (Ref_Clause);
 
+<<<<<<< HEAD
             --  Obtain the attributes of the current refinement clause
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if Present (E) then
+               loop
+                  Def_Id := Get_Base_Subprogram (E);
+>>>>>>> gcc-mirror/master
 
             Ref_Input  := Expression (Ref_Clause);
             Ref_Output := First (Choices (Ref_Clause));
 
-<<<<<<< HEAD
             --  The current refinement clause matches the dependence clause
             --  when both outputs match and both inputs match. See routine
             --  Match_Items for all possible conformance scenarios.
@@ -32852,221 +46759,13 @@ package body Sem_Prag is
          --    Refined_State   => (State => (Constit_1, Constit_2))
          --    Refined_Depends => (Constit_1 => Input, Output => Constit_2)
 
+<<<<<<< HEAD
          --  Matching normalized clause (State => State) fails because there is
          --  no direct refinement capable of satisfying this relation. Another
          --  similar case arises when clauses (Constit_1 => Input) and (Output
          --  => Constit_2) are matched first, leaving no candidates for clause
          --  (State => State). Both scenarios are legal as long as one of the
          --  previous clauses mentioned a valid constituent of State.
-
-         if not Clause_Matched
-           and then Is_In_Out_State_Clause
-           and then
-             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
-         then
-            Clause_Matched := True;
-         end if;
-
-         --  A clause where the input is an abstract state with visible null
-         --  refinement is implicitly matched when the output has already been
-         --  matched in a previous clause.
-
-         --    Depends         => (Output => State)  --  implicitly OK
-         --    Refined_State   => (State => null)
-         --    Refined_Depends => (Output => ...)
-
-         if not Clause_Matched
-           and then Is_Null_Refined_State (Dep_Input)
-           and then Is_Entity_Name (Dep_Output)
-           and then
-             Contains (Matched_Items, Available_View (Entity_Of (Dep_Output)))
-         then
-            Clause_Matched := True;
-         end if;
-
-         --  A clause where the output is an abstract state with visible null
-         --  refinement is implicitly matched when the input has already been
-         --  matched in a previous clause.
-=======
-            Ent := Find_Lib_Unit_Name;
-
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, Ent);
-
-            if not Debug_Flag_U then
-               Set_Is_Pure (Ent);
-               Set_Has_Pragma_Pure (Ent);
-               Set_Suppress_Elaboration_Warnings (Ent);
-            end if;
-         end Pure;
->>>>>>> gcc-mirror/trunk
-
-         --    Depends           => (State => Input)  --  implicitly OK
-         --    Refined_State     => (State => null)
-         --    Refined_Depends   => (... => Input)
-
-         if not Clause_Matched
-           and then Is_Null_Refined_State (Dep_Output)
-           and then Is_Entity_Name (Dep_Input)
-           and then
-             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
-         then
-            Clause_Matched := True;
-         end if;
-
-<<<<<<< HEAD
-         --  At this point either all refinement clauses have been examined or
-         --  pragma Refined_Depends contains a solitary null. Only an abstract
-         --  state with null refinement can possibly match these cases.
-=======
-         when Pragma_Pure_Function => Pure_Function : declare
-            Def_Id    : Entity_Id;
-            E         : Entity_Id;
-            E_Id      : Node_Id;
-            Effective : Boolean := False;
->>>>>>> gcc-mirror/trunk
-
-         --    Depends         => (State => null)
-         --    Refined_State   => (State => null)
-         --    Refined_Depends =>  null            --  OK
-
-         if not Clause_Matched then
-            Match_Items
-              (Dep_Item => Dep_Input,
-               Ref_Item => Empty,
-               Matched  => Inputs_Match);
-
-            Match_Items
-              (Dep_Item => Dep_Output,
-               Ref_Item => Empty,
-               Matched  => Outputs_Match);
-
-            Clause_Matched := Inputs_Match and Outputs_Match;
-         end if;
-
-<<<<<<< HEAD
-         --  If the contents of Refined_Depends are legal, then the current
-         --  dependence clause should be satisfied either by an explicit match
-         --  or by one of the special cases.
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, E);
-
-            if Present (E) then
-               loop
-                  Def_Id := Get_Base_Subprogram (E);
->>>>>>> gcc-mirror/trunk
-
-         if not Clause_Matched then
-            SPARK_Msg_NE
-              (Fix_Msg (Spec_Id, "dependence clause of subprogram & has no "
-               & "matching refinement in body"), Dep_Clause, Spec_Id);
-         end if;
-      end Check_Dependency_Clause;
-
-      -------------------------
-      -- Check_Output_States --
-      -------------------------
-
-      procedure Check_Output_States is
-         procedure Check_Constituent_Usage (State_Id : Entity_Id);
-         --  Determine whether all constituents of state State_Id with visible
-         --  refinement are used as outputs in pragma Refined_Depends. Emit an
-         --  error if this is not the case.
-
-         -----------------------------
-         -- Check_Constituent_Usage --
-         -----------------------------
-
-         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
-            Constit_Elmt : Elmt_Id;
-            Constit_Id   : Entity_Id;
-            Posted       : Boolean := False;
-
-         begin
-            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
-            while Present (Constit_Elmt) loop
-               Constit_Id := Node (Constit_Elmt);
-
-               --  The constituent acts as an input (SPARK RM 7.2.5(3))
-
-               if Present (Body_Inputs)
-                 and then Appears_In (Body_Inputs, Constit_Id)
-               then
-                  Error_Msg_Name_1 := Chars (State_Id);
-                  SPARK_Msg_NE
-                    ("constituent & of state % must act as output in "
-                     & "dependence refinement", N, Constit_Id);
-
-               --  The constituent is altogether missing (SPARK RM 7.2.5(3))
-
-               elsif No (Body_Outputs)
-                 or else not Appears_In (Body_Outputs, Constit_Id)
-               then
-                  if not Posted then
-                     Posted := True;
-                     SPARK_Msg_NE
-                       ("output state & must be replaced by all its "
-                        & "constituents in dependence refinement",
-                        N, State_Id);
-                  end if;
-
-                  SPARK_Msg_NE
-                    ("\constituent & is missing in output list",
-                     N, Constit_Id);
-               end if;
-
-               Next_Elmt (Constit_Elmt);
-            end loop;
-         end Check_Constituent_Usage;
-
-         --  Local variables
-
-         Item      : Node_Id;
-         Item_Elmt : Elmt_Id;
-         Item_Id   : Entity_Id;
-
-      --  Start of processing for Check_Output_States
-
-      begin
-         --  Do not perform this check in an instance because it was already
-         --  performed successfully in the generic template.
-
-         if Is_Generic_Instance (Spec_Id) then
-            null;
-
-         --  Inspect the outputs of pragma Depends looking for a state with a
-         --  visible refinement.
-
-         elsif Present (Spec_Outputs) then
-            Item_Elmt := First_Elmt (Spec_Outputs);
-            while Present (Item_Elmt) loop
-               Item := Node (Item_Elmt);
-
-               --  Deal with the mixed nature of the input and output lists
-
-               if Nkind (Item) = N_Defining_Identifier then
-                  Item_Id := Item;
-               else
-                  Item_Id := Available_View (Entity_Of (Item));
-               end if;
-
-               if Ekind (Item_Id) = E_Abstract_State then
-
-                  --  The state acts as an input-output, skip it
-
-                  if Present (Spec_Inputs)
-                    and then Appears_In (Spec_Inputs, Item_Id)
-                  then
-                     null;
-
-<<<<<<< HEAD
-                  --  Ensure that all of the constituents are utilized as
-                  --  outputs in pragma Refined_Depends.
 =======
          ---------------------
          -- Refined_Depends --
@@ -33366,7 +47065,237 @@ package body Sem_Prag is
          -----------------------
          -- Relative_Deadline --
          -----------------------
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+         if not Clause_Matched
+           and then Is_In_Out_State_Clause
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
+         then
+            Clause_Matched := True;
+         end if;
+
+         --  A clause where the input is an abstract state with visible null
+         --  refinement is implicitly matched when the output has already been
+         --  matched in a previous clause.
+
+         --    Depends         => (Output => State)  --  implicitly OK
+         --    Refined_State   => (State => null)
+         --    Refined_Depends => (Output => ...)
+
+         if not Clause_Matched
+           and then Is_Null_Refined_State (Dep_Input)
+           and then Is_Entity_Name (Dep_Output)
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Output)))
+         then
+            Clause_Matched := True;
+         end if;
+
+         --  A clause where the output is an abstract state with visible null
+         --  refinement is implicitly matched when the input has already been
+         --  matched in a previous clause.
+
+         --    Depends           => (State => Input)  --  implicitly OK
+         --    Refined_State     => (State => null)
+         --    Refined_Depends   => (... => Input)
+
+         if not Clause_Matched
+           and then Is_Null_Refined_State (Dep_Output)
+           and then Is_Entity_Name (Dep_Input)
+           and then
+             Contains (Matched_Items, Available_View (Entity_Of (Dep_Input)))
+         then
+            Clause_Matched := True;
+         end if;
+
+         --  At this point either all refinement clauses have been examined or
+         --  pragma Refined_Depends contains a solitary null. Only an abstract
+         --  state with null refinement can possibly match these cases.
+
+         --    Depends         => (State => null)
+         --    Refined_State   => (State => null)
+         --    Refined_Depends =>  null            --  OK
+
+         if not Clause_Matched then
+            Match_Items
+              (Dep_Item => Dep_Input,
+               Ref_Item => Empty,
+               Matched  => Inputs_Match);
+
+            Match_Items
+              (Dep_Item => Dep_Output,
+               Ref_Item => Empty,
+               Matched  => Outputs_Match);
+
+            Clause_Matched := Inputs_Match and Outputs_Match;
+         end if;
+
+         --  If the contents of Refined_Depends are legal, then the current
+         --  dependence clause should be satisfied either by an explicit match
+         --  or by one of the special cases.
+
+<<<<<<< HEAD
+         if not Clause_Matched then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "dependence clause of subprogram & has no "
+               & "matching refinement in body"), Dep_Clause, Spec_Id);
+         end if;
+      end Check_Dependency_Clause;
+=======
+            Set_Has_Relative_Deadline_Pragma (P);
+         end Relative_Deadline;
+>>>>>>> gcc-mirror/master
+
+      -------------------------
+      -- Check_Output_States --
+      -------------------------
+
+      procedure Check_Output_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether all constituents of state State_Id with visible
+         --  refinement are used as outputs in pragma Refined_Depends. Emit an
+         --  error if this is not the case.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Posted       : Boolean := False;
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               --  The constituent acts as an input (SPARK RM 7.2.5(3))
+
+<<<<<<< HEAD
+               if Present (Body_Inputs)
+                 and then Appears_In (Body_Inputs, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must act as output in "
+                     & "dependence refinement", N, Constit_Id);
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if Nkind (Parent (E)) = N_Formal_Type_Declaration
+              and then Ekind (E) = E_General_Access_Type
+              and then Is_Class_Wide_Type (Directly_Designated_Type (E))
+              and then Scope (Root_Type (Directly_Designated_Type (E)))
+                         = Scope (E)
+              and then Is_Valid_Remote_Object_Type
+                         (Root_Type (Directly_Designated_Type (E)))
+            then
+               Set_Is_Remote_Types (E);
+>>>>>>> gcc-mirror/master
+
+               --  The constituent is altogether missing (SPARK RM 7.2.5(3))
+
+               elsif No (Body_Outputs)
+                 or else not Appears_In (Body_Outputs, Constit_Id)
+               then
+                  if not Posted then
+                     Posted := True;
+                     SPARK_Msg_NE
+                       ("output state & must be replaced by all its "
+                        & "constituents in dependence refinement",
+                        N, State_Id);
+                  end if;
+
+                  SPARK_Msg_NE
+                    ("\constituent & is missing in output list",
+                     N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item      : Node_Id;
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_Output_States
+
+<<<<<<< HEAD
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if K = N_Package_Declaration
+              or else K = N_Generic_Package_Declaration
+              or else K = N_Subprogram_Declaration
+              or else K = N_Generic_Subprogram_Declaration
+              or else (K = N_Subprogram_Body
+                         and then Acts_As_Spec (Unit (Cunit_Node)))
+            then
+               null;
+            else
+               Error_Pragma (
+                 "pragma% must apply to package or subprogram declaration");
+            end if;
+>>>>>>> gcc-mirror/master
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the outputs of pragma Depends looking for a state with a
+         --  visible refinement.
+
+         elsif Present (Spec_Outputs) then
+            Item_Elmt := First_Elmt (Spec_Outputs);
+            while Present (Item_Elmt) loop
+               Item := Node (Item_Elmt);
+
+               --  Deal with the mixed nature of the input and output lists
+
+               if Nkind (Item) = N_Defining_Identifier then
+                  Item_Id := Item;
+               else
+                  Item_Id := Available_View (Entity_Of (Item));
+               end if;
+
+               if Ekind (Item_Id) = E_Abstract_State then
+
+                  --  The state acts as an input-output, skip it
+
+<<<<<<< HEAD
+                  if Present (Spec_Inputs)
+                    and then Appears_In (Spec_Inputs, Item_Id)
+                  then
+                     null;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Cunit_Ent);
+
+            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
+                                                N_Generic_Package_Declaration)
+            then
+               Error_Pragma
+                 ("pragma% can only apply to a package declaration");
+            end if;
+>>>>>>> gcc-mirror/master
+
+                  --  Ensure that all of the constituents are utilized as
+                  --  outputs in pragma Refined_Depends.
 
                   elsif Has_Non_Null_Visible_Refinement (Item_Id) then
                      Check_Constituent_Usage (Item_Id);
@@ -33378,9 +47307,17 @@ package body Sem_Prag is
          end if;
       end Check_Output_States;
 
+<<<<<<< HEAD
       -----------------------
       -- Normalize_Clauses --
       -----------------------
+=======
+         when Pragma_Ravenscar =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Set_Ravenscar_Profile (Ravenscar, N);
+>>>>>>> gcc-mirror/master
 
       procedure Normalize_Clauses (Clauses : List_Id) is
          procedure Normalize_Inputs (Clause : Node_Id);
@@ -33452,14 +47389,9 @@ package body Sem_Prag is
                      --  The new clause contains replicated content that has
                      --  already been analyzed, mark the clause as analyzed.
 
-<<<<<<< HEAD
                      Set_Analyzed (New_Clause);
                      Insert_After (Clause, New_Clause);
                   end if;
-=======
-            Set_Has_Relative_Deadline_Pragma (P);
-         end Relative_Deadline;
->>>>>>> gcc-mirror/trunk
 
                   Input := Next_Input;
                end loop;
@@ -33479,9 +47411,19 @@ package body Sem_Prag is
             Next_Output : Node_Id;
             Output      : Node_Id;
 
+<<<<<<< HEAD
          begin
             --  Multiple outputs appear as an aggregate. Nothing to do when
             --  the clause has exactly one output.
+=======
+         --  pragma Short_Circuit_And_Or;
+
+         when Pragma_Short_Circuit_And_Or =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+            Short_Circuit_And_Or := True;
+>>>>>>> gcc-mirror/master
 
             if Nkind (Outputs) = N_Aggregate then
                Last_Output := Last (Expressions (Outputs));
@@ -33491,21 +47433,10 @@ package body Sem_Prag is
                --  clause is created, the original output list slowly shrinks
                --  until there is one item left.
 =======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
+         --  pragma Share_Generic (GNAME {, GNAME});
 
-            Mark_Pragma_As_Ghost (N, E);
-
-            if Nkind (Parent (E)) = N_Formal_Type_Declaration
-              and then Ekind (E) = E_General_Access_Type
-              and then Is_Class_Wide_Type (Directly_Designated_Type (E))
-              and then Scope (Root_Type (Directly_Designated_Type (E)))
-                         = Scope (E)
-              and then Is_Valid_Remote_Object_Type
-                         (Root_Type (Directly_Designated_Type (E)))
-            then
-               Set_Is_Remote_Types (E);
->>>>>>> gcc-mirror/trunk
+         --  GNAME ::= generic_unit_NAME | generic_instance_NAME
+>>>>>>> gcc-mirror/master
 
                Output := First (Expressions (Outputs));
                while Present (Output) loop
@@ -33516,9 +47447,15 @@ package body Sem_Prag is
 
                   Remove (Output);
 
+<<<<<<< HEAD
                   --  Special processing for the last output. At this point
                   --  the original aggregate has been stripped down to one
                   --  element. Replace the aggregate by the element itself.
+=======
+         when Pragma_Shared =>
+            GNAT_Pragma;
+            Process_Atomic_Independent_Shared_Volatile;
+>>>>>>> gcc-mirror/master
 
                   if Output = Last_Output then
                      Rewrite (Outputs, Output);
@@ -33536,37 +47473,32 @@ package body Sem_Prag is
                      --  already been analyzed. There is not need to reanalyze
                      --  them.
 
-<<<<<<< HEAD
                      Set_Analyzed (New_Clause);
                      Insert_After (Clause, New_Clause);
                   end if;
 
                   Output := Next_Output;
                end loop;
+            end if;
+         end Normalize_Outputs;
+
+         --  Local variables
+
+<<<<<<< HEAD
+         Clause : Node_Id;
 =======
             --  A pragma that applies to a Ghost entity becomes Ghost for the
             --  purposes of legality checks and removal of ignored Ghost code.
 
             Mark_Pragma_As_Ghost (N, Cunit_Ent);
 
-            if K = N_Package_Declaration
-              or else K = N_Generic_Package_Declaration
-              or else K = N_Subprogram_Declaration
-              or else K = N_Generic_Subprogram_Declaration
-              or else (K = N_Subprogram_Body
-                         and then Acts_As_Spec (Unit (Cunit_Node)))
+            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
+                                                N_Generic_Package_Declaration)
             then
-               null;
-            else
-               Error_Pragma (
-                 "pragma% must apply to package or subprogram declaration");
->>>>>>> gcc-mirror/trunk
+               Error_Pragma
+                 ("pragma% can only apply to a package declaration");
             end if;
-         end Normalize_Outputs;
-
-         --  Local variables
-
-         Clause : Node_Id;
+>>>>>>> gcc-mirror/master
 
       --  Start of processing for Normalize_Clauses
 
@@ -33584,33 +47516,35 @@ package body Sem_Prag is
          end loop;
       end Normalize_Clauses;
 
+<<<<<<< HEAD
       --------------------------
       -- Report_Extra_Clauses --
       --------------------------
+=======
+         --  Recognize and validate, but otherwise ignore
+
+         when Pragma_Short_Descriptors =>
+            GNAT_Pragma;
+            Check_Arg_Count (0);
+            Check_Valid_Configuration_Pragma;
+>>>>>>> gcc-mirror/master
 
       procedure Report_Extra_Clauses is
          Clause : Node_Id;
 
-<<<<<<< HEAD
       begin
          --  Do not perform this check in an instance because it was already
          --  performed successfully in the generic template.
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
 
-            Mark_Pragma_As_Ghost (N, Cunit_Ent);
-
-            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
-                                                N_Generic_Package_Declaration)
-            then
-               Error_Pragma
-                 ("pragma% can only apply to a package declaration");
-            end if;
->>>>>>> gcc-mirror/trunk
-
+<<<<<<< HEAD
          if Is_Generic_Instance (Spec_Id) then
             null;
+=======
+         when Pragma_Simple_Storage_Pool_Type =>
+         Simple_Storage_Pool_Type : declare
+            Typ     : Entity_Id;
+            Type_Id : Node_Id;
+>>>>>>> gcc-mirror/master
 
          elsif Present (Refinements) then
             Clause := First (Refinements);
@@ -33619,24 +47553,26 @@ package body Sem_Prag is
                --  Do not complain about a null input refinement, since a null
                --  input legitimately matches anything.
 
-<<<<<<< HEAD
                if Nkind (Clause) = N_Component_Association
                  and then Nkind (Expression (Clause)) = N_Null
                then
                   null;
-=======
-         when Pragma_Ravenscar =>
-            GNAT_Pragma;
-            Check_Arg_Count (0);
-            Check_Valid_Configuration_Pragma;
-            Set_Ravenscar_Profile (Ravenscar, N);
->>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
                else
                   SPARK_Msg_N
                     ("unmatched or extra clause in dependence refinement",
                      Clause);
                end if;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            --  We require the pragma to apply to a type declared in a package
+            --  declaration, but not (immediately) within a package body.
+>>>>>>> gcc-mirror/master
 
                Next (Clause);
             end loop;
@@ -33645,6 +47581,7 @@ package body Sem_Prag is
 
       --  Local variables
 
+<<<<<<< HEAD
       Body_Decl : constant Node_Id   := Find_Related_Declaration_Or_Body (N);
       Body_Id   : constant Entity_Id := Defining_Entity (Body_Decl);
       Errors    : constant Nat       := Serious_Errors_Detected;
@@ -33652,6 +47589,13 @@ package body Sem_Prag is
       Deps      : Node_Id;
       Dummy     : Boolean;
       Refs      : Node_Id;
+=======
+            if Is_Record_Type (Typ)
+              and then not Is_Limited_View (Typ)
+            then
+               Error_Pragma
+                 ("pragma% can only apply to explicitly limited record type");
+>>>>>>> gcc-mirror/master
 
    --  Start of processing for Analyze_Refined_Depends_In_Decl_Part
 
@@ -33707,23 +47651,12 @@ package body Sem_Prag is
       --  Do not match dependencies against refinements if Refined_Depends is
       --  illegal to avoid emitting misleading error.
 
-<<<<<<< HEAD
       if Serious_Errors_Detected = Errors then
-=======
-         --  pragma Short_Circuit_And_Or;
-
-         when Pragma_Short_Circuit_And_Or =>
-            GNAT_Pragma;
-            Check_Arg_Count (0);
-            Check_Valid_Configuration_Pragma;
-            Short_Circuit_And_Or := True;
->>>>>>> gcc-mirror/trunk
 
          --  The related subprogram lacks pragma [Refined_]Global. Synthesize
          --  the inputs and outputs of the subprogram spec and body to verify
          --  the use of states with visible refinement and their constituents.
 
-<<<<<<< HEAD
          if No (Get_Pragma (Spec_Id, Pragma_Global))
            or else No (Get_Pragma (Body_Id, Pragma_Refined_Global))
          then
@@ -33746,11 +47679,6 @@ package body Sem_Prag is
 
             Check_Output_States;
          end if;
-=======
-         --  pragma Share_Generic (GNAME {, GNAME});
-
-         --  GNAME ::= generic_unit_NAME | generic_instance_NAME
->>>>>>> gcc-mirror/trunk
 
          --  Matching is disabled in ASIS because clauses are not normalized as
          --  this is a tree altering activity similar to expansion.
@@ -33763,15 +47691,9 @@ package body Sem_Prag is
          --  aggregate. Note that the clauses are copied because the algorithm
          --  modifies them and this should not be visible in Depends.
 
-<<<<<<< HEAD
          pragma Assert (Nkind (Deps) = N_Aggregate);
          Dependencies := New_Copy_List_Tree (Component_Associations (Deps));
          Normalize_Clauses (Dependencies);
-=======
-         when Pragma_Shared =>
-            GNAT_Pragma;
-            Process_Atomic_Independent_Shared_Volatile;
->>>>>>> gcc-mirror/trunk
 
          Refs := Expression (Get_Argument (N, Spec_Id));
 
@@ -33803,352 +47725,14 @@ package body Sem_Prag is
          end if;
       end if;
 
-<<<<<<< HEAD
       <<Leave>>
       Set_Is_Analyzed_Pragma (N);
    end Analyze_Refined_Depends_In_Decl_Part;
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
 
-            Mark_Pragma_As_Ghost (N, Cunit_Ent);
-
-            if not Nkind_In (Unit (Cunit_Node), N_Package_Declaration,
-                                                N_Generic_Package_Declaration)
-            then
-               Error_Pragma
-                 ("pragma% can only apply to a package declaration");
-            end if;
->>>>>>> gcc-mirror/trunk
-
+<<<<<<< HEAD
    -----------------------------------------
    -- Analyze_Refined_Global_In_Decl_Part --
    -----------------------------------------
-
-   procedure Analyze_Refined_Global_In_Decl_Part (N : Node_Id) is
-      Global : Node_Id;
-      --  The corresponding Global pragma
-
-      Has_In_State       : Boolean := False;
-      Has_In_Out_State   : Boolean := False;
-      Has_Out_State      : Boolean := False;
-      Has_Proof_In_State : Boolean := False;
-      --  These flags are set when the corresponding Global pragma has a state
-      --  of mode Input, In_Out, Output or Proof_In respectively with a visible
-      --  refinement.
-
-      Has_Null_State : Boolean := False;
-      --  This flag is set when the corresponding Global pragma has at least
-      --  one state with a null refinement.
-
-      In_Constits       : Elist_Id := No_Elist;
-      In_Out_Constits   : Elist_Id := No_Elist;
-      Out_Constits      : Elist_Id := No_Elist;
-      Proof_In_Constits : Elist_Id := No_Elist;
-      --  These lists contain the entities of all Input, In_Out, Output and
-      --  Proof_In constituents that appear in Refined_Global and participate
-      --  in state refinement.
-
-      In_Items       : Elist_Id := No_Elist;
-      In_Out_Items   : Elist_Id := No_Elist;
-      Out_Items      : Elist_Id := No_Elist;
-      Proof_In_Items : Elist_Id := No_Elist;
-      --  These list contain the entities of all Input, In_Out, Output and
-      --  Proof_In items defined in the corresponding Global pragma.
-
-      Spec_Id : Entity_Id;
-      --  The entity of the subprogram subject to pragma Refined_Global
-
-      States : Elist_Id := No_Elist;
-      --  A list of all states with visible refinement found in pragma Global
-
-      procedure Check_In_Out_States;
-      --  Determine whether the corresponding Global pragma mentions In_Out
-      --  states with visible refinement and if so, ensure that one of the
-      --  following completions apply to the constituents of the state:
-      --    1) there is at least one constituent of mode In_Out
-      --    2) there is at least one Input and one Output constituent
-      --    3) not all constituents are present and one of them is of mode
-      --       Output.
-      --  This routine may remove elements from In_Constits, In_Out_Constits,
-      --  Out_Constits and Proof_In_Constits.
-
-      procedure Check_Input_States;
-      --  Determine whether the corresponding Global pragma mentions Input
-      --  states with visible refinement and if so, ensure that at least one of
-      --  its constituents appears as an Input item in Refined_Global.
-      --  This routine may remove elements from In_Constits, In_Out_Constits,
-      --  Out_Constits and Proof_In_Constits.
-
-      procedure Check_Output_States;
-      --  Determine whether the corresponding Global pragma mentions Output
-      --  states with visible refinement and if so, ensure that all of its
-      --  constituents appear as Output items in Refined_Global.
-      --  This routine may remove elements from In_Constits, In_Out_Constits,
-      --  Out_Constits and Proof_In_Constits.
-
-      procedure Check_Proof_In_States;
-      --  Determine whether the corresponding Global pragma mentions Proof_In
-      --  states with visible refinement and if so, ensure that at least one of
-      --  its constituents appears as a Proof_In item in Refined_Global.
-      --  This routine may remove elements from In_Constits, In_Out_Constits,
-      --  Out_Constits and Proof_In_Constits.
-
-      procedure Check_Refined_Global_List
-        (List        : Node_Id;
-         Global_Mode : Name_Id := Name_Input);
-      --  Verify the legality of a single global list declaration. Global_Mode
-      --  denotes the current mode in effect.
-
-      procedure Collect_Global_Items
-        (List : Node_Id;
-         Mode : Name_Id := Name_Input);
-      --  Gather all input, in out, output and Proof_In items from node List
-      --  and separate them in lists In_Items, In_Out_Items, Out_Items and
-      --  Proof_In_Items. Flags Has_In_State, Has_In_Out_State, Has_Out_State
-      --  and Has_Proof_In_State are set when there is at least one abstract
-      --  state with visible refinement available in the corresponding mode.
-      --  Flag Has_Null_State is set when at least state has a null refinement.
-      --  Mode enotes the current global mode in effect.
-
-      function Present_Then_Remove
-        (List : Elist_Id;
-         Item : Entity_Id) return Boolean;
-      --  Search List for a particular entity Item. If Item has been found,
-      --  remove it from List. This routine is used to strip lists In_Constits,
-      --  In_Out_Constits and Out_Constits of valid constituents.
-
-      procedure Report_Extra_Constituents;
-      --  Emit an error for each constituent found in lists In_Constits,
-      --  In_Out_Constits and Out_Constits.
-
-<<<<<<< HEAD
-      -------------------------
-      -- Check_In_Out_States --
-      -------------------------
-=======
-         --  Recognize and validate, but otherwise ignore
-
-         when Pragma_Short_Descriptors =>
-            GNAT_Pragma;
-            Check_Arg_Count (0);
-            Check_Valid_Configuration_Pragma;
->>>>>>> gcc-mirror/trunk
-
-      procedure Check_In_Out_States is
-         procedure Check_Constituent_Usage (State_Id : Entity_Id);
-         --  Determine whether one of the following coverage scenarios is in
-         --  effect:
-         --    1) there is at least one constituent of mode In_Out
-         --    2) there is at least one Input and one Output constituent
-         --    3) not all constituents are present and one of them is of mode
-         --       Output.
-         --  If this is not the case, emit an error.
-
-         -----------------------------
-         -- Check_Constituent_Usage --
-         -----------------------------
-
-<<<<<<< HEAD
-         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
-            Constit_Elmt : Elmt_Id;
-            Constit_Id   : Entity_Id;
-            Has_Missing  : Boolean := False;
-            In_Out_Seen  : Boolean := False;
-            In_Seen      : Boolean := False;
-            Out_Seen     : Boolean := False;
-=======
-         when Pragma_Simple_Storage_Pool_Type =>
-         Simple_Storage_Pool_Type : declare
-            Typ     : Entity_Id;
-            Type_Id : Node_Id;
->>>>>>> gcc-mirror/trunk
-
-         begin
-            --  Process all the constituents of the state and note their modes
-            --  within the global refinement.
-
-            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
-            while Present (Constit_Elmt) loop
-               Constit_Id := Node (Constit_Elmt);
-
-               if Present_Then_Remove (In_Constits, Constit_Id) then
-                  In_Seen := True;
-
-<<<<<<< HEAD
-               elsif Present_Then_Remove (In_Out_Constits, Constit_Id) then
-                  In_Out_Seen := True;
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, Typ);
-
-            --  We require the pragma to apply to a type declared in a package
-            --  declaration, but not (immediately) within a package body.
->>>>>>> gcc-mirror/trunk
-
-               elsif Present_Then_Remove (Out_Constits, Constit_Id) then
-                  Out_Seen := True;
-
-               --  A Proof_In constituent cannot participate in the completion
-               --  of an Output state (SPARK RM 7.2.4(5)).
-
-               elsif Present_Then_Remove (Proof_In_Constits, Constit_Id) then
-                  Error_Msg_Name_1 := Chars (State_Id);
-                  SPARK_Msg_NE
-                    ("constituent & of state % must have mode Input, In_Out "
-                     & "or Output in global refinement", N, Constit_Id);
-
-               else
-                  Has_Missing := True;
-               end if;
-
-               Next_Elmt (Constit_Elmt);
-            end loop;
-
-            --  A single In_Out constituent is a valid completion
-
-            if In_Out_Seen then
-               null;
-
-            --  A pair of one Input and one Output constituent is a valid
-            --  completion.
-
-            elsif In_Seen and Out_Seen then
-               null;
-
-            --  A single Output constituent is a valid completion only when
-            --  some of the other constituents are missing (SPARK RM 7.2.4(5)).
-
-<<<<<<< HEAD
-            elsif Out_Seen and Has_Missing then
-               null;
-=======
-            if Is_Record_Type (Typ)
-              and then not Is_Limited_View (Typ)
-            then
-               Error_Pragma
-                 ("pragma% can only apply to explicitly limited record type");
->>>>>>> gcc-mirror/trunk
-
-            --  The state lacks a completion
-
-            elsif not In_Seen and not In_Out_Seen and not Out_Seen then
-               SPARK_Msg_NE
-                 ("missing global refinement of state &", N, State_Id);
-
-            --  Otherwise the state has a malformed completion where at least
-            --  one of the constituents has a different mode.
-
-            else
-               SPARK_Msg_NE
-                 ("global refinement of state & redefines the mode of its "
-                  & "constituents", N, State_Id);
-            end if;
-         end Check_Constituent_Usage;
-
-         --  Local variables
-
-         Item_Elmt : Elmt_Id;
-         Item_Id   : Entity_Id;
-
-      --  Start of processing for Check_In_Out_States
-
-      begin
-         --  Do not perform this check in an instance because it was already
-         --  performed successfully in the generic template.
-
-         if Is_Generic_Instance (Spec_Id) then
-            null;
-
-         --  Inspect the In_Out items of the corresponding Global pragma
-         --  looking for a state with a visible refinement.
-
-         elsif Has_In_Out_State and then Present (In_Out_Items) then
-            Item_Elmt := First_Elmt (In_Out_Items);
-            while Present (Item_Elmt) loop
-               Item_Id := Node (Item_Elmt);
-
-               --  Ensure that one of the three coverage variants is satisfied
-
-               if Ekind (Item_Id) = E_Abstract_State
-                 and then Has_Non_Null_Visible_Refinement (Item_Id)
-               then
-                  Check_Constituent_Usage (Item_Id);
-               end if;
-
-               Next_Elmt (Item_Elmt);
-            end loop;
-         end if;
-      end Check_In_Out_States;
-
-      ------------------------
-      -- Check_Input_States --
-      ------------------------
-
-      procedure Check_Input_States is
-         procedure Check_Constituent_Usage (State_Id : Entity_Id);
-         --  Determine whether at least one constituent of state State_Id with
-         --  visible refinement is used and has mode Input. Ensure that the
-         --  remaining constituents do not have In_Out, Output or Proof_In
-         --  modes.
-
-         -----------------------------
-         -- Check_Constituent_Usage --
-         -----------------------------
-
-         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
-            Constit_Elmt : Elmt_Id;
-            Constit_Id   : Entity_Id;
-            In_Seen      : Boolean := False;
-
-         begin
-            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
-            while Present (Constit_Elmt) loop
-               Constit_Id := Node (Constit_Elmt);
-
-               --  At least one of the constituents appears as an Input
-
-               if Present_Then_Remove (In_Constits, Constit_Id) then
-                  In_Seen := True;
-
-               --  The constituent appears in the global refinement, but has
-               --  mode In_Out, Output or Proof_In (SPARK RM 7.2.4(5)).
-
-               elsif Present_Then_Remove (In_Out_Constits, Constit_Id)
-                 or else Present_Then_Remove (Out_Constits, Constit_Id)
-                 or else Present_Then_Remove (Proof_In_Constits, Constit_Id)
-               then
-                  Error_Msg_Name_1 := Chars (State_Id);
-                  SPARK_Msg_NE
-                    ("constituent & of state % must have mode Input in global "
-                     & "refinement", N, Constit_Id);
-               end if;
-
-               Next_Elmt (Constit_Elmt);
-            end loop;
-
-            --  Not one of the constituents appeared as Input
-
-            if not In_Seen then
-               SPARK_Msg_NE
-                 ("global refinement of state & must include at least one "
-                  & "constituent of mode Input", N, State_Id);
-            end if;
-         end Check_Constituent_Usage;
-
-         --  Local variables
-
-         Item_Elmt : Elmt_Id;
-         Item_Id   : Entity_Id;
-
-      --  Start of processing for Check_Input_States
-
-<<<<<<< HEAD
-      begin
-         --  Do not perform this check in an instance because it was already
-         --  performed successfully in the generic template.
 =======
          ----------------
          -- SPARK_Mode --
@@ -34845,7 +48429,303 @@ package body Sem_Prag is
          --------------------------------
          -- Static_Elaboration_Desired --
          --------------------------------
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+   procedure Analyze_Refined_Global_In_Decl_Part (N : Node_Id) is
+      Global : Node_Id;
+      --  The corresponding Global pragma
+
+      Has_In_State       : Boolean := False;
+      Has_In_Out_State   : Boolean := False;
+      Has_Out_State      : Boolean := False;
+      Has_Proof_In_State : Boolean := False;
+      --  These flags are set when the corresponding Global pragma has a state
+      --  of mode Input, In_Out, Output or Proof_In respectively with a visible
+      --  refinement.
+
+      Has_Null_State : Boolean := False;
+      --  This flag is set when the corresponding Global pragma has at least
+      --  one state with a null refinement.
+
+      In_Constits       : Elist_Id := No_Elist;
+      In_Out_Constits   : Elist_Id := No_Elist;
+      Out_Constits      : Elist_Id := No_Elist;
+      Proof_In_Constits : Elist_Id := No_Elist;
+      --  These lists contain the entities of all Input, In_Out, Output and
+      --  Proof_In constituents that appear in Refined_Global and participate
+      --  in state refinement.
+
+      In_Items       : Elist_Id := No_Elist;
+      In_Out_Items   : Elist_Id := No_Elist;
+      Out_Items      : Elist_Id := No_Elist;
+      Proof_In_Items : Elist_Id := No_Elist;
+      --  These list contain the entities of all Input, In_Out, Output and
+      --  Proof_In items defined in the corresponding Global pragma.
+
+      Spec_Id : Entity_Id;
+      --  The entity of the subprogram subject to pragma Refined_Global
+
+      States : Elist_Id := No_Elist;
+      --  A list of all states with visible refinement found in pragma Global
+
+      procedure Check_In_Out_States;
+      --  Determine whether the corresponding Global pragma mentions In_Out
+      --  states with visible refinement and if so, ensure that one of the
+      --  following completions apply to the constituents of the state:
+      --    1) there is at least one constituent of mode In_Out
+      --    2) there is at least one Input and one Output constituent
+      --    3) not all constituents are present and one of them is of mode
+      --       Output.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Input_States;
+      --  Determine whether the corresponding Global pragma mentions Input
+      --  states with visible refinement and if so, ensure that at least one of
+      --  its constituents appears as an Input item in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Output_States;
+      --  Determine whether the corresponding Global pragma mentions Output
+      --  states with visible refinement and if so, ensure that all of its
+      --  constituents appear as Output items in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Proof_In_States;
+      --  Determine whether the corresponding Global pragma mentions Proof_In
+      --  states with visible refinement and if so, ensure that at least one of
+      --  its constituents appears as a Proof_In item in Refined_Global.
+      --  This routine may remove elements from In_Constits, In_Out_Constits,
+      --  Out_Constits and Proof_In_Constits.
+
+      procedure Check_Refined_Global_List
+        (List        : Node_Id;
+         Global_Mode : Name_Id := Name_Input);
+      --  Verify the legality of a single global list declaration. Global_Mode
+      --  denotes the current mode in effect.
+
+      procedure Collect_Global_Items
+        (List : Node_Id;
+         Mode : Name_Id := Name_Input);
+      --  Gather all input, in out, output and Proof_In items from node List
+      --  and separate them in lists In_Items, In_Out_Items, Out_Items and
+      --  Proof_In_Items. Flags Has_In_State, Has_In_Out_State, Has_Out_State
+      --  and Has_Proof_In_State are set when there is at least one abstract
+      --  state with visible refinement available in the corresponding mode.
+      --  Flag Has_Null_State is set when at least state has a null refinement.
+      --  Mode enotes the current global mode in effect.
+
+      function Present_Then_Remove
+        (List : Elist_Id;
+         Item : Entity_Id) return Boolean;
+      --  Search List for a particular entity Item. If Item has been found,
+      --  remove it from List. This routine is used to strip lists In_Constits,
+      --  In_Out_Constits and Out_Constits of valid constituents.
+
+      procedure Report_Extra_Constituents;
+      --  Emit an error for each constituent found in lists In_Constits,
+      --  In_Out_Constits and Out_Constits.
+
+      -------------------------
+      -- Check_In_Out_States --
+      -------------------------
+
+      procedure Check_In_Out_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether one of the following coverage scenarios is in
+         --  effect:
+         --    1) there is at least one constituent of mode In_Out
+         --    2) there is at least one Input and one Output constituent
+         --    3) not all constituents are present and one of them is of mode
+         --       Output.
+         --  If this is not the case, emit an error.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Has_Missing  : Boolean := False;
+            In_Out_Seen  : Boolean := False;
+            In_Seen      : Boolean := False;
+            Out_Seen     : Boolean := False;
+
+         begin
+            --  Process all the constituents of the state and note their modes
+            --  within the global refinement.
+
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               if Present_Then_Remove (In_Constits, Constit_Id) then
+                  In_Seen := True;
+
+<<<<<<< HEAD
+               elsif Present_Then_Remove (In_Out_Constits, Constit_Id) then
+                  In_Out_Seen := True;
+=======
+            if not Is_OK_Static_Expression (Arg) then
+               Check_Restriction (Static_Storage_Size, Arg);
+            end if;
+>>>>>>> gcc-mirror/master
+
+               elsif Present_Then_Remove (Out_Constits, Constit_Id) then
+                  Out_Seen := True;
+
+               --  A Proof_In constituent cannot participate in the completion
+               --  of an Output state (SPARK RM 7.2.4(5)).
+
+               elsif Present_Then_Remove (Proof_In_Constits, Constit_Id) then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Input, In_Out "
+                     & "or Output in global refinement", N, Constit_Id);
+
+               else
+                  Has_Missing := True;
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+
+            --  A single In_Out constituent is a valid completion
+
+            if In_Out_Seen then
+               null;
+
+            --  A pair of one Input and one Output constituent is a valid
+            --  completion.
+
+            elsif In_Seen and Out_Seen then
+               null;
+
+            --  A single Output constituent is a valid completion only when
+            --  some of the other constituents are missing (SPARK RM 7.2.4(5)).
+
+            elsif Out_Seen and Has_Missing then
+               null;
+
+            --  The state lacks a completion
+
+            elsif not In_Seen and not In_Out_Seen and not Out_Seen then
+               SPARK_Msg_NE
+                 ("missing global refinement of state &", N, State_Id);
+
+            --  Otherwise the state has a malformed completion where at least
+            --  one of the constituents has a different mode.
+
+            else
+               SPARK_Msg_NE
+                 ("global refinement of state & redefines the mode of its "
+                  & "constituents", N, State_Id);
+            end if;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_In_Out_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         --  Inspect the In_Out items of the corresponding Global pragma
+         --  looking for a state with a visible refinement.
+
+         elsif Has_In_Out_State and then Present (In_Out_Items) then
+            Item_Elmt := First_Elmt (In_Out_Items);
+            while Present (Item_Elmt) loop
+               Item_Id := Node (Item_Elmt);
+
+               --  Ensure that one of the three coverage variants is satisfied
+
+               if Ekind (Item_Id) = E_Abstract_State
+                 and then Has_Non_Null_Visible_Refinement (Item_Id)
+               then
+                  Check_Constituent_Usage (Item_Id);
+               end if;
+
+               Next_Elmt (Item_Elmt);
+            end loop;
+         end if;
+      end Check_In_Out_States;
+
+      ------------------------
+      -- Check_Input_States --
+      ------------------------
+
+      procedure Check_Input_States is
+         procedure Check_Constituent_Usage (State_Id : Entity_Id);
+         --  Determine whether at least one constituent of state State_Id with
+         --  visible refinement is used and has mode Input. Ensure that the
+         --  remaining constituents do not have In_Out, Output or Proof_In
+         --  modes.
+
+         -----------------------------
+         -- Check_Constituent_Usage --
+         -----------------------------
+
+         procedure Check_Constituent_Usage (State_Id : Entity_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            In_Seen      : Boolean := False;
+
+         begin
+            Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
+            while Present (Constit_Elmt) loop
+               Constit_Id := Node (Constit_Elmt);
+
+               --  At least one of the constituents appears as an Input
+
+               if Present_Then_Remove (In_Constits, Constit_Id) then
+                  In_Seen := True;
+
+               --  The constituent appears in the global refinement, but has
+               --  mode In_Out, Output or Proof_In (SPARK RM 7.2.4(5)).
+
+               elsif Present_Then_Remove (In_Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Out_Constits, Constit_Id)
+                 or else Present_Then_Remove (Proof_In_Constits, Constit_Id)
+               then
+                  Error_Msg_Name_1 := Chars (State_Id);
+                  SPARK_Msg_NE
+                    ("constituent & of state % must have mode Input in global "
+                     & "refinement", N, Constit_Id);
+               end if;
+
+               Next_Elmt (Constit_Elmt);
+            end loop;
+
+            --  Not one of the constituents appeared as Input
+
+            if not In_Seen then
+               SPARK_Msg_NE
+                 ("global refinement of state & must include at least one "
+                  & "constituent of mode Input", N, State_Id);
+            end if;
+         end Check_Constituent_Usage;
+
+         --  Local variables
+
+         Item_Elmt : Elmt_Id;
+         Item_Id   : Entity_Id;
+
+      --  Start of processing for Check_Input_States
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
 
          if Is_Generic_Instance (Spec_Id) then
             null;
@@ -34886,16 +48766,10 @@ package body Sem_Prag is
          -- Check_Constituent_Usage --
          -----------------------------
 
-<<<<<<< HEAD
          procedure Check_Constituent_Usage (State_Id : Entity_Id) is
             Constit_Elmt : Elmt_Id;
             Constit_Id   : Entity_Id;
             Posted       : Boolean := False;
-=======
-            if not Is_OK_Static_Expression (Arg) then
-               Check_Restriction (Static_Storage_Size, Arg);
-            end if;
->>>>>>> gcc-mirror/trunk
 
          begin
             Constit_Elmt := First_Elmt (Refinement_Constituents (State_Id));
@@ -34938,8 +48812,17 @@ package body Sem_Prag is
 
          --  Local variables
 
+<<<<<<< HEAD
          Item_Elmt : Elmt_Id;
          Item_Id   : Entity_Id;
+=======
+         when Pragma_Subtitle =>
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Optional_Identifier (Arg1, Name_Subtitle);
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
+            Store_Note (N);
+>>>>>>> gcc-mirror/master
 
       --  Start of processing for Check_Output_States
 
@@ -34947,8 +48830,13 @@ package body Sem_Prag is
          --  Do not perform this check in an instance because it was already
          --  performed successfully in the generic template.
 
+<<<<<<< HEAD
          if Is_Generic_Instance (Spec_Id) then
             null;
+=======
+         when Pragma_Suppress =>
+            Process_Suppress_Unsuppress (Suppress_Case => True);
+>>>>>>> gcc-mirror/master
 
          --  Inspect the Output items of the corresponding Global pragma
          --  looking for a state with a visible refinement.
@@ -34976,11 +48864,31 @@ package body Sem_Prag is
       -- Check_Proof_In_States --
       ---------------------------
 
+<<<<<<< HEAD
       procedure Check_Proof_In_States is
          procedure Check_Constituent_Usage (State_Id : Entity_Id);
          --  Determine whether at least one constituent of state State_Id with
          --  visible refinement is used and has mode Proof_In. Ensure that the
          --  remaining constituents do not have Input, In_Out or Output modes.
+=======
+         when Pragma_Suppress_Debug_Info => Suppress_Debug_Info : declare
+            Nam_Id : Entity_Id;
+
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_Optional_Identifier (Arg1, Name_Entity);
+            Check_Arg_Is_Local_Name (Arg1);
+
+            Nam_Id := Entity (Get_Pragma_Arg (Arg1));
+
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Nam_Id);
+            Set_Debug_Info_Off (Nam_Id);
+         end Suppress_Debug_Info;
+>>>>>>> gcc-mirror/master
 
          -----------------------------
          -- Check_Constituent_Usage --
@@ -35001,8 +48909,14 @@ package body Sem_Prag is
                if Present_Then_Remove (Proof_In_Constits, Constit_Id) then
                   Proof_In_Seen := True;
 
+<<<<<<< HEAD
                --  The constituent appears in the global refinement, but has
                --  mode Input, In_Out or Output (SPARK RM 7.2.4(5)).
+=======
+         when Pragma_Suppress_Initialization => Suppress_Init : declare
+            E    : Entity_Id;
+            E_Id : Node_Id;
+>>>>>>> gcc-mirror/master
 
                elsif Present_Then_Remove (In_Constits, Constit_Id)
                  or else Present_Then_Remove (In_Out_Constits, Constit_Id)
@@ -35028,10 +48942,29 @@ package body Sem_Prag is
 
          --  Local variables
 
+<<<<<<< HEAD
          Item_Elmt : Elmt_Id;
          Item_Id   : Entity_Id;
 
       --  Start of processing for Check_Proof_In_States
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if not Is_Type (E) and then Ekind (E) /= E_Variable then
+               Error_Pragma_Arg
+                 ("pragma% requires variable, type or subtype", Arg1);
+            end if;
+
+            if Rep_Item_Too_Early (E, N)
+                 or else
+               Rep_Item_Too_Late (E, N, FOnly => True)
+            then
+               return;
+            end if;
+>>>>>>> gcc-mirror/master
 
       begin
          --  Do not perform this check in an instance because it was already
@@ -35048,8 +48981,12 @@ package body Sem_Prag is
             while Present (Item_Elmt) loop
                Item_Id := Node (Item_Elmt);
 
+<<<<<<< HEAD
                --  Ensure that at least one of the constituents is utilized and
                --  is of mode Proof_In
+=======
+            --  For other than first subtype, set flag on subtype or variable
+>>>>>>> gcc-mirror/master
 
                if Ekind (Item_Id) = E_Abstract_State
                  and then Has_Non_Null_Visible_Refinement (Item_Id)
@@ -35144,22 +49081,25 @@ package body Sem_Prag is
                   Inconsistent_Mode_Error (Name_In_Out);
                end if;
 
+<<<<<<< HEAD
             elsif Contains (Out_Items, Item_Id) then
                if Global_Mode /= Name_Output then
                   Inconsistent_Mode_Error (Name_Output);
                end if;
+=======
+            if Warn_On_Obsolescent_Feature then
+               Error_Msg_N
+                 ("'G'N'A'T pragma Task_Info is now obsolete, use 'C'P'U "
+                  & "instead?j?", N);
+            end if;
 
-<<<<<<< HEAD
+            if Nkind (P) /= N_Task_Definition then
+               Error_Pragma ("pragma% must appear in task definition");
+            end if;
+>>>>>>> gcc-mirror/master
+
             elsif Contains (Proof_In_Items, Item_Id) then
                null;
-=======
-         when Pragma_Subtitle =>
-            GNAT_Pragma;
-            Check_Arg_Count (1);
-            Check_Optional_Identifier (Arg1, Name_Subtitle);
-            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_String);
-            Store_Note (N);
->>>>>>> gcc-mirror/trunk
 
             --  The item does not appear in the corresponding Global pragma,
             --  it must be an extra (SPARK RM 7.2.4(3)).
@@ -35169,12 +49109,7 @@ package body Sem_Prag is
             end if;
          end Check_Refined_Global_Item;
 
-<<<<<<< HEAD
          --  Local variables
-=======
-         when Pragma_Suppress =>
-            Process_Suppress_Unsuppress (Suppress_Case => True);
->>>>>>> gcc-mirror/trunk
 
          Item : Node_Id;
 
@@ -35192,31 +49127,11 @@ package body Sem_Prag is
 
          --  Single global item declaration
 
-<<<<<<< HEAD
          elsif Nkind_In (List, N_Expanded_Name,
                                N_Identifier,
                                N_Selected_Component)
          then
             Check_Refined_Global_Item (List, Global_Mode);
-=======
-         when Pragma_Suppress_Debug_Info => Suppress_Debug_Info : declare
-            Nam_Id : Entity_Id;
-
-         begin
-            GNAT_Pragma;
-            Check_Arg_Count (1);
-            Check_Optional_Identifier (Arg1, Name_Entity);
-            Check_Arg_Is_Local_Name (Arg1);
-
-            Nam_Id := Entity (Get_Pragma_Arg (Arg1));
-
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, Nam_Id);
-            Set_Debug_Info_Off (Nam_Id);
-         end Suppress_Debug_Info;
->>>>>>> gcc-mirror/trunk
 
          --  Simple global list or moded global list declaration
 
@@ -35236,18 +49151,12 @@ package body Sem_Prag is
             --  of component associations where individual choices denote
             --  modes.
 
-<<<<<<< HEAD
             elsif Present (Component_Associations (List)) then
                Item := First (Component_Associations (List));
                while Present (Item) loop
                   Check_Refined_Global_List
                     (List        => Expression (Item),
                      Global_Mode => Chars (First (Choices (Item))));
-=======
-         when Pragma_Suppress_Initialization => Suppress_Init : declare
-            E    : Entity_Id;
-            E_Id : Node_Id;
->>>>>>> gcc-mirror/trunk
 
                   Next (Item);
                end loop;
@@ -35260,7 +49169,6 @@ package body Sem_Prag is
 
          --  Invalid list
 
-<<<<<<< HEAD
          else
             raise Program_Error;
          end if;
@@ -35269,24 +49177,6 @@ package body Sem_Prag is
       --------------------------
       -- Collect_Global_Items --
       --------------------------
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, E);
-
-            if not Is_Type (E) and then Ekind (E) /= E_Variable then
-               Error_Pragma_Arg
-                 ("pragma% requires variable, type or subtype", Arg1);
-            end if;
-
-            if Rep_Item_Too_Early (E, N)
-                 or else
-               Rep_Item_Too_Late (E, N, FOnly => True)
-            then
-               return;
-            end if;
->>>>>>> gcc-mirror/trunk
 
       procedure Collect_Global_Items
         (List : Node_Id;
@@ -35350,8 +49240,13 @@ package body Sem_Prag is
 <<<<<<< HEAD
          --  Local variables
 =======
-            --  For other than first subtype, set flag on subtype or variable
->>>>>>> gcc-mirror/trunk
+            if No (Top_Guard) then
+               Error_Pragma_Arg
+                 ("pragma% takes two arguments", Task_Type);
+            else
+               Check_Arg_Is_OK_Static_Expression (Top_Guard, Any_Integer);
+            end if;
+>>>>>>> gcc-mirror/master
 
          Item : Node_Id;
 
@@ -35369,250 +49264,8 @@ package body Sem_Prag is
          then
             Collect_Global_Item (List, Mode);
 
+<<<<<<< HEAD
          --  Single global list or moded global list declaration
-
-         elsif Nkind (List) = N_Aggregate then
-
-            --  The declaration of a simple global list appear as a collection
-            --  of expressions.
-
-            if Present (Expressions (List)) then
-               Item := First (Expressions (List));
-               while Present (Item) loop
-                  Collect_Global_Item (Item, Mode);
-                  Next (Item);
-               end loop;
-
-            --  The declaration of a moded global list appears as a collection
-            --  of component associations where individual choices denote mode.
-
-            elsif Present (Component_Associations (List)) then
-               Item := First (Component_Associations (List));
-               while Present (Item) loop
-                  Collect_Global_Items
-                    (List => Expression (Item),
-                     Mode => Chars (First (Choices (Item))));
-
-                  Next (Item);
-               end loop;
-
-            --  Invalid tree
-
-            else
-               raise Program_Error;
-            end if;
-
-         --  To accomodate partial decoration of disabled SPARK features, this
-         --  routine may be called with illegal input. If this is the case, do
-         --  not raise Program_Error.
-
-         else
-            null;
-         end if;
-      end Collect_Global_Items;
-
-      -------------------------
-      -- Present_Then_Remove --
-      -------------------------
-
-      function Present_Then_Remove
-        (List : Elist_Id;
-         Item : Entity_Id) return Boolean
-      is
-         Elmt : Elmt_Id;
-
-<<<<<<< HEAD
-      begin
-         if Present (List) then
-            Elmt := First_Elmt (List);
-            while Present (Elmt) loop
-               if Node (Elmt) = Item then
-                  Remove_Elmt (List, Elmt);
-                  return True;
-               end if;
-=======
-            if Warn_On_Obsolescent_Feature then
-               Error_Msg_N
-                 ("'G'N'A'T pragma Task_Info is now obsolete, use 'C'P'U "
-                  & "instead?j?", N);
-            end if;
-
-            if Nkind (P) /= N_Task_Definition then
-               Error_Pragma ("pragma% must appear in task definition");
-            end if;
->>>>>>> gcc-mirror/trunk
-
-               Next_Elmt (Elmt);
-            end loop;
-         end if;
-
-         return False;
-      end Present_Then_Remove;
-
-      -------------------------------
-      -- Report_Extra_Constituents --
-      -------------------------------
-
-      procedure Report_Extra_Constituents is
-         procedure Report_Extra_Constituents_In_List (List : Elist_Id);
-         --  Emit an error for every element of List
-
-         ---------------------------------------
-         -- Report_Extra_Constituents_In_List --
-         ---------------------------------------
-
-         procedure Report_Extra_Constituents_In_List (List : Elist_Id) is
-            Constit_Elmt : Elmt_Id;
-
-         begin
-            if Present (List) then
-               Constit_Elmt := First_Elmt (List);
-               while Present (Constit_Elmt) loop
-                  SPARK_Msg_NE ("extra constituent &", N, Node (Constit_Elmt));
-                  Next_Elmt (Constit_Elmt);
-               end loop;
-            end if;
-         end Report_Extra_Constituents_In_List;
-
-      --  Start of processing for Report_Extra_Constituents
-
-      begin
-         --  Do not perform this check in an instance because it was already
-         --  performed successfully in the generic template.
-
-         if Is_Generic_Instance (Spec_Id) then
-            null;
-
-         else
-            Report_Extra_Constituents_In_List (In_Constits);
-            Report_Extra_Constituents_In_List (In_Out_Constits);
-            Report_Extra_Constituents_In_List (Out_Constits);
-            Report_Extra_Constituents_In_List (Proof_In_Constits);
-         end if;
-      end Report_Extra_Constituents;
-
-      --  Local variables
-
-      Body_Decl : constant Node_Id := Find_Related_Declaration_Or_Body (N);
-      Errors    : constant Nat     := Serious_Errors_Detected;
-      Items     : Node_Id;
-
-   --  Start of processing for Analyze_Refined_Global_In_Decl_Part
-
-   begin
-      --  Do not analyze the pragma multiple times
-
-      if Is_Analyzed_Pragma (N) then
-         return;
-      end if;
-
-      Spec_Id := Unique_Defining_Entity (Body_Decl);
-
-      --  Use the anonymous object as the proper spec when Refined_Global
-      --  applies to the body of a single task type. The object carries the
-      --  proper Chars as well as all non-refined versions of pragmas.
-
-      if Is_Single_Concurrent_Type (Spec_Id) then
-         Spec_Id := Anonymous_Object (Spec_Id);
-      end if;
-
-      Global := Get_Pragma (Spec_Id, Pragma_Global);
-      Items  := Expression (Get_Argument (N, Spec_Id));
-
-      --  The subprogram declaration lacks pragma Global. This renders
-      --  Refined_Global useless as there is nothing to refine.
-
-      if No (Global) then
-         SPARK_Msg_NE
-           (Fix_Msg (Spec_Id, "useless refinement, declaration of subprogram "
-            & "& lacks aspect or pragma Global"), N, Spec_Id);
-         goto Leave;
-      end if;
-
-      --  Extract all relevant items from the corresponding Global pragma
-
-      Collect_Global_Items (Expression (Get_Argument (Global, Spec_Id)));
-
-      --  Package and subprogram bodies are instantiated individually in
-      --  a separate compiler pass. Due to this mode of instantiation, the
-      --  refinement of a state may no longer be visible when a subprogram
-      --  body contract is instantiated. Since the generic template is legal,
-      --  do not perform this check in the instance to circumvent this oddity.
-
-      if Is_Generic_Instance (Spec_Id) then
-         null;
-
-      --  Non-instance case
-
-      else
-         --  The corresponding Global pragma must mention at least one state
-         --  witha visible refinement at the point Refined_Global is processed.
-         --  States with null refinements need Refined_Global pragma
-         --  (SPARK RM 7.2.4(2)).
-
-         if not Has_In_State
-           and then not Has_In_Out_State
-           and then not Has_Out_State
-           and then not Has_Proof_In_State
-           and then not Has_Null_State
-         then
-            SPARK_Msg_NE
-              (Fix_Msg (Spec_Id, "useless refinement, subprogram & does not "
-               & "depend on abstract state with visible refinement"),
-               N, Spec_Id);
-            goto Leave;
-
-         --  The global refinement of inputs and outputs cannot be null when
-         --  the corresponding Global pragma contains at least one item except
-         --  in the case where we have states with null refinements.
-
-         elsif Nkind (Items) = N_Null
-           and then
-             (Present (In_Items)
-               or else Present (In_Out_Items)
-               or else Present (Out_Items)
-               or else Present (Proof_In_Items))
-           and then not Has_Null_State
-         then
-            SPARK_Msg_NE
-              (Fix_Msg (Spec_Id, "refinement cannot be null, subprogram & has "
-               & "global items"), N, Spec_Id);
-            goto Leave;
-         end if;
-      end if;
-
-<<<<<<< HEAD
-      --  Analyze Refined_Global as if it behaved as a regular pragma Global.
-      --  This ensures that the categorization of all refined global items is
-      --  consistent with their role.
-=======
-            if No (Top_Guard) then
-               Error_Pragma_Arg
-                 ("pragma% takes two arguments", Task_Type);
-            else
-               Check_Arg_Is_OK_Static_Expression (Top_Guard, Any_Integer);
-            end if;
->>>>>>> gcc-mirror/trunk
-
-      Analyze_Global_In_Decl_Part (N);
-
-      --  Perform all refinement checks with respect to completeness and mode
-      --  matching.
-
-      if Serious_Errors_Detected = Errors then
-         Check_Refined_Global_List (Items);
-      end if;
-
-      --  For Input states with visible refinement, at least one constituent
-      --  must be used as an Input in the global refinement.
-
-      if Serious_Errors_Detected = Errors then
-         Check_Input_States;
-      end if;
-
-<<<<<<< HEAD
-      --  Verify all possible completion variants for In_Out states with
-      --  visible refinement.
 =======
          --  Characteristics:
 
@@ -35824,7 +49477,332 @@ package body Sem_Prag is
                Analyze_Test_Case_In_Decl_Part (N);
             end if;
          end Test_Case;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+         elsif Nkind (List) = N_Aggregate then
+
+            --  The declaration of a simple global list appear as a collection
+            --  of expressions.
+
+<<<<<<< HEAD
+            if Present (Expressions (List)) then
+               Item := First (Expressions (List));
+               while Present (Item) loop
+                  Collect_Global_Item (Item, Mode);
+                  Next (Item);
+               end loop;
+=======
+         when Pragma_Thread_Local_Storage => Thread_Local_Storage : declare
+            E  : Entity_Id;
+            Id : Node_Id;
+>>>>>>> gcc-mirror/master
+
+            --  The declaration of a moded global list appears as a collection
+            --  of component associations where individual choices denote mode.
+
+            elsif Present (Component_Associations (List)) then
+               Item := First (Component_Associations (List));
+               while Present (Item) loop
+                  Collect_Global_Items
+                    (List => Expression (Item),
+                     Mode => Chars (First (Choices (Item))));
+
+                  Next (Item);
+               end loop;
+
+            --  Invalid tree
+
+<<<<<<< HEAD
+            else
+               raise Program_Error;
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E);
+
+            if Rep_Item_Too_Early (E, N)
+                 or else
+               Rep_Item_Too_Late (E, N)
+            then
+               raise Pragma_Exit;
+>>>>>>> gcc-mirror/master
+            end if;
+
+         --  To accomodate partial decoration of disabled SPARK features, this
+         --  routine may be called with illegal input. If this is the case, do
+         --  not raise Program_Error.
+
+         else
+            null;
+         end if;
+      end Collect_Global_Items;
+
+      -------------------------
+      -- Present_Then_Remove --
+      -------------------------
+
+      function Present_Then_Remove
+        (List : Elist_Id;
+         Item : Entity_Id) return Boolean
+      is
+         Elmt : Elmt_Id;
+
+<<<<<<< HEAD
+      begin
+         if Present (List) then
+            Elmt := First_Elmt (List);
+            while Present (Elmt) loop
+               if Node (Elmt) = Item then
+                  Remove_Elmt (List, Elmt);
+                  return True;
+               end if;
+=======
+         begin
+            GNAT_Pragma;
+            Check_Arg_Count (1);
+            Check_No_Identifiers;
+            Check_In_Main_Program;
+            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_Duration);
+>>>>>>> gcc-mirror/master
+
+               Next_Elmt (Elmt);
+            end loop;
+         end if;
+
+         return False;
+      end Present_Then_Remove;
+
+      -------------------------------
+      -- Report_Extra_Constituents --
+      -------------------------------
+
+      procedure Report_Extra_Constituents is
+         procedure Report_Extra_Constituents_In_List (List : Elist_Id);
+         --  Emit an error for every element of List
+
+         ---------------------------------------
+         -- Report_Extra_Constituents_In_List --
+         ---------------------------------------
+
+         procedure Report_Extra_Constituents_In_List (List : Elist_Id) is
+            Constit_Elmt : Elmt_Id;
+
+         begin
+            if Present (List) then
+               Constit_Elmt := First_Elmt (List);
+               while Present (Constit_Elmt) loop
+                  SPARK_Msg_NE ("extra constituent &", N, Node (Constit_Elmt));
+                  Next_Elmt (Constit_Elmt);
+               end loop;
+            end if;
+         end Report_Extra_Constituents_In_List;
+
+      --  Start of processing for Report_Extra_Constituents
+
+      begin
+         --  Do not perform this check in an instance because it was already
+         --  performed successfully in the generic template.
+
+         if Is_Generic_Instance (Spec_Id) then
+            null;
+
+         else
+            Report_Extra_Constituents_In_List (In_Constits);
+            Report_Extra_Constituents_In_List (In_Out_Constits);
+            Report_Extra_Constituents_In_List (Out_Constits);
+            Report_Extra_Constituents_In_List (Proof_In_Constits);
+         end if;
+      end Report_Extra_Constituents;
+
+      --  Local variables
+
+<<<<<<< HEAD
+      Body_Decl : constant Node_Id := Find_Related_Declaration_Or_Body (N);
+      Errors    : constant Nat     := Serious_Errors_Detected;
+      Items     : Node_Id;
+
+   --  Start of processing for Analyze_Refined_Global_In_Decl_Part
+=======
+            for J in 1 .. 2 loop
+               if Present (Args (J)) then
+                  Check_Arg_Is_OK_Static_Expression
+                    (Args (J), Standard_String);
+               end if;
+            end loop;
+         end Title;
+
+         ----------------------------
+         -- Type_Invariant[_Class] --
+         ----------------------------
+
+         --  pragma Type_Invariant[_Class]
+         --    ([Entity =>] type_LOCAL_NAME,
+         --     [Check  =>] EXPRESSION);
+
+         when Pragma_Type_Invariant       |
+              Pragma_Type_Invariant_Class =>
+         Type_Invariant : declare
+            I_Pragma : Node_Id;
+
+         begin
+            Check_Arg_Count (2);
+
+            --  Rewrite Type_Invariant[_Class] pragma as an Invariant pragma,
+            --  setting Class_Present for the Type_Invariant_Class case.
+
+            Set_Class_Present (N, Prag_Id = Pragma_Type_Invariant_Class);
+            I_Pragma := New_Copy (N);
+            Set_Pragma_Identifier
+              (I_Pragma, Make_Identifier (Loc, Name_Invariant));
+            Rewrite (N, I_Pragma);
+            Set_Analyzed (N, False);
+            Analyze (N);
+         end Type_Invariant;
+
+         ---------------------
+         -- Unchecked_Union --
+         ---------------------
+>>>>>>> gcc-mirror/master
+
+   begin
+      --  Do not analyze the pragma multiple times
+
+<<<<<<< HEAD
+      if Is_Analyzed_Pragma (N) then
+         return;
+      end if;
+=======
+         when Pragma_Unchecked_Union => Unchecked_Union : declare
+            Assoc   : constant Node_Id := Arg1;
+            Type_Id : constant Node_Id := Get_Pragma_Arg (Assoc);
+            Clist   : Node_Id;
+            Comp    : Node_Id;
+            Tdef    : Node_Id;
+            Typ     : Entity_Id;
+            Variant : Node_Id;
+            Vpart   : Node_Id;
+>>>>>>> gcc-mirror/master
+
+      Spec_Id := Unique_Defining_Entity (Body_Decl);
+
+      --  Use the anonymous object as the proper spec when Refined_Global
+      --  applies to the body of a single task type. The object carries the
+      --  proper Chars as well as all non-refined versions of pragmas.
+
+      if Is_Single_Concurrent_Type (Spec_Id) then
+         Spec_Id := Anonymous_Object (Spec_Id);
+      end if;
+
+<<<<<<< HEAD
+      Global := Get_Pragma (Spec_Id, Pragma_Global);
+      Items  := Expression (Get_Argument (N, Spec_Id));
+=======
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, Typ);
+
+            if Typ = Any_Type
+              or else Rep_Item_Too_Early (Typ, N)
+            then
+               return;
+            else
+               Typ := Underlying_Type (Typ);
+            end if;
+>>>>>>> gcc-mirror/master
+
+      --  The subprogram declaration lacks pragma Global. This renders
+      --  Refined_Global useless as there is nothing to refine.
+
+      if No (Global) then
+         SPARK_Msg_NE
+           (Fix_Msg (Spec_Id, "useless refinement, declaration of subprogram "
+            & "& lacks aspect or pragma Global"), N, Spec_Id);
+         goto Leave;
+      end if;
+
+      --  Extract all relevant items from the corresponding Global pragma
+
+      Collect_Global_Items (Expression (Get_Argument (Global, Spec_Id)));
+
+      --  Package and subprogram bodies are instantiated individually in
+      --  a separate compiler pass. Due to this mode of instantiation, the
+      --  refinement of a state may no longer be visible when a subprogram
+      --  body contract is instantiated. Since the generic template is legal,
+      --  do not perform this check in the instance to circumvent this oddity.
+
+<<<<<<< HEAD
+      if Is_Generic_Instance (Spec_Id) then
+         null;
+=======
+            elsif not Has_Discriminants (Typ) then
+               Error_Msg_N
+                 ("unchecked union must have one discriminant", Typ);
+               return;
+>>>>>>> gcc-mirror/master
+
+      --  Non-instance case
+
+      else
+         --  The corresponding Global pragma must mention at least one state
+         --  witha visible refinement at the point Refined_Global is processed.
+         --  States with null refinements need Refined_Global pragma
+         --  (SPARK RM 7.2.4(2)).
+
+         if not Has_In_State
+           and then not Has_In_Out_State
+           and then not Has_Out_State
+           and then not Has_Proof_In_State
+           and then not Has_Null_State
+         then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "useless refinement, subprogram & does not "
+               & "depend on abstract state with visible refinement"),
+               N, Spec_Id);
+            goto Leave;
+
+         --  The global refinement of inputs and outputs cannot be null when
+         --  the corresponding Global pragma contains at least one item except
+         --  in the case where we have states with null refinements.
+
+         elsif Nkind (Items) = N_Null
+           and then
+             (Present (In_Items)
+               or else Present (In_Out_Items)
+               or else Present (Out_Items)
+               or else Present (Proof_In_Items))
+           and then not Has_Null_State
+         then
+            SPARK_Msg_NE
+              (Fix_Msg (Spec_Id, "refinement cannot be null, subprogram & has "
+               & "global items"), N, Spec_Id);
+            goto Leave;
+         end if;
+      end if;
+
+      --  Analyze Refined_Global as if it behaved as a regular pragma Global.
+      --  This ensures that the categorization of all refined global items is
+      --  consistent with their role.
+
+      Analyze_Global_In_Decl_Part (N);
+
+      --  Perform all refinement checks with respect to completeness and mode
+      --  matching.
+
+      if Serious_Errors_Detected = Errors then
+         Check_Refined_Global_List (Items);
+      end if;
+
+      --  For Input states with visible refinement, at least one constituent
+      --  must be used as an Input in the global refinement.
+
+      if Serious_Errors_Detected = Errors then
+         Check_Input_States;
+      end if;
+
+      --  Verify all possible completion variants for In_Out states with
+      --  visible refinement.
 
       if Serious_Errors_Detected = Errors then
          Check_In_Out_States;
@@ -35833,15 +49811,9 @@ package body Sem_Prag is
       --  For Output states with visible refinement, all constituents must be
       --  used as Outputs in the global refinement.
 
-<<<<<<< HEAD
       if Serious_Errors_Detected = Errors then
          Check_Output_States;
       end if;
-=======
-         when Pragma_Thread_Local_Storage => Thread_Local_Storage : declare
-            E  : Entity_Id;
-            Id : Node_Id;
->>>>>>> gcc-mirror/trunk
 
       --  For Proof_In states with visible refinement, at least one constituent
       --  must be used as Proof_In in the global refinement.
@@ -35857,23 +49829,9 @@ package body Sem_Prag is
          Report_Extra_Constituents;
       end if;
 
-<<<<<<< HEAD
       <<Leave>>
       Set_Is_Analyzed_Pragma (N);
    end Analyze_Refined_Global_In_Decl_Part;
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, E);
-
-            if Rep_Item_Too_Early (E, N)
-                 or else
-               Rep_Item_Too_Late (E, N)
-            then
-               raise Pragma_Exit;
-            end if;
->>>>>>> gcc-mirror/trunk
 
    ----------------------------------------
    -- Analyze_Refined_State_In_Decl_Part --
@@ -35901,13 +49859,14 @@ package body Sem_Prag is
       --  A list that contains all constituents processed so far. The list is
       --  used to detect multiple uses of the same constituent.
 =======
-         begin
-            GNAT_Pragma;
-            Check_Arg_Count (1);
-            Check_No_Identifiers;
-            Check_In_Main_Program;
-            Check_Arg_Is_OK_Static_Expression (Arg1, Standard_Duration);
->>>>>>> gcc-mirror/trunk
+            --  A pragma that applies to a Ghost entity becomes Ghost for the
+            --  purposes of legality checks and removal of ignored Ghost code.
+
+            Mark_Pragma_As_Ghost (N, E_Id);
+            Set_Universal_Aliasing (Implementation_Base_Type (E_Id));
+            Record_Rep_Item (E_Id, N);
+         end Universal_Alias;
+>>>>>>> gcc-mirror/master
 
       Freeze_Posted : Boolean := False;
       --  A flag that controls the output of a freezing-related error (see use
@@ -35978,6 +49937,7 @@ package body Sem_Prag is
          -- Analyze_Constituent --
          -------------------------
 
+<<<<<<< HEAD
          procedure Analyze_Constituent (Constit : Node_Id) is
             procedure Match_Constituent (Constit_Id : Entity_Id);
             --  Determine whether constituent Constit denoted by its entity
@@ -35989,6 +49949,22 @@ package body Sem_Prag is
             -----------------------
             -- Match_Constituent --
             -----------------------
+=======
+         --  pragma Unmodified (LOCAL_NAME {, LOCAL_NAME});
+
+         when Pragma_Unmodified => Unmodified : declare
+            Arg      : Node_Id;
+            Arg_Expr : Node_Id;
+            Arg_Id   : Entity_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost variables is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost variable encountered while
+            --  processing the arguments of the pragma.
+>>>>>>> gcc-mirror/master
 
             procedure Match_Constituent (Constit_Id : Entity_Id) is
                procedure Collect_Constituent;
@@ -35999,16 +49975,22 @@ package body Sem_Prag is
                -- Collect_Constituent --
                -------------------------
 
+<<<<<<< HEAD
                procedure Collect_Constituent is
                begin
                   if Is_Ghost_Entity (State_Id) then
                      if Is_Ghost_Entity (Constit_Id) then
+=======
+            Arg := Arg1;
+            while Present (Arg) loop
+               Check_No_Identifier (Arg);
+>>>>>>> gcc-mirror/master
 
-<<<<<<< HEAD
                         --  The Ghost policy in effect at the point of abstract
                         --  state declaration and constituent must match
                         --  (SPARK RM 6.9(16)).
 
+<<<<<<< HEAD
                         if Is_Checked_Ghost_Entity (State_Id)
                           and then Is_Ignored_Ghost_Entity (Constit_Id)
                         then
@@ -36037,72 +50019,76 @@ package body Sem_Prag is
                              ("\constituent & declared # with ghost policy "
                               & "Check", State, Constit_Id);
                         end if;
-=======
-            for J in 1 .. 2 loop
-               if Present (Args (J)) then
-                  Check_Arg_Is_OK_Static_Expression
-                    (Args (J), Standard_String);
-               end if;
-            end loop;
-         end Title;
-
-         ----------------------------
-         -- Type_Invariant[_Class] --
-         ----------------------------
-
-         --  pragma Type_Invariant[_Class]
-         --    ([Entity =>] type_LOCAL_NAME,
-         --     [Check  =>] EXPRESSION);
-
-         when Pragma_Type_Invariant       |
-              Pragma_Type_Invariant_Class =>
-         Type_Invariant : declare
-            I_Pragma : Node_Id;
-
-         begin
-            Check_Arg_Count (2);
-
-            --  Rewrite Type_Invariant[_Class] pragma as an Invariant pragma,
-            --  setting Class_Present for the Type_Invariant_Class case.
-
-            Set_Class_Present (N, Prag_Id = Pragma_Type_Invariant_Class);
-            I_Pragma := New_Copy (N);
-            Set_Pragma_Identifier
-              (I_Pragma, Make_Identifier (Loc, Name_Invariant));
-            Rewrite (N, I_Pragma);
-            Set_Analyzed (N, False);
-            Analyze (N);
-         end Type_Invariant;
-
-         ---------------------
-         -- Unchecked_Union --
-         ---------------------
->>>>>>> gcc-mirror/trunk
 
                      --  A constituent of a Ghost abstract state must be a
                      --  Ghost entity (SPARK RM 7.2.2(12)).
 
-<<<<<<< HEAD
                      else
                         SPARK_Msg_NE
                           ("constituent of ghost state & must be ghost",
                            Constit, State_Id);
                      end if;
-                  end if;
 =======
-         when Pragma_Unchecked_Union => Unchecked_Union : declare
-            Assoc   : constant Node_Id := Arg1;
-            Type_Id : constant Node_Id := Get_Pragma_Arg (Assoc);
-            Clist   : Node_Id;
-            Comp    : Node_Id;
-            Tdef    : Node_Id;
-            Typ     : Entity_Id;
-            Variant : Node_Id;
-            Vpart   : Node_Id;
->>>>>>> gcc-mirror/trunk
+               Check_Arg_Is_Local_Name (Arg);
+               Arg_Expr := Get_Pragma_Arg (Arg);
 
+               if Is_Entity_Name (Arg_Expr) then
+                  Arg_Id := Entity (Arg_Expr);
+
+                  if Is_Assignable (Arg_Id) then
+                     Set_Has_Pragma_Unmodified (Arg_Id);
+
+                     --  A pragma that applies to a Ghost entity becomes Ghost
+                     --  for the purposes of legality checks and removal of
+                     --  ignored Ghost code.
+
+                     Mark_Pragma_As_Ghost (N, Arg_Id);
+
+                     --  Capture the entity of the first Ghost variable being
+                     --  processed for error detection purposes.
+
+                     if Is_Ghost_Entity (Arg_Id) then
+                        if No (Ghost_Id) then
+                           Ghost_Id := Arg_Id;
+                        end if;
+
+                     --  Otherwise the variable is non-Ghost. It is illegal
+                     --  to mix references to Ghost and non-Ghost entities
+                     --  (SPARK RM 6.9).
+
+                     elsif Present (Ghost_Id)
+                       and then not Ghost_Error_Posted
+                     then
+                        Ghost_Error_Posted := True;
+
+                        Error_Msg_Name_1 := Pname;
+                        Error_Msg_N
+                          ("pragma % cannot mention ghost and non-ghost "
+                           & "variables", N);
+
+                        Error_Msg_Sloc := Sloc (Ghost_Id);
+                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
+
+                        Error_Msg_Sloc := Sloc (Arg_Id);
+                        Error_Msg_NE ("\& # declared as non-ghost", N, Arg_Id);
+                     end if;
+
+                  --  Otherwise the pragma referenced an illegal entity
+
+                  else
+                     Error_Pragma_Arg
+                       ("pragma% can only be applied to a variable", Arg_Expr);
+>>>>>>> gcc-mirror/master
+                  end if;
+
+<<<<<<< HEAD
                   --  A synchronized state must be refined by a synchronized
                   --  object or another synchronized state (SPARK RM 9.6).
+=======
+               Next (Arg);
+            end loop;
+         end Unmodified;
+>>>>>>> gcc-mirror/master
 
                   if Is_Synchronized_State (State_Id)
                     and then not Is_Synchronized_Object (Constit_Id)
@@ -36113,79 +50099,119 @@ package body Sem_Prag is
                         & "synchronized", Constit, State_Id);
                   end if;
 
+<<<<<<< HEAD
                   --  Add the constituent to the list of processed items to aid
                   --  with the detection of duplicates.
-
-<<<<<<< HEAD
-                  Append_New_Elmt (Constit_Id, Constituents_Seen);
 =======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
+         --  pragma Unreferenced (LOCAL_NAME {, LOCAL_NAME});
+>>>>>>> gcc-mirror/master
 
-            Mark_Pragma_As_Ghost (N, Typ);
-
-            if Typ = Any_Type
-              or else Rep_Item_Too_Early (Typ, N)
-            then
-               return;
-            else
-               Typ := Underlying_Type (Typ);
-            end if;
->>>>>>> gcc-mirror/trunk
+                  Append_New_Elmt (Constit_Id, Constituents_Seen);
 
                   --  Collect the constituent in the list of refinement items
                   --  and establish a relation between the refined state and
                   --  the item.
 
+<<<<<<< HEAD
                   Append_Elmt (Constit_Id, Refinement_Constituents (State_Id));
                   Set_Encapsulating_State (Constit_Id, State_Id);
 
                   --  The state has at least one legal constituent, mark the
                   --  start of the refinement region. The region ends when the
                   --  body declarations end (see routine Analyze_Declarations).
+=======
+         when Pragma_Unreferenced => Unreferenced : declare
+            Arg      : Node_Id;
+            Arg_Expr : Node_Id;
+            Arg_Id   : Entity_Id;
+            Citem    : Node_Id;
+
+            Ghost_Error_Posted : Boolean := False;
+            --  Flag set when an error concerning the illegal mix of Ghost and
+            --  non-Ghost names is emitted.
+
+            Ghost_Id : Entity_Id := Empty;
+            --  The entity of the first Ghost name encountered while processing
+            --  the arguments of the pragma.
+
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (1);
+>>>>>>> gcc-mirror/master
 
                   Set_Has_Visible_Refinement (State_Id);
 
                   --  When the constituent is external, save its relevant
                   --  property for further checks.
 
-<<<<<<< HEAD
                   if Async_Readers_Enabled (Constit_Id) then
                      AR_Constit := Constit_Id;
                      External_Constit_Seen := True;
                   end if;
-=======
-            elsif not Has_Discriminants (Typ) then
-               Error_Msg_N
-                 ("unchecked union must have one discriminant", Typ);
-               return;
->>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
                   if Async_Writers_Enabled (Constit_Id) then
                      AW_Constit := Constit_Id;
                      External_Constit_Seen := True;
                   end if;
+=======
+               Arg := Arg1;
+               while Present (Arg) loop
+                  Citem := First (List_Containing (N));
+                  while Citem /= N loop
+                     Arg_Expr := Get_Pragma_Arg (Arg);
+
+                     if Nkind (Citem) = N_With_Clause
+                       and then Same_Name (Name (Citem), Arg_Expr)
+                     then
+                        Set_Has_Pragma_Unreferenced
+                          (Cunit_Entity
+                             (Get_Source_Unit
+                                (Library_Unit (Citem))));
+                        Set_Elab_Unit_Name (Arg_Expr, Name (Citem));
+                        exit;
+                     end if;
+>>>>>>> gcc-mirror/master
 
                   if Effective_Reads_Enabled (Constit_Id) then
                      ER_Constit := Constit_Id;
                      External_Constit_Seen := True;
                   end if;
 
+<<<<<<< HEAD
                   if Effective_Writes_Enabled (Constit_Id) then
                      EW_Constit := Constit_Id;
                      External_Constit_Seen := True;
+=======
+                  if Citem = N then
+                     Error_Pragma_Arg
+                       ("argument of pragma% is not withed unit", Arg);
+>>>>>>> gcc-mirror/master
                   end if;
                end Collect_Constituent;
 
+<<<<<<< HEAD
                --  Local variables
+=======
+                  Next (Arg);
+               end loop;
+>>>>>>> gcc-mirror/master
 
                State_Elmt : Elmt_Id;
 
+<<<<<<< HEAD
             --  Start of processing for Match_Constituent
+=======
+            else
+               Arg := Arg1;
+               while Present (Arg) loop
+                  Check_No_Identifier (Arg);
+>>>>>>> gcc-mirror/master
 
             begin
                --  Detect a duplicate use of a constituent
 
+<<<<<<< HEAD
                if Contains (Constituents_Seen, Constit_Id) then
                   SPARK_Msg_NE
                     ("duplicate use of constituent &", Constit, Constit_Id);
@@ -36193,12 +50219,20 @@ package body Sem_Prag is
                end if;
 
                --  The constituent is subject to a Part_Of indicator
+=======
+                  Check_Arg_Is_Local_Name (Arg);
+                  Arg_Expr := Get_Pragma_Arg (Arg);
+
+                  if Is_Entity_Name (Arg_Expr) then
+                     Arg_Id := Entity (Arg_Expr);
+>>>>>>> gcc-mirror/master
 
                if Present (Encapsulating_State (Constit_Id)) then
                   if Encapsulating_State (Constit_Id) = State_Id then
                      Remove (Part_Of_Constits, Constit_Id);
                      Collect_Constituent;
 
+<<<<<<< HEAD
                   --  The constituent is part of another state and is used
                   --  incorrectly in the refinement of the current state.
 
@@ -36254,423 +50288,6 @@ package body Sem_Prag is
                   end if;
                end if;
             end Match_Constituent;
-
-            --  Local variables
-
-            Constit_Id : Entity_Id;
-
-         --  Start of processing for Analyze_Constituent
-
-<<<<<<< HEAD
-         begin
-            --  Detect multiple uses of null in a single refinement clause or a
-            --  mixture of null and non-null constituents.
-=======
-            --  A pragma that applies to a Ghost entity becomes Ghost for the
-            --  purposes of legality checks and removal of ignored Ghost code.
-
-            Mark_Pragma_As_Ghost (N, E_Id);
-            Set_Universal_Aliasing (Implementation_Base_Type (E_Id));
-            Record_Rep_Item (E_Id, N);
-         end Universal_Alias;
->>>>>>> gcc-mirror/trunk
-
-            if Nkind (Constit) = N_Null then
-               if Null_Seen then
-                  SPARK_Msg_N
-                    ("multiple null constituents not allowed", Constit);
-
-               elsif Non_Null_Seen then
-                  SPARK_Msg_N
-                    ("cannot mix null and non-null constituents", Constit);
-
-               else
-                  Null_Seen := True;
-
-                  --  Collect the constituent in the list of refinement items
-
-                  Append_Elmt (Constit, Refinement_Constituents (State_Id));
-
-                  --  The state has at least one legal constituent, mark the
-                  --  start of the refinement region. The region ends when the
-                  --  body declarations end (see Analyze_Declarations).
-
-                  Set_Has_Visible_Refinement (State_Id);
-               end if;
-
-<<<<<<< HEAD
-            --  Non-null constituents
-
-            else
-               Non_Null_Seen := True;
-=======
-         --  pragma Unmodified (LOCAL_NAME {, LOCAL_NAME});
-
-         when Pragma_Unmodified => Unmodified : declare
-            Arg      : Node_Id;
-            Arg_Expr : Node_Id;
-            Arg_Id   : Entity_Id;
-
-            Ghost_Error_Posted : Boolean := False;
-            --  Flag set when an error concerning the illegal mix of Ghost and
-            --  non-Ghost variables is emitted.
-
-            Ghost_Id : Entity_Id := Empty;
-            --  The entity of the first Ghost variable encountered while
-            --  processing the arguments of the pragma.
->>>>>>> gcc-mirror/trunk
-
-               if Null_Seen then
-                  SPARK_Msg_N
-                    ("cannot mix null and non-null constituents", Constit);
-               end if;
-
-               Analyze       (Constit);
-               Resolve_State (Constit);
-
-               --  Ensure that the constituent denotes a valid state or a
-               --  whole object (SPARK RM 7.2.2(5)).
-
-               if Is_Entity_Name (Constit) then
-                  Constit_Id := Entity_Of (Constit);
-
-                  --  When a constituent is declared after a subprogram body
-                  --  that caused "freezing" of the related contract where
-                  --  pragma Refined_State resides, the constituent appears
-                  --  undefined and carries Any_Id as its entity.
-
-                  --    package body Pack
-                  --      with Refined_State => (State => Constit)
-                  --    is
-                  --       procedure Proc
-                  --         with Refined_Global => (Input => Constit)
-                  --       is
-                  --          ...
-                  --       end Proc;
-
-                  --       Constit : ...;
-                  --    end Pack;
-
-                  if Constit_Id = Any_Id then
-                     SPARK_Msg_NE ("& is undefined", Constit, Constit_Id);
-
-                     --  Emit a specialized info message when the contract of
-                     --  the related package body was "frozen" by another body.
-                     --  Note that it is not possible to precisely identify why
-                     --  the constituent is undefined because it is not visible
-                     --  when pragma Refined_State is analyzed. This message is
-                     --  a reasonable approximation.
-
-                     if Present (Freeze_Id) and then not Freeze_Posted then
-                        Freeze_Posted := True;
-
-                        Error_Msg_Name_1 := Chars (Body_Id);
-                        Error_Msg_Sloc   := Sloc (Freeze_Id);
-                        SPARK_Msg_NE
-                          ("body & declared # freezes the contract of %",
-                           N, Freeze_Id);
-                        SPARK_Msg_N
-                          ("\all constituents must be declared before body #",
-                           N);
-
-<<<<<<< HEAD
-                        --  A misplaced constituent is a critical error because
-                        --  pragma Refined_Depends or Refined_Global depends on
-                        --  the proper link between a state and a constituent.
-                        --  Stop the compilation, as this leads to a multitude
-                        --  of misleading cascaded errors.
-=======
-            Arg := Arg1;
-            while Present (Arg) loop
-               Check_No_Identifier (Arg);
->>>>>>> gcc-mirror/trunk
-
-                        raise Program_Error;
-                     end if;
-
-<<<<<<< HEAD
-                  --  The constituent is a valid state or object
-
-                  elsif Ekind_In (Constit_Id, E_Abstract_State,
-                                              E_Constant,
-                                              E_Variable)
-                  then
-                     Match_Constituent (Constit_Id);
-
-                     --  The variable may eventually become a constituent of a
-                     --  single protected/task type. Record the reference now
-                     --  and verify its legality when analyzing the contract of
-                     --  the variable (SPARK RM 9.3).
-
-                     if Ekind (Constit_Id) = E_Variable then
-                        Record_Possible_Part_Of_Reference
-                          (Var_Id => Constit_Id,
-                           Ref    => Constit);
-                     end if;
-
-                  --  Otherwise the constituent is illegal
-
-                  else
-                     SPARK_Msg_NE
-                       ("constituent & must denote object or state",
-                        Constit, Constit_Id);
-=======
-               Check_Arg_Is_Local_Name (Arg);
-               Arg_Expr := Get_Pragma_Arg (Arg);
-
-               if Is_Entity_Name (Arg_Expr) then
-                  Arg_Id := Entity (Arg_Expr);
-
-                  if Is_Assignable (Arg_Id) then
-                     Set_Has_Pragma_Unmodified (Arg_Id);
-
-                     --  A pragma that applies to a Ghost entity becomes Ghost
-                     --  for the purposes of legality checks and removal of
-                     --  ignored Ghost code.
-
-                     Mark_Pragma_As_Ghost (N, Arg_Id);
-
-                     --  Capture the entity of the first Ghost variable being
-                     --  processed for error detection purposes.
-
-                     if Is_Ghost_Entity (Arg_Id) then
-                        if No (Ghost_Id) then
-                           Ghost_Id := Arg_Id;
-                        end if;
-
-                     --  Otherwise the variable is non-Ghost. It is illegal
-                     --  to mix references to Ghost and non-Ghost entities
-                     --  (SPARK RM 6.9).
-
-                     elsif Present (Ghost_Id)
-                       and then not Ghost_Error_Posted
-                     then
-                        Ghost_Error_Posted := True;
-
-                        Error_Msg_Name_1 := Pname;
-                        Error_Msg_N
-                          ("pragma % cannot mention ghost and non-ghost "
-                           & "variables", N);
-
-                        Error_Msg_Sloc := Sloc (Ghost_Id);
-                        Error_Msg_NE ("\& # declared as ghost", N, Ghost_Id);
-
-                        Error_Msg_Sloc := Sloc (Arg_Id);
-                        Error_Msg_NE ("\& # declared as non-ghost", N, Arg_Id);
-                     end if;
-
-                  --  Otherwise the pragma referenced an illegal entity
-
-                  else
-                     Error_Pragma_Arg
-                       ("pragma% can only be applied to a variable", Arg_Expr);
->>>>>>> gcc-mirror/trunk
-                  end if;
-
-               --  The constituent is illegal
-
-               else
-                  SPARK_Msg_N ("malformed constituent", Constit);
-               end if;
-            end if;
-         end Analyze_Constituent;
-
-<<<<<<< HEAD
-         -----------------------------
-         -- Check_External_Property --
-         -----------------------------
-=======
-               Next (Arg);
-            end loop;
-         end Unmodified;
->>>>>>> gcc-mirror/trunk
-
-         procedure Check_External_Property
-           (Prop_Nam : Name_Id;
-            Enabled  : Boolean;
-            Constit  : Entity_Id)
-         is
-         begin
-            Error_Msg_Name_1 := Prop_Nam;
-
-<<<<<<< HEAD
-            --  The property is enabled in the related Abstract_State pragma
-            --  that defines the state (SPARK RM 7.2.8(3)).
-=======
-         --  pragma Unreferenced (LOCAL_NAME {, LOCAL_NAME});
->>>>>>> gcc-mirror/trunk
-
-            if Enabled then
-               if No (Constit) then
-                  SPARK_Msg_NE
-                    ("external state & requires at least one constituent with "
-                     & "property %", State, State_Id);
-               end if;
-
-            --  The property is missing in the declaration of the state, but
-            --  a constituent is introducing it in the state refinement
-            --  (SPARK RM 7.2.8(3)).
-
-<<<<<<< HEAD
-            elsif Present (Constit) then
-               Error_Msg_Name_2 := Chars (Constit);
-               SPARK_Msg_NE
-                 ("external state & lacks property % set by constituent %",
-                  State, State_Id);
-            end if;
-         end Check_External_Property;
-
-         -----------------
-         -- Match_State --
-         -----------------
-
-         procedure Match_State is
-            State_Elmt : Elmt_Id;
-=======
-         when Pragma_Unreferenced => Unreferenced : declare
-            Arg      : Node_Id;
-            Arg_Expr : Node_Id;
-            Arg_Id   : Entity_Id;
-            Citem    : Node_Id;
->>>>>>> gcc-mirror/trunk
-
-            Ghost_Error_Posted : Boolean := False;
-            --  Flag set when an error concerning the illegal mix of Ghost and
-            --  non-Ghost names is emitted.
-
-            Ghost_Id : Entity_Id := Empty;
-            --  The entity of the first Ghost name encountered while processing
-            --  the arguments of the pragma.
-
-         begin
-            --  Detect a duplicate refinement of a state (SPARK RM 7.2.2(8))
-
-            if Contains (Refined_States_Seen, State_Id) then
-               SPARK_Msg_NE
-                 ("duplicate refinement of state &", State, State_Id);
-               return;
-            end if;
-
-            --  Inspect the abstract states defined in the package declaration
-            --  looking for a match.
-
-            State_Elmt := First_Elmt (Available_States);
-            while Present (State_Elmt) loop
-
-<<<<<<< HEAD
-               --  A valid abstract state is being refined in the body. Add
-               --  the state to the list of processed refined states to aid
-               --  with the detection of duplicate refinements. Remove the
-               --  state from Available_States to signal that it has already
-               --  been refined.
-=======
-               Arg := Arg1;
-               while Present (Arg) loop
-                  Citem := First (List_Containing (N));
-                  while Citem /= N loop
-                     Arg_Expr := Get_Pragma_Arg (Arg);
-
-                     if Nkind (Citem) = N_With_Clause
-                       and then Same_Name (Name (Citem), Arg_Expr)
-                     then
-                        Set_Has_Pragma_Unreferenced
-                          (Cunit_Entity
-                             (Get_Source_Unit
-                                (Library_Unit (Citem))));
-                        Set_Elab_Unit_Name (Arg_Expr, Name (Citem));
-                        exit;
-                     end if;
->>>>>>> gcc-mirror/trunk
-
-               if Node (State_Elmt) = State_Id then
-                  Append_New_Elmt (State_Id, Refined_States_Seen);
-                  Remove_Elmt (Available_States, State_Elmt);
-                  return;
-               end if;
-
-<<<<<<< HEAD
-               Next_Elmt (State_Elmt);
-            end loop;
-
-            --  If we get here, we are refining a state that is not defined in
-            --  the package declaration.
-=======
-                  if Citem = N then
-                     Error_Pragma_Arg
-                       ("argument of pragma% is not withed unit", Arg);
-                  end if;
-
-                  Next (Arg);
-               end loop;
->>>>>>> gcc-mirror/trunk
-
-            Error_Msg_Name_1 := Chars (Spec_Id);
-            SPARK_Msg_NE
-              ("cannot refine state, & is not defined in package %",
-               State, State_Id);
-         end Match_State;
-
-<<<<<<< HEAD
-         --------------------------------
-         -- Report_Unused_Constituents --
-         --------------------------------
-=======
-            else
-               Arg := Arg1;
-               while Present (Arg) loop
-                  Check_No_Identifier (Arg);
->>>>>>> gcc-mirror/trunk
-
-         procedure Report_Unused_Constituents (Constits : Elist_Id) is
-            Constit_Elmt : Elmt_Id;
-            Constit_Id   : Entity_Id;
-            Posted       : Boolean := False;
-
-<<<<<<< HEAD
-         begin
-            if Present (Constits) then
-               Constit_Elmt := First_Elmt (Constits);
-               while Present (Constit_Elmt) loop
-                  Constit_Id := Node (Constit_Elmt);
-
-                  --  Generate an error message of the form:
-
-                  --    state ... has unused Part_Of constituents
-                  --      abstract state ... defined at ...
-                  --      constant ... defined at ...
-                  --      variable ... defined at ...
-
-                  if not Posted then
-                     Posted := True;
-                     SPARK_Msg_NE
-                       ("state & has unused Part_Of constituents",
-                        State, State_Id);
-                  end if;
-
-                  Error_Msg_Sloc := Sloc (Constit_Id);
-=======
-                  Check_Arg_Is_Local_Name (Arg);
-                  Arg_Expr := Get_Pragma_Arg (Arg);
-
-                  if Is_Entity_Name (Arg_Expr) then
-                     Arg_Id := Entity (Arg_Expr);
->>>>>>> gcc-mirror/trunk
-
-                  if Ekind (Constit_Id) = E_Abstract_State then
-                     SPARK_Msg_NE
-                       ("\abstract state & defined #", State, Constit_Id);
-
-<<<<<<< HEAD
-                  elsif Ekind (Constit_Id) = E_Constant then
-                     SPARK_Msg_NE
-                       ("\constant & defined #", State, Constit_Id);
-
-                  else
-                     pragma Assert (Ekind (Constit_Id) = E_Variable);
-                     SPARK_Msg_NE ("\variable & defined #", State, Constit_Id);
-                  end if;
-
-                  Next_Elmt (Constit_Elmt);
 =======
                      if Is_Overloaded (Arg_Expr) then
                         Generate_Reference (Arg_Id, N);
@@ -36715,20 +50332,30 @@ package body Sem_Prag is
                   end if;
 
                   Next (Arg);
->>>>>>> gcc-mirror/trunk
                end loop;
             end if;
-         end Report_Unused_Constituents;
+         end Unreferenced;
+>>>>>>> gcc-mirror/master
 
-         --  Local declarations
+            --  Local variables
 
 <<<<<<< HEAD
-         Body_Ref      : Node_Id;
-         Body_Ref_Elmt : Elmt_Id;
-         Constit       : Node_Id;
-         Extra_State   : Node_Id;
+            Constit_Id : Entity_Id;
 
-      --  Start of processing for Analyze_Refinement_Clause
+         --  Start of processing for Analyze_Constituent
+
+         begin
+            --  Detect multiple uses of null in a single refinement clause or a
+            --  mixture of null and non-null constituents.
+
+            if Nkind (Constit) = N_Null then
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("multiple null constituents not allowed", Constit);
+
+               elsif Non_Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null constituents", Constit);
 =======
          --  pragma Unreferenced_Objects (LOCAL_NAME {, LOCAL_NAME});
 
@@ -36744,23 +50371,11 @@ package body Sem_Prag is
             Ghost_Id : Entity_Id := Empty;
             --  The entity of the first Ghost type encountered while processing
             --  the arguments of the pragma.
->>>>>>> gcc-mirror/trunk
 
-      begin
-         --  A refinement clause appears as a component association where the
-         --  sole choice is the state and the expressions are the constituents.
-         --  This is a syntax error, always report.
+         begin
+            GNAT_Pragma;
+            Check_At_Least_N_Arguments (1);
 
-<<<<<<< HEAD
-         if Nkind (Clause) /= N_Component_Association then
-            Error_Msg_N ("malformed state refinement clause", Clause);
-            return;
-         end if;
-
-         --  Analyze the state name of a refinement clause
-
-         State := First (Choices (Clause));
-=======
             Arg := Arg1;
             while Present (Arg) loop
                Check_No_Identifier (Arg);
@@ -36819,29 +50434,27 @@ package body Sem_Prag is
                Next (Arg);
             end loop;
          end Unreferenced_Objects;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-         Analyze       (State);
-         Resolve_State (State);
+               else
+                  Null_Seen := True;
 
-         --  Ensure that the state name denotes a valid abstract state that is
-         --  defined in the spec of the related package.
+                  --  Collect the constituent in the list of refinement items
 
-         if Is_Entity_Name (State) then
-            State_Id := Entity_Of (State);
+                  Append_Elmt (Constit, Refinement_Constituents (State_Id));
 
-            --  When the abstract state is undefined, it appears as Any_Id. Do
-            --  not continue with the analysis of the clause.
+                  --  The state has at least one legal constituent, mark the
+                  --  start of the refinement region. The region ends when the
+                  --  body declarations end (see Analyze_Declarations).
 
-            if State_Id = Any_Id then
-               return;
+                  Set_Has_Visible_Refinement (State_Id);
+               end if;
 
-            --  Catch any attempts to re-refine a state or refine a state that
-            --  is not defined in the package declaration.
+            --  Non-null constituents
 
 <<<<<<< HEAD
-            elsif Ekind (State_Id) = E_Abstract_State then
-               Match_State;
+            else
+               Non_Null_Seen := True;
 =======
          when Pragma_Unsuppress =>
             Ada_2005_Pragma;
@@ -36870,80 +50483,134 @@ package body Sem_Prag is
 
             Get_Name_String (Chars (Get_Pragma_Arg (Arg1)));
             Uneval_Old := Fold_Upper (Name_Buffer (1));
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-            else
-               SPARK_Msg_NE ("& must denote abstract state", State, State_Id);
-               return;
-            end if;
+               if Null_Seen then
+                  SPARK_Msg_N
+                    ("cannot mix null and non-null constituents", Constit);
+               end if;
 
-            --  References to a state with visible refinement are illegal.
-            --  When nested packages are involved, detecting such references is
-            --  tricky because pragma Refined_State is analyzed later than the
-            --  offending pragma Depends or Global. References that occur in
-            --  such nested context are stored in a list. Emit errors for all
-            --  references found in Body_References (SPARK RM 6.1.4(8)).
+               Analyze       (Constit);
+               Resolve_State (Constit);
 
-            if Present (Body_References (State_Id)) then
-               Body_Ref_Elmt := First_Elmt (Body_References (State_Id));
-               while Present (Body_Ref_Elmt) loop
-                  Body_Ref := Node (Body_Ref_Elmt);
+               --  Ensure that the constituent denotes a valid state or a
+               --  whole object (SPARK RM 7.2.2(5)).
 
-                  SPARK_Msg_N ("reference to & not allowed", Body_Ref);
-                  Error_Msg_Sloc := Sloc (State);
-                  SPARK_Msg_N ("\refinement of & is visible#", Body_Ref);
+               if Is_Entity_Name (Constit) then
+                  Constit_Id := Entity_Of (Constit);
 
-                  Next_Elmt (Body_Ref_Elmt);
-               end loop;
-            end if;
+                  --  When a constituent is declared after a subprogram body
+                  --  that caused "freezing" of the related contract where
+                  --  pragma Refined_State resides, the constituent appears
+                  --  undefined and carries Any_Id as its entity.
+
+                  --    package body Pack
+                  --      with Refined_State => (State => Constit)
+                  --    is
+                  --       procedure Proc
+                  --         with Refined_Global => (Input => Constit)
+                  --       is
+                  --          ...
+                  --       end Proc;
+
+                  --       Constit : ...;
+                  --    end Pack;
+
+                  if Constit_Id = Any_Id then
+                     SPARK_Msg_NE ("& is undefined", Constit, Constit_Id);
+
+                     --  Emit a specialized info message when the contract of
+                     --  the related package body was "frozen" by another body.
+                     --  Note that it is not possible to precisely identify why
+                     --  the constituent is undefined because it is not visible
+                     --  when pragma Refined_State is analyzed. This message is
+                     --  a reasonable approximation.
+
+                     if Present (Freeze_Id) and then not Freeze_Posted then
+                        Freeze_Posted := True;
+
+                        Error_Msg_Name_1 := Chars (Body_Id);
+                        Error_Msg_Sloc   := Sloc (Freeze_Id);
+                        SPARK_Msg_NE
+                          ("body & declared # freezes the contract of %",
+                           N, Freeze_Id);
+                        SPARK_Msg_N
+                          ("\all constituents must be declared before body #",
+                           N);
+
+                        --  A misplaced constituent is a critical error because
+                        --  pragma Refined_Depends or Refined_Global depends on
+                        --  the proper link between a state and a constituent.
+                        --  Stop the compilation, as this leads to a multitude
+                        --  of misleading cascaded errors.
+
+                        raise Program_Error;
+                     end if;
+
+                  --  The constituent is a valid state or object
 
 <<<<<<< HEAD
-         --  The state name is illegal. This is a syntax error, always report.
+                  elsif Ekind_In (Constit_Id, E_Abstract_State,
+                                              E_Constant,
+                                              E_Variable)
+                  then
+                     Match_Constituent (Constit_Id);
 =======
          when Pragma_Validity_Checks => Validity_Checks : declare
             A  : constant Node_Id := Get_Pragma_Arg (Arg1);
             S  : String_Id;
             C  : Char_Code;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-         else
-            Error_Msg_N ("malformed state name in refinement clause", State);
-            return;
-         end if;
+                     --  The variable may eventually become a constituent of a
+                     --  single protected/task type. Record the reference now
+                     --  and verify its legality when analyzing the contract of
+                     --  the variable (SPARK RM 9.3).
 
 <<<<<<< HEAD
-         --  A refinement clause may only refine one state at a time
+                     if Ekind (Constit_Id) = E_Variable then
+                        Record_Possible_Part_Of_Reference
+                          (Var_Id => Constit_Id,
+                           Ref    => Constit);
+                     end if;
 
-         Extra_State := Next (State);
+                  --  Otherwise the constituent is illegal
 
-         if Present (Extra_State) then
-            SPARK_Msg_N
-              ("refinement clause cannot cover multiple states", Extra_State);
-         end if;
+                  else
+                     SPARK_Msg_NE
+                       ("constituent & must denote object or state",
+                        Constit, Constit_Id);
+                  end if;
 
-         --  Replicate the Part_Of constituents of the refined state because
-         --  the algorithm will consume items.
+               --  The constituent is illegal
 
-         Part_Of_Constits := New_Copy_Elist (Part_Of_Constituents (State_Id));
-
-         --  Analyze all constituents of the refinement. Multiple constituents
-         --  appear as an aggregate.
-
-         Constit := Expression (Clause);
-
-         if Nkind (Constit) = N_Aggregate then
-            if Present (Component_Associations (Constit)) then
-               SPARK_Msg_N
-                 ("constituents of refinement clause must appear in "
-                  & "positional form", Constit);
-
-            else pragma Assert (Present (Expressions (Constit)));
-               Constit := First (Expressions (Constit));
-               while Present (Constit) loop
-                  Analyze_Constituent (Constit);
-                  Next (Constit);
-               end loop;
+               else
+                  SPARK_Msg_N ("malformed constituent", Constit);
+               end if;
             end if;
+         end Analyze_Constituent;
+
+         -----------------------------
+         -- Check_External_Property --
+         -----------------------------
+
+         procedure Check_External_Property
+           (Prop_Nam : Name_Id;
+            Enabled  : Boolean;
+            Constit  : Entity_Id)
+         is
+         begin
+            Error_Msg_Name_1 := Prop_Nam;
+
+            --  The property is enabled in the related Abstract_State pragma
+            --  that defines the state (SPARK RM 7.2.8(3)).
+
+            if Enabled then
+               if No (Constit) then
+                  SPARK_Msg_NE
+                    ("external state & requires at least one constituent with "
+                     & "property %", State, State_Id);
+               end if;
 =======
             --  Pragma always active unless in CodePeer or GNATprove modes,
             --  which use a fixed configuration of validity checks.
@@ -37004,40 +50671,53 @@ package body Sem_Prag is
          -------------------------
          -- Volatile_Components --
          -------------------------
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
-         --  Various forms of a single constituent. Note that these may include
-         --  malformed constituents.
+            --  The property is missing in the declaration of the state, but
+            --  a constituent is introducing it in the state refinement
+            --  (SPARK RM 7.2.8(3)).
 
-         else
-            Analyze_Constituent (Constit);
-         end if;
+            elsif Present (Constit) then
+               Error_Msg_Name_2 := Chars (Constit);
+               SPARK_Msg_NE
+                 ("external state & lacks property % set by constituent %",
+                  State, State_Id);
+            end if;
+         end Check_External_Property;
 
 <<<<<<< HEAD
-         --  A refined external state is subject to special rules with respect
-         --  to its properties and constituents.
+         -----------------
+         -- Match_State --
+         -----------------
 
-         if Is_External_State (State_Id) then
+         procedure Match_State is
+            State_Elmt : Elmt_Id;
 
-            --  The set of properties that all external constituents yield must
-            --  match that of the refined state. There are two cases to detect:
-            --  the refined state lacks a property or has an extra property.
+         begin
+            --  Detect a duplicate refinement of a state (SPARK RM 7.2.2(8))
 
-            if External_Constit_Seen then
-               Check_External_Property
-                 (Prop_Nam => Name_Async_Readers,
-                  Enabled  => Async_Readers_Enabled (State_Id),
-                  Constit  => AR_Constit);
+            if Contains (Refined_States_Seen, State_Id) then
+               SPARK_Msg_NE
+                 ("duplicate refinement of state &", State, State_Id);
+               return;
+            end if;
 
-               Check_External_Property
-                 (Prop_Nam => Name_Async_Writers,
-                  Enabled  => Async_Writers_Enabled (State_Id),
-                  Constit  => AW_Constit);
+            --  Inspect the abstract states defined in the package declaration
+            --  looking for a match.
 
-               Check_External_Property
-                 (Prop_Nam => Name_Effective_Reads,
-                  Enabled  => Effective_Reads_Enabled (State_Id),
-                  Constit  => ER_Constit);
+            State_Elmt := First_Elmt (Available_States);
+            while Present (State_Elmt) loop
+
+               --  A valid abstract state is being refined in the body. Add
+               --  the state to the list of processed refined states to aid
+               --  with the detection of duplicate refinements. Remove the
+               --  state from Available_States to signal that it has already
+               --  been refined.
+
+               if Node (State_Elmt) = State_Id then
+                  Append_New_Elmt (State_Id, Refined_States_Seen);
+                  Remove_Elmt (Available_States, State_Elmt);
+                  return;
 =======
          --------------------------
          -- Volatile_Full_Access --
@@ -37234,41 +50914,52 @@ package body Sem_Prag is
 
                else
                   Reason := Null_String_Id;
+>>>>>>> gcc-mirror/master
                end if;
-            end;
->>>>>>> gcc-mirror/trunk
 
-               Check_External_Property
-                 (Prop_Nam => Name_Effective_Writes,
-                  Enabled  => Effective_Writes_Enabled (State_Id),
-                  Constit  => EW_Constit);
+               Next_Elmt (State_Elmt);
+            end loop;
 
-            --  An external state may be refined to null (SPARK RM 7.2.8(2))
+            --  If we get here, we are refining a state that is not defined in
+            --  the package declaration.
 
-            elsif Null_Seen then
-               null;
+            Error_Msg_Name_1 := Chars (Spec_Id);
+            SPARK_Msg_NE
+              ("cannot refine state, & is not defined in package %",
+               State, State_Id);
+         end Match_State;
 
-            --  The external state has constituents, but none of them are
-            --  external (SPARK RM 7.2.8(2)).
+         --------------------------------
+         -- Report_Unused_Constituents --
+         --------------------------------
 
-            else
-               SPARK_Msg_NE
-                 ("external state & requires at least one external "
-                  & "constituent or null refinement", State, State_Id);
-            end if;
-
-         --  When a refined state is not external, it should not have external
-         --  constituents (SPARK RM 7.2.8(1)).
+         procedure Report_Unused_Constituents (Constits : Elist_Id) is
+            Constit_Elmt : Elmt_Id;
+            Constit_Id   : Entity_Id;
+            Posted       : Boolean := False;
 
 <<<<<<< HEAD
-         elsif External_Constit_Seen then
-            SPARK_Msg_NE
-              ("non-external state & cannot contain external constituents in "
-               & "refinement", State, State_Id);
-         end if;
+         begin
+            if Present (Constits) then
+               Constit_Elmt := First_Elmt (Constits);
+               while Present (Constit_Elmt) loop
+                  Constit_Id := Node (Constit_Elmt);
 
-         --  Ensure that all Part_Of candidate constituents have been mentioned
-         --  in the refinement clause.
+                  --  Generate an error message of the form:
+
+                  --    state ... has unused Part_Of constituents
+                  --      abstract state ... defined at ...
+                  --      constant ... defined at ...
+                  --      variable ... defined at ...
+
+                  if not Posted then
+                     Posted := True;
+                     SPARK_Msg_NE
+                       ("state & has unused Part_Of constituents",
+                        State, State_Id);
+                  end if;
+
+                  Error_Msg_Sloc := Sloc (Constit_Id);
 =======
             declare
                Argx : constant Node_Id := Get_Pragma_Arg (Arg1);
@@ -37328,7 +51019,231 @@ package body Sem_Prag is
                end if;
 
                --  One argument case
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
+
+                  if Ekind (Constit_Id) = E_Abstract_State then
+                     SPARK_Msg_NE
+                       ("\abstract state & defined #", State, Constit_Id);
+
+                  elsif Ekind (Constit_Id) = E_Constant then
+                     SPARK_Msg_NE
+                       ("\constant & defined #", State, Constit_Id);
+
+                  else
+                     pragma Assert (Ekind (Constit_Id) = E_Variable);
+                     SPARK_Msg_NE ("\variable & defined #", State, Constit_Id);
+                  end if;
+
+                  Next_Elmt (Constit_Elmt);
+               end loop;
+            end if;
+         end Report_Unused_Constituents;
+
+         --  Local declarations
+
+         Body_Ref      : Node_Id;
+         Body_Ref_Elmt : Elmt_Id;
+         Constit       : Node_Id;
+         Extra_State   : Node_Id;
+
+      --  Start of processing for Analyze_Refinement_Clause
+
+      begin
+         --  A refinement clause appears as a component association where the
+         --  sole choice is the state and the expressions are the constituents.
+         --  This is a syntax error, always report.
+
+         if Nkind (Clause) /= N_Component_Association then
+            Error_Msg_N ("malformed state refinement clause", Clause);
+            return;
+         end if;
+
+         --  Analyze the state name of a refinement clause
+
+         State := First (Choices (Clause));
+
+         Analyze       (State);
+         Resolve_State (State);
+
+         --  Ensure that the state name denotes a valid abstract state that is
+         --  defined in the spec of the related package.
+
+         if Is_Entity_Name (State) then
+            State_Id := Entity_Of (State);
+
+            --  When the abstract state is undefined, it appears as Any_Id. Do
+            --  not continue with the analysis of the clause.
+
+            if State_Id = Any_Id then
+               return;
+
+            --  Catch any attempts to re-refine a state or refine a state that
+            --  is not defined in the package declaration.
+
+            elsif Ekind (State_Id) = E_Abstract_State then
+               Match_State;
+
+            else
+               SPARK_Msg_NE ("& must denote abstract state", State, State_Id);
+               return;
+            end if;
+
+<<<<<<< HEAD
+            --  References to a state with visible refinement are illegal.
+            --  When nested packages are involved, detecting such references is
+            --  tricky because pragma Refined_State is analyzed later than the
+            --  offending pragma Depends or Global. References that occur in
+            --  such nested context are stored in a list. Emit errors for all
+            --  references found in Body_References (SPARK RM 6.1.4(8)).
+=======
+               else
+                  Check_Arg_Is_One_Of (Arg1, Name_On, Name_Off);
+                  Check_Arg_Count (2);
+>>>>>>> gcc-mirror/master
+
+            if Present (Body_References (State_Id)) then
+               Body_Ref_Elmt := First_Elmt (Body_References (State_Id));
+               while Present (Body_Ref_Elmt) loop
+                  Body_Ref := Node (Body_Ref_Elmt);
+
+                  SPARK_Msg_N ("reference to & not allowed", Body_Ref);
+                  Error_Msg_Sloc := Sloc (State);
+                  SPARK_Msg_N ("\refinement of & is visible#", Body_Ref);
+
+                  Next_Elmt (Body_Ref_Elmt);
+               end loop;
+            end if;
+
+         --  The state name is illegal. This is a syntax error, always report.
+
+         else
+            Error_Msg_N ("malformed state name in refinement clause", State);
+            return;
+         end if;
+
+         --  A refinement clause may only refine one state at a time
+
+         Extra_State := Next (State);
+
+         if Present (Extra_State) then
+            SPARK_Msg_N
+              ("refinement clause cannot cover multiple states", Extra_State);
+         end if;
+
+<<<<<<< HEAD
+         --  Replicate the Part_Of constituents of the refined state because
+         --  the algorithm will consume items.
+
+         Part_Of_Constits := New_Copy_Elist (Part_Of_Constituents (State_Id));
+=======
+                              if Chars (Get_Pragma_Arg (Arg1)) = Name_Off
+                                and then Warn_On_Warnings_Off
+                                and then not In_Instance
+                              then
+                                 Warnings_Off_Pragmas.Append ((N, E, Reason));
+                              end if;
+>>>>>>> gcc-mirror/master
+
+         --  Analyze all constituents of the refinement. Multiple constituents
+         --  appear as an aggregate.
+
+         Constit := Expression (Clause);
+
+<<<<<<< HEAD
+         if Nkind (Constit) = N_Aggregate then
+            if Present (Component_Associations (Constit)) then
+               SPARK_Msg_N
+                 ("constituents of refinement clause must appear in "
+                  & "positional form", Constit);
+=======
+                     --  Error if not entity or static string expression case
+>>>>>>> gcc-mirror/master
+
+            else pragma Assert (Present (Expressions (Constit)));
+               Constit := First (Expressions (Constit));
+               while Present (Constit) loop
+                  Analyze_Constituent (Constit);
+                  Next (Constit);
+               end loop;
+            end if;
+
+<<<<<<< HEAD
+         --  Various forms of a single constituent. Note that these may include
+         --  malformed constituents.
+
+         else
+            Analyze_Constituent (Constit);
+         end if;
+=======
+                     --  Static string expression case
+
+                     else
+                        Acquire_Warning_Match_String (Arg2);
+>>>>>>> gcc-mirror/master
+
+         --  A refined external state is subject to special rules with respect
+         --  to its properties and constituents.
+
+         if Is_External_State (State_Id) then
+
+            --  The set of properties that all external constituents yield must
+            --  match that of the refined state. There are two cases to detect:
+            --  the refined state lacks a property or has an extra property.
+
+<<<<<<< HEAD
+            if External_Constit_Seen then
+               Check_External_Property
+                 (Prop_Nam => Name_Async_Readers,
+                  Enabled  => Async_Readers_Enabled (State_Id),
+                  Constit  => AR_Constit);
+=======
+                        if Chars (Argx) = Name_Off then
+                           Set_Specific_Warning_Off
+                             (Loc, Name_Buffer (1 .. Name_Len), Reason,
+                              Config => Is_Configuration_Pragma,
+                              Used   => Inside_A_Generic or else In_Instance);
+>>>>>>> gcc-mirror/master
+
+               Check_External_Property
+                 (Prop_Nam => Name_Async_Writers,
+                  Enabled  => Async_Writers_Enabled (State_Id),
+                  Constit  => AW_Constit);
+
+               Check_External_Property
+                 (Prop_Nam => Name_Effective_Reads,
+                  Enabled  => Effective_Reads_Enabled (State_Id),
+                  Constit  => ER_Constit);
+
+               Check_External_Property
+                 (Prop_Nam => Name_Effective_Writes,
+                  Enabled  => Effective_Writes_Enabled (State_Id),
+                  Constit  => EW_Constit);
+
+            --  An external state may be refined to null (SPARK RM 7.2.8(2))
+
+            elsif Null_Seen then
+               null;
+
+            --  The external state has constituents, but none of them are
+            --  external (SPARK RM 7.2.8(2)).
+
+            else
+               SPARK_Msg_NE
+                 ("external state & requires at least one external "
+                  & "constituent or null refinement", State, State_Id);
+            end if;
+
+         --  When a refined state is not external, it should not have external
+         --  constituents (SPARK RM 7.2.8(1)).
+
+         elsif External_Constit_Seen then
+            SPARK_Msg_NE
+              ("non-external state & cannot contain external constituents in "
+               & "refinement", State, State_Id);
+         end if;
+
+         --  Ensure that all Part_Of candidate constituents have been mentioned
+         --  in the refinement clause.
 
          Report_Unused_Constituents (Part_Of_Constits);
       end Analyze_Refinement_Clause;
@@ -37404,15 +51319,10 @@ package body Sem_Prag is
 
       Report_Unrefined_States (Available_States);
 
-<<<<<<< HEAD
       Set_Is_Analyzed_Pragma (N);
    end Analyze_Refined_State_In_Decl_Part;
-=======
-               else
-                  Check_Arg_Is_One_Of (Arg1, Name_On, Name_Off);
-                  Check_Arg_Count (2);
->>>>>>> gcc-mirror/trunk
 
+<<<<<<< HEAD
    ------------------------------------
    -- Analyze_Test_Case_In_Decl_Part --
    ------------------------------------
@@ -37449,16 +51359,7 @@ package body Sem_Prag is
             end if;
          end if;
 
-<<<<<<< HEAD
          Arg := Test_Case_Arg (N, Arg_Nam);
-=======
-                              if Chars (Get_Pragma_Arg (Arg1)) = Name_Off
-                                and then Warn_On_Warnings_Off
-                                and then not In_Instance
-                              then
-                                 Warnings_Off_Pragmas.Append ((N, E, Reason));
-                              end if;
->>>>>>> gcc-mirror/trunk
 
          if Present (Arg) then
             Preanalyze_Assert_Expression (Expression (Arg), Standard_Boolean);
@@ -37467,27 +51368,16 @@ package body Sem_Prag is
 
       --  Local variables
 
-<<<<<<< HEAD
       Restore_Scope : Boolean := False;
-=======
-                     --  Error if not entity or static string expression case
->>>>>>> gcc-mirror/trunk
 
    --  Start of processing for Analyze_Test_Case_In_Decl_Part
 
-<<<<<<< HEAD
    begin
       --  Do not analyze the pragma multiple times
 
       if Is_Analyzed_Pragma (N) then
          return;
       end if;
-=======
-                     --  Static string expression case
-
-                     else
-                        Acquire_Warning_Match_String (Arg2);
->>>>>>> gcc-mirror/trunk
 
       --  Ensure that the formal parameters are visible when analyzing all
       --  clauses. This falls out of the general rule of aspects pertaining
@@ -37504,16 +51394,8 @@ package body Sem_Prag is
          end if;
       end if;
 
-<<<<<<< HEAD
       Preanalyze_Test_Case_Arg (Name_Requires);
       Preanalyze_Test_Case_Arg (Name_Ensures);
-=======
-                        if Chars (Argx) = Name_Off then
-                           Set_Specific_Warning_Off
-                             (Loc, Name_Buffer (1 .. Name_Len), Reason,
-                              Config => Is_Configuration_Pragma,
-                              Used   => Inside_A_Generic or else In_Instance);
->>>>>>> gcc-mirror/trunk
 
       if Restore_Scope then
          End_Scope;
@@ -37526,15 +51408,76 @@ package body Sem_Prag is
 
       Set_Is_Analyzed_Pragma (N);
    end Analyze_Test_Case_In_Decl_Part;
+=======
+   ---------------------------------------------
+   -- Analyze_Pre_Post_Condition_In_Decl_Part --
+   ---------------------------------------------
 
-   ----------------
-   -- Appears_In --
-   ----------------
+   procedure Analyze_Pre_Post_Condition_In_Decl_Part
+     (N         : Node_Id;
+      Freeze_Id : Entity_Id := Empty)
+   is
+      procedure Process_Class_Wide_Condition
+        (Expr      : Node_Id;
+         Spec_Id   : Entity_Id;
+         Subp_Decl : Node_Id);
+      --  Replace the type of all references to the controlling formal of
+      --  subprogram Spec_Id found in expression Expr with the corresponding
+      --  class-wide type. Subp_Decl is the subprogram [body] declaration
+      --  where the pragma resides.
 
-   function Appears_In (List : Elist_Id; Item_Id : Entity_Id) return Boolean is
-      Elmt : Elmt_Id;
-      Id   : Entity_Id;
+      ----------------------------------
+      -- Process_Class_Wide_Condition --
+      ----------------------------------
 
+      procedure Process_Class_Wide_Condition
+        (Expr      : Node_Id;
+         Spec_Id   : Entity_Id;
+         Subp_Decl : Node_Id)
+      is
+         Disp_Typ : constant Entity_Id := Find_Dispatching_Type (Spec_Id);
+
+         ACW : Entity_Id := Empty;
+         --  Access to Disp_Typ'Class, created if there is a controlling formal
+         --  that is an access parameter.
+
+         function Access_Class_Wide_Type return Entity_Id;
+         --  If expression Expr contains a reference to a controlling access
+         --  parameter, create an access to Disp_Typ'Class for the necessary
+         --  conversions if one does not exist.
+
+         function Replace_Type (N : Node_Id) return Traverse_Result;
+         --  ARM 6.1.1: Within the expression for a Pre'Class or Post'Class
+         --  aspect for a primitive subprogram of a tagged type Disp_Typ, a
+         --  name that denotes a formal parameter of type Disp_Typ is treated
+         --  as having type Disp_Typ'Class. Similarly, a name that denotes a
+         --  formal access parameter of type access-to-Disp_Typ is interpreted
+         --  as with type access-to-Disp_Typ'Class. This ensures the expression
+         --  is well defined for a primitive subprogram of a type descended
+         --  from Disp_Typ.
+
+         ----------------------------
+         -- Access_Class_Wide_Type --
+         ----------------------------
+
+         function Access_Class_Wide_Type return Entity_Id is
+            Loc : constant Source_Ptr := Sloc (N);
+>>>>>>> gcc-mirror/master
+
+         begin
+            if No (ACW) then
+               ACW := Make_Temporary (Loc, 'T');
+
+               Insert_Before_And_Analyze (Subp_Decl,
+                 Make_Full_Type_Declaration (Loc,
+                   Defining_Identifier => ACW,
+                   Type_Definition     =>
+                      Make_Access_To_Object_Definition (Loc,
+                        Subtype_Indication =>
+                          New_Occurrence_Of (Class_Wide_Type (Disp_Typ), Loc),
+                        All_Present        => True)));
+
+<<<<<<< HEAD
    begin
       if Present (List) then
          Elmt := First_Elmt (List);
@@ -37635,7 +51578,6 @@ package body Sem_Prag is
       end if;
    end Check_Applicable_Policy;
 
-<<<<<<< HEAD
    -------------------------------
    -- Check_External_Properties --
    -------------------------------
@@ -37687,73 +51629,6 @@ package body Sem_Prag is
       end if;
    end Check_External_Properties;
 =======
-   ---------------------------------------------
-   -- Analyze_Pre_Post_Condition_In_Decl_Part --
-   ---------------------------------------------
-
-   procedure Analyze_Pre_Post_Condition_In_Decl_Part
-     (N         : Node_Id;
-      Freeze_Id : Entity_Id := Empty)
-   is
-      procedure Process_Class_Wide_Condition
-        (Expr      : Node_Id;
-         Spec_Id   : Entity_Id;
-         Subp_Decl : Node_Id);
-      --  Replace the type of all references to the controlling formal of
-      --  subprogram Spec_Id found in expression Expr with the corresponding
-      --  class-wide type. Subp_Decl is the subprogram [body] declaration
-      --  where the pragma resides.
-
-      ----------------------------------
-      -- Process_Class_Wide_Condition --
-      ----------------------------------
-
-      procedure Process_Class_Wide_Condition
-        (Expr      : Node_Id;
-         Spec_Id   : Entity_Id;
-         Subp_Decl : Node_Id)
-      is
-         Disp_Typ : constant Entity_Id := Find_Dispatching_Type (Spec_Id);
-
-         ACW : Entity_Id := Empty;
-         --  Access to Disp_Typ'Class, created if there is a controlling formal
-         --  that is an access parameter.
-
-         function Access_Class_Wide_Type return Entity_Id;
-         --  If expression Expr contains a reference to a controlling access
-         --  parameter, create an access to Disp_Typ'Class for the necessary
-         --  conversions if one does not exist.
-
-         function Replace_Type (N : Node_Id) return Traverse_Result;
-         --  ARM 6.1.1: Within the expression for a Pre'Class or Post'Class
-         --  aspect for a primitive subprogram of a tagged type Disp_Typ, a
-         --  name that denotes a formal parameter of type Disp_Typ is treated
-         --  as having type Disp_Typ'Class. Similarly, a name that denotes a
-         --  formal access parameter of type access-to-Disp_Typ is interpreted
-         --  as with type access-to-Disp_Typ'Class. This ensures the expression
-         --  is well defined for a primitive subprogram of a type descended
-         --  from Disp_Typ.
-
-         ----------------------------
-         -- Access_Class_Wide_Type --
-         ----------------------------
-
-         function Access_Class_Wide_Type return Entity_Id is
-            Loc : constant Source_Ptr := Sloc (N);
-
-         begin
-            if No (ACW) then
-               ACW := Make_Temporary (Loc, 'T');
-
-               Insert_Before_And_Analyze (Subp_Decl,
-                 Make_Full_Type_Declaration (Loc,
-                   Defining_Identifier => ACW,
-                   Type_Definition     =>
-                      Make_Access_To_Object_Definition (Loc,
-                        Subtype_Indication =>
-                          New_Occurrence_Of (Class_Wide_Type (Disp_Typ), Loc),
-                        All_Present        => True)));
-
                Freeze_Before (Subp_Decl, ACW);
             end if;
 
@@ -37813,7 +51688,7 @@ package body Sem_Prag is
          end Replace_Type;
 
          procedure Replace_Types is new Traverse_Proc (Replace_Type);
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
       --  Start of processing for Process_Class_Wide_Condition
 
@@ -37853,21 +51728,81 @@ package body Sem_Prag is
                end case;
 =======
             --  The pragma is a source construct
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
             else
                Error_Msg_N
                  ("pragma % can only be specified for a primitive operation "
                   & "of a tagged type", N);
             end if;
+<<<<<<< HEAD
+         end;
+      end loop;
+>>>>>>> gcc-mirror/trunk
+
+      else pragma Assert (Placement = Private_State_Space);
+
+         --  The related package does not declare a state, the item cannot act
+         --  as a Part_Of constituent.
+
+         if No (Get_Pragma (Pack_Id, Pragma_Abstract_State)) then
+            null;
+
+         --  A package instantiation does not need a Part_Of indicator when the
+         --  related generic template has no visible state.
+
+         elsif Ekind (Pack_Id) = E_Package
+           and then Is_Generic_Instance (Pack_Id)
+           and then not Has_Visible_State (Pack_Id)
+         then
+            null;
+
+         --  All other cases require Part_Of
+
+         else
+            Error_Msg_N
+              ("indicator Part_Of is required in this context "
+               & "(SPARK RM 7.2.6(2))", Item_Id);
+            Error_Msg_Name_1 := Chars (Pack_Id);
+            Error_Msg_N
+              ("\& is declared in the private part of package %", Item_Id);
          end if;
+      end if;
+   end Check_Missing_Part_Of;
 
-         Replace_Types (Expr);
-      end Process_Class_Wide_Condition;
+   ---------------------------------------------------
+   -- Check_Postcondition_Use_In_Inlined_Subprogram --
+   ---------------------------------------------------
 
-      --  Local variables
+   procedure Check_Postcondition_Use_In_Inlined_Subprogram
+     (Prag    : Node_Id;
+      Spec_Id : Entity_Id)
+   is
+   begin
+      if Warn_On_Redundant_Constructs
+        and then Has_Pragma_Inline_Always (Spec_Id)
+      then
+         Error_Msg_Name_1 := Original_Aspect_Pragma_Name (Prag);
 
 <<<<<<< HEAD
+         if From_Aspect_Specification (Prag) then
+            Error_Msg_NE
+              ("aspect % not enforced on inlined subprogram &?r?",
+               Corresponding_Aspect (Prag), Spec_Id);
+         else
+            Error_Msg_NE
+              ("pragma % not enforced on inlined subprogram &?r?",
+               Prag, Spec_Id);
+         end if;
+      end if;
+=======
+      if Assertions_Enabled then
+         return Name_Check;
+      else
+         return Name_Ignore;
+      end if;
+   end Check_Kind;
+
    ---------------------------
    -- Check_Missing_Part_Of --
    ---------------------------
@@ -38007,6 +51942,13 @@ package body Sem_Prag is
       --  When the item appears in the private state space of a packge, it must
       --  be a part of some state declared by the said package.
 =======
+         end if;
+
+         Replace_Types (Expr);
+      end Process_Class_Wide_Condition;
+
+      --  Local variables
+
       Subp_Decl : constant Node_Id   := Find_Related_Declaration_Or_Body (N);
       Spec_Id   : constant Entity_Id := Unique_Defining_Entity (Subp_Decl);
       Expr      : constant Node_Id   := Expression (Get_Argument (N, Spec_Id));
@@ -41056,7 +54998,7 @@ package body Sem_Prag is
             end if;
          end;
       end loop;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 
       else pragma Assert (Placement = Private_State_Space);
 
@@ -41113,6 +55055,7 @@ package body Sem_Prag is
                Prag, Spec_Id);
          end if;
       end if;
+>>>>>>> gcc-mirror/trunk
 =======
       if Assertions_Enabled then
          return Name_Check;
@@ -41314,7 +55257,7 @@ package body Sem_Prag is
                Prag, Spec_Id);
          end if;
       end if;
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
    end Check_Postcondition_Use_In_Inlined_Subprogram;
 
    -------------------------------------
@@ -41587,6 +55530,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  Process all formal parameters of entries, [generic] subprograms and
 =======
       --  Process all formal parameters of entries, [generic] subprograms, and
@@ -41597,6 +55541,9 @@ package body Sem_Prag is
 =======
       --  Process all formal parameters of entries, [generic] subprograms, and
 >>>>>>> gcc-mirror/trunk
+=======
+      --  Process all formal parameters of entries, [generic] subprograms, and
+>>>>>>> gcc-mirror/master
       --  their bodies.
 
       if Ekind_In (Subp_Id, E_Entry,
@@ -41631,6 +55578,7 @@ package body Sem_Prag is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                --  tagged, unconstrained array, unconstrained record or record
 =======
                --  tagged, unconstrained array, unconstrained record, or record
@@ -41641,6 +55589,9 @@ package body Sem_Prag is
 =======
                --  tagged, unconstrained array, unconstrained record, or record
 >>>>>>> gcc-mirror/trunk
+=======
+               --  tagged, unconstrained array, unconstrained record, or record
+>>>>>>> gcc-mirror/master
                --  with unconstrained components.
 
                if Ekind (Formal) = E_Out_Parameter

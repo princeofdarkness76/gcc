@@ -56,6 +56,7 @@ target_triplet = @target@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_NO_OBSTACK_TRUE@am__append_1 = obstack.c
 >>>>>>> gcc-mirror/master
@@ -64,6 +65,9 @@ target_triplet = @target@
 =======
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_NO_OBSTACK_TRUE@am__append_1 = obstack.c
 >>>>>>> gcc-mirror/trunk
+=======
+@ENABLE_VTABLE_VERIFY_TRUE@@VTV_NO_OBSTACK_TRUE@am__append_1 = obstack.c
+>>>>>>> gcc-mirror/master
 subdir = .
 DIST_COMMON = ChangeLog $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -124,6 +128,7 @@ am__objects_1 = vtv_start.lo vtv_malloc.lo vtv_rts.lo vtv_utils.lo \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_FALSE@am_libvtv_la_OBJECTS =  \
@@ -135,16 +140,21 @@ am__objects_1 = vtv_start.lo vtv_malloc.lo vtv_rts.lo vtv_utils.lo \
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_NO_OBSTACK_TRUE@am__objects_2 =  \
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_NO_OBSTACK_TRUE@	obstack.lo
 @ENABLE_VTABLE_VERIFY_TRUE@am_libvtv_la_OBJECTS = $(am__objects_1) \
 @ENABLE_VTABLE_VERIFY_TRUE@	$(am__objects_2)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 libvtv_la_OBJECTS = $(am_libvtv_la_OBJECTS)
 libvtv_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -155,6 +165,7 @@ libvtv_stubs_la_LIBADD =
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 am__objects_2 = vtv_start.lo vtv_stubs.lo vtv_end.lo
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@am_libvtv_stubs_la_OBJECTS =  \
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@	$(am__objects_2)
@@ -173,6 +184,11 @@ am__objects_3 = vtv_start.lo vtv_stubs.lo vtv_end.lo
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@am_libvtv_stubs_la_OBJECTS =  \
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@	$(am__objects_3)
 >>>>>>> gcc-mirror/trunk
+=======
+am__objects_3 = vtv_start.lo vtv_stubs.lo vtv_end.lo
+@ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@am_libvtv_stubs_la_OBJECTS =  \
+@ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@	$(am__objects_3)
+>>>>>>> gcc-mirror/master
 libvtv_stubs_la_OBJECTS = $(am_libvtv_stubs_la_OBJECTS)
 libvtv_stubs_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -404,6 +420,7 @@ BUILT_SOURCES = vtv_start.c vtv_end.c
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_FALSE@libvtv_la_SOURCES = $(vtv_sources)
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@libvtv_la_SOURCES = $(vtv_sources) obstack.c
 =======
@@ -418,6 +435,10 @@ BUILT_SOURCES = vtv_start.c vtv_end.c
 @ENABLE_VTABLE_VERIFY_TRUE@libvtv_la_SOURCES = $(vtv_sources) \
 @ENABLE_VTABLE_VERIFY_TRUE@	$(am__append_1)
 >>>>>>> gcc-mirror/trunk
+=======
+@ENABLE_VTABLE_VERIFY_TRUE@libvtv_la_SOURCES = $(vtv_sources) \
+@ENABLE_VTABLE_VERIFY_TRUE@	$(am__append_1)
+>>>>>>> gcc-mirror/master
 @ENABLE_VTABLE_VERIFY_TRUE@@VTV_CYGMIN_TRUE@libvtv_stubs_la_SOURCES = $(vtv_stubs_sources)
 @ENABLE_VTABLE_VERIFY_FALSE@libvtv_include_HEADERS = 
 @ENABLE_VTABLE_VERIFY_TRUE@libvtv_include_HEADERS = $(vtv_headers)
@@ -898,16 +919,20 @@ vtv_end.c:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @VTV_CYGMIN_TRUE@  obstack.c:
 @VTV_CYGMIN_TRUE@	  rm -f $@
 @VTV_CYGMIN_TRUE@	  $(LN_S) $(toplevel_srcdir)/libiberty/obstack.c $@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 @VTV_NO_OBSTACK_TRUE@  obstack.c:
 @VTV_NO_OBSTACK_TRUE@	  rm -f $@
 @VTV_NO_OBSTACK_TRUE@	  $(LN_S) $(toplevel_srcdir)/libiberty/obstack.c $@
 @VTV_NO_OBSTACK_TRUE@	  > config.h
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -917,6 +942,8 @@ vtv_end.c:
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 @VTV_CYGMIN_TRUE@  vtv_stubs.cc:
 @VTV_CYGMIN_TRUE@	  rm -f $@

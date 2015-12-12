@@ -1197,6 +1197,7 @@ package body Sem_Ch9 is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  upto and excluding the entry body. This ensures that any annotations
 =======
       --  up to and excluding the entry body. This ensures that any annotations
@@ -1207,6 +1208,9 @@ package body Sem_Ch9 is
 =======
       --  up to and excluding the entry body. This ensures that any annotations
 >>>>>>> gcc-mirror/trunk
+=======
+      --  up to and excluding the entry body. This ensures that any annotations
+>>>>>>> gcc-mirror/master
       --  referenced by the contract of an entry or subprogram body declared
       --  within the current protected body are available.
 
@@ -1784,6 +1788,7 @@ package body Sem_Ch9 is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  declarative part upto and excluding the protected body. This ensures
 =======
       --  declarative part up to and excluding the protected body. This ensures
@@ -1794,6 +1799,9 @@ package body Sem_Ch9 is
 =======
       --  declarative part up to and excluding the protected body. This ensures
 >>>>>>> gcc-mirror/trunk
+=======
+      --  declarative part up to and excluding the protected body. This ensures
+>>>>>>> gcc-mirror/master
       --  that any annotations referenced by the contract of an entry or
       --  subprogram body declared within the current protected body are
       --  available.
@@ -2668,8 +2676,11 @@ package body Sem_Ch9 is
          Interface_List       => Interface_List (N)));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       --  Use the original defining identifier of the single protected
       --  declaration in the generated object declaration to allow for debug
@@ -2680,6 +2691,7 @@ package body Sem_Ch9 is
       --  the updated Sloc information from the entity (see Sprint). Generate:
 
       --    Obj : Typ;
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -2698,6 +2710,9 @@ package body Sem_Ch9 is
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
       Obj_Decl :=
         Make_Object_Declaration (Loc,
           Defining_Identifier => Obj_Id,
@@ -2709,6 +2724,7 @@ package body Sem_Ch9 is
       --  Relocate aspect Part_Of from the the original single protected
       --  declaration to the anonymous object declaration. This emulates the
       --  placement of an equivalent source pragma.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -2759,6 +2775,26 @@ package body Sem_Ch9 is
       Set_Etype            (Typ, Typ);
       Set_Anonymous_Object (Typ, Obj_Id);
 
+=======
+
+      Move_Or_Merge_Aspects (N, To => Obj_Decl);
+
+      --  Relocate pragma Part_Of from the visible declarations of the original
+      --  single protected declaration to the anonymous object declaration. The
+      --  new placement better reflects the role of the pragma.
+
+      Relocate_Pragmas_To_Anonymous_Object (N, Obj_Decl);
+
+      --  Enter the names of the anonymous protected type and the object before
+      --  analysis takes places, because the name of the object may be used in
+      --  its own body.
+
+      Enter_Name (Typ);
+      Set_Ekind            (Typ, E_Protected_Type);
+      Set_Etype            (Typ, Typ);
+      Set_Anonymous_Object (Typ, Obj_Id);
+
+>>>>>>> gcc-mirror/master
       Enter_Name (Obj_Id);
       Set_Ekind                  (Obj_Id, E_Variable);
       Set_Etype                  (Obj_Id, Typ);
@@ -2794,6 +2830,9 @@ package body Sem_Ch9 is
       --  A single task declaration is transformed into a pait of an anonymous
       --  task type and an object of that type. Generate:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
       --    task type Typ is ...;
 
@@ -2801,6 +2840,7 @@ package body Sem_Ch9 is
         Make_Defining_Identifier (Sloc (Obj_Id),
           Chars => New_External_Name (Chars (Obj_Id), Suffix => "TK"));
 
+<<<<<<< HEAD
 =======
 
       --    task type Typ is ...;
@@ -2810,6 +2850,8 @@ package body Sem_Ch9 is
           Chars => New_External_Name (Chars (Obj_Id), Suffix => "TK"));
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       Rewrite (N,
         Make_Task_Type_Declaration (Loc,
           Defining_Identifier => Typ,
@@ -2832,8 +2874,11 @@ package body Sem_Ch9 is
           Object_Definition   => New_Occurrence_Of (Typ, Loc));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       Insert_After (N, Obj_Decl);
       Mark_Rewrite_Insertion (Obj_Decl);
@@ -2843,6 +2888,7 @@ package body Sem_Ch9 is
       --  the placement of an equivalent source pragma.
 
       Move_Or_Merge_Aspects (N, To => Obj_Decl);
+<<<<<<< HEAD
 <<<<<<< HEAD
 
       --  Relocate pragmas Depends, Global and Part_Of from the visible
@@ -2893,6 +2939,20 @@ package body Sem_Ch9 is
       --  in its own body.
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+      --  Relocate pragmas Depends, Global and Part_Of from the visible
+      --  declarations of the original single protected declaration to the
+      --  anonymous object declaration. The new placement better reflects the
+      --  role of the pragmas.
+
+      Relocate_Pragmas_To_Anonymous_Object (N, Obj_Decl);
+
+      --  Enter the names of the anonymous task type and the object before
+      --  analysis takes places, because the name of the object may be used
+      --  in its own body.
+
+>>>>>>> gcc-mirror/master
       Enter_Name (Typ);
       Set_Ekind            (Typ, E_Task_Type);
       Set_Etype            (Typ, Typ);
@@ -2942,6 +3002,7 @@ package body Sem_Ch9 is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  upto and excluding the task body. This ensures that annotations
 =======
       --  up to and excluding the task body. This ensures that annotations
@@ -2952,6 +3013,9 @@ package body Sem_Ch9 is
 =======
       --  up to and excluding the task body. This ensures that annotations
 >>>>>>> gcc-mirror/trunk
+=======
+      --  up to and excluding the task body. This ensures that annotations
+>>>>>>> gcc-mirror/master
       --  referenced by the contract of an entry or subprogram body declared
       --  within the current protected body are available.
 

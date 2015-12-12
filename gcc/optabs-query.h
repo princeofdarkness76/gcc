@@ -49,6 +49,7 @@ convert_optab_handler (convert_optab op, machine_mode to_mode,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 enum insn_code convert_optab_handler (convert_optab, machine_mode,
 				      machine_mode, optimization_type);
@@ -61,6 +62,11 @@ enum insn_code convert_optab_handler (convert_optab, machine_mode,
 				      machine_mode, optimization_type);
 
 >>>>>>> gcc-mirror/trunk
+=======
+enum insn_code convert_optab_handler (convert_optab, machine_mode,
+				      machine_mode, optimization_type);
+
+>>>>>>> gcc-mirror/master
 /* Return the insn used to implement mode MODE of OP, or CODE_FOR_nothing
    if the target does not have such an insn.  */
 
@@ -73,6 +79,7 @@ direct_optab_handler (direct_optab op, machine_mode mode)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 enum insn_code direct_optab_handler (convert_optab, machine_mode,
 				     optimization_type);
@@ -85,6 +92,11 @@ enum insn_code direct_optab_handler (convert_optab, machine_mode,
 				     optimization_type);
 
 >>>>>>> gcc-mirror/trunk
+=======
+enum insn_code direct_optab_handler (convert_optab, machine_mode,
+				     optimization_type);
+
+>>>>>>> gcc-mirror/master
 /* Return true if UNOPTAB is for a trapping-on-overflow operation.  */
 
 inline bool

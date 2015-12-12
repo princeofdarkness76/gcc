@@ -102,6 +102,7 @@ static struct opt_stats_d opt_stats;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void optimize_stmt (basic_block, gimple_stmt_iterator,
 =======
 static edge optimize_stmt (basic_block, gimple_stmt_iterator,
@@ -112,6 +113,9 @@ static void optimize_stmt (basic_block, gimple_stmt_iterator,
 =======
 static edge optimize_stmt (basic_block, gimple_stmt_iterator,
 >>>>>>> gcc-mirror/trunk
+=======
+static edge optimize_stmt (basic_block, gimple_stmt_iterator,
+>>>>>>> gcc-mirror/master
 			   class const_and_copies *,
 			   class avail_exprs_stack *);
 static tree lookup_avail_expr (gimple *, bool, class avail_exprs_stack *);
@@ -508,6 +512,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     : dom_walker (direction),
 =======
     : dom_walker (direction, true),
@@ -518,6 +523,9 @@ public:
 =======
     : dom_walker (direction, true),
 >>>>>>> gcc-mirror/trunk
+=======
+    : dom_walker (direction, true),
+>>>>>>> gcc-mirror/master
       m_const_and_copies (const_and_copies),
       m_avail_exprs_stack (avail_exprs_stack),
       m_dummy_cond (NULL) {}
@@ -525,6 +533,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -535,6 +544,9 @@ public:
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
 private:
@@ -649,9 +661,12 @@ pass_dominator::execute (function *fun)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* Look for blocks where we cleared EDGE_EXECUTABLE on an outgoing
      edge.  When found, remove jump threads which contain any outgoing
@@ -683,11 +698,14 @@ pass_dominator::execute (function *fun)
 	}
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   {
     gimple_stmt_iterator gsi;
@@ -1032,20 +1050,26 @@ record_equivalences_from_phis (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  /* If the associated edge is not marked as executable, then it
 	     can be ignored.  */
 	  if ((gimple_phi_arg_edge (phi, i)->flags & EDGE_EXECUTABLE) == 0)
 	    continue;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  t = dom_valueize (t);
 
 	  /* If we have not processed an alternative yet, then set
@@ -1136,6 +1160,7 @@ record_equivalences_from_incoming_edge (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Dump statistics for the hash table HTAB.  */
 
@@ -1164,6 +1189,8 @@ dump_dominator_optimization_stats (FILE *file,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Dump statistics for the hash table HTAB.  */
 
@@ -1175,6 +1202,7 @@ htab_statistics (FILE *file, const hash_table<expr_elt_hasher> &htab)
 	   (long) htab.elements (),
 	   htab.collisions ());
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 /* Dump SSA statistics on FILE.  */
@@ -1205,6 +1233,8 @@ htab_statistics (FILE *file, const hash_table<expr_elt_hasher> &htab)
 }
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Dump SSA statistics on FILE.  */
 
@@ -1220,9 +1250,12 @@ dump_dominator_optimization_stats (FILE *file,
   fprintf (file, "\nHash table statistics:\n");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   fprintf (file, "    avail_exprs: ");
   htab_statistics (file, *avail_exprs);
 }
@@ -1461,6 +1494,7 @@ cprop_into_successor_phis (basic_block bb,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -1471,6 +1505,9 @@ void
 =======
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+edge
+>>>>>>> gcc-mirror/master
 dom_opt_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -1503,6 +1540,7 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
 =======
     taken_edge
@@ -1515,6 +1553,10 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
     taken_edge
       = optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
 >>>>>>> gcc-mirror/trunk
+=======
+    taken_edge
+      = optimize_stmt (bb, gsi, m_const_and_copies, m_avail_exprs_stack);
+>>>>>>> gcc-mirror/master
 
   /* Now prepare to process dominated blocks.  */
   record_edge_info (bb);
@@ -1522,6 +1564,7 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return taken_edge;
 >>>>>>> gcc-mirror/master
@@ -1530,6 +1573,9 @@ dom_opt_dom_walker::before_dom_children (basic_block bb)
 =======
   return taken_edge;
 >>>>>>> gcc-mirror/trunk
+=======
+  return taken_edge;
+>>>>>>> gcc-mirror/master
 }
 
 /* We have finished processing the dominator children of BB, perform
@@ -1898,6 +1944,7 @@ cprop_into_stmt (gimple *stmt)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void
 <<<<<<< HEAD
 =======
@@ -1908,6 +1955,9 @@ static edge
 =======
 static edge
 >>>>>>> gcc-mirror/trunk
+=======
+static edge
+>>>>>>> gcc-mirror/master
 optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 	       class const_and_copies *const_and_copies,
 	       class avail_exprs_stack *avail_exprs_stack)
@@ -1919,6 +1969,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   edge retval = NULL;
 >>>>>>> gcc-mirror/master
@@ -1927,6 +1978,9 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 =======
   edge retval = NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+  edge retval = NULL;
+>>>>>>> gcc-mirror/master
 
   old_stmt = stmt = gsi_stmt (si);
   was_noreturn = is_gimple_call (stmt) && gimple_call_noreturn_p (stmt);
@@ -2076,6 +2130,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  edge taken_edge = find_taken_edge (bb, val);
@@ -2102,6 +2157,8 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  retval = find_taken_edge (bb, val);
 	  if (retval)
 	    {
@@ -2116,6 +2173,7 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 		    gcc_unreachable ();
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> gcc-mirror/master
 =======
@@ -2129,6 +2187,9 @@ optimize_stmt (basic_block bb, gimple_stmt_iterator si,
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 	      /* Further simplifications may be possible.  */
 	      cfg_altered = true;
 	    }

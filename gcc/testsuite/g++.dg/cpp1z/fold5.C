@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-do compile { target c++11 } }
 =======
 // { dg-do compile { target { c++11 && { ! c++1z } } } }
@@ -12,6 +13,9 @@
 =======
 // { dg-do compile { target { c++11 && { ! c++1z } } } }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-do compile { target { c++11 && { ! c++1z } } } }
+>>>>>>> gcc-mirror/master
 
 template <class...T>
 constexpr int f(T... t)

@@ -188,6 +188,7 @@ cgraph_externally_visible_p (struct cgraph_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   while (node->transparent_alias && node->definition)
     node = node->get_alias_target ();
@@ -198,6 +199,10 @@ cgraph_externally_visible_p (struct cgraph_node *node,
   while (node->transparent_alias && node->definition)
     node = node->get_alias_target ();
 >>>>>>> gcc-mirror/trunk
+=======
+  while (node->transparent_alias && node->definition)
+    node = node->get_alias_target ();
+>>>>>>> gcc-mirror/master
   if (!node->definition)
     return false;
   if (!TREE_PUBLIC (node->decl)
@@ -233,6 +238,7 @@ cgraph_externally_visible_p (struct cgraph_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if ((in_lto_p || whole_program)
 =======
   if (((in_lto_p || whole_program) && !flag_incremental_link)
@@ -243,6 +249,9 @@ cgraph_externally_visible_p (struct cgraph_node *node,
 =======
   if (((in_lto_p || whole_program) && !flag_incremental_link)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (((in_lto_p || whole_program) && !flag_incremental_link)
+>>>>>>> gcc-mirror/master
       && DECL_COMDAT (node->decl)
       && comdat_can_be_unshared_p (node))
     return false;
@@ -251,6 +260,7 @@ cgraph_externally_visible_p (struct cgraph_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (in_lto_p
 =======
   if ((in_lto_p && !flag_incremental_link)
@@ -261,6 +271,9 @@ cgraph_externally_visible_p (struct cgraph_node *node,
 =======
   if ((in_lto_p && !flag_incremental_link)
 >>>>>>> gcc-mirror/trunk
+=======
+  if ((in_lto_p && !flag_incremental_link)
+>>>>>>> gcc-mirror/master
       && (DECL_VISIBILITY (node->decl) == VISIBILITY_HIDDEN
 	  || DECL_VISIBILITY (node->decl) == VISIBILITY_INTERNAL)
       /* Be sure that node is defined in IR file, not in other object
@@ -288,6 +301,7 @@ varpool_node::externally_visible_p (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   while (transparent_alias && definition)
     return get_alias_target ()->externally_visible_p ();
@@ -298,6 +312,10 @@ varpool_node::externally_visible_p (void)
   while (transparent_alias && definition)
     return get_alias_target ()->externally_visible_p ();
 >>>>>>> gcc-mirror/trunk
+=======
+  while (transparent_alias && definition)
+    return get_alias_target ()->externally_visible_p ();
+>>>>>>> gcc-mirror/master
   if (DECL_EXTERNAL (decl))
     return true;
 
@@ -346,6 +364,7 @@ varpool_node::externally_visible_p (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if ((in_lto_p || flag_whole_program)
 =======
   if (((in_lto_p || flag_whole_program) && !flag_incremental_link)
@@ -356,6 +375,9 @@ varpool_node::externally_visible_p (void)
 =======
   if (((in_lto_p || flag_whole_program) && !flag_incremental_link)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (((in_lto_p || flag_whole_program) && !flag_incremental_link)
+>>>>>>> gcc-mirror/master
       && DECL_COMDAT (decl)
       && comdat_can_be_unshared_p (this))
     return false;
@@ -364,6 +386,7 @@ varpool_node::externally_visible_p (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (in_lto_p
 =======
   if (in_lto_p && !flag_incremental_link
@@ -374,6 +397,9 @@ varpool_node::externally_visible_p (void)
 =======
   if (in_lto_p && !flag_incremental_link
 >>>>>>> gcc-mirror/trunk
+=======
+  if (in_lto_p && !flag_incremental_link
+>>>>>>> gcc-mirror/master
       && (DECL_VISIBILITY (decl) == VISIBILITY_HIDDEN
 	  || DECL_VISIBILITY (decl) == VISIBILITY_INTERNAL)
       /* Be sure that node is defined in IR file, not in other object
@@ -405,9 +431,12 @@ can_replace_by_local_alias (symtab_node *node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Weakrefs have a reason to be non-local.  Be sure we do not replace
      them.  */
   while (node->transparent_alias && node->definition && !node->weakref)
@@ -416,11 +445,14 @@ can_replace_by_local_alias (symtab_node *node)
     return false;
   
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   return (node->get_availability () > AVAIL_INTERPOSABLE
 	  && !decl_binds_to_current_def_p (node->decl)
 	  && !node->can_be_discarded_p ());
@@ -484,6 +516,7 @@ update_visibility_by_resolution_info (symtab_node * node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (!next->externally_visible)
 =======
 	if (!next->externally_visible || next->transparent_alias)
@@ -494,6 +527,9 @@ update_visibility_by_resolution_info (symtab_node * node)
 =======
 	if (!next->externally_visible || next->transparent_alias)
 >>>>>>> gcc-mirror/trunk
+=======
+	if (!next->externally_visible || next->transparent_alias)
+>>>>>>> gcc-mirror/master
 	  continue;
 
 	bool same_def
@@ -510,6 +546,7 @@ update_visibility_by_resolution_info (symtab_node * node)
     for (symtab_node *next = node->same_comdat_group;
 	 next != node; next = next->same_comdat_group)
       {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -530,6 +567,8 @@ update_visibility_by_resolution_info (symtab_node * node)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	/* During incremental linking we need to keep symbol weak for future
 	   linking.  We can still drop definition if we know non-LTO world
 	   prevails.  */
@@ -561,11 +600,14 @@ update_visibility_by_resolution_info (symtab_node * node)
       node->dissolve_same_comdat_group_list ();
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* Decide on visibility of all symbols.  */
@@ -647,6 +689,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  node->unique_name = ((node->resolution == LDPR_PREVAILING_DEF_IRONLY
@@ -657,16 +700,21 @@ function_and_variable_visibility (bool whole_program)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  node->unique_name |= ((node->resolution == LDPR_PREVAILING_DEF_IRONLY
 				 || node->resolution == LDPR_PREVAILING_DEF_IRONLY_EXP)
 				&& TREE_PUBLIC (node->decl)
 				&& !flag_incremental_link);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  node->resolution = LDPR_PREVAILING_DEF_IRONLY;
 	  if (node->same_comdat_group && TREE_PUBLIC (node->decl))
 	    {
@@ -684,6 +732,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		  next->make_decl_local ();
@@ -695,6 +744,8 @@ function_and_variable_visibility (bool whole_program)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  if (!next->transparent_alias)
 		    next->make_decl_local ();
 		  next->unique_name |= ((next->resolution == LDPR_PREVAILING_DEF_IRONLY
@@ -702,11 +753,14 @@ function_and_variable_visibility (bool whole_program)
 				        && TREE_PUBLIC (next->decl)
 					&& !flag_incremental_link);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		}
 	      /* cgraph_externally_visible_p has already checked all other nodes
 	         in the group and they will all be made local.  We need to
@@ -721,6 +775,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  node->make_decl_local ();
 =======
 	  if (!node->transparent_alias)
@@ -733,6 +788,10 @@ function_and_variable_visibility (bool whole_program)
 	  if (!node->transparent_alias)
 	    node->make_decl_local ();
 >>>>>>> gcc-mirror/trunk
+=======
+	  if (!node->transparent_alias)
+	    node->make_decl_local ();
+>>>>>>> gcc-mirror/master
 	}
 
       if (node->thunk.thunk_p
@@ -842,6 +901,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  && !vnode->weakref)
@@ -854,6 +914,8 @@ function_and_variable_visibility (bool whole_program)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  && !vnode->transparent_alias)
 	{
 	  gcc_assert (in_lto_p || whole_program || !TREE_PUBLIC (vnode->decl));
@@ -863,11 +925,14 @@ function_and_variable_visibility (bool whole_program)
 			         && TREE_PUBLIC (vnode->decl)
 				 && !flag_incremental_link);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  if (vnode->same_comdat_group && TREE_PUBLIC (vnode->decl))
 	    {
 	      symtab_node *next = vnode;
@@ -884,6 +949,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		  next->make_decl_local ();
@@ -895,6 +961,8 @@ function_and_variable_visibility (bool whole_program)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  if (!next->transparent_alias)
 		    {
 		      next->make_decl_local ();
@@ -904,11 +972,14 @@ function_and_variable_visibility (bool whole_program)
 					    && !flag_incremental_link);
 		    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		}
 	      vnode->dissolve_same_comdat_group_list ();
 	    }
@@ -919,16 +990,20 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  vnode->make_decl_local ();
 	  vnode->resolution = LDPR_PREVAILING_DEF_IRONLY;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  if (!vnode->transparent_alias)
 	    {
 	      vnode->make_decl_local ();
 	      vnode->resolution = LDPR_PREVAILING_DEF_IRONLY;
 	    }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -937,6 +1012,8 @@ function_and_variable_visibility (bool whole_program)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       update_visibility_by_resolution_info (vnode);
 
@@ -952,6 +1029,7 @@ function_and_variable_visibility (bool whole_program)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  for (i = 0; vnode->iterate_referring (i, ref); i++)
 =======
 	  for (i = 0; vnode->iterate_reference (i, ref); i++)
@@ -962,6 +1040,9 @@ function_and_variable_visibility (bool whole_program)
 =======
 	  for (i = 0; vnode->iterate_reference (i, ref); i++)
 >>>>>>> gcc-mirror/trunk
+=======
+	  for (i = 0; vnode->iterate_reference (i, ref); i++)
+>>>>>>> gcc-mirror/master
 	    if (ref->use == IPA_REF_ADDR
 		&& can_replace_by_local_alias_in_vtable (ref->referred))
 	      {

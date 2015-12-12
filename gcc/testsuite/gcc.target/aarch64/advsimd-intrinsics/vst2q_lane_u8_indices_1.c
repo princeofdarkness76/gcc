@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-skip-if "" { arm*-*-* } } */
 
 void
@@ -21,6 +24,7 @@ f_vst2q_lane_u8 (uint8_t * p, uint8x16x2_t v)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* { dg-error "lane 16 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
   vst2q_lane_u8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
@@ -39,6 +43,11 @@ f_vst2q_lane_u8 (uint8_t * p, uint8x16x2_t v)
   vst2q_lane_u8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* { dg-error "lane 16 out of range 0 - 15" "" { target *-*-* } 0 } */
+  vst2q_lane_u8 (p, v, 16);
+  /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   vst2q_lane_u8 (p, v, -1);
   return;
 }

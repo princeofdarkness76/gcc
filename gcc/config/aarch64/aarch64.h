@@ -137,6 +137,7 @@ extern unsigned aarch64_architecture_version;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define AARCH64_FL_PAN	      (1 << 5)  /* Has Privileged Access Never.  */
 #define AARCH64_FL_LOR	      (1 << 6)  /* Has Limited Ordering regions.  */
 #define AARCH64_FL_RDMA	      (1 << 7)  /* Has ARMv8.1 Adv.SIMD.  */
@@ -151,6 +152,9 @@ extern unsigned aarch64_architecture_version;
 =======
 #define AARCH64_FL_V8_1	      (1 << 5)  /* Has ARMv8.1 extensions.  */
 >>>>>>> gcc-mirror/trunk
+=======
+#define AARCH64_FL_V8_1	      (1 << 5)  /* Has ARMv8.1 extensions.  */
+>>>>>>> gcc-mirror/master
 
 /* Has FP and SIMD.  */
 #define AARCH64_FL_FPSIMD     (AARCH64_FL_FP | AARCH64_FL_SIMD)
@@ -164,6 +168,7 @@ extern unsigned aarch64_architecture_version;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_PAN \
    | AARCH64_FL_LOR | AARCH64_FL_RDMA)
 =======
@@ -176,6 +181,9 @@ extern unsigned aarch64_architecture_version;
 =======
   (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_V8_1)
 >>>>>>> gcc-mirror/trunk
+=======
+  (AARCH64_FL_FOR_ARCH8 | AARCH64_FL_LSE | AARCH64_FL_V8_1)
+>>>>>>> gcc-mirror/master
 
 /* Macros to test ISA flags.  */
 
@@ -187,6 +195,7 @@ extern unsigned aarch64_architecture_version;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define AARCH64_ISA_RDMA	   (aarch64_isa_flags & AARCH64_FL_V8_1)
 >>>>>>> gcc-mirror/master
@@ -195,6 +204,9 @@ extern unsigned aarch64_architecture_version;
 =======
 #define AARCH64_ISA_RDMA	   (aarch64_isa_flags & AARCH64_FL_V8_1)
 >>>>>>> gcc-mirror/trunk
+=======
+#define AARCH64_ISA_RDMA	   (aarch64_isa_flags & AARCH64_FL_V8_1)
+>>>>>>> gcc-mirror/master
 
 /* Crypto is an optional extension to AdvSIMD.  */
 #define TARGET_CRYPTO (TARGET_SIMD && AARCH64_ISA_CRYPTO)
@@ -205,6 +217,7 @@ extern unsigned aarch64_architecture_version;
 /* Atomic instructions that can be enabled through the +lse extension.  */
 #define TARGET_LSE (AARCH64_ISA_LSE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Make sure this is always defined so we don't have to check for ifdefs
    but rather use normal ifs.  */
@@ -230,6 +243,9 @@ extern unsigned aarch64_architecture_version;
 >>>>>>> master
 =======
 
+=======
+
+>>>>>>> gcc-mirror/master
 /* Make sure this is always defined so we don't have to check for ifdefs
    but rather use normal ifs.  */
 #ifndef TARGET_FIX_ERR_A53_835769_DEFAULT
@@ -246,7 +262,10 @@ extern unsigned aarch64_architecture_version;
 
 /* ARMv8.1 Adv.SIMD support.  */
 #define TARGET_SIMD_RDMA (TARGET_SIMD && AARCH64_ISA_RDMA)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Standard register usage.  */
 
@@ -863,6 +882,7 @@ do {									     \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #define NO_PROFILE_COUNTERS 1
 
@@ -904,6 +924,21 @@ do {									     \
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+
+#define NO_PROFILE_COUNTERS 1
+
+/* Emit rtl for profiling.  Output assembler code to FILE
+   to call "_mcount" for profiling a function entry.  */
+#define PROFILE_HOOK(LABEL)						\
+  {									\
+    rtx fun, lr;							\
+    lr = get_hard_reg_initial_val (Pmode, LR_REGNUM);			\
+    fun = gen_rtx_SYMBOL_REF (Pmode, MCOUNT_NAME);			\
+    emit_library_call (fun, LCT_NORMAL, VOIDmode, 1, lr, Pmode);	\
+  }
+
+>>>>>>> gcc-mirror/master
 /* All the work done in PROFILE_HOOK, but still required.  */
 #define FUNCTION_PROFILER(STREAM, LABELNO) do { } while (0)
 
@@ -928,9 +963,12 @@ do {									     \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #define CANNOT_CHANGE_MODE_CLASS(FROM, TO, CLASS)	\
   aarch64_cannot_change_mode_class (FROM, TO, CLASS)
 

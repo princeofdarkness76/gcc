@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-std=gnu99 -fopenmp" } */
 =======
 /* { dg-additional-options "-std=gnu99" } */
@@ -15,6 +16,9 @@
 =======
 /* { dg-additional-options "-std=gnu99" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-additional-options "-std=gnu99" } */
+>>>>>>> gcc-mirror/master
 
 extern void abort (void);
 

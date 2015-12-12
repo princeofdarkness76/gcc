@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-Os -fno-tree-fre -fdump-tree-dom1" } */
 =======
 /* { dg-options "-Os -fno-tree-fre -fdump-tree-dom2" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-Os -fno-tree-fre -fdump-tree-dom2" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-Os -fno-tree-fre -fdump-tree-dom2" } */
+>>>>>>> gcc-mirror/master
 
 void foo(int *);
 void f2(int dst[3], int R)
@@ -38,6 +42,7 @@ void f2(int dst[3], int R)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if" 2 "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-times "if" 2 "dom2"} } */
@@ -48,5 +53,8 @@ void f2(int dst[3], int R)
 =======
 /* { dg-final { scan-tree-dump-times "if" 2 "dom2"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if" 2 "dom2"} } */
+>>>>>>> gcc-mirror/master
 
 

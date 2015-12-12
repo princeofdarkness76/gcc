@@ -858,19 +858,25 @@ maybe_new_partial_specialization (tree type)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       // The injected-class-name is not a new partial specialization.
       if (DECL_SELF_REFERENCE_P (TYPE_NAME (type)))
 	return NULL_TREE;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       // If the constraints are not the same as those of the primary
       // then, we can probably create a new specialization.
       tree type_constr = current_template_constraints ();
@@ -879,17 +885,21 @@ maybe_new_partial_specialization (tree type)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (tree main_constr = get_constraints (tmpl))
 	  if (equivalent_constraints (type_constr, main_constr))
 	    return NULL_TREE;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	{
 	  tree main_constr = get_constraints (tmpl);
 	  if (equivalent_constraints (type_constr, main_constr))
 	    return NULL_TREE;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -899,6 +909,8 @@ maybe_new_partial_specialization (tree type)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       // Also, if there's a pre-existing specialization with matching
       // constraints, then this also isn't new.
@@ -4547,6 +4559,7 @@ process_partial_specialization (tree decl)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  || !subsumes_constraints (current_template_constraints (),
 				    get_constraints (maintmpl))))
 =======
@@ -4561,6 +4574,10 @@ process_partial_specialization (tree decl)
 	  || !strictly_subsumes (current_template_constraints (),
 				 get_constraints (maintmpl))))
 >>>>>>> gcc-mirror/trunk
+=======
+	  || !strictly_subsumes (current_template_constraints (),
+				 get_constraints (maintmpl))))
+>>>>>>> gcc-mirror/master
     {
       if (!flag_concepts)
         error ("partial specialization %q+D does not specialize "
@@ -4751,6 +4768,7 @@ process_partial_specialization (tree decl)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	    permerror (input_location,
@@ -4769,12 +4787,17 @@ process_partial_specialization (tree decl)
 =======
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 	    permerror (input_location,
 		       "declaration of %qD ambiguates earlier template "
 		       "instantiation for %qD", decl, inst_decl);
 	  else if (TREE_VALUE (spec) == tmpl)
 	    permerror (input_location,
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		       "partial specialization of %qD after instantiation "
 		       "of %qD", decl, inst_decl);
 	}
@@ -4785,6 +4808,85 @@ process_partial_specialization (tree decl)
 
 /* PARM is a template parameter of some form; return the corresponding
    TEMPLATE_PARM_INDEX.  */
+<<<<<<< HEAD
+=======
+
+static tree
+get_template_parm_index (tree parm)
+{
+  if (TREE_CODE (parm) == PARM_DECL
+      || TREE_CODE (parm) == CONST_DECL)
+    parm = DECL_INITIAL (parm);
+  else if (TREE_CODE (parm) == TYPE_DECL
+	   || TREE_CODE (parm) == TEMPLATE_DECL)
+    parm = TREE_TYPE (parm);
+  if (TREE_CODE (parm) == TEMPLATE_TYPE_PARM
+      || TREE_CODE (parm) == BOUND_TEMPLATE_TEMPLATE_PARM
+      || TREE_CODE (parm) == TEMPLATE_TEMPLATE_PARM)
+    parm = TEMPLATE_TYPE_PARM_INDEX (parm);
+  gcc_assert (TREE_CODE (parm) == TEMPLATE_PARM_INDEX);
+  return parm;
+}
+
+/* Subroutine of fixed_parameter_pack_p below.  Look for any template
+   parameter packs used by the template parameter PARM.  */
+
+static void
+fixed_parameter_pack_p_1 (tree parm, struct find_parameter_pack_data *ppd)
+{
+  /* A type parm can't refer to another parm.  */
+  if (TREE_CODE (parm) == TYPE_DECL)
+    return;
+  else if (TREE_CODE (parm) == PARM_DECL)
+    {
+      cp_walk_tree (&TREE_TYPE (parm), &find_parameter_packs_r,
+		    ppd, ppd->visited);
+      return;
+    }
+
+  gcc_assert (TREE_CODE (parm) == TEMPLATE_DECL);
+
+  tree vec = INNERMOST_TEMPLATE_PARMS (DECL_TEMPLATE_PARMS (parm));
+  for (int i = 0; i < TREE_VEC_LENGTH (vec); ++i)
+    fixed_parameter_pack_p_1 (TREE_VALUE (TREE_VEC_ELT (vec, i)), ppd);
+}
+
+/* PARM is a template parameter pack.  Return any parameter packs used in
+   its type or the type of any of its template parameters.  If there are
+   any such packs, it will be instantiated into a fixed template parameter
+   list by partial instantiation rather than be fully deduced.  */
+
+tree
+fixed_parameter_pack_p (tree parm)
+{
+  /* This can only be true in a member template.  */
+  if (TEMPLATE_PARM_ORIG_LEVEL (get_template_parm_index (parm)) < 2)
+    return NULL_TREE;
+  /* This can only be true for a parameter pack.  */
+  if (!template_parameter_pack_p (parm))
+    return NULL_TREE;
+  /* A type parm can't refer to another parm.  */
+  if (TREE_CODE (parm) == TYPE_DECL)
+    return NULL_TREE;
+
+  tree parameter_packs = NULL_TREE;
+  struct find_parameter_pack_data ppd;
+  ppd.parameter_packs = &parameter_packs;
+  ppd.visited = new hash_set<tree>;
+  ppd.type_pack_expansion_p = false;
+
+  fixed_parameter_pack_p_1 (parm, &ppd);
+
+  delete ppd.visited;
+  return parameter_packs;
+}
+
+/* Check that a template declaration's use of default arguments and
+   parameter packs is not invalid.  Here, PARMS are the template
+   parameters.  IS_PRIMARY is true if DECL is the thing declared by
+   a primary template.  IS_PARTIAL is true if DECL is a partial
+   specialization.
+>>>>>>> gcc-mirror/master
 
 static tree
 get_template_parm_index (tree parm)
@@ -7310,6 +7412,7 @@ convert_template_argument (tree parm,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
               && 0 < TREE_OPERAND_LENGTH (inner)
 >>>>>>> gcc-mirror/master
@@ -7318,6 +7421,9 @@ convert_template_argument (tree parm,
 =======
               && 0 < TREE_OPERAND_LENGTH (inner)
 >>>>>>> gcc-mirror/trunk
+=======
+              && 0 < TREE_OPERAND_LENGTH (inner)
+>>>>>>> gcc-mirror/master
               && reject_gcc_builtin (TREE_OPERAND (inner, 0)))
               return error_mark_node;
         }
@@ -9604,6 +9710,7 @@ can_complete_type_without_circularity (tree type)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree tsubst_omp_clauses (tree, bool, tree, tsubst_flags_t, tree);
 =======
 static tree tsubst_omp_clauses (tree, bool, bool, tree, tsubst_flags_t, tree);
@@ -9617,6 +9724,9 @@ static tree tsubst_omp_clauses (tree, bool, bool, tree, tsubst_flags_t, tree);
 =======
 static tree tsubst_omp_clauses (tree, bool, bool, tree, tsubst_flags_t, tree);
 >>>>>>> gcc-mirror/trunk
+=======
+static tree tsubst_omp_clauses (tree, bool, bool, tree, tsubst_flags_t, tree);
+>>>>>>> gcc-mirror/master
 
 /* Apply any attributes which had to be deferred until instantiation
    time.  DECL_P, ATTRIBUTES and ATTR_FLAGS are as cplus_decl_attributes;
@@ -9663,6 +9773,7 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      if (flag_openmp
 =======
 	      if ((flag_openmp || flag_openmp_simd || flag_cilkplus)
@@ -9676,10 +9787,14 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 =======
 	      if ((flag_openmp || flag_openmp_simd || flag_cilkplus)
 >>>>>>> gcc-mirror/trunk
+=======
+	      if ((flag_openmp || flag_openmp_simd || flag_cilkplus)
+>>>>>>> gcc-mirror/master
 		  && is_attribute_p ("omp declare simd",
 				     get_attribute_name (t))
 		  && TREE_VALUE (t))
 		{
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9698,6 +9813,8 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  tree clauses = TREE_VALUE (TREE_VALUE (t));
 		  clauses = tsubst_omp_clauses (clauses, true, false, args,
 						complain, in_decl);
@@ -9713,6 +9830,7 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -9720,11 +9838,14 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		}
 	      /* If the first attribute argument is an identifier, don't
 		 pass it through tsubst.  Attributes like mode, format,
 		 cleanup and several target specific attributes expect it
 		 unmodified.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9749,6 +9870,10 @@ apply_late_template_attributes (tree *decl_p, tree attributes, int attr_flags,
 	      else if (attribute_takes_identifier_p (get_attribute_name (t))
 		       && TREE_VALUE (t))
 >>>>>>> gcc-mirror/trunk
+=======
+	      else if (attribute_takes_identifier_p (get_attribute_name (t))
+		       && TREE_VALUE (t))
+>>>>>>> gcc-mirror/master
 		{
 		  tree chain
 		    = tsubst_expr (TREE_CHAIN (TREE_VALUE (t)), args, complain,
@@ -10697,9 +10822,12 @@ gen_elem_of_pack_expansion_instantiation (tree pattern,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 tree
 expand_empty_fold (tree t, tsubst_flags_t complain)
 {
@@ -10724,6 +10852,7 @@ expand_empty_fold (tree t, tsubst_flags_t complain)
       default:
 	break;
       }
+<<<<<<< HEAD
 
   if (complain & tf_error)
     error_at (location_of (t),
@@ -11141,6 +11270,205 @@ tsubst_pack_expansion (tree t, tree args, tsubst_flags_t complain,
   hash_map<tree, tree> *saved_local_specializations = NULL;
   bool need_local_specializations = false;
   int levels;
+=======
+>>>>>>> gcc-mirror/master
+
+  if (complain & tf_error)
+    error_at (location_of (t),
+	      "fold of empty expansion over %O", code);
+  return error_mark_node;
+}
+
+/* Given a fold-expression T and a current LEFT and RIGHT operand,
+   form an expression that combines the two terms using the
+   operator of T. */
+
+static tree
+fold_expression (tree t, tree left, tree right, tsubst_flags_t complain)
+{
+  tree op = FOLD_EXPR_OP (t);
+  tree_code code = (tree_code)TREE_INT_CST_LOW (op);
+
+  // Handle compound assignment operators.
+  if (FOLD_EXPR_MODIFY_P (t))
+    return build_x_modify_expr (input_location, left, code, right, complain);
+
+  switch (code)
+    {
+    case COMPOUND_EXPR:
+      return build_x_compound_expr (input_location, left, right, complain);
+    case DOTSTAR_EXPR:
+      return build_m_component_ref (left, right, complain);
+    default:
+      return build_x_binary_op (input_location, code,
+                                left, TREE_CODE (left),
+                                right, TREE_CODE (right),
+                                /*overload=*/NULL,
+                                complain);
+    }
+}
+
+<<<<<<< HEAD
+=======
+/* Substitute ARGS into the pack of a fold expression T. */
+
+static inline tree
+tsubst_fold_expr_pack (tree t, tree args, tsubst_flags_t complain, tree in_decl)
+{
+  return tsubst_pack_expansion (FOLD_EXPR_PACK (t), args, complain, in_decl);
+}
+
+/* Substitute ARGS into the pack of a fold expression T. */
+
+static inline tree
+tsubst_fold_expr_init (tree t, tree args, tsubst_flags_t complain, tree in_decl)
+{
+  return tsubst_expr (FOLD_EXPR_INIT (t), args, complain, in_decl, false);
+}
+
+/* Expand a PACK of arguments into a grouped as left fold.
+   Given a pack containing elements A0, A1, ..., An and an
+   operator @, this builds the expression:
+
+      ((A0 @ A1) @ A2) ... @ An
+
+   Note that PACK must not be empty.
+
+   The operator is defined by the original fold expression T. */
+
+static tree
+expand_left_fold (tree t, tree pack, tsubst_flags_t complain)
+{
+  tree left = TREE_VEC_ELT (pack, 0);
+  for (int i = 1; i < TREE_VEC_LENGTH (pack); ++i)
+    {
+      tree right = TREE_VEC_ELT (pack, i);
+      left = fold_expression (t, left, right, complain);
+    }
+  return left;
+}
+
+/* Substitute into a unary left fold expression. */
+
+static tree
+tsubst_unary_left_fold (tree t, tree args, tsubst_flags_t complain,
+                        tree in_decl)
+{
+  tree pack = tsubst_fold_expr_pack (t, args, complain, in_decl);
+  if (pack == error_mark_node)
+    return error_mark_node;
+  if (TREE_VEC_LENGTH (pack) == 0)
+    return expand_empty_fold (t, complain);
+  else
+    return expand_left_fold (t, pack, complain);
+}
+
+/* Substitute into a binary left fold expression.
+
+   Do ths by building a single (non-empty) vector of argumnts and
+   building the expression from those elements. */
+
+static tree
+tsubst_binary_left_fold (tree t, tree args, tsubst_flags_t complain,
+                         tree in_decl)
+{
+  tree pack = tsubst_fold_expr_pack (t, args, complain, in_decl);
+  if (pack == error_mark_node)
+    return error_mark_node;
+  tree init = tsubst_fold_expr_init (t, args, complain, in_decl);
+  if (init == error_mark_node)
+    return error_mark_node;
+
+  tree vec = make_tree_vec (TREE_VEC_LENGTH (pack) + 1);
+  TREE_VEC_ELT (vec, 0) = init;
+  for (int i = 0; i < TREE_VEC_LENGTH (pack); ++i)
+    TREE_VEC_ELT (vec, i + 1) = TREE_VEC_ELT (pack, i);
+
+  return expand_left_fold (t, vec, complain);
+}
+
+/* Expand a PACK of arguments into a grouped as right fold.
+   Given a pack containing elementns A0, A1, ..., and an
+   operator @, this builds the expression:
+
+      A0@ ... (An-2 @ (An-1 @ An))
+
+   Note that PACK must not be empty.
+
+   The operator is defined by the original fold expression T. */
+
+tree
+expand_right_fold (tree t, tree pack, tsubst_flags_t complain)
+{
+  // Build the expression.
+  int n = TREE_VEC_LENGTH (pack);
+  tree right = TREE_VEC_ELT (pack, n - 1);
+  for (--n; n != 0; --n)
+    {
+      tree left = TREE_VEC_ELT (pack, n - 1);
+      right = fold_expression (t, left, right, complain);
+    }
+  return right;
+}
+
+/* Substitute into a unary right fold expression. */
+
+static tree
+tsubst_unary_right_fold (tree t, tree args, tsubst_flags_t complain,
+                         tree in_decl)
+{
+  tree pack = tsubst_fold_expr_pack (t, args, complain, in_decl);
+  if (pack == error_mark_node)
+    return error_mark_node;
+  if (TREE_VEC_LENGTH (pack) == 0)
+    return expand_empty_fold (t, complain);
+  else
+    return expand_right_fold (t, pack, complain);
+}
+
+/* Substitute into a binary right fold expression.
+
+   Do ths by building a single (non-empty) vector of arguments and
+   building the expression from those elements. */
+
+static tree
+tsubst_binary_right_fold (tree t, tree args, tsubst_flags_t complain,
+                         tree in_decl)
+{
+  tree pack = tsubst_fold_expr_pack (t, args, complain, in_decl);
+  if (pack == error_mark_node)
+    return error_mark_node;
+  tree init = tsubst_fold_expr_init (t, args, complain, in_decl);
+  if (init == error_mark_node)
+    return error_mark_node;
+
+  int n = TREE_VEC_LENGTH (pack);
+  tree vec = make_tree_vec (n + 1);
+  for (int i = 0; i < n; ++i)
+    TREE_VEC_ELT (vec, i) = TREE_VEC_ELT (pack, i);
+  TREE_VEC_ELT (vec, n) = init;
+
+  return expand_right_fold (t, vec, complain);
+}
+
+
+/* Substitute ARGS into T, which is an pack expansion
+   (i.e. TYPE_PACK_EXPANSION or EXPR_PACK_EXPANSION). Returns a
+   TREE_VEC with the substituted arguments, a PACK_EXPANSION_* node
+   (if only a partial substitution could be performed) or
+   ERROR_MARK_NODE if there was an error.  */
+tree
+tsubst_pack_expansion (tree t, tree args, tsubst_flags_t complain,
+		       tree in_decl)
+{
+  tree pattern;
+  tree pack, packs = NULL_TREE;
+  bool unsubstituted_packs = false;
+  int i, len = -1;
+  tree result;
+  hash_map<tree, tree> *saved_local_specializations = NULL;
+  bool need_local_specializations = false;
+  int levels;
 
   gcc_assert (PACK_EXPANSION_P (t));
   pattern = PACK_EXPANSION_PATTERN (t);
@@ -11162,6 +11490,7 @@ tsubst_pack_expansion (tree t, tree args, tsubst_flags_t complain,
       tree orig_arg = NULL_TREE;
       int level = 0;
 
+>>>>>>> gcc-mirror/master
       if (TREE_CODE (parm_pack) == BASES)
        {
          if (BASES_DIRECT (parm_pack))
@@ -12339,6 +12668,7 @@ tsubst_decl (tree t, tree args, tsubst_flags_t complain)
 	tree expanded_types = NULL_TREE;
 	int len = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	if (PACK_EXPANSION_P (TREE_TYPE (t)))
 	  {
@@ -12477,6 +12807,76 @@ tsubst_decl (tree t, tree args, tsubst_flags_t complain)
 	  }
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+	if (PACK_EXPANSION_P (TREE_TYPE (t)))
+	  {
+	    /* This field is a lambda capture pack.  Return a TREE_VEC of
+	       the expanded fields to instantiate_class_template_1 and
+	       store them in the specializations hash table as a
+	       NONTYPE_ARGUMENT_PACK so that tsubst_copy can find them.  */
+            expanded_types = tsubst_pack_expansion (TREE_TYPE (t), args,
+						    complain, in_decl);
+            if (TREE_CODE (expanded_types) == TREE_VEC)
+              {
+                len = TREE_VEC_LENGTH (expanded_types);
+		vec = make_tree_vec (len);
+              }
+            else
+              {
+                /* All we did was update the type. Make a note of that.  */
+                type = expanded_types;
+                expanded_types = NULL_TREE;
+              }
+	  }
+
+	for (int i = 0; i < len; ++i)
+	  {
+	    r = copy_decl (t);
+	    if (expanded_types)
+	      {
+		type = TREE_VEC_ELT (expanded_types, i);
+		DECL_NAME (r)
+		  = make_ith_pack_parameter_name (DECL_NAME (r), i);
+	      }
+            else if (!type)
+              type = tsubst (TREE_TYPE (t), args, complain, in_decl);
+
+	    if (type == error_mark_node)
+	      RETURN (error_mark_node);
+	    TREE_TYPE (r) = type;
+	    cp_apply_type_quals_to_decl (cp_type_quals (type), r);
+
+	    if (DECL_C_BIT_FIELD (r))
+	      /* For bit-fields, DECL_INITIAL gives the number of bits.  For
+		 non-bit-fields DECL_INITIAL is a non-static data member
+		 initializer, which gets deferred instantiation.  */
+	      DECL_INITIAL (r)
+		= tsubst_expr (DECL_INITIAL (t), args,
+			       complain, in_decl,
+			       /*integral_constant_expression_p=*/true);
+	    else if (DECL_INITIAL (t))
+	      {
+		/* Set up DECL_TEMPLATE_INFO so that we can get at the
+		   NSDMI in perform_member_init.  Still set DECL_INITIAL
+		   so that we know there is one.  */
+		DECL_INITIAL (r) = void_node;
+		gcc_assert (DECL_LANG_SPECIFIC (r) == NULL);
+		retrofit_lang_decl (r);
+		DECL_TEMPLATE_INFO (r) = build_template_info (t, args);
+	      }
+	    /* We don't have to set DECL_CONTEXT here; it is set by
+	       finish_member_declaration.  */
+	    DECL_CHAIN (r) = NULL_TREE;
+
+	    apply_late_template_attributes (&r, DECL_ATTRIBUTES (r), 0,
+					    args, complain, in_decl);
+
+	    if (vec)
+	      TREE_VEC_ELT (vec, i) = r;
+	  }
+
+>>>>>>> gcc-mirror/master
 	if (vec)
 	  {
 	    r = vec;
@@ -14779,8 +15179,11 @@ tsubst_copy (tree t, tree args, tsubst_flags_t complain, tree in_decl)
    OMP_CLAUSE_DECL of clauses.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 static tree
 tsubst_omp_clause_decl (tree decl, tree args, tsubst_flags_t complain,
@@ -14826,6 +15229,7 @@ tsubst_omp_clause_decl (tree decl, tree args, tsubst_flags_t complain,
 /* Like tsubst_copy, but specifically for OpenMP clauses.  */
 
 static tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14893,6 +15297,11 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 		    tree args, tsubst_flags_t complain, tree in_decl)
 {
 >>>>>>> gcc-mirror/trunk
+=======
+tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
+		    tree args, tsubst_flags_t complain, tree in_decl)
+{
+>>>>>>> gcc-mirror/master
   tree new_clauses = NULL_TREE, nc, oc;
   tree linear_no_step = NULL_TREE;
 
@@ -14927,6 +15336,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/master
@@ -14935,6 +15345,9 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 =======
 	case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/trunk
+=======
+	case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_USE_DEVICE_PTR:
 	case OMP_CLAUSE_IS_DEVICE_PTR:
 	  OMP_CLAUSE_DECL (nc)
@@ -14946,6 +15359,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 	case OMP_CLAUSE_SCHEDULE:
 	case OMP_CLAUSE_COLLAPSE:
 	case OMP_CLAUSE_FINAL:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14963,12 +15377,15 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_DEVICE:
 	case OMP_CLAUSE_DIST_SCHEDULE:
 	case OMP_CLAUSE_NUM_TEAMS:
 	case OMP_CLAUSE_THREAD_LIMIT:
 	case OMP_CLAUSE_SAFELEN:
 	case OMP_CLAUSE_SIMDLEN:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14980,6 +15397,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_NUM_TASKS:
 	case OMP_CLAUSE_GRAINSIZE:
 	case OMP_CLAUSE_PRIORITY:
@@ -14995,6 +15414,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -15002,10 +15422,13 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  OMP_CLAUSE_OPERAND (nc, 0)
 	    = tsubst_expr (OMP_CLAUSE_OPERAND (oc, 0), args, complain, 
 			   in_decl, /*integral_constant_expression_p=*/false);
 	  break;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15022,6 +15445,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_REDUCTION:
 	  if (OMP_CLAUSE_REDUCTION_PLACEHOLDER (oc))
 	    {
@@ -15050,6 +15475,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -15057,10 +15483,13 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  OMP_CLAUSE_OPERAND (nc, 1)
 	    = tsubst_expr (OMP_CLAUSE_OPERAND (oc, 1), args, complain,
 			   in_decl, /*integral_constant_expression_p=*/false);
 	  break;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -15073,6 +15502,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_LINEAR:
 	  OMP_CLAUSE_DECL (nc)
 	    = tsubst_omp_clause_decl (OMP_CLAUSE_DECL (oc), args, complain,
@@ -15095,6 +15526,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -15102,6 +15534,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_NOWAIT:
 	case OMP_CLAUSE_DEFAULT:
 	case OMP_CLAUSE_UNTIED:
@@ -15117,6 +15551,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -15124,6 +15559,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	case OMP_CLAUSE_NOGROUP:
 	case OMP_CLAUSE_THREADS:
 	case OMP_CLAUSE_SIMD:
@@ -15147,6 +15584,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -15154,6 +15592,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  break;
 	default:
 	  gcc_unreachable ();
@@ -15171,6 +15611,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/master
@@ -15179,6 +15620,9 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 =======
 	  case OMP_CLAUSE_USE_DEVICE:
 >>>>>>> gcc-mirror/trunk
+=======
+	  case OMP_CLAUSE_USE_DEVICE:
+>>>>>>> gcc-mirror/master
 	  case OMP_CLAUSE_USE_DEVICE_PTR:
 	  case OMP_CLAUSE_IS_DEVICE_PTR:
 	    /* tsubst_expr on SCOPE_REF results in returning
@@ -15236,6 +15680,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     new_clauses = finish_omp_clauses (new_clauses);
 =======
 =======
@@ -15244,6 +15689,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     {
       new_clauses = finish_omp_clauses (new_clauses, allow_fields);
       if (linear_no_step)
@@ -15257,6 +15704,7 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -15264,6 +15712,8 @@ tsubst_omp_clauses (tree clauses, bool declare_simd, bool allow_fields,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   return new_clauses;
 }
 
@@ -15344,6 +15794,7 @@ tsubst_omp_for_iterator (tree t, int i, tree declv, tree orig_declv,
   if (init && TREE_CODE (init) == DECL_EXPR)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       /* We need to jump through some hoops to handle declarations in the
 	 for-init-statement, since we might need to handle auto deduction,
@@ -15446,6 +15897,52 @@ tsubst_omp_for_iterator (tree t, int i, tree declv, tree orig_declv,
 	decl = RECUR (decl);
     }
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+      /* We need to jump through some hoops to handle declarations in the
+	 for-init-statement, since we might need to handle auto deduction,
+	 but we need to keep control of initialization.  */
+      decl_expr = init;
+      init = DECL_INITIAL (DECL_EXPR_DECL (init));
+      decl = tsubst_decl (decl, args, complain);
+    }
+  else
+    {
+      if (TREE_CODE (decl) == SCOPE_REF)
+	{
+	  decl = RECUR (decl);
+	  if (TREE_CODE (decl) == COMPONENT_REF)
+	    {
+	      tree v = decl;
+	      while (v)
+		switch (TREE_CODE (v))
+		  {
+		  case COMPONENT_REF:
+		  case MEM_REF:
+		  case INDIRECT_REF:
+		  CASE_CONVERT:
+		  case POINTER_PLUS_EXPR:
+		    v = TREE_OPERAND (v, 0);
+		    continue;
+		  case PARM_DECL:
+		    if (DECL_CONTEXT (v) == current_function_decl
+			&& DECL_ARTIFICIAL (v)
+			&& DECL_NAME (v) == this_identifier)
+		      {
+			decl = TREE_OPERAND (decl, 1);
+			decl = omp_privatize_field (decl, false);
+		      }
+		    /* FALLTHRU */
+		  default:
+		    v = NULL_TREE;
+		    break;
+		  }
+	    }
+	}
+      else
+	decl = RECUR (decl);
+    }
+>>>>>>> gcc-mirror/master
   init = RECUR (init);
 
   tree auto_node = type_uses_auto (TREE_TYPE (decl));
@@ -15488,14 +15985,18 @@ tsubst_omp_for_iterator (tree t, int i, tree declv, tree orig_declv,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
     {
       /* Declare and initialize the variable.  */
       RECUR (decl_expr);
       init = NULL_TREE;
     }
   else if (init)
+<<<<<<< HEAD
 <<<<<<< HEAD
     {
 =======
@@ -15516,6 +16017,9 @@ tsubst_omp_for_iterator (tree t, int i, tree declv, tree orig_declv,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+    {
+>>>>>>> gcc-mirror/master
       tree *pc;
       int j;
       for (j = (omp_parallel_combined_clauses == NULL ? 1 : 0); j < 2; j++)
@@ -16055,6 +16559,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       tmp = tsubst_omp_clauses (OMP_PARALLEL_CLAUSES (t), false,
 =======
       r = push_omp_privatization_clauses (OMP_PARALLEL_COMBINED (t));
@@ -16072,6 +16577,10 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
       r = push_omp_privatization_clauses (OMP_PARALLEL_COMBINED (t));
       tmp = tsubst_omp_clauses (OMP_PARALLEL_CLAUSES (t), false, true,
 >>>>>>> gcc-mirror/trunk
+=======
+      r = push_omp_privatization_clauses (OMP_PARALLEL_COMBINED (t));
+      tmp = tsubst_omp_clauses (OMP_PARALLEL_CLAUSES (t), false, true,
+>>>>>>> gcc-mirror/master
 				args, complain, in_decl);
       if (OMP_PARALLEL_COMBINED (t))
 	omp_parallel_combined_clauses = &tmp;
@@ -16084,6 +16593,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
       break;
 
     case OMP_TASK:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16105,6 +16615,10 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
       r = push_omp_privatization_clauses (false);
       tmp = tsubst_omp_clauses (OMP_TASK_CLAUSES (t), false, true,
 >>>>>>> gcc-mirror/trunk
+=======
+      r = push_omp_privatization_clauses (false);
+      tmp = tsubst_omp_clauses (OMP_TASK_CLAUSES (t), false, true,
+>>>>>>> gcc-mirror/master
 				args, complain, in_decl);
       stmt = begin_omp_task ();
       RECUR (OMP_TASK_BODY (t));
@@ -16119,6 +16633,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     case OMP_DISTRIBUTE:
       {
 	tree clauses, body, pre_body;
@@ -16128,6 +16643,8 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 
 	clauses = tsubst_omp_clauses (OMP_FOR_CLAUSES (t), false,
 =======
+=======
+>>>>>>> gcc-mirror/master
     case CILK_FOR:
     case OMP_DISTRIBUTE:
     case OMP_TASKLOOP:
@@ -16142,6 +16659,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 	r = push_omp_privatization_clauses (OMP_FOR_INIT (t) == NULL_TREE);
 	clauses = tsubst_omp_clauses (OMP_FOR_CLAUSES (t), false,
 				      TREE_CODE (t) != OACC_LOOP,
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 =======
@@ -16169,6 +16687,8 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 				      args, complain, in_decl);
 	if (OMP_FOR_INIT (t) != NULL_TREE)
 	  {
@@ -16177,6 +16697,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    if (OMP_FOR_ORIG_DECLS (t))
 	      orig_declv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
@@ -16193,6 +16714,10 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 	    if (OMP_FOR_ORIG_DECLS (t))
 	      orig_declv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
 >>>>>>> gcc-mirror/trunk
+=======
+	    if (OMP_FOR_ORIG_DECLS (t))
+	      orig_declv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
+>>>>>>> gcc-mirror/master
 	    initv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
 	    condv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
 	    incrv = make_tree_vec (TREE_VEC_LENGTH (OMP_FOR_INIT (t)));
@@ -16210,6 +16735,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    tsubst_omp_for_iterator (t, i, declv, initv, condv, incrv,
 				     &clauses, args, complain, in_decl,
 				     integral_constant_expression_p);
@@ -16220,10 +16746,13 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    tsubst_omp_for_iterator (t, i, declv, orig_declv, initv, condv,
 				     incrv, &clauses, args, complain, in_decl,
 				     integral_constant_expression_p);
 	omp_parallel_combined_clauses = NULL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16234,12 +16763,15 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	body = push_stmt_list ();
 	RECUR (OMP_FOR_BODY (t));
 	body = pop_stmt_list (body);
 
 	if (OMP_FOR_INIT (t) != NULL_TREE)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16266,6 +16798,11 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 			      orig_declv, initv, condv, incrv, body, pre_body,
 			      NULL, clauses);
 >>>>>>> gcc-mirror/trunk
+=======
+	  t = finish_omp_for (EXPR_LOCATION (t), TREE_CODE (t), declv,
+			      orig_declv, initv, condv, incrv, body, pre_body,
+			      NULL, clauses);
+>>>>>>> gcc-mirror/master
 	else
 	  {
 	    t = make_node (TREE_CODE (t));
@@ -16276,6 +16813,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 	    SET_EXPR_LOCATION (t, EXPR_LOCATION (t));
 	    add_stmt (t);
 	  }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -16297,6 +16835,8 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
 					  && OMP_TEAMS_COMBINED (t));
       tmp = tsubst_omp_clauses (OMP_CLAUSES (t), false, true,
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 	add_stmt (finish_omp_structured_block (stmt));
 	pop_omp_privatization_clauses (r);
@@ -16322,6 +16862,7 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
       OMP_CLAUSES (t) = tmp;
       add_stmt (t);
       pop_omp_privatization_clauses (r);
+<<<<<<< HEAD
       break;
 
     case OACC_DATA:
@@ -16635,6 +17176,99 @@ tsubst_expr (tree t, tree args, tsubst_flags_t complain, tree in_decl,
       add_stmt (t);
       break;
 
+=======
+      break;
+
+    case OACC_DATA:
+    case OMP_TARGET_DATA:
+    case OMP_TARGET:
+      tmp = tsubst_omp_clauses (OMP_CLAUSES (t), false,
+				TREE_CODE (t) != OACC_DATA,
+				args, complain, in_decl);
+      keep_next_level (true);
+      stmt = begin_omp_structured_block ();
+
+      RECUR (OMP_BODY (t));
+      stmt = finish_omp_structured_block (stmt);
+
+      t = copy_node (t);
+      OMP_BODY (t) = stmt;
+      OMP_CLAUSES (t) = tmp;
+      if (TREE_CODE (t) == OMP_TARGET && OMP_TARGET_COMBINED (t))
+	{
+	  tree teams = cp_walk_tree (&stmt, tsubst_find_omp_teams, NULL, NULL);
+	  if (teams)
+	    {
+	      /* For combined target teams, ensure the num_teams and
+		 thread_limit clause expressions are evaluated on the host,
+		 before entering the target construct.  */
+	      tree c;
+	      for (c = OMP_TEAMS_CLAUSES (teams);
+		   c; c = OMP_CLAUSE_CHAIN (c))
+		if ((OMP_CLAUSE_CODE (c) == OMP_CLAUSE_NUM_TEAMS
+		     || OMP_CLAUSE_CODE (c) == OMP_CLAUSE_THREAD_LIMIT)
+		    && TREE_CODE (OMP_CLAUSE_OPERAND (c, 0)) != INTEGER_CST)
+		  {
+		    tree expr = OMP_CLAUSE_OPERAND (c, 0);
+		    expr = force_target_expr (TREE_TYPE (expr), expr, tf_none);
+		    if (expr == error_mark_node)
+		      continue;
+		    tmp = TARGET_EXPR_SLOT (expr);
+		    add_stmt (expr);
+		    OMP_CLAUSE_OPERAND (c, 0) = expr;
+		    tree tc = build_omp_clause (OMP_CLAUSE_LOCATION (c),
+						OMP_CLAUSE_FIRSTPRIVATE);
+		    OMP_CLAUSE_DECL (tc) = tmp;
+		    OMP_CLAUSE_CHAIN (tc) = OMP_TARGET_CLAUSES (t);
+		    OMP_TARGET_CLAUSES (t) = tc;
+		  }
+	    }
+	}
+      add_stmt (t);
+      break;
+
+    case OACC_DECLARE:
+      t = copy_node (t);
+      tmp = tsubst_omp_clauses (OACC_DECLARE_CLAUSES (t), false, false,
+				args, complain, in_decl);
+      OACC_DECLARE_CLAUSES (t) = tmp;
+      add_stmt (t);
+      break;
+
+    case OMP_TARGET_UPDATE:
+    case OMP_TARGET_ENTER_DATA:
+    case OMP_TARGET_EXIT_DATA:
+      tmp = tsubst_omp_clauses (OMP_STANDALONE_CLAUSES (t), false, true,
+				args, complain, in_decl);
+      t = copy_node (t);
+      OMP_STANDALONE_CLAUSES (t) = tmp;
+      add_stmt (t);
+      break;
+
+    case OACC_ENTER_DATA:
+    case OACC_EXIT_DATA:
+    case OACC_UPDATE:
+      tmp = tsubst_omp_clauses (OMP_STANDALONE_CLAUSES (t), false, false,
+				args, complain, in_decl);
+      t = copy_node (t);
+      OMP_STANDALONE_CLAUSES (t) = tmp;
+      add_stmt (t);
+      break;
+
+    case OMP_ORDERED:
+      tmp = tsubst_omp_clauses (OMP_ORDERED_CLAUSES (t), false, true,
+				args, complain, in_decl);
+      stmt = push_stmt_list ();
+      RECUR (OMP_BODY (t));
+      stmt = pop_stmt_list (stmt);
+
+      t = copy_node (t);
+      OMP_BODY (t) = stmt;
+      OMP_ORDERED_CLAUSES (t) = tmp;
+      add_stmt (t);
+      break;
+
+>>>>>>> gcc-mirror/master
     case OMP_SECTION:
     case OMP_MASTER:
     case OMP_TASKGROUP:
@@ -24870,6 +25504,7 @@ do_auto_deduction (tree type, tree init, tree auto_node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   if (type == error_mark_node)
@@ -24882,6 +25517,11 @@ do_auto_deduction (tree type, tree init, tree auto_node,
   if (type == error_mark_node)
     return error_mark_node;
 >>>>>>> gcc-mirror/trunk
+=======
+
+  if (type == error_mark_node)
+    return error_mark_node;
+>>>>>>> gcc-mirror/master
 
   init = resolve_nondeduced_context (init);
 
@@ -24943,6 +25583,7 @@ do_auto_deduction (tree type, tree init, tree auto_node,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* If the list of declarators contains more than one declarator, the type
      of each declared variable is determined as described above. If the
      type deduced for the template parameter U is not the same in each
@@ -24970,6 +25611,8 @@ do_auto_deduction (tree type, tree init, tree auto_node,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Check any placeholder constraints against the deduced type. */
   if (flag_concepts && !processing_template_decl)
     if (tree constr = PLACEHOLDER_TYPE_CONSTRAINTS (auto_node))
@@ -25027,6 +25670,7 @@ splice_late_return_type (tree type, tree late_return_type)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return make_auto_1 (TYPE_IDENTIFIER (type));
 =======
 	return make_auto_1 (TYPE_IDENTIFIER (type), true);
@@ -25037,6 +25681,9 @@ splice_late_return_type (tree type, tree late_return_type)
 =======
 	return make_auto_1 (TYPE_IDENTIFIER (type), true);
 >>>>>>> gcc-mirror/trunk
+=======
+	return make_auto_1 (TYPE_IDENTIFIER (type), true);
+>>>>>>> gcc-mirror/master
     }
   return type;
 }
@@ -25072,6 +25719,7 @@ type_uses_auto (tree type)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (flag_concepts)
 =======
   if (type == NULL_TREE)
@@ -25086,6 +25734,11 @@ type_uses_auto (tree type)
     return NULL_TREE;
   else if (flag_concepts)
 >>>>>>> gcc-mirror/trunk
+=======
+  if (type == NULL_TREE)
+    return NULL_TREE;
+  else if (flag_concepts)
+>>>>>>> gcc-mirror/master
     {
       /* The Concepts TS allows multiple autos in one type-specifier; just
 	 return the first one we find, do_auto_deduction will collect all of

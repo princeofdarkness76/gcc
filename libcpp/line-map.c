@@ -2067,6 +2067,7 @@ rich_location::add_range (location_range *src_range)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Add or overwrite the range given by IDX.  It must either
@@ -2090,6 +2091,8 @@ rich_location::set_range (unsigned int idx, source_range src_range,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Add or overwrite the location given by IDX, setting its location to LOC,
    and setting its "should my caret be printed" flag to SHOW_CARET_P.
 
@@ -2107,11 +2110,14 @@ void
 rich_location::set_range (line_maps *set, unsigned int idx,
 			  source_location loc, bool show_caret_p)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 {
   linemap_assert (idx < MAX_RANGES);
 
@@ -2122,6 +2128,7 @@ rich_location::set_range (line_maps *set, unsigned int idx,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   source_range src_range = get_range_from_loc (set, loc);
 
@@ -2132,6 +2139,10 @@ rich_location::set_range (line_maps *set, unsigned int idx,
   source_range src_range = get_range_from_loc (set, loc);
 
 >>>>>>> gcc-mirror/trunk
+=======
+  source_range src_range = get_range_from_loc (set, loc);
+
+>>>>>>> gcc-mirror/master
   location_range *locrange = &m_ranges[idx];
   locrange->m_start
     = linemap_client_expand_location_to_spelling_point (src_range.m_start);
@@ -2142,6 +2153,7 @@ rich_location::set_range (line_maps *set, unsigned int idx,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (overwrite_loc_p)
     locrange->m_caret = locrange->m_start;
 =======
@@ -2156,6 +2168,10 @@ rich_location::set_range (line_maps *set, unsigned int idx,
   locrange->m_caret
     = linemap_client_expand_location_to_spelling_point (loc);
 >>>>>>> gcc-mirror/trunk
+=======
+  locrange->m_caret
+    = linemap_client_expand_location_to_spelling_point (loc);
+>>>>>>> gcc-mirror/master
 
   /* Are we adding a range onto the end?  */
   if (idx == m_num_ranges)
@@ -2164,6 +2180,7 @@ rich_location::set_range (line_maps *set, unsigned int idx,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (idx == 0 && overwrite_loc_p)
     {
       m_loc = src_range.m_start;
@@ -2182,6 +2199,11 @@ rich_location::set_range (line_maps *set, unsigned int idx,
     {
       m_loc = loc;
 >>>>>>> gcc-mirror/trunk
+=======
+  if (idx == 0)
+    {
+      m_loc = loc;
+>>>>>>> gcc-mirror/master
       /* Mark any cached value here as dirty.  */
       m_have_expanded_location = false;
     }

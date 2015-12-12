@@ -380,6 +380,7 @@ print_ipcp_constant_value (FILE * f, tree v)
 
 static void
 print_ipcp_constant_value (FILE * f, ipa_polymorphic_call_context v)
+<<<<<<< HEAD
 {
   v.dump(f, false);
 }
@@ -390,6 +391,18 @@ template <typename valtype>
 void
 ipcp_lattice<valtype>::print (FILE * f, bool dump_sources, bool dump_benefits)
 {
+=======
+{
+  v.dump(f, false);
+}
+
+/* Print a lattice LAT to F.  */
+
+template <typename valtype>
+void
+ipcp_lattice<valtype>::print (FILE * f, bool dump_sources, bool dump_benefits)
+{
+>>>>>>> gcc-mirror/master
   ipcp_value<valtype> *val;
   bool prev = false;
 
@@ -616,6 +629,7 @@ ipcp_cloning_candidate_p (struct cgraph_node *node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
   if (node->optimize_for_size_p ())
@@ -626,6 +640,9 @@ ipcp_cloning_candidate_p (struct cgraph_node *node)
 =======
   if (node->optimize_for_size_p ())
 >>>>>>> gcc-mirror/trunk
+=======
+  if (node->optimize_for_size_p ())
+>>>>>>> gcc-mirror/master
     {
       if (dump_file)
         fprintf (dump_file, "Not considering %s for cloning; "
@@ -1250,6 +1267,9 @@ values_equal_for_ipcp_p (ipa_polymorphic_call_context x,
 			 ipa_polymorphic_call_context y)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 {
   return x.equal_to (y);
 }
@@ -1266,6 +1286,7 @@ void
 ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
 				 int src_idx, HOST_WIDE_INT offset)
 {
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
@@ -1291,6 +1312,10 @@ ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
 >>>>>>> gcc-mirror/trunk
   ipcp_value_source<valtype> *src;
 
+=======
+  ipcp_value_source<valtype> *src;
+
+>>>>>>> gcc-mirror/master
   src = new (ipcp_sources_pool.allocate ()) ipcp_value_source<valtype>;
   src->offset = offset;
   src->cs = cs;
@@ -1322,6 +1347,9 @@ static ipcp_value<ipa_polymorphic_call_context> *
 allocate_and_init_ipcp_value (ipa_polymorphic_call_context source)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 {
   ipcp_value<ipa_polymorphic_call_context> *val;
 
@@ -1345,6 +1373,7 @@ ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
 {
   ipcp_value<valtype> *val;
 
+<<<<<<< HEAD
 =======
 {
   ipcp_value<ipa_polymorphic_call_context> *val;
@@ -1395,6 +1424,8 @@ ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
   ipcp_value<valtype> *val;
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (bottom)
     return false;
 
@@ -2294,6 +2325,7 @@ devirtualization_time_bonus (struct cgraph_node *node,
       callee = cgraph_node::get (target);
       if (!callee || !callee->definition)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	continue;
       callee = callee->function_symbol (&avail);
       if (avail < AVAIL_AVAILABLE)
@@ -2304,6 +2336,12 @@ devirtualization_time_bonus (struct cgraph_node *node,
       if (avail < AVAIL_AVAILABLE)
 	continue;
 >>>>>>> gcc-mirror/trunk
+=======
+	continue;
+      callee = callee->function_symbol (&avail);
+      if (avail < AVAIL_AVAILABLE)
+	continue;
+>>>>>>> gcc-mirror/master
       isummary = inline_summaries->get (callee);
       if (!isummary->inlinable)
 	continue;
@@ -2366,6 +2404,7 @@ good_cloning_opportunity_p (struct cgraph_node *node, int time_benefit,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || !optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
       || node->optimize_for_size_p ())
@@ -2376,6 +2415,9 @@ good_cloning_opportunity_p (struct cgraph_node *node, int time_benefit,
 =======
       || node->optimize_for_size_p ())
 >>>>>>> gcc-mirror/trunk
+=======
+      || node->optimize_for_size_p ())
+>>>>>>> gcc-mirror/master
     return false;
 
   gcc_assert (size_cost > 0);
@@ -2498,6 +2540,7 @@ gather_context_independent_values (struct ipa_node_params *info,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       ipcp_lattice<ipa_polymorphic_call_context> *ctxlat = &plats->ctxlat;
@@ -2510,6 +2553,8 @@ gather_context_independent_values (struct ipa_node_params *info,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (!ipa_is_param_used (info, i))
 	continue;
 
@@ -2519,11 +2564,14 @@ gather_context_independent_values (struct ipa_node_params *info,
       if (ctxlat->is_single_const ())
 	(*known_contexts)[i] = ctxlat->values->value;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
       if (known_aggs)
 	{
@@ -2641,6 +2689,7 @@ estimate_local_effects (struct cgraph_node *node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       time -= devirtualization_time_bonus (node, known_csts, known_contexts,
@@ -2651,6 +2700,9 @@ estimate_local_effects (struct cgraph_node *node)
 =======
       time -= devirt_bonus;
 >>>>>>> gcc-mirror/trunk
+=======
+      time -= devirt_bonus;
+>>>>>>> gcc-mirror/master
       time -= hint_time_bonus (hints);
       time -= removable_params_cost;
       size -= stats.n_calls * removable_params_cost;
@@ -2659,6 +2711,7 @@ estimate_local_effects (struct cgraph_node *node)
 	fprintf (dump_file, " - context independent values, size: %i, "
 		 "time_benefit: %i\n", size, base_time - time);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       if (size <= 0
@@ -2672,6 +2725,9 @@ estimate_local_effects (struct cgraph_node *node)
 =======
       if (size <= 0 || node->local.local)
 >>>>>>> gcc-mirror/trunk
+=======
+      if (size <= 0 || node->local.local)
+>>>>>>> gcc-mirror/master
 	{
 	  info->do_clone_for_all_contexts = true;
 	  base_time = time;
@@ -4581,6 +4637,7 @@ identify_dead_nodes (struct cgraph_node *node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (v->will_be_removed_from_program_if_no_direct_calls_p ()
 =======
     if (v->local.local
@@ -4591,6 +4648,9 @@ identify_dead_nodes (struct cgraph_node *node)
 =======
     if (v->local.local
 >>>>>>> gcc-mirror/trunk
+=======
+    if (v->local.local
+>>>>>>> gcc-mirror/master
 	&& !v->call_for_symbol_thunks_and_aliases
 	     (has_undead_caller_from_outside_scc_p, NULL, true))
       IPA_NODE_REF (v)->node_dead = 1;

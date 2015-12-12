@@ -8731,6 +8731,7 @@ find_reachable_labels (gfc_code *block)
 static void
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 resolve_lock_unlock (gfc_code *code)
 =======
 resolve_lock_unlock_event (gfc_code *code)
@@ -8738,12 +8739,16 @@ resolve_lock_unlock_event (gfc_code *code)
 =======
 resolve_lock_unlock_event (gfc_code *code)
 >>>>>>> gcc-mirror/trunk
+=======
+resolve_lock_unlock_event (gfc_code *code)
+>>>>>>> gcc-mirror/master
 {
   if (code->expr1->expr_type == EXPR_FUNCTION
       && code->expr1->value.function.isym
       && code->expr1->value.function.isym->id == GFC_ISYM_CAF_GET)
     remove_caf_get_intrinsic (code->expr1);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8758,6 +8763,8 @@ resolve_lock_unlock_event (gfc_code *code)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if ((code->op == EXEC_LOCK || code->op == EXEC_UNLOCK)
       && (code->expr1->ts.type != BT_DERIVED
 	  || code->expr1->expr_type != EXPR_VARIABLE
@@ -8767,9 +8774,12 @@ resolve_lock_unlock_event (gfc_code *code)
 	  || (!gfc_is_coarray (code->expr1) &&
 	      !gfc_is_coindexed (code->expr1))))
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     gfc_error ("Lock variable at %L must be a scalar of type LOCK_TYPE",
 	       &code->expr1->where);
   else if ((code->op == EXEC_EVENT_POST || code->op == EXEC_EVENT_WAIT)
@@ -8823,6 +8833,7 @@ resolve_lock_unlock_event (gfc_code *code)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (code->expr4
 <<<<<<< HEAD
 =======
@@ -8833,6 +8844,9 @@ resolve_lock_unlock_event (gfc_code *code)
 =======
   if (code->op != EXEC_EVENT_WAIT && code->expr4
 >>>>>>> gcc-mirror/trunk
+=======
+  if (code->op != EXEC_EVENT_WAIT && code->expr4
+>>>>>>> gcc-mirror/master
       && !gfc_check_vardef_context (code->expr4, false, false, false,
 				    _("ACQUIRED_LOCK variable")))
     return;
@@ -8849,9 +8863,12 @@ static void
 resolve_critical (gfc_code *code)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 {
   gfc_symtree *symtree;
   gfc_symbol *lock_type;
@@ -9561,6 +9578,7 @@ gfc_resolve_blocks (gfc_code *b, gfc_namespace *ns)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/master
@@ -9569,6 +9587,9 @@ gfc_resolve_blocks (gfc_code *b, gfc_namespace *ns)
 =======
 	case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/trunk
+=======
+	case EXEC_OACC_ROUTINE:
+>>>>>>> gcc-mirror/master
 	case EXEC_OMP_ATOMIC:
 	case EXEC_OMP_CRITICAL:
 	case EXEC_OMP_DISTRIBUTE:
@@ -9800,6 +9821,7 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
   if (lhs->ts.type == BT_CLASS && attr.allocatable)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       if (attr.codimension)
 	{
@@ -9822,6 +9844,8 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     {
       if (attr.codimension)
 	{
@@ -9849,9 +9873,12 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
 		 "assignment at %L - check that there is a matching specific "
 		 "subroutine for '=' operator", &lhs->where);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       return false;
     }
   else if (lhs->ts.type == BT_CLASS)
@@ -9861,6 +9888,8 @@ resolve_ordinary_assign (gfc_code *code, gfc_namespace *ns)
 		 "subroutine for '=' operator", &lhs->where);
       return false;
     }
+
+  bool lhs_coindexed = gfc_is_coindexed (lhs);
 
   bool lhs_coindexed = gfc_is_coindexed (lhs);
 
@@ -10770,16 +10799,20 @@ start:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	    if (t && (e->rank > 0
 		      || !(e->ts.type == BT_REAL || e->ts.type == BT_INTEGER)))
 	      gfc_error ("Arithmetic IF statement at %L requires a scalar "
 			 "REAL or INTEGER expression", &e->where);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -10794,6 +10827,8 @@ start:
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    resolve_branch (code->label1, code);
 	    resolve_branch (code->label2, code);
 	    resolve_branch (code->label3, code);
@@ -12217,12 +12252,16 @@ gfc_resolve_finalizers (gfc_symbol* derived, bool *finalizable)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   if (parent)
     gfc_resolve_finalizers (parent, finalizable);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -12237,6 +12276,8 @@ gfc_resolve_finalizers (gfc_symbol* derived, bool *finalizable)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Return early when not finalizable. Additionally, ensure that derived-type
      components have a their finalizables resolved.  */
   if (!derived->f2k_derived || !derived->f2k_derived->finalizers)
@@ -14318,9 +14359,12 @@ resolve_symbol (gfc_symbol *sym)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		 "INTENT(OUT)", sym->name, &sym->declared_at);
       return;
     }
@@ -14331,11 +14375,14 @@ resolve_symbol (gfc_symbol *sym)
     {
       gfc_error ("Dummy argument %qs at %L of EVENT_TYPE shall not be "
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		 "INTENT(OUT)", sym->name, &sym->declared_at);
       return;
     }

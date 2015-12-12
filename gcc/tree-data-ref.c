@@ -3826,6 +3826,7 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (gimple_call_internal_p (stmt)
 	  && gimple_call_internal_fn (stmt) == IFN_GOMP_SIMD_LANE)
 	{
@@ -3843,6 +3844,8 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (gimple_call_internal_p (stmt))
 	switch (gimple_call_internal_fn (stmt))
 	  {
@@ -3866,6 +3869,7 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -3873,10 +3877,13 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       else
 	clobbers_memory = true;
     }
   else if (stmt_code == GIMPLE_ASM
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3898,6 +3905,10 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 	   && (gimple_asm_volatile_p (as_a <gasm *> (stmt))
 	       || gimple_vuse (stmt)))
 >>>>>>> gcc-mirror/trunk
+=======
+	   && (gimple_asm_volatile_p (as_a <gasm *> (stmt))
+	       || gimple_vuse (stmt)))
+>>>>>>> gcc-mirror/master
     clobbers_memory = true;
 
   if (!gimple_vuse (stmt))
@@ -3937,6 +3948,7 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	    ref.ref = fold_build2 (MEM_REF,
@@ -3949,6 +3961,8 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    ptr = build_int_cst (TREE_TYPE (gimple_call_arg (stmt, 1)), 0);
 	    align = tree_to_shwi (gimple_call_arg (stmt, 1));
 	    if (ref.is_read)
@@ -3960,11 +3974,14 @@ get_references_in_stmt (gimple *stmt, vec<data_ref_loc, va_heap> *references)
 	    ref.ref = fold_build2 (MEM_REF, type, gimple_call_arg (stmt, 0),
 				   ptr);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    references->safe_push (ref);
 	    return false;
 	  default:

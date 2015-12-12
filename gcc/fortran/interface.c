@@ -3330,6 +3330,7 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     sym->name, where);
 	  return false;
 	}
@@ -3356,6 +3357,15 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+		     sym->name, where);
+	  return false;
+	}
+      if (warn_implicit_interface)
+	gfc_warning (OPT_Wimplicit_interface,
+		     "Procedure %qs called with an implicit interface at %L",
+		     sym->name, where);
+>>>>>>> gcc-mirror/master
       else if (warn_implicit_procedure && sym->attr.proc == PROC_UNKNOWN)
 	gfc_warning (OPT_Wimplicit_procedure,
 		     "Procedure %qs called at %L is not explicitly declared",
@@ -3422,9 +3432,12 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	      break;
 	    }
 
@@ -3439,11 +3452,14 @@ gfc_procedure_use (gfc_symbol *sym, gfc_actual_arglist **ap, locus *where)
 			 "component at %L requires an explicit interface for "
 			 "procedure %qs", &a->expr->where, sym->name);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	      break;
 	    }
 
@@ -3973,6 +3989,7 @@ gfc_extend_assign (gfc_code *c, gfc_namespace *ns)
   /* TODO: Ambiguity-check, see above for gfc_extend_expr.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -3982,15 +3999,20 @@ gfc_extend_assign (gfc_code *c, gfc_namespace *ns)
 <<<<<<< HEAD
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
   /* See if we find a matching type-bound assignment.  */
   tbo = matching_typebound_op (&tb_base, actual, INTRINSIC_ASSIGN,
 			       NULL, &gname);
 
+<<<<<<< HEAD
 >>>>>>> master
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   if (tbo)
     {
       /* Success: Replace the expression with a type-bound call.  */

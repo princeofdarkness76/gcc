@@ -521,9 +521,12 @@ void test_builtin_offsetof (int i)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 void test_builtin_choose_expr (int i)
 {
   __emit_expression_range (0,  __builtin_choose_expr (1, i, i) + i);  /* { dg-warning "range" } */
@@ -602,11 +605,14 @@ void test_alignof (int param)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Examples of non-trivial expressions.  ****************************/
 
 extern double sqrt (double x);

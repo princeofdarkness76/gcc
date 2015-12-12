@@ -3345,6 +3345,7 @@ typedef enum caf_register_t {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CAF_REGTYPE_CRITICAL
 =======
   CAF_REGTYPE_CRITICAL,
@@ -3359,6 +3360,11 @@ typedef enum caf_register_t {
   CAF_REGTYPE_EVENT_STATIC,
   CAF_REGTYPE_EVENT_ALLOC
 >>>>>>> gcc-mirror/trunk
+=======
+  CAF_REGTYPE_CRITICAL,
+  CAF_REGTYPE_EVENT_STATIC,
+  CAF_REGTYPE_EVENT_ALLOC
+>>>>>>> gcc-mirror/master
 }
 caf_register_t;
 @end verbatim
@@ -3382,6 +3388,7 @@ caf_register_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 * _gfortran_caf_event_post:: Post an event
 * _gfortran_caf_event_wait:: Wait that an event occurred
@@ -3394,6 +3401,11 @@ caf_register_t;
 * _gfortran_caf_event_wait:: Wait that an event occurred
 * _gfortran_caf_event_query:: Query event count
 >>>>>>> gcc-mirror/trunk
+=======
+* _gfortran_caf_event_post:: Post an event
+* _gfortran_caf_event_wait:: Wait that an event occurred
+* _gfortran_caf_event_query:: Query event count
+>>>>>>> gcc-mirror/master
 * _gfortran_caf_sync_all:: All-image barrier
 * _gfortran_caf_sync_images:: Barrier for selected images
 * _gfortran_caf_sync_memory:: Wait for completion of segment-memory operations
@@ -3550,6 +3562,7 @@ int *stat, char *errmsg, int errmsg_len)}
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 allocated; for lock types, the number of elements.
 =======
 allocated; for lock types and event types, the number of elements.
@@ -3560,6 +3573,9 @@ allocated; for lock types, the number of elements.
 =======
 allocated; for lock types and event types, the number of elements.
 >>>>>>> gcc-mirror/trunk
+=======
+allocated; for lock types and event types, the number of elements.
+>>>>>>> gcc-mirror/master
 @item @var{type} @tab one of the caf_register_t types.
 @item @var{token} @tab intent(out) An opaque pointer identifying the coarray.
 @item @var{stat} @tab intent(out) For allocatable coarrays, stores the STAT=;
@@ -3587,14 +3603,18 @@ image index of one for critical-block lock variables
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 (@code{CAF_REGTYPE_CRITICAL}).
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 (@code{CAF_REGTYPE_CRITICAL}). For lock types and critical-block variables,
 the initial value shall be unlocked (or, respecitively, not in critical
 section) such as the value false; for event types, the initial state should
 be no event, e.g. zero.
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -3602,6 +3622,8 @@ be no event, e.g. zero.
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 @end table
 
 
@@ -3624,6 +3646,7 @@ int errmsg_len)}
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @item @var{stat} @tab intent(out) For allocatable coarrays, stores the STAT=;
 may be NULL
 =======
@@ -3636,6 +3659,9 @@ may be NULL
 =======
 @item @var{stat} @tab intent(out) Stores the STAT=; may be NULL
 >>>>>>> gcc-mirror/trunk
+=======
+@item @var{stat} @tab intent(out) Stores the STAT=; may be NULL
+>>>>>>> gcc-mirror/master
 @item @var{errmsg} @tab intent(out) When an error occurs, this will be set
 to an error message; may be NULL
 @item @var{errmsg_len} @tab the buffer size of errmsg.
@@ -3845,6 +3871,7 @@ could be obtained
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @item @var{stat} @tab intent(out) For allocatable coarrays, stores the STAT=;
 may be NULL
 =======
@@ -3857,6 +3884,9 @@ may be NULL
 =======
 @item @var{stat} @tab intent(out) Stores the STAT=; may be NULL
 >>>>>>> gcc-mirror/trunk
+=======
+@item @var{stat} @tab intent(out) Stores the STAT=; may be NULL
+>>>>>>> gcc-mirror/master
 @item @var{errmsg} @tab intent(out) When an error occurs, this will be set to
 an error message; may be NULL
 @item @var{errmsg_len} @tab the buffer size of errmsg.
@@ -3871,6 +3901,7 @@ images for critical-block locking variables.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> gcc-mirror/master
@@ -3879,6 +3910,8 @@ images for critical-block locking variables.
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 @node _gfortran_caf_unlock
 @subsection @code{_gfortran_caf_lock} --- Unlocking a lock variable
 @cindex Coarray, _gfortran_caf_unlock
@@ -3916,9 +3949,12 @@ images for critical-block locking variables.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 @node _gfortran_caf_event_post
 @subsection @code{_gfortran_caf_event_post} --- Post an event
 @cindex Coarray, _gfortran_caf_event_post
@@ -4029,11 +4065,14 @@ is permitted; there is no ordering or synchronization implied.  It acts like
 an atomic fetch of the value of the event variable.
 @end table
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 @node _gfortran_caf_sync_all
 @subsection @code{_gfortran_caf_sync_all} --- All-image barrier
@@ -4182,6 +4221,7 @@ compared to the base address of the coarray.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 number.
 =======
 number; zero indicates the current image when used noncoindexed.
@@ -4192,6 +4232,9 @@ number.
 =======
 number; zero indicates the current image when used noncoindexed.
 >>>>>>> gcc-mirror/trunk
+=======
+number; zero indicates the current image when used noncoindexed.
+>>>>>>> gcc-mirror/master
 @item @var{value} @tab intent(in) the value to be assigned, passed by reference.
 @item @var{stat} @tab intent(out) Stores the status STAT= and may be NULL.
 @item @var{type} @tab the data type, i.e. @code{BT_INTEGER} (1) or
@@ -4224,6 +4267,7 @@ compared to the base address of the coarray.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 number.
 =======
 number; zero indicates the current image when used noncoindexed.
@@ -4234,6 +4278,9 @@ number.
 =======
 number; zero indicates the current image when used noncoindexed.
 >>>>>>> gcc-mirror/trunk
+=======
+number; zero indicates the current image when used noncoindexed.
+>>>>>>> gcc-mirror/master
 @item @var{value} @tab intent(out) The variable assigned the atomically
 referenced variable.
 @item @var{stat} @tab intent(out) Stores the status STAT= and may be NULL.
@@ -4269,6 +4316,7 @@ compared to the base address of the coarray.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 number.
 =======
 number; zero indicates the current image when used noncoindexed.
@@ -4279,6 +4327,9 @@ number.
 =======
 number; zero indicates the current image when used noncoindexed.
 >>>>>>> gcc-mirror/trunk
+=======
+number; zero indicates the current image when used noncoindexed.
+>>>>>>> gcc-mirror/master
 @item @var{old} @tab intent(out) the value which the atomic variable had
 just before the cas operation.
 @item @var{compare} @tab intent(in) The value used for comparision.
@@ -4323,6 +4374,7 @@ compared to the base address of the coarray.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 number.
 =======
 number; zero indicates the current image when used noncoindexed.
@@ -4333,6 +4385,9 @@ number.
 =======
 number; zero indicates the current image when used noncoindexed.
 >>>>>>> gcc-mirror/trunk
+=======
+number; zero indicates the current image when used noncoindexed.
+>>>>>>> gcc-mirror/master
 @item @var{old} @tab intent(out) the value which the atomic variable had
 just before the atomic operation.
 @item @var{val} @tab intent(in) The new value for the atomic variable,

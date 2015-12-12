@@ -231,6 +231,7 @@ link_libmpx = @link_libmpx@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 link_mpx = @link_mpx@
 =======
 >>>>>>> gcc-mirror/master
@@ -239,6 +240,8 @@ link_mpx = @link_mpx@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@

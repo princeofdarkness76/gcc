@@ -74,14 +74,18 @@ main()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const std::set<int> const_intset = {2, 3};
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   std::set<int> intset;
   intset.insert(2);
   intset.insert(3);
   const std::set<int> const_intset = intset;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -89,6 +93,8 @@ main()
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 // { dg-final { note-test const_intset {std::__debug::set with 2 elements = {[0] = 2, [1] = 3}} } }
 
   std::set<std::string> sp;

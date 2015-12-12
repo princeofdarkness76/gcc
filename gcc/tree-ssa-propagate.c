@@ -1102,8 +1102,11 @@ replace_phi_args_in (gphi *phi, ssa_prop_get_value_fn get_value)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
 }
 
 
@@ -1128,9 +1131,14 @@ public:
       BITMAP_FREE (need_eh_cleanup);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
     virtual void before_dom_children (basic_block);
+=======
+
+    virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
     virtual void after_dom_children (basic_block) {}
 
     ssa_prop_get_value_fn get_value_fn;
@@ -1142,7 +1150,11 @@ public:
     bitmap need_eh_cleanup;
 };
 
+<<<<<<< HEAD
 void
+=======
+edge
+>>>>>>> gcc-mirror/master
 substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
 {
   /* Propagate known values into PHI nodes.  */
@@ -1300,10 +1312,15 @@ substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
 	    fprintf (dump_file, "Not folded\n");
 	}
     }
+<<<<<<< HEAD
+=======
+  return NULL;
+>>>>>>> gcc-mirror/master
 }
 
 
 
+<<<<<<< HEAD
 /* Perform final substitution and folding of propagated values.
 >>>>>>> master
 
@@ -1696,6 +1713,8 @@ substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
 =======
 >>>>>>> gcc-mirror/trunk
 
+=======
+>>>>>>> gcc-mirror/master
 /* Perform final substitution and folding of propagated values.
 
    PROP_VALUE[I] contains the single value that should be substituted
@@ -1900,6 +1919,7 @@ replace_exp_1 (use_operand_p op_p, tree val,
 		  && TREE_CODE (val) == SSA_NAME
 		  && !may_propagate_copy (op, val)));
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
 =======
@@ -2097,6 +2117,16 @@ replace_exp_1 (use_operand_p op_p, tree val,
 }
 
 >>>>>>> gcc-mirror/trunk
+=======
+    }
+
+  if (TREE_CODE (val) == SSA_NAME)
+    SET_USE (op_p, val);
+  else
+    SET_USE (op_p, unshare_expr (val));
+}
+
+>>>>>>> gcc-mirror/master
 
 /* Propagate the value VAL (assumed to be a constant or another SSA_NAME)
    into the operand pointed to by OP_P.

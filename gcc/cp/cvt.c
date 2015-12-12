@@ -653,6 +653,7 @@ cp_convert_and_check (tree type, tree expr, tsubst_flags_t complain)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	warnings_for_convert_and_check (input_location, type, folded,
 					folded_result);
 =======
@@ -667,6 +668,10 @@ cp_convert_and_check (tree type, tree expr, tsubst_flags_t complain)
 	warnings_for_convert_and_check (EXPR_LOC_OR_LOC (expr, input_location),
 					type, folded, folded_result);
 >>>>>>> gcc-mirror/trunk
+=======
+	warnings_for_convert_and_check (EXPR_LOC_OR_LOC (expr, input_location),
+					type, folded, folded_result);
+>>>>>>> gcc-mirror/master
     }
 
   return result;

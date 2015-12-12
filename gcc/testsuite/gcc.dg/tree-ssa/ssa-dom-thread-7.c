@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom1-stats -fdump-tree-dom2-stats" } */
@@ -12,16 +13,21 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-options "-O2 -fdump-tree-vrp1-stats -fdump-tree-dom2-stats -fdump-tree-dom3-stats" } */
 /* { dg-final { scan-tree-dump "Jumps threaded: 7"  "vrp1" } } */
 /* { dg-final { scan-tree-dump "Jumps threaded: 12" "dom2" } } */
 /* { dg-final { scan-tree-dump "Jumps threaded: 3"  "dom3" } } */
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 enum STATE {
   S0=0,

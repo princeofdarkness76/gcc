@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-07  David Malcolm  <dmalcolm@redhat.com>
 
 	* include/line-map.h (rich_location::set_range): Add line_maps *
@@ -13,11 +16,14 @@
 	"overwrite_loc_p" were true, and getting range from the location.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-20  David Malcolm  <dmalcolm@redhat.com>
 
 	PR 62314

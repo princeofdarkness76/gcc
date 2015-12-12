@@ -104,6 +104,7 @@ _gfortran_caf_register (size_t size, caf_register_t type, caf_token_t *token,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || type == CAF_REGTYPE_CRITICAL)
 =======
       || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
@@ -116,6 +117,10 @@ _gfortran_caf_register (size_t size, caf_register_t type, caf_token_t *token,
       || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
       || type == CAF_REGTYPE_EVENT_ALLOC)
 >>>>>>> gcc-mirror/trunk
+=======
+      || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
+      || type == CAF_REGTYPE_EVENT_ALLOC)
+>>>>>>> gcc-mirror/master
     local = calloc (size, sizeof (bool));
   else
     local = malloc (size);
@@ -150,6 +155,7 @@ _gfortran_caf_register (size_t size, caf_register_t type, caf_token_t *token,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || type == CAF_REGTYPE_CRITICAL)
 =======
       || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
@@ -162,6 +168,10 @@ _gfortran_caf_register (size_t size, caf_register_t type, caf_token_t *token,
       || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
       || type == CAF_REGTYPE_EVENT_ALLOC)
 >>>>>>> gcc-mirror/trunk
+=======
+      || type == CAF_REGTYPE_CRITICAL || type == CAF_REGTYPE_EVENT_STATIC
+      || type == CAF_REGTYPE_EVENT_ALLOC)
+>>>>>>> gcc-mirror/master
     {
       caf_static_t *tmp = malloc (sizeof (caf_static_t));
       tmp->prev  = caf_static_list;
@@ -1102,9 +1112,12 @@ _gfortran_caf_atomic_op (int op, caf_token_t token, size_t offset,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 void
 _gfortran_caf_event_post (caf_token_t token, size_t index, 
 			  int image_index __attribute__ ((unused)), 
@@ -1145,11 +1158,14 @@ _gfortran_caf_event_query (caf_token_t token, size_t index,
     *stat = 0;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 void
 _gfortran_caf_lock (caf_token_t token, size_t index,

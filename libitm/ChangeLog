@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-26  Torvald Riegel  <triegel@redhat.com>
 
 	* method-ml.cc (ml_mg): Use multiplicative instead of simple hashing.
@@ -11,11 +14,14 @@
 	(ml_wt_dispatch::pre_load): Likewise.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-22  Torvald Riegel  <triegel@redhat.com>
 
 	* libitm_i.h (gtm_alloc_action): Remove union.

@@ -1460,6 +1460,7 @@ enum reg_class
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 { 0xffffffff,0xffffffff, 0x1fff }                                        \
 =======
 { 0xffffffff,0xffffffff,0x1ffff }                                        \
@@ -1470,6 +1471,9 @@ enum reg_class
 =======
 { 0xffffffff,0xffffffff,0x1ffff }                                        \
 >>>>>>> gcc-mirror/trunk
+=======
+{ 0xffffffff,0xffffffff,0x1ffff }                                        \
+>>>>>>> gcc-mirror/master
 }
 
 /* The same information, inverted:

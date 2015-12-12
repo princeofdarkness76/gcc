@@ -1815,16 +1815,22 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 	  }
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
   /* Analyze the data references and also adjust the minimal
      vectorization factor according to the loads and stores.  */
 
+<<<<<<< HEAD
 =======
 
   /* Analyze the data references and also adjust the minimal
      vectorization factor according to the loads and stores.  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   ok = vect_analyze_data_refs (loop_vinfo, &min_vf);
   if (!ok)
     {
@@ -1902,9 +1908,12 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Compute the scalar iteration cost.  */
   vect_compute_single_scalar_iteration_cost (loop_vinfo);
 
@@ -1914,11 +1923,14 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
   int min_scalar_loop_bound;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Check the SLP opportunities in the loop, analyze and build SLP trees.  */
   ok = vect_analyze_slp (loop_vinfo, n_stmts);
   if (!ok)
@@ -1938,6 +1950,7 @@ vect_analyze_loop_2 (loop_vec_info loop_vinfo, bool &fatal)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* This is the point where we can re-start analysis with SLP forced off.  */
 start_over:
@@ -1950,6 +1963,11 @@ start_over:
 start_over:
 
 >>>>>>> gcc-mirror/trunk
+=======
+  /* This is the point where we can re-start analysis with SLP forced off.  */
+start_over:
+
+>>>>>>> gcc-mirror/master
   /* Now the vectorization factor is final.  */
   unsigned vectorization_factor = LOOP_VINFO_VECT_FACTOR (loop_vinfo);
   gcc_assert (vectorization_factor != 0);
@@ -1972,6 +1990,7 @@ start_over:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			 "not vectorized: iteration count too small.\n");
       if (dump_enabled_p ())
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
@@ -1984,6 +2003,8 @@ start_over:
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 			 "not vectorized: iteration count smaller than "
 			 "vectorization factor.\n");
       return false;
@@ -2042,6 +2063,7 @@ start_over:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	return false;
@@ -2090,6 +2112,11 @@ start_over:
     }
 >>>>>>> gcc-mirror/trunk
 
+=======
+	goto again;
+    }
+
+>>>>>>> gcc-mirror/master
   /* Scan all the remaining operations in the loop that are not subject
      to SLP and make sure they are vectorizable.  */
   ok = vect_analyze_loop_operations (loop_vinfo);
@@ -2099,6 +2126,9 @@ start_over:
 	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
 			 "bad operation or unsupported loop bound.\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
       return false;
     }
 
@@ -2125,6 +2155,7 @@ start_over:
   /* Use the cost model only if it is more conservative than user specified
      threshold.  */
   th = (unsigned) min_scalar_loop_bound;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     }
@@ -2153,6 +2184,8 @@ start_over:
      threshold.  */
   unsigned th = (unsigned) min_scalar_loop_bound;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/master
   if (min_profitable_iters
       && (!min_scalar_loop_bound
           || min_profitable_iters > min_scalar_loop_bound))
@@ -2171,6 +2204,7 @@ start_over:
 			 "not vectorized: iteration count smaller than user "
 			 "specified loop bound parameter or minimum profitable "
 			 "iterations (whichever is more conservative).\n");
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2227,16 +2261,21 @@ start_over:
 			 "specified loop bound parameter or minimum profitable "
 			 "iterations (whichever is more conservative).\n");
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       goto again;
     }
 
   estimated_niter
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     = estimated_stmt_executions_int (LOOP_VINFO_LOOP (loop_vinfo));
   if (estimated_niter != -1
       && ((unsigned HOST_WIDE_INT) estimated_niter
@@ -2255,6 +2294,7 @@ start_over:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return false;
 =======
       goto again;
@@ -2265,6 +2305,9 @@ start_over:
 =======
       goto again;
 >>>>>>> gcc-mirror/trunk
+=======
+      goto again;
+>>>>>>> gcc-mirror/master
     }
 
   /* Decide whether we need to create an epilogue loop to handle
@@ -2310,6 +2353,7 @@ start_over:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           return false;
 =======
           goto again;
@@ -2320,6 +2364,9 @@ start_over:
 =======
           goto again;
 >>>>>>> gcc-mirror/trunk
+=======
+          goto again;
+>>>>>>> gcc-mirror/master
         }
     }
 
@@ -2329,6 +2376,7 @@ start_over:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* Ok to vectorize!  */
 >>>>>>> gcc-mirror/master
@@ -2337,6 +2385,9 @@ start_over:
 =======
   /* Ok to vectorize!  */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* Ok to vectorize!  */
+>>>>>>> gcc-mirror/master
   return true;
 
 again:
@@ -6538,6 +6589,7 @@ vectorizable_live_operation (gimple *stmt,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			     gimple *vec_stmt)
 =======
 			     gimple **vec_stmt)
@@ -6551,6 +6603,9 @@ vectorizable_live_operation (gimple *stmt,
 =======
 			     gimple **vec_stmt)
 >>>>>>> gcc-mirror/trunk
+=======
+			     gimple **vec_stmt)
+>>>>>>> gcc-mirror/master
 {
   stmt_vec_info stmt_info = vinfo_for_stmt (stmt);
   loop_vec_info loop_vinfo = STMT_VINFO_LOOP_VINFO (stmt_info);
@@ -6586,6 +6641,7 @@ vectorizable_live_operation (gimple *stmt,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      gimple use_stmt = USE_STMT (use_p);
 	      if (gimple_code (use_stmt) == GIMPLE_PHI
 		  || gimple_bb (use_stmt) == merge_bb)
@@ -6609,6 +6665,11 @@ vectorizable_live_operation (gimple *stmt,
 	      if (gimple_code (use_stmt) == GIMPLE_PHI
 		  && gimple_bb (use_stmt) == merge_bb)
 >>>>>>> gcc-mirror/trunk
+=======
+	      gimple *use_stmt = USE_STMT (use_p);
+	      if (gimple_code (use_stmt) == GIMPLE_PHI
+		  && gimple_bb (use_stmt) == merge_bb)
+>>>>>>> gcc-mirror/master
 		{
 		  if (vec_stmt)
 		    {

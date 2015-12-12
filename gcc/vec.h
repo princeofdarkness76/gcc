@@ -1703,9 +1703,12 @@ vec<T, va_heap, vl_ptr>::using_auto_storage () const
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 /* Release VEC and call release of all element vectors.  */
@@ -1719,11 +1722,14 @@ release_vec_vec (vec<vec<T> > &vec)
 
   vec.release ();
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }
 
 #if (GCC_VERSION >= 3000)

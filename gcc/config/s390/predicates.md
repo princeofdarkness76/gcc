@@ -29,6 +29,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   (and (match_code "const_int,const_double,const_vector")
 =======
   (and (match_code "const_int,const_wide_int,const_double,const_vector")
@@ -39,10 +40,14 @@
 =======
   (and (match_code "const_int,const_wide_int,const_double,const_vector")
 >>>>>>> gcc-mirror/trunk
+=======
+  (and (match_code "const_int,const_wide_int,const_double,const_vector")
+>>>>>>> gcc-mirror/master
        (match_test "op == CONST0_RTX (mode)")))
 
 ;; Return true if OP an all ones operand (int/float/vector).
 (define_predicate "constm1_operand"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,6 +61,8 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   (and (match_code "const_int,const_wide_int,const_double,const_vector")
        (match_test "op == CONSTM1_RTX (mode)")))
 
@@ -69,6 +76,7 @@
 (define_special_predicate "consttable_operand"
   (and (match_code "symbol_ref, label_ref, const, const_int, const_wide_int, const_double, const_vector")
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   (and (match_code "const_int, const_double,const_vector")
@@ -81,6 +89,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
        (match_test "CONSTANT_P (op)")))
 
 ;; Return true if OP is a valid S-type operand.

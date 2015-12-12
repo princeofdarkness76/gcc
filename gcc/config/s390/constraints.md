@@ -37,6 +37,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ;;         jKK: constant vector with all elements having the same value and
 ;;              matching K constraint
@@ -47,6 +48,10 @@
 ;;         jKK: constant vector with all elements having the same value and
 ;;              matching K constraint
 >>>>>>> gcc-mirror/trunk
+=======
+;;         jKK: constant vector with all elements having the same value and
+;;              matching K constraint
+>>>>>>> gcc-mirror/master
 ;;    t -- Access registers 36 and 37.
 ;;    v -- Vector registers v0-v31.
 ;;    C -- A signed 8-bit constant (-128..127)

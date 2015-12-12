@@ -148,8 +148,11 @@ windows, cygwin, mingw	Dave Korn		<dave.korn.cygwin@gmail.com>
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 C front end/ISO C99	Joseph Myers		<joseph@codesourcery.com>
 C front end/ISO C99	Richard Henderson	<rth@redhat.com>
 Ada front end		Arnaud Charlet		<charlet@adacore.com>
@@ -162,6 +165,7 @@ java			Andrew Haley		<aph@redhat.com>
 java			Tom Tromey		<tromey@redhat.com>
 objective-c/c++		Mike Stump		<mikestump@comcast.net>
 objective-c/c++		Iain Sandoe		<iain@codesourcery.com>
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 C front end/ISO C99	Joseph Myers		joseph@codesourcery.com
@@ -183,6 +187,8 @@ Python                  Philip Herron           herron.philip@googlemail.com
 >>>>>>> gcc-mirror/python
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 			Various Maintainers
 

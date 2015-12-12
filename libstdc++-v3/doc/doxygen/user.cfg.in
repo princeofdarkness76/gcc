@@ -274,6 +274,7 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 EXTENSION_MAPPING      =
 =======
 EXTENSION_MAPPING      = no_extension=C++ .h=C++ .tcc=C++ .hpp=C++
@@ -281,6 +282,9 @@ EXTENSION_MAPPING      = no_extension=C++ .h=C++ .tcc=C++ .hpp=C++
 =======
 EXTENSION_MAPPING      = no_extension=C++ .h=C++ .tcc=C++ .hpp=C++
 >>>>>>> gcc-mirror/trunk
+=======
+EXTENSION_MAPPING      = no_extension=C++ .h=C++ .tcc=C++ .hpp=C++
+>>>>>>> gcc-mirror/master
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -902,12 +906,15 @@ INPUT                  = @srcdir@/doc/doxygen/doxygroups.cc \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                          include/experimental/any \
                          include/experimental/optional \
                          include/experimental/string_view \
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
                          include/experimental/bits \
                          include/experimental/algorithm \
                          include/experimental/any \
@@ -939,6 +946,7 @@ INPUT                  = @srcdir@/doc/doxygen/doxygroups.cc \
                          include/experimental/utility \
                          include/experimental/vector \
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
                          include/experimental/any \
@@ -947,6 +955,8 @@ INPUT                  = @srcdir@/doc/doxygen/doxygroups.cc \
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
                          include/ext \
                          include/ext/pb_ds \
                          include/ext/pb_ds/detail \
@@ -2026,18 +2036,22 @@ XML_OUTPUT             = xml
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # The XML_SCHEMA tag can be used to specify a XML schema, which can be used by a
 # validating XML parser to check the syntax of the XML files.
 # This tag requires that the tag GENERATE_XML is set to YES.
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 # If the XML_PROGRAMLISTING tag is set to YES doxygen will dump the program
 # listings (including syntax highlighting and cross-referencing information) to
 # the XML output. Note that enabling this will significantly increase the size
 # of the XML output.
 # The default value is: YES.
 # This tag requires that the tag GENERATE_XML is set to YES.
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 # The XML_SCHEMA tag can be used to specify a XML schema, which can be used by a
@@ -2100,12 +2114,21 @@ DOCBOOK_OUTPUT         = docbook
 # The default value is: YES.
 # This tag requires that the tag GENERATE_XML is set to YES.
 >>>>>>> master
+=======
+
+XML_PROGRAMLISTING     = NO
+
+#---------------------------------------------------------------------------
+# Configuration options related to the DOCBOOK output
+#---------------------------------------------------------------------------
+>>>>>>> gcc-mirror/master
 
 # If the GENERATE_DOCBOOK tag is set to YES doxygen will generate Docbook files
 # that can be used to generate PDF.
 # The default value is: NO.
 
 GENERATE_DOCBOOK       = NO
+<<<<<<< HEAD
 
 # The DOCBOOK_OUTPUT tag is used to specify where the Docbook pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be put in
@@ -2129,21 +2152,28 @@ DOCBOOK_OUTPUT         = docbook
 
 GENERATE_DOCBOOK       = NO
 
+=======
+
+>>>>>>> gcc-mirror/master
 # The DOCBOOK_OUTPUT tag is used to specify where the Docbook pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be put in
 # front of it.
 # The default directory is: docbook.
 # This tag requires that the tag GENERATE_DOCBOOK is set to YES.
+<<<<<<< HEAD
 
 DOCBOOK_OUTPUT         = docbook
 
 #---------------------------------------------------------------------------
 >>>>>>> master
 =======
+=======
+>>>>>>> gcc-mirror/master
 
-XML_PROGRAMLISTING     = NO
+DOCBOOK_OUTPUT         = docbook
 
 #---------------------------------------------------------------------------
+<<<<<<< HEAD
 # Configuration options related to the DOCBOOK output
 #---------------------------------------------------------------------------
 
@@ -2166,6 +2196,11 @@ DOCBOOK_OUTPUT         = docbook
 # Configuration options for the AutoGen Definitions output
 #---------------------------------------------------------------------------
 
+=======
+# Configuration options for the AutoGen Definitions output
+#---------------------------------------------------------------------------
+
+>>>>>>> gcc-mirror/master
 # If the GENERATE_AUTOGEN_DEF tag is set to YES doxygen will generate an AutoGen
 # Definitions (see http://autogen.sf.net) file that captures the structure of
 # the code including all documentation. Note that this feature is still
@@ -2307,6 +2342,7 @@ PREDEFINED             = __cplusplus=201402L \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
                          ATOMIC_INT_LOCK_FREE \
@@ -2316,6 +2352,9 @@ PREDEFINED             = __cplusplus=201402L \
 =======
                          ATOMIC_INT_LOCK_FREE=2 \
 >>>>>>> gcc-mirror/trunk
+=======
+                         ATOMIC_INT_LOCK_FREE=2 \
+>>>>>>> gcc-mirror/master
                          PB_DS_DATA_TRUE_INDICATOR \
                          PB_DS_STATIC_ASSERT=// \
                          "_GLIBCXX_BEGIN_NAMESPACE_ALGO= " \

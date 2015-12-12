@@ -38,6 +38,7 @@ extern vec<edge_var_map> *redirect_edge_var_map_vector (edge);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern void redirect_edge_var_map_destroy (void);
 =======
 extern void redirect_edge_var_map_empty (void);
@@ -48,6 +49,9 @@ extern void redirect_edge_var_map_destroy (void);
 =======
 extern void redirect_edge_var_map_empty (void);
 >>>>>>> gcc-mirror/trunk
+=======
+extern void redirect_edge_var_map_empty (void);
+>>>>>>> gcc-mirror/master
 extern edge ssa_redirect_edge (edge, basic_block);
 extern void flush_pending_stmts (edge);
 extern void gimple_replace_ssa_lhs (gimple *, tree);

@@ -3873,6 +3873,7 @@ execution of this erroneous program:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   Windows.
 =======
   Windows).
@@ -3883,6 +3884,9 @@ execution of this erroneous program:
 =======
   Windows).
 >>>>>>> gcc-mirror/trunk
+=======
+  Windows).
+>>>>>>> gcc-mirror/master
 
   The `gnatmem` command has the form
 

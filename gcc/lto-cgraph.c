@@ -488,6 +488,7 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (node->same_comdat_group && !boundary_p)
@@ -499,6 +500,8 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (node->same_comdat_group)
 	{
 	  ref = LCC_NOT_FOUND;
@@ -506,11 +509,14 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 	       ref == LCC_NOT_FOUND && n != node; n = n->same_comdat_group)
 	    ref = lto_symtab_encoder_lookup (encoder, n);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       else
 	ref = LCC_NOT_FOUND;
@@ -547,6 +553,7 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   bp_pack_value (&bp, node->transparent_alias, 1);
 >>>>>>> gcc-mirror/master
@@ -555,6 +562,9 @@ lto_output_node (struct lto_simple_output_block *ob, struct cgraph_node *node,
 =======
   bp_pack_value (&bp, node->transparent_alias, 1);
 >>>>>>> gcc-mirror/trunk
+=======
+  bp_pack_value (&bp, node->transparent_alias, 1);
+>>>>>>> gcc-mirror/master
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->frequency, 2);
   bp_pack_value (&bp, node->only_called_at_startup, 1);
@@ -634,6 +644,7 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->analyzed && !boundary_p, 1);
 =======
@@ -650,6 +661,11 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
   bp_pack_value (&bp, node->weakref, 1);
   bp_pack_value (&bp, node->analyzed && (!boundary_p || node->alias), 1);
 >>>>>>> gcc-mirror/trunk
+=======
+  bp_pack_value (&bp, node->transparent_alias, 1);
+  bp_pack_value (&bp, node->weakref, 1);
+  bp_pack_value (&bp, node->analyzed && (!boundary_p || node->alias), 1);
+>>>>>>> gcc-mirror/master
   gcc_assert (node->definition || !node->analyzed);
   /* Constant pool initializers can be de-unified into individual ltrans units.
      FIXME: Alternatively at -Os we may want to avoid generating for them the local
@@ -684,6 +700,7 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (node->same_comdat_group && !boundary_p)
@@ -695,6 +712,8 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       if (node->same_comdat_group)
 	{
 	  ref = LCC_NOT_FOUND;
@@ -702,11 +721,14 @@ lto_output_varpool_node (struct lto_simple_output_block *ob, varpool_node *node,
 	       ref == LCC_NOT_FOUND && n != node; n = n->same_comdat_group)
 	    ref = lto_symtab_encoder_lookup (encoder, n);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	}
       else
 	ref = LCC_NOT_FOUND;
@@ -834,6 +856,7 @@ output_refs (lto_symtab_encoder_t encoder)
       symtab_node *node = lto_symtab_encoder_deref (encoder, i);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       /* IPA_REF_ALIAS and IPA_REF_CHKP references are always preserved
 	 in the boundary.  Alias node can't have other references and
@@ -864,6 +887,8 @@ output_refs (lto_symtab_encoder_t encoder)
 	}
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
       /* IPA_REF_ALIAS and IPA_REF_CHKP references are always preserved
 	 in the boundary.  Alias node can't have other references and
@@ -893,6 +918,7 @@ output_refs (lto_symtab_encoder_t encoder)
 	  continue;
 	}
 
+<<<<<<< HEAD
 >>>>>>> master
 =======
 
@@ -925,6 +951,8 @@ output_refs (lto_symtab_encoder_t encoder)
 	}
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       count = node->ref_list.nreferences ();
       if (count)
 	{
@@ -1092,6 +1120,7 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
   /* Be sure to also insert alias targert and thunk callees.  These needs
      to stay to aid local calling conventions.  */
@@ -1109,6 +1138,8 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
   /* Be sure to also insert alias targert and thunk callees.  These needs
      to stay to aid local calling conventions.  */
@@ -1132,6 +1163,7 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 	    lto_symtab_encoder_encode (encoder, node);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 >>>>>>> gcc-mirror/master
 =======
@@ -1153,6 +1185,9 @@ compute_ltrans_boundary (lto_symtab_encoder_t in_encoder)
 =======
     }
 >>>>>>> gcc-mirror/trunk
+=======
+    }
+>>>>>>> gcc-mirror/master
   lto_symtab_encoder_delete (in_encoder);
   return encoder;
 }
@@ -1357,6 +1392,7 @@ input_overwrite_node (struct lto_file_decl_data *file_data,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   node->transparent_alias = bp_unpack_value (bp, 1);
 >>>>>>> gcc-mirror/master
@@ -1365,6 +1401,9 @@ input_overwrite_node (struct lto_file_decl_data *file_data,
 =======
   node->transparent_alias = bp_unpack_value (bp, 1);
 >>>>>>> gcc-mirror/trunk
+=======
+  node->transparent_alias = bp_unpack_value (bp, 1);
+>>>>>>> gcc-mirror/master
   node->weakref = bp_unpack_value (bp, 1);
   node->frequency = (enum node_frequency)bp_unpack_value (bp, 2);
   node->only_called_at_startup = bp_unpack_value (bp, 1);
@@ -1505,10 +1544,13 @@ input_node (struct lto_file_decl_data *file_data,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
   if (node->alias && !node->analyzed && node->weakref)
     node->alias_target = get_alias_symbol (node->decl);
@@ -1523,6 +1565,7 @@ input_node (struct lto_file_decl_data *file_data,
       decl_index = streamer_read_uhwi (ib);
       fn_decl = lto_file_decl_data_get_fn_decl (file_data, decl_index);
       node->orig_decl = fn_decl;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     }
@@ -1549,6 +1592,9 @@ input_node (struct lto_file_decl_data *file_data,
 =======
     }
 >>>>>>> gcc-mirror/trunk
+=======
+    }
+>>>>>>> gcc-mirror/master
 
   return node;
 }
@@ -1599,6 +1645,7 @@ input_varpool_node (struct lto_file_decl_data *file_data,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   node->transparent_alias = bp_unpack_value (&bp, 1);
 >>>>>>> gcc-mirror/master
@@ -1607,6 +1654,9 @@ input_varpool_node (struct lto_file_decl_data *file_data,
 =======
   node->transparent_alias = bp_unpack_value (&bp, 1);
 >>>>>>> gcc-mirror/trunk
+=======
+  node->transparent_alias = bp_unpack_value (&bp, 1);
+>>>>>>> gcc-mirror/master
   node->weakref = bp_unpack_value (&bp, 1);
   node->analyzed = bp_unpack_value (&bp, 1);
   node->used_from_other_partition = bp_unpack_value (&bp, 1);

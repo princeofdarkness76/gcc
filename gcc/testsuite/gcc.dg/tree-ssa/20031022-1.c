@@ -28,6 +28,7 @@ blah (int arf)
 /* There should be one load from entry_exit_blocks[1].pred.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "entry_exit_blocks.1..pred" 1 "dom1"} } */
 <<<<<<< HEAD
 =======
@@ -38,3 +39,6 @@ blah (int arf)
 =======
 /* { dg-final { scan-tree-dump-times "entry_exit_blocks.1..pred" 1 "dom2"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "entry_exit_blocks.1..pred" 1 "dom2"} } */
+>>>>>>> gcc-mirror/master

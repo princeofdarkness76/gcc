@@ -656,6 +656,7 @@ extern tree c_finish_oacc_data (location_t, tree, tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern tree c_finish_oacc_host_data (location_t, tree, tree);
 >>>>>>> gcc-mirror/master
@@ -664,10 +665,14 @@ extern tree c_finish_oacc_host_data (location_t, tree, tree);
 =======
 extern tree c_finish_oacc_host_data (location_t, tree, tree);
 >>>>>>> gcc-mirror/trunk
+=======
+extern tree c_finish_oacc_host_data (location_t, tree, tree);
+>>>>>>> gcc-mirror/master
 extern tree c_begin_omp_parallel (void);
 extern tree c_finish_omp_parallel (location_t, tree, tree);
 extern tree c_begin_omp_task (void);
 extern tree c_finish_omp_task (location_t, tree, tree);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -691,18 +696,24 @@ extern tree c_build_va_arg (location_t, tree, tree);
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern void c_finish_omp_cancel (location_t, tree);
 extern void c_finish_omp_cancellation_point (location_t, tree);
 extern tree c_finish_omp_clauses (tree, bool, bool = false);
 extern tree c_build_va_arg (location_t, tree, location_t, tree);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern tree c_finish_transaction (location_t, tree, int);
 extern bool c_tree_equal (tree, tree);
 extern tree c_build_function_call_vec (location_t, vec<location_t>, tree,
 				       vec<tree, va_gc> *, vec<tree, va_gc> *);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -713,6 +724,8 @@ extern tree c_build_function_call_vec (location_t, vec<location_t>, tree,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Set to 0 at beginning of a function definition, set to 1 if
    a return statement that specifies a return value is seen.  */
@@ -777,6 +790,7 @@ set_c_expr_source_range (c_expr *expr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* In c-fold.c */
@@ -789,5 +803,10 @@ extern tree decl_constant_value_for_optimization (tree);
 /* In c-fold.c */
 extern tree decl_constant_value_for_optimization (tree);
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* In c-fold.c */
+extern tree decl_constant_value_for_optimization (tree);
+>>>>>>> gcc-mirror/master
 
 #endif /* ! GCC_C_TREE_H */

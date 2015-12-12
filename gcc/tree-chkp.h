@@ -62,6 +62,7 @@ extern bool chkp_redirect_edge (cgraph_edge *e);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern void chkp_fixup_inlined_call (tree lhs, tree rhs);
 >>>>>>> gcc-mirror/master
@@ -70,5 +71,8 @@ extern void chkp_fixup_inlined_call (tree lhs, tree rhs);
 =======
 extern void chkp_fixup_inlined_call (tree lhs, tree rhs);
 >>>>>>> gcc-mirror/trunk
+=======
+extern void chkp_fixup_inlined_call (tree lhs, tree rhs);
+>>>>>>> gcc-mirror/master
 
 #endif /* GCC_TREE_CHKP_H */

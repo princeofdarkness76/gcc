@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-25  Jan Hubicka  <jh@suse.cz>
 
 	PR lto/67548
@@ -12,11 +15,14 @@
 	(onload): Record linker_output info.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-07-02  Uros Bizjak  <ubizjak@gmail.com>
 
 	* configure.ac: Add AC_USE_SYSTEM_EXTENSIONS.

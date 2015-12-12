@@ -753,16 +753,20 @@ copy_reference_ops_from_ref (tree ref, vec<vn_reference_op_s> *result)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (tree_fits_shwi_p (TREE_OPERAND (ref, 1)))
 	    temp.off = tree_to_shwi (TREE_OPERAND (ref, 1));
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    {
 	      offset_int off = mem_ref_offset (ref);
 	      if (wi::fits_shwi_p (off))
 		temp.off = off.to_shwi ();
 	    }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -771,6 +775,8 @@ copy_reference_ops_from_ref (tree ref, vec<vn_reference_op_s> *result)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  temp.clique = MR_DEPENDENCE_CLIQUE (ref);
 	  temp.base = MR_DEPENDENCE_BASE (ref);
 	  temp.reverse = REF_REVERSE_STORAGE_ORDER (ref);
@@ -1389,6 +1395,7 @@ fully_constant_vn_reference_p (vn_reference_t ref)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      if (native_encode_expr (ctor, buf, size, off) > 0)
 		return native_interpret_expr (ref->type, buf, size);
 =======
@@ -1405,6 +1412,11 @@ fully_constant_vn_reference_p (vn_reference_t ref)
 	      if (len > 0)
 		return native_interpret_expr (ref->type, buf, len);
 >>>>>>> gcc-mirror/trunk
+=======
+	      int len = native_encode_expr (ctor, buf, size, off);
+	      if (len > 0)
+		return native_interpret_expr (ref->type, buf, len);
+>>>>>>> gcc-mirror/master
 	    }
 	}
     }
@@ -2828,8 +2840,11 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	case 2:
 	  {
@@ -2893,6 +2908,7 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 	}
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -3026,6 +3042,8 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* If the PHI nodes do not have compatible types
      they are not the same.  */
   if (!types_compatible_p (vp1->type, vp2->type))
@@ -3678,6 +3696,9 @@ visit_use (tree use)
 	  && TREE_CODE (lhs) == SSA_NAME)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 	{
 	  changed = visit_copy (lhs, rhs1);
 	  goto done;
@@ -3685,6 +3706,7 @@ visit_use (tree use)
       simplified = try_to_simplify (ass);
       if (simplified)
 	{
+<<<<<<< HEAD
 =======
 	{
 	  changed = visit_copy (lhs, rhs1);
@@ -3703,6 +3725,8 @@ visit_use (tree use)
       if (simplified)
 	{
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	  if (dump_file && (dump_flags & TDF_DETAILS))
 	    {
 	      fprintf (dump_file, "RHS ");
@@ -3713,8 +3737,11 @@ visit_use (tree use)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    }
 	}
       /* Setting value numbers to constants will occasionally
@@ -3781,6 +3808,7 @@ visit_use (tree use)
 		}
 	    }
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -3857,6 +3885,8 @@ visit_use (tree use)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       else
 	changed = defs_to_varying (ass);
     }
@@ -4482,6 +4512,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     : dom_walker (CDI_DOMINATORS), fail (false), cond_stack (vNULL) {}
@@ -4492,16 +4523,21 @@ public:
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     : dom_walker (CDI_DOMINATORS, true), fail (false), cond_stack (vNULL) {}
   ~sccvn_dom_walker ();
 
   virtual edge before_dom_children (basic_block);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 
   void record_cond (basic_block,
@@ -4607,6 +4643,7 @@ sccvn_dom_walker::after_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -4617,12 +4654,16 @@ void
 =======
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+edge
+>>>>>>> gcc-mirror/master
 sccvn_dom_walker::before_dom_children (basic_block bb)
 {
   edge e;
   edge_iterator ei;
 
   if (fail)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4671,6 +4712,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Visiting BB %d\n", bb->index);
@@ -4734,6 +4778,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  return;
 =======
 	  return NULL;
@@ -4744,6 +4789,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
 	  return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+	  return NULL;
+>>>>>>> gcc-mirror/master
 	}
     }
   for (gimple_stmt_iterator gsi = gsi_start_bb (bb);
@@ -4759,6 +4807,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    return;
 =======
 	    return NULL;
@@ -4769,6 +4818,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
 	    return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+	    return NULL;
+>>>>>>> gcc-mirror/master
 	  }
     }
 
@@ -4778,6 +4830,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return;
 =======
     return NULL;
@@ -4788,6 +4841,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   enum gimple_code code = gimple_code (stmt);
   if (code != GIMPLE_COND
@@ -4796,6 +4852,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return;
 =======
     return NULL;
@@ -4806,6 +4863,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     {
@@ -4851,6 +4911,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     return;
@@ -4862,17 +4923,22 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     return NULL;
 
   edge taken = find_taken_edge (bb, vn_valueize (val));
   if (!taken)
     return NULL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Marking all edges out of BB %d but (%d -> %d) as "
@@ -4881,6 +4947,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   FOR_EACH_EDGE (e, ei, bb->succs)
     if (e != taken)
       e->flags &= ~EDGE_EXECUTABLE;
@@ -4895,6 +4962,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
   return taken;
 >>>>>>> gcc-mirror/trunk
+=======
+  return taken;
+>>>>>>> gcc-mirror/master
 }
 
 /* Do SCCVN.  Returns true if it finished, false if we bailed out
@@ -4937,6 +5007,7 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* Mark all edges as possibly executable.  */
@@ -4963,10 +5034,19 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
   if (walker.fail)
     {
 >>>>>>> gcc-mirror/trunk
+=======
+  /* Walk all blocks in dominator order, value-numbering stmts
+     SSA defs and decide whether outgoing edges are not executable.  */
+  sccvn_dom_walker walker;
+  walker.walk (ENTRY_BLOCK_PTR_FOR_FN (cfun));
+  if (walker.fail)
+    {
+>>>>>>> gcc-mirror/master
       free_scc_vn ();
       return false;
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -4989,6 +5069,8 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   /* Initialize the value ids and prune out remaining VN_TOPs
      from dead code.  */
   for (i = 1; i < num_ssa_names; ++i)

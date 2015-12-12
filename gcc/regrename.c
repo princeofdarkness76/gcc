@@ -1363,6 +1363,7 @@ scan_rtx_address (rtx_insn *insn, rtx *loc, enum reg_class cl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (!AUTO_INC_DEC)
       action = mark_all_read;
 =======
@@ -1377,6 +1378,10 @@ scan_rtx_address (rtx_insn *insn, rtx *loc, enum reg_class cl,
       if (!AUTO_INC_DEC)
 	action = mark_all_read;
 >>>>>>> gcc-mirror/trunk
+=======
+      if (!AUTO_INC_DEC)
+	action = mark_all_read;
+>>>>>>> gcc-mirror/master
 
       break;
 

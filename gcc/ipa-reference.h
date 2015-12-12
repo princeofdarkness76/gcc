@@ -28,9 +28,12 @@ void ipa_reference_c_finalize (void);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 inline int
 ipa_reference_var_uid (tree t)
@@ -38,11 +41,14 @@ ipa_reference_var_uid (tree t)
   return DECL_UID (symtab_node::get (t)->ultimate_alias_target (NULL)->decl);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 #endif  /* GCC_IPA_REFERENCE_H  */
 

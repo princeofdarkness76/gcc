@@ -54,6 +54,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -87,10 +88,14 @@
 =======
 #include "mpxrt.h"
 >>>>>>> gcc-mirror/trunk
+=======
+#include "mpxrt.h"
+>>>>>>> gcc-mirror/master
 
 #define MPX_ENABLE_BIT_NO 0
 #define BNDPRESERVE_BIT_NO 1
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -104,6 +109,8 @@ const size_t MPX_L1_SIZE = (1UL << NUM_L1_BITS) * sizeof (void *);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 struct xsave_hdr_struct
 {
   uint64_t xstate_bv;
@@ -536,9 +543,12 @@ mpxrt_cleanup (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 /* Get address of bounds directory.  */
 void *
@@ -547,8 +557,11 @@ get_bd ()
   return l1base;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

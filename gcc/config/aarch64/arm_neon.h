@@ -11216,9 +11216,12 @@ vbslq_u64 (uint64x2_t __a, uint64x2_t __b, uint64x2_t __c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* ARMv8.1 instrinsics.  */
 #pragma GCC push_options
 #pragma GCC target ("arch=armv8.1-a")
@@ -11441,11 +11444,14 @@ vqrdmlshs_laneq_s32 (int32_t __a, int32_t __b, int32x4_t __c, const int __d)
 #pragma GCC pop_options
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #pragma GCC push_options
 #pragma GCC target ("+nothing+crypto")
 /* vaes  */

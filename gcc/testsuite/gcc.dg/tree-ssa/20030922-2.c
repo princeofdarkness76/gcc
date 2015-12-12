@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O1 -fdump-tree-dom1 -fdisable-tree-ifcombine" } */
 =======
 /* { dg-options "-O1 -fdump-tree-dom2 -fdisable-tree-ifcombine" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O1 -fdump-tree-dom2 -fdisable-tree-ifcombine" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O1 -fdump-tree-dom2 -fdisable-tree-ifcombine" } */
+>>>>>>> gcc-mirror/master
 
 struct rtx_def;
 typedef struct rtx_def *rtx;
@@ -39,6 +43,7 @@ rgn_rank (rtx insn1, rtx insn2)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if " 2 "dom1" { xfail *-*-* } } } */
 =======
 /* { dg-final { scan-tree-dump-times "if " 2 "dom2" { xfail *-*-* } } } */
@@ -49,3 +54,6 @@ rgn_rank (rtx insn1, rtx insn2)
 =======
 /* { dg-final { scan-tree-dump-times "if " 2 "dom2" { xfail *-*-* } } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "if " 2 "dom2" { xfail *-*-* } } } */
+>>>>>>> gcc-mirror/master

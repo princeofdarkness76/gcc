@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-10  David Malcolm  <dmalcolm@redhat.com>
 
 	* io.c (gfc_match_open): Fix indentation.
@@ -184,11 +187,14 @@
 	* simplify.c (gfc_simplify_cshift): Allow all EXPR_*.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-22  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/68486
@@ -235,6 +241,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin, 
 =======
 	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin,
@@ -245,6 +252,9 @@
 =======
 	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin,
 >>>>>>> gcc-mirror/trunk
+=======
+	(gfc_add_oacc_declare_create, gfc_add_oacc_declare_copyin,
+>>>>>>> gcc-mirror/master
 	gfc_add_oacc_declare_deviceptr, gfc_add_oacc_declare_device_resident):
 	New functions.
 	(gfc_copy_attr): Handle new symbols.
@@ -263,6 +273,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	due to inappropriate warning options. 
 =======
 	due to inappropriate warning options.
@@ -273,6 +284,9 @@
 =======
 	due to inappropriate warning options.
 >>>>>>> gcc-mirror/trunk
+=======
+	due to inappropriate warning options.
+>>>>>>> gcc-mirror/master
 
 2015-11-21  Steven G. Kargl  <kargl@gcc.gnu.org>
 
@@ -284,6 +298,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  
 =======
 
@@ -294,6 +309,9 @@
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 2015-11-20  Steven G. Kargl  <kargl@gcc.gnu.org>
 
 	PR fortran/68237

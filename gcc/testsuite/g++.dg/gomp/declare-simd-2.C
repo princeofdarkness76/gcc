@@ -56,6 +56,7 @@ int fn10 (int a);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma omp declare simd inbranch notinbranch
 int fn11 (int);		// { dg-error "clause is incompatible with" }
 
@@ -69,6 +70,8 @@ int fn12 (int);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #pragma omp declare simd inbranch notinbranch // { dg-error "clause is incompatible with" }
 int fn11 (int);
 
@@ -116,6 +119,7 @@ int f20 (int *a);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -123,3 +127,5 @@ int f20 (int *a);
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master

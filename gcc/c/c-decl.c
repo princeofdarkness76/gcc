@@ -5534,6 +5534,7 @@ grokdeclarator (const struct c_declarator *declarator,
   if (atomicp && TREE_CODE (type) == ARRAY_TYPE)
     error_at (loc, "%<_Atomic%>-qualified array type");
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /* Applying the _Atomic qualifier to an array type (through the use
      of typedefs or typeof) must be detected here.  If the qualifier
@@ -5550,6 +5551,8 @@ grokdeclarator (const struct c_declarator *declarator,
     error_at (loc, "%<_Atomic%>-qualified array type");
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* Warn about storage classes that are invalid for certain
      kinds of declarations (parameters, typenames, etc.).  */
@@ -6537,6 +6540,7 @@ grokdeclarator (const struct c_declarator *declarator,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	type = c_build_qualified_type (type, type_quals);
@@ -6548,6 +6552,10 @@ grokdeclarator (const struct c_declarator *declarator,
 	type = c_build_qualified_type (type, type_quals, orig_qual_type,
 				       orig_qual_indirect);
 >>>>>>> gcc-mirror/trunk
+=======
+	type = c_build_qualified_type (type, type_quals, orig_qual_type,
+				       orig_qual_indirect);
+>>>>>>> gcc-mirror/master
 	decl = build_decl (declarator->id_loc,
 			   FIELD_DECL, declarator->u.id, type);
 	DECL_NONADDRESSABLE_P (decl) = bitfield;
@@ -7047,6 +7055,7 @@ get_parm_info (bool ellipsis, tree expr)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
@@ -7057,6 +7066,9 @@ get_parm_info (bool ellipsis, tree expr)
 =======
 		warning_at (b->locus, 0,
 >>>>>>> gcc-mirror/trunk
+=======
+		warning_at (b->locus, 0,
+>>>>>>> gcc-mirror/master
 			    "%<%s %E%> declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword, b->id);
@@ -7065,6 +7077,7 @@ get_parm_info (bool ellipsis, tree expr)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
@@ -7075,6 +7088,9 @@ get_parm_info (bool ellipsis, tree expr)
 =======
 		warning_at (b->locus, 0,
 >>>>>>> gcc-mirror/trunk
+=======
+		warning_at (b->locus, 0,
+>>>>>>> gcc-mirror/master
 			    "anonymous %s declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword);

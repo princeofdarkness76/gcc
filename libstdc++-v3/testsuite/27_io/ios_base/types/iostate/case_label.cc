@@ -45,6 +45,7 @@ case_labels(bitmask_type b)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     case std::_S_ios_iostate_min:
       break;
     case std::_S_ios_iostate_max:
@@ -63,6 +64,11 @@ case_labels(bitmask_type b)
       break;
     case ~__INT_MAX__:
 >>>>>>> gcc-mirror/trunk
+=======
+    case __INT_MAX__:
+      break;
+    case ~__INT_MAX__:
+>>>>>>> gcc-mirror/master
       break;
     }
   static_assert( sizeof(std::underlying_type_t<bitmask_type>) == sizeof(int),

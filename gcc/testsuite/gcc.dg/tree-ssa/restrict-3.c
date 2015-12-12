@@ -16,6 +16,7 @@ void f(int * __restrict__ r,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Executing store motion of \\\*r" "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -26,3 +27,6 @@ void f(int * __restrict__ r,
 =======
 /* { dg-final { scan-tree-dump "Executing store motion of \\\*r" "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump "Executing store motion of \\\*r" "lim2" } } */
+>>>>>>> gcc-mirror/master

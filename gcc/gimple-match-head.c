@@ -264,6 +264,7 @@ build_call_internal (internal_fn fn, tree type, unsigned int nargs, tree *ops)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (!direct_internal_fn_supported_p (fn, types))
 =======
       if (!direct_internal_fn_supported_p (fn, types, OPTIMIZE_FOR_BOTH))
@@ -274,6 +275,9 @@ build_call_internal (internal_fn fn, tree type, unsigned int nargs, tree *ops)
 =======
       if (!direct_internal_fn_supported_p (fn, types, OPTIMIZE_FOR_BOTH))
 >>>>>>> gcc-mirror/trunk
+=======
+      if (!direct_internal_fn_supported_p (fn, types, OPTIMIZE_FOR_BOTH))
+>>>>>>> gcc-mirror/master
 	return NULL;
     }
   return gimple_build_call_internal (fn, nargs, ops[0], ops[1], ops[2]);

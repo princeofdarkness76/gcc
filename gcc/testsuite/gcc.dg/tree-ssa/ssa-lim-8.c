@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fdump-tree-lim1-details" } */
 =======
 /* { dg-options "-O -fdump-tree-lim2-details" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O -fdump-tree-lim2-details" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O -fdump-tree-lim2-details" } */
+>>>>>>> gcc-mirror/master
 
 void bar (int);
 void foo (int n, int m)
@@ -31,6 +35,7 @@ void foo (int n, int m)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim1"  } } */
 =======
 /* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim2"  } } */
@@ -41,3 +46,6 @@ void foo (int n, int m)
 =======
 /* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim2"  } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim2"  } } */
+>>>>>>> gcc-mirror/master

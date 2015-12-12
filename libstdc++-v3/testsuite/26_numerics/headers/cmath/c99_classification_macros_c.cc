@@ -23,6 +23,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-xfail-if "" { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[0-9]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } { "*" } { "" } }
 // { dg-excess-errors "" { target { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[0-9]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } } }
 =======
@@ -37,6 +38,10 @@
 // { dg-xfail-if "" { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[01]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } { "*" } { "" } }
 // { dg-excess-errors "" { target { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[01]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } } }
 >>>>>>> gcc-mirror/trunk
+=======
+// { dg-xfail-if "" { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[01]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } { "*" } { "" } }
+// { dg-excess-errors "" { target { { *-*-linux* *-*-gnu* *-*-darwin* *-*-solaris2.1[01]* hppa*-*-hpux* *-*-mingw* *-*-aix* } || { uclibc || newlib } } } }
+>>>>>>> gcc-mirror/master
 
 #include <math.h>
 

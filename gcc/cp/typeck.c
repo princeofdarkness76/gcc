@@ -5117,6 +5117,7 @@ cp_build_binary_op (location_t location,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   result = build2 (resultcode, build_type, op0, op1);
 =======
   result = build2_loc (location, resultcode, build_type, op0, op1);
@@ -5127,6 +5128,9 @@ cp_build_binary_op (location_t location,
 =======
   result = build2_loc (location, resultcode, build_type, op0, op1);
 >>>>>>> gcc-mirror/trunk
+=======
+  result = build2_loc (location, resultcode, build_type, op0, op1);
+>>>>>>> gcc-mirror/master
   if (final_type != 0)
     result = cp_convert (final_type, result, complain);
 
@@ -6608,6 +6612,7 @@ build_static_cast_1 (tree type, tree expr, bool c_cast_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type, expr);
 =======
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
@@ -6620,6 +6625,10 @@ build_static_cast_1 (tree type, tree expr, bool c_cast_p,
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
 						  intype, expr);
 >>>>>>> gcc-mirror/trunk
+=======
+	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
+						  intype, expr);
+>>>>>>> gcc-mirror/master
 	  if (ubsan_check)
 	    expr = ubsan_check;
 	}
@@ -6769,6 +6778,7 @@ build_static_cast_1 (tree type, tree expr, bool c_cast_p,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type, expr);
 =======
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
@@ -6781,6 +6791,10 @@ build_static_cast_1 (tree type, tree expr, bool c_cast_p,
 	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
 						  intype, expr);
 >>>>>>> gcc-mirror/trunk
+=======
+	    = cp_ubsan_maybe_instrument_downcast (input_location, type,
+						  intype, expr);
+>>>>>>> gcc-mirror/master
 	  if (ubsan_check)
 	    expr = ubsan_check;
 	}

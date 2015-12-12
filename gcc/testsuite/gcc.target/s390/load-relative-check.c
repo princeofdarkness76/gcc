@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* { dg-options "-O2 -march=z10" } */
@@ -15,6 +16,8 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* { dg-options "-O2 -march=z10 -mzarch" } */
 
 /* { dg-final { scan-assembler "lgfrl\t%r.?,b.4" { target { lp64 } } } } */
@@ -25,11 +28,14 @@
 /* { dg-final { scan-assembler "lrl\t%r.?,s.8" { target { ! lp64 } } } } */
 /* { dg-final { scan-assembler "lrl\t%r.?,s" { target { ! lp64 } } } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 int b[20];
 

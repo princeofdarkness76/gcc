@@ -36,9 +36,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
  *
  * As indicated by the std::experimental namespace and the  header paths,
  * the contents of these Technical Specifications are experimental and not
@@ -46,11 +49,14 @@
  * change in the future, and there is <STRONG> no guarantee of compatibility
  * between different GCC releases </STRONG> for these features.
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
  */
 
 #if __cplusplus <= 201103L

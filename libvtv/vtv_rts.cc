@@ -153,6 +153,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 #if defined (__CYGWIN__) || defined (__MINGW32__)
@@ -166,17 +167,22 @@ void __fortify_fail (const char * msg){
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #ifdef HAVE_GETEXECNAME
 const char *program_invocation_name;
 #endif
 
 #ifdef HAVE___FORTIFY_FAIL
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 extern "C" {
 
   /* __fortify_fail is a function in glibc that calls __libc_message,
@@ -196,9 +202,12 @@ extern "C" {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #else
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 // porting: fix link error to libc
@@ -214,11 +223,14 @@ void __fortify_fail (const char *msg) {
 }
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 #endif
 
 /* The following variables are used only for debugging and performance
@@ -622,6 +634,7 @@ read_section_offset_and_length (struct dl_phdr_info *info,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef HAVE_GETEXECNAME
   program_invocation_name = getexecname ();
@@ -634,6 +647,11 @@ read_section_offset_and_length (struct dl_phdr_info *info,
   program_invocation_name = getexecname ();
 #endif
 >>>>>>> gcc-mirror/trunk
+=======
+#ifdef HAVE_GETEXECNAME
+  program_invocation_name = getexecname ();
+#endif
+>>>>>>> gcc-mirror/master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   /* Check to see if we already have the data for this file.  */
@@ -727,14 +745,18 @@ read_section_offset_and_length (struct dl_phdr_info *info,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		    *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		    {
 		      VTV_ASSERT (sect_hdr.sh_size - VTV_PAGE_SIZE >= 0);
 		      *sect_len = sect_hdr.sh_size - VTV_PAGE_SIZE;
 		    }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
@@ -742,6 +764,8 @@ read_section_offset_and_length (struct dl_phdr_info *info,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  else
 		    *sect_len = sect_hdr.sh_size;
                   found = true;
@@ -865,6 +889,7 @@ iterate_modules (void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     "Failed called to mprotect for %s error: ",
 =======
                                     "Failed call to mprotect for %s error: ",
@@ -875,6 +900,9 @@ iterate_modules (void *data)
 =======
                                     "Failed call to mprotect for %s error: ",
 >>>>>>> gcc-mirror/trunk
+=======
+                                    "Failed call to mprotect for %s error: ",
+>>>>>>> gcc-mirror/master
                                     (*mprotect_flags & PROT_WRITE) ?
                                     "READ/WRITE" : "READ-ONLY");
                           log_memory_protection_data (buffer);
@@ -897,6 +925,7 @@ iterate_modules (void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
                                             / VTV_PAGE_SIZE; */
                   num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
@@ -913,6 +942,10 @@ iterate_modules (void *data)
                   num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
 		    / VTV_PAGE_SIZE;
 >>>>>>> gcc-mirror/trunk
+=======
+                  num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) 
+		    / VTV_PAGE_SIZE;
+>>>>>>> gcc-mirror/master
                   continue;
                 }
             }
@@ -962,6 +995,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef HAVE_GETEXECNAME
   program_invocation_name = getexecname ();
@@ -974,6 +1008,11 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
   program_invocation_name = getexecname ();
 #endif
 >>>>>>> gcc-mirror/trunk
+=======
+#ifdef HAVE_GETEXECNAME
+  program_invocation_name = getexecname ();
+#endif
+>>>>>>> gcc-mirror/master
   snprintf (program_name, sizeof (program_name), program_invocation_name);
 
   read_section_offset_and_length (info, map_sect_name, *mprotect_flags,
@@ -1020,6 +1059,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                         "Failed called to mprotect for %s error: ",
 =======
                         "Failed call to mprotect for %s error: ",
@@ -1030,6 +1070,9 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
 =======
                         "Failed call to mprotect for %s error: ",
 >>>>>>> gcc-mirror/trunk
+=======
+                        "Failed call to mprotect for %s error: ",
+>>>>>>> gcc-mirror/master
                         (*mprotect_flags & PROT_WRITE) ?
                         "READ/WRITE" : "READ-ONLY");
               log_memory_protection_data (buffer);
@@ -1052,6 +1095,7 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE; */
       num_pages_protected += (map_sect_len + 4096 - 1) / 4096;
 =======
@@ -1064,6 +1108,9 @@ dl_iterate_phdr_callback (struct dl_phdr_info *info, size_t, void *data)
 =======
       num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE;
 >>>>>>> gcc-mirror/trunk
+=======
+      num_pages_protected += (map_sect_len + VTV_PAGE_SIZE - 1) / VTV_PAGE_SIZE;
+>>>>>>> gcc-mirror/master
     }
 
   return 0;
@@ -1203,6 +1250,7 @@ __VLTChangePermission (int perm)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fprintf (stdout, "Changing VLT permisisons to Read-Write.\n");
       else if (perm == __VLTP_READ_ONLY)
 	fprintf (stdout, "Changing VLT permissions to Read-only.\n");
@@ -1221,6 +1269,11 @@ __VLTChangePermission (int perm)
       else if (perm == __VLTP_READ_ONLY)
 	fprintf (stdout, "Changing VLT permissions to Read-Only.\n");
 >>>>>>> gcc-mirror/trunk
+=======
+	fprintf (stdout, "Changing VLT permissions to Read-Write.\n");
+      else if (perm == __VLTP_READ_ONLY)
+	fprintf (stdout, "Changing VLT permissions to Read-Only.\n");
+>>>>>>> gcc-mirror/master
 
       else
 	fprintf (stdout, "Unrecognized permissions value: %d\n", perm);

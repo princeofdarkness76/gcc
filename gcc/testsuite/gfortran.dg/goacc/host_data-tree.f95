@@ -11,6 +11,7 @@ end program test
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-prune-output "unimplemented" }
 =======
 >>>>>>> gcc-mirror/master
@@ -19,4 +20,6 @@ end program test
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 ! { dg-final { scan-tree-dump-times "pragma acc host_data use_device\\(i\\)" 1 "original" } } 

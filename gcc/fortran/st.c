@@ -207,6 +207,7 @@ gfc_free_statement (gfc_code *p)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/master
@@ -215,6 +216,9 @@ gfc_free_statement (gfc_code *p)
 =======
     case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/trunk
+=======
+    case EXEC_OACC_ROUTINE:
+>>>>>>> gcc-mirror/master
     case EXEC_OMP_CANCEL:
     case EXEC_OMP_CANCELLATION_POINT:
     case EXEC_OMP_DISTRIBUTE:

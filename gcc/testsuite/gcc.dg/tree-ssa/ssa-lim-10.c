@@ -29,6 +29,7 @@ int test_func(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Executing store motion of pos" "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -39,3 +40,6 @@ int test_func(void)
 =======
 /* { dg-final { scan-tree-dump "Executing store motion of pos" "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump "Executing store motion of pos" "lim2" } } */
+>>>>>>> gcc-mirror/master

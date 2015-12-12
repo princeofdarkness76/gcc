@@ -96,6 +96,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <clzerointrin.h>
 
@@ -106,6 +107,10 @@
 #include <clzerointrin.h>
 
 >>>>>>> gcc-mirror/trunk
+=======
+#include <clzerointrin.h>
+
+>>>>>>> gcc-mirror/master
 #endif /* __iamcu__ */
 
 #endif /* _X86INTRIN_H_INCLUDED */

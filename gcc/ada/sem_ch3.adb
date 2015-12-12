@@ -2510,6 +2510,7 @@ package body Sem_Ch3 is
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             --  State refinements are visible upto the end the of the package
             --  body declarations. Hide the state refinements from visibility
             --  to restore the original state conditions.
@@ -2528,6 +2529,11 @@ package body Sem_Ch3 is
             --  declarations. Hide the state refinements from visibility to
             --  restore the original state conditions.
 >>>>>>> gcc-mirror/trunk
+=======
+            --  State refinements are visible up to the end of the package body
+            --  declarations. Hide the state refinements from visibility to
+            --  restore the original state conditions.
+>>>>>>> gcc-mirror/master
 
             Remove_Visible_Refinements (Corresponding_Spec (Context));
          end if;

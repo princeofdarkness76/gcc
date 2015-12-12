@@ -52,6 +52,7 @@ static bool conditional_replacement (basic_block, basic_block,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static bool factor_out_conditional_conversion (edge, edge, gphi *, tree, tree);
 =======
 static gphi *factor_out_conditional_conversion (edge, edge, gphi *, tree, tree);
@@ -62,6 +63,9 @@ static bool factor_out_conditional_conversion (edge, edge, gphi *, tree, tree);
 =======
 static gphi *factor_out_conditional_conversion (edge, edge, gphi *, tree, tree);
 >>>>>>> gcc-mirror/trunk
+=======
+static gphi *factor_out_conditional_conversion (edge, edge, gphi *, tree, tree);
+>>>>>>> gcc-mirror/master
 static int value_replacement (basic_block, basic_block,
 			      edge, edge, gimple *, tree, tree);
 static bool minmax_replacement (basic_block, basic_block,
@@ -337,6 +341,7 @@ tree_ssa_phiopt_worker (bool do_store_elim, bool do_hoist_loads)
 	      gcc_assert (arg0 != NULL_TREE && arg1 != NULL_TREE);
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  if (factor_out_conditional_conversion (e1, e2, phi, arg0, arg1))
 	    {
@@ -365,6 +370,8 @@ tree_ssa_phiopt_worker (bool do_store_elim, bool do_hoist_loads)
 	    }
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 	  /* Do the replacement of conditional if it can be done.  */
 	  if (conditional_replacement (bb, bb1, e1, e2, phi, arg0, arg1))
@@ -446,6 +453,7 @@ replace_phi_edge_with_variable (basic_block cond_block,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    to the result of PHI stmt.  */
 
 static bool
@@ -464,6 +472,11 @@ static bool
 
 static gphi *
 >>>>>>> gcc-mirror/trunk
+=======
+   to the result of PHI stmt.  Return the newly-created PHI, if any.  */
+
+static gphi *
+>>>>>>> gcc-mirror/master
 factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 				   tree arg0, tree arg1)
 {
@@ -483,6 +496,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
     return NULL;
@@ -493,6 +507,9 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   /* First canonicalize to simplify tests.  */
   if (TREE_CODE (arg0) != SSA_NAME)
@@ -507,6 +524,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
     return NULL;
@@ -517,6 +535,9 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   /* Check if arg0 is an SSA_NAME and the stmt which defines arg0 is
      a conversion.  */
@@ -526,6 +547,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
     return NULL;
@@ -536,6 +558,9 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
     return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+    return NULL;
+>>>>>>> gcc-mirror/master
 
   /* Use the RHS as new_arg0.  */
   convert_code = gimple_assign_rhs_code (arg0_def_stmt);
@@ -553,6 +578,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return false;
 =======
 	return NULL;
@@ -563,6 +589,9 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
 	return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+	return NULL;
+>>>>>>> gcc-mirror/master
 
       /* Use the RHS as new_arg1.  */
       new_arg1 = gimple_assign_rhs1 (arg1_def_stmt);
@@ -581,6 +610,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	    return false;
@@ -591,16 +621,21 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	    return NULL;
 	}
       else
 	return NULL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     }
 
   /*  If arg0/arg1 have > 1 use, then this transformation actually increases
@@ -610,6 +645,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     return false;
@@ -621,17 +657,22 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
     return NULL;
 
   /* If types of new_arg0 and new_arg1 are different bailout.  */
   if (!types_compatible_p (TREE_TYPE (new_arg0), TREE_TYPE (new_arg1)))
     return NULL;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
   /* Create a new PHI stmt.  */
   result = PHI_RESULT (phi);
@@ -677,6 +718,7 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return true;
 =======
   return newphi;
@@ -687,6 +729,9 @@ factor_out_conditional_conversion (edge e0, edge e1, gphi *phi,
 =======
   return newphi;
 >>>>>>> gcc-mirror/trunk
+=======
+  return newphi;
+>>>>>>> gcc-mirror/master
 }
 
 /*  The function conditional_replacement does the main work of doing the
@@ -1603,6 +1648,7 @@ struct ssa_names_hasher : free_ptr_hash <name_to_bb>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 {
@@ -1862,6 +1908,100 @@ nontrapping_dom_walker::before_dom_children (basic_block bb)
   edge e;
   edge_iterator ei;
   gimple_stmt_iterator gsi;
+=======
+{
+  static inline hashval_t hash (const name_to_bb *);
+  static inline bool equal (const name_to_bb *, const name_to_bb *);
+};
+>>>>>>> gcc-mirror/master
+
+  /* If we haven't seen all our predecessors, clear the hash-table.  */
+  FOR_EACH_EDGE (e, ei, bb->preds)
+    if ((((size_t)e->src->aux) & 2) == 0)
+      {
+	nt_call_phase++;
+	break;
+      }
+
+<<<<<<< HEAD
+  /* Mark this BB as being on the path to dominator root and as visited.  */
+  bb->aux = (void*)(1 | 2);
+
+  /* And walk the statements in order.  */
+  for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+    {
+      gimple *stmt = gsi_stmt (gsi);
+
+      if ((gimple_code (stmt) == GIMPLE_ASM && gimple_vdef (stmt))
+	  || (is_gimple_call (stmt)
+	      && (!nonfreeing_call_p (stmt) || !nonbarrier_call_p (stmt))))
+	nt_call_phase++;
+      else if (gimple_assign_single_p (stmt) && !gimple_has_volatile_ops (stmt))
+	{
+	  add_or_mark_expr (bb, gimple_assign_lhs (stmt), true);
+	  add_or_mark_expr (bb, gimple_assign_rhs1 (stmt), false);
+	}
+    }
+  return NULL;
+}
+
+/* Called by walk_dominator_tree, when basic block BB is exited.  */
+void
+nontrapping_dom_walker::after_dom_children (basic_block bb)
+=======
+/* The hash function.  */
+
+inline hashval_t
+ssa_names_hasher::hash (const name_to_bb *n)
+{
+  return n->ssa_name_ver ^ (((hashval_t) n->store) << 31)
+         ^ (n->offset << 6) ^ (n->size << 3);
+}
+
+/* The equality function of *P1 and *P2.  */
+
+inline bool
+ssa_names_hasher::equal (const name_to_bb *n1, const name_to_bb *n2)
+>>>>>>> gcc-mirror/master
+{
+  /* This BB isn't on the path to dominator root anymore.  */
+  bb->aux = (void*)2;
+}
+
+<<<<<<< HEAD
+>>>>>>> gcc-mirror/trunk
+=======
+class nontrapping_dom_walker : public dom_walker
+{
+public:
+  nontrapping_dom_walker (cdi_direction direction, hash_set<tree> *ps)
+    : dom_walker (direction), m_nontrapping (ps), m_seen_ssa_names (128) {}
+
+  virtual edge before_dom_children (basic_block);
+  virtual void after_dom_children (basic_block);
+
+private:
+
+  /* We see the expression EXP in basic block BB.  If it's an interesting
+     expression (an MEM_REF through an SSA_NAME) possibly insert the
+     expression into the set NONTRAP or the hash table of seen expressions.
+     STORE is true if this expression is on the LHS, otherwise it's on
+     the RHS.  */
+  void add_or_mark_expr (basic_block, tree, bool);
+
+  hash_set<tree> *m_nontrapping;
+
+  /* The hash table for remembering what we've seen.  */
+  hash_table<ssa_names_hasher> m_seen_ssa_names;
+};
+
+/* Called by walk_dominator_tree, when entering the block BB.  */
+edge
+nontrapping_dom_walker::before_dom_children (basic_block bb)
+{
+  edge e;
+  edge_iterator ei;
+  gimple_stmt_iterator gsi;
 
   /* If we haven't seen all our predecessors, clear the hash-table.  */
   FOR_EACH_EDGE (e, ei, bb->preds)
@@ -1900,7 +2040,7 @@ nontrapping_dom_walker::after_dom_children (basic_block bb)
   bb->aux = (void*)2;
 }
 
->>>>>>> gcc-mirror/trunk
+>>>>>>> gcc-mirror/master
 /* We see the expression EXP in basic block BB.  If it's an interesting
    expression (an MEM_REF through an SSA_NAME) possibly insert the
    expression into the set NONTRAP or the hash table of seen expressions.

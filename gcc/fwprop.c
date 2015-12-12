@@ -211,6 +211,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   virtual void before_dom_children (basic_block);
@@ -235,6 +236,13 @@ edge
 
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+  virtual void after_dom_children (basic_block);
+};
+
+edge
+>>>>>>> gcc-mirror/master
 single_def_use_dom_walker::before_dom_children (basic_block bb)
 {
   int bb_index = bb->index;

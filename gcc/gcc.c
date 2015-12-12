@@ -1019,6 +1019,7 @@ proper position among the other output files.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     %{s} %{t} %{u*} %{z} %{Z} %{!nostdlib:%{!nostartfiles:%S}} " VTABLE_VERIFICATION_SPEC " \
     %{static:} %{L*} %(mfwrap) %(link_libgcc) " SANITIZER_EARLY_SPEC " %o\
     " CHKP_SPEC " \
@@ -1037,6 +1038,11 @@ proper position among the other output files.  */
     %{static:} %{L*} %(mfwrap) %(link_libgcc) " \
     VTABLE_VERIFICATION_SPEC " " SANITIZER_EARLY_SPEC " %o " CHKP_SPEC " \
 >>>>>>> gcc-mirror/trunk
+=======
+    %{s} %{t} %{u*} %{z} %{Z} %{!nostdlib:%{!nostartfiles:%S}} \
+    %{static:} %{L*} %(mfwrap) %(link_libgcc) " \
+    VTABLE_VERIFICATION_SPEC " " SANITIZER_EARLY_SPEC " %o " CHKP_SPEC " \
+>>>>>>> gcc-mirror/master
     %{fopenacc|fopenmp|%:gt(%{ftree-parallelize-loops=*} 1):\
 	%:include(libgomp.spec)%(link_gomp)}\
     %{fcilkplus:%:include(libcilkrts.spec)%(link_cilkrts)}\
@@ -7164,6 +7170,7 @@ driver::main (int argc, char **argv)
   if (early_exit)
     return get_exit_code ();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   do_spec_on_infiles ();
   maybe_run_linker (argv[0]);
@@ -7183,6 +7190,18 @@ driver::main (int argc, char **argv)
 /* Locate the final component of argv[0] after any leading path, and set
    the program name accordingly.  */
 
+=======
+
+  do_spec_on_infiles ();
+  maybe_run_linker (argv[0]);
+  final_actions ();
+  return get_exit_code ();
+}
+
+/* Locate the final component of argv[0] after any leading path, and set
+   the program name accordingly.  */
+
+>>>>>>> gcc-mirror/master
 void
 driver::set_progname (const char *argv0) const
 {
@@ -7209,16 +7228,22 @@ driver::expand_at_files (int *argc, char ***argv) const
     at_file_supplied = true;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Decode the command-line arguments from argc/argv into the
    decoded_options array.  */
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 /* Decode the command-line arguments from argc/argv into the
    decoded_options array.  */
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 void
 driver::decode_argv (int argc, const char **argv)
 {
@@ -7233,6 +7258,7 @@ driver::decode_argv (int argc, const char **argv)
 				   &decoded_options, &decoded_options_count);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Perform various initializations and setup.  */
 
@@ -7241,6 +7267,11 @@ driver::decode_argv (int argc, const char **argv)
 /* Perform various initializations and setup.  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* Perform various initializations and setup.  */
+
+>>>>>>> gcc-mirror/master
 void
 driver::global_initializations ()
 {
@@ -7288,16 +7319,22 @@ driver::global_initializations ()
   obstack_init (&obstack);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Build multilib_select, et. al from the separate lines that make up each
    multilib selection.  */
 
 =======
+=======
+>>>>>>> gcc-mirror/master
 
 /* Build multilib_select, et. al from the separate lines that make up each
    multilib selection.  */
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 void
 driver::build_multilib_strings () const
 {
@@ -7610,6 +7647,7 @@ driver::putenv_COLLECT_GCC (const char *argv0) const
   xputenv (XOBFINISH (&collect_obstack, char *));
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Set up to remember the pathname of the lto wrapper. */
 
@@ -7618,6 +7656,11 @@ driver::putenv_COLLECT_GCC (const char *argv0) const
 /* Set up to remember the pathname of the lto wrapper. */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* Set up to remember the pathname of the lto wrapper. */
+
+>>>>>>> gcc-mirror/master
 void
 driver::maybe_putenv_COLLECT_LTO_WRAPPER () const
 {
@@ -7642,6 +7685,9 @@ driver::maybe_putenv_COLLECT_LTO_WRAPPER () const
 
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
 /* Set up to remember the names of offload targets.  */
 
@@ -7663,6 +7709,7 @@ driver::maybe_putenv_OFFLOAD_TARGETS () const
 
 /* Helper function for driver::handle_unrecognized_options.
 
+<<<<<<< HEAD
 =======
 
 /* Set up to remember the names of offload targets.  */
@@ -7686,6 +7733,8 @@ driver::maybe_putenv_OFFLOAD_TARGETS () const
 /* Helper function for driver::handle_unrecognized_options.
 
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    Given an unrecognized option BAD_OPT (without the leading dash),
    locate the closest reasonable matching option (again, without the
    leading dash), or NULL.  */
@@ -8219,6 +8268,7 @@ driver::maybe_run_linker (const char *argv0) const
 		 outfiles[i]);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* The end of "main".  */
 
@@ -8227,6 +8277,11 @@ driver::maybe_run_linker (const char *argv0) const
 /* The end of "main".  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* The end of "main".  */
+
+>>>>>>> gcc-mirror/master
 void
 driver::final_actions () const
 {
@@ -8243,6 +8298,7 @@ driver::final_actions () const
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Determine what the exit code of the driver should be.  */
 
@@ -8251,6 +8307,11 @@ driver::final_actions () const
 /* Determine what the exit code of the driver should be.  */
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+/* Determine what the exit code of the driver should be.  */
+
+>>>>>>> gcc-mirror/master
 int
 driver::get_exit_code () const
 {

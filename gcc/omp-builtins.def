@@ -50,6 +50,7 @@ DEF_GOACC_BUILTIN (BUILT_IN_GOACC_WAIT, "GOACC_wait",
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 DEF_GOACC_BUILTIN (BUILT_IN_GOACC_HOST_DATA, "GOACC_host_data",
 		   BT_FN_VOID_INT_SIZE_PTR_PTR_PTR, ATTR_NOTHROW_LIST)
@@ -60,6 +61,10 @@ DEF_GOACC_BUILTIN (BUILT_IN_GOACC_HOST_DATA, "GOACC_host_data",
 DEF_GOACC_BUILTIN (BUILT_IN_GOACC_HOST_DATA, "GOACC_host_data",
 		   BT_FN_VOID_INT_SIZE_PTR_PTR_PTR, ATTR_NOTHROW_LIST)
 >>>>>>> gcc-mirror/trunk
+=======
+DEF_GOACC_BUILTIN (BUILT_IN_GOACC_HOST_DATA, "GOACC_host_data",
+		   BT_FN_VOID_INT_SIZE_PTR_PTR_PTR, ATTR_NOTHROW_LIST)
+>>>>>>> gcc-mirror/master
 
 DEF_GOACC_BUILTIN_COMPILER (BUILT_IN_ACC_ON_DEVICE, "acc_on_device",
 			    BT_FN_INT_INT, ATTR_CONST_NOTHROW_LEAF_LIST)
@@ -94,6 +99,7 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CANCEL, "GOMP_cancel",
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		  BT_FN_VOID_INT, ATTR_NULL)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CANCELLATION_POINT, "GOMP_cancellation_point",
 		  BT_FN_VOID_INT, ATTR_NULL)
@@ -117,6 +123,11 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CANCELLATION_POINT, "GOMP_cancellation_point",
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CANCELLATION_POINT, "GOMP_cancellation_point",
 		  BT_FN_BOOL_INT, ATTR_NOTHROW_LEAF_LIST)
 >>>>>>> gcc-mirror/trunk
+=======
+		  BT_FN_BOOL_INT_BOOL, ATTR_NOTHROW_LEAF_LIST)
+DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CANCELLATION_POINT, "GOMP_cancellation_point",
+		  BT_FN_BOOL_INT, ATTR_NOTHROW_LEAF_LIST)
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CRITICAL_START, "GOMP_critical_start",
 		  BT_FN_VOID, ATTR_NOTHROW_LEAF_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_CRITICAL_END, "GOMP_critical_end",
@@ -273,6 +284,7 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_STATIC_NEXT,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_DYNAMIC_NEXT,
 		  "GOMP_loop_ull_dynamic_next",
@@ -312,12 +324,22 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_GUIDED_NEXT,
 		  "GOMP_loop_ull_guided_next",
 		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
 >>>>>>> gcc-mirror/trunk
+=======
+		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
+DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_DYNAMIC_NEXT,
+		  "GOMP_loop_ull_dynamic_next",
+		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
+DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_GUIDED_NEXT,
+		  "GOMP_loop_ull_guided_next",
+		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_RUNTIME_NEXT,
 		  "GOMP_loop_ull_runtime_next",
 		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_NONMONOTONIC_DYNAMIC_NEXT,
 		  "GOMP_loop_ull_nonmonotonic_dynamic_next",
 		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -325,6 +347,8 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_NONMONOTONIC_DYNAMIC_NEXT,
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_ULL_NONMONOTONIC_GUIDED_NEXT,
 		  "GOMP_loop_ull_nonmonotonic_guided_next",
 		  BT_FN_BOOL_ULONGLONGPTR_ULONGLONGPTR, ATTR_NOTHROW_LEAF_LIST)
@@ -350,16 +374,20 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_STATIC,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  ATTR_NOTHROW_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_DYNAMIC,
 		  "GOMP_parallel_loop_dynamic",
 		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -425,6 +453,17 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_RUNTIME,
 		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_UINT,
 		  ATTR_NOTHROW_LIST)
 >>>>>>> gcc-mirror/trunk
+=======
+		  ATTR_NOTHROW_LIST)
+DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_GUIDED,
+		  "GOMP_parallel_loop_guided",
+		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
+		  ATTR_NOTHROW_LIST)
+DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_RUNTIME,
+		  "GOMP_parallel_loop_runtime",
+		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_UINT,
+		  ATTR_NOTHROW_LIST)
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_NONMONOTONIC_DYNAMIC,
 		  "GOMP_parallel_loop_nonmonotonic_dynamic",
 		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
@@ -434,11 +473,14 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL_LOOP_NONMONOTONIC_GUIDED,
 		  BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 		  ATTR_NOTHROW_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_LOOP_END, "GOMP_loop_end",
 		  BT_FN_VOID, ATTR_NOTHROW_LEAF_LIST)
@@ -454,6 +496,7 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_ORDERED_END, "GOMP_ordered_end",
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
@@ -461,6 +504,8 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_ORDERED_END, "GOMP_ordered_end",
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_DOACROSS_POST, "GOMP_doacross_post",
 		  BT_FN_VOID_PTR, ATTR_NOTHROW_LEAF_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_DOACROSS_WAIT, "GOMP_doacross_wait",
@@ -472,6 +517,7 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_DOACROSS_ULL_WAIT, "GOMP_doacross_ull_wait",
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
@@ -479,6 +525,8 @@ DEF_GOMP_BUILTIN (BUILT_IN_GOMP_DOACROSS_ULL_WAIT, "GOMP_doacross_ull_wait",
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_PARALLEL, "GOMP_parallel",
 		  BT_FN_VOID_OMPFN_PTR_UINT_UINT, ATTR_NOTHROW_LIST)
 DEF_GOMP_BUILTIN (BUILT_IN_GOMP_TASK, "GOMP_task",

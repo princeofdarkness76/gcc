@@ -259,6 +259,7 @@ LIBGODEP = $(libgodir)/libgo.la
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @NATIVE_TRUE@GOCOMPILER = $(GOC_FOR_TARGET)
 =======
 @NATIVE_TRUE@GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
@@ -269,6 +270,9 @@ LIBGODEP = $(libgodir)/libgo.la
 =======
 @NATIVE_TRUE@GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
 >>>>>>> gcc-mirror/trunk
+=======
+@NATIVE_TRUE@GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
+>>>>>>> gcc-mirror/master
 GOCOMPILE = $(GOCOMPILER) $(GOCFLAGS)
 AM_LDFLAGS = -L $(libgodir) -L $(libgodir)/.libs
 GOLINK = $(GOCOMPILER) $(GOCFLAGS) $(AM_GOCFLAGS) $(LDFLAGS) $(AM_LDFLAGS) -o $@
@@ -578,6 +582,7 @@ maintainer-clean-generic:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @NATIVE_FALSE@uninstall-local:
 @NATIVE_FALSE@install-exec-local:
 =======
@@ -592,6 +597,10 @@ maintainer-clean-generic:
 @NATIVE_FALSE@install-exec-local:
 @NATIVE_FALSE@uninstall-local:
 >>>>>>> gcc-mirror/trunk
+=======
+@NATIVE_FALSE@install-exec-local:
+@NATIVE_FALSE@uninstall-local:
+>>>>>>> gcc-mirror/master
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-noinstPROGRAMS \

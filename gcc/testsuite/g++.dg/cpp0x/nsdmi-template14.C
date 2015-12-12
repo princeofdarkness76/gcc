@@ -11,6 +11,7 @@ template<int N> struct B
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   B* p = new B<N>;
@@ -21,16 +22,21 @@ B<1> x; // { dg-error "recursive instantiation of non-static data" }
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   B* p = new B<N>; // { dg-error "recursive instantiation of non-static data" }
 };
 
 B<1> x;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 struct C
 {

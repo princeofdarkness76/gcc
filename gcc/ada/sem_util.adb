@@ -3793,6 +3793,7 @@ package body Sem_Util is
       -------------------------------
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       procedure Report_Unused_Body_States (States : Elist_Id) is
          Posted     : Boolean := False;
@@ -3804,15 +3805,21 @@ package body Sem_Util is
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
       procedure Report_Unused_Body_States (States : Elist_Id) is
          Posted     : Boolean := False;
          State_Elmt : Elmt_Id;
          State_Id   : Entity_Id;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
       begin
          if Present (States) then
             State_Elmt := First_Elmt (States);
@@ -4746,226 +4753,8 @@ package body Sem_Util is
       --  Determine whether a global list mentions a state with a visible
       --  refinement.
 <<<<<<< HEAD
-
-      function Is_Refined_State (Item : Node_Id) return Boolean;
-      --  Determine whether Item is a reference to an abstract state with a
-      --  visible refinement.
-
-      -----------------------------
-      -- Has_State_In_Dependency --
-      -----------------------------
-
-      function Has_State_In_Dependency (List : Node_Id) return Boolean is
-         Clause : Node_Id;
-         Output : Node_Id;
-
-      begin
-         --  A null dependency list does not mention any states
-
-         if Nkind (List) = N_Null then
-            return False;
-
-         --  Dependency clauses appear as component associations of an
-         --  aggregate.
-
-         elsif Nkind (List) = N_Aggregate
-           and then Present (Component_Associations (List))
-         then
-            Clause := First (Component_Associations (List));
-            while Present (Clause) loop
-
-               --  Inspect the outputs of a dependency clause
-
-               Output := First (Choices (Clause));
-               while Present (Output) loop
-                  if Is_Refined_State (Output) then
-                     return True;
-                  end if;
-
-                  Next (Output);
-               end loop;
-
-               --  Inspect the outputs of a dependency clause
-
-               if Is_Refined_State (Expression (Clause)) then
-                  return True;
-               end if;
-
-               Next (Clause);
-            end loop;
-
-            --  If we get here, then none of the dependency clauses mention a
-            --  state with visible refinement.
-
-            return False;
-
-         --  An illegal pragma managed to sneak in
-
-         else
-            raise Program_Error;
-         end if;
-      end Has_State_In_Dependency;
-
-      -------------------------
-      -- Has_State_In_Global --
-      -------------------------
-
-      function Has_State_In_Global (List : Node_Id) return Boolean is
-         Item : Node_Id;
-
-      begin
-         --  A null global list does not mention any states
-
-         if Nkind (List) = N_Null then
-            return False;
-
-         --  Simple global list or moded global list declaration
-
-         elsif Nkind (List) = N_Aggregate then
-
-            --  The declaration of a simple global list appear as a collection
-            --  of expressions.
-
-            if Present (Expressions (List)) then
-               Item := First (Expressions (List));
-               while Present (Item) loop
-                  if Is_Refined_State (Item) then
-                     return True;
-                  end if;
-
-                  Next (Item);
-               end loop;
-
-            --  The declaration of a moded global list appears as a collection
-            --  of component associations where individual choices denote
-            --  modes.
-
-            else
-               Item := First (Component_Associations (List));
-               while Present (Item) loop
-                  if Has_State_In_Global (Expression (Item)) then
-                     return True;
-                  end if;
-
-                  Next (Item);
-               end loop;
-            end if;
-
-            --  If we get here, then the simple/moded global list did not
-            --  mention any states with a visible refinement.
-
-            return False;
-
-         --  Single global item declaration
-
-         elsif Is_Entity_Name (List) then
-            return Is_Refined_State (List);
-
-         --  An illegal pragma managed to sneak in
-
-         else
-            raise Program_Error;
-         end if;
-      end Has_State_In_Global;
-
-      ----------------------
-      -- Is_Refined_State --
-      ----------------------
-
-      function Is_Refined_State (Item : Node_Id) return Boolean is
-         Elmt    : Node_Id;
-         Item_Id : Entity_Id;
-
-      begin
-         if Nkind (Item) = N_Null then
-            return False;
-
-         --  States cannot be subject to attribute 'Result. This case arises
-         --  in dependency relations.
-
-         elsif Nkind (Item) = N_Attribute_Reference
-           and then Attribute_Name (Item) = Name_Result
-         then
-            return False;
-
-         --  Multiple items appear as an aggregate. This case arises in
-         --  dependency relations.
-
-         elsif Nkind (Item) = N_Aggregate
-           and then Present (Expressions (Item))
-         then
-            Elmt := First (Expressions (Item));
-            while Present (Elmt) loop
-               if Is_Refined_State (Elmt) then
-                  return True;
-               end if;
-
-               Next (Elmt);
-            end loop;
-
-            --  If we get here, then none of the inputs or outputs reference a
-            --  state with visible refinement.
-
-            return False;
-
-         --  Single item
-
-         else
-            Item_Id := Entity_Of (Item);
-
-            return
-              Present (Item_Id)
-                and then Ekind (Item_Id) = E_Abstract_State
-                and then Has_Visible_Refinement (Item_Id);
-         end if;
-      end Is_Refined_State;
-
-      --  Local variables
-
-      Arg : constant Node_Id :=
-              Get_Pragma_Arg (First (Pragma_Argument_Associations (Prag)));
-      Nam : constant Name_Id := Pragma_Name (Prag);
-
-   --  Start of processing for Contains_Refined_State
-
-   begin
-      if Nam = Name_Depends then
-         return Has_State_In_Dependency (Arg);
-
-      else pragma Assert (Nam = Name_Global);
-         return Has_State_In_Global (Arg);
-      end if;
-   end Contains_Refined_State;
-
-   -------------------------
-   -- Copy_Component_List --
-   -------------------------
-
-   function Copy_Component_List
-     (R_Typ : Entity_Id;
-      Loc   : Source_Ptr) return List_Id
-   is
-      Comp  : Node_Id;
-      Comps : constant List_Id := New_List;
-
-   begin
-      Comp := First_Component (Underlying_Type (R_Typ));
-      while Present (Comp) loop
-         if Comes_From_Source (Comp) then
-            declare
-               Comp_Decl : constant Node_Id := Declaration_Node (Comp);
-            begin
-               Append_To (Comps,
-                 Make_Component_Declaration (Loc,
-                   Defining_Identifier =>
-                     Make_Defining_Identifier (Loc, Chars (Comp)),
-                   Component_Definition =>
-                     New_Copy_Tree
-                       (Component_Definition (Comp_Decl), New_Sloc => Loc)));
-            end;
-         end if;
+<<<<<<< HEAD
 =======
->>>>>>> gcc-mirror/trunk
 
       function Is_Refined_State (Item : Node_Id) return Boolean;
       --  Determine whether Item is a reference to an abstract state with a
@@ -5187,6 +4976,688 @@ package body Sem_Util is
 
          Next_Component (Comp);
       end loop;
+>>>>>>> gcc-mirror/master
+
+      function Is_Refined_State (Item : Node_Id) return Boolean;
+      --  Determine whether Item is a reference to an abstract state with a
+      --  visible refinement.
+
+      -----------------------------
+      -- Has_State_In_Dependency --
+      -----------------------------
+
+      function Has_State_In_Dependency (List : Node_Id) return Boolean is
+         Clause : Node_Id;
+         Output : Node_Id;
+
+<<<<<<< HEAD
+      begin
+         --  A null dependency list does not mention any states
+=======
+   begin
+      if No (First_Formal (Subp_Id)) then
+         return No_List;
+      else
+         Plist  := New_List;
+         Formal := First_Formal (Subp_Id);
+         while Present (Formal) loop
+            Append_To (Plist,
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier =>
+                  Make_Defining_Identifier (Sloc (Formal), Chars (Formal)),
+                In_Present          => In_Present (Parent (Formal)),
+                Out_Present         => Out_Present (Parent (Formal)),
+                Parameter_Type      =>
+                  New_Occurrence_Of (Etype (Formal), Loc),
+                Expression          =>
+                  New_Copy_Tree (Expression (Parent (Formal)))));
+>>>>>>> gcc-mirror/master
+
+         if Nkind (List) = N_Null then
+            return False;
+
+         --  Dependency clauses appear as component associations of an
+         --  aggregate.
+
+<<<<<<< HEAD
+         elsif Nkind (List) = N_Aggregate
+           and then Present (Component_Associations (List))
+         then
+            Clause := First (Component_Associations (List));
+            while Present (Clause) loop
+=======
+   --------------------------
+   -- Copy_Subprogram_Spec --
+   --------------------------
+
+   function Copy_Subprogram_Spec (Spec : Node_Id) return Node_Id is
+      Def_Id      : Node_Id;
+      Formal_Spec : Node_Id;
+      Result      : Node_Id;
+
+   begin
+      --  The structure of the original tree must be replicated without any
+      --  alterations. Use New_Copy_Tree for this purpose.
+
+      Result := New_Copy_Tree (Spec);
+
+      --  Create a new entity for the defining unit name
+
+      Def_Id := Defining_Unit_Name (Result);
+      Set_Defining_Unit_Name (Result,
+        Make_Defining_Identifier (Sloc (Def_Id), Chars (Def_Id)));
+
+      --  Create new entities for the formal parameters
+
+      if Present (Parameter_Specifications (Result)) then
+         Formal_Spec := First (Parameter_Specifications (Result));
+         while Present (Formal_Spec) loop
+            Def_Id := Defining_Identifier (Formal_Spec);
+            Set_Defining_Identifier (Formal_Spec,
+              Make_Defining_Identifier (Sloc (Def_Id), Chars (Def_Id)));
+
+            Next (Formal_Spec);
+         end loop;
+      end if;
+
+      return Result;
+   end Copy_Subprogram_Spec;
+
+   --------------------------------
+   -- Corresponding_Generic_Type --
+   --------------------------------
+>>>>>>> gcc-mirror/master
+
+               --  Inspect the outputs of a dependency clause
+
+               Output := First (Choices (Clause));
+               while Present (Output) loop
+                  if Is_Refined_State (Output) then
+                     return True;
+                  end if;
+
+                  Next (Output);
+               end loop;
+
+               --  Inspect the outputs of a dependency clause
+
+               if Is_Refined_State (Expression (Clause)) then
+                  return True;
+               end if;
+
+               Next (Clause);
+            end loop;
+
+            --  If we get here, then none of the dependency clauses mention a
+            --  state with visible refinement.
+
+            return False;
+
+         --  An illegal pragma managed to sneak in
+
+         else
+            raise Program_Error;
+         end if;
+      end Has_State_In_Dependency;
+
+      -------------------------
+      -- Has_State_In_Global --
+      -------------------------
+
+      function Has_State_In_Global (List : Node_Id) return Boolean is
+         Item : Node_Id;
+
+      begin
+         --  A null global list does not mention any states
+
+         if Nkind (List) = N_Null then
+            return False;
+
+         --  Simple global list or moded global list declaration
+
+         elsif Nkind (List) = N_Aggregate then
+
+            --  The declaration of a simple global list appear as a collection
+            --  of expressions.
+
+            if Present (Expressions (List)) then
+               Item := First (Expressions (List));
+               while Present (Item) loop
+                  if Is_Refined_State (Item) then
+                     return True;
+                  end if;
+
+                  Next (Item);
+               end loop;
+
+            --  The declaration of a moded global list appears as a collection
+            --  of component associations where individual choices denote
+            --  modes.
+
+            else
+               Item := First (Component_Associations (List));
+               while Present (Item) loop
+                  if Has_State_In_Global (Expression (Item)) then
+                     return True;
+                  end if;
+
+                  Next (Item);
+               end loop;
+            end if;
+
+<<<<<<< HEAD
+            --  If we get here, then the simple/moded global list did not
+            --  mention any states with a visible refinement.
+=======
+   function Current_Subprogram return Entity_Id is
+      Scop : constant Entity_Id := Current_Scope;
+   begin
+      if Is_Subprogram_Or_Generic_Subprogram (Scop) then
+         return Scop;
+      else
+         return Enclosing_Subprogram (Scop);
+      end if;
+   end Current_Subprogram;
+>>>>>>> gcc-mirror/master
+
+            return False;
+
+         --  Single global item declaration
+
+         elsif Is_Entity_Name (List) then
+            return Is_Refined_State (List);
+
+         --  An illegal pragma managed to sneak in
+
+         else
+            raise Program_Error;
+         end if;
+      end Has_State_In_Global;
+
+      ----------------------
+      -- Is_Refined_State --
+      ----------------------
+
+      function Is_Refined_State (Item : Node_Id) return Boolean is
+         Elmt    : Node_Id;
+         Item_Id : Entity_Id;
+
+<<<<<<< HEAD
+      begin
+         if Nkind (Item) = N_Null then
+            return False;
+
+         --  States cannot be subject to attribute 'Result. This case arises
+         --  in dependency relations.
+
+         elsif Nkind (Item) = N_Attribute_Reference
+           and then Attribute_Name (Item) = Name_Result
+         then
+            return False;
+=======
+   function Defining_Entity
+     (N               : Node_Id;
+      Empty_On_Errors : Boolean := False) return Entity_Id
+   is
+      Err : Entity_Id := Empty;
+
+   begin
+      case Nkind (N) is
+         when N_Abstract_Subprogram_Declaration        |
+              N_Expression_Function                    |
+              N_Formal_Subprogram_Declaration          |
+              N_Generic_Package_Declaration            |
+              N_Generic_Subprogram_Declaration         |
+              N_Package_Declaration                    |
+              N_Subprogram_Body                        |
+              N_Subprogram_Body_Stub                   |
+              N_Subprogram_Declaration                 |
+              N_Subprogram_Renaming_Declaration
+         =>
+            return Defining_Entity (Specification (N));
+
+         when N_Component_Declaration                  |
+              N_Defining_Program_Unit_Name             |
+              N_Discriminant_Specification             |
+              N_Entry_Body                             |
+              N_Entry_Declaration                      |
+              N_Entry_Index_Specification              |
+              N_Exception_Declaration                  |
+              N_Exception_Renaming_Declaration         |
+              N_Formal_Object_Declaration              |
+              N_Formal_Package_Declaration             |
+              N_Formal_Type_Declaration                |
+              N_Full_Type_Declaration                  |
+              N_Implicit_Label_Declaration             |
+              N_Incomplete_Type_Declaration            |
+              N_Loop_Parameter_Specification           |
+              N_Number_Declaration                     |
+              N_Object_Declaration                     |
+              N_Object_Renaming_Declaration            |
+              N_Package_Body_Stub                      |
+              N_Parameter_Specification                |
+              N_Private_Extension_Declaration          |
+              N_Private_Type_Declaration               |
+              N_Protected_Body                         |
+              N_Protected_Body_Stub                    |
+              N_Protected_Type_Declaration             |
+              N_Single_Protected_Declaration           |
+              N_Single_Task_Declaration                |
+              N_Subtype_Declaration                    |
+              N_Task_Body                              |
+              N_Task_Body_Stub                         |
+              N_Task_Type_Declaration
+         =>
+            return Defining_Identifier (N);
+>>>>>>> gcc-mirror/master
+
+         --  Multiple items appear as an aggregate. This case arises in
+         --  dependency relations.
+
+<<<<<<< HEAD
+         elsif Nkind (Item) = N_Aggregate
+           and then Present (Expressions (Item))
+         then
+            Elmt := First (Expressions (Item));
+            while Present (Elmt) loop
+               if Is_Refined_State (Elmt) then
+                  return True;
+               end if;
+=======
+         when N_Function_Instantiation                 |
+              N_Function_Specification                 |
+              N_Generic_Function_Renaming_Declaration  |
+              N_Generic_Package_Renaming_Declaration   |
+              N_Generic_Procedure_Renaming_Declaration |
+              N_Package_Body                           |
+              N_Package_Instantiation                  |
+              N_Package_Renaming_Declaration           |
+              N_Package_Specification                  |
+              N_Procedure_Instantiation                |
+              N_Procedure_Specification
+         =>
+            declare
+               Nam : constant Node_Id := Defining_Unit_Name (N);
+>>>>>>> gcc-mirror/master
+
+               Next (Elmt);
+            end loop;
+
+<<<<<<< HEAD
+            --  If we get here, then none of the inputs or outputs reference a
+            --  state with visible refinement.
+
+            return False;
+
+         --  Single item
+=======
+               --  For Error, make up a name and attach to declaration so we
+               --  can continue semantic analysis.
+
+               elsif Nam = Error then
+                  if Empty_On_Errors then
+                     return Empty;
+                  else
+                     Err := Make_Temporary (Sloc (N), 'T');
+                     Set_Defining_Unit_Name (N, Err);
+
+                     return Err;
+                  end if;
+
+               --  If not an entity, get defining identifier
+>>>>>>> gcc-mirror/master
+
+         else
+            Item_Id := Entity_Of (Item);
+
+<<<<<<< HEAD
+            return
+              Present (Item_Id)
+                and then Ekind (Item_Id) = E_Abstract_State
+                and then Has_Visible_Refinement (Item_Id);
+         end if;
+      end Is_Refined_State;
+
+      --  Local variables
+=======
+         when N_Block_Statement                        |
+              N_Loop_Statement                         =>
+            return Entity (Identifier (N));
+
+         when others =>
+            if Empty_On_Errors then
+               return Empty;
+            else
+               raise Program_Error;
+            end if;
+>>>>>>> gcc-mirror/master
+
+      Arg : constant Node_Id :=
+              Get_Pragma_Arg (First (Pragma_Argument_Associations (Prag)));
+      Nam : constant Name_Id := Pragma_Name (Prag);
+
+   --  Start of processing for Contains_Refined_State
+
+<<<<<<< HEAD
+   begin
+      if Nam = Name_Depends then
+         return Has_State_In_Dependency (Arg);
+
+      else pragma Assert (Nam = Name_Global);
+         return Has_State_In_Global (Arg);
+      end if;
+   end Contains_Refined_State;
+=======
+   function Denotes_Discriminant
+     (N                : Node_Id;
+      Check_Concurrent : Boolean := False) return Boolean
+   is
+      E : Entity_Id;
+
+   begin
+      if not Is_Entity_Name (N) or else No (Entity (N)) then
+         return False;
+      else
+         E := Entity (N);
+      end if;
+
+      --  If we are checking for a protected type, the discriminant may have
+      --  been rewritten as the corresponding discriminal of the original type
+      --  or of the corresponding concurrent record, depending on whether we
+      --  are in the spec or body of the protected type.
+
+      return Ekind (E) = E_Discriminant
+        or else
+          (Check_Concurrent
+            and then Ekind (E) = E_In_Parameter
+            and then Present (Discriminal_Link (E))
+            and then
+              (Is_Concurrent_Type (Scope (Discriminal_Link (E)))
+                or else
+                  Is_Concurrent_Record_Type (Scope (Discriminal_Link (E)))));
+   end Denotes_Discriminant;
+>>>>>>> gcc-mirror/master
+
+   -------------------------
+   -- Copy_Component_List --
+   -------------------------
+
+   function Copy_Component_List
+     (R_Typ : Entity_Id;
+      Loc   : Source_Ptr) return List_Id
+   is
+      Comp  : Node_Id;
+      Comps : constant List_Id := New_List;
+
+   begin
+      Comp := First_Component (Underlying_Type (R_Typ));
+      while Present (Comp) loop
+         if Comes_From_Source (Comp) then
+            declare
+               Comp_Decl : constant Node_Id := Declaration_Node (Comp);
+            begin
+               Append_To (Comps,
+                 Make_Component_Declaration (Loc,
+                   Defining_Identifier =>
+                     Make_Defining_Identifier (Loc, Chars (Comp)),
+                   Component_Definition =>
+                     New_Copy_Tree
+                       (Component_Definition (Comp_Decl), New_Sloc => Loc)));
+            end;
+         end if;
+=======
+>>>>>>> gcc-mirror/trunk
+
+      function Is_Refined_State (Item : Node_Id) return Boolean;
+      --  Determine whether Item is a reference to an abstract state with a
+      --  visible refinement.
+
+      -----------------------------
+      -- Has_State_In_Dependency --
+      -----------------------------
+
+      function Has_State_In_Dependency (List : Node_Id) return Boolean is
+         Clause : Node_Id;
+         Output : Node_Id;
+
+      begin
+         --  A null dependency list does not mention any states
+
+         if Nkind (List) = N_Null then
+            return False;
+
+         --  Dependency clauses appear as component associations of an
+         --  aggregate.
+
+         elsif Nkind (List) = N_Aggregate
+           and then Present (Component_Associations (List))
+         then
+            Clause := First (Component_Associations (List));
+            while Present (Clause) loop
+
+               --  Inspect the outputs of a dependency clause
+
+               Output := First (Choices (Clause));
+               while Present (Output) loop
+                  if Is_Refined_State (Output) then
+                     return True;
+                  end if;
+
+                  Next (Output);
+               end loop;
+
+               --  Inspect the outputs of a dependency clause
+
+               if Is_Refined_State (Expression (Clause)) then
+                  return True;
+               end if;
+
+               Next (Clause);
+            end loop;
+
+            --  If we get here, then none of the dependency clauses mention a
+            --  state with visible refinement.
+
+            return False;
+
+         --  An illegal pragma managed to sneak in
+
+         else
+            raise Program_Error;
+         end if;
+      end Has_State_In_Dependency;
+
+      -------------------------
+      -- Has_State_In_Global --
+      -------------------------
+
+      function Has_State_In_Global (List : Node_Id) return Boolean is
+         Item : Node_Id;
+
+      begin
+         --  A null global list does not mention any states
+
+         if Nkind (List) = N_Null then
+            return False;
+
+         --  Simple global list or moded global list declaration
+
+         elsif Nkind (List) = N_Aggregate then
+
+            --  The declaration of a simple global list appear as a collection
+            --  of expressions.
+
+            if Present (Expressions (List)) then
+               Item := First (Expressions (List));
+               while Present (Item) loop
+                  if Is_Refined_State (Item) then
+                     return True;
+                  end if;
+
+                  Next (Item);
+               end loop;
+
+            --  The declaration of a moded global list appears as a collection
+            --  of component associations where individual choices denote
+            --  modes.
+
+            else
+               Item := First (Component_Associations (List));
+               while Present (Item) loop
+                  if Has_State_In_Global (Expression (Item)) then
+                     return True;
+                  end if;
+
+                  Next (Item);
+               end loop;
+            end if;
+
+            --  If we get here, then the simple/moded global list did not
+            --  mention any states with a visible refinement.
+
+            return False;
+
+<<<<<<< HEAD
+         --  Single global item declaration
+
+         elsif Is_Entity_Name (List) then
+            return Is_Refined_State (List);
+=======
+      --  Both names are selected_components, their prefixes are known to
+      --  denote the same object, and their selector_names denote the same
+      --  component (RM 6.4.1(6.6/3)).
+
+      elsif Nkind (Obj1) = N_Selected_Component then
+         return Denotes_Same_Object (Prefix (Obj1), Prefix (Obj2))
+           and then
+             Entity (Selector_Name (Obj1)) = Entity (Selector_Name (Obj2));
+>>>>>>> gcc-mirror/master
+
+         --  An illegal pragma managed to sneak in
+
+         else
+            raise Program_Error;
+         end if;
+      end Has_State_In_Global;
+
+      ----------------------
+      -- Is_Refined_State --
+      ----------------------
+
+      function Is_Refined_State (Item : Node_Id) return Boolean is
+         Elmt    : Node_Id;
+         Item_Id : Entity_Id;
+
+      begin
+         if Nkind (Item) = N_Null then
+            return False;
+
+         --  States cannot be subject to attribute 'Result. This case arises
+         --  in dependency relations.
+
+         elsif Nkind (Item) = N_Attribute_Reference
+           and then Attribute_Name (Item) = Name_Result
+         then
+            return False;
+
+         --  Multiple items appear as an aggregate. This case arises in
+         --  dependency relations.
+
+         elsif Nkind (Item) = N_Aggregate
+           and then Present (Expressions (Item))
+         then
+            Elmt := First (Expressions (Item));
+            while Present (Elmt) loop
+               if Is_Refined_State (Elmt) then
+                  return True;
+               end if;
+
+               Next (Elmt);
+            end loop;
+
+            --  If we get here, then none of the inputs or outputs reference a
+            --  state with visible refinement.
+
+            return False;
+
+         --  Single item
+
+         else
+            Item_Id := Entity_Of (Item);
+
+            return
+              Present (Item_Id)
+                and then Ekind (Item_Id) = E_Abstract_State
+                and then Has_Visible_Refinement (Item_Id);
+         end if;
+      end Is_Refined_State;
+
+      --  Local variables
+
+<<<<<<< HEAD
+      Arg : constant Node_Id :=
+              Get_Pragma_Arg (First (Pragma_Argument_Associations (Prag)));
+      Nam : constant Name_Id := Pragma_Name (Prag);
+
+   --  Start of processing for Contains_Refined_State
+
+   begin
+      if Nam = Name_Depends then
+         return Has_State_In_Dependency (Arg);
+=======
+            return Denotes_Same_Object (Lo1, Lo2)
+                     and then
+                   Denotes_Same_Object (Hi1, Hi2);
+         end;
+
+      --  In the recursion, literals appear as indexes
+
+      elsif Nkind (Obj1) = N_Integer_Literal
+              and then
+            Nkind (Obj2) = N_Integer_Literal
+      then
+         return Intval (Obj1) = Intval (Obj2);
+>>>>>>> gcc-mirror/master
+
+      else pragma Assert (Nam = Name_Global);
+         return Has_State_In_Global (Arg);
+      end if;
+   end Contains_Refined_State;
+
+   -------------------------
+   -- Copy_Component_List --
+   -------------------------
+
+<<<<<<< HEAD
+   function Copy_Component_List
+     (R_Typ : Entity_Id;
+      Loc   : Source_Ptr) return List_Id
+   is
+      Comp  : Node_Id;
+      Comps : constant List_Id := New_List;
+
+=======
+   function Denotes_Same_Prefix (A1, A2 : Node_Id) return Boolean is
+>>>>>>> gcc-mirror/master
+   begin
+      Comp := First_Component (Underlying_Type (R_Typ));
+      while Present (Comp) loop
+         if Comes_From_Source (Comp) then
+            declare
+               Comp_Decl : constant Node_Id := Declaration_Node (Comp);
+            begin
+               Append_To (Comps,
+                 Make_Component_Declaration (Loc,
+                   Defining_Identifier =>
+                     Make_Defining_Identifier (Loc, Chars (Comp)),
+                   Component_Definition =>
+                     New_Copy_Tree
+                       (Component_Definition (Comp_Decl), New_Sloc => Loc)));
+            end;
+         end if;
+
+         Next_Component (Comp);
+      end loop;
 
       return Comps;
    end Copy_Component_List;
@@ -5283,7 +5754,13 @@ package body Sem_Util is
         and then
           Is_Generic_Actual_Type (Entity (Subtype_Indication (Parent (T))))
       then
+<<<<<<< HEAD
          return Any_Type;
+=======
+         declare
+            Root1, Root2   : Node_Id;
+            Depth1, Depth2 : Int := 0;
+>>>>>>> gcc-mirror/master
 
       else
          Inst := Scope (T);
@@ -5292,9 +5769,21 @@ package body Sem_Util is
             Inst := Related_Instance (Inst);
          end if;
 
+<<<<<<< HEAD
          Gen  :=
            Generic_Parent
              (Specification (Unit_Declaration_Node (Inst)));
+=======
+            Root2 := Prefix (A2);
+            while not Is_Entity_Name (Root2) loop
+               if not Nkind_In (Root2, N_Selected_Component,
+                                       N_Indexed_Component)
+               then
+                  return False;
+               else
+                  Root2 := Prefix (Root2);
+               end if;
+>>>>>>> gcc-mirror/master
 
          --  Generic actual has the same name as the corresponding formal
 
@@ -5307,18 +5796,34 @@ package body Sem_Util is
             Next_Entity (Typ);
          end loop;
 
+<<<<<<< HEAD
          return Any_Type;
       end if;
    end Corresponding_Generic_Type;
+=======
+            elsif Depth1 > Depth2 then
+               Root1 := Prefix (A1);
+               for J in 1 .. Depth1 - Depth2 - 1 loop
+                  Root1 := Prefix (Root1);
+               end loop;
+>>>>>>> gcc-mirror/master
 
    --------------------
    -- Current_Entity --
    --------------------
 
+<<<<<<< HEAD
    --  The currently visible definition for a given identifier is the
    --  one most chained at the start of the visibility chain, i.e. the
    --  one that is referenced by the Node_Id value of the name of the
    --  given identifier.
+=======
+            else
+               Root2 := Prefix (A2);
+               for J in 1 .. Depth2 - Depth1 - 1 loop
+                  Root2 := Prefix (Root2);
+               end loop;
+>>>>>>> gcc-mirror/master
 
    function Current_Entity (N : Node_Id) return Entity_Id is
    begin
@@ -8043,6 +8548,7 @@ package body Sem_Util is
          UI_Discrim_Value : constant Uint := Expr_Value (Discrim_Value);
 
       begin
+<<<<<<< HEAD
          Find_Discrete_Value : while Present (Variant) loop
             Discrete_Choice := First (Discrete_Choices (Variant));
             while Present (Discrete_Choice) loop
@@ -8050,10 +8556,19 @@ package body Sem_Util is
                  Nkind (Discrete_Choice) = N_Others_Choice;
 
                Get_Index_Bounds (Discrete_Choice, Low, High);
+=======
+         if Nkind (N) = N_Defining_Program_Unit_Name then
+            return Name (N);
+         else
+            return Prefix (N);
+         end if;
+      end Prefix_Node;
+>>>>>>> gcc-mirror/master
 
                UI_Low  := Expr_Value (Low);
                UI_High := Expr_Value (High);
 
+<<<<<<< HEAD
                exit Find_Discrete_Value when
                  UI_Low <= UI_Discrim_Value
                    and then
@@ -8076,6 +8591,38 @@ package body Sem_Util is
       --  If we have found the corresponding choice, recursively add its
       --  components to the Into list. The nested components are part of
       --  the same record type.
+=======
+      function Select_Node (N : Node_Id) return Node_Id is
+      begin
+         if Nkind (N) = N_Defining_Program_Unit_Name then
+            return Defining_Identifier (N);
+         else
+            return Selector_Name (N);
+         end if;
+      end Select_Node;
+
+   --  Start of processing for Designate_Same_Unit
+
+   begin
+      if Nkind_In (K1, N_Identifier, N_Defining_Identifier)
+           and then
+         Nkind_In (K2, N_Identifier, N_Defining_Identifier)
+      then
+         return Chars (Name1) = Chars (Name2);
+
+      elsif Nkind_In (K1, N_Expanded_Name,
+                          N_Selected_Component,
+                          N_Defining_Program_Unit_Name)
+              and then
+            Nkind_In (K2, N_Expanded_Name,
+                          N_Selected_Component,
+                          N_Defining_Program_Unit_Name)
+      then
+         return
+           (Chars (Select_Node (Name1)) = Chars (Select_Node (Name2)))
+             and then
+               Designate_Same_Unit (Prefix_Node (Name1), Prefix_Node (Name2));
+>>>>>>> gcc-mirror/master
 
       Gather_Components
         (Typ, Component_List (Variant), Governed_By, Into, Report_Errors);
@@ -8221,9 +8768,33 @@ package body Sem_Util is
       return Proper_Body (Unit (Library_Unit (N)));
    end Get_Body_From_Stub;
 
+<<<<<<< HEAD
    ---------------------
    -- Get_Cursor_Type --
    ---------------------
+=======
+   -----------------------------
+   -- Effective_Reads_Enabled --
+   -----------------------------
+
+   function Effective_Reads_Enabled (Id : Entity_Id) return Boolean is
+   begin
+      return Has_Enabled_Property (Id, Name_Effective_Reads);
+   end Effective_Reads_Enabled;
+
+   ------------------------------
+   -- Effective_Writes_Enabled --
+   ------------------------------
+
+   function Effective_Writes_Enabled (Id : Entity_Id) return Boolean is
+   begin
+      return Has_Enabled_Property (Id, Name_Effective_Writes);
+   end Effective_Writes_Enabled;
+
+   ------------------------------
+   -- Enclosing_Comp_Unit_Node --
+   ------------------------------
+>>>>>>> gcc-mirror/master
 
    function Get_Cursor_Type
      (Aspect : Node_Id;
@@ -8263,7 +8834,32 @@ package body Sem_Util is
          return Any_Type;
       end if;
 
+<<<<<<< HEAD
       Cursor := Any_Type;
+=======
+   ---------------------------
+   -- Enclosing_Declaration --
+   ---------------------------
+
+   function Enclosing_Declaration (N : Node_Id) return Node_Id is
+      Decl : Node_Id := N;
+
+   begin
+      while Present (Decl)
+        and then not (Nkind (Decl) in N_Declaration
+                        or else
+                      Nkind (Decl) in N_Later_Decl_Item)
+      loop
+         Decl := Parent (Decl);
+      end loop;
+
+      return Decl;
+   end Enclosing_Declaration;
+
+   ----------------------------
+   -- Enclosing_Generic_Body --
+   ----------------------------
+>>>>>>> gcc-mirror/master
 
       --  Locate function with desired name and profile in scope of type
       --  In the rare case where the type is an integer type, a base type
@@ -8366,10 +8962,34 @@ package body Sem_Util is
 
       --  If not found, no way to resolve remaining primitives.
 
+<<<<<<< HEAD
       if Cursor = Any_Type then
          Error_Msg_N
            ("No legal primitive operation First for Iterable type", Aspect);
       end if;
+=======
+   -----------------------------
+   -- Enclosing_Lib_Unit_Node --
+   -----------------------------
+
+   function Enclosing_Lib_Unit_Node (N : Node_Id) return Node_Id is
+      Encl_Unit : Node_Id;
+
+   begin
+      Encl_Unit := Enclosing_Comp_Unit_Node (N);
+      while Present (Encl_Unit)
+        and then Nkind (Unit (Encl_Unit)) = N_Subunit
+      loop
+         Encl_Unit := Library_Unit (Encl_Unit);
+      end loop;
+
+      return Encl_Unit;
+   end Enclosing_Lib_Unit_Node;
+
+   -----------------------
+   -- Enclosing_Package --
+   -----------------------
+>>>>>>> gcc-mirror/master
 
       return Cursor;
    end Get_Cursor_Type;
@@ -8397,6 +9017,34 @@ package body Sem_Util is
         Make_String_Literal (Sloc (E),
           Strval => String_From_Name_Buffer);
    end Get_Default_External_Name;
+
+   -------------------------------------
+   -- Enclosing_Package_Or_Subprogram --
+   -------------------------------------
+
+   function Enclosing_Package_Or_Subprogram (E : Entity_Id) return Entity_Id is
+      S : Entity_Id;
+
+   begin
+      S := Scope (E);
+      while Present (S) loop
+         if Is_Package_Or_Generic_Package (S)
+           or else Ekind (S) = E_Package_Body
+         then
+            return S;
+
+         elsif Is_Subprogram_Or_Generic_Subprogram (S)
+           or else Ekind (S) = E_Subprogram_Body
+         then
+            return S;
+
+         else
+            S := Scope (S);
+         end if;
+      end loop;
+
+      return Empty;
+   end Enclosing_Package_Or_Subprogram;
 
    --------------------------
    -- Get_Enclosing_Object --
@@ -8478,8 +9126,13 @@ package body Sem_Util is
    -- Get_Generic_Entity --
    ------------------------
 
+<<<<<<< HEAD
    function Get_Generic_Entity (N : Node_Id) return Entity_Id is
       Ent : constant Entity_Id := Entity (Name (N));
+=======
+   procedure Ensure_Freeze_Node (E : Entity_Id) is
+      FN : Node_Id;
+>>>>>>> gcc-mirror/master
    begin
       if Present (Renamed_Object (Ent)) then
          return Renamed_Object (Ent);
@@ -8531,15 +9184,30 @@ package body Sem_Util is
             end if;
          end loop;
 
+<<<<<<< HEAD
          --  If none found, there is no relevant ancestor type.
+=======
+         elsif Nkind (Parent (Def_Id)) = N_Package_Renaming_Declaration
+           and then not Comes_From_Source (Def_Id)
+         then
+            Set_Is_Immediately_Visible (E, False);
+>>>>>>> gcc-mirror/master
 
          return Empty;
       end if;
    end Get_Incomplete_View_Of_Ancestor;
 
+<<<<<<< HEAD
    ----------------------
    -- Get_Index_Bounds --
    ----------------------
+=======
+         elsif Nkind (Parent (Def_Id)) = N_Full_Type_Declaration
+           and then Ekind (Def_Id) = E_Record_Type
+           and then Present (Corresponding_Remote_Type (Def_Id))
+         then
+            null;
+>>>>>>> gcc-mirror/master
 
    procedure Get_Index_Bounds (N : Node_Id; L, H : out Node_Id) is
       Kind : constant Node_Kind := Nkind (N);
@@ -8553,10 +9221,17 @@ package body Sem_Util is
       elsif Kind = N_Subtype_Indication then
          R := Range_Expression (Constraint (N));
 
+<<<<<<< HEAD
          if R = Error then
             L := Error;
             H := Error;
             return;
+=======
+               Prev := First_Entity (Current_Scope);
+               while Present (Prev) and then Next_Entity (Prev) /= E loop
+                  Next_Entity (Prev);
+               end loop;
+>>>>>>> gcc-mirror/master
 
          else
             L := Low_Bound  (Range_Expression (Constraint (N)));
@@ -8734,21 +9409,40 @@ package body Sem_Util is
          R := Renamed_Object (Entity (R));
       end loop;
 
+<<<<<<< HEAD
       return R;
    end Get_Referenced_Object;
 
    ------------------------
    -- Get_Renamed_Entity --
    ------------------------
+=======
+            if Nkind (Parent (Parent (Def_Id))) =
+                                             N_Generic_Subprogram_Declaration
+              and then Def_Id =
+                Defining_Entity (Specification (Parent (Parent (Def_Id))))
+            then
+               Error_Msg_N ("\generic units cannot be overloaded", Def_Id);
+            end if;
+
+            --  If entity is in standard, then we are in trouble, because it
+            --  means that we have a library package with a duplicated name.
+            --  That's hard to recover from, so abort.
+>>>>>>> gcc-mirror/master
 
    function Get_Renamed_Entity (E : Entity_Id) return Entity_Id is
       R : Entity_Id;
 
+<<<<<<< HEAD
    begin
       R := E;
       while Present (Renamed_Entity (R)) loop
          R := Renamed_Entity (R);
       end loop;
+=======
+            --  Otherwise we continue with the declaration. Having two
+            --  identical declarations should not cause us too much trouble.
+>>>>>>> gcc-mirror/master
 
       return R;
    end Get_Renamed_Entity;
@@ -8787,18 +9481,40 @@ package body Sem_Util is
       elsif Nkind (Nod) = N_Slice then
          Subp := Prefix (Nod);
 
+<<<<<<< HEAD
       else
          Subp := Name (Nod);
+=======
+      --  Unless the Itype is for a record type with a corresponding remote
+      --  type (what is that about, it was not commented ???)
+
+      if Ekind_In (Def_Id, E_Discriminant, E_Component)
+        or else
+          ((not Is_Record_Type (Def_Id)
+             or else No (Corresponding_Remote_Type (Def_Id)))
+            and then not Is_Itype (Def_Id))
+      then
+         Set_Is_Immediately_Visible (Def_Id);
+         Set_Current_Entity         (Def_Id);
+>>>>>>> gcc-mirror/master
       end if;
 
       --  Strip the subprogram call
 
+<<<<<<< HEAD
       loop
          if Nkind_In (Subp, N_Explicit_Dereference,
                             N_Indexed_Component,
                             N_Selected_Component)
          then
             Subp := Prefix (Subp);
+=======
+      if Present (C) and then Restriction_Check_Required (SPARK_05) then
+         declare
+            Enclosing_Subp : constant Node_Id := Enclosing_Subprogram (Def_Id);
+            Enclosing_Pack : constant Node_Id := Enclosing_Package (Def_Id);
+            Other_Scope    : constant Node_Id := Enclosing_Dynamic_Scope (C);
+>>>>>>> gcc-mirror/master
 
          elsif Nkind_In (Subp, N_Type_Conversion,
                                N_Unchecked_Type_Conversion)
@@ -8827,8 +9543,19 @@ package body Sem_Util is
 
       --  The search did not find a construct that denotes a subprogram
 
+<<<<<<< HEAD
       else
          return Empty;
+=======
+            elsif Comes_From_Source (Def_Id)
+              and then Comes_From_Source (C)
+            then
+               Error_Msg_Sloc := Sloc (C);
+               Check_SPARK_05_Restriction
+                 ("redeclaration of identifier &#", Def_Id);
+            end if;
+         end;
+>>>>>>> gcc-mirror/master
       end if;
    end Get_Subprogram_Entity;
 
@@ -8844,6 +9571,7 @@ package body Sem_Util is
       --  and the procedure that holds the body of the task is held in its
       --  underlying type.
 
+<<<<<<< HEAD
       --  This is an odd function, why not have Task_Body_Procedure do
       --  the following digging???
 
@@ -8893,6 +9621,81 @@ package body Sem_Util is
 
       if No (Typ) then
          return False;
+=======
+        --  Don't warn for record components since they always have a well
+        --  defined scope which does not confuse other uses. Note that in
+        --  some cases, Ekind has not been set yet.
+
+        and then Ekind (C) /= E_Component
+        and then Ekind (C) /= E_Discriminant
+        and then Nkind (Parent (C)) /= N_Component_Declaration
+        and then Ekind (Def_Id) /= E_Component
+        and then Ekind (Def_Id) /= E_Discriminant
+        and then Nkind (Parent (Def_Id)) /= N_Component_Declaration
+
+        --  Don't warn for one character variables. It is too common to use
+        --  such variables as locals and will just cause too many false hits.
+
+        and then Length_Of_Name (Chars (C)) /= 1
+
+        --  Don't warn for non-source entities
+
+        and then Comes_From_Source (C)
+        and then Comes_From_Source (Def_Id)
+
+        --  Don't warn unless entity in question is in extended main source
+
+        and then In_Extended_Main_Source_Unit (Def_Id)
+
+        --  Finally, the hidden entity must be either immediately visible or
+        --  use visible (i.e. from a used package).
+
+        and then
+          (Is_Immediately_Visible (C)
+             or else
+           Is_Potentially_Use_Visible (C))
+      then
+         Error_Msg_Sloc := Sloc (C);
+         Error_Msg_N ("declaration hides &#?h?", Def_Id);
+      end if;
+   end Enter_Name;
+
+   ---------------
+   -- Entity_Of --
+   ---------------
+
+   function Entity_Of (N : Node_Id) return Entity_Id is
+      Id : Entity_Id;
+
+   begin
+      Id := Empty;
+
+      if Is_Entity_Name (N) then
+         Id := Entity (N);
+
+         --  Follow a possible chain of renamings to reach the root renamed
+         --  object.
+
+         while Present (Id)
+           and then Is_Object (Id)
+           and then Present (Renamed_Object (Id))
+         loop
+            if Is_Entity_Name (Renamed_Object (Id)) then
+               Id := Entity (Renamed_Object (Id));
+            else
+               Id := Empty;
+               exit;
+            end if;
+         end loop;
+      end if;
+
+      return Id;
+   end Entity_Of;
+
+   --------------------------
+   -- Explain_Limited_Type --
+   --------------------------
+>>>>>>> gcc-mirror/master
 
       elsif Is_Access_Type (Typ) then
          return True;
@@ -8930,6 +9733,7 @@ package body Sem_Util is
       end if;
    end Has_Access_Values;
 
+<<<<<<< HEAD
    ------------------------------
    -- Has_Compatible_Alignment --
    ------------------------------
@@ -8972,6 +9776,148 @@ package body Sem_Util is
          --  selected or indexed component, based on Component_Bit_Offset and
          --  Component_Size respectively. A negative value is used to represent
          --  a value which is not known at compile time.
+=======
+   -------------------------------
+   -- Extensions_Visible_Status --
+   -------------------------------
+
+   function Extensions_Visible_Status
+     (Id : Entity_Id) return Extensions_Visible_Mode
+   is
+      Arg  : Node_Id;
+      Decl : Node_Id;
+      Expr : Node_Id;
+      Prag : Node_Id;
+      Subp : Entity_Id;
+
+   begin
+      --  When a formal parameter is subject to Extensions_Visible, the pragma
+      --  is stored in the contract of related subprogram.
+
+      if Is_Formal (Id) then
+         Subp := Scope (Id);
+
+      elsif Is_Subprogram_Or_Generic_Subprogram (Id) then
+         Subp := Id;
+
+      --  No other construct carries this pragma
+
+      else
+         return Extensions_Visible_None;
+      end if;
+
+      Prag := Get_Pragma (Subp, Pragma_Extensions_Visible);
+
+      --  In certain cases analysis may request the Extensions_Visible status
+      --  of an expression function before the pragma has been analyzed yet.
+      --  Inspect the declarative items after the expression function looking
+      --  for the pragma (if any).
+
+      if No (Prag) and then Is_Expression_Function (Subp) then
+         Decl := Next (Unit_Declaration_Node (Subp));
+         while Present (Decl) loop
+            if Nkind (Decl) = N_Pragma
+              and then Pragma_Name (Decl) = Name_Extensions_Visible
+            then
+               Prag := Decl;
+               exit;
+
+            --  A source construct ends the region where Extensions_Visible may
+            --  appear, stop the traversal. An expanded expression function is
+            --  no longer a source construct, but it must still be recognized.
+
+            elsif Comes_From_Source (Decl)
+              or else
+                (Nkind_In (Decl, N_Subprogram_Body,
+                                 N_Subprogram_Declaration)
+                  and then Is_Expression_Function (Defining_Entity (Decl)))
+            then
+               exit;
+            end if;
+
+            Next (Decl);
+         end loop;
+      end if;
+
+      --  Extract the value from the Boolean expression (if any)
+
+      if Present (Prag) then
+         Arg := First (Pragma_Argument_Associations (Prag));
+
+         if Present (Arg) then
+            Expr := Get_Pragma_Arg (Arg);
+
+            --  When the associated subprogram is an expression function, the
+            --  argument of the pragma may not have been analyzed.
+
+            if not Analyzed (Expr) then
+               Preanalyze_And_Resolve (Expr, Standard_Boolean);
+            end if;
+
+            --  Guard against cascading errors when the argument of pragma
+            --  Extensions_Visible is not a valid static Boolean expression.
+
+            if Error_Posted (Expr) then
+               return Extensions_Visible_None;
+
+            elsif Is_True (Expr_Value (Expr)) then
+               return Extensions_Visible_True;
+
+            else
+               return Extensions_Visible_False;
+            end if;
+
+         --  Otherwise the aspect or pragma defaults to True
+
+         else
+            return Extensions_Visible_True;
+         end if;
+
+      --  Otherwise aspect or pragma Extensions_Visible is not inherited or
+      --  directly specified. In SPARK code, its value defaults to "False".
+
+      elsif SPARK_Mode = On then
+         return Extensions_Visible_False;
+
+      --  In non-SPARK code, aspect or pragma Extensions_Visible defaults to
+      --  "True".
+
+      else
+         return Extensions_Visible_True;
+      end if;
+   end Extensions_Visible_Status;
+
+   -----------------
+   -- Find_Actual --
+   -----------------
+
+   procedure Find_Actual
+     (N        : Node_Id;
+      Formal   : out Entity_Id;
+      Call     : out Node_Id)
+   is
+      Context  : constant Node_Id := Parent (N);
+      Actual   : Node_Id;
+      Call_Nam : Node_Id;
+
+   begin
+      if Nkind_In (Context, N_Indexed_Component, N_Selected_Component)
+        and then N = Prefix (Context)
+      then
+         Find_Actual (Context, Formal, Call);
+         return;
+
+      elsif Nkind (Context) = N_Parameter_Association
+        and then N = Explicit_Actual_Parameter (Context)
+      then
+         Call := Parent (Context);
+
+      elsif Nkind_In (Context, N_Entry_Call_Statement,
+                               N_Function_Call,
+                               N_Procedure_Call_Statement)
+      then
+         Call := Context;
+>>>>>>> gcc-mirror/master
 
          procedure Check_Prefix;
          --  Checks the prefix recursively in the case where the expression
@@ -8981,6 +9927,7 @@ package body Sem_Util is
          --  If R represents a worse outcome (unknown instead of known
          --  compatible, or known incompatible), then set Result to R.
 
+<<<<<<< HEAD
          ------------------
          -- Check_Prefix --
          ------------------
@@ -8990,6 +9937,60 @@ package body Sem_Util is
             --  The subtlety here is that in doing a recursive call to check
             --  the prefix, we have to decide what to do in the case where we
             --  don't find any specific indication of an alignment problem.
+=======
+      if Nkind_In (Call, N_Entry_Call_Statement,
+                         N_Function_Call,
+                         N_Procedure_Call_Statement)
+      then
+         Call_Nam := Name (Call);
+
+         --  A call to a protected or task entry appears as a selected
+         --  component rather than an expanded name.
+
+         if Nkind (Call_Nam) = N_Selected_Component then
+            Call_Nam := Selector_Name (Call_Nam);
+         end if;
+
+         if Is_Entity_Name (Call_Nam)
+           and then Present (Entity (Call_Nam))
+           and then Is_Overloadable (Entity (Call_Nam))
+           and then not Is_Overloaded (Call_Nam)
+         then
+            --  If node is name in call it is not an actual
+
+            if N = Call_Nam then
+               Formal := Empty;
+               Call   := Empty;
+               return;
+            end if;
+
+            --  Fall here if we are definitely a parameter
+
+            Actual := First_Actual (Call);
+            Formal := First_Formal (Entity (Call_Nam));
+            while Present (Formal) and then Present (Actual) loop
+               if Actual = N then
+                  return;
+
+               --  An actual that is the prefix in a prefixed call may have
+               --  been rewritten in the call, after the deferred reference
+               --  was collected. Check if sloc and kinds and names match.
+
+               elsif Sloc (Actual) = Sloc (N)
+                 and then Nkind (Actual) = N_Identifier
+                 and then Nkind (Actual) = Nkind (N)
+                 and then Chars (Actual) = Chars (N)
+               then
+                  return;
+
+               else
+                  Actual := Next_Actual (Actual);
+                  Formal := Next_Formal (Formal);
+               end if;
+            end loop;
+         end if;
+      end if;
+>>>>>>> gcc-mirror/master
 
             --  At the outer level, we normally set Unknown as the result in
             --  this case, since we can only set Known_Compatible if we really
@@ -9072,6 +10073,7 @@ package body Sem_Util is
                Check_Prefix;
                Offs := Component_Size (Typ);
 
+<<<<<<< HEAD
                --  Small optimization: compute the full offset when possible
 
                if Offs /= No_Uint
@@ -9086,6 +10088,16 @@ package body Sem_Util is
                end if;
             end;
          end if;
+=======
+      while Present (Old_Disc) and then Present (New_Disc) loop
+         if Old_Disc = Par_Disc  then
+            return New_Disc;
+         end if;
+
+         Next_Discriminant (Old_Disc);
+         Next_Discriminant (New_Disc);
+      end loop;
+>>>>>>> gcc-mirror/master
 
          --  If we have a null offset, the result is entirely determined by
          --  the base object and has already been computed recursively.
@@ -9093,7 +10105,48 @@ package body Sem_Util is
          if Offs = Uint_0 then
             null;
 
+<<<<<<< HEAD
          --  Case where we know the alignment of the object
+=======
+   ----------------------------------
+   -- Find_Enclosing_Iterator_Loop --
+   ----------------------------------
+
+   function Find_Enclosing_Iterator_Loop (Id : Entity_Id) return Entity_Id is
+      Constr : Node_Id;
+      S      : Entity_Id;
+
+   begin
+      --  Traverse the scope chain looking for an iterator loop. Such loops are
+      --  usually transformed into blocks, hence the use of Original_Node.
+
+      S := Id;
+      while Present (S) and then S /= Standard_Standard loop
+         if Ekind (S) = E_Loop
+           and then Nkind (Parent (S)) = N_Implicit_Label_Declaration
+         then
+            Constr := Original_Node (Label_Construct (Parent (S)));
+
+            if Nkind (Constr) = N_Loop_Statement
+              and then Present (Iteration_Scheme (Constr))
+              and then Nkind (Iterator_Specification
+                                (Iteration_Scheme (Constr))) =
+                                                 N_Iterator_Specification
+            then
+               return S;
+            end if;
+         end if;
+
+         S := Scope (S);
+      end loop;
+
+      return Empty;
+   end Find_Enclosing_Iterator_Loop;
+
+   ------------------------------------
+   -- Find_Loop_In_Conditional_Block --
+   ------------------------------------
+>>>>>>> gcc-mirror/master
 
          elsif Known_Alignment (Obj) then
             declare
@@ -9190,6 +10243,1861 @@ package body Sem_Util is
          --  alignments are compatible, even if we don't know the alignment
          --  value in the front end.
 
+         elsif Etype (Obj) = Etype (Expr) then
+
+            --  Types are the same, but we have to check for possible size
+            --  and alignments on the Expr object that may make the alignment
+            --  different, even though the types are the same.
+
+            if Is_Entity_Name (Expr) then
+
+               --  First check alignment of the Expr object. Any alignment less
+               --  than Maximum_Alignment is worrisome since this is the case
+               --  where we do not know the alignment of Obj.
+
+               if Known_Alignment (Entity (Expr))
+                 and then UI_To_Int (Alignment (Entity (Expr))) <
+                                                    Ttypes.Maximum_Alignment
+               then
+                  Set_Result (Unknown);
+
+                  --  Now check size of Expr object. Any size that is not an
+                  --  even multiple of Maximum_Alignment is also worrisome
+                  --  since it may cause the alignment of the object to be less
+                  --  than the alignment of the type.
+
+               elsif Known_Static_Esize (Entity (Expr))
+                 and then
+                   (UI_To_Int (Esize (Entity (Expr))) mod
+                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
+                                                                        /= 0
+               then
+                  Set_Result (Unknown);
+
+                  --  Otherwise same type is decisive
+
+               else
+                  Set_Result (Known_Compatible);
+               end if;
+            end if;
+
+         --  Another case to deal with is when there is an explicit size or
+         --  alignment clause when the types are not the same. If so, then the
+         --  result is Unknown. We don't need to do this test if the Default is
+         --  Unknown, since that result will be set in any case.
+
+         elsif Default /= Unknown
+           and then (Has_Size_Clause      (Etype (Expr))
+                       or else
+                     Has_Alignment_Clause (Etype (Expr)))
+         then
+            Set_Result (Unknown);
+
+         --  If no indication found, set default
+
+         else
+            Set_Result (Default);
+         end if;
+
+         --  Return worst result found
+
+<<<<<<< HEAD
+         return Result;
+      end Has_Compatible_Alignment_Internal;
+=======
+   -----------------------------------
+   -- Find_Placement_In_State_Space --
+   -----------------------------------
+
+   procedure Find_Placement_In_State_Space
+     (Item_Id   : Entity_Id;
+      Placement : out State_Space_Kind;
+      Pack_Id   : out Entity_Id)
+   is
+      Context : Entity_Id;
+
+   begin
+      --  Assume that the item does not appear in the state space of a package
+
+      Placement := Not_In_Package;
+      Pack_Id   := Empty;
+
+      --  Climb the scope stack and examine the enclosing context
+
+      Context := Scope (Item_Id);
+      while Present (Context) and then Context /= Standard_Standard loop
+         if Ekind (Context) = E_Package then
+            Pack_Id := Context;
+
+            --  A package body is a cut off point for the traversal as the item
+            --  cannot be visible to the outside from this point on. Note that
+            --  this test must be done first as a body is also classified as a
+            --  private part.
+
+            if In_Package_Body (Context) then
+               Placement := Body_State_Space;
+               return;
+
+            --  The private part of a package is a cut off point for the
+            --  traversal as the item cannot be visible to the outside from
+            --  this point on.
+
+            elsif In_Private_Part (Context) then
+               Placement := Private_State_Space;
+               return;
+
+            --  When the item appears in the visible state space of a package,
+            --  continue to climb the scope stack as this may not be the final
+            --  state space.
+
+            else
+               Placement := Visible_State_Space;
+
+               --  The visible state space of a child unit acts as the proper
+               --  placement of an item.
+
+               if Is_Child_Unit (Context) then
+                  return;
+               end if;
+            end if;
+
+         --  The item or its enclosing package appear in a construct that has
+         --  no state space.
+
+         else
+            Placement := Not_In_Package;
+            return;
+         end if;
+
+         Context := Scope (Context);
+      end loop;
+   end Find_Placement_In_State_Space;
+
+   ------------------------
+   -- Find_Specific_Type --
+   ------------------------
+
+   function Find_Specific_Type (CW : Entity_Id) return Entity_Id is
+      Typ : Entity_Id := Root_Type (CW);
+
+   begin
+      if Ekind (Typ) = E_Incomplete_Type then
+         if From_Limited_With (Typ) then
+            Typ := Non_Limited_View (Typ);
+         else
+            Typ := Full_View (Typ);
+         end if;
+      end if;
+
+      if Is_Private_Type (Typ)
+        and then not Is_Tagged_Type (Typ)
+        and then Present (Full_View (Typ))
+      then
+         return Full_View (Typ);
+      else
+         return Typ;
+      end if;
+   end Find_Specific_Type;
+
+   -----------------------------
+   -- Find_Static_Alternative --
+   -----------------------------
+>>>>>>> gcc-mirror/master
+
+   --  Start of processing for Has_Compatible_Alignment
+
+   begin
+      --  If Obj has no specified alignment, then set alignment from the type
+      --  alignment. Perhaps we should always do this, but for sure we should
+      --  do it when there is an address clause since we can do more if the
+      --  alignment is known.
+
+      if Unknown_Alignment (Obj) then
+         Set_Alignment (Obj, Alignment (Etype (Obj)));
+      end if;
+
+      --  Now do the internal call that does all the work
+
+      return
+        Has_Compatible_Alignment_Internal (Obj, Expr, Layout_Done, Unknown);
+   end Has_Compatible_Alignment;
+
+   ----------------------
+   -- Has_Declarations --
+   ----------------------
+
+   function Has_Declarations (N : Node_Id) return Boolean is
+   begin
+      return Nkind_In (Nkind (N), N_Accept_Statement,
+                                  N_Block_Statement,
+                                  N_Compilation_Unit_Aux,
+                                  N_Entry_Body,
+                                  N_Package_Body,
+                                  N_Protected_Body,
+                                  N_Subprogram_Body,
+                                  N_Task_Body,
+                                  N_Package_Specification);
+   end Has_Declarations;
+
+   ---------------------------------
+   -- Has_Defaulted_Discriminants --
+   ---------------------------------
+
+   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
+   begin
+      return Has_Discriminants (Typ)
+       and then Present (First_Discriminant (Typ))
+       and then Present (Discriminant_Default_Value
+                           (First_Discriminant (Typ)));
+   end Has_Defaulted_Discriminants;
+
+   -------------------
+   -- Has_Denormals --
+   -------------------
+
+   function Has_Denormals (E : Entity_Id) return Boolean is
+   begin
+      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
+   end Has_Denormals;
+
+<<<<<<< HEAD
+   -------------------------------------------
+   -- Has_Discriminant_Dependent_Constraint --
+   -------------------------------------------
+=======
+                  begin
+                     exit Search when
+                       Val >= Expr_Value (Low_Bound  (R))
+                         and then
+                       Val <= Expr_Value (High_Bound (R));
+                  end;
+>>>>>>> gcc-mirror/master
+
+   function Has_Discriminant_Dependent_Constraint
+     (Comp : Entity_Id) return Boolean
+   is
+      Comp_Decl  : constant Node_Id := Parent (Comp);
+      Subt_Indic : Node_Id;
+      Constr     : Node_Id;
+      Assn       : Node_Id;
+
+   begin
+      --  Discriminants can't depend on discriminants
+
+      if Ekind (Comp) = E_Discriminant then
+         return False;
+
+      else
+         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
+
+         if Nkind (Subt_Indic) = N_Subtype_Indication then
+            Constr := Constraint (Subt_Indic);
+
+            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
+               Assn := First (Constraints (Constr));
+               while Present (Assn) loop
+                  case Nkind (Assn) is
+                     when N_Subtype_Indication |
+                          N_Range              |
+                          N_Identifier
+                       =>
+                        if Depends_On_Discriminant (Assn) then
+                           return True;
+                        end if;
+
+                     when N_Discriminant_Association =>
+                        if Depends_On_Discriminant (Expression (Assn)) then
+                           return True;
+                        end if;
+
+                     when others =>
+                        null;
+                  end case;
+
+                  Next (Assn);
+               end loop;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Has_Discriminant_Dependent_Constraint;
+
+<<<<<<< HEAD
+   --------------------------------------
+   -- Has_Effectively_Volatile_Profile --
+   --------------------------------------
+=======
+   -------------
+   -- Fix_Msg --
+   -------------
+
+   function Fix_Msg (Id : Entity_Id; Msg : String) return String is
+      Is_Task   : constant Boolean :=
+                    Ekind_In (Id, E_Task_Body, E_Task_Type)
+                      or else Is_Single_Task_Object (Id);
+      Msg_Last  : constant Natural := Msg'Last;
+      Msg_Index : Natural;
+      Res       : String (Msg'Range) := (others => ' ');
+      Res_Index : Natural;
+
+   begin
+      --  Copy all characters from the input message Msg to result Res with
+      --  suitable replacements.
+
+      Msg_Index := Msg'First;
+      Res_Index := Res'First;
+      while Msg_Index <= Msg_Last loop
+
+         --  Replace "subprogram" with a different word
+
+         if Msg_Index <= Msg_Last - 10
+           and then Msg (Msg_Index .. Msg_Index + 9) = "subprogram"
+         then
+            if Ekind_In (Id, E_Entry, E_Entry_Family) then
+               Res (Res_Index .. Res_Index + 4) := "entry";
+               Res_Index := Res_Index + 5;
+
+            elsif Is_Task then
+               Res (Res_Index .. Res_Index + 8) := "task type";
+               Res_Index := Res_Index + 9;
+
+            else
+               Res (Res_Index .. Res_Index + 9) := "subprogram";
+               Res_Index := Res_Index + 10;
+            end if;
+
+            Msg_Index := Msg_Index + 10;
+
+         --  Replace "protected" with a different word
+
+         elsif Msg_Index <= Msg_Last - 9
+           and then Msg (Msg_Index .. Msg_Index + 8) = "protected"
+           and then Is_Task
+         then
+            Res (Res_Index .. Res_Index + 3) := "task";
+            Res_Index := Res_Index + 4;
+            Msg_Index := Msg_Index + 9;
+
+         --  Otherwise copy the character
+
+         else
+            Res (Res_Index) := Msg (Msg_Index);
+            Msg_Index := Msg_Index + 1;
+            Res_Index := Res_Index + 1;
+         end if;
+      end loop;
+
+      return Res (Res'First .. Res_Index - 1);
+   end Fix_Msg;
+
+   -----------------------
+   -- Gather_Components --
+   -----------------------
+>>>>>>> gcc-mirror/master
+
+   function Has_Effectively_Volatile_Profile
+     (Subp_Id : Entity_Id) return Boolean
+   is
+      Formal : Entity_Id;
+
+   begin
+      --  Inspect the formal parameters looking for an effectively volatile
+      --  type.
+
+      Formal := First_Formal (Subp_Id);
+      while Present (Formal) loop
+         if Is_Effectively_Volatile (Etype (Formal)) then
+            return True;
+         end if;
+
+         Next_Formal (Formal);
+      end loop;
+
+      --  Inspect the return type of functions
+
+      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
+        and then Is_Effectively_Volatile (Etype (Subp_Id))
+      then
+         return True;
+      end if;
+
+      return False;
+   end Has_Effectively_Volatile_Profile;
+
+   --------------------------
+   -- Has_Enabled_Property --
+   --------------------------
+
+<<<<<<< HEAD
+   function Has_Enabled_Property
+     (Item_Id  : Entity_Id;
+      Property : Name_Id) return Boolean
+   is
+      function State_Has_Enabled_Property return Boolean;
+      --  Determine whether a state denoted by Item_Id has the property enabled
+=======
+         if Nkind (Comp_Item) = N_Component_Declaration then
+            declare
+               Comp : constant Entity_Id := Defining_Identifier (Comp_Item);
+            begin
+               if not Is_Tag (Comp) and then Chars (Comp) /= Name_uParent then
+                  Append_Elmt (Comp, Into);
+               end if;
+            end;
+         end if;
+>>>>>>> gcc-mirror/master
+
+      function Variable_Has_Enabled_Property return Boolean;
+      --  Determine whether a variable denoted by Item_Id has the property
+      --  enabled.
+
+      --------------------------------
+      -- State_Has_Enabled_Property --
+      --------------------------------
+
+      function State_Has_Enabled_Property return Boolean is
+         Decl     : constant Node_Id := Parent (Item_Id);
+         Opt      : Node_Id;
+         Opt_Nam  : Node_Id;
+         Prop     : Node_Id;
+         Prop_Nam : Node_Id;
+         Props    : Node_Id;
+
+<<<<<<< HEAD
+      begin
+         --  The declaration of an external abstract state appears as an
+         --  extension aggregate. If this is not the case, properties can never
+         --  be set.
+=======
+      Assoc := First (Governed_By);
+      Find_Constraint : loop
+         Discrim := First (Choices (Assoc));
+         exit Find_Constraint when Chars (Discrim_Name) = Chars (Discrim)
+           or else (Present (Corresponding_Discriminant (Entity (Discrim)))
+                     and then
+                       Chars (Corresponding_Discriminant (Entity (Discrim))) =
+                                                       Chars  (Discrim_Name))
+           or else Chars (Original_Record_Component (Entity (Discrim)))
+                         = Chars (Discrim_Name);
+>>>>>>> gcc-mirror/master
+
+         if Nkind (Decl) /= N_Extension_Aggregate then
+            return False;
+         end if;
+
+         --  When External appears as a simple option, it automatically enables
+         --  all properties.
+
+         Opt := First (Expressions (Decl));
+         while Present (Opt) loop
+            if Nkind (Opt) = N_Identifier
+              and then Chars (Opt) = Name_External
+            then
+               return True;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+         --  When External specifies particular properties, inspect those and
+         --  find the desired one (if any).
+
+         Opt := First (Component_Associations (Decl));
+         while Present (Opt) loop
+            Opt_Nam := First (Choices (Opt));
+
+            if Nkind (Opt_Nam) = N_Identifier
+              and then Chars (Opt_Nam) = Name_External
+            then
+               Props := Expression (Opt);
+
+               --  Multiple properties appear as an aggregate
+
+               if Nkind (Props) = N_Aggregate then
+
+                  --  Simple property form
+
+                  Prop := First (Expressions (Props));
+                  while Present (Prop) loop
+                     if Chars (Prop) = Property then
+                        return True;
+                     end if;
+
+                     Next (Prop);
+                  end loop;
+
+                  --  Property with expression form
+
+                  Prop := First (Component_Associations (Props));
+                  while Present (Prop) loop
+                     Prop_Nam := First (Choices (Prop));
+
+                     --  The property can be represented in two ways:
+                     --      others   => <value>
+                     --    <property> => <value>
+
+<<<<<<< HEAD
+                     if Nkind (Prop_Nam) = N_Others_Choice
+                       or else (Nkind (Prop_Nam) = N_Identifier
+                                 and then Chars (Prop_Nam) = Property)
+                     then
+                        return Is_True (Expr_Value (Expression (Prop)));
+                     end if;
+=======
+      if not Is_OK_Static_Expression (Discrim_Value) then
+
+         --  If the variant part is governed by a discriminant of the type
+         --  this is an error. If the variant part and the discriminant are
+         --  inherited from an ancestor this is legal (AI05-120) unless the
+         --  components are being gathered for an aggregate, in which case
+         --  the caller must check Report_Errors.
+
+         if Scope (Original_Record_Component
+                     ((Entity (First (Choices (Assoc)))))) = Typ
+         then
+            Error_Msg_FE
+              ("value for discriminant & must be static!",
+               Discrim_Value, Discrim);
+            Why_Not_Static (Discrim_Value);
+         end if;
+
+         Report_Errors := True;
+         return;
+      end if;
+>>>>>>> gcc-mirror/master
+
+                     Next (Prop);
+                  end loop;
+
+               --  Single property
+
+<<<<<<< HEAD
+               else
+                  return Chars (Props) = Property;
+               end if;
+            end if;
+
+            Next (Opt);
+         end loop;
+=======
+      begin
+         Find_Discrete_Value : while Present (Variant) loop
+            Discrete_Choice := First (Discrete_Choices (Variant));
+            while Present (Discrete_Choice) loop
+               exit Find_Discrete_Value when
+                 Nkind (Discrete_Choice) = N_Others_Choice;
+>>>>>>> gcc-mirror/master
+
+         return False;
+      end State_Has_Enabled_Property;
+
+      -----------------------------------
+      -- Variable_Has_Enabled_Property --
+      -----------------------------------
+
+      function Variable_Has_Enabled_Property return Boolean is
+         function Is_Enabled (Prag : Node_Id) return Boolean;
+         --  Determine whether property pragma Prag (if present) denotes an
+         --  enabled property.
+
+         ----------------
+         -- Is_Enabled --
+         ----------------
+
+         function Is_Enabled (Prag : Node_Id) return Boolean is
+            Arg1 : Node_Id;
+
+         begin
+            if Present (Prag) then
+               Arg1 := First (Pragma_Argument_Associations (Prag));
+
+<<<<<<< HEAD
+               --  The pragma has an optional Boolean expression, the related
+               --  property is enabled only when the expression evaluates to
+               --  True.
+
+               if Present (Arg1) then
+                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
+=======
+      --  If we have found the corresponding choice, recursively add its
+      --  components to the Into list. The nested components are part of
+      --  the same record type.
+
+      Gather_Components
+        (Typ, Component_List (Variant), Governed_By, Into, Report_Errors);
+   end Gather_Components;
+>>>>>>> gcc-mirror/master
+
+               --  Otherwise the lack of expression enables the property by
+               --  default.
+
+               else
+                  return True;
+               end if;
+
+            --  The property was never set in the first place
+
+            else
+               return False;
+            end if;
+         end Is_Enabled;
+
+         --  Local variables
+
+         AR : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Readers);
+         AW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Writers);
+         ER : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Reads);
+         EW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Writes);
+
+      --  Start of processing for Variable_Has_Enabled_Property
+
+      begin
+         --  A non-effectively volatile object can never possess external
+         --  properties.
+
+         if not Is_Effectively_Volatile (Item_Id) then
+            return False;
+
+         --  External properties related to variables come in two flavors -
+         --  explicit and implicit. The explicit case is characterized by the
+         --  presence of a property pragma with an optional Boolean flag. The
+         --  property is enabled when the flag evaluates to True or the flag is
+         --  missing altogether.
+
+         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
+            return True;
+
+<<<<<<< HEAD
+         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
+            return True;
+=======
+         elsif Is_Private_Type (Typ) and then not Has_Discriminants (Typ) then
+
+            --  If the type has no discriminants, there is no subtype to
+            --  build, even if the underlying type is discriminated.
+>>>>>>> gcc-mirror/master
+
+         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
+            return True;
+
+         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
+            return True;
+
+         --  The implicit case lacks all property pragmas
+
+         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Variable_Has_Enabled_Property;
+
+   --  Start of processing for Has_Enabled_Property
+
+   begin
+      --  Abstract states and variables have a flexible scheme of specifying
+      --  external properties.
+
+      if Ekind (Item_Id) = E_Abstract_State then
+         return State_Has_Enabled_Property;
+
+<<<<<<< HEAD
+            --  Types are the same, but we have to check for possible size
+            --  and alignments on the Expr object that may make the alignment
+            --  different, even though the types are the same.
+
+            if Is_Entity_Name (Expr) then
+
+               --  First check alignment of the Expr object. Any alignment less
+               --  than Maximum_Alignment is worrisome since this is the case
+               --  where we do not know the alignment of Obj.
+
+               if Known_Alignment (Entity (Expr))
+                 and then UI_To_Int (Alignment (Entity (Expr))) <
+                                                    Ttypes.Maximum_Alignment
+               then
+                  Set_Result (Unknown);
+
+                  --  Now check size of Expr object. Any size that is not an
+                  --  even multiple of Maximum_Alignment is also worrisome
+                  --  since it may cause the alignment of the object to be less
+                  --  than the alignment of the type.
+
+               elsif Known_Static_Esize (Entity (Expr))
+                 and then
+                   (UI_To_Int (Esize (Entity (Expr))) mod
+                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
+                                                                        /= 0
+               then
+                  Set_Result (Unknown);
+
+                  --  Otherwise same type is decisive
+
+               else
+                  Set_Result (Known_Compatible);
+               end if;
+            end if;
+
+         --  Another case to deal with is when there is an explicit size or
+         --  alignment clause when the types are not the same. If so, then the
+         --  result is Unknown. We don't need to do this test if the Default is
+         --  Unknown, since that result will be set in any case.
+
+         elsif Default /= Unknown
+           and then (Has_Size_Clause      (Etype (Expr))
+                       or else
+                     Has_Alignment_Clause (Etype (Expr)))
+         then
+            Set_Result (Unknown);
+
+         --  If no indication found, set default
+
+         else
+            Set_Result (Default);
+         end if;
+
+         --  Return worst result found
+
+<<<<<<< HEAD
+         return Result;
+      end Has_Compatible_Alignment_Internal;
+
+   --  Start of processing for Has_Compatible_Alignment
+=======
+   ---------------------
+   -- Get_Cursor_Type --
+   ---------------------
+
+   function Get_Cursor_Type
+     (Aspect : Node_Id;
+      Typ    : Entity_Id) return Entity_Id
+   is
+      Assoc    : Node_Id;
+      Func     : Entity_Id;
+      First_Op : Entity_Id;
+      Cursor   : Entity_Id;
+
+   begin
+      --  If error already detected, return
+
+      if Error_Posted (Aspect) then
+         return Any_Type;
+      end if;
+
+      --  The cursor type for an Iterable aspect is the return type of a
+      --  non-overloaded First primitive operation. Locate association for
+      --  First.
+
+      Assoc := First (Component_Associations (Expression (Aspect)));
+      First_Op  := Any_Id;
+      while Present (Assoc) loop
+         if Chars (First (Choices (Assoc))) = Name_First then
+            First_Op := Expression (Assoc);
+            exit;
+         end if;
+
+         Next (Assoc);
+      end loop;
+
+      if First_Op = Any_Id then
+         Error_Msg_N ("aspect Iterable must specify First operation", Aspect);
+         return Any_Type;
+      end if;
+
+      Cursor := Any_Type;
+
+      --  Locate function with desired name and profile in scope of type
+      --  In the rare case where the type is an integer type, a base type
+      --  is created for it, check that the base type of the first formal
+      --  of First matches the base type of the domain.
+
+      Func := First_Entity (Scope (Typ));
+      while Present (Func) loop
+         if Chars (Func) = Chars (First_Op)
+           and then Ekind (Func) = E_Function
+           and then Present (First_Formal (Func))
+           and then Base_Type (Etype (First_Formal (Func))) = Base_Type (Typ)
+           and then No (Next_Formal (First_Formal (Func)))
+         then
+            if Cursor /= Any_Type then
+               Error_Msg_N
+                 ("Operation First for iterable type must be unique", Aspect);
+               return Any_Type;
+            else
+               Cursor := Etype (Func);
+            end if;
+         end if;
+
+         Next_Entity (Func);
+      end loop;
+
+      --  If not found, no way to resolve remaining primitives.
+
+      if Cursor = Any_Type then
+         Error_Msg_N
+           ("No legal primitive operation First for Iterable type", Aspect);
+      end if;
+
+      return Cursor;
+   end Get_Cursor_Type;
+
+   function Get_Cursor_Type (Typ : Entity_Id) return Entity_Id is
+   begin
+      return Etype (Get_Iterable_Type_Primitive (Typ, Name_First));
+   end Get_Cursor_Type;
+
+   -------------------------------
+   -- Get_Default_External_Name --
+   -------------------------------
+>>>>>>> gcc-mirror/master
+
+   begin
+      --  If Obj has no specified alignment, then set alignment from the type
+      --  alignment. Perhaps we should always do this, but for sure we should
+      --  do it when there is an address clause since we can do more if the
+      --  alignment is known.
+
+      if Unknown_Alignment (Obj) then
+         Set_Alignment (Obj, Alignment (Etype (Obj)));
+      end if;
+
+      --  Now do the internal call that does all the work
+
+<<<<<<< HEAD
+      return
+        Has_Compatible_Alignment_Internal (Obj, Expr, Layout_Done, Unknown);
+   end Has_Compatible_Alignment;
+
+   ----------------------
+   -- Has_Declarations --
+   ----------------------
+
+   function Has_Declarations (N : Node_Id) return Boolean is
+   begin
+      return Nkind_In (Nkind (N), N_Accept_Statement,
+                                  N_Block_Statement,
+                                  N_Compilation_Unit_Aux,
+                                  N_Entry_Body,
+                                  N_Package_Body,
+                                  N_Protected_Body,
+                                  N_Subprogram_Body,
+                                  N_Task_Body,
+                                  N_Package_Specification);
+   end Has_Declarations;
+
+   ---------------------------------
+   -- Has_Defaulted_Discriminants --
+   ---------------------------------
+
+   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
+   begin
+      return Has_Discriminants (Typ)
+       and then Present (First_Discriminant (Typ))
+       and then Present (Discriminant_Default_Value
+                           (First_Discriminant (Typ)));
+   end Has_Defaulted_Discriminants;
+
+   -------------------
+   -- Has_Denormals --
+   -------------------
+
+   function Has_Denormals (E : Entity_Id) return Boolean is
+   begin
+      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
+   end Has_Denormals;
+
+   -------------------------------------------
+   -- Has_Discriminant_Dependent_Constraint --
+   -------------------------------------------
+
+   function Has_Discriminant_Dependent_Constraint
+     (Comp : Entity_Id) return Boolean
+   is
+      Comp_Decl  : constant Node_Id := Parent (Comp);
+      Subt_Indic : Node_Id;
+      Constr     : Node_Id;
+      Assn       : Node_Id;
+
+   begin
+      --  Discriminants can't depend on discriminants
+
+<<<<<<< HEAD
+      if Ekind (Comp) = E_Discriminant then
+         return False;
+=======
+      --  For all other cases, we have a complete table of literals, and
+      --  we simply iterate through the chain of literal until the one
+      --  with the desired position value is found.
+>>>>>>> gcc-mirror/master
+
+      else
+         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
+
+<<<<<<< HEAD
+         if Nkind (Subt_Indic) = N_Subtype_Indication then
+            Constr := Constraint (Subt_Indic);
+
+            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
+               Assn := First (Constraints (Constr));
+               while Present (Assn) loop
+                  case Nkind (Assn) is
+                     when N_Subtype_Indication |
+                          N_Range              |
+                          N_Identifier
+                       =>
+                        if Depends_On_Discriminant (Assn) then
+                           return True;
+                        end if;
+
+                     when N_Discriminant_Association =>
+                        if Depends_On_Discriminant (Expression (Assn)) then
+                           return True;
+                        end if;
+
+                     when others =>
+                        null;
+                  end case;
+
+                  Next (Assn);
+               end loop;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Has_Discriminant_Dependent_Constraint;
+
+   --------------------------------------
+   -- Has_Effectively_Volatile_Profile --
+   --------------------------------------
+
+   function Has_Effectively_Volatile_Profile
+     (Subp_Id : Entity_Id) return Boolean
+   is
+      Formal : Entity_Id;
+=======
+   ------------------------
+   -- Get_Generic_Entity --
+   ------------------------
+>>>>>>> gcc-mirror/master
+
+   begin
+      --  Inspect the formal parameters looking for an effectively volatile
+      --  type.
+
+      Formal := First_Formal (Subp_Id);
+      while Present (Formal) loop
+         if Is_Effectively_Volatile (Etype (Formal)) then
+            return True;
+         end if;
+
+         Next_Formal (Formal);
+      end loop;
+
+      --  Inspect the return type of functions
+
+      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
+        and then Is_Effectively_Volatile (Etype (Subp_Id))
+      then
+         return True;
+      end if;
+
+      return False;
+   end Has_Effectively_Volatile_Profile;
+
+   --------------------------
+   -- Has_Enabled_Property --
+   --------------------------
+
+   function Has_Enabled_Property
+     (Item_Id  : Entity_Id;
+      Property : Name_Id) return Boolean
+   is
+      function State_Has_Enabled_Property return Boolean;
+      --  Determine whether a state denoted by Item_Id has the property enabled
+
+      function Variable_Has_Enabled_Property return Boolean;
+      --  Determine whether a variable denoted by Item_Id has the property
+      --  enabled.
+
+      --------------------------------
+      -- State_Has_Enabled_Property --
+      --------------------------------
+
+      function State_Has_Enabled_Property return Boolean is
+         Decl     : constant Node_Id := Parent (Item_Id);
+         Opt      : Node_Id;
+         Opt_Nam  : Node_Id;
+         Prop     : Node_Id;
+         Prop_Nam : Node_Id;
+         Props    : Node_Id;
+
+      begin
+         --  The declaration of an external abstract state appears as an
+         --  extension aggregate. If this is not the case, properties can never
+         --  be set.
+
+         if Nkind (Decl) /= N_Extension_Aggregate then
+            return False;
+         end if;
+
+         --  When External appears as a simple option, it automatically enables
+         --  all properties.
+
+         Opt := First (Expressions (Decl));
+         while Present (Opt) loop
+            if Nkind (Opt) = N_Identifier
+              and then Chars (Opt) = Name_External
+            then
+               return True;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+         --  When External specifies particular properties, inspect those and
+         --  find the desired one (if any).
+
+         Opt := First (Component_Associations (Decl));
+         while Present (Opt) loop
+            Opt_Nam := First (Choices (Opt));
+
+            if Nkind (Opt_Nam) = N_Identifier
+              and then Chars (Opt_Nam) = Name_External
+            then
+               Props := Expression (Opt);
+
+               --  Multiple properties appear as an aggregate
+
+               if Nkind (Props) = N_Aggregate then
+
+                  --  Simple property form
+
+                  Prop := First (Expressions (Props));
+                  while Present (Prop) loop
+                     if Chars (Prop) = Property then
+                        return True;
+                     end if;
+
+<<<<<<< HEAD
+                     Next (Prop);
+                  end loop;
+=======
+   ---------------------------------
+   -- Get_Iterable_Type_Primitive --
+   ---------------------------------
+
+   function Get_Iterable_Type_Primitive
+     (Typ : Entity_Id;
+      Nam : Name_Id) return Entity_Id
+   is
+      Funcs : constant Node_Id := Find_Value_Of_Aspect (Typ, Aspect_Iterable);
+      Assoc : Node_Id;
+
+   begin
+      if No (Funcs) then
+         return Empty;
+
+      else
+         Assoc := First (Component_Associations (Funcs));
+         while Present (Assoc) loop
+            if Chars (First (Choices (Assoc))) = Nam then
+               return Entity (Expression (Assoc));
+            end if;
+
+            Assoc := Next (Assoc);
+         end loop;
+
+         return Empty;
+      end if;
+   end Get_Iterable_Type_Primitive;
+
+   ----------------------------------
+   -- Get_Library_Unit_Name_string --
+   ----------------------------------
+>>>>>>> gcc-mirror/master
+
+                  --  Property with expression form
+
+                  Prop := First (Component_Associations (Props));
+                  while Present (Prop) loop
+                     Prop_Nam := First (Choices (Prop));
+
+                     --  The property can be represented in two ways:
+                     --      others   => <value>
+                     --    <property> => <value>
+
+                     if Nkind (Prop_Nam) = N_Others_Choice
+                       or else (Nkind (Prop_Nam) = N_Identifier
+                                 and then Chars (Prop_Nam) = Property)
+                     then
+                        return Is_True (Expr_Value (Expression (Prop)));
+                     end if;
+
+                     Next (Prop);
+                  end loop;
+
+<<<<<<< HEAD
+               --  Single property
+=======
+   function Get_Name_Entity_Id (Id : Name_Id) return Entity_Id is
+   begin
+      return Entity_Id (Get_Name_Table_Int (Id));
+   end Get_Name_Entity_Id;
+>>>>>>> gcc-mirror/master
+
+               else
+                  return Chars (Props) = Property;
+               end if;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+<<<<<<< HEAD
+         return False;
+      end State_Has_Enabled_Property;
+=======
+   -----------------------
+   -- Get_Parent_Entity --
+   -----------------------
+
+   function Get_Parent_Entity (Unit : Node_Id) return Entity_Id is
+   begin
+      if Nkind (Unit) = N_Package_Body
+        and then Nkind (Original_Node (Unit)) = N_Package_Instantiation
+      then
+         return Defining_Entity
+                  (Specification (Instance_Spec (Original_Node (Unit))));
+      elsif Nkind (Unit) = N_Package_Instantiation then
+         return Defining_Entity (Specification (Instance_Spec (Unit)));
+      else
+         return Defining_Entity (Unit);
+      end if;
+   end Get_Parent_Entity;
+
+   -------------------
+   -- Get_Pragma_Id --
+   -------------------
+>>>>>>> gcc-mirror/master
+
+      -----------------------------------
+      -- Variable_Has_Enabled_Property --
+      -----------------------------------
+
+<<<<<<< HEAD
+      function Variable_Has_Enabled_Property return Boolean is
+         function Is_Enabled (Prag : Node_Id) return Boolean;
+         --  Determine whether property pragma Prag (if present) denotes an
+         --  enabled property.
+=======
+   -----------------------
+   -- Get_Reason_String --
+   -----------------------
+
+   procedure Get_Reason_String (N : Node_Id) is
+   begin
+      if Nkind (N) = N_String_Literal then
+         Store_String_Chars (Strval (N));
+
+      elsif Nkind (N) = N_Op_Concat then
+         Get_Reason_String (Left_Opnd (N));
+         Get_Reason_String (Right_Opnd (N));
+
+      --  If not of required form, error
+
+      else
+         Error_Msg_N
+           ("Reason for pragma Warnings has wrong form", N);
+         Error_Msg_N
+           ("\must be string literal or concatenation of string literals", N);
+         return;
+      end if;
+   end Get_Reason_String;
+
+   --------------------------------
+   -- Get_Reference_Discriminant --
+   --------------------------------
+
+   function Get_Reference_Discriminant (Typ : Entity_Id) return Entity_Id is
+      D : Entity_Id;
+
+   begin
+      D := First_Discriminant (Typ);
+      while Present (D) loop
+         if Has_Implicit_Dereference (D) then
+            return D;
+         end if;
+         Next_Discriminant (D);
+      end loop;
+
+      return Empty;
+   end Get_Reference_Discriminant;
+
+   ---------------------------
+   -- Get_Referenced_Object --
+   ---------------------------
+>>>>>>> gcc-mirror/master
+
+         ----------------
+         -- Is_Enabled --
+         ----------------
+
+         function Is_Enabled (Prag : Node_Id) return Boolean is
+            Arg1 : Node_Id;
+
+         begin
+            if Present (Prag) then
+               Arg1 := First (Pragma_Argument_Associations (Prag));
+
+               --  The pragma has an optional Boolean expression, the related
+               --  property is enabled only when the expression evaluates to
+               --  True.
+
+               if Present (Arg1) then
+                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
+
+               --  Otherwise the lack of expression enables the property by
+               --  default.
+
+               else
+                  return True;
+               end if;
+
+<<<<<<< HEAD
+            --  The property was never set in the first place
+
+            else
+               return False;
+            end if;
+         end Is_Enabled;
+
+         --  Local variables
+
+         AR : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Readers);
+         AW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Writers);
+         ER : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Reads);
+         EW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Writes);
+
+      --  Start of processing for Variable_Has_Enabled_Property
+
+      begin
+         --  A non-effectively volatile object can never possess external
+         --  properties.
+
+         if not Is_Effectively_Volatile (Item_Id) then
+            return False;
+
+         --  External properties related to variables come in two flavors -
+         --  explicit and implicit. The explicit case is characterized by the
+         --  presence of a property pragma with an optional Boolean flag. The
+         --  property is enabled when the flag evaluates to True or the flag is
+         --  missing altogether.
+
+         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
+            return True;
+
+         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
+            return True;
+
+         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
+            return True;
+
+         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
+            return True;
+
+         --  The implicit case lacks all property pragmas
+
+         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Variable_Has_Enabled_Property;
+=======
+   -----------------------
+   -- Get_Return_Object --
+   -----------------------
+
+   function Get_Return_Object (N : Node_Id) return Entity_Id is
+      Decl : Node_Id;
+
+   begin
+      Decl := First (Return_Object_Declarations (N));
+      while Present (Decl) loop
+         exit when Nkind (Decl) = N_Object_Declaration
+           and then Is_Return_Object (Defining_Identifier (Decl));
+         Next (Decl);
+      end loop;
+
+      pragma Assert (Present (Decl));
+      return Defining_Identifier (Decl);
+   end Get_Return_Object;
+
+   ---------------------------
+   -- Get_Subprogram_Entity --
+   ---------------------------
+>>>>>>> gcc-mirror/master
+
+   --  Start of processing for Has_Enabled_Property
+
+   begin
+      --  Abstract states and variables have a flexible scheme of specifying
+      --  external properties.
+
+      if Ekind (Item_Id) = E_Abstract_State then
+         return State_Has_Enabled_Property;
+
+<<<<<<< HEAD
+            --  Types are the same, but we have to check for possible size
+            --  and alignments on the Expr object that may make the alignment
+            --  different, even though the types are the same.
+
+            if Is_Entity_Name (Expr) then
+
+               --  First check alignment of the Expr object. Any alignment less
+               --  than Maximum_Alignment is worrisome since this is the case
+               --  where we do not know the alignment of Obj.
+
+               if Known_Alignment (Entity (Expr))
+                 and then UI_To_Int (Alignment (Entity (Expr))) <
+                                                    Ttypes.Maximum_Alignment
+               then
+                  Set_Result (Unknown);
+
+                  --  Now check size of Expr object. Any size that is not an
+                  --  even multiple of Maximum_Alignment is also worrisome
+                  --  since it may cause the alignment of the object to be less
+                  --  than the alignment of the type.
+
+               elsif Known_Static_Esize (Entity (Expr))
+                 and then
+                   (UI_To_Int (Esize (Entity (Expr))) mod
+                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
+                                                                        /= 0
+               then
+                  Set_Result (Unknown);
+
+                  --  Otherwise same type is decisive
+
+               else
+                  Set_Result (Known_Compatible);
+               end if;
+            end if;
+
+         --  Another case to deal with is when there is an explicit size or
+         --  alignment clause when the types are not the same. If so, then the
+         --  result is Unknown. We don't need to do this test if the Default is
+         --  Unknown, since that result will be set in any case.
+
+         elsif Default /= Unknown
+           and then (Has_Size_Clause      (Etype (Expr))
+                       or else
+                     Has_Alignment_Clause (Etype (Expr)))
+         then
+            Set_Result (Unknown);
+
+         --  If no indication found, set default
+
+         else
+            Set_Result (Default);
+         end if;
+
+         --  Return worst result found
+
+         return Result;
+      end Has_Compatible_Alignment_Internal;
+
+   --  Start of processing for Has_Compatible_Alignment
+
+   begin
+      --  If Obj has no specified alignment, then set alignment from the type
+      --  alignment. Perhaps we should always do this, but for sure we should
+      --  do it when there is an address clause since we can do more if the
+      --  alignment is known.
+
+      if Unknown_Alignment (Obj) then
+         Set_Alignment (Obj, Alignment (Etype (Obj)));
+      end if;
+
+      --  Now do the internal call that does all the work
+
+<<<<<<< HEAD
+=======
+>>>>>>> master
+      return Has_Compatible_Alignment_Internal (Obj, Expr, Unknown);
+   end Has_Compatible_Alignment;
+=======
+   -------------------------
+   -- Get_User_Defined_Eq --
+   -------------------------
+
+   function Get_User_Defined_Eq (E : Entity_Id) return Entity_Id is
+      Prim : Elmt_Id;
+      Op   : Entity_Id;
+
+   begin
+      Prim := First_Elmt (Collect_Primitive_Operations (E));
+      while Present (Prim) loop
+         Op := Node (Prim);
+
+         if Chars (Op) = Name_Op_Eq
+           and then Etype (Op) = Standard_Boolean
+           and then Etype (First_Formal (Op)) = E
+           and then Etype (Next_Formal (First_Formal (Op))) = E
+         then
+            return Op;
+         end if;
+
+         Next_Elmt (Prim);
+      end loop;
+
+      return Empty;
+   end Get_User_Defined_Eq;
+
+   -----------------------
+   -- Has_Access_Values --
+   -----------------------
+>>>>>>> gcc-mirror/master
+
+   ----------------------
+   -- Has_Declarations --
+   ----------------------
+
+   function Has_Declarations (N : Node_Id) return Boolean is
+   begin
+      return Nkind_In (Nkind (N), N_Accept_Statement,
+                                  N_Block_Statement,
+                                  N_Compilation_Unit_Aux,
+                                  N_Entry_Body,
+                                  N_Package_Body,
+                                  N_Protected_Body,
+                                  N_Subprogram_Body,
+                                  N_Task_Body,
+                                  N_Package_Specification);
+   end Has_Declarations;
+
+   ---------------------------------
+   -- Has_Defaulted_Discriminants --
+   ---------------------------------
+
+   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
+   begin
+      return Has_Discriminants (Typ)
+       and then Present (First_Discriminant (Typ))
+       and then Present (Discriminant_Default_Value
+                           (First_Discriminant (Typ)));
+   end Has_Defaulted_Discriminants;
+
+   -------------------
+   -- Has_Denormals --
+   -------------------
+
+   function Has_Denormals (E : Entity_Id) return Boolean is
+   begin
+      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
+   end Has_Denormals;
+
+   -------------------------------------------
+   -- Has_Discriminant_Dependent_Constraint --
+   -------------------------------------------
+
+   function Has_Discriminant_Dependent_Constraint
+     (Comp : Entity_Id) return Boolean
+   is
+      Comp_Decl  : constant Node_Id := Parent (Comp);
+      Subt_Indic : Node_Id;
+      Constr     : Node_Id;
+      Assn       : Node_Id;
+
+   begin
+      --  Discriminants can't depend on discriminants
+
+      if Ekind (Comp) = E_Discriminant then
+         return False;
+
+      else
+         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
+
+         if Nkind (Subt_Indic) = N_Subtype_Indication then
+            Constr := Constraint (Subt_Indic);
+
+            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
+               Assn := First (Constraints (Constr));
+               while Present (Assn) loop
+                  case Nkind (Assn) is
+                     when N_Subtype_Indication |
+                          N_Range              |
+                          N_Identifier
+                       =>
+                        if Depends_On_Discriminant (Assn) then
+                           return True;
+                        end if;
+
+                     when N_Discriminant_Association =>
+                        if Depends_On_Discriminant (Expression (Assn)) then
+                           return True;
+                        end if;
+
+                     when others =>
+                        null;
+                  end case;
+
+                  Next (Assn);
+               end loop;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Has_Discriminant_Dependent_Constraint;
+
+<<<<<<< HEAD
+   --------------------------------------
+   -- Has_Effectively_Volatile_Profile --
+   --------------------------------------
+
+   function Has_Effectively_Volatile_Profile
+     (Subp_Id : Entity_Id) return Boolean
+   is
+      Formal : Entity_Id;
+=======
+   function Has_Compatible_Alignment
+     (Obj         : Entity_Id;
+      Expr        : Node_Id;
+      Layout_Done : Boolean) return Alignment_Result
+   is
+      function Has_Compatible_Alignment_Internal
+        (Obj         : Entity_Id;
+         Expr        : Node_Id;
+         Layout_Done : Boolean;
+         Default     : Alignment_Result) return Alignment_Result;
+      --  This is the internal recursive function that actually does the work.
+      --  There is one additional parameter, which says what the result should
+      --  be if no alignment information is found, and there is no definite
+      --  indication of compatible alignments. At the outer level, this is set
+      --  to Unknown, but for internal recursive calls in the case where types
+      --  are known to be correct, it is set to Known_Compatible.
+>>>>>>> gcc-mirror/master
+
+   begin
+      --  Inspect the formal parameters looking for an effectively volatile
+      --  type.
+
+<<<<<<< HEAD
+      Formal := First_Formal (Subp_Id);
+      while Present (Formal) loop
+         if Is_Effectively_Volatile (Etype (Formal)) then
+            return True;
+         end if;
+=======
+      function Has_Compatible_Alignment_Internal
+        (Obj         : Entity_Id;
+         Expr        : Node_Id;
+         Layout_Done : Boolean;
+         Default     : Alignment_Result) return Alignment_Result
+      is
+         Result : Alignment_Result := Known_Compatible;
+         --  Holds the current status of the result. Note that once a value of
+         --  Known_Incompatible is set, it is sticky and does not get changed
+         --  to Unknown (the value in Result only gets worse as we go along,
+         --  never better).
+>>>>>>> gcc-mirror/master
+
+         Next_Formal (Formal);
+      end loop;
+
+      --  Inspect the return type of functions
+
+      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
+        and then Is_Effectively_Volatile (Etype (Subp_Id))
+      then
+         return True;
+      end if;
+
+      return False;
+   end Has_Effectively_Volatile_Profile;
+
+   --------------------------
+   -- Has_Enabled_Property --
+   --------------------------
+
+   function Has_Enabled_Property
+     (Item_Id  : Entity_Id;
+      Property : Name_Id) return Boolean
+   is
+      function State_Has_Enabled_Property return Boolean;
+      --  Determine whether a state denoted by Item_Id has the property enabled
+
+<<<<<<< HEAD
+      function Variable_Has_Enabled_Property return Boolean;
+      --  Determine whether a variable denoted by Item_Id has the property
+      --  enabled.
+=======
+            if Default = Known_Compatible
+              or else
+                (Etype (Obj) = Etype (Expr)
+                  and then (Unknown_Alignment (Obj)
+                             or else
+                               Alignment (Obj) = Alignment (Etype (Obj))))
+            then
+               Set_Result
+                 (Has_Compatible_Alignment_Internal
+                    (Obj, Prefix (Expr), Layout_Done, Known_Compatible));
+>>>>>>> gcc-mirror/master
+
+      --------------------------------
+      -- State_Has_Enabled_Property --
+      --------------------------------
+
+<<<<<<< HEAD
+      function State_Has_Enabled_Property return Boolean is
+         Decl     : constant Node_Id := Parent (Item_Id);
+         Opt      : Node_Id;
+         Opt_Nam  : Node_Id;
+         Prop     : Node_Id;
+         Prop_Nam : Node_Id;
+         Props    : Node_Id;
+=======
+            else
+               Set_Result
+                 (Has_Compatible_Alignment_Internal
+                    (Obj, Prefix (Expr), Layout_Done, Unknown));
+            end if;
+         end Check_Prefix;
+>>>>>>> gcc-mirror/master
+
+      begin
+         --  The declaration of an external abstract state appears as an
+         --  extension aggregate. If this is not the case, properties can never
+         --  be set.
+
+         if Nkind (Decl) /= N_Extension_Aggregate then
+            return False;
+         end if;
+
+         --  When External appears as a simple option, it automatically enables
+         --  all properties.
+
+         Opt := First (Expressions (Decl));
+         while Present (Opt) loop
+            if Nkind (Opt) = N_Identifier
+              and then Chars (Opt) = Name_External
+            then
+               return True;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+<<<<<<< HEAD
+         --  When External specifies particular properties, inspect those and
+         --  find the desired one (if any).
+=======
+      begin
+         --  If Expr is a selected component, we must make sure there is no
+         --  potentially troublesome component clause and that the record is
+         --  not packed if the layout is not done.
+>>>>>>> gcc-mirror/master
+
+         Opt := First (Component_Associations (Decl));
+         while Present (Opt) loop
+            Opt_Nam := First (Choices (Opt));
+
+<<<<<<< HEAD
+            if Nkind (Opt_Nam) = N_Identifier
+              and then Chars (Opt_Nam) = Name_External
+            then
+               Props := Expression (Opt);
+
+               --  Multiple properties appear as an aggregate
+=======
+            --  Packing generates unknown alignment if layout is not done
+
+            if Is_Packed (Etype (Prefix (Expr))) and then not Layout_Done then
+               Set_Result (Unknown);
+            end if;
+>>>>>>> gcc-mirror/master
+
+               if Nkind (Props) = N_Aggregate then
+
+                  --  Simple property form
+
+<<<<<<< HEAD
+                  Prop := First (Expressions (Props));
+                  while Present (Prop) loop
+                     if Chars (Prop) = Property then
+                        return True;
+                     end if;
+=======
+         --  If Expr is an indexed component, we must make sure there is no
+         --  potentially troublesome Component_Size clause and that the array
+         --  is not bit-packed if the layout is not done.
+>>>>>>> gcc-mirror/master
+
+                     Next (Prop);
+                  end loop;
+
+<<<<<<< HEAD
+                  --  Property with expression form
+
+                  Prop := First (Component_Associations (Props));
+                  while Present (Prop) loop
+                     Prop_Nam := First (Choices (Prop));
+=======
+            begin
+               --  Packing generates unknown alignment if layout is not done
+
+               if Is_Bit_Packed_Array (Typ) and then not Layout_Done then
+                  Set_Result (Unknown);
+               end if;
+>>>>>>> gcc-mirror/master
+
+                     --  The property can be represented in two ways:
+                     --      others   => <value>
+                     --    <property> => <value>
+
+                     if Nkind (Prop_Nam) = N_Others_Choice
+                       or else (Nkind (Prop_Nam) = N_Identifier
+                                 and then Chars (Prop_Nam) = Property)
+                     then
+                        return Is_True (Expr_Value (Expression (Prop)));
+                     end if;
+
+                     Next (Prop);
+                  end loop;
+
+               --  Single property
+
+               else
+                  return Chars (Props) = Property;
+               end if;
+            end if;
+
+            Next (Opt);
+         end loop;
+
+         return False;
+      end State_Has_Enabled_Property;
+
+      -----------------------------------
+      -- Variable_Has_Enabled_Property --
+      -----------------------------------
+
+      function Variable_Has_Enabled_Property return Boolean is
+         function Is_Enabled (Prag : Node_Id) return Boolean;
+         --  Determine whether property pragma Prag (if present) denotes an
+         --  enabled property.
+
+         ----------------
+         -- Is_Enabled --
+         ----------------
+
+         function Is_Enabled (Prag : Node_Id) return Boolean is
+            Arg1 : Node_Id;
+
+         begin
+            if Present (Prag) then
+               Arg1 := First (Pragma_Argument_Associations (Prag));
+
+               --  The pragma has an optional Boolean expression, the related
+               --  property is enabled only when the expression evaluates to
+               --  True.
+
+               if Present (Arg1) then
+                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
+
+               --  Otherwise the lack of expression enables the property by
+               --  default.
+
+               else
+                  return True;
+               end if;
+
+            --  The property was never set in the first place
+
+            else
+               return False;
+            end if;
+         end Is_Enabled;
+
+         --  Local variables
+
+         AR : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Readers);
+         AW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Async_Writers);
+         ER : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Reads);
+         EW : constant Node_Id :=
+                Get_Pragma (Item_Id, Pragma_Effective_Writes);
+
+      --  Start of processing for Variable_Has_Enabled_Property
+
+      begin
+         --  A non-effectively volatile object can never possess external
+         --  properties.
+
+         if not Is_Effectively_Volatile (Item_Id) then
+            return False;
+
+         --  External properties related to variables come in two flavors -
+         --  explicit and implicit. The explicit case is characterized by the
+         --  presence of a property pragma with an optional Boolean flag. The
+         --  property is enabled when the flag evaluates to True or the flag is
+         --  missing altogether.
+
+         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
+            return True;
+
+         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
+            return True;
+
+         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
+            return True;
+
+         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
+            return True;
+
+         --  The implicit case lacks all property pragmas
+
+         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Variable_Has_Enabled_Property;
+
+   --  Start of processing for Has_Enabled_Property
+
+   begin
+      --  Abstract states and variables have a flexible scheme of specifying
+      --  external properties.
+
+<<<<<<< HEAD
+      if Ekind (Item_Id) = E_Abstract_State then
+         return State_Has_Enabled_Property;
+
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
+=======
+>>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
+=======
          elsif Etype (Obj) = Etype (Expr) then
 
             --  Types are the same, but we have to check for possible size
@@ -9602,837 +12510,7 @@ package body Sem_Util is
       if Ekind (Item_Id) = E_Abstract_State then
          return State_Has_Enabled_Property;
 
-<<<<<<< HEAD
-            --  Types are the same, but we have to check for possible size
-            --  and alignments on the Expr object that may make the alignment
-            --  different, even though the types are the same.
-
-            if Is_Entity_Name (Expr) then
-
-               --  First check alignment of the Expr object. Any alignment less
-               --  than Maximum_Alignment is worrisome since this is the case
-               --  where we do not know the alignment of Obj.
-
-               if Known_Alignment (Entity (Expr))
-                 and then UI_To_Int (Alignment (Entity (Expr))) <
-                                                    Ttypes.Maximum_Alignment
-               then
-                  Set_Result (Unknown);
-
-                  --  Now check size of Expr object. Any size that is not an
-                  --  even multiple of Maximum_Alignment is also worrisome
-                  --  since it may cause the alignment of the object to be less
-                  --  than the alignment of the type.
-
-               elsif Known_Static_Esize (Entity (Expr))
-                 and then
-                   (UI_To_Int (Esize (Entity (Expr))) mod
-                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
-                                                                        /= 0
-               then
-                  Set_Result (Unknown);
-
-                  --  Otherwise same type is decisive
-
-               else
-                  Set_Result (Known_Compatible);
-               end if;
-            end if;
-
-         --  Another case to deal with is when there is an explicit size or
-         --  alignment clause when the types are not the same. If so, then the
-         --  result is Unknown. We don't need to do this test if the Default is
-         --  Unknown, since that result will be set in any case.
-
-         elsif Default /= Unknown
-           and then (Has_Size_Clause      (Etype (Expr))
-                       or else
-                     Has_Alignment_Clause (Etype (Expr)))
-         then
-            Set_Result (Unknown);
-
-         --  If no indication found, set default
-
-         else
-            Set_Result (Default);
-         end if;
-
-         --  Return worst result found
-
-         return Result;
-      end Has_Compatible_Alignment_Internal;
-
-   --  Start of processing for Has_Compatible_Alignment
-
-   begin
-      --  If Obj has no specified alignment, then set alignment from the type
-      --  alignment. Perhaps we should always do this, but for sure we should
-      --  do it when there is an address clause since we can do more if the
-      --  alignment is known.
-
-      if Unknown_Alignment (Obj) then
-         Set_Alignment (Obj, Alignment (Etype (Obj)));
-      end if;
-
-      --  Now do the internal call that does all the work
-
-<<<<<<< HEAD
-      return
-        Has_Compatible_Alignment_Internal (Obj, Expr, Layout_Done, Unknown);
-   end Has_Compatible_Alignment;
-
-   ----------------------
-   -- Has_Declarations --
-   ----------------------
-
-   function Has_Declarations (N : Node_Id) return Boolean is
-   begin
-      return Nkind_In (Nkind (N), N_Accept_Statement,
-                                  N_Block_Statement,
-                                  N_Compilation_Unit_Aux,
-                                  N_Entry_Body,
-                                  N_Package_Body,
-                                  N_Protected_Body,
-                                  N_Subprogram_Body,
-                                  N_Task_Body,
-                                  N_Package_Specification);
-   end Has_Declarations;
-
-   ---------------------------------
-   -- Has_Defaulted_Discriminants --
-   ---------------------------------
-
-   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
-   begin
-      return Has_Discriminants (Typ)
-       and then Present (First_Discriminant (Typ))
-       and then Present (Discriminant_Default_Value
-                           (First_Discriminant (Typ)));
-   end Has_Defaulted_Discriminants;
-
-   -------------------
-   -- Has_Denormals --
-   -------------------
-
-   function Has_Denormals (E : Entity_Id) return Boolean is
-   begin
-      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
-   end Has_Denormals;
-
-   -------------------------------------------
-   -- Has_Discriminant_Dependent_Constraint --
-   -------------------------------------------
-
-   function Has_Discriminant_Dependent_Constraint
-     (Comp : Entity_Id) return Boolean
-   is
-      Comp_Decl  : constant Node_Id := Parent (Comp);
-      Subt_Indic : Node_Id;
-      Constr     : Node_Id;
-      Assn       : Node_Id;
-
-   begin
-      --  Discriminants can't depend on discriminants
-
-      if Ekind (Comp) = E_Discriminant then
-         return False;
-
-      else
-         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
-
-         if Nkind (Subt_Indic) = N_Subtype_Indication then
-            Constr := Constraint (Subt_Indic);
-
-            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
-               Assn := First (Constraints (Constr));
-               while Present (Assn) loop
-                  case Nkind (Assn) is
-                     when N_Subtype_Indication |
-                          N_Range              |
-                          N_Identifier
-                       =>
-                        if Depends_On_Discriminant (Assn) then
-                           return True;
-                        end if;
-
-                     when N_Discriminant_Association =>
-                        if Depends_On_Discriminant (Expression (Assn)) then
-                           return True;
-                        end if;
-
-                     when others =>
-                        null;
-                  end case;
-
-                  Next (Assn);
-               end loop;
-            end if;
-         end if;
-      end if;
-
-      return False;
-   end Has_Discriminant_Dependent_Constraint;
-
-   --------------------------------------
-   -- Has_Effectively_Volatile_Profile --
-   --------------------------------------
-
-   function Has_Effectively_Volatile_Profile
-     (Subp_Id : Entity_Id) return Boolean
-   is
-      Formal : Entity_Id;
-
-   begin
-      --  Inspect the formal parameters looking for an effectively volatile
-      --  type.
-
-      Formal := First_Formal (Subp_Id);
-      while Present (Formal) loop
-         if Is_Effectively_Volatile (Etype (Formal)) then
-            return True;
-         end if;
-
-         Next_Formal (Formal);
-      end loop;
-
-      --  Inspect the return type of functions
-
-      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
-        and then Is_Effectively_Volatile (Etype (Subp_Id))
-      then
-         return True;
-      end if;
-
-      return False;
-   end Has_Effectively_Volatile_Profile;
-
-   --------------------------
-   -- Has_Enabled_Property --
-   --------------------------
-
-   function Has_Enabled_Property
-     (Item_Id  : Entity_Id;
-      Property : Name_Id) return Boolean
-   is
-      function State_Has_Enabled_Property return Boolean;
-      --  Determine whether a state denoted by Item_Id has the property enabled
-
-      function Variable_Has_Enabled_Property return Boolean;
-      --  Determine whether a variable denoted by Item_Id has the property
-      --  enabled.
-
-      --------------------------------
-      -- State_Has_Enabled_Property --
-      --------------------------------
-
-      function State_Has_Enabled_Property return Boolean is
-         Decl     : constant Node_Id := Parent (Item_Id);
-         Opt      : Node_Id;
-         Opt_Nam  : Node_Id;
-         Prop     : Node_Id;
-         Prop_Nam : Node_Id;
-         Props    : Node_Id;
-
-      begin
-         --  The declaration of an external abstract state appears as an
-         --  extension aggregate. If this is not the case, properties can never
-         --  be set.
-
-         if Nkind (Decl) /= N_Extension_Aggregate then
-            return False;
-         end if;
-
-         --  When External appears as a simple option, it automatically enables
-         --  all properties.
-
-         Opt := First (Expressions (Decl));
-         while Present (Opt) loop
-            if Nkind (Opt) = N_Identifier
-              and then Chars (Opt) = Name_External
-            then
-               return True;
-            end if;
-
-            Next (Opt);
-         end loop;
-
-         --  When External specifies particular properties, inspect those and
-         --  find the desired one (if any).
-
-         Opt := First (Component_Associations (Decl));
-         while Present (Opt) loop
-            Opt_Nam := First (Choices (Opt));
-
-            if Nkind (Opt_Nam) = N_Identifier
-              and then Chars (Opt_Nam) = Name_External
-            then
-               Props := Expression (Opt);
-
-               --  Multiple properties appear as an aggregate
-
-               if Nkind (Props) = N_Aggregate then
-
-                  --  Simple property form
-
-                  Prop := First (Expressions (Props));
-                  while Present (Prop) loop
-                     if Chars (Prop) = Property then
-                        return True;
-                     end if;
-
-                     Next (Prop);
-                  end loop;
-
-                  --  Property with expression form
-
-                  Prop := First (Component_Associations (Props));
-                  while Present (Prop) loop
-                     Prop_Nam := First (Choices (Prop));
-
-                     --  The property can be represented in two ways:
-                     --      others   => <value>
-                     --    <property> => <value>
-
-                     if Nkind (Prop_Nam) = N_Others_Choice
-                       or else (Nkind (Prop_Nam) = N_Identifier
-                                 and then Chars (Prop_Nam) = Property)
-                     then
-                        return Is_True (Expr_Value (Expression (Prop)));
-                     end if;
-
-                     Next (Prop);
-                  end loop;
-
-               --  Single property
-
-               else
-                  return Chars (Props) = Property;
-               end if;
-            end if;
-
-            Next (Opt);
-         end loop;
-
-         return False;
-      end State_Has_Enabled_Property;
-
-      -----------------------------------
-      -- Variable_Has_Enabled_Property --
-      -----------------------------------
-
-      function Variable_Has_Enabled_Property return Boolean is
-         function Is_Enabled (Prag : Node_Id) return Boolean;
-         --  Determine whether property pragma Prag (if present) denotes an
-         --  enabled property.
-
-         ----------------
-         -- Is_Enabled --
-         ----------------
-
-         function Is_Enabled (Prag : Node_Id) return Boolean is
-            Arg1 : Node_Id;
-
-         begin
-            if Present (Prag) then
-               Arg1 := First (Pragma_Argument_Associations (Prag));
-
-               --  The pragma has an optional Boolean expression, the related
-               --  property is enabled only when the expression evaluates to
-               --  True.
-
-               if Present (Arg1) then
-                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
-
-               --  Otherwise the lack of expression enables the property by
-               --  default.
-
-               else
-                  return True;
-               end if;
-
-            --  The property was never set in the first place
-
-            else
-               return False;
-            end if;
-         end Is_Enabled;
-
-         --  Local variables
-
-         AR : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Async_Readers);
-         AW : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Async_Writers);
-         ER : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Effective_Reads);
-         EW : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Effective_Writes);
-
-      --  Start of processing for Variable_Has_Enabled_Property
-
-      begin
-         --  A non-effectively volatile object can never possess external
-         --  properties.
-
-         if not Is_Effectively_Volatile (Item_Id) then
-            return False;
-
-         --  External properties related to variables come in two flavors -
-         --  explicit and implicit. The explicit case is characterized by the
-         --  presence of a property pragma with an optional Boolean flag. The
-         --  property is enabled when the flag evaluates to True or the flag is
-         --  missing altogether.
-
-         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
-            return True;
-
-         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
-            return True;
-
-         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
-            return True;
-
-         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
-            return True;
-
-         --  The implicit case lacks all property pragmas
-
-         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
-            return True;
-
-         else
-            return False;
-         end if;
-      end Variable_Has_Enabled_Property;
-
-   --  Start of processing for Has_Enabled_Property
-
-   begin
-      --  Abstract states and variables have a flexible scheme of specifying
-      --  external properties.
-
-      if Ekind (Item_Id) = E_Abstract_State then
-         return State_Has_Enabled_Property;
-
-<<<<<<< HEAD
-            --  Types are the same, but we have to check for possible size
-            --  and alignments on the Expr object that may make the alignment
-            --  different, even though the types are the same.
-
-            if Is_Entity_Name (Expr) then
-
-               --  First check alignment of the Expr object. Any alignment less
-               --  than Maximum_Alignment is worrisome since this is the case
-               --  where we do not know the alignment of Obj.
-
-               if Known_Alignment (Entity (Expr))
-                 and then UI_To_Int (Alignment (Entity (Expr))) <
-                                                    Ttypes.Maximum_Alignment
-               then
-                  Set_Result (Unknown);
-
-                  --  Now check size of Expr object. Any size that is not an
-                  --  even multiple of Maximum_Alignment is also worrisome
-                  --  since it may cause the alignment of the object to be less
-                  --  than the alignment of the type.
-
-               elsif Known_Static_Esize (Entity (Expr))
-                 and then
-                   (UI_To_Int (Esize (Entity (Expr))) mod
-                     (Ttypes.Maximum_Alignment * Ttypes.System_Storage_Unit))
-                                                                        /= 0
-               then
-                  Set_Result (Unknown);
-
-                  --  Otherwise same type is decisive
-
-               else
-                  Set_Result (Known_Compatible);
-               end if;
-            end if;
-
-         --  Another case to deal with is when there is an explicit size or
-         --  alignment clause when the types are not the same. If so, then the
-         --  result is Unknown. We don't need to do this test if the Default is
-         --  Unknown, since that result will be set in any case.
-
-         elsif Default /= Unknown
-           and then (Has_Size_Clause      (Etype (Expr))
-                       or else
-                     Has_Alignment_Clause (Etype (Expr)))
-         then
-            Set_Result (Unknown);
-
-         --  If no indication found, set default
-
-         else
-            Set_Result (Default);
-         end if;
-
-         --  Return worst result found
-
-         return Result;
-      end Has_Compatible_Alignment_Internal;
-
-   --  Start of processing for Has_Compatible_Alignment
-
-   begin
-      --  If Obj has no specified alignment, then set alignment from the type
-      --  alignment. Perhaps we should always do this, but for sure we should
-      --  do it when there is an address clause since we can do more if the
-      --  alignment is known.
-
-      if Unknown_Alignment (Obj) then
-         Set_Alignment (Obj, Alignment (Etype (Obj)));
-      end if;
-
-      --  Now do the internal call that does all the work
-
-=======
->>>>>>> master
-      return Has_Compatible_Alignment_Internal (Obj, Expr, Unknown);
-   end Has_Compatible_Alignment;
-
-   ----------------------
-   -- Has_Declarations --
-   ----------------------
-
-   function Has_Declarations (N : Node_Id) return Boolean is
-   begin
-      return Nkind_In (Nkind (N), N_Accept_Statement,
-                                  N_Block_Statement,
-                                  N_Compilation_Unit_Aux,
-                                  N_Entry_Body,
-                                  N_Package_Body,
-                                  N_Protected_Body,
-                                  N_Subprogram_Body,
-                                  N_Task_Body,
-                                  N_Package_Specification);
-   end Has_Declarations;
-
-   ---------------------------------
-   -- Has_Defaulted_Discriminants --
-   ---------------------------------
-
-   function Has_Defaulted_Discriminants (Typ : Entity_Id) return Boolean is
-   begin
-      return Has_Discriminants (Typ)
-       and then Present (First_Discriminant (Typ))
-       and then Present (Discriminant_Default_Value
-                           (First_Discriminant (Typ)));
-   end Has_Defaulted_Discriminants;
-
-   -------------------
-   -- Has_Denormals --
-   -------------------
-
-   function Has_Denormals (E : Entity_Id) return Boolean is
-   begin
-      return Is_Floating_Point_Type (E) and then Denorm_On_Target;
-   end Has_Denormals;
-
-   -------------------------------------------
-   -- Has_Discriminant_Dependent_Constraint --
-   -------------------------------------------
-
-   function Has_Discriminant_Dependent_Constraint
-     (Comp : Entity_Id) return Boolean
-   is
-      Comp_Decl  : constant Node_Id := Parent (Comp);
-      Subt_Indic : Node_Id;
-      Constr     : Node_Id;
-      Assn       : Node_Id;
-
-   begin
-      --  Discriminants can't depend on discriminants
-
-      if Ekind (Comp) = E_Discriminant then
-         return False;
-
-      else
-         Subt_Indic := Subtype_Indication (Component_Definition (Comp_Decl));
-
-         if Nkind (Subt_Indic) = N_Subtype_Indication then
-            Constr := Constraint (Subt_Indic);
-
-            if Nkind (Constr) = N_Index_Or_Discriminant_Constraint then
-               Assn := First (Constraints (Constr));
-               while Present (Assn) loop
-                  case Nkind (Assn) is
-                     when N_Subtype_Indication |
-                          N_Range              |
-                          N_Identifier
-                       =>
-                        if Depends_On_Discriminant (Assn) then
-                           return True;
-                        end if;
-
-                     when N_Discriminant_Association =>
-                        if Depends_On_Discriminant (Expression (Assn)) then
-                           return True;
-                        end if;
-
-                     when others =>
-                        null;
-                  end case;
-
-                  Next (Assn);
-               end loop;
-            end if;
-         end if;
-      end if;
-
-      return False;
-   end Has_Discriminant_Dependent_Constraint;
-
-   --------------------------------------
-   -- Has_Effectively_Volatile_Profile --
-   --------------------------------------
-
-   function Has_Effectively_Volatile_Profile
-     (Subp_Id : Entity_Id) return Boolean
-   is
-      Formal : Entity_Id;
-
-   begin
-      --  Inspect the formal parameters looking for an effectively volatile
-      --  type.
-
-      Formal := First_Formal (Subp_Id);
-      while Present (Formal) loop
-         if Is_Effectively_Volatile (Etype (Formal)) then
-            return True;
-         end if;
-
-         Next_Formal (Formal);
-      end loop;
-
-      --  Inspect the return type of functions
-
-      if Ekind_In (Subp_Id, E_Function, E_Generic_Function)
-        and then Is_Effectively_Volatile (Etype (Subp_Id))
-      then
-         return True;
-      end if;
-
-      return False;
-   end Has_Effectively_Volatile_Profile;
-
-   --------------------------
-   -- Has_Enabled_Property --
-   --------------------------
-
-   function Has_Enabled_Property
-     (Item_Id  : Entity_Id;
-      Property : Name_Id) return Boolean
-   is
-      function State_Has_Enabled_Property return Boolean;
-      --  Determine whether a state denoted by Item_Id has the property enabled
-
-      function Variable_Has_Enabled_Property return Boolean;
-      --  Determine whether a variable denoted by Item_Id has the property
-      --  enabled.
-
-      --------------------------------
-      -- State_Has_Enabled_Property --
-      --------------------------------
-
-      function State_Has_Enabled_Property return Boolean is
-         Decl     : constant Node_Id := Parent (Item_Id);
-         Opt      : Node_Id;
-         Opt_Nam  : Node_Id;
-         Prop     : Node_Id;
-         Prop_Nam : Node_Id;
-         Props    : Node_Id;
-
-      begin
-         --  The declaration of an external abstract state appears as an
-         --  extension aggregate. If this is not the case, properties can never
-         --  be set.
-
-         if Nkind (Decl) /= N_Extension_Aggregate then
-            return False;
-         end if;
-
-         --  When External appears as a simple option, it automatically enables
-         --  all properties.
-
-         Opt := First (Expressions (Decl));
-         while Present (Opt) loop
-            if Nkind (Opt) = N_Identifier
-              and then Chars (Opt) = Name_External
-            then
-               return True;
-            end if;
-
-            Next (Opt);
-         end loop;
-
-         --  When External specifies particular properties, inspect those and
-         --  find the desired one (if any).
-
-         Opt := First (Component_Associations (Decl));
-         while Present (Opt) loop
-            Opt_Nam := First (Choices (Opt));
-
-            if Nkind (Opt_Nam) = N_Identifier
-              and then Chars (Opt_Nam) = Name_External
-            then
-               Props := Expression (Opt);
-
-               --  Multiple properties appear as an aggregate
-
-               if Nkind (Props) = N_Aggregate then
-
-                  --  Simple property form
-
-                  Prop := First (Expressions (Props));
-                  while Present (Prop) loop
-                     if Chars (Prop) = Property then
-                        return True;
-                     end if;
-
-                     Next (Prop);
-                  end loop;
-
-                  --  Property with expression form
-
-                  Prop := First (Component_Associations (Props));
-                  while Present (Prop) loop
-                     Prop_Nam := First (Choices (Prop));
-
-                     --  The property can be represented in two ways:
-                     --      others   => <value>
-                     --    <property> => <value>
-
-                     if Nkind (Prop_Nam) = N_Others_Choice
-                       or else (Nkind (Prop_Nam) = N_Identifier
-                                 and then Chars (Prop_Nam) = Property)
-                     then
-                        return Is_True (Expr_Value (Expression (Prop)));
-                     end if;
-
-                     Next (Prop);
-                  end loop;
-
-               --  Single property
-
-               else
-                  return Chars (Props) = Property;
-               end if;
-            end if;
-
-            Next (Opt);
-         end loop;
-
-         return False;
-      end State_Has_Enabled_Property;
-
-      -----------------------------------
-      -- Variable_Has_Enabled_Property --
-      -----------------------------------
-
-      function Variable_Has_Enabled_Property return Boolean is
-         function Is_Enabled (Prag : Node_Id) return Boolean;
-         --  Determine whether property pragma Prag (if present) denotes an
-         --  enabled property.
-
-         ----------------
-         -- Is_Enabled --
-         ----------------
-
-         function Is_Enabled (Prag : Node_Id) return Boolean is
-            Arg1 : Node_Id;
-
-         begin
-            if Present (Prag) then
-               Arg1 := First (Pragma_Argument_Associations (Prag));
-
-               --  The pragma has an optional Boolean expression, the related
-               --  property is enabled only when the expression evaluates to
-               --  True.
-
-               if Present (Arg1) then
-                  return Is_True (Expr_Value (Get_Pragma_Arg (Arg1)));
-
-               --  Otherwise the lack of expression enables the property by
-               --  default.
-
-               else
-                  return True;
-               end if;
-
-            --  The property was never set in the first place
-
-            else
-               return False;
-            end if;
-         end Is_Enabled;
-
-         --  Local variables
-
-         AR : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Async_Readers);
-         AW : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Async_Writers);
-         ER : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Effective_Reads);
-         EW : constant Node_Id :=
-                Get_Pragma (Item_Id, Pragma_Effective_Writes);
-
-      --  Start of processing for Variable_Has_Enabled_Property
-
-      begin
-         --  A non-effectively volatile object can never possess external
-         --  properties.
-
-         if not Is_Effectively_Volatile (Item_Id) then
-            return False;
-
-         --  External properties related to variables come in two flavors -
-         --  explicit and implicit. The explicit case is characterized by the
-         --  presence of a property pragma with an optional Boolean flag. The
-         --  property is enabled when the flag evaluates to True or the flag is
-         --  missing altogether.
-
-         elsif Property = Name_Async_Readers    and then Is_Enabled (AR) then
-            return True;
-
-         elsif Property = Name_Async_Writers    and then Is_Enabled (AW) then
-            return True;
-
-         elsif Property = Name_Effective_Reads  and then Is_Enabled (ER) then
-            return True;
-
-         elsif Property = Name_Effective_Writes and then Is_Enabled (EW) then
-            return True;
-
-         --  The implicit case lacks all property pragmas
-
-         elsif No (AR) and then No (AW) and then No (ER) and then No (EW) then
-            return True;
-
-         else
-            return False;
-         end if;
-      end Variable_Has_Enabled_Property;
-
-   --  Start of processing for Has_Enabled_Property
-
-   begin
-      --  Abstract states and variables have a flexible scheme of specifying
-      --  external properties.
-
-      if Ekind (Item_Id) = E_Abstract_State then
-         return State_Has_Enabled_Property;
-
-<<<<<<< HEAD
-=======
 >>>>>>> gcc-mirror/master
-=======
->>>>>>> master
-=======
->>>>>>> gcc-mirror/trunk
       elsif Ekind (Item_Id) = E_Variable then
          return Variable_Has_Enabled_Property;
 

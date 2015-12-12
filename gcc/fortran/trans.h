@@ -116,6 +116,7 @@ enum gfc_coarray_type
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   GFC_CAF_CRITICAL
 =======
   GFC_CAF_CRITICAL,
@@ -130,6 +131,11 @@ enum gfc_coarray_type
   GFC_CAF_EVENT_STATIC,
   GFC_CAF_EVENT_ALLOC
 >>>>>>> gcc-mirror/trunk
+=======
+  GFC_CAF_CRITICAL,
+  GFC_CAF_EVENT_STATIC,
+  GFC_CAF_EVENT_ALLOC
+>>>>>>> gcc-mirror/master
 };
 
 
@@ -782,6 +788,7 @@ extern GTY(()) tree gfor_fndecl_caf_unlock;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern GTY(()) tree gfor_fndecl_caf_event_post;
 extern GTY(()) tree gfor_fndecl_caf_event_wait;
@@ -794,6 +801,11 @@ extern GTY(()) tree gfor_fndecl_caf_event_post;
 extern GTY(()) tree gfor_fndecl_caf_event_wait;
 extern GTY(()) tree gfor_fndecl_caf_event_query;
 >>>>>>> gcc-mirror/trunk
+=======
+extern GTY(()) tree gfor_fndecl_caf_event_post;
+extern GTY(()) tree gfor_fndecl_caf_event_wait;
+extern GTY(()) tree gfor_fndecl_caf_event_query;
+>>>>>>> gcc-mirror/master
 extern GTY(()) tree gfor_fndecl_co_broadcast;
 extern GTY(()) tree gfor_fndecl_co_max;
 extern GTY(()) tree gfor_fndecl_co_min;

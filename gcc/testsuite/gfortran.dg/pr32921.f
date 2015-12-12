@@ -47,6 +47,7 @@
       END
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-final { scan-tree-dump-times "stride" 4 "lim1" } }
 <<<<<<< HEAD
 =======
@@ -57,3 +58,6 @@
 =======
 ! { dg-final { scan-tree-dump-times "stride" 4 "lim2" } }
 >>>>>>> gcc-mirror/trunk
+=======
+! { dg-final { scan-tree-dump-times "stride" 4 "lim2" } }
+>>>>>>> gcc-mirror/master

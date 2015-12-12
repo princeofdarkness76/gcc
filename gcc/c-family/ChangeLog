@@ -1,9 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-12-10  David Malcolm  <dmalcolm@redhat.com>
 
 	* c.opt (Wmisleading-indentation): Add to -Wall for C and C++.
@@ -113,11 +116,14 @@
 	(print_ada_struct_decl): Likewise.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-11-23  Igor Zamyatin  <igor.zamyatin@intel.com>
 
 	PR c++/68001
@@ -299,6 +305,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	* c-family/c-common.h (fold_offsetof_1): Add argument.
 	* c-family/c-common.c (fold_offsetof_1): Diagnose more invalid
 =======
@@ -313,6 +320,10 @@
 	* c-common.h (fold_offsetof_1): Add argument.
 	* c-common.c (fold_offsetof_1): Diagnose more invalid
 >>>>>>> gcc-mirror/trunk
+=======
+	* c-common.h (fold_offsetof_1): Add argument.
+	* c-common.c (fold_offsetof_1): Diagnose more invalid
+>>>>>>> gcc-mirror/master
 	offsetof expressions that reference elements past the end of
 	an array.
 
@@ -629,19 +640,25 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-08-02  Martin Sebor  <msebor@redhat.com>
 
 	* c.opt (-Wframe-address): New warning option.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-08-02  Patrick Palka  <ppalka@gcc.gnu.org>
 
 	* c-indentation.c (should_warn_for_misleading_indentation):
@@ -794,6 +811,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	* c-family/c-ada-spec.c (print_ada_macros): Treat CPP_UTF8CHAR like
@@ -805,17 +823,22 @@
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	* c-ada-spec.c (print_ada_macros): Treat CPP_UTF8CHAR like
 	CPP_CHAR.
 	* c-common.c (c_parse_error): Print CPP_UTF8CHAR and
 	CPP_UTF8CHAR_USERDEF tokens.
 	* c-lex.c (c_lex_with_flags): Treat CPP_UTF8CHAR_USERDEF
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	and CPP_UTF8CHAR tokens.
 	(lex_charconst): Treat CPP_UTF8CHAR token.
 
@@ -976,20 +999,26 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-06-04  Sriraman Tallam  <tmsriram@google.com>
 
 	* c-common.c (noplt): New attribute.
 	(handle_noplt_attribute): New handler.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 2015-06-04  Andrew MacLeod  <amacleod@redhat.com>
 
 	* array-notation-common.c: Adjust includes for restructured coretypes.h.

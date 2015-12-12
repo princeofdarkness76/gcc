@@ -38,9 +38,12 @@ struct target_optabs *this_target_optabs = &default_target_optabs;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Return the insn used to perform conversion OP from mode FROM_MODE
    to mode TO_MODE; return CODE_FOR_nothing if the target does not have
    such an insn, or if it is unsuitable for optimization type OPT_TYPE.  */
@@ -72,11 +75,14 @@ direct_optab_handler (convert_optab optab, machine_mode mode,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 /* Enumerates the possible types of structure operand to an
    extraction_insn.  */
 enum extraction_type { ET_unaligned_mem, ET_reg };

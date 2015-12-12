@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fdump-tree-dom1-details -std=gnu89" } */
 =======
 /* { dg-options "-O2 -fdump-tree-dom2-details -std=gnu89" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O2 -fdump-tree-dom2-details -std=gnu89" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O2 -fdump-tree-dom2-details -std=gnu89" } */
+>>>>>>> gcc-mirror/master
 struct bitmap_head_def;
 typedef struct bitmap_head_def *bitmap;
 typedef const struct bitmap_head_def *const_bitmap;
@@ -73,6 +77,7 @@ bitmap_ior_and_compl (bitmap dst, const_bitmap a, const_bitmap b,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Threaded" 3 "dom1" { target { ! logical_op_short_circuit } } } } */
 =======
 /* { dg-final { scan-tree-dump-times "Threaded" 3 "dom2" { target { ! logical_op_short_circuit } } } } */
@@ -83,6 +88,9 @@ bitmap_ior_and_compl (bitmap dst, const_bitmap a, const_bitmap b,
 =======
 /* { dg-final { scan-tree-dump-times "Threaded" 3 "dom2" { target { ! logical_op_short_circuit } } } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "Threaded" 3 "dom2" { target { ! logical_op_short_circuit } } } } */
+>>>>>>> gcc-mirror/master
 /* On targets that define LOGICAL_OP_NON_SHORT_CIRCUIT to 0, we split both
    "a_elt || b_elt" and "b_elt && kill_elt" into two conditions each,
    rather than using "(var1 != 0) op (var2 != 0)".  Also, as on other targets,
@@ -100,12 +108,15 @@ bitmap_ior_and_compl (bitmap dst, const_bitmap a, const_bitmap b,
 	 skipping the known-true "b_elt && kill_elt" in the second
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 condition.  */
 /* { dg-final { scan-tree-dump-times "Threaded" 4 "dom1" { target logical_op_short_circuit } } } */
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 	 condition.
 
    However, 3 of those 4 opportunities are ultimately eliminated by
@@ -113,9 +124,12 @@ bitmap_ior_and_compl (bitmap dst, const_bitmap a, const_bitmap b,
    opportunity left.  */
 /* { dg-final { scan-tree-dump-times "Threaded" 1 "dom2" { target logical_op_short_circuit } } } */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 

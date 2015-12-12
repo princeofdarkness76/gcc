@@ -319,6 +319,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   virtual void before_dom_children (basic_block);
@@ -329,16 +330,21 @@ void
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
   virtual edge before_dom_children (basic_block);
 };
 
 edge
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 dse_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -357,6 +363,7 @@ dse_dom_walker::before_dom_children (basic_block bb)
 namespace {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
 
@@ -390,6 +397,9 @@ public:
 
 =======
 
+=======
+
+>>>>>>> gcc-mirror/master
 const pass_data pass_data_dse =
 {
   GIMPLE_PASS, /* type */
@@ -402,10 +412,14 @@ const pass_data pass_data_dse =
   0, /* todo_flags_start */
   0, /* todo_flags_finish */
 };
+<<<<<<< HEAD
 
 =======
 
 >>>>>>> gcc-mirror/trunk
+=======
+
+>>>>>>> gcc-mirror/master
 class pass_dse : public gimple_opt_pass
 {
 public:
@@ -420,10 +434,13 @@ public:
 
 }; // class pass_dse
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 unsigned int
 pass_dse::execute (function *fun)
 {

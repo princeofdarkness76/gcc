@@ -586,6 +586,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	friend void
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__enable_shared_from_this_helper(const __shared_count<>& __pn,
 					 const enable_shared_from_this* __pe,
 					 const _Tp1* __px) noexcept
@@ -603,6 +604,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 					 const enable_shared_from_this<_Tp1>*,
 					 const _Tp2*) noexcept;
 >>>>>>> gcc-mirror/trunk
+=======
+	__enable_shared_from_this_helper(const __shared_count<>&,
+					 const enable_shared_from_this<_Tp1>*,
+					 const _Tp2*) noexcept;
+>>>>>>> gcc-mirror/master
 
       mutable weak_ptr<_Tp>  _M_weak_this;
     };

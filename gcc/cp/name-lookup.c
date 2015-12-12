@@ -5661,6 +5661,7 @@ arg_assoc (struct arg_lookup *k, tree n)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree
 <<<<<<< HEAD
 =======
@@ -5671,6 +5672,9 @@ static cp_expr
 =======
 static cp_expr
 >>>>>>> gcc-mirror/trunk
+=======
+static cp_expr
+>>>>>>> gcc-mirror/master
 lookup_arg_dependent_1 (tree name, tree fns, vec<tree, va_gc> *args)
 {
   struct arg_lookup k;
@@ -5733,6 +5737,7 @@ lookup_arg_dependent_1 (tree name, tree fns, vec<tree, va_gc> *args)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 tree
 <<<<<<< HEAD
 =======
@@ -5743,6 +5748,9 @@ cp_expr
 =======
 cp_expr
 >>>>>>> gcc-mirror/trunk
+=======
+cp_expr
+>>>>>>> gcc-mirror/master
 lookup_arg_dependent (tree name, tree fns, vec<tree, va_gc> *args)
 {
   cp_expr ret;

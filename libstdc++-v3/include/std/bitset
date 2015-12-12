@@ -684,6 +684,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    *  @class bitset <bitset>
    *
 =======
@@ -694,6 +695,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    *  @brief The %bitset class represents a @e fixed-size sequence of bits.
    *  @ingroup utilities
    *

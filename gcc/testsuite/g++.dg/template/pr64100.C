@@ -4,6 +4,7 @@ template<typename> struct foo // { dg-message "note" }
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 { // { dg-error "incomplete type" }
     static_assert(noexcept(((foo *)1)->~foo()), "");
 =======
@@ -18,6 +19,10 @@ template<typename> struct foo // { dg-message "note" }
 {
     static_assert(noexcept(((foo *)1)->~foo()), ""); // { dg-error "incomplete type" }
 >>>>>>> gcc-mirror/trunk
+=======
+{
+    static_assert(noexcept(((foo *)1)->~foo()), ""); // { dg-error "incomplete type" }
+>>>>>>> gcc-mirror/master
 }; 
 
 template class foo<int>;

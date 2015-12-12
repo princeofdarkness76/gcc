@@ -26,6 +26,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  *  This is a Standard C++ Library header.
 =======
  *  This is a TS C++ Library header.
@@ -36,6 +37,9 @@
 =======
  *  This is a TS C++ Library header.
 >>>>>>> gcc-mirror/trunk
+=======
+ *  This is a TS C++ Library header.
+>>>>>>> gcc-mirror/master
  */
 
 //

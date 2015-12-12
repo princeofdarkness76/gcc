@@ -57,6 +57,7 @@ void		rl78_output_aligned_common (FILE *, tree, const char *,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 int		rl78_one_far_p (rtx *operands, int num_operands);
@@ -67,3 +68,7 @@ int		rl78_one_far_p (rtx *operands, int num_operands);
 
 int		rl78_one_far_p (rtx *operands, int num_operands);
 >>>>>>> gcc-mirror/trunk
+=======
+
+int		rl78_one_far_p (rtx *operands, int num_operands);
+>>>>>>> gcc-mirror/master

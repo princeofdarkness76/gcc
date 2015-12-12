@@ -18,6 +18,7 @@ foo ()
    a volatile does not constitute a volatile operand.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "&x" 0 "dce2"} } */
 <<<<<<< HEAD
 =======
@@ -28,3 +29,6 @@ foo ()
 =======
 /* { dg-final { scan-tree-dump-times "&x" 0 "dce3"} } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "&x" 0 "dce3"} } */
+>>>>>>> gcc-mirror/master

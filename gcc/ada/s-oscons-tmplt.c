@@ -160,6 +160,7 @@ pragma Style_Checks ("M32766");
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if defined (__linux__) || defined (__ANDROID__)
 =======
 #if defined (__linux__) || defined (__ANDROID__) || defined (__rtems__)
@@ -170,6 +171,9 @@ pragma Style_Checks ("M32766");
 =======
 #if defined (__linux__) || defined (__ANDROID__) || defined (__rtems__)
 >>>>>>> gcc-mirror/trunk
+=======
+#if defined (__linux__) || defined (__ANDROID__) || defined (__rtems__)
+>>>>>>> gcc-mirror/master
 # include <pthread.h>
 # include <signal.h>
 #endif
@@ -1473,6 +1477,7 @@ CNS(CLOCK_RT_Ada, "")
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   || defined (DUMMY)
 =======
   || defined (__rtems__) || defined (DUMMY)
@@ -1483,6 +1488,9 @@ CNS(CLOCK_RT_Ada, "")
 =======
   || defined (__rtems__) || defined (DUMMY)
 >>>>>>> gcc-mirror/trunk
+=======
+  || defined (__rtems__) || defined (DUMMY)
+>>>>>>> gcc-mirror/master
 /*
 
    --  Sizes of pthread data types
@@ -1528,6 +1536,7 @@ CND(PTHREAD_ONCE_SIZE,       "pthread_once_t")
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif /* __APPLE__ || __linux__ || __ANDROID__ */
 =======
 #endif /* __APPLE__ || __linux__ || __ANDROID__ || __rtems__ */
@@ -1538,6 +1547,9 @@ CND(PTHREAD_ONCE_SIZE,       "pthread_once_t")
 =======
 #endif /* __APPLE__ || __linux__ || __ANDROID__ || __rtems__ */
 >>>>>>> gcc-mirror/trunk
+=======
+#endif /* __APPLE__ || __linux__ || __ANDROID__ || __rtems__ */
+>>>>>>> gcc-mirror/master
 
 /*
 

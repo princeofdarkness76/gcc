@@ -17,6 +17,7 @@ void bar(struct Foo f, int * __restrict__ q)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Executing store motion" "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -27,3 +28,6 @@ void bar(struct Foo f, int * __restrict__ q)
 =======
 /* { dg-final { scan-tree-dump "Executing store motion" "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump "Executing store motion" "lim2" } } */
+>>>>>>> gcc-mirror/master

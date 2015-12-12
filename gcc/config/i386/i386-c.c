@@ -442,6 +442,7 @@ ix86_target_macros_internal (HOST_WIDE_INT isa_flag,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (isa_flag & OPTION_MASK_ISA_CLZERO)
     def_or_undef (parse_in, "__CLZERO__");
@@ -452,6 +453,10 @@ ix86_target_macros_internal (HOST_WIDE_INT isa_flag,
   if (isa_flag & OPTION_MASK_ISA_CLZERO)
     def_or_undef (parse_in, "__CLZERO__");
 >>>>>>> gcc-mirror/trunk
+=======
+  if (isa_flag & OPTION_MASK_ISA_CLZERO)
+    def_or_undef (parse_in, "__CLZERO__");
+>>>>>>> gcc-mirror/master
   if (TARGET_IAMCU)
     {
       def_or_undef (parse_in, "__iamcu");

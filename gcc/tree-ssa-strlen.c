@@ -2199,6 +2199,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -2209,6 +2210,9 @@ public:
 =======
   virtual edge before_dom_children (basic_block);
 >>>>>>> gcc-mirror/trunk
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/master
   virtual void after_dom_children (basic_block);
 };
 
@@ -2218,6 +2222,7 @@ public:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -2228,6 +2233,9 @@ void
 =======
 edge
 >>>>>>> gcc-mirror/trunk
+=======
+edge
+>>>>>>> gcc-mirror/master
 strlen_dom_walker::before_dom_children (basic_block bb)
 {
   basic_block dombb = get_immediate_dominator (CDI_DOMINATORS, bb);
@@ -2310,6 +2318,7 @@ strlen_dom_walker::before_dom_children (basic_block bb)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
@@ -2318,6 +2327,9 @@ strlen_dom_walker::before_dom_children (basic_block bb)
 =======
   return NULL;
 >>>>>>> gcc-mirror/trunk
+=======
+  return NULL;
+>>>>>>> gcc-mirror/master
 }
 
 /* Callback for walk_dominator_tree.  Free strinfo vector if it is
@@ -2350,6 +2362,7 @@ namespace {
 const pass_data pass_data_strlen =
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
   "strlen", /* name */
@@ -2400,6 +2413,20 @@ public:
 };
 
 >>>>>>> gcc-mirror/trunk
+=======
+{
+  GIMPLE_PASS, /* type */
+  "strlen", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_STRLEN, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+>>>>>>> gcc-mirror/master
 class pass_strlen : public gimple_opt_pass
 {
 public:
@@ -2412,9 +2439,12 @@ public:
   virtual unsigned int execute (function *);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 }; // class pass_strlen
 
 unsigned int

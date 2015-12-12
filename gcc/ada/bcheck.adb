@@ -1090,8 +1090,11 @@ package body Bcheck is
    ----------------------------------
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
    --  This routine checks for a consistent SSO default setting. Note that
    --  internal units are excluded from this check, since we don't in any
@@ -1099,6 +1102,9 @@ package body Bcheck is
    --  is thus no requirement to recompile the run-time with the default set.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/master
 
    procedure Check_Consistent_SSO_Default is
       Default : Character;
@@ -1178,6 +1184,7 @@ package body Bcheck is
 
    --  All units must have the same exception handling mechanism.
 
+<<<<<<< HEAD
 =======
 
    procedure Check_Consistent_SSO_Default is
@@ -1351,10 +1358,13 @@ package body Bcheck is
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
    procedure Check_Consistent_Exception_Handling is
    begin
       Check_Mechanism : for A1 in ALIs.First + 1 .. ALIs.Last loop
          if (ALIs.Table (A1).Zero_Cost_Exceptions /=
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1368,16 +1378,21 @@ package body Bcheck is
 =======
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
               ALIs.Table (ALIs.First).Zero_Cost_Exceptions)
            or else
             (ALIs.Table (A1).Frontend_Exceptions /=
               ALIs.Table (ALIs.First).Frontend_Exceptions)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
          then
             Error_Msg_File_1 := ALIs.Table (A1).Sfile;
             Error_Msg_File_2 := ALIs.Table (ALIs.First).Sfile;

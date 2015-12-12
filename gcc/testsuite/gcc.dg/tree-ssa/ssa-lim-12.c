@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fdump-tree-lim1" } */
 =======
 /* { dg-options "-O -fdump-tree-lim2" } */
@@ -12,6 +13,9 @@
 =======
 /* { dg-options "-O -fdump-tree-lim2" } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-options "-O -fdump-tree-lim2" } */
+>>>>>>> gcc-mirror/master
 
 int a[1024];
 
@@ -38,6 +42,7 @@ void bar (int x, int z)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "!= 0 ? " 2 "lim1" } } */
 =======
 /* { dg-final { scan-tree-dump-times "!= 0 ? " 2 "lim2" } } */
@@ -48,3 +53,6 @@ void bar (int x, int z)
 =======
 /* { dg-final { scan-tree-dump-times "!= 0 ? " 2 "lim2" } } */
 >>>>>>> gcc-mirror/trunk
+=======
+/* { dg-final { scan-tree-dump-times "!= 0 ? " 2 "lim2" } } */
+>>>>>>> gcc-mirror/master

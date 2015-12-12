@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -13,6 +14,8 @@
 >>>>>>> master
 =======
 >>>>>>> gcc-mirror/trunk
+=======
+>>>>>>> gcc-mirror/master
 
 void
 f_vst3q_lane_s32 (int32_t * p, int32x4x3_t v)
@@ -20,6 +23,7 @@ f_vst3q_lane_s32 (int32_t * p, int32x4x3_t v)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* { dg-error "lane 4 out of range 0 - 3" "" { xfail arm*-*-* } 0 } */
   vst3q_lane_s32 (p, v, 4);
   /* { dg-error "lane -1 out of range 0 - 3" "" { xfail arm*-*-* } 0 } */
@@ -38,6 +42,11 @@ f_vst3q_lane_s32 (int32_t * p, int32x4x3_t v)
   vst3q_lane_s32 (p, v, 4);
   /* { dg-error "lane -1 out of range 0 - 3" "" { target *-*-* } 0 } */
 >>>>>>> gcc-mirror/trunk
+=======
+  /* { dg-error "lane 4 out of range 0 - 3" "" { target *-*-* } 0 } */
+  vst3q_lane_s32 (p, v, 4);
+  /* { dg-error "lane -1 out of range 0 - 3" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/master
   vst3q_lane_s32 (p, v, -1);
   return;
 }
