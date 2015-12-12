@@ -4937,6 +4937,67 @@ extern tree build_aligned_type (tree, unsigned int);
 extern tree build_distinct_type_copy (tree);
 extern tree build_variant_type_copy (tree);
 
+<<<<<<< HEAD
+=======
+/* Finish up a builtin RECORD_TYPE. Give it a name and provide its
+   fields. Optionally specify an alignment, and then lay it out.  */
+
+extern void finish_builtin_struct (tree, const char *, tree, tree);
+
+/* Given a ..._TYPE node, calculate the TYPE_SIZE, TYPE_SIZE_UNIT,
+   TYPE_ALIGN and TYPE_MODE fields.  If called more than once on one
+   node, does nothing except for the first time.  */
+
+extern void layout_type (tree);
+
+/* These functions allow a front-end to perform a manual layout of a
+   RECORD_TYPE.  (For instance, if the placement of subsequent fields
+   depends on the placement of fields so far.)  Begin by calling
+   start_record_layout.  Then, call place_field for each of the
+   fields.  Then, call finish_record_layout.  See layout_type for the
+   default way in which these functions are used.  */
+
+typedef struct record_layout_info_s
+{
+  /* The RECORD_TYPE that we are laying out.  */
+  tree t;
+  /* The offset into the record so far, in bytes, not including bits in
+     BITPOS.  */
+  tree offset;
+  /* The last known alignment of SIZE.  */
+  unsigned int offset_align;
+  /* The bit position within the last OFFSET_ALIGN bits, in bits.  */
+  tree bitpos;
+  /* The alignment of the record so far, in bits.  */
+  unsigned int record_align;
+  /* The alignment of the record so far, ignoring #pragma pack and
+     __attribute__ ((packed)), in bits.  */
+  unsigned int unpacked_align;
+  /* The previous field layed out.  */
+  tree prev_field;
+  /* The static variables (i.e., class variables, as opposed to
+     instance variables) encountered in T.  */
+  VEC(tree,gc) *pending_statics;
+  /* Bits remaining in the current alignment group */
+  int remaining_in_alignment;
+  /* True if we've seen a packed field that didn't have normal
+     alignment anyway.  */
+  int packed_maybe_necessary;
+} *record_layout_info;
+
+extern record_layout_info start_record_layout (tree);
+extern tree bit_from_pos (tree, tree);
+extern tree byte_from_pos (tree, tree);
+extern void pos_from_bit (tree *, tree *, unsigned int, tree);
+extern void normalize_offset (tree *, tree *, unsigned int);
+extern tree rli_size_unit_so_far (record_layout_info);
+extern tree rli_size_so_far (record_layout_info);
+extern void normalize_rli (record_layout_info);
+extern void place_field (record_layout_info, tree);
+extern void compute_record_mode (tree);
+extern void finish_record_layout (record_layout_info, int);
+
+>>>>>>> gcc-mirror/python
 /* Given a hashcode and a ..._TYPE node (for which the hashcode was made),
    return a canonicalized ..._TYPE node, so that duplicates are not made.
    How the hash code is computed is up to the caller, as long as any two
