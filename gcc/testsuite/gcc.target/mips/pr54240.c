@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-fdump-tree-phiopt-details isa>=4" } */
+/* { dg-options "-fdump-tree-phiopt-details -ffat-lto-objects isa>=4" } */
 /* { dg-skip-if "code quality test" { *-*-* } { "-O0" "-O1" } { "" } } */
 
 typedef struct s {
@@ -25,4 +25,3 @@ NOMIPS16 int foo(S *s)
 }
 
 /* { dg-final { scan-tree-dump "Hoisting adjacent loads" "phiopt1" } } */
-/* { dg-final { cleanup-tree-dump "phiopt1" } } */

@@ -1,5 +1,5 @@
 /* General Solaris system support.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2015 Free Software Foundation, Inc.
    Contributed by CodeSourcery, LLC.
 
 This file is part of GCC.
@@ -21,15 +21,14 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tree.h"
-#include "output.h"
-#include "tm.h"
-#include "rtl.h"
 #include "target.h"
+#include "rtl.h"
+#include "tree.h"
 #include "tm_p.h"
+#include "stringpool.h"
 #include "diagnostic-core.h"
-#include "ggc.h"
-#include "hash-table.h"
+#include "varasm.h"
+#include "output.h"
 
 tree solaris_pending_aligns, solaris_pending_inits, solaris_pending_finis;
 
@@ -169,31 +168,29 @@ typedef struct comdat_entry
 
 /* Helpers for maintaining solaris_comdat_htab.  */
 
-struct comdat_entry_hasher : typed_noop_remove <comdat_entry>
+struct comdat_entry_hasher : nofree_ptr_hash <comdat_entry>
 {
-  typedef comdat_entry value_type;
-  typedef comdat_entry compare_type;
-  static inline hashval_t hash (const value_type *);
-  static inline bool equal (const value_type *, const compare_type *);
-  static inline void remove (value_type *);
+  static inline hashval_t hash (const comdat_entry *);
+  static inline bool equal (const comdat_entry *, const comdat_entry *);
+  static inline void remove (comdat_entry *);
 };
 
 inline hashval_t
-comdat_entry_hasher::hash (const value_type *entry)
+comdat_entry_hasher::hash (const comdat_entry *entry)
 {
   return htab_hash_string (entry->sig);
 }
 
 inline bool
-comdat_entry_hasher::equal (const value_type *entry1,
-			    const compare_type *entry2)
+comdat_entry_hasher::equal (const comdat_entry *entry1,
+			    const comdat_entry *entry2)
 {
   return strcmp (entry1->sig, entry2->sig) == 0;
 }
 
 /* Hash table of group signature symbols.  */
 
-static hash_table <comdat_entry_hasher> solaris_comdat_htab;
+static hash_table<comdat_entry_hasher> *solaris_comdat_htab;
 
 /* Output assembly to switch to COMDAT group section NAME with attributes
    FLAGS and group signature symbol DECL, using Sun as syntax.  */
@@ -234,11 +231,11 @@ solaris_elf_asm_comdat_section (const char *name, unsigned int flags, tree decl)
      identify the missing ones without changing the affected frontents,
      remember the signature symbols and emit those not marked
      TREE_SYMBOL_REFERENCED in solaris_file_end.  */
-  if (!solaris_comdat_htab.is_created ())
-    solaris_comdat_htab.create (37);
+  if (!solaris_comdat_htab)
+    solaris_comdat_htab = new hash_table<comdat_entry_hasher> (37);
 
   entry.sig = signature;
-  slot = solaris_comdat_htab.find_slot (&entry, INSERT);
+  slot = solaris_comdat_htab->find_slot (&entry, INSERT);
 
   if (*slot == NULL)
     {
@@ -282,10 +279,11 @@ solaris_define_comdat_signature (comdat_entry **slot,
 void
 solaris_file_end (void)
 {
-  if (!solaris_comdat_htab.is_created ())
+  if (!solaris_comdat_htab)
     return;
 
-  solaris_comdat_htab.traverse <void *, solaris_define_comdat_signature> (NULL);
+  solaris_comdat_htab->traverse <void *, solaris_define_comdat_signature>
+    (NULL);
 }
 
 void

@@ -1,5 +1,5 @@
 /* Command line option handling.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -20,8 +20,6 @@ along with GCC; see the file COPYING3.  If not see
 #ifndef GCC_OPTS_H
 #define GCC_OPTS_H
 
-#include "input.h"
-#include "vec.h"
 #include "obstack.h"
 
 /* Specifies how a switch's VAR_VALUE relates to its FLAG_VAR.  */
@@ -146,6 +144,7 @@ extern const unsigned int cl_lang_count;
 #define CL_SEPARATE		(1U << 23) /* If takes a separate argument.  */
 #define CL_UNDOCUMENTED		(1U << 24) /* Do not output with --help.  */
 #define CL_NO_DWARF_RECORD	(1U << 25) /* Do not add to producer string.  */
+#define CL_PCH_IGNORE		(1U << 26) /* Do compare state for pch.  */
 
 /* Flags for an enumerated option argument.  */
 #define CL_ENUM_CANONICAL	(1 << 0) /* Canonical for this value.  */
@@ -249,14 +248,14 @@ struct cl_decoded_option
 /* Structure describing an option deferred for handling after the main
    option handlers.  */
 
-typedef struct
+struct cl_deferred_option
 {
   /* Elements from struct cl_decoded_option used for deferred
      options.  */
   size_t opt_index;
   const char *arg;
   int value;
-} cl_deferred_option;
+};
 
 /* Structure describing a single option-handling callback.  */
 
@@ -324,6 +323,8 @@ extern void decode_cmdline_options_to_array (unsigned int argc,
 extern void init_options_once (void);
 extern void init_options_struct (struct gcc_options *opts,
 				 struct gcc_options *opts_set);
+extern void init_opts_obstack (void);
+extern void finalize_options_struct (struct gcc_options *opts);
 extern void decode_cmdline_options_to_array_default_mask (unsigned int argc,
 							  const char **argv, 
 							  struct cl_decoded_option **decoded_options,
@@ -368,6 +369,7 @@ extern void control_warning_option (unsigned int opt_index, int kind,
 				    struct gcc_options *opts,
 				    struct gcc_options *opts_set,
 				    diagnostic_context *dc);
+extern char *write_langs (unsigned int mask);
 extern void print_ignored_options (void);
 extern void handle_common_deferred_options (void);
 extern bool common_handle_option (struct gcc_options *opts,

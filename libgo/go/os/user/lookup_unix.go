@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin freebsd linux netbsd openbsd
+// +build darwin dragonfly freebsd !android,linux netbsd openbsd solaris
 // +build cgo
 
 package user
@@ -16,6 +16,7 @@ import (
 )
 
 /*
+#cgo solaris CFLAGS: -D_POSIX_PTHREAD_SEMANTICS
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -23,15 +24,14 @@ import (
 
 static int mygetpwuid_r(int uid, struct passwd *pwd,
 	char *buf, size_t buflen, struct passwd **result) {
- return getpwuid_r(uid, pwd, buf, buflen, result);
+	return getpwuid_r(uid, pwd, buf, buflen, result);
+}
+
+static int mygetpwnam_r(const char *name, struct passwd *pwd,
+	char *buf, size_t buflen, struct passwd **result) {
+	return getpwnam_r(name, pwd, buf, buflen, result);
 }
 */
-
-//extern getpwnam_r
-func libc_getpwnam_r(name *byte, pwd *syscall.Passwd, buf *byte, buflen syscall.Size_t, result **syscall.Passwd) int
-
-//extern getpwuid_r
-func libc_getpwuid_r(uid syscall.Uid_t, pwd *syscall.Passwd, buf *byte, buflen syscall.Size_t, result **syscall.Passwd) int
 
 // bytePtrToString takes a NUL-terminated array of bytes and convert
 // it to a Go string.
@@ -68,9 +68,9 @@ func lookupUnix(uid int, username string, lookupByName bool) (*User, error) {
 	const bufSize = 1024
 	buf := make([]byte, bufSize)
 	if lookupByName {
-		p := syscall.StringBytePtr(username)
+		nameC := syscall.StringBytePtr(username)
 		syscall.Entersyscall()
-		rv := libc_getpwnam_r(p,
+		rv := libc_getpwnam_r(nameC,
 			&pwd,
 			&buf[0],
 			bufSize,

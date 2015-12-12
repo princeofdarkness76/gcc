@@ -1,4 +1,4 @@
-/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2008-2015 Free Software Foundation, Inc.
    Contributed by Richard Henderson <rth@redhat.com>.
 
    This file is part of the GNU Transactional Memory Library (libitm).
@@ -132,6 +132,8 @@ GTM::gtm_thread::gtm_thread ()
   number_of_threads_changed(number_of_threads - 1, number_of_threads);
   serial_lock.write_unlock ();
 
+  init_cpp_exceptions ();
+
   if (pthread_once(&thr_release_once, thread_exit_init))
     GTM_fatal("Initializing thread release TLS key failed.");
   // Any non-null value is sufficient to trigger destruction of this
@@ -165,7 +167,7 @@ GTM::gtm_thread::begin_transaction (uint32_t prop, const gtm_jmpbuf *jb)
   if (unlikely(prop & pr_undoLogCode))
     GTM_fatal("pr_undoLogCode not supported");
 
-#if defined(USE_HTM_FASTPATH) && !defined(HTM_CUSTOM_FASTPATH)
+#ifdef USE_HTM_FASTPATH
   // HTM fastpath.  Only chosen in the absence of transaction_cancel to allow
   // using an uninstrumented code path.
   // The fastpath is enabled only by dispatch_htm's method group, which uses
@@ -187,6 +189,7 @@ GTM::gtm_thread::begin_transaction (uint32_t prop, const gtm_jmpbuf *jb)
   // indeed in serial mode, and HW transactions should never need serial mode
   // for any internal changes (e.g., they never abort visibly to the STM code
   // and thus do not trigger the standard retry handling).
+#ifndef HTM_CUSTOM_FASTPATH
   if (likely(htm_fastpath && (prop & pr_hasNoAbort)))
     {
       for (uint32_t t = htm_fastpath; t; t--)
@@ -237,6 +240,49 @@ GTM::gtm_thread::begin_transaction (uint32_t prop, const gtm_jmpbuf *jb)
 	    }
 	}
     }
+#else
+  // If we have a custom HTM fastpath in ITM_beginTransaction, we implement
+  // just the retry policy here.  We communicate with the custom fastpath
+  // through additional property bits and return codes, and either transfer
+  // control back to the custom fastpath or run the fallback mechanism.  The
+  // fastpath synchronization algorithm itself is the same.
+  // pr_HTMRetryableAbort states that a HW transaction started by the custom
+  // HTM fastpath aborted, and that we thus have to decide whether to retry
+  // the fastpath (returning a_tryHTMFastPath) or just proceed with the
+  // fallback method.
+  if (likely(htm_fastpath && (prop & pr_HTMRetryableAbort)))
+    {
+      tx = gtm_thr();
+      if (unlikely(tx == NULL))
+        {
+          // See below.
+          tx = new gtm_thread();
+          set_gtm_thr(tx);
+        }
+      // If this is the first abort, reset the retry count.  We abuse
+      // restart_total for the retry count, which is fine because our only
+      // other fallback will use serial transactions, which don't use
+      // restart_total but will reset it when committing.
+      if (!(prop & pr_HTMRetriedAfterAbort))
+	tx->restart_total = htm_fastpath;
+
+      if (--tx->restart_total > 0)
+	{
+	  // Wait until any concurrent serial-mode transactions have finished.
+	  // Essentially the same code as above.
+	  if (serial_lock.is_write_locked())
+	    {
+	      if (tx->nesting > 0)
+		goto stop_custom_htm_fastpath;
+	      serial_lock.read_lock(tx);
+	      serial_lock.read_unlock(tx);
+	    }
+	  // Let ITM_beginTransaction retry the custom HTM fastpath.
+	  return a_tryHTMFastPath;
+	}
+    }
+ stop_custom_htm_fastpath:
+#endif
 #endif
 
   tx = gtm_thr();
@@ -339,6 +385,11 @@ GTM::gtm_thread::begin_transaction (uint32_t prop, const gtm_jmpbuf *jb)
 #endif
     }
 
+  // Log the number of uncaught exceptions if we might have to roll back this
+  // state.
+  if (tx->cxa_uncaught_count_ptr != 0)
+    tx->cxa_uncaught_count = *tx->cxa_uncaught_count_ptr;
+
   // Run dispatch-specific restart code. Retry until we succeed.
   GTM::gtm_restart_reason rr;
   while ((rr = disp->begin_or_restart()) != NO_RESTART)
@@ -367,7 +418,7 @@ GTM::gtm_transaction_cp::save(gtm_thread* tx)
   id = tx->id;
   prop = tx->prop;
   cxa_catch_count = tx->cxa_catch_count;
-  cxa_unthrown = tx->cxa_unthrown;
+  cxa_uncaught_count = tx->cxa_uncaught_count;
   disp = abi_disp();
   nesting = tx->nesting;
 }
@@ -539,7 +590,6 @@ GTM::gtm_thread::trycommit ()
       undolog.commit ();
       // Reset further transaction state.
       cxa_catch_count = 0;
-      cxa_unthrown = NULL;
       restart_total = 0;
 
       // Ensure privatization safety, if necessary.

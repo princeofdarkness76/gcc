@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,7 +38,6 @@ with Sinfo;    use Sinfo;
 with Snames;   use Snames;
 with Stand;    use Stand;
 with Stringt;  use Stringt;
-with Targparm; use Targparm;
 with Uintp;    use Uintp;
 
 package body Sem_Intr is
@@ -137,7 +136,7 @@ package body Sem_Intr is
             null;
 
          elsif Nkind (Arg1) /= N_String_Literal
-           and then not Is_Static_Expression (Arg1)
+           and then not Is_OK_Static_Expression (Arg1)
          then
             Error_Msg_FE
               ("call to & requires static string argument!", N, Nam);
@@ -146,12 +145,6 @@ package body Sem_Intr is
          elsif String_Length (Strval (Expr_Value_S (Arg1))) = 0 then
             Error_Msg_NE
               ("call to & does not permit null string", N, Nam);
-
-         elsif OpenVMS_On_Target
-           and then String_Length (Strval (Expr_Value_S (Arg1))) > 31
-         then
-            Error_Msg_NE
-              ("argument in call to & must be 31 characters or less", N, Nam);
          end if;
 
       --  Check for the case of freeing a non-null object which will raise
@@ -328,9 +321,17 @@ package body Sem_Intr is
       then
          Errint ("unrecognized intrinsic subprogram", E, N);
 
+      --  Shift cases. We allow user specification of intrinsic shift operators
+      --  for any numeric types.
+
+      elsif Nam_In (Nam, Name_Rotate_Left, Name_Rotate_Right, Name_Shift_Left,
+                         Name_Shift_Right, Name_Shift_Right_Arithmetic)
+      then
+         Check_Shift (E, N);
+
       --  We always allow intrinsic specifications in language defined units
       --  and in expanded code. We assume that the GNAT implementors know what
-      --  they are doing, and do not write or generate junk use of intrinsic!
+      --  they are doing, and do not write or generate junk use of intrinsic.
 
       elsif not Comes_From_Source (E)
         or else not Comes_From_Source (N)
@@ -339,13 +340,7 @@ package body Sem_Intr is
       then
          null;
 
-      --  Shift cases. We allow user specification of intrinsic shift
-      --  operators for any numeric types.
-
-      elsif Nam_In (Nam, Name_Rotate_Left, Name_Rotate_Right, Name_Shift_Left,
-                         Name_Shift_Right, Name_Shift_Right_Arithmetic)
-      then
-         Check_Shift (E, N);
+      --  Exception  functions
 
       elsif Nam_In (Nam, Name_Exception_Information,
                          Name_Exception_Message,
@@ -353,11 +348,19 @@ package body Sem_Intr is
       then
          Check_Exception_Function (E, N);
 
+      --  Intrinsic operators
+
       elsif Nkind (E) = N_Defining_Operator_Symbol then
          Check_Intrinsic_Operator (E, N);
 
-      elsif Nam_In (Nam, Name_File, Name_Line, Name_Source_Location,
-                         Name_Enclosing_Entity)
+      --  Source_Location and navigation functions
+
+      elsif Nam_In (Nam, Name_File,
+                         Name_Line,
+                         Name_Source_Location,
+                         Name_Enclosing_Entity,
+                         Name_Compilation_Date,
+                         Name_Compilation_Time)
       then
          null;
 
@@ -416,7 +419,7 @@ package body Sem_Intr is
          return;
       end if;
 
-      --  type'Size (not 'Object_Size!) must be one of the allowed values
+      --  type'Size (not 'Object_Size) must be one of the allowed values
 
       Size := UI_To_Int (RM_Size (Typ1));
 
@@ -427,18 +430,33 @@ package body Sem_Intr is
       then
          Errint
            ("first argument for shift must have size 8, 16, 32 or 64",
-             Ptyp1, N);
+            Ptyp1, N);
          return;
 
       elsif Non_Binary_Modulus (Typ1) then
+         Errint ("shifts not allowed for nonbinary modular types", Ptyp1, N);
+
+      --  For modular type, modulus must be 2**8, 2**16, 2**32, or 2**64.
+      --  Don't apply to generic types, since we may not have a modulus value.
+
+      elsif Is_Modular_Integer_Type (Typ1)
+        and then not Is_Generic_Type (Typ1)
+        and then Modulus (Typ1) /= Uint_2 ** 8
+        and then Modulus (Typ1) /= Uint_2 ** 16
+        and then Modulus (Typ1) /= Uint_2 ** 32
+        and then Modulus (Typ1) /= Uint_2 ** 64
+      then
          Errint
-           ("shifts not allowed for non-binary modular types", Ptyp1, N);
+           ("modular type for shift must have modulus of 2'*'*8, "
+            & "2'*'*16, 2'*'*32, or 2'*'*64", Ptyp1, N);
 
       elsif Etype (Arg1) /= Etype (E) then
          Errint
            ("first argument of shift must match return type", Ptyp1, N);
          return;
       end if;
+
+      Set_Has_Shift_Operator (Base_Type (Typ1));
    end Check_Shift;
 
    ------------

@@ -1,5 +1,5 @@
 /* RunTime Type Identification
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2015 Free Software Foundation, Inc.
    Mostly written by Jason Merrill (jason@cygnus.com).
 
 This file is part of GCC.
@@ -20,14 +20,13 @@ along with GCC; see the file COPYING3.  If not see
 
 #include "config.h"
 #include "system.h"
-#include "intl.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "tree.h"
-#include "cp-tree.h"
-#include "flags.h"
-#include "convert.h"
 #include "target.h"
+#include "cp-tree.h"
+#include "tm_p.h"
+#include "stringpool.h"
+#include "intl.h"
+#include "stor-layout.h"
 #include "c-family/c-pragma.h"
 
 /* C++ returns type information to the user in struct type_info
@@ -60,7 +59,7 @@ along with GCC; see the file COPYING3.  If not see
    translation, when we are emitting the type info objects.  */
 
 /* Auxiliary data we hold for each type_info derived object we need.  */
-typedef struct GTY (()) tinfo_s {
+struct GTY (()) tinfo_s {
   tree type;  /* The RECORD_TYPE for this type_info object */
 
   tree vtable; /* The VAR_DECL of the vtable.  Only filled at end of
@@ -68,10 +67,10 @@ typedef struct GTY (()) tinfo_s {
 
   tree name;  /* IDENTIFIER_NODE for the ABI specified name of
 		 the type_info derived type.  */
-} tinfo_s;
+};
 
 
-typedef enum tinfo_kind
+enum tinfo_kind
 {
   TK_TYPE_INFO_TYPE,    /* abi::__type_info_pseudo */
   TK_BASE_TYPE,		/* abi::__base_class_type_info */
@@ -85,7 +84,7 @@ typedef enum tinfo_kind
   TK_SI_CLASS_TYPE,	/* abi::__si_class_type_info */
   TK_FIXED		/* end of fixed descriptors. */
   /* ...		   abi::__vmi_type_info<I> */
-} tinfo_kind;
+};
 
 /* Helper macro to get maximum scalar-width of pointer or of the 'long'-type.
    This of interest for llp64 targets.  */
@@ -393,12 +392,9 @@ get_tinfo_decl (tree type)
 
   if (variably_modified_type_p (type, /*fn=*/NULL_TREE))
     {
-      if (array_of_runtime_bound_p (type))
-	error ("typeid of array of runtime bound");
-      else
-	error ("cannot create type information for type %qT because "
-	       "it involves types of variable size",
-	       type);
+      error ("cannot create type information for type %qT because "
+	     "it involves types of variable size",
+	     type);
       return error_mark_node;
     }
 
@@ -605,10 +601,6 @@ build_dynamic_cast_1 (tree type, tree expr, tsubst_flags_t complain)
 	  errstr = _("source is of incomplete class type");
 	  goto fail;
 	}
-
-      /* Apply trivial conversion T -> T& for dereferenced ptrs.  */
-      expr = convert_to_reference (exprtype, expr, CONV_IMPLICIT,
-				   LOOKUP_NORMAL, NULL_TREE, complain);
     }
 
   /* The dynamic_cast operator shall not cast away constness.  */
@@ -627,6 +619,11 @@ build_dynamic_cast_1 (tree type, tree expr, tsubst_flags_t complain)
     if (binfo)
       return build_static_cast (type, expr, complain);
   }
+
+  /* Apply trivial conversion T -> T& for dereferenced ptrs.  */
+  if (tc == REFERENCE_TYPE)
+    expr = convert_to_reference (exprtype, expr, CONV_IMPLICIT,
+				 LOOKUP_NORMAL, NULL_TREE, complain);
 
   /* Otherwise *exprtype must be a polymorphic class (have a vtbl).  */
   if (TYPE_POLYMORPHIC_P (TREE_TYPE (exprtype)))
@@ -698,10 +695,12 @@ build_dynamic_cast_1 (tree type, tree expr, tsubst_flags_t complain)
 	  target_type = TYPE_MAIN_VARIANT (TREE_TYPE (type));
 	  static_type = TYPE_MAIN_VARIANT (TREE_TYPE (exprtype));
 	  td2 = get_tinfo_decl (target_type);
-	  mark_used (td2);
+	  if (!mark_used (td2, complain) && !(complain & tf_error))
+	    return error_mark_node;
 	  td2 = cp_build_addr_expr (td2, complain);
 	  td3 = get_tinfo_decl (static_type);
-	  mark_used (td3);
+	  if (!mark_used (td3, complain) && !(complain & tf_error))
+	    return error_mark_node;
 	  td3 = cp_build_addr_expr (td3, complain);
 
 	  /* Determine how T and V are related.  */
@@ -739,8 +738,8 @@ build_dynamic_cast_1 (tree type, tree expr, tsubst_flags_t complain)
 					      const_ptr_type_node,
 					      tinfo_ptr, tinfo_ptr,
 					      ptrdiff_type_node, NULL_TREE);
-	      dcast_fn = build_library_fn_ptr (name, tmp);
-	      DECL_PURE_P (dcast_fn) = 1;
+	      dcast_fn = build_library_fn_ptr (name, tmp,
+					       ECF_LEAF | ECF_PURE | ECF_NOTHROW);
 	      pop_abi_namespace ();
 	      dynamic_cast_node = dcast_fn;
 	    }
@@ -979,6 +978,11 @@ ptr_initializer (tinfo_s *ti, tree target)
 
   if (incomplete)
     flags |= 8;
+  if (tx_safe_fn_type_p (to))
+    {
+      flags |= 0x20;
+      to = tx_unsafe_fn_variant (to);
+    }
   CONSTRUCTOR_APPEND_ELT (v, NULL_TREE, init);
   CONSTRUCTOR_APPEND_ELT (v, NULL_TREE, build_int_cst (NULL_TREE, flags));
   CONSTRUCTOR_APPEND_ELT (v, NULL_TREE,
@@ -1328,14 +1332,8 @@ get_pseudo_ti_index (tree type)
 		/* already created.  */
 		break;
 
-	      /* Create the array of __base_class_type_info entries.
-		 G++ 3.2 allocated an array that had one too many
-		 entries, and then filled that extra entries with
-		 zeros.  */
-	      if (abi_version_at_least (2))
-		array_domain = build_index_type (size_int (num_bases - 1));
-	      else
-		array_domain = build_index_type (size_int (num_bases));
+	      /* Create the array of __base_class_type_info entries.  */
+	      array_domain = build_index_type (size_int (num_bases - 1));
 	      base_array = build_array_type ((*tinfo_descs)[TK_BASE_TYPE].type,
 					     array_domain);
 
@@ -1463,6 +1461,44 @@ create_tinfo_types (void)
   pop_abi_namespace ();
 }
 
+/* Helper for emit_support_tinfos. Emits the type_info descriptor of
+   a single type.  */
+
+void
+emit_support_tinfo_1 (tree bltn)
+{
+  tree types[3];
+
+  if (bltn == NULL_TREE)
+    return;
+  types[0] = bltn;
+  types[1] = build_pointer_type (bltn);
+  types[2] = build_pointer_type (cp_build_qualified_type (bltn,
+							  TYPE_QUAL_CONST));
+
+  for (int i = 0; i < 3; ++i)
+    {
+      tree tinfo = get_tinfo_decl (types[i]);
+      TREE_USED (tinfo) = 1;
+      mark_needed (tinfo);
+      /* The C++ ABI requires that these objects be COMDAT.  But,
+	 On systems without weak symbols, initialized COMDAT
+	 objects are emitted with internal linkage.  (See
+	 comdat_linkage for details.)  Since we want these objects
+	 to have external linkage so that copies do not have to be
+	 emitted in code outside the runtime library, we make them
+	 non-COMDAT here.  
+
+	 It might also not be necessary to follow this detail of the
+	 ABI.  */
+      if (!flag_weak || ! targetm.cxx.library_rtti_comdat ())
+	{
+	  gcc_assert (TREE_PUBLIC (tinfo) && !DECL_COMDAT (tinfo));
+	  DECL_INTERFACE_KNOWN (tinfo) = 1;
+	}
+    }
+}
+
 /* Emit the type_info descriptors which are guaranteed to be in the runtime
    support.  Generating them here guarantees consistency with the other
    structures.  We use the following heuristic to determine when the runtime
@@ -1484,7 +1520,6 @@ emit_support_tinfos (void)
     &integer_type_node, &unsigned_type_node,
     &long_integer_type_node, &long_unsigned_type_node,
     &long_long_integer_type_node, &long_long_unsigned_type_node,
-    &int128_integer_type_node, &int128_unsigned_type_node,
     &float_type_node, &double_type_node, &long_double_type_node,
     &dfloat32_type_node, &dfloat64_type_node, &dfloat128_type_node,
     &nullptr_type_node,
@@ -1505,42 +1540,15 @@ emit_support_tinfos (void)
     return;
   doing_runtime = 1;
   for (ix = 0; fundamentals[ix]; ix++)
-    {
-      tree bltn = *fundamentals[ix];
-      tree types[3];
-      int i;
-
-      if (bltn == NULL_TREE)
-	continue;
-      types[0] = bltn;
-      types[1] = build_pointer_type (bltn);
-      types[2] = build_pointer_type (cp_build_qualified_type (bltn,
-							      TYPE_QUAL_CONST));
-
-      for (i = 0; i < 3; ++i)
-	{
-	  tree tinfo;
-
-	  tinfo = get_tinfo_decl (types[i]);
-	  TREE_USED (tinfo) = 1;
-	  mark_needed (tinfo);
-	  /* The C++ ABI requires that these objects be COMDAT.  But,
-	     On systems without weak symbols, initialized COMDAT
-	     objects are emitted with internal linkage.  (See
-	     comdat_linkage for details.)  Since we want these objects
-	     to have external linkage so that copies do not have to be
-	     emitted in code outside the runtime library, we make them
-	     non-COMDAT here.  
-
-	     It might also not be necessary to follow this detail of the
-	     ABI.  */
-	  if (!flag_weak || ! targetm.cxx.library_rtti_comdat ())
-	    {
-	      gcc_assert (TREE_PUBLIC (tinfo) && !DECL_COMDAT (tinfo));
-	      DECL_INTERFACE_KNOWN (tinfo) = 1;
-	    }
-	}
-    }
+    emit_support_tinfo_1 (*fundamentals[ix]);
+  for (ix = 0; ix < NUM_INT_N_ENTS; ix ++)
+    if (int_n_enabled_p[ix])
+      {
+	emit_support_tinfo_1 (int_n_trees[ix].signed_type);
+	emit_support_tinfo_1 (int_n_trees[ix].unsigned_type);
+      }
+  for (tree t = registered_builtin_types; t; t = TREE_CHAIN (t))
+    emit_support_tinfo_1 (TREE_VALUE (t));
 }
 
 /* Finish a type info decl. DECL_PTR is a pointer to an unemitted
@@ -1591,6 +1599,12 @@ emit_tinfo_decl (tree decl)
       DECL_INITIAL (decl) = init;
       mark_used (decl);
       cp_finish_decl (decl, init, false, NULL_TREE, 0);
+      /* Avoid targets optionally bumping up the alignment to improve
+	 vector instruction accesses, tinfo are never accessed this way.  */
+#ifdef DATA_ABI_ALIGNMENT
+      DECL_ALIGN (decl) = DATA_ABI_ALIGNMENT (decl, TYPE_ALIGN (TREE_TYPE (decl)));
+      DECL_USER_ALIGN (decl) = true;
+#endif
       return true;
     }
   else

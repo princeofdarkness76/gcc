@@ -74,6 +74,10 @@ func (p *pipe) write(b []byte) (n int, err error) {
 
 	p.l.Lock()
 	defer p.l.Unlock()
+	if p.werr != nil {
+		err = ErrClosedPipe
+		return
+	}
 	p.data = b
 	p.rwait.Signal()
 	for {
@@ -164,7 +168,10 @@ func (w *PipeWriter) Close() error {
 }
 
 // CloseWithError closes the writer; subsequent reads from the
-// read half of the pipe will return no bytes and the error err.
+// read half of the pipe will return no bytes and the error err,
+// or EOF if err is nil.
+//
+// CloseWithError always returns nil.
 func (w *PipeWriter) CloseWithError(err error) error {
 	w.p.wclose(err)
 	return nil

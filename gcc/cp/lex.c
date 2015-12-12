@@ -1,5 +1,5 @@
 /* Separate lexical analyzer for GNU C++.
-   Copyright (C) 1987-2013 Free Software Foundation, Inc.
+   Copyright (C) 1987-2015 Free Software Foundation, Inc.
    Hacked by Michael Tiemann (tiemann@cygnus.com)
 
 This file is part of GCC.
@@ -24,16 +24,10 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "input.h"
-#include "tree.h"
 #include "cp-tree.h"
-#include "cpplib.h"
-#include "flags.h"
+#include "stringpool.h"
 #include "c-family/c-pragma.h"
 #include "c-family/c-objc.h"
-#include "tm_p.h"
-#include "timevar.h"
 
 static int interface_strcmp (const char *);
 static void init_cp_pragma (void);
@@ -172,7 +166,11 @@ init_reswords (void)
   int mask = 0;
 
   if (cxx_dialect < cxx11)
-    mask |= D_CXX0X;
+    mask |= D_CXX11;
+  if (!flag_concepts)
+    mask |= D_CXX_CONCEPTS;
+  if (!flag_tm)
+    mask |= D_TRANSMEM;
   if (flag_no_asm)
     mask |= D_ASM | D_EXT;
   if (flag_no_gnu_keywords)
@@ -181,7 +179,7 @@ init_reswords (void)
   /* The Objective-C keywords are all context-dependent.  */
   mask |= D_OBJC;
 
-  ridpointers = ggc_alloc_cleared_vec_tree ((int) RID_MAX);
+  ridpointers = ggc_cleared_vec_alloc<tree> ((int) RID_MAX);
   for (i = 0; i < num_c_common_reswords; i++)
     {
       if (c_common_reswords[i].disable & D_CONLY)
@@ -191,6 +189,15 @@ init_reswords (void)
       ridpointers [(int) c_common_reswords[i].rid] = id;
       if (! (c_common_reswords[i].disable & mask))
 	C_IS_RESERVED_WORD (id) = 1;
+    }
+
+  for (i = 0; i < NUM_INT_N_ENTS; i++)
+    {
+      char name[50];
+      sprintf (name, "__int%d", int_n_data[i].bitsize);
+      id = get_identifier (name);
+      C_SET_RID_CODE (id, RID_FIRST_INT_N + i);
+      C_IS_RESERVED_WORD (id) = 1;
     }
 }
 
@@ -240,7 +247,6 @@ cxx_init (void)
   init_cp_semantics ();
   init_operators ();
   init_method ();
-  init_error ();
 
   current_function_decl = NULL;
 
@@ -351,18 +357,18 @@ handle_pragma_interface (cpp_reader* /*dfile*/)
   if (fname == error_mark_node)
     return;
   else if (fname == 0)
-    filename = lbasename (input_filename);
+    filename = lbasename (LOCATION_FILE (input_location));
   else
     filename = TREE_STRING_POINTER (fname);
 
-  finfo = get_fileinfo (input_filename);
+  finfo = get_fileinfo (LOCATION_FILE (input_location));
 
   if (impl_file_chain == 0)
     {
       /* If this is zero at this point, then we are
 	 auto-implementing.  */
       if (main_input_filename == 0)
-	main_input_filename = input_filename;
+	main_input_filename = LOCATION_FILE (input_location);
     }
 
   finfo->interface_only = interface_strcmp (filename);
@@ -396,7 +402,7 @@ handle_pragma_implementation (cpp_reader* /*dfile*/)
       if (main_input_filename)
 	filename = main_input_filename;
       else
-	filename = input_filename;
+	filename = LOCATION_FILE (input_location);
       filename = lbasename (filename);
     }
   else
@@ -543,6 +549,9 @@ retrofit_lang_decl (tree t)
   size_t size;
   int sel;
 
+  if (DECL_LANG_SPECIFIC (t))
+    return;
+
   if (TREE_CODE (t) == FUNCTION_DECL)
     sel = 1, size = sizeof (struct lang_decl_fn);
   else if (TREE_CODE (t) == NAMESPACE_DECL)
@@ -554,7 +563,7 @@ retrofit_lang_decl (tree t)
   else
     gcc_unreachable ();
 
-  ld = ggc_alloc_cleared_lang_decl (size);
+  ld = (struct lang_decl *) ggc_internal_cleared_alloc (size);
 
   ld->u.base.selector = sel;
 
@@ -596,7 +605,7 @@ cxx_dup_lang_specific_decl (tree node)
   else
     gcc_unreachable ();
 
-  ld = ggc_alloc_lang_decl (size);
+  ld = (struct lang_decl *) ggc_internal_alloc (size);
   memcpy (ld, DECL_LANG_SPECIFIC (node), size);
   DECL_LANG_SPECIFIC (node) = ld;
 
@@ -634,7 +643,7 @@ copy_lang_type (tree node)
     size = sizeof (struct lang_type);
   else
     size = sizeof (struct lang_type_ptrmem);
-  lt = ggc_alloc_lang_type (size);
+  lt = (struct lang_type *) ggc_internal_alloc (size);
   memcpy (lt, TYPE_LANG_SPECIFIC (node), size);
   TYPE_LANG_SPECIFIC (node) = lt;
 
@@ -667,7 +676,8 @@ cxx_make_type (enum tree_code code)
       || code == BOUND_TEMPLATE_TEMPLATE_PARM)
     {
       struct lang_type *pi
-          = ggc_alloc_cleared_lang_type (sizeof (struct lang_type));
+          = (struct lang_type *) ggc_internal_cleared_alloc
+	  (sizeof (struct lang_type));
 
       TYPE_LANG_SPECIFIC (t) = pi;
       pi->u.c.h.is_lang_type_class = 1;
@@ -682,7 +692,8 @@ cxx_make_type (enum tree_code code)
   /* Set up some flags that give proper default behavior.  */
   if (RECORD_OR_UNION_CODE_P (code))
     {
-      struct c_fileinfo *finfo = get_fileinfo (input_filename);
+      struct c_fileinfo *finfo = \
+	get_fileinfo (LOCATION_FILE (input_location));
       SET_CLASSTYPE_INTERFACE_UNKNOWN_X (t, finfo->interface_unknown);
       CLASSTYPE_INTERFACE_ONLY (t) = finfo->interface_only;
     }
@@ -710,5 +721,5 @@ in_main_input_context (void)
     return filename_cmp (main_input_filename,
 			 LOCATION_FILE (tl->locus)) == 0;
   else
-    return filename_cmp (main_input_filename, input_filename) == 0;
+    return filename_cmp (main_input_filename, LOCATION_FILE (input_location)) == 0;
 }

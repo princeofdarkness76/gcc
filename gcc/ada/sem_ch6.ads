@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -28,8 +28,7 @@ package Sem_Ch6 is
 
    type Conformance_Type is
      (Type_Conformant, Mode_Conformant, Subtype_Conformant, Fully_Conformant);
-   --  pragma Ordered (Conformance_Type);
-   --  Why is above line commented out ???
+   pragma Ordered (Conformance_Type);
    --  Conformance type used in conformance checks between specs and bodies,
    --  and for overriding. The literals match the RM definitions of the
    --  corresponding terms. This is an ordered type, since each conformance
@@ -46,47 +45,10 @@ package Sem_Ch6 is
    procedure Analyze_Subprogram_Declaration          (N : Node_Id);
    procedure Analyze_Subprogram_Body                 (N : Node_Id);
 
-   procedure Analyze_Subprogram_Contract (Subp : Entity_Id);
-   --  Analyze all delayed aspects chained on the contract of subprogram Subp
-   --  as if they appeared at the end of a declarative region.
-
    function Analyze_Subprogram_Specification (N : Node_Id) return Entity_Id;
    --  Analyze subprogram specification in both subprogram declarations
    --  and body declarations. Returns the defining entity for the
    --  specification N.
-
-   procedure Cannot_Inline
-     (Msg        : String;
-      N          : Node_Id;
-      Subp       : Entity_Id;
-      Is_Serious : Boolean := False);
-   --  This procedure is called if the node N, an instance of a call to
-   --  subprogram Subp, cannot be inlined. Msg is the message to be issued,
-   --  which ends with ? (it does not end with ?p?, this routine takes care of
-   --  the need to change ? to ?p?). Temporarily the behavior of this routine
-   --  depends on the value of -gnatd.k:
-   --
-   --    * If -gnatd.k is not set (ie. old inlining model) then if Subp has
-   --      a pragma Always_Inlined, then an error message is issued (by
-   --      removing the last character of Msg). If Subp is not Always_Inlined,
-   --      then a warning is issued if the flag Ineffective_Inline_Warnings
-   --      is set, adding ?p to the msg, and if not, the call has no effect.
-   --
-   --    * If -gnatd.k is set (ie. new inlining model) then:
-   --      - If Is_Serious is true, then an error is reported (by removing the
-   --        last character of Msg);
-   --
-   --      - otherwise:
-   --
-   --        * Compiling without optimizations if Subp has a pragma
-   --          Always_Inlined, then an error message is issued; if Subp is
-   --          not Always_Inlined, then a warning is issued if the flag
-   --          Ineffective_Inline_Warnings is set (adding p?), and if not,
-   --          the call has no effect.
-   --
-   --        * Compiling with optimizations then a warning is issued if the
-   --          flag Ineffective_Inline_Warnings is set (adding p?); otherwise
-   --          no effect since inlining may be performed by the backend.
 
    procedure Check_Conventions (Typ : Entity_Id);
    --  Ada 2005 (AI-430): Check that the conventions of all inherited and
@@ -233,6 +195,13 @@ package Sem_Ch6 is
    procedure List_Inherited_Pre_Post_Aspects (E : Entity_Id);
    --  E is the entity for a subprogram or generic subprogram spec. This call
    --  lists all inherited Pre/Post aspects if List_Inherited_Pre_Post is True.
+
+   procedure May_Need_Actuals (Fun : Entity_Id);
+   --  Flag functions that can be called without parameters, i.e. those that
+   --  have no parameters, or those for which defaults exist for all parameters
+   --  Used for subprogram declarations and for access subprogram declarations,
+   --  where they apply to the anonymous designated type. On return the flag
+   --  Set_Needs_No_Actuals is set appropriately in Fun.
 
    function Mode_Conformant (New_Id, Old_Id : Entity_Id) return Boolean;
    --  Determine whether two callable entities (subprograms, entries,

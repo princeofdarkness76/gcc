@@ -140,6 +140,9 @@ func (f *File) Write(b []byte) (n int, err error) {
 	if n < 0 {
 		n = 0
 	}
+	if n != len(b) {
+		err = io.ErrShortWrite
+	}
 
 	epipecheck(f, e)
 
@@ -174,6 +177,9 @@ func (f *File) WriteAt(b []byte, off int64) (n int, err error) {
 // relative to the current offset, and 2 means relative to the end.
 // It returns the new offset and an error, if any.
 func (f *File) Seek(offset int64, whence int) (ret int64, err error) {
+	if f == nil {
+		return 0, ErrInvalid
+	}
 	r, e := f.seek(offset, whence)
 	if e == nil && f.dirinfo != nil && r != 0 {
 		e = syscall.EISDIR
@@ -186,7 +192,7 @@ func (f *File) Seek(offset int64, whence int) (ret int64, err error) {
 
 // WriteString is like Write, but writes the contents of string s rather than
 // a slice of bytes.
-func (f *File) WriteString(s string) (ret int, err error) {
+func (f *File) WriteString(s string) (n int, err error) {
 	if f == nil {
 		return 0, ErrInvalid
 	}
@@ -197,9 +203,16 @@ func (f *File) WriteString(s string) (ret int, err error) {
 // If there is an error, it will be of type *PathError.
 func Mkdir(name string, perm FileMode) error {
 	e := syscall.Mkdir(name, syscallMode(perm))
+
 	if e != nil {
 		return &PathError{"mkdir", name, e}
 	}
+
+	// mkdir(2) itself won't handle the sticky bit on *BSD and Solaris
+	if !supportsCreateWithStickyBit && perm&ModeSticky != 0 {
+		Chmod(name, perm)
+	}
+
 	return nil
 }
 
@@ -216,6 +229,9 @@ func Chdir(dir string) error {
 // which must be a directory.
 // If there is an error, it will be of type *PathError.
 func (f *File) Chdir() error {
+	if f == nil {
+		return ErrInvalid
+	}
 	if e := syscall.Fchdir(f.fd); e != nil {
 		return &PathError{"chdir", f.name, e}
 	}
@@ -226,15 +242,33 @@ func (f *File) Chdir() error {
 // the returned file can be used for reading; the associated file
 // descriptor has mode O_RDONLY.
 // If there is an error, it will be of type *PathError.
-func Open(name string) (file *File, err error) {
+func Open(name string) (*File, error) {
 	return OpenFile(name, O_RDONLY, 0)
 }
 
-// Create creates the named file mode 0666 (before umask), truncating
-// it if it already exists.  If successful, methods on the returned
+// Create creates the named file with mode 0666 (before umask), truncating
+// it if it already exists. If successful, methods on the returned
 // File can be used for I/O; the associated file descriptor has mode
 // O_RDWR.
 // If there is an error, it will be of type *PathError.
-func Create(name string) (file *File, err error) {
+func Create(name string) (*File, error) {
 	return OpenFile(name, O_RDWR|O_CREATE|O_TRUNC, 0666)
+}
+
+// lstat is overridden in tests.
+var lstat = Lstat
+
+// Rename renames (moves) a file. OS-specific restrictions might apply.
+// If there is an error, it will be of type *LinkError.
+func Rename(oldpath, newpath string) error {
+	return rename(oldpath, newpath)
+}
+
+// Many functions in package syscall return a count of -1 instead of 0.
+// Using fixCount(call()) instead of call() corrects the count.
+func fixCount(n int, err error) (int, error) {
+	if n < 0 {
+		n = 0
+	}
+	return n, err
 }

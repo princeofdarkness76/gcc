@@ -25,7 +25,7 @@ const (
 	surrSelf = 0x10000
 )
 
-// IsSurrogate returns true if the specified Unicode code point
+// IsSurrogate reports whether the specified Unicode code point
 // can appear in a surrogate pair.
 func IsSurrogate(r rune) bool {
 	return surr1 <= r && r < surr3
@@ -36,7 +36,7 @@ func IsSurrogate(r rune) bool {
 // the Unicode replacement code point U+FFFD.
 func DecodeRune(r1, r2 rune) rune {
 	if surr1 <= r1 && r1 < surr2 && surr2 <= r2 && r2 < surr3 {
-		return (rune(r1)-surr1)<<10 | (rune(r2) - surr2) + 0x10000
+		return (r1-surr1)<<10 | (r2 - surr2) + 0x10000
 	}
 	return replacementChar
 }

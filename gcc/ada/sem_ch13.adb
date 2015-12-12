@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -33,6 +33,8 @@ with Errout;   use Errout;
 with Exp_Disp; use Exp_Disp;
 with Exp_Tss;  use Exp_Tss;
 with Exp_Util; use Exp_Util;
+with Freeze;   use Freeze;
+with Ghost;    use Ghost;
 with Lib;      use Lib;
 with Lib.Xref; use Lib.Xref;
 with Namet;    use Namet;
@@ -44,10 +46,10 @@ with Rident;   use Rident;
 with Rtsfind;  use Rtsfind;
 with Sem;      use Sem;
 with Sem_Aux;  use Sem_Aux;
+with Sem_Case; use Sem_Case;
 with Sem_Ch3;  use Sem_Ch3;
 with Sem_Ch6;  use Sem_Ch6;
 with Sem_Ch8;  use Sem_Ch8;
-with Sem_Ch9;  use Sem_Ch9;
 with Sem_Dim;  use Sem_Dim;
 with Sem_Disp; use Sem_Disp;
 with Sem_Eval; use Sem_Eval;
@@ -84,19 +86,7 @@ package body Sem_Ch13 is
    --  type whose inherited alignment is no longer appropriate for the new
    --  size value. In this case, we reset the Alignment to unknown.
 
-   procedure Build_Predicate_Functions (Typ : Entity_Id; N : Node_Id);
-   --  If Typ has predicates (indicated by Has_Predicates being set for Typ,
-   --  then either there are pragma Predicate entries on the rep chain for the
-   --  type (note that Predicate aspects are converted to pragma Predicate), or
-   --  there are inherited aspects from a parent type, or ancestor subtypes.
-   --  This procedure builds the spec and body for the Predicate function that
-   --  tests these predicates. N is the freeze node for the type. The spec of
-   --  the function is inserted before the freeze node, and the body of the
-   --  function is inserted after the freeze node. If the predicate expression
-   --  has at least one Raise_Expression, then this procedure also builds the
-   --  M version of the predicate function for use in membership tests.
-
-   procedure Build_Static_Predicate
+   procedure Build_Discrete_Static_Predicate
      (Typ  : Entity_Id;
       Expr : Node_Id;
       Nam  : Name_Id);
@@ -108,8 +98,31 @@ package body Sem_Ch13 is
    --  name, which is unique, so any identifier with Chars matching Nam must be
    --  a reference to the type. If the predicate is non-static, this procedure
    --  returns doing nothing. If the predicate is static, then the predicate
-   --  list is stored in Static_Predicate (Typ), and the Expr is rewritten as
-   --  a canonicalized membership operation.
+   --  list is stored in Static_Discrete_Predicate (Typ), and the Expr is
+   --  rewritten as a canonicalized membership operation.
+
+   procedure Build_Predicate_Functions (Typ : Entity_Id; N : Node_Id);
+   --  If Typ has predicates (indicated by Has_Predicates being set for Typ),
+   --  then either there are pragma Predicate entries on the rep chain for the
+   --  type (note that Predicate aspects are converted to pragma Predicate), or
+   --  there are inherited aspects from a parent type, or ancestor subtypes.
+   --  This procedure builds the spec and body for the Predicate function that
+   --  tests these predicates. N is the freeze node for the type. The spec of
+   --  the function is inserted before the freeze node, and the body of the
+   --  function is inserted after the freeze node. If the predicate expression
+   --  has at least one Raise_Expression, then this procedure also builds the
+   --  M version of the predicate function for use in membership tests.
+
+   procedure Check_Pool_Size_Clash (Ent : Entity_Id; SP, SS : Node_Id);
+   --  Called if both Storage_Pool and Storage_Size attribute definition
+   --  clauses (SP and SS) are present for entity Ent. Issue error message.
+
+   procedure Freeze_Entity_Checks (N : Node_Id);
+   --  Called from Analyze_Freeze_Entity and Analyze_Generic_Freeze Entity
+   --  to generate appropriate semantic checks that are delayed until this
+   --  point (they had to be delayed this long for cases of delayed aspects,
+   --  e.g. analysis of statically predicated subtypes in choices, for which
+   --  we have to be sure the subtypes in question are frozen before checking).
 
    function Get_Alignment_Value (Expr : Node_Id) return Uint;
    --  Given the expression for an alignment value, returns the corresponding
@@ -122,6 +135,34 @@ package body Sem_Ch13 is
    --  that do not specify a representation characteristic are operational
    --  attributes.
 
+   function Is_Predicate_Static
+     (Expr : Node_Id;
+      Nam  : Name_Id) return Boolean;
+   --  Given predicate expression Expr, tests if Expr is predicate-static in
+   --  the sense of the rules in (RM 3.2.4 (15-24)). Occurrences of the type
+   --  name in the predicate expression have been replaced by references to
+   --  an identifier whose Chars field is Nam. This name is unique, so any
+   --  identifier with Chars matching Nam must be a reference to the type.
+   --  Returns True if the expression is predicate-static and False otherwise,
+   --  but is not in the business of setting flags or issuing error messages.
+   --
+   --  Only scalar types can have static predicates, so False is always
+   --  returned for non-scalar types.
+   --
+   --  Note: the RM seems to suggest that string types can also have static
+   --  predicates. But that really makes lttle sense as very few useful
+   --  predicates can be constructed for strings. Remember that:
+   --
+   --     "ABC" < "DEF"
+   --
+   --  is not a static expression. So even though the clearly faulty RM wording
+   --  allows the following:
+   --
+   --     subtype S is String with Static_Predicate => S < "DEF"
+   --
+   --  We can't allow this, otherwise we have predicate-static applying to a
+   --  larger class than static expressions, which was never intended.
+
    procedure New_Stream_Subprogram
      (N    : Node_Id;
       Ent  : Entity_Id;
@@ -129,10 +170,10 @@ package body Sem_Ch13 is
       Nam  : TSS_Name_Type);
    --  Create a subprogram renaming of a given stream attribute to the
    --  designated subprogram and then in the tagged case, provide this as a
-   --  primitive operation, or in the non-tagged case make an appropriate TSS
+   --  primitive operation, or in the untagged case make an appropriate TSS
    --  entry. This is more properly an expansion activity than just semantics,
-   --  but the presence of user-defined stream functions for limited types is a
-   --  legality check, which is why this takes place here rather than in
+   --  but the presence of user-defined stream functions for limited types
+   --  is a legality check, which is why this takes place here rather than in
    --  exp_ch13, where it was previously. Nam indicates the name of the TSS
    --  function to be generated.
    --
@@ -142,16 +183,13 @@ package body Sem_Ch13 is
    --  renaming_as_body. For tagged types, the specification is one of the
    --  primitive specs.
 
-   generic
-      with procedure Replace_Type_Reference (N : Node_Id);
-   procedure Replace_Type_References_Generic (N : Node_Id; TName : Name_Id);
-   --  This is used to scan an expression for a predicate or invariant aspect
-   --  replacing occurrences of the name TName (the name of the subtype to
-   --  which the aspect applies) with appropriate references to the parameter
-   --  of the predicate function or invariant procedure. The procedure passed
-   --  as a generic parameter does the actual replacement of node N, which is
-   --  either a simple direct reference to TName, or a selected component that
-   --  represents an appropriately qualified occurrence of TName.
+   procedure Resolve_Iterable_Operation
+     (N      : Node_Id;
+      Cursor : Entity_Id;
+      Typ    : Entity_Id;
+      Nam    : Name_Id);
+   --  If the name of a primitive operation for an Iterable aspect is
+   --  overloaded, resolve according to required signature.
 
    procedure Set_Biased
      (E      : Entity_Id;
@@ -179,9 +217,10 @@ package body Sem_Ch13 is
    --  already have modified all Sloc values if the -gnatD option is set.
 
    type UC_Entry is record
-      Eloc   : Source_Ptr; -- node used for posting warnings
-      Source : Entity_Id;  -- source type for unchecked conversion
-      Target : Entity_Id;  -- target type for unchecked conversion
+      Eloc     : Source_Ptr; -- node used for posting warnings
+      Source   : Entity_Id;  -- source type for unchecked conversion
+      Target   : Entity_Id;  -- target type for unchecked conversion
+      Act_Unit : Entity_Id;  -- actual function instantiated
    end record;
 
    package Unchecked_Conversions is new Table.Table (
@@ -282,17 +321,17 @@ package body Sem_Ch13 is
                        and then CSZ mod System_Storage_Unit = 0
                      then
                         Error_Msg_N
-                          ("multi-byte field specified with non-standard"
-                           & " Bit_Order??", CLC);
+                          ("info: multi-byte field specified with "
+                           & "non-standard Bit_Order?V?", CLC);
 
                         if Bytes_Big_Endian then
                            Error_Msg_N
-                             ("bytes are not reversed "
-                              & "(component is big-endian)??", CLC);
+                             ("\bytes are not reversed "
+                              & "(component is big-endian)?V?", CLC);
                         else
                            Error_Msg_N
-                             ("bytes are not reversed "
-                              & "(component is little-endian)??", CLC);
+                             ("\bytes are not reversed "
+                              & "(component is little-endian)?V?", CLC);
                         end if;
 
                         --  Do not allow non-contiguous field
@@ -318,13 +357,13 @@ package body Sem_Ch13 is
                        and then Warn_On_Reverse_Bit_Order
                      then
                         Error_Msg_N
-                          ("Bit_Order clause does not affect " &
+                          ("info: Bit_Order clause does not affect " &
                            "byte ordering?V?", Pos);
                         Error_Msg_Uint_1 :=
                           Intval (Pos) + Intval (FB) /
                           System_Storage_Unit;
                         Error_Msg_N
-                          ("position normalized to ^ before bit " &
+                          ("info: position normalized to ^ before bit " &
                            "order interpreted?V?", Pos);
                      end if;
 
@@ -411,7 +450,7 @@ package body Sem_Ch13 is
 
                            if Warn_On_Reverse_Bit_Order then
                               Error_Msg_N
-                                ("multi-byte field specified with "
+                                ("info: multi-byte field specified with "
                                  & "  non-standard Bit_Order?V?", CC);
 
                               if Bytes_Big_Endian then
@@ -432,10 +471,10 @@ package body Sem_Ch13 is
                              ("machine scalar rules not followed for&",
                               First_Bit (CC), Comp);
 
-                           Error_Msg_Uint_1 := Lbit;
+                           Error_Msg_Uint_1 := Lbit + 1;
                            Error_Msg_Uint_2 := Max_Machine_Scalar_Size;
                            Error_Msg_F
-                             ("\last bit (^) exceeds maximum machine "
+                             ("\last bit + 1 (^) exceeds maximum machine "
                               & "scalar size (^)",
                               First_Bit (CC));
 
@@ -443,7 +482,7 @@ package body Sem_Ch13 is
                               Error_Msg_Uint_1 := SSU;
                               Error_Msg_F
                                 ("\and is not a multiple of Storage_Unit (^) "
-                                 & "(RM 13.4.1(10))",
+                                 & "(RM 13.5.1(10))",
                                  First_Bit (CC));
 
                            else
@@ -469,7 +508,7 @@ package body Sem_Ch13 is
 
             --  We need to sort the component clauses on the basis of the
             --  Position values in the clause, so we can group clauses with
-            --  the same Position. together to determine the relevant machine
+            --  the same Position together to determine the relevant machine
             --  scalar size.
 
             Sort_CC : declare
@@ -517,7 +556,7 @@ package body Sem_Ch13 is
                   Comps (To) := Comps (From);
                end CP_Move;
 
-               --  Start of processing for Sort_CC
+            --  Start of processing for Sort_CC
 
             begin
                --  Collect the machine scalar relevant component clauses
@@ -641,14 +680,12 @@ package body Sem_Ch13 is
 
                            if Bytes_Big_Endian then
                               Error_Msg_NE
-                                ("\info: big-endian range for "
-                                 & "component & is ^ .. ^?V?",
-                                 First_Bit (CC), Comp);
+                                ("\big-endian range for component "
+                                 & "& is ^ .. ^?V?", First_Bit (CC), Comp);
                            else
                               Error_Msg_NE
-                                ("\info: little-endian range "
-                                 & "for component & is ^ .. ^?V?",
-                                 First_Bit (CC), Comp);
+                                ("\little-endian range for component"
+                                 & "& is ^ .. ^?V?", First_Bit (CC), Comp);
                            end if;
                         end if;
 
@@ -693,6 +730,29 @@ package body Sem_Ch13 is
       procedure Analyze_Aspect_Default_Value (ASN : Node_Id);
       --  This routine analyzes an Aspect_Default_[Component_]Value denoted by
       --  the aspect specification node ASN.
+
+      procedure Inherit_Delayed_Rep_Aspects (ASN : Node_Id);
+      --  As discussed in the spec of Aspects (see Aspect_Delay declaration),
+      --  a derived type can inherit aspects from its parent which have been
+      --  specified at the time of the derivation using an aspect, as in:
+      --
+      --    type A is range 1 .. 10
+      --      with Size => Not_Defined_Yet;
+      --    ..
+      --    type B is new A;
+      --    ..
+      --    Not_Defined_Yet : constant := 64;
+      --
+      --  In this example, the Size of A is considered to be specified prior
+      --  to the derivation, and thus inherited, even though the value is not
+      --  known at the time of derivation. To deal with this, we use two entity
+      --  flags. The flag Has_Derived_Rep_Aspects is set in the parent type (A
+      --  here), and then the flag May_Inherit_Delayed_Rep_Aspects is set in
+      --  the derived type (B here). If this flag is set when the derived type
+      --  is frozen, then this procedure is called to ensure proper inheritance
+      --  of all delayed aspects from the parent type. The derived type is E,
+      --  the argument to Analyze_Aspects_At_Freeze_Point. ASN is the first
+      --  aspect specification node in the Rep_Item chain for the parent type.
 
       procedure Make_Pragma_From_Boolean_Aspect (ASN : Node_Id);
       --  Given an aspect specification node ASN whose expression is an
@@ -739,19 +799,200 @@ package body Sem_Ch13 is
          Set_Has_Default_Aspect (Base_Type (Ent));
 
          if Is_Scalar_Type (Ent) then
-            Set_Default_Aspect_Value (Ent, Expr);
-
-            --  Place default value of base type as well, because that is
-            --  the semantics of the aspect. It is convenient to link the
-            --  aspect to both the (possibly anonymous) base type and to
-            --  the given first subtype.
-
             Set_Default_Aspect_Value (Base_Type (Ent), Expr);
-
          else
-            Set_Default_Aspect_Component_Value (Ent, Expr);
+            Set_Default_Aspect_Component_Value (Base_Type (Ent), Expr);
          end if;
       end Analyze_Aspect_Default_Value;
+
+      ---------------------------------
+      -- Inherit_Delayed_Rep_Aspects --
+      ---------------------------------
+
+      procedure Inherit_Delayed_Rep_Aspects (ASN : Node_Id) is
+         P : constant Entity_Id := Entity (ASN);
+         --  Entithy for parent type
+
+         N : Node_Id;
+         --  Item from Rep_Item chain
+
+         A : Aspect_Id;
+
+      begin
+         --  Loop through delayed aspects for the parent type
+
+         N := ASN;
+         while Present (N) loop
+            if Nkind (N) = N_Aspect_Specification then
+               exit when Entity (N) /= P;
+
+               if Is_Delayed_Aspect (N) then
+                  A := Get_Aspect_Id (Chars (Identifier (N)));
+
+                  --  Process delayed rep aspect. For Boolean attributes it is
+                  --  not possible to cancel an attribute once set (the attempt
+                  --  to use an aspect with xxx => False is an error) for a
+                  --  derived type. So for those cases, we do not have to check
+                  --  if a clause has been given for the derived type, since it
+                  --  is harmless to set it again if it is already set.
+
+                  case A is
+
+                     --  Alignment
+
+                     when Aspect_Alignment =>
+                        if not Has_Alignment_Clause (E) then
+                           Set_Alignment (E, Alignment (P));
+                        end if;
+
+                     --  Atomic
+
+                     when Aspect_Atomic =>
+                        if Is_Atomic (P) then
+                           Set_Is_Atomic (E);
+                        end if;
+
+                     --  Atomic_Components
+
+                     when Aspect_Atomic_Components =>
+                        if Has_Atomic_Components (P) then
+                           Set_Has_Atomic_Components (Base_Type (E));
+                        end if;
+
+                     --  Bit_Order
+
+                     when Aspect_Bit_Order =>
+                        if Is_Record_Type (E)
+                          and then No (Get_Attribute_Definition_Clause
+                                         (E, Attribute_Bit_Order))
+                          and then Reverse_Bit_Order (P)
+                        then
+                           Set_Reverse_Bit_Order (Base_Type (E));
+                        end if;
+
+                     --  Component_Size
+
+                     when Aspect_Component_Size =>
+                        if Is_Array_Type (E)
+                          and then not Has_Component_Size_Clause (E)
+                        then
+                           Set_Component_Size
+                             (Base_Type (E), Component_Size (P));
+                        end if;
+
+                     --  Machine_Radix
+
+                     when Aspect_Machine_Radix =>
+                        if Is_Decimal_Fixed_Point_Type (E)
+                          and then not Has_Machine_Radix_Clause (E)
+                        then
+                           Set_Machine_Radix_10 (E, Machine_Radix_10 (P));
+                        end if;
+
+                     --  Object_Size (also Size which also sets Object_Size)
+
+                     when Aspect_Object_Size | Aspect_Size =>
+                        if not Has_Size_Clause (E)
+                          and then
+                            No (Get_Attribute_Definition_Clause
+                                  (E, Attribute_Object_Size))
+                        then
+                           Set_Esize (E, Esize (P));
+                        end if;
+
+                     --  Pack
+
+                     when Aspect_Pack =>
+                        if not Is_Packed (E) then
+                           Set_Is_Packed (Base_Type (E));
+
+                           if Is_Bit_Packed_Array (P) then
+                              Set_Is_Bit_Packed_Array (Base_Type (E));
+                              Set_Packed_Array_Impl_Type
+                                (E, Packed_Array_Impl_Type (P));
+                           end if;
+                        end if;
+
+                     --  Scalar_Storage_Order
+
+                     when Aspect_Scalar_Storage_Order =>
+                        if (Is_Record_Type (E) or else Is_Array_Type (E))
+                          and then No (Get_Attribute_Definition_Clause
+                                         (E, Attribute_Scalar_Storage_Order))
+                          and then Reverse_Storage_Order (P)
+                        then
+                           Set_Reverse_Storage_Order (Base_Type (E));
+
+                           --  Clear default SSO indications, since the aspect
+                           --  overrides the default.
+
+                           Set_SSO_Set_Low_By_Default  (Base_Type (E), False);
+                           Set_SSO_Set_High_By_Default (Base_Type (E), False);
+                        end if;
+
+                     --  Small
+
+                     when Aspect_Small =>
+                        if Is_Fixed_Point_Type (E)
+                          and then not Has_Small_Clause (E)
+                        then
+                           Set_Small_Value (E, Small_Value (P));
+                        end if;
+
+                     --  Storage_Size
+
+                     when Aspect_Storage_Size =>
+                        if (Is_Access_Type (E) or else Is_Task_Type (E))
+                          and then not Has_Storage_Size_Clause (E)
+                        then
+                           Set_Storage_Size_Variable
+                             (Base_Type (E), Storage_Size_Variable (P));
+                        end if;
+
+                     --  Value_Size
+
+                     when Aspect_Value_Size =>
+
+                        --  Value_Size is never inherited, it is either set by
+                        --  default, or it is explicitly set for the derived
+                        --  type. So nothing to do here.
+
+                        null;
+
+                     --  Volatile
+
+                     when Aspect_Volatile =>
+                        if Is_Volatile (P) then
+                           Set_Is_Volatile (E);
+                        end if;
+
+                     --  Volatile_Full_Access
+
+                     when Aspect_Volatile_Full_Access =>
+                        if Is_Volatile_Full_Access (P) then
+                           Set_Is_Volatile_Full_Access (E);
+                        end if;
+
+                     --  Volatile_Components
+
+                     when Aspect_Volatile_Components =>
+                        if Has_Volatile_Components (P) then
+                           Set_Has_Volatile_Components (Base_Type (E));
+                        end if;
+
+                     --  That should be all the Rep Aspects
+
+                     when others =>
+                        pragma Assert (Aspect_Delay (A_Id) /= Rep_Aspect);
+                        null;
+
+                  end case;
+               end if;
+            end if;
+
+            N := Next_Rep_Item (N);
+         end loop;
+      end Inherit_Delayed_Rep_Aspects;
 
       -------------------------------------
       -- Make_Pragma_From_Boolean_Aspect --
@@ -824,6 +1065,11 @@ package body Sem_Ch13 is
                      return;
                   end if;
 
+               when Aspect_Volatile_Full_Access =>
+                  if not Is_Volatile_Full_Access (Par) then
+                     return;
+                  end if;
+
                when others =>
                   return;
             end case;
@@ -831,15 +1077,17 @@ package body Sem_Ch13 is
             --  Fall through means we are canceling an inherited aspect
 
             Error_Msg_Name_1 := A_Name;
-            Error_Msg_NE ("derived type& inherits aspect%, cannot cancel",
-                          Expr,
-                          E);
-
+            Error_Msg_NE
+              ("derived type& inherits aspect%, cannot cancel", Expr, E);
          end Check_False_Aspect_For_Derived_Type;
 
       --  Start of processing for Make_Pragma_From_Boolean_Aspect
 
       begin
+         --  Note that we know Expr is present, because for a missing Expr
+         --  argument, we knew it was True and did not need to delay the
+         --  evaluation to the freeze point.
+
          if Is_False (Static_Boolean (Expr)) then
             Check_False_Aspect_For_Derived_Type;
 
@@ -874,50 +1122,82 @@ package body Sem_Ch13 is
 
       ASN := First_Rep_Item (E);
       while Present (ASN) loop
-         if Nkind (ASN) = N_Aspect_Specification
-           and then Entity (ASN) = E
-           and then Is_Delayed_Aspect (ASN)
-         then
-            A_Id := Get_Aspect_Id (ASN);
+         if Nkind (ASN) = N_Aspect_Specification then
+            exit when Entity (ASN) /= E;
 
-            case A_Id is
+            if Is_Delayed_Aspect (ASN) then
+               A_Id := Get_Aspect_Id (ASN);
 
-               --  For aspects whose expression is an optional Boolean, make
-               --  the corresponding pragma at the freezing point.
+               case A_Id is
 
-               when Boolean_Aspects      |
-                    Library_Unit_Aspects =>
-                  Make_Pragma_From_Boolean_Aspect (ASN);
+                  --  For aspects whose expression is an optional Boolean, make
+                  --  the corresponding pragma at the freeze point.
 
-               --  Special handling for aspects that don't correspond to
-               --  pragmas/attributes.
+                  when Boolean_Aspects      |
+                       Library_Unit_Aspects =>
+                     Make_Pragma_From_Boolean_Aspect (ASN);
 
-               when Aspect_Default_Value           |
-                    Aspect_Default_Component_Value =>
-                  Analyze_Aspect_Default_Value (ASN);
+                  --  Special handling for aspects that don't correspond to
+                  --  pragmas/attributes.
 
-               --  Ditto for iterator aspects, because the corresponding
-               --  attributes may not have been analyzed yet.
+                  when Aspect_Default_Value           |
+                       Aspect_Default_Component_Value =>
 
-               when Aspect_Constant_Indexing |
-                    Aspect_Variable_Indexing |
-                    Aspect_Default_Iterator  |
-                    Aspect_Iterator_Element  =>
-                  Analyze (Expression (ASN));
+                     --  Do not inherit aspect for anonymous base type of a
+                     --  scalar or array type, because they apply to the first
+                     --  subtype of the type, and will be processed when that
+                     --  first subtype is frozen.
 
-               when others =>
-                  null;
-            end case;
+                     if Is_Derived_Type (E)
+                       and then not Comes_From_Source (E)
+                       and then E /= First_Subtype (E)
+                     then
+                        null;
+                     else
+                        Analyze_Aspect_Default_Value (ASN);
+                     end if;
 
-            Ritem := Aspect_Rep_Item (ASN);
+                  --  Ditto for iterator aspects, because the corresponding
+                  --  attributes may not have been analyzed yet.
 
-            if Present (Ritem) then
-               Analyze (Ritem);
+                  when Aspect_Constant_Indexing |
+                       Aspect_Variable_Indexing |
+                       Aspect_Default_Iterator  |
+                       Aspect_Iterator_Element  =>
+                     Analyze (Expression (ASN));
+
+                     if Etype (Expression (ASN)) = Any_Type then
+                        Error_Msg_NE
+                          ("\aspect must be fully defined before & is frozen",
+                           ASN, E);
+                     end if;
+
+                  when Aspect_Iterable =>
+                     Validate_Iterable_Aspect (E, ASN);
+
+                  when others =>
+                     null;
+               end case;
+
+               Ritem := Aspect_Rep_Item (ASN);
+
+               if Present (Ritem) then
+                  Analyze (Ritem);
+               end if;
             end if;
          end if;
 
          Next_Rep_Item (ASN);
       end loop;
+
+      --  This is where we inherit delayed rep aspects from our parent. Note
+      --  that if we fell out of the above loop with ASN non-empty, it means
+      --  we hit an aspect for an entity other than E, and it must be the
+      --  type from which we were derived.
+
+      if May_Inherit_Delayed_Rep_Aspects (E) then
+         Inherit_Delayed_Rep_Aspects (ASN);
+      end if;
    end Analyze_Aspects_At_Freeze_Point;
 
    -----------------------------------
@@ -925,46 +1205,202 @@ package body Sem_Ch13 is
    -----------------------------------
 
    procedure Analyze_Aspect_Specifications (N : Node_Id; E : Entity_Id) is
-      procedure Decorate_Delayed_Aspect_And_Pragma
-        (Asp  : Node_Id;
-         Prag : Node_Id);
-      --  Establish the linkages between a delayed aspect and its corresponding
-      --  pragma. Set all delay-related flags on both constructs.
+      procedure Decorate (Asp : Node_Id; Prag : Node_Id);
+      --  Establish linkages between an aspect and its corresponding pragma
 
-      procedure Insert_Delayed_Pragma (Prag : Node_Id);
-      --  Insert a postcondition-like pragma into the tree depending on the
-      --  context. Prag must denote one of the following: Pre, Post, Depends,
-      --  Global or Contract_Cases.
+      procedure Insert_Pragma
+        (Prag        : Node_Id;
+         Is_Instance : Boolean := False);
+      --  Subsidiary to the analysis of aspects
+      --    Abstract_State
+      --    Attach_Handler
+      --    Contract_Cases
+      --    Depends
+      --    Ghost
+      --    Global
+      --    Initial_Condition
+      --    Initializes
+      --    Post
+      --    Pre
+      --    Refined_Depends
+      --    Refined_Global
+      --    Refined_State
+      --    SPARK_Mode
+      --    Warnings
+      --  Insert pragma Prag such that it mimics the placement of a source
+      --  pragma of the same kind. Flag Is_Generic should be set when the
+      --  context denotes a generic instance.
 
-      ----------------------------------------
-      -- Decorate_Delayed_Aspect_And_Pragma --
-      ----------------------------------------
+      --------------
+      -- Decorate --
+      --------------
 
-      procedure Decorate_Delayed_Aspect_And_Pragma
-        (Asp  : Node_Id;
-         Prag : Node_Id)
-      is
+      procedure Decorate (Asp : Node_Id; Prag : Node_Id) is
       begin
          Set_Aspect_Rep_Item           (Asp, Prag);
          Set_Corresponding_Aspect      (Prag, Asp);
          Set_From_Aspect_Specification (Prag);
-         Set_Is_Delayed_Aspect         (Prag);
-         Set_Is_Delayed_Aspect         (Asp);
          Set_Parent                    (Prag, Asp);
-      end Decorate_Delayed_Aspect_And_Pragma;
+      end Decorate;
 
-      ---------------------------
-      -- Insert_Delayed_Pragma --
-      ---------------------------
+      -------------------
+      -- Insert_Pragma --
+      -------------------
 
-      procedure Insert_Delayed_Pragma (Prag : Node_Id) is
-         Aux : Node_Id;
+      procedure Insert_Pragma
+        (Prag        : Node_Id;
+         Is_Instance : Boolean := False)
+      is
+         Aux      : Node_Id;
+         Decl     : Node_Id;
+         Decls    : List_Id;
+         Def      : Node_Id;
+         Inserted : Boolean := False;
 
       begin
+         --  When the aspect appears on an entry, package, protected unit,
+         --  subprogram, or task unit body, insert the generated pragma at the
+         --  top of the body declarations to emulate the behavior of a source
+         --  pragma.
+
+         --    package body Pack with Aspect is
+
+         --    package body Pack is
+         --       pragma Prag;
+
+         if Nkind_In (N, N_Entry_Body,
+                         N_Package_Body,
+                         N_Protected_Body,
+                         N_Subprogram_Body,
+                         N_Task_Body)
+         then
+            Decls := Declarations (N);
+
+            if No (Decls) then
+               Decls := New_List;
+               Set_Declarations (N, Decls);
+            end if;
+
+            Prepend_To (Decls, Prag);
+
+         --  When the aspect is associated with a [generic] package declaration
+         --  insert the generated pragma at the top of the visible declarations
+         --  to emulate the behavior of a source pragma.
+
+         --    package Pack with Aspect is
+
+         --    package Pack is
+         --       pragma Prag;
+
+         elsif Nkind_In (N, N_Generic_Package_Declaration,
+                            N_Package_Declaration)
+         then
+            Decls := Visible_Declarations (Specification (N));
+
+            if No (Decls) then
+               Decls := New_List;
+               Set_Visible_Declarations (Specification (N), Decls);
+            end if;
+
+            --  The visible declarations of a generic instance have the
+            --  following structure:
+
+            --    <renamings of generic formals>
+            --    <renamings of internally-generated spec and body>
+            --    <first source declaration>
+
+            --  Insert the pragma before the first source declaration by
+            --  skipping the instance "header" to ensure proper visibility of
+            --  all formals.
+
+            if Is_Instance then
+               Decl := First (Decls);
+               while Present (Decl) loop
+                  if Comes_From_Source (Decl) then
+                     Insert_Before (Decl, Prag);
+                     Inserted := True;
+                     exit;
+                  else
+                     Next (Decl);
+                  end if;
+               end loop;
+
+               --  The pragma is placed after the instance "header"
+
+               if not Inserted then
+                  Append_To (Decls, Prag);
+               end if;
+
+            --  Otherwise this is not a generic instance
+
+            else
+               Prepend_To (Decls, Prag);
+            end if;
+
+         --  When the aspect is associated with a protected unit declaration,
+         --  insert the generated pragma at the top of the visible declarations
+         --  the emulate the behavior of a source pragma.
+
+         --    protected [type] Prot with Aspect is
+
+         --    protected [type] Prot is
+         --       pragma Prag;
+
+         elsif Nkind (N) = N_Protected_Type_Declaration then
+            Def := Protected_Definition (N);
+
+            if No (Def) then
+               Def :=
+                 Make_Protected_Definition (Sloc (N),
+                   Visible_Declarations => New_List,
+                   End_Label            => Empty);
+
+               Set_Protected_Definition (N, Def);
+            end if;
+
+            Decls := Visible_Declarations (Def);
+
+            if No (Decls) then
+               Decls := New_List;
+               Set_Visible_Declarations (Def, Decls);
+            end if;
+
+            Prepend_To (Decls, Prag);
+
+         --  When the aspect is associated with a task unit declaration, insert
+         --  insert the generated pragma at the top of the visible declarations
+         --  the emulate the behavior of a source pragma.
+
+         --    task [type] Prot with Aspect is
+
+         --    task [type] Prot is
+         --       pragma Prag;
+
+         elsif Nkind (N) = N_Task_Type_Declaration then
+            Def := Task_Definition (N);
+
+            if No (Def) then
+               Def :=
+                 Make_Task_Definition (Sloc (N),
+                   Visible_Declarations => New_List,
+                   End_Label            => Empty);
+
+               Set_Task_Definition (N, Def);
+            end if;
+
+            Decls := Visible_Declarations (Def);
+
+            if No (Decls) then
+               Decls := New_List;
+               Set_Visible_Declarations (Def, Decls);
+            end if;
+
+            Prepend_To (Decls, Prag);
+
          --  When the context is a library unit, the pragma is added to the
          --  Pragmas_After list.
 
-         if Nkind (Parent (N)) = N_Compilation_Unit then
+         elsif Nkind (Parent (N)) = N_Compilation_Unit then
             Aux := Aux_Decls_Node (Parent (N));
 
             if No (Pragmas_After (Aux)) then
@@ -973,30 +1409,12 @@ package body Sem_Ch13 is
 
             Prepend (Prag, Pragmas_After (Aux));
 
-         --  Pragmas associated with subprogram bodies are inserted in the
-         --  declarative part.
-
-         elsif Nkind (N) = N_Subprogram_Body then
-            if No (Declarations (N)) then
-               Set_Declarations (N, New_List);
-            end if;
-
-            Append (Prag, Declarations (N));
-
-         --  Default
+         --  Default, the pragma is inserted after the context
 
          else
             Insert_After (N, Prag);
-
-            --  Analyze the pragma before analyzing the proper body of a stub.
-            --  This ensures that the pragma will appear on the proper contract
-            --  list (see N_Contract).
-
-            if Nkind (N) = N_Subprogram_Body_Stub then
-               Analyze (Prag);
-            end if;
          end if;
-      end Insert_Delayed_Pragma;
+      end Insert_Pragma;
 
       --  Local variables
 
@@ -1046,7 +1464,7 @@ package body Sem_Ch13 is
             A_Id : constant Aspect_Id  := Get_Aspect_Id (Nam);
             Anod : Node_Id;
 
-            Delay_Required : Boolean := True;
+            Delay_Required : Boolean;
             --  Set False if delay is not required
 
             Eloc : Source_Ptr := No_Location;
@@ -1096,7 +1514,7 @@ package body Sem_Ch13 is
                   if No (A) then
                      Error_Msg_N
                        ("missing Import/Export for Link/External name",
-                         Aspect);
+                        Aspect);
                   end if;
                end;
             end Analyze_Aspect_External_Or_Link_Name;
@@ -1106,35 +1524,56 @@ package body Sem_Ch13 is
             -----------------------------------------
 
             procedure Analyze_Aspect_Implicit_Dereference is
+               Disc        : Entity_Id;
+               Parent_Disc : Entity_Id;
+
             begin
                if not Is_Type (E) or else not Has_Discriminants (E) then
                   Error_Msg_N
-                    ("aspect must apply to a type with discriminants", N);
+                    ("aspect must apply to a type with discriminants", Expr);
+
+               elsif not Is_Entity_Name (Expr) then
+                  Error_Msg_N
+                    ("aspect must name a discriminant of current type", Expr);
 
                else
-                  declare
-                     Disc : Entity_Id;
+                  Disc := First_Discriminant (E);
+                  while Present (Disc) loop
+                     if Chars (Expr) = Chars (Disc)
+                       and then Ekind (Etype (Disc)) =
+                                  E_Anonymous_Access_Type
+                     then
+                        Set_Has_Implicit_Dereference (E);
+                        Set_Has_Implicit_Dereference (Disc);
+                        exit;
+                     end if;
 
-                  begin
-                     Disc := First_Discriminant (E);
-                     while Present (Disc) loop
-                        if Chars (Expr) = Chars (Disc)
-                          and then Ekind (Etype (Disc)) =
-                                     E_Anonymous_Access_Type
-                        then
-                           Set_Has_Implicit_Dereference (E);
-                           Set_Has_Implicit_Dereference (Disc);
-                           return;
-                        end if;
+                     Next_Discriminant (Disc);
+                  end loop;
 
-                        Next_Discriminant (Disc);
-                     end loop;
+                  --  Error if no proper access discriminant
 
-                     --  Error if no proper access discriminant.
-
+                  if No (Disc) then
                      Error_Msg_NE
                       ("not an access discriminant of&", Expr, E);
-                  end;
+                     return;
+                  end if;
+               end if;
+
+               --  For a type extension, check whether parent has a
+               --  reference discriminant, to verify that use is proper.
+
+               if Is_Derived_Type (E)
+                 and then Has_Discriminants (Etype (E))
+               then
+                  Parent_Disc := Get_Reference_Discriminant (Etype (E));
+
+                  if Present (Parent_Disc)
+                    and then Corresponding_Discriminant (Disc) /= Parent_Disc
+                  then
+                     Error_Msg_N ("reference discriminant does not match " &
+                       "discriminant of parent type", Expr);
+                  end if;
                end if;
             end Analyze_Aspect_Implicit_Dereference;
 
@@ -1146,17 +1585,25 @@ package body Sem_Ch13 is
               (Pragma_Argument_Associations : List_Id;
                Pragma_Name                  : Name_Id)
             is
+               Args : List_Id := Pragma_Argument_Associations;
+
             begin
                --  We should never get here if aspect was disabled
 
                pragma Assert (not Is_Disabled (Aspect));
 
+               --  Certain aspects allow for an optional name or expression. Do
+               --  not generate a pragma with empty argument association list.
+
+               if No (Args) or else No (Expression (First (Args))) then
+                  Args := No_List;
+               end if;
+
                --  Build the pragma
 
                Aitem :=
                  Make_Pragma (Loc,
-                   Pragma_Argument_Associations =>
-                     Pragma_Argument_Associations,
+                   Pragma_Argument_Associations => Args,
                    Pragma_Identifier =>
                      Make_Identifier (Sloc (Id), Pragma_Name),
                    Class_Present     => Class_Present (Aspect),
@@ -1166,24 +1613,26 @@ package body Sem_Ch13 is
 
                if Is_Ignored (Aspect) then
                   Set_Is_Ignored (Aitem);
+               elsif Is_Checked (Aspect) then
+                  Set_Is_Checked (Aitem);
                end if;
 
                Set_Corresponding_Aspect (Aitem, Aspect);
-               Set_From_Aspect_Specification (Aitem, True);
+               Set_From_Aspect_Specification (Aitem);
             end Make_Aitem_Pragma;
 
          --  Start of processing for Analyze_One_Aspect
 
          begin
-            --  Skip aspect if already analyzed (not clear if this is needed)
+            --  Skip aspect if already analyzed, to avoid looping in some cases
 
             if Analyzed (Aspect) then
                goto Continue;
             end if;
 
-            --  Skip looking at aspect if it is totally disabled. Just mark
-            --  it as such for later reference in the tree. This also sets
-            --  the Is_Ignored flag appropriately.
+            --  Skip looking at aspect if it is totally disabled. Just mark it
+            --  as such for later reference in the tree. This also sets the
+            --  Is_Ignored and Is_Checked flags appropriately.
 
             Check_Applicable_Policy (Aspect);
 
@@ -1214,7 +1663,7 @@ package body Sem_Ch13 is
 
             Check_Restriction_No_Specification_Of_Aspect (Aspect);
 
-            --  Analyze this aspect (actual analysis is delayed till later)
+            --  Mark aspect analyzed (actual analysis is delayed till later)
 
             Set_Analyzed (Aspect);
             Set_Entity (Aspect, E);
@@ -1279,9 +1728,47 @@ package body Sem_Ch13 is
 
             Set_Entity (Id, New_Copy_Tree (Expr));
 
+            --  Set Delay_Required as appropriate to aspect
+
+            case Aspect_Delay (A_Id) is
+               when Always_Delay =>
+                  Delay_Required := True;
+
+               when Never_Delay =>
+                  Delay_Required := False;
+
+               when Rep_Aspect =>
+
+                  --  If expression has the form of an integer literal, then
+                  --  do not delay, since we know the value cannot change.
+                  --  This optimization catches most rep clause cases.
+
+                  --  For Boolean aspects, don't delay if no expression
+
+                  if A_Id in Boolean_Aspects and then No (Expr) then
+                     Delay_Required := False;
+
+                  --  For non-Boolean aspects, don't delay if integer literal
+
+                  elsif A_Id not in Boolean_Aspects
+                    and then Present (Expr)
+                    and then Nkind (Expr) = N_Integer_Literal
+                  then
+                     Delay_Required := False;
+
+                  --  All other cases are delayed
+
+                  else
+                     Delay_Required := True;
+                     Set_Has_Delayed_Rep_Aspects (E);
+                  end if;
+            end case;
+
             --  Processing based on specific aspect
 
             case A_Id is
+               when Aspect_Unimplemented =>
+                  null; -- ??? temp for now
 
                --  No_Aspect should be impossible
 
@@ -1300,6 +1787,7 @@ package body Sem_Ch13 is
                     Aspect_Dispatching_Domain   |
                     Aspect_External_Tag         |
                     Aspect_Input                |
+                    Aspect_Iterable             |
                     Aspect_Iterator_Element     |
                     Aspect_Machine_Radix        |
                     Aspect_Object_Size          |
@@ -1310,7 +1798,6 @@ package body Sem_Ch13 is
                     Aspect_Small                |
                     Aspect_Simple_Storage_Pool  |
                     Aspect_Storage_Pool         |
-                    Aspect_Storage_Size         |
                     Aspect_Stream_Size          |
                     Aspect_Value_Size           |
                     Aspect_Variable_Indexing    |
@@ -1319,12 +1806,54 @@ package body Sem_Ch13 is
                   --  Indexing aspects apply only to tagged type
 
                   if (A_Id = Aspect_Constant_Indexing
-                       or else A_Id = Aspect_Variable_Indexing)
+                        or else
+                      A_Id = Aspect_Variable_Indexing)
                     and then not (Is_Type (E)
                                    and then Is_Tagged_Type (E))
                   then
-                     Error_Msg_N ("indexing applies to a tagged type", N);
+                     Error_Msg_N
+                       ("indexing aspect can only apply to a tagged type",
+                        Aspect);
                      goto Continue;
+                  end if;
+
+                  --  For the case of aspect Address, we don't consider that we
+                  --  know the entity is never set in the source, since it is
+                  --  is likely aliasing is occurring.
+
+                  --  Note: one might think that the analysis of the resulting
+                  --  attribute definition clause would take care of that, but
+                  --  that's not the case since it won't be from source.
+
+                  if A_Id = Aspect_Address then
+                     Set_Never_Set_In_Source (E, False);
+                  end if;
+
+                  --  Correctness of the profile of a stream operation is
+                  --  verified at the freeze point, but we must detect the
+                  --  illegal specification of this aspect for a subtype now,
+                  --  to prevent malformed rep_item chains.
+
+                  if A_Id = Aspect_Input  or else
+                     A_Id = Aspect_Output or else
+                     A_Id = Aspect_Read   or else
+                     A_Id = Aspect_Write
+                  then
+                     if not Is_First_Subtype (E) then
+                        Error_Msg_N
+                          ("local name must be a first subtype", Aspect);
+                        goto Continue;
+
+                     --  If stream aspect applies to the class-wide type,
+                     --  the generated attribute definition applies to the
+                     --  class-wide type as well.
+
+                     elsif Class_Present (Aspect) then
+                        Ent :=
+                          Make_Attribute_Reference (Loc,
+                            Prefix         => Ent,
+                            Attribute_Name => Name_Class);
+                     end if;
                   end if;
 
                   --  Construct the attribute definition clause
@@ -1352,10 +1881,11 @@ package body Sem_Ch13 is
                --  referring to the entity, and the second argument is the
                --  aspect definition expression.
 
-               --  Suppress/Unsuppress
+               --  Linker_Section/Suppress/Unsuppress
 
-               when Aspect_Suppress   |
-                    Aspect_Unsuppress =>
+               when Aspect_Linker_Section |
+                    Aspect_Suppress       |
+                    Aspect_Unsuppress     =>
 
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => New_List (
@@ -1370,7 +1900,6 @@ package body Sem_Ch13 is
                --  Corresponds to pragma Implemented, construct the pragma
 
                when Aspect_Synchronization =>
-
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => New_List (
                        Make_Pragma_Argument_Association (Loc,
@@ -1379,13 +1908,7 @@ package body Sem_Ch13 is
                          Expression => Relocate_Node (Expr))),
                      Pragma_Name                  => Name_Implemented);
 
-                  --  No delay is required since the only values are: By_Entry
-                  --  | By_Protected_Procedure | By_Any | Optional which don't
-                  --  get analyzed anyway.
-
-                  Delay_Required := False;
-
-               --  Attach Handler
+               --  Attach_Handler
 
                when Aspect_Attach_Handler =>
                   Make_Aitem_Pragma
@@ -1396,11 +1919,31 @@ package body Sem_Ch13 is
                          Expression => Relocate_Node (Expr))),
                      Pragma_Name                  => Name_Attach_Handler);
 
+                  --  We need to insert this pragma into the tree to get proper
+                  --  processing and to look valid from a placement viewpoint.
+
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
                --  Dynamic_Predicate, Predicate, Static_Predicate
 
                when Aspect_Dynamic_Predicate |
                     Aspect_Predicate         |
                     Aspect_Static_Predicate  =>
+
+                  --  These aspects apply only to subtypes
+
+                  if not Is_Type (E) then
+                     Error_Msg_N
+                       ("predicate can only be specified for a subtype",
+                        Aspect);
+                     goto Continue;
+
+                  elsif Is_Incomplete_Type (E) then
+                     Error_Msg_N
+                       ("predicate cannot apply to incomplete view", Aspect);
+                     goto Continue;
+                  end if;
 
                   --  Construct the pragma (always a pragma Predicate, with
                   --  flags recording whether it is static/dynamic). We also
@@ -1412,7 +1955,7 @@ package body Sem_Ch13 is
                          Expression => Ent),
                        Make_Pragma_Argument_Association (Sloc (Expr),
                          Expression => Relocate_Node (Expr))),
-                     Pragma_Name                  => Name_Predicate);
+                     Pragma_Name => Name_Predicate);
 
                   --  Mark type has predicates, and remember what kind of
                   --  aspect lead to this predicate (we need this to access
@@ -1427,8 +1970,8 @@ package body Sem_Ch13 is
                   end if;
 
                   --  If the type is private, indicate that its completion
-                  --  has a freeze node, because that is the one that will be
-                  --  visible at freeze time.
+                  --  has a freeze node, because that is the one that will
+                  --  be visible at freeze time.
 
                   if Is_Private_Type (E) and then Present (Full_View (E)) then
                      Set_Has_Predicates (Full_View (E));
@@ -1439,6 +1982,46 @@ package body Sem_Ch13 is
                         Set_Has_Static_Predicate_Aspect (Full_View (E));
                      end if;
 
+                     Set_Has_Delayed_Aspects (Full_View (E));
+                     Ensure_Freeze_Node (Full_View (E));
+                  end if;
+
+               --  Predicate_Failure
+
+               when Aspect_Predicate_Failure =>
+
+                  --  This aspect applies only to subtypes
+
+                  if not Is_Type (E) then
+                     Error_Msg_N
+                       ("predicate can only be specified for a subtype",
+                        Aspect);
+                     goto Continue;
+
+                  elsif Is_Incomplete_Type (E) then
+                     Error_Msg_N
+                       ("predicate cannot apply to incomplete view", Aspect);
+                     goto Continue;
+                  end if;
+
+                  --  Construct the pragma
+
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Sloc (Ent),
+                         Expression => Ent),
+                       Make_Pragma_Argument_Association (Sloc (Expr),
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name => Name_Predicate_Failure);
+
+                  Set_Has_Predicates (E);
+
+                  --  If the type is private, indicate that its completion
+                  --  has a freeze node, because that is the one that will
+                  --  be visible at freeze time.
+
+                  if Is_Private_Type (E) and then Present (Full_View (E)) then
+                     Set_Has_Predicates (Full_View (E));
                      Set_Has_Delayed_Aspects (Full_View (E));
                      Ensure_Freeze_Node (Full_View (E));
                   end if;
@@ -1458,90 +2041,214 @@ package body Sem_Ch13 is
                   --  pragma is one of Convention/Import/Export.
 
                   declare
-                     P_Name   : Name_Id;
-                     A_Name   : Name_Id;
-                     A        : Node_Id;
-                     Arg_List : List_Id;
-                     Found    : Boolean;
-                     L_Assoc  : Node_Id;
-                     E_Assoc  : Node_Id;
+                     Args : constant List_Id := New_List (
+                              Make_Pragma_Argument_Association (Sloc (Expr),
+                                Expression => Relocate_Node (Expr)),
+                              Make_Pragma_Argument_Association (Sloc (Ent),
+                                Expression => Ent));
+
+                     Imp_Exp_Seen : Boolean := False;
+                     --  Flag set when aspect Import or Export has been seen
+
+                     Imp_Seen : Boolean := False;
+                     --  Flag set when aspect Import has been seen
+
+                     Asp        : Node_Id;
+                     Asp_Nam    : Name_Id;
+                     Extern_Arg : Node_Id;
+                     Link_Arg   : Node_Id;
+                     Prag_Nam   : Name_Id;
 
                   begin
-                     P_Name   := Chars (Id);
-                     Found    := False;
-                     Arg_List := New_List;
-                     L_Assoc  := Empty;
-                     E_Assoc  := Empty;
+                     Extern_Arg := Empty;
+                     Link_Arg   := Empty;
+                     Prag_Nam   := Chars (Id);
 
-                     A := First (L);
-                     while Present (A) loop
-                        A_Name := Chars (Identifier (A));
+                     Asp := First (L);
+                     while Present (Asp) loop
+                        Asp_Nam := Chars (Identifier (Asp));
 
-                        if Nam_In (A_Name, Name_Import, Name_Export) then
-                           if Found then
-                              Error_Msg_N ("conflicting", A);
+                        --  Aspects Import and Export take precedence over
+                        --  aspect Convention. As a result the generated pragma
+                        --  must carry the proper interfacing aspect's name.
+
+                        if Nam_In (Asp_Nam, Name_Import, Name_Export) then
+                           if Imp_Exp_Seen then
+                              Error_Msg_N ("conflicting", Asp);
                            else
-                              Found := True;
+                              Imp_Exp_Seen := True;
+
+                              if Asp_Nam = Name_Import then
+                                 Imp_Seen := True;
+                              end if;
                            end if;
 
-                           P_Name := A_Name;
+                           Prag_Nam := Asp_Nam;
 
-                        elsif A_Name = Name_Link_Name then
-                           L_Assoc :=
-                             Make_Pragma_Argument_Association (Loc,
-                               Chars      => A_Name,
-                               Expression => Relocate_Node (Expression (A)));
+                        --  Aspect External_Name adds an extra argument to the
+                        --  generated pragma.
 
-                        elsif A_Name = Name_External_Name then
-                           E_Assoc :=
+                        elsif Asp_Nam = Name_External_Name then
+                           Extern_Arg :=
                              Make_Pragma_Argument_Association (Loc,
-                               Chars      => A_Name,
-                               Expression => Relocate_Node (Expression (A)));
+                               Chars      => Asp_Nam,
+                               Expression => Relocate_Node (Expression (Asp)));
+
+                        --  Aspect Link_Name adds an extra argument to the
+                        --  generated pragma.
+
+                        elsif Asp_Nam = Name_Link_Name then
+                           Link_Arg :=
+                             Make_Pragma_Argument_Association (Loc,
+                               Chars      => Asp_Nam,
+                               Expression => Relocate_Node (Expression (Asp)));
                         end if;
 
-                        Next (A);
+                        Next (Asp);
                      end loop;
 
-                     Arg_List := New_List (
-                       Make_Pragma_Argument_Association (Sloc (Expr),
-                         Expression => Relocate_Node (Expr)),
-                       Make_Pragma_Argument_Association (Sloc (Ent),
-                         Expression => Ent));
+                     --  Assemble the full argument list
 
-                     if Present (L_Assoc) then
-                        Append_To (Arg_List, L_Assoc);
+                     if Present (Extern_Arg) then
+                        Append_To (Args, Extern_Arg);
                      end if;
 
-                     if Present (E_Assoc) then
-                        Append_To (Arg_List, E_Assoc);
+                     if Present (Link_Arg) then
+                        Append_To (Args, Link_Arg);
                      end if;
 
                      Make_Aitem_Pragma
-                       (Pragma_Argument_Associations => Arg_List,
-                        Pragma_Name                  => P_Name);
+                       (Pragma_Argument_Associations => Args,
+                        Pragma_Name                  => Prag_Nam);
 
-                     --  Convention is a static name, and must be associated
-                     --  with the entity at once.
+                     --  Store the generated pragma Import in the related
+                     --  subprogram.
 
-                     Delay_Required := False;
+                     if Imp_Seen and then Is_Subprogram (E) then
+                        Set_Import_Pragma (E, Aitem);
+                     end if;
                   end;
 
                --  CPU, Interrupt_Priority, Priority
 
-               --  These three aspects can be specified for a subprogram body,
-               --  in which case we generate pragmas for them and insert them
-               --  ahead of local declarations, rather than after the body.
+               --  These three aspects can be specified for a subprogram spec
+               --  or body, in which case we analyze the expression and export
+               --  the value of the aspect.
+
+               --  Previously, we generated an equivalent pragma for bodies
+               --  (note that the specs cannot contain these pragmas). The
+               --  pragma was inserted ahead of local declarations, rather than
+               --  after the body. This leads to a certain duplication between
+               --  the processing performed for the aspect and the pragma, but
+               --  given the straightforward handling required it is simpler
+               --  to duplicate than to translate the aspect in the spec into
+               --  a pragma in the declarative part of the body.
 
                when Aspect_CPU                |
                     Aspect_Interrupt_Priority |
                     Aspect_Priority           =>
 
-                  if Nkind (N) = N_Subprogram_Body then
-                     Make_Aitem_Pragma
-                       (Pragma_Argument_Associations => New_List (
-                          Make_Pragma_Argument_Association (Sloc (Expr),
-                            Expression => Relocate_Node (Expr))),
-                        Pragma_Name                  => Chars (Id));
+                  if Nkind_In (N, N_Subprogram_Body,
+                                  N_Subprogram_Declaration)
+                  then
+                     --  Analyze the aspect expression
+
+                     Analyze_And_Resolve (Expr, Standard_Integer);
+
+                     --  Interrupt_Priority aspect not allowed for main
+                     --  subprograms. RM D.1 does not forbid this explicitly,
+                     --  but RM J.15.11(6/3) does not permit pragma
+                     --  Interrupt_Priority for subprograms.
+
+                     if A_Id = Aspect_Interrupt_Priority then
+                        Error_Msg_N
+                          ("Interrupt_Priority aspect cannot apply to "
+                           & "subprogram", Expr);
+
+                     --  The expression must be static
+
+                     elsif not Is_OK_Static_Expression (Expr) then
+                        Flag_Non_Static_Expr
+                          ("aspect requires static expression!", Expr);
+
+                     --  Check whether this is the main subprogram. Issue a
+                     --  warning only if it is obviously not a main program
+                     --  (when it has parameters or when the subprogram is
+                     --  within a package).
+
+                     elsif Present (Parameter_Specifications
+                                      (Specification (N)))
+                       or else not Is_Compilation_Unit (Defining_Entity (N))
+                     then
+                        --  See RM D.1(14/3) and D.16(12/3)
+
+                        Error_Msg_N
+                          ("aspect applied to subprogram other than the "
+                           & "main subprogram has no effect??", Expr);
+
+                     --  Otherwise check in range and export the value
+
+                     --  For the CPU aspect
+
+                     elsif A_Id = Aspect_CPU then
+                        if Is_In_Range (Expr, RTE (RE_CPU_Range)) then
+
+                           --  Value is correct so we export the value to make
+                           --  it available at execution time.
+
+                           Set_Main_CPU
+                             (Main_Unit, UI_To_Int (Expr_Value (Expr)));
+
+                        else
+                           Error_Msg_N
+                             ("main subprogram CPU is out of range", Expr);
+                        end if;
+
+                     --  For the Priority aspect
+
+                     elsif A_Id = Aspect_Priority then
+                        if Is_In_Range (Expr, RTE (RE_Priority)) then
+
+                           --  Value is correct so we export the value to make
+                           --  it available at execution time.
+
+                           Set_Main_Priority
+                             (Main_Unit, UI_To_Int (Expr_Value (Expr)));
+
+                        --  Ignore pragma if Relaxed_RM_Semantics to support
+                        --  other targets/non GNAT compilers.
+
+                        elsif not Relaxed_RM_Semantics then
+                           Error_Msg_N
+                             ("main subprogram priority is out of range",
+                              Expr);
+                        end if;
+                     end if;
+
+                     --  Load an arbitrary entity from System.Tasking.Stages
+                     --  or System.Tasking.Restricted.Stages (depending on
+                     --  the supported profile) to make sure that one of these
+                     --  packages is implicitly with'ed, since we need to have
+                     --  the tasking run time active for the pragma Priority to
+                     --  have any effect. Previously we with'ed the package
+                     --  System.Tasking, but this package does not trigger the
+                     --  required initialization of the run-time library.
+
+                     declare
+                        Discard : Entity_Id;
+                     begin
+                        if Restricted_Profile then
+                           Discard := RTE (RE_Activate_Restricted_Tasks);
+                        else
+                           Discard := RTE (RE_Activate_Tasks);
+                        end if;
+                     end;
+
+                     --  Handling for these Aspects in subprograms is complete
+
+                     goto Continue;
+
+                  --  For tasks pass the aspect as an attribute
 
                   else
                      Aitem :=
@@ -1554,7 +2261,6 @@ package body Sem_Ch13 is
                --  Warnings
 
                when Aspect_Warnings =>
-
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => New_List (
                        Make_Pragma_Argument_Association (Sloc (Expr),
@@ -1563,10 +2269,9 @@ package body Sem_Ch13 is
                          Expression => New_Occurrence_Of (E, Loc))),
                      Pragma_Name                  => Chars (Id));
 
-                  --  We don't have to play the delay game here, since the only
-                  --  values are ON/OFF which don't get analyzed anyway.
-
-                  Delay_Required := False;
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
 
                --  Case 2c: Aspects corresponding to pragmas with three
                --  arguments.
@@ -1615,20 +2320,136 @@ package body Sem_Ch13 is
 
                --  Abstract_State
 
-               when Aspect_Abstract_State =>
+               --  Aspect Abstract_State introduces implicit declarations for
+               --  all state abstraction entities it defines. To emulate this
+               --  behavior, insert the pragma at the beginning of the visible
+               --  declarations of the related package so that it is analyzed
+               --  immediately.
+
+               when Aspect_Abstract_State => Abstract_State : declare
+                  Context : Node_Id := N;
+
+               begin
+                  --  When aspect Abstract_State appears on a generic package,
+                  --  it is propageted to the package instance. The context in
+                  --  this case is the instance spec.
+
+                  if Nkind (Context) = N_Package_Instantiation then
+                     Context := Instance_Spec (Context);
+                  end if;
+
+                  if Nkind_In (Context, N_Generic_Package_Declaration,
+                                        N_Package_Declaration)
+                  then
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => New_List (
+                          Make_Pragma_Argument_Association (Loc,
+                            Expression => Relocate_Node (Expr))),
+                        Pragma_Name                  => Name_Abstract_State);
+
+                     Decorate (Aspect, Aitem);
+                     Insert_Pragma
+                       (Prag        => Aitem,
+                        Is_Instance =>
+                          Is_Generic_Instance (Defining_Entity (Context)));
+
+                  else
+                     Error_Msg_NE
+                       ("aspect & must apply to a package declaration",
+                        Aspect, Id);
+                  end if;
+
+                  goto Continue;
+               end Abstract_State;
+
+               --  Aspect Async_Readers is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related object declaration.
+
+               when Aspect_Async_Readers =>
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => New_List (
                        Make_Pragma_Argument_Association (Loc,
                          Expression => Relocate_Node (Expr))),
-                     Pragma_Name                  => Name_Abstract_State);
-                  Delay_Required := False;
+                     Pragma_Name                  => Name_Async_Readers);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Async_Writers is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related object declaration.
+
+               when Aspect_Async_Writers =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Async_Writers);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Constant_After_Elaboration is never delayed because
+               --  it is equivalent to a source pragma which appears after the
+               --  related object declaration.
+
+               when Aspect_Constant_After_Elaboration =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  =>
+                       Name_Constant_After_Elaboration);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Default_Internal_Condition is never delayed because
+               --  it is equivalent to a source pragma which appears after the
+               --  related private type. To deal with forward references, the
+               --  generated pragma is stored in the rep chain of the related
+               --  private type as types do not carry contracts. The pragma is
+               --  wrapped inside of a procedure at the freeze point of the
+               --  private type's full view.
+
+               when Aspect_Default_Initial_Condition =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  =>
+                       Name_Default_Initial_Condition);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Default_Storage_Pool
+
+               when Aspect_Default_Storage_Pool =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  =>
+                       Name_Default_Storage_Pool);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
 
                --  Depends
 
-               --  Aspect Depends must be delayed because it mentions names
-               --  of inputs and output that are classified by aspect Global.
-               --  The aspect and pragma are treated the same way as a post
-               --  condition.
+               --  Aspect Depends is never delayed because it is equivalent to
+               --  a source pragma which appears after the related subprogram.
+               --  To deal with forward references, the generated pragma is
+               --  stored in the contract of the related subprogram and later
+               --  analyzed at the end of the declarative region. See routine
+               --  Analyze_Depends_In_Decl_Part for details.
 
                when Aspect_Depends =>
                   Make_Aitem_Pragma
@@ -1637,16 +2458,79 @@ package body Sem_Ch13 is
                          Expression => Relocate_Node (Expr))),
                      Pragma_Name                  => Name_Depends);
 
-                  Decorate_Delayed_Aspect_And_Pragma (Aspect, Aitem);
-                  Insert_Delayed_Pragma (Aitem);
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Effecitve_Reads is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related object declaration.
+
+               when Aspect_Effective_Reads =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Effective_Reads);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Effective_Writes is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related object declaration.
+
+               when Aspect_Effective_Writes =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Effective_Writes);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Extensions_Visible is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related subprogram.
+
+               when Aspect_Extensions_Visible =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Extensions_Visible);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Aspect Ghost is never delayed because it is equivalent to a
+               --  source pragma which appears at the top of [generic] package
+               --  declarations or after an object, a [generic] subprogram, or
+               --  a type declaration.
+
+               when Aspect_Ghost =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Ghost);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
                   goto Continue;
 
                --  Global
 
-               --  Aspect Global must be delayed because it can mention names
-               --  and benefit from the forward visibility rules applicable to
-               --  aspects of subprograms. The aspect and pragma are treated
-               --  the same way as a post condition.
+               --  Aspect Global is never delayed because it is equivalent to
+               --  a source pragma which appears after the related subprogram.
+               --  To deal with forward references, the generated pragma is
+               --  stored in the contract of the related subprogram and later
+               --  analyzed at the end of the declarative region. See routine
+               --  Analyze_Global_In_Decl_Part for details.
 
                when Aspect_Global =>
                   Make_Aitem_Pragma
@@ -1655,8 +2539,244 @@ package body Sem_Ch13 is
                          Expression => Relocate_Node (Expr))),
                      Pragma_Name                  => Name_Global);
 
-                  Decorate_Delayed_Aspect_And_Pragma (Aspect, Aitem);
-                  Insert_Delayed_Pragma (Aitem);
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Initial_Condition
+
+               --  Aspect Initial_Condition is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related package. To deal with forward references, the
+               --  generated pragma is stored in the contract of the related
+               --  package and later analyzed at the end of the declarative
+               --  region. See routine Analyze_Initial_Condition_In_Decl_Part
+               --  for details.
+
+               when Aspect_Initial_Condition => Initial_Condition : declare
+                  Context : Node_Id := N;
+
+               begin
+                  --  When aspect Initial_Condition appears on a generic
+                  --  package, it is propageted to the package instance. The
+                  --  context in this case is the instance spec.
+
+                  if Nkind (Context) = N_Package_Instantiation then
+                     Context := Instance_Spec (Context);
+                  end if;
+
+                  if Nkind_In (Context, N_Generic_Package_Declaration,
+                                        N_Package_Declaration)
+                  then
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => New_List (
+                          Make_Pragma_Argument_Association (Loc,
+                            Expression => Relocate_Node (Expr))),
+                        Pragma_Name                  =>
+                          Name_Initial_Condition);
+
+                     Decorate (Aspect, Aitem);
+                     Insert_Pragma
+                       (Prag        => Aitem,
+                        Is_Instance =>
+                          Is_Generic_Instance (Defining_Entity (Context)));
+
+                  --  Otherwise the context is illegal
+
+                  else
+                     Error_Msg_NE
+                       ("aspect & must apply to a package declaration",
+                        Aspect, Id);
+                  end if;
+
+                  goto Continue;
+               end Initial_Condition;
+
+               --  Initializes
+
+               --  Aspect Initializes is never delayed because it is equivalent
+               --  to a source pragma appearing after the related package. To
+               --  deal with forward references, the generated pragma is stored
+               --  in the contract of the related package and later analyzed at
+               --  the end of the declarative region. For details, see routine
+               --  Analyze_Initializes_In_Decl_Part.
+
+               when Aspect_Initializes => Initializes : declare
+                  Context : Node_Id := N;
+
+               begin
+                  --  When aspect Initializes appears on a generic package,
+                  --  it is propageted to the package instance. The context
+                  --  in this case is the instance spec.
+
+                  if Nkind (Context) = N_Package_Instantiation then
+                     Context := Instance_Spec (Context);
+                  end if;
+
+                  if Nkind_In (Context, N_Generic_Package_Declaration,
+                                        N_Package_Declaration)
+                  then
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => New_List (
+                          Make_Pragma_Argument_Association (Loc,
+                            Expression => Relocate_Node (Expr))),
+                        Pragma_Name                  => Name_Initializes);
+
+                     Decorate (Aspect, Aitem);
+                     Insert_Pragma
+                       (Prag        => Aitem,
+                        Is_Instance =>
+                          Is_Generic_Instance (Defining_Entity (Context)));
+
+                  --  Otherwise the context is illegal
+
+                  else
+                     Error_Msg_NE
+                       ("aspect & must apply to a package declaration",
+                        Aspect, Id);
+                  end if;
+
+                  goto Continue;
+               end Initializes;
+
+               --  Obsolescent
+
+               when Aspect_Obsolescent => declare
+                  Args : List_Id;
+
+               begin
+                  if No (Expr) then
+                     Args := No_List;
+                  else
+                     Args := New_List (
+                       Make_Pragma_Argument_Association (Sloc (Expr),
+                         Expression => Relocate_Node (Expr)));
+                  end if;
+
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => Args,
+                     Pragma_Name                  => Chars (Id));
+               end;
+
+               --  Part_Of
+
+               when Aspect_Part_Of =>
+                  if Nkind_In (N, N_Object_Declaration,
+                                  N_Package_Instantiation)
+                    or else Is_Single_Concurrent_Type_Declaration (N)
+                  then
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => New_List (
+                          Make_Pragma_Argument_Association (Loc,
+                            Expression => Relocate_Node (Expr))),
+                        Pragma_Name                  => Name_Part_Of);
+
+                     Decorate (Aspect, Aitem);
+                     Insert_Pragma (Aitem);
+
+                  else
+                     Error_Msg_NE
+                       ("aspect & must apply to package instantiation, "
+                        & "object, single protected type or single task type",
+                        Aspect, Id);
+                  end if;
+
+                  goto Continue;
+
+               --  SPARK_Mode
+
+               when Aspect_SPARK_Mode =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_SPARK_Mode);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Refined_Depends
+
+               --  Aspect Refined_Depends is never delayed because it is
+               --  equivalent to a source pragma which appears in the
+               --  declarations of the related subprogram body. To deal with
+               --  forward references, the generated pragma is stored in the
+               --  contract of the related subprogram body and later analyzed
+               --  at the end of the declarative region. For details, see
+               --  routine Analyze_Refined_Depends_In_Decl_Part.
+
+               when Aspect_Refined_Depends =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Refined_Depends);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Refined_Global
+
+               --  Aspect Refined_Global is never delayed because it is
+               --  equivalent to a source pragma which appears in the
+               --  declarations of the related subprogram body. To deal with
+               --  forward references, the generated pragma is stored in the
+               --  contract of the related subprogram body and later analyzed
+               --  at the end of the declarative region. For details, see
+               --  routine Analyze_Refined_Global_In_Decl_Part.
+
+               when Aspect_Refined_Global =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Refined_Global);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Refined_Post
+
+               when Aspect_Refined_Post =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Refined_Post);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Refined_State
+
+               when Aspect_Refined_State =>
+
+                  --  The corresponding pragma for Refined_State is inserted in
+                  --  the declarations of the related package body. This action
+                  --  synchronizes both the source and from-aspect versions of
+                  --  the pragma.
+
+                  if Nkind (N) = N_Package_Body then
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => New_List (
+                          Make_Pragma_Argument_Association (Loc,
+                            Expression => Relocate_Node (Expr))),
+                        Pragma_Name                  => Name_Refined_State);
+
+                     Decorate (Aspect, Aitem);
+                     Insert_Pragma (Aitem);
+
+                  --  Otherwise the context is illegal
+
+                  else
+                     Error_Msg_NE
+                       ("aspect & must apply to a package body", Aspect, Id);
+                  end if;
+
                   goto Continue;
 
                --  Relative_Deadline
@@ -1697,16 +2817,123 @@ package body Sem_Ch13 is
                      end;
                   end if;
 
+               --  Aspect Volatile_Function is never delayed because it is
+               --  equivalent to a source pragma which appears after the
+               --  related subprogram.
+
+               when Aspect_Volatile_Function =>
+                  Make_Aitem_Pragma
+                    (Pragma_Argument_Associations => New_List (
+                       Make_Pragma_Argument_Association (Loc,
+                         Expression => Relocate_Node (Expr))),
+                     Pragma_Name                  => Name_Volatile_Function);
+
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
+                  goto Continue;
+
+               --  Case 2e: Annotate aspect
+
+               when Aspect_Annotate =>
+                  declare
+                     Args  : List_Id;
+                     Pargs : List_Id;
+                     Arg   : Node_Id;
+
+                  begin
+                     --  The argument can be a single identifier
+
+                     if Nkind (Expr) = N_Identifier then
+
+                        --  One level of parens is allowed
+
+                        if Paren_Count (Expr) > 1 then
+                           Error_Msg_F ("extra parentheses ignored", Expr);
+                        end if;
+
+                        Set_Paren_Count (Expr, 0);
+
+                        --  Add the single item to the list
+
+                        Args := New_List (Expr);
+
+                     --  Otherwise we must have an aggregate
+
+                     elsif Nkind (Expr) = N_Aggregate then
+
+                        --  Must be positional
+
+                        if Present (Component_Associations (Expr)) then
+                           Error_Msg_F
+                             ("purely positional aggregate required", Expr);
+                           goto Continue;
+                        end if;
+
+                        --  Must not be parenthesized
+
+                        if Paren_Count (Expr) /= 0 then
+                           Error_Msg_F ("extra parentheses ignored", Expr);
+                        end if;
+
+                        --  List of arguments is list of aggregate expressions
+
+                        Args := Expressions (Expr);
+
+                     --  Anything else is illegal
+
+                     else
+                        Error_Msg_F ("wrong form for Annotate aspect", Expr);
+                        goto Continue;
+                     end if;
+
+                     --  Prepare pragma arguments
+
+                     Pargs := New_List;
+                     Arg := First (Args);
+                     while Present (Arg) loop
+                        Append_To (Pargs,
+                          Make_Pragma_Argument_Association (Sloc (Arg),
+                            Expression => Relocate_Node (Arg)));
+                        Next (Arg);
+                     end loop;
+
+                     Append_To (Pargs,
+                       Make_Pragma_Argument_Association (Sloc (Ent),
+                         Chars      => Name_Entity,
+                         Expression => Ent));
+
+                     Make_Aitem_Pragma
+                       (Pragma_Argument_Associations => Pargs,
+                        Pragma_Name                  => Name_Annotate);
+                  end;
+
                --  Case 3 : Aspects that don't correspond to pragma/attribute
                --  definition clause.
 
                --  Case 3a: The aspects listed below don't correspond to
                --  pragmas/attributes but do require delayed analysis.
 
-               --  Default_Value, Default_Component_Value
+               --  Default_Value can only apply to a scalar type
 
-               when Aspect_Default_Value           |
-                    Aspect_Default_Component_Value =>
+               when Aspect_Default_Value =>
+                  if not Is_Scalar_Type (E) then
+                     Error_Msg_N
+                       ("aspect Default_Value must apply to a scalar type", N);
+                  end if;
+
+                  Aitem := Empty;
+
+               --  Default_Component_Value can only apply to an array type
+               --  with scalar components.
+
+               when Aspect_Default_Component_Value =>
+                  if not (Is_Array_Type (E)
+                           and then Is_Scalar_Type (Component_Type (E)))
+                  then
+                     Error_Msg_N ("aspect Default_Component_Value can only "
+                       & "apply to an array of scalar components", N);
+                  end if;
+
                   Aitem := Empty;
 
                --  Case 3b: The aspects listed below don't correspond to
@@ -1741,7 +2968,7 @@ package body Sem_Ch13 is
                   Analyze_Aspect_Dimension_System (N, Id, Expr);
                   goto Continue;
 
-               --  Case 4: Special handling for aspects
+               --  Case 4: Aspects requiring special handling
 
                --  Pre/Post/Test_Case/Contract_Cases whose corresponding
                --  pragmas take care of the delay.
@@ -1777,7 +3004,7 @@ package body Sem_Ch13 is
                   --  or precondition error).
 
                   --  We do not do this for Pre'Class, since we have to put
-                  --  these conditions together in a complex OR expression
+                  --  these conditions together in a complex OR expression.
 
                   --  We do not do this in ASIS mode, as ASIS relies on the
                   --  original node representing the complete expression, when
@@ -1801,6 +3028,8 @@ package body Sem_Ch13 is
 
                   --  Build the precondition/postcondition pragma
 
+                  --  Add note about why we do NOT need Copy_Tree here???
+
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => New_List (
                        Make_Pragma_Argument_Association (Eloc,
@@ -1813,7 +3042,7 @@ package body Sem_Ch13 is
                   if not Opt.Exception_Locations_Suppressed then
                      Append_To (Pragma_Argument_Associations (Aitem),
                        Make_Pragma_Argument_Association (Eloc,
-                         Chars     => Name_Message,
+                         Chars      => Name_Message,
                          Expression =>
                            Make_String_Literal (Eloc,
                              Strval => "failed "
@@ -1830,7 +3059,8 @@ package body Sem_Ch13 is
                   --  about delay issues, since the pragmas themselves deal
                   --  with delay of visibility for the expression analysis.
 
-                  Insert_Delayed_Pragma (Aitem);
+                  Insert_Pragma (Aitem);
+
                   goto Continue;
                end Pre_Post;
 
@@ -1859,14 +3089,13 @@ package body Sem_Ch13 is
                   end if;
 
                   --  Make pragma expressions refer to the original aspect
-                  --  expressions through the Original_Node link. This is
-                  --  used in semantic analysis for ASIS mode, so that the
-                  --  original expression also gets analyzed.
+                  --  expressions through the Original_Node link. This is used
+                  --  in semantic analysis for ASIS mode, so that the original
+                  --  expression also gets analyzed.
 
                   Comp_Expr := First (Expressions (Expr));
                   while Present (Comp_Expr) loop
                      New_Expr := Relocate_Node (Comp_Expr);
-                     Set_Original_Node (New_Expr, Comp_Expr);
                      Append_To (Args,
                        Make_Pragma_Argument_Association (Sloc (Comp_Expr),
                          Expression => New_Expr));
@@ -1885,12 +3114,11 @@ package body Sem_Ch13 is
                         goto Continue;
                      end if;
 
-                     New_Expr := Relocate_Node (Expression (Comp_Assn));
-                     Set_Original_Node (New_Expr, Expression (Comp_Assn));
                      Append_To (Args,
                        Make_Pragma_Argument_Association (Sloc (Comp_Assn),
-                       Chars      => Chars (First (Choices (Comp_Assn))),
-                       Expression => New_Expr));
+                         Chars      => Chars (First (Choices (Comp_Assn))),
+                         Expression =>
+                           Relocate_Node (Expression (Comp_Assn))));
                      Next (Comp_Assn);
                   end loop;
 
@@ -1899,8 +3127,6 @@ package body Sem_Ch13 is
                   Make_Aitem_Pragma
                     (Pragma_Argument_Associations => Args,
                      Pragma_Name                  => Nam);
-
-                  Delay_Required := False;
                end Test_Case;
 
                --  Contract_Cases
@@ -1912,14 +3138,14 @@ package body Sem_Ch13 is
                          Expression => Relocate_Node (Expr))),
                      Pragma_Name                  => Nam);
 
-                  Decorate_Delayed_Aspect_And_Pragma (Aspect, Aitem);
-                  Insert_Delayed_Pragma (Aitem);
+                  Decorate (Aspect, Aitem);
+                  Insert_Pragma (Aitem);
                   goto Continue;
 
                --  Case 5: Special handling for aspects with an optional
                --  boolean argument.
 
-               --  In the general case, the corresponding pragma cannot be
+               --  In the delayed case, the corresponding pragma cannot be
                --  generated yet because the evaluation of the boolean needs
                --  to be delayed till the freeze point.
 
@@ -1939,9 +3165,9 @@ package body Sem_Ch13 is
 
                      else
                         --  Set the Uses_Lock_Free flag to True if there is no
-                        --  expression or if the expression is True. ??? The
+                        --  expression or if the expression is True. The
                         --  evaluation of this aspect should be delayed to the
-                        --  freeze point.
+                        --  freeze point (why???)
 
                         if No (Expr)
                           or else Is_True (Static_Boolean (Expr))
@@ -1956,65 +3182,188 @@ package body Sem_Ch13 is
 
                   elsif A_Id = Aspect_Import or else A_Id = Aspect_Export then
 
-                     --  Verify that there is an aspect Convention that will
-                     --  incorporate the Import/Export aspect, and eventual
-                     --  Link/External names.
+                     --  For the case of aspects Import and Export, we don't
+                     --  consider that we know the entity is never set in the
+                     --  source, since it is is likely modified outside the
+                     --  program.
 
-                     declare
-                        A : Node_Id;
+                     --  Note: one might think that the analysis of the
+                     --  resulting pragma would take care of that, but
+                     --  that's not the case since it won't be from source.
 
-                     begin
-                        A := First (L);
-                        while Present (A) loop
-                           exit when Chars (Identifier (A)) = Name_Convention;
-                           Next (A);
-                        end loop;
+                     if Ekind (E) = E_Variable then
+                        Set_Never_Set_In_Source (E, False);
+                     end if;
 
-                        if No (A) then
-                           Error_Msg_N
-                             ("missing Convention aspect for Export/Import",
-                                 Aspect);
+                     --  In older versions of Ada the corresponding pragmas
+                     --  specified a Convention. In Ada 2012 the convention is
+                     --  specified as a separate aspect, and it is optional,
+                     --  given that it defaults to Convention_Ada. The code
+                     --  that verifed that there was a matching convention
+                     --  is now obsolete.
+
+                     --  Resolve the expression of an Import or Export here,
+                     --  and require it to be of type Boolean and static. This
+                     --  is not quite right, because in general this should be
+                     --  delayed, but that seems tricky for these, because
+                     --  normally Boolean aspects are replaced with pragmas at
+                     --  the freeze point (in Make_Pragma_From_Boolean_Aspect),
+                     --  but in the case of these aspects we can't generate
+                     --  a simple pragma with just the entity name. ???
+
+                     if not Present (Expr)
+                       or else Is_True (Static_Boolean (Expr))
+                     then
+                        if A_Id = Aspect_Import then
+                           Set_Is_Imported (E);
+                           Set_Has_Completion (E);
+
+                           --  An imported entity cannot have an explicit
+                           --  initialization.
+
+                           if Nkind (N) = N_Object_Declaration
+                             and then Present (Expression (N))
+                           then
+                              Error_Msg_N
+                                ("imported entities cannot be initialized "
+                                 & "(RM B.1(24))", Expression (N));
+                           end if;
+
+                        elsif A_Id = Aspect_Export then
+                           Set_Is_Exported (E);
                         end if;
-                     end;
+                     end if;
+
+                     goto Continue;
+
+                  --  Disable_Controlled
+
+                  elsif A_Id = Aspect_Disable_Controlled then
+                     if Ekind (E) /= E_Record_Type
+                       or else not Is_Controlled (E)
+                     then
+                        Error_Msg_N
+                          ("aspect % requires controlled record type", Aspect);
+                        goto Continue;
+                     end if;
+
+                     --  If we're in a generic template, we don't want to try
+                     --  to disable controlled types, because typical usage is
+                     --  "Disable_Controlled => not <some_check>'Enabled", and
+                     --  the value of Enabled is not known until we see a
+                     --  particular instance. In such a context, we just need
+                     --  to preanalyze the expression for legality.
+
+                     if Expander_Active then
+                        Analyze_And_Resolve (Expr, Standard_Boolean);
+
+                        if not Present (Expr)
+                          or else Is_True (Static_Boolean (Expr))
+                        then
+                           Set_Disable_Controlled (E);
+                        end if;
+
+                     elsif Serious_Errors_Detected = 0 then
+                        Preanalyze_And_Resolve (Expr, Standard_Boolean);
+                     end if;
 
                      goto Continue;
                   end if;
 
-                  --  This requires special handling in the case of a package
-                  --  declaration, the pragma needs to be inserted in the list
-                  --  of declarations for the associated package. There is no
-                  --  issue of visibility delay for these aspects.
+                  --  Library unit aspects require special handling in the case
+                  --  of a package declaration, the pragma needs to be inserted
+                  --  in the list of declarations for the associated package.
+                  --  There is no issue of visibility delay for these aspects.
 
                   if A_Id in Library_Unit_Aspects
                     and then
                       Nkind_In (N, N_Package_Declaration,
                                    N_Generic_Package_Declaration)
                     and then Nkind (Parent (N)) /= N_Compilation_Unit
+
+                    --  Aspect is legal on a local instantiation of a library-
+                    --  level generic unit.
+
+                    and then not Is_Generic_Instance (Defining_Entity (N))
                   then
                      Error_Msg_N
-                        ("incorrect context for library unit aspect&", Id);
+                       ("incorrect context for library unit aspect&", Id);
                      goto Continue;
                   end if;
 
-                  --  Special handling when the aspect has no expression. In
-                  --  this case the value is considered to be True. Thus, we
-                  --  simply insert the pragma, no delay is required.
+                  --  Cases where we do not delay, includes all cases where the
+                  --  expression is missing other than the above cases.
 
-                  if No (Expr) then
+                  if not Delay_Required or else No (Expr) then
                      Make_Aitem_Pragma
                        (Pragma_Argument_Associations => New_List (
                           Make_Pragma_Argument_Association (Sloc (Ent),
                             Expression => Ent)),
                         Pragma_Name                  => Chars (Id));
-
                      Delay_Required := False;
 
                   --  In general cases, the corresponding pragma/attribute
                   --  definition clause will be inserted later at the freezing
-                  --  point.
+                  --  point, and we do not need to build it now.
 
                   else
                      Aitem := Empty;
+                  end if;
+
+               --  Storage_Size
+
+               --  This is special because for access types we need to generate
+               --  an attribute definition clause. This also works for single
+               --  task declarations, but it does not work for task type
+               --  declarations, because we have the case where the expression
+               --  references a discriminant of the task type. That can't use
+               --  an attribute definition clause because we would not have
+               --  visibility on the discriminant. For that case we must
+               --  generate a pragma in the task definition.
+
+               when Aspect_Storage_Size =>
+
+                  --  Task type case
+
+                  if Ekind (E) = E_Task_Type then
+                     declare
+                        Decl : constant Node_Id := Declaration_Node (E);
+
+                     begin
+                        pragma Assert (Nkind (Decl) = N_Task_Type_Declaration);
+
+                        --  If no task definition, create one
+
+                        if No (Task_Definition (Decl)) then
+                           Set_Task_Definition (Decl,
+                             Make_Task_Definition (Loc,
+                               Visible_Declarations => Empty_List,
+                               End_Label            => Empty));
+                        end if;
+
+                        --  Create a pragma and put it at the start of the task
+                        --  definition for the task type declaration.
+
+                        Make_Aitem_Pragma
+                          (Pragma_Argument_Associations => New_List (
+                             Make_Pragma_Argument_Association (Loc,
+                               Expression => Relocate_Node (Expr))),
+                           Pragma_Name                  => Name_Storage_Size);
+
+                        Prepend
+                          (Aitem,
+                           Visible_Declarations (Task_Definition (Decl)));
+                        goto Continue;
+                     end;
+
+                  --  All other cases, generate attribute definition
+
+                  else
+                     Aitem :=
+                       Make_Attribute_Definition_Clause (Loc,
+                         Name       => Ent,
+                         Chars      => Chars (Id),
+                         Expression => Relocate_Node (Expr));
                   end if;
             end case;
 
@@ -2022,32 +3371,18 @@ package body Sem_Ch13 is
             --  the aspect specification node.
 
             if Present (Aitem) then
-               Set_From_Aspect_Specification (Aitem, True);
+               Set_From_Aspect_Specification (Aitem);
             end if;
-
-            --  Aspect Abstract_State introduces implicit declarations for all
-            --  state abstraction entities it defines. To emulate this behavior
-            --  insert the pragma at the start of the visible declarations of
-            --  the related package.
-
-            if Nam = Name_Abstract_State
-              and then Nkind (N) = N_Package_Declaration
-            then
-               if No (Visible_Declarations (Specification (N))) then
-                  Set_Visible_Declarations (Specification (N), New_List);
-               end if;
-
-               Prepend (Aitem, Visible_Declarations (Specification (N)));
-               goto Continue;
 
             --  In the context of a compilation unit, we directly put the
             --  pragma in the Pragmas_After list of the N_Compilation_Unit_Aux
             --  node (no delay is required here) except for aspects on a
-            --  subprogram body (see below) and a generic package, for which
-            --  we need to introduce the pragma before building the generic
-            --  copy (see sem_ch12).
+            --  subprogram body (see below) and a generic package, for which we
+            --  need to introduce the pragma before building the generic copy
+            --  (see sem_ch12), and for package instantiations, where the
+            --  library unit pragmas are better handled early.
 
-            elsif Nkind (Parent (N)) = N_Compilation_Unit
+            if Nkind (Parent (N)) = N_Compilation_Unit
               and then (Present (Aitem) or else Is_Boolean_Aspect (Aspect))
             then
                declare
@@ -2075,9 +3410,8 @@ package body Sem_Ch13 is
                      end if;
                   end if;
 
-                  --  If the aspect is on a subprogram body (relevant aspects
-                  --  are Inline and Priority), add the pragma in front of
-                  --  the declarations.
+                  --  If the aspect is on a subprogram body (relevant aspect
+                  --  is Inline), add the pragma in front of the declarations.
 
                   if Nkind (N) = N_Subprogram_Body then
                      if No (Declarations (N)) then
@@ -2094,6 +3428,18 @@ package body Sem_Ch13 is
                      Prepend (Aitem,
                        Visible_Declarations (Specification (N)));
 
+                  elsif Nkind (N) = N_Package_Instantiation then
+                     declare
+                        Spec : constant Node_Id :=
+                                 Specification (Instance_Spec (N));
+                     begin
+                        if No (Visible_Declarations (Spec)) then
+                           Set_Visible_Declarations (Spec, New_List);
+                        end if;
+
+                        Prepend (Aitem, Visible_Declarations (Spec));
+                     end;
+
                   else
                      if No (Pragmas_After (Aux)) then
                         Set_Pragmas_After (Aux, New_List);
@@ -2108,8 +3454,7 @@ package body Sem_Ch13 is
 
             --  The evaluation of the aspect is delayed to the freezing point.
             --  The pragma or attribute clause if there is one is then attached
-            --  to the aspect specification which is placed in the rep item
-            --  list.
+            --  to the aspect specification which is put in the rep item list.
 
             if Delay_Required then
                if Present (Aitem) then
@@ -2138,6 +3483,18 @@ package body Sem_Ch13 is
                Set_Has_Delayed_Aspects (E);
                Record_Rep_Item (E, Aspect);
 
+            --  When delay is not required and the context is a package or a
+            --  subprogram body, insert the pragma in the body declarations.
+
+            elsif Nkind_In (N, N_Package_Body, N_Subprogram_Body) then
+               if No (Declarations (N)) then
+                  Set_Declarations (N, New_List);
+               end if;
+
+               --  The pragma is added before source declarations
+
+               Prepend_To (Declarations (N), Aitem);
+
             --  When delay is not required and the context is not a compilation
             --  unit, we simply insert the pragma/attribute definition clause
             --  in sequence.
@@ -2156,6 +3513,141 @@ package body Sem_Ch13 is
          Ensure_Freeze_Node (E);
       end if;
    end Analyze_Aspect_Specifications;
+
+   ---------------------------------------------------
+   -- Analyze_Aspect_Specifications_On_Body_Or_Stub --
+   ---------------------------------------------------
+
+   procedure Analyze_Aspect_Specifications_On_Body_Or_Stub (N : Node_Id) is
+      Body_Id : constant Entity_Id := Defining_Entity (N);
+
+      procedure Diagnose_Misplaced_Aspects (Spec_Id : Entity_Id);
+      --  Body [stub] N has aspects, but they are not properly placed. Emit an
+      --  error message depending on the aspects involved. Spec_Id denotes the
+      --  entity of the corresponding spec.
+
+      --------------------------------
+      -- Diagnose_Misplaced_Aspects --
+      --------------------------------
+
+      procedure Diagnose_Misplaced_Aspects (Spec_Id : Entity_Id) is
+         procedure Misplaced_Aspect_Error
+           (Asp     : Node_Id;
+            Ref_Nam : Name_Id);
+         --  Emit an error message concerning misplaced aspect Asp. Ref_Nam is
+         --  the name of the refined version of the aspect.
+
+         ----------------------------
+         -- Misplaced_Aspect_Error --
+         ----------------------------
+
+         procedure Misplaced_Aspect_Error
+           (Asp     : Node_Id;
+            Ref_Nam : Name_Id)
+         is
+            Asp_Nam : constant Name_Id   := Chars (Identifier (Asp));
+            Asp_Id  : constant Aspect_Id := Get_Aspect_Id (Asp_Nam);
+
+         begin
+            --  The corresponding spec already contains the aspect in question
+            --  and the one appearing on the body must be the refined form:
+
+            --    procedure P with Global ...;
+            --    procedure P with Global ... is ... end P;
+            --                     ^
+            --                     Refined_Global
+
+            if Has_Aspect (Spec_Id, Asp_Id) then
+               Error_Msg_Name_1 := Asp_Nam;
+
+               --  Subunits cannot carry aspects that apply to a subprogram
+               --  declaration.
+
+               if Nkind (Parent (N)) = N_Subunit then
+                  Error_Msg_N ("aspect % cannot apply to a subunit", Asp);
+
+               --  Otherwise suggest the refined form
+
+               else
+                  Error_Msg_Name_2 := Ref_Nam;
+                  Error_Msg_N ("aspect % should be %", Asp);
+               end if;
+
+            --  Otherwise the aspect must appear on the spec, not on the body
+
+            --    procedure P;
+            --    procedure P with Global ... is ... end P;
+
+            else
+               Error_Msg_N
+                 ("aspect specification must appear on initial declaration",
+                  Asp);
+            end if;
+         end Misplaced_Aspect_Error;
+
+         --  Local variables
+
+         Asp     : Node_Id;
+         Asp_Nam : Name_Id;
+
+      --  Start of processing for Diagnose_Misplaced_Aspects
+
+      begin
+         --  Iterate over the aspect specifications and emit specific errors
+         --  where applicable.
+
+         Asp := First (Aspect_Specifications (N));
+         while Present (Asp) loop
+            Asp_Nam := Chars (Identifier (Asp));
+
+            --  Do not emit errors on aspects that can appear on a subprogram
+            --  body. This scenario occurs when the aspect specification list
+            --  contains both misplaced and properly placed aspects.
+
+            if Aspect_On_Body_Or_Stub_OK (Get_Aspect_Id (Asp_Nam)) then
+               null;
+
+            --  Special diagnostics for SPARK aspects
+
+            elsif Asp_Nam = Name_Depends then
+               Misplaced_Aspect_Error (Asp, Name_Refined_Depends);
+
+            elsif Asp_Nam = Name_Global then
+               Misplaced_Aspect_Error (Asp, Name_Refined_Global);
+
+            elsif Asp_Nam = Name_Post then
+               Misplaced_Aspect_Error (Asp, Name_Refined_Post);
+
+            --  Otherwise a language-defined aspect is misplaced
+
+            else
+               Error_Msg_N
+                 ("aspect specification must appear on initial declaration",
+                  Asp);
+            end if;
+
+            Next (Asp);
+         end loop;
+      end Diagnose_Misplaced_Aspects;
+
+      --  Local variables
+
+      Spec_Id : constant Entity_Id := Unique_Defining_Entity (N);
+
+   --  Start of processing for Analyze_Aspects_On_Body_Or_Stub
+
+   begin
+      --  Language-defined aspects cannot be associated with a subprogram body
+      --  [stub] if the subprogram has a spec. Certain implementation defined
+      --  aspects are allowed to break this rule (for all applicable cases, see
+      --  table Aspects.Aspect_On_Body_Or_Stub_OK).
+
+      if Spec_Id /= Body_Id and then not Aspects_On_Body_Or_Stub_OK (N) then
+         Diagnose_Misplaced_Aspects (Spec_Id);
+      else
+         Analyze_Aspect_Specifications (N, Body_Id);
+      end if;
+   end Analyze_Aspect_Specifications_On_Body_Or_Stub;
 
    -----------------------
    -- Analyze_At_Clause --
@@ -2220,12 +3712,12 @@ package body Sem_Ch13 is
 
       FOnly : Boolean := False;
       --  Reset to True for subtype specific attribute (Alignment, Size)
-      --  and for stream attributes, i.e. those cases where in the call
-      --  to Rep_Item_Too_Late, FOnly is set True so that only the freezing
-      --  rules are checked. Note that the case of stream attributes is not
-      --  clear from the RM, but see AI95-00137. Also, the RM seems to
-      --  disallow Storage_Size for derived task types, but that is also
-      --  clearly unintentional.
+      --  and for stream attributes, i.e. those cases where in the call to
+      --  Rep_Item_Too_Late, FOnly is set True so that only the freezing rules
+      --  are checked. Note that the case of stream attributes is not clear
+      --  from the RM, but see AI95-00137. Also, the RM seems to disallow
+      --  Storage_Size for derived task types, but that is also clearly
+      --  unintentional.
 
       procedure Analyze_Stream_TSS_Definition (TSS_Nam : TSS_Name_Type);
       --  Common processing for 'Read, 'Write, 'Input and 'Output attribute
@@ -2307,12 +3799,49 @@ package body Sem_Ch13 is
 
                Typ := Etype (F);
 
+               --  If the attribute specification comes from an aspect
+               --  specification for a class-wide stream, the parameter must be
+               --  a class-wide type of the entity to which the aspect applies.
+
+               if From_Aspect_Specification (N)
+                 and then Class_Present (Parent (N))
+                 and then Is_Class_Wide_Type (Typ)
+               then
+                  Typ := Etype (Typ);
+               end if;
+
             else
                Typ := Etype (Subp);
             end if;
 
-            return Base_Type (Typ) = Base_Type (Ent)
-              and then No (Next_Formal (F));
+            --  Verify that the prefix of the attribute and the local name for
+            --  the type of the formal match, or one is the class-wide of the
+            --  other, in the case of a class-wide stream operation.
+
+            if Base_Type (Typ) = Base_Type (Ent)
+              or else (Is_Class_Wide_Type (Typ)
+                        and then Typ = Class_Wide_Type (Base_Type (Ent)))
+              or else (Is_Class_Wide_Type (Ent)
+                        and then Ent = Class_Wide_Type (Base_Type (Typ)))
+            then
+               null;
+            else
+               return False;
+            end if;
+
+            if Present ((Next_Formal (F)))
+            then
+               return False;
+
+            elsif not Is_Scalar_Type (Typ)
+              and then not Is_First_Subtype (Typ)
+              and then not Is_Class_Wide_Type (Typ)
+            then
+               return False;
+
+            else
+               return True;
+            end if;
          end Has_Good_Profile;
 
       --  Start of processing for Analyze_Stream_TSS_Definition
@@ -2322,6 +3851,10 @@ package body Sem_Ch13 is
 
          if not Is_Type (U_Ent) then
             Error_Msg_N ("local name must be a subtype", Nam);
+            return;
+
+         elsif not Is_First_Subtype (U_Ent) then
+            Error_Msg_N ("local name must be a first subtype", Nam);
             return;
          end if;
 
@@ -2373,6 +3906,23 @@ package body Sem_Ch13 is
             if Is_Abstract_Subprogram (Subp) then
                Error_Msg_N ("stream subprogram must not be abstract", Expr);
                return;
+
+            --  A stream subprogram for an interface type must be a null
+            --  procedure (RM 13.13.2 (38/3)).
+
+            elsif Is_Interface (U_Ent)
+              and then not Is_Class_Wide_Type (U_Ent)
+              and then not Inside_A_Generic
+              and then
+                (Ekind (Subp) = E_Function
+                  or else
+                    not Null_Present
+                          (Specification
+                             (Unit_Declaration_Node (Ultimate_Alias (Subp)))))
+            then
+               Error_Msg_N
+                 ("stream subprogram for interface type "
+                  & "must be null procedure", Expr);
             end if;
 
             Set_Entity (Expr, Subp);
@@ -2391,64 +3941,214 @@ package body Sem_Ch13 is
       ------------------------------
 
       procedure Check_Indexing_Functions is
-         Indexing_Found : Boolean;
+         Indexing_Found : Boolean := False;
+
+         procedure Check_Inherited_Indexing;
+         --  For a derived type, check that no indexing aspect is specified
+         --  for the type if it is also inherited
 
          procedure Check_One_Function (Subp : Entity_Id);
-         --  Check one possible interpretation. Sets Indexing_Found True if an
-         --  indexing function is found.
+         --  Check one possible interpretation. Sets Indexing_Found True if a
+         --  legal indexing function is found.
+
+         procedure Illegal_Indexing (Msg : String);
+         --  Diagnose illegal indexing function if not overloaded. In the
+         --  overloaded case indicate that no legal interpretation  exists.
+
+         ------------------------------
+         -- Check_Inherited_Indexing --
+         ------------------------------
+
+         procedure Check_Inherited_Indexing is
+            Inherited : Node_Id;
+
+         begin
+            if Attr = Name_Constant_Indexing then
+               Inherited :=
+                 Find_Aspect (Etype (Ent), Aspect_Constant_Indexing);
+            else pragma Assert (Attr = Name_Variable_Indexing);
+               Inherited :=
+                  Find_Aspect (Etype (Ent), Aspect_Variable_Indexing);
+            end if;
+
+            if Present (Inherited) then
+               if Debug_Flag_Dot_XX then
+                  null;
+
+               --  OK if current attribute_definition_clause is expansion of
+               --  inherited aspect.
+
+               elsif Aspect_Rep_Item (Inherited) = N then
+                  null;
+
+               --  Indicate the operation that must be overridden, rather than
+               --  redefining the indexing aspect.
+
+               else
+                  Illegal_Indexing
+                    ("indexing function already inherited from parent type");
+                  Error_Msg_NE
+                    ("!override & instead",
+                     N, Entity (Expression (Inherited)));
+               end if;
+            end if;
+         end Check_Inherited_Indexing;
 
          ------------------------
          -- Check_One_Function --
          ------------------------
 
          procedure Check_One_Function (Subp : Entity_Id) is
-            Default_Element : constant Node_Id :=
-                                Find_Value_Of_Aspect
-                                  (Etype (First_Formal (Subp)),
-                                   Aspect_Iterator_Element);
+            Default_Element : Node_Id;
+            Ret_Type        : constant Entity_Id := Etype (Subp);
 
          begin
-            if not Check_Primitive_Function (Subp)
-              and then not Is_Overloaded (Expr)
+            if not Is_Overloadable (Subp) then
+               Illegal_Indexing ("illegal indexing function for type&");
+               return;
+
+            elsif Scope (Subp) /= Scope (Ent) then
+               if Nkind (Expr) = N_Expanded_Name then
+
+                  --  Indexing function can't be declared elsewhere
+
+                  Illegal_Indexing
+                    ("indexing function must be declared in scope of type&");
+               end if;
+
+               return;
+
+            elsif No (First_Formal (Subp)) then
+               Illegal_Indexing
+                 ("Indexing requires a function that applies to type&");
+               return;
+
+            elsif No (Next_Formal (First_Formal (Subp))) then
+               Illegal_Indexing
+                 ("indexing function must have at least two parameters");
+               return;
+
+            elsif Is_Derived_Type (Ent) then
+               Check_Inherited_Indexing;
+            end if;
+
+            if not Check_Primitive_Function (Subp) then
+               Illegal_Indexing
+                 ("Indexing aspect requires a function that applies to type&");
+               return;
+            end if;
+
+            --  If partial declaration exists, verify that it is not tagged.
+
+            if Ekind (Current_Scope) = E_Package
+              and then Has_Private_Declaration (Ent)
+              and then From_Aspect_Specification (N)
+              and then
+                List_Containing (Parent (Ent)) =
+                  Private_Declarations
+                    (Specification (Unit_Declaration_Node (Current_Scope)))
+              and then Nkind (N) = N_Attribute_Definition_Clause
             then
-               Error_Msg_NE
-                 ("aspect Indexing requires a function that applies to type&",
-                    Subp, Ent);
+               declare
+                  Decl : Node_Id;
+
+               begin
+                  Decl :=
+                     First (Visible_Declarations
+                              (Specification
+                                 (Unit_Declaration_Node (Current_Scope))));
+
+                  while Present (Decl) loop
+                     if Nkind (Decl) = N_Private_Type_Declaration
+                       and then Ent = Full_View (Defining_Identifier (Decl))
+                       and then Tagged_Present (Decl)
+                       and then No (Aspect_Specifications (Decl))
+                     then
+                        Illegal_Indexing
+                          ("Indexing aspect cannot be specified on full view "
+                           & "if partial view is tagged");
+                        return;
+                     end if;
+
+                     Next (Decl);
+                  end loop;
+               end;
             end if;
 
             --  An indexing function must return either the default element of
             --  the container, or a reference type. For variable indexing it
             --  must be the latter.
 
+            Default_Element :=
+              Find_Value_Of_Aspect
+               (Etype (First_Formal (Subp)), Aspect_Iterator_Element);
+
             if Present (Default_Element) then
                Analyze (Default_Element);
 
                if Is_Entity_Name (Default_Element)
-                 and then Covers (Entity (Default_Element), Etype (Subp))
+                 and then not Covers (Entity (Default_Element), Ret_Type)
+                 and then False
                then
-                  Indexing_Found := True;
+                  Illegal_Indexing
+                    ("wrong return type for indexing function");
                   return;
                end if;
             end if;
 
             --  For variable_indexing the return type must be a reference type
 
-            if Attr = Name_Variable_Indexing
-              and then not Has_Implicit_Dereference (Etype (Subp))
-            then
-               Error_Msg_N
-                 ("function for indexing must return a reference type", Subp);
+            if Attr = Name_Variable_Indexing then
+               if not Has_Implicit_Dereference (Ret_Type) then
+                  Illegal_Indexing
+                     ("variable indexing must return a reference type");
+                  return;
+
+               elsif Is_Access_Constant
+                       (Etype (First_Discriminant (Ret_Type)))
+               then
+                  Illegal_Indexing
+                    ("variable indexing must return an access to variable");
+                  return;
+               end if;
 
             else
-               Indexing_Found := True;
+               if  Has_Implicit_Dereference (Ret_Type)
+                 and then not
+                   Is_Access_Constant (Etype (First_Discriminant (Ret_Type)))
+               then
+                  Illegal_Indexing
+                    ("constant indexing must return an access to constant");
+                  return;
+
+               elsif Is_Access_Type (Etype (First_Formal (Subp)))
+                 and then not Is_Access_Constant (Etype (First_Formal (Subp)))
+               then
+                  Illegal_Indexing
+                    ("constant indexing must apply to an access to constant");
+                  return;
+               end if;
             end if;
+
+            --  All checks succeeded.
+
+            Indexing_Found := True;
          end Check_One_Function;
+
+         -----------------------
+         --  Illegal_Indexing --
+         -----------------------
+
+         procedure Illegal_Indexing (Msg : String) is
+         begin
+            Error_Msg_NE (Msg, N, Ent);
+         end Illegal_Indexing;
 
       --  Start of processing for Check_Indexing_Functions
 
       begin
          if In_Instance then
-            return;
+            Check_Inherited_Indexing;
          end if;
 
          Analyze (Expr);
@@ -2476,13 +4176,13 @@ package body Sem_Ch13 is
 
                   Get_Next_Interp (I, It);
                end loop;
-
-               if not Indexing_Found then
-                  Error_Msg_NE
-                    ("aspect Indexing requires a function that "
-                     & "applies to type&", Expr, Ent);
-               end if;
             end;
+         end if;
+
+         if not Indexing_Found and then not Error_Posted (N) then
+            Error_Msg_NE
+              ("aspect Indexing requires a local function that "
+               & "applies to type&", Expr, Ent);
          end if;
       end Check_Indexing_Functions;
 
@@ -2491,8 +4191,6 @@ package body Sem_Ch13 is
       ------------------------------
 
       procedure Check_Iterator_Functions is
-         Default : Entity_Id;
-
          function Valid_Default_Iterator (Subp : Entity_Id) return Boolean;
          --  Check one possible interpretation for validity
 
@@ -2542,15 +4240,17 @@ package body Sem_Ch13 is
                    Entity (Expr), Ent);
             end if;
 
+            --  Flag the default_iterator as well as the denoted function.
+
             if not Valid_Default_Iterator (Entity (Expr)) then
-               Error_Msg_N ("improper function for default iterator", Expr);
+               Error_Msg_N ("improper function for default iterator!", Expr);
             end if;
 
          else
-            Default := Empty;
             declare
-               I : Interp_Index;
-               It : Interp;
+               Default : Entity_Id := Empty;
+               I       : Interp_Index;
+               It      : Interp;
 
             begin
                Get_First_Interp (Expr, I, It);
@@ -2561,20 +4261,33 @@ package body Sem_Ch13 is
                      Remove_Interp (I);
 
                   elsif Present (Default) then
-                     Error_Msg_N ("default iterator must be unique", Expr);
 
+                     --  An explicit one should override an implicit one
+
+                     if Comes_From_Source (Default) =
+                          Comes_From_Source (It.Nam)
+                     then
+                        Error_Msg_N ("default iterator must be unique", Expr);
+                        Error_Msg_Sloc := Sloc (Default);
+                        Error_Msg_N ("\\possible interpretation#", Expr);
+                        Error_Msg_Sloc := Sloc (It.Nam);
+                        Error_Msg_N ("\\possible interpretation#", Expr);
+
+                     elsif Comes_From_Source (It.Nam) then
+                        Default := It.Nam;
+                     end if;
                   else
                      Default := It.Nam;
                   end if;
 
                   Get_Next_Interp (I, It);
                end loop;
-            end;
 
-            if Present (Default) then
-               Set_Entity (Expr, Default);
-               Set_Is_Overloaded (Expr, False);
-            end if;
+               if Present (Default) then
+                  Set_Entity (Expr, Default);
+                  Set_Is_Overloaded (Expr, False);
+               end if;
+            end;
          end if;
       end Check_Iterator_Functions;
 
@@ -2596,16 +4309,27 @@ package body Sem_Ch13 is
             Ctrl := Etype (First_Formal (Subp));
          end if;
 
+         --  To be a primitive operation subprogram has to be in same scope.
+
+         if Scope (Ctrl) /= Scope (Subp) then
+            return False;
+         end if;
+
+         --  Type of formal may be the class-wide type, an access to such,
+         --  or an incomplete view.
+
          if Ctrl = Ent
            or else Ctrl = Class_Wide_Type (Ent)
            or else
              (Ekind (Ctrl) = E_Anonymous_Access_Type
-               and then
-                 (Designated_Type (Ctrl) = Ent
-                   or else Designated_Type (Ctrl) = Class_Wide_Type (Ent)))
+               and then (Designated_Type (Ctrl) = Ent
+                           or else
+                         Designated_Type (Ctrl) = Class_Wide_Type (Ent)))
+           or else
+             (Ekind (Ctrl) = E_Incomplete_Type
+               and then Full_View (Ctrl) = Ent)
          then
             null;
-
          else
             return False;
          end if;
@@ -2651,8 +4375,8 @@ package body Sem_Ch13 is
 
    begin
       --  The following code is a defense against recursion. Not clear that
-      --  this can happen legitimately, but perhaps some error situations
-      --  can cause it, and we did see this recursion during testing.
+      --  this can happen legitimately, but perhaps some error situations can
+      --  cause it, and we did see this recursion during testing.
 
       if Analyzed (N) then
          return;
@@ -2695,24 +4419,17 @@ package body Sem_Ch13 is
                  Attribute_Machine_Radix  |
                  Attribute_Object_Size    |
                  Attribute_Size           |
+                 Attribute_Small          |
                  Attribute_Stream_Size    |
                  Attribute_Value_Size     =>
-               Rewrite (N, Make_Null_Statement (Sloc (N)));
+               Kill_Rep_Clause (N);
                return;
 
-            --  Perhaps 'Small should not be ignored by Ignore_Rep_Clauses ???
-
-            when Attribute_Small =>
-               if Ignore_Rep_Clauses then
-                  Rewrite (N, Make_Null_Statement (Sloc (N)));
-                  return;
-               end if;
-
             --  The following should not be ignored, because in the first place
-            --  they are reasonably portable, and should not cause problems in
-            --  compiling code from another target, and also they do affect
-            --  legality, e.g. failing to provide a stream attribute for a
-            --  type may make a program illegal.
+            --  they are reasonably portable, and should not cause problems
+            --  in compiling code from another target, and also they do affect
+            --  legality, e.g. failing to provide a stream attribute for a type
+            --  may make a program illegal.
 
             when Attribute_External_Tag        |
                  Attribute_Input               |
@@ -2722,6 +4439,13 @@ package body Sem_Ch13 is
                  Attribute_Storage_Pool        |
                  Attribute_Storage_Size        |
                  Attribute_Write               =>
+               null;
+
+            --  We do not do anything here with address clauses, they will be
+            --  removed by Freeze later on, but for now, it works better to
+            --  keep then in the tree.
+
+            when Attribute_Address =>
                null;
 
             --  Other cases are errors ("attribute& cannot be set with
@@ -2807,13 +4531,23 @@ package body Sem_Ch13 is
          --  expander. The easiest general way to handle this is to create a
          --  copy of the attribute definition clause for this object.
 
-         else
+         elsif Is_Entity_Name (Renamed_Object (Ent)) then
             Insert_Action (N,
               Make_Attribute_Definition_Clause (Loc,
                 Name       =>
                   New_Occurrence_Of (Entity (Renamed_Object (Ent)), Loc),
                 Chars      => Chars (N),
                 Expression => Duplicate_Subexpr (Expression (N))));
+
+         --  If the renamed object is not an entity, it must be a dereference
+         --  of an unconstrained function call, and we must introduce a new
+         --  declaration to capture the expression. This is needed in the case
+         --  of 'Alignment, where the original declaration must be rewritten.
+
+         else
+            pragma Assert
+              (Nkind (Renamed_Object (Ent)) = N_Explicit_Dereference);
+            null;
          end if;
 
       --  If no underlying entity, use entity itself, applies to some
@@ -2868,7 +4602,7 @@ package body Sem_Ch13 is
 
             --  Even when ignoring rep clauses we need to indicate that the
             --  entity has an address clause and thus it is legal to declare
-            --  it imported.
+            --  it imported. Freeze will get rid of the address clause later.
 
             if Ignore_Rep_Clauses then
                if Ekind_In (U_Ent, E_Variable, E_Constant) then
@@ -2953,11 +4687,7 @@ package body Sem_Ch13 is
 
             --  Case of address clause for a (non-controlled) object
 
-            elsif
-              Ekind (U_Ent) = E_Variable
-                or else
-              Ekind (U_Ent) = E_Constant
-            then
+            elsif Ekind_In (U_Ent, E_Variable, E_Constant) then
                declare
                   Expr  : constant Node_Id := Expression (N);
                   O_Ent : Entity_Id;
@@ -2975,24 +4705,53 @@ package body Sem_Ch13 is
 
                   Find_Overlaid_Entity (N, O_Ent, Off);
 
-                  --  Overlaying controlled objects is erroneous
+                  if Present (O_Ent) then
+
+                     --  If the object overlays a constant object, mark it so
+
+                     if Is_Constant_Object (O_Ent) then
+                        Set_Overlays_Constant (U_Ent);
+                     end if;
+
+                  else
+                     --  If this is not an overlay, mark a variable as being
+                     --  volatile to prevent unwanted optimizations. It's a
+                     --  conservative interpretation of RM 13.3(19) for the
+                     --  cases where the compiler cannot detect potential
+                     --  aliasing issues easily and it also covers the case
+                     --  of an absolute address where the volatile aspect is
+                     --  kind of implicit.
+
+                     if Ekind (U_Ent) = E_Variable then
+                        Set_Treat_As_Volatile (U_Ent);
+                     end if;
+                  end if;
+
+                  --  Overlaying controlled objects is erroneous. Emit warning
+                  --  but continue analysis because program is itself legal,
+                  --  and back end must see address clause.
 
                   if Present (O_Ent)
                     and then (Has_Controlled_Component (Etype (O_Ent))
-                                or else Is_Controlled (Etype (O_Ent)))
+                               or else Is_Controlled (Etype (O_Ent)))
+                    and then not Inside_A_Generic
                   then
                      Error_Msg_N
-                       ("??cannot overlay with controlled object", Expr);
+                       ("??cannot use overlays with controlled objects", Expr);
                      Error_Msg_N
                        ("\??Program_Error will be raised at run time", Expr);
                      Insert_Action (Declaration_Node (U_Ent),
                        Make_Raise_Program_Error (Loc,
                          Reason => PE_Overlaid_Controlled_Object));
-                     return;
 
-                  elsif Present (O_Ent)
-                    and then Ekind (U_Ent) = E_Constant
-                    and then not Is_Constant_Object (O_Ent)
+                  --  Issue an unconditional warning for a constant overlaying
+                  --  a variable. For the reverse case, we will issue it only
+                  --  if the variable is modified.
+
+                  elsif Ekind (U_Ent) = E_Constant
+                    and then Present (O_Ent)
+                    and then not Overlays_Constant (U_Ent)
+                    and then Address_Clause_Overlay_Warnings
                   then
                      Error_Msg_N ("??constant overlays a variable", Expr);
 
@@ -3010,34 +4769,6 @@ package body Sem_Ch13 is
                   --  address clause, since it is likely aliasing is occurring.
 
                   Note_Possible_Modification (Nam, Sure => False);
-
-                  --  Here we are checking for explicit overlap of one variable
-                  --  by another, and if we find this then mark the overlapped
-                  --  variable as also being volatile to prevent unwanted
-                  --  optimizations. This is a significant pessimization so
-                  --  avoid it when there is an offset, i.e. when the object
-                  --  is composite; they cannot be optimized easily anyway.
-
-                  if Present (O_Ent)
-                    and then Is_Object (O_Ent)
-                    and then not Off
-
-                    --  The following test is an expedient solution to what
-                    --  is really a problem in CodePeer. Suppressing the
-                    --  Set_Treat_As_Volatile call here prevents later
-                    --  generation (in some cases) of trees that CodePeer
-                    --  should, but currently does not, handle correctly.
-                    --  This test should probably be removed when CodePeer
-                    --  is improved, just because we want the tree CodePeer
-                    --  analyzes to match the tree for which we generate code
-                    --  as closely as is practical. ???
-
-                    and then not CodePeer_Mode
-                  then
-                     --  ??? O_Ent might not be in current unit
-
-                     Set_Treat_As_Volatile (O_Ent);
-                  end if;
 
                   --  Legality checks on the address clause for initialized
                   --  objects is deferred until the freeze point, because
@@ -3060,32 +4791,15 @@ package body Sem_Ch13 is
 
                   begin
                      if Present (Init_Call) then
+                        Append_Freeze_Action (U_Ent, Init_Call);
 
-                        --  If the init call is an expression with actions with
-                        --  null expression, just extract the actions.
+                        --  Reset Initialization_Statements pointer so that
+                        --  if there is a pragma Import further down, it can
+                        --  clear any default initialization.
 
-                        if Nkind (Init_Call) = N_Expression_With_Actions
-                          and then
-                            Nkind (Expression (Init_Call)) = N_Null_Statement
-                        then
-                           Append_Freeze_Actions (U_Ent, Actions (Init_Call));
-
-                        --  General case: move Init_Call to freeze actions
-
-                        else
-                           Append_Freeze_Action (U_Ent, Init_Call);
-                        end if;
+                        Set_Initialization_Statements (U_Ent, Init_Call);
                      end if;
                   end;
-
-                  if Is_Exported (U_Ent) then
-                     Error_Msg_N
-                       ("& cannot be exported if an address clause is given",
-                        Nam);
-                     Error_Msg_N
-                       ("\define and export a variable "
-                        & "that holds its address instead", Nam);
-                  end if;
 
                   --  Entity has delayed freeze, so we will generate an
                   --  alignment check at the freeze point unless suppressed.
@@ -3114,33 +4828,26 @@ package body Sem_Ch13 is
                   --  then we make an entry in the table for checking the size
                   --  and alignment of the overlaying variable. We defer this
                   --  check till after code generation to take full advantage
-                  --  of the annotation done by the back end. This entry is
-                  --  only made if the address clause comes from source.
+                  --  of the annotation done by the back end.
 
                   --  If the entity has a generic type, the check will be
                   --  performed in the instance if the actual type justifies
                   --  it, and we do not insert the clause in the table to
                   --  prevent spurious warnings.
 
-                  if Address_Clause_Overlay_Warnings
-                    and then Comes_From_Source (N)
-                    and then Present (O_Ent)
+                  --  Note: we used to test Comes_From_Source and only give
+                  --  this warning for source entities, but we have removed
+                  --  this test. It really seems bogus to generate overlays
+                  --  that would trigger this warning in generated code.
+                  --  Furthermore, by removing the test, we handle the
+                  --  aspect case properly.
+
+                  if Present (O_Ent)
                     and then Is_Object (O_Ent)
+                    and then not Is_Generic_Type (Etype (U_Ent))
+                    and then Address_Clause_Overlay_Warnings
                   then
-                     if not Is_Generic_Type (Etype (U_Ent)) then
-                        Address_Clause_Checks.Append ((N, U_Ent, O_Ent, Off));
-                     end if;
-
-                     --  If variable overlays a constant view, and we are
-                     --  warning on overlays, then mark the variable as
-                     --  overlaying a constant (we will give warnings later
-                     --  if this variable is assigned).
-
-                     if Is_Constant_Object (O_Ent)
-                       and then Ekind (U_Ent) = E_Variable
-                     then
-                        Set_Overlays_Constant (U_Ent);
-                     end if;
+                     Address_Clause_Checks.Append ((N, U_Ent, O_Ent, Off));
                   end if;
                end;
 
@@ -3222,13 +4929,13 @@ package body Sem_Ch13 is
                if Etype (Expr) = Any_Type then
                   return;
 
-               elsif not Is_Static_Expression (Expr) then
+               elsif not Is_OK_Static_Expression (Expr) then
                   Flag_Non_Static_Expr
                     ("Bit_Order requires static expression!", Expr);
 
                else
                   if (Expr_Value (Expr) = 0) /= Bytes_Big_Endian then
-                     Set_Reverse_Bit_Order (U_Ent, True);
+                     Set_Reverse_Bit_Order (Base_Type (U_Ent), True);
                   end if;
                end if;
             end if;
@@ -3270,48 +4977,35 @@ package body Sem_Ch13 is
                --  will be used to represent the biased subtype that reflects
                --  the biased representation of components. We need the subtype
                --  to get proper conversions on referencing elements of the
-               --  array. Note: component size clauses are ignored in VM mode.
+               --  array.
 
-               if VM_Target = No_VM then
-                  if Biased then
-                     New_Ctyp :=
-                       Make_Defining_Identifier (Loc,
-                         Chars =>
-                           New_External_Name (Chars (U_Ent), 'C', 0, 'T'));
+               if Biased then
+                  New_Ctyp :=
+                    Make_Defining_Identifier (Loc,
+                      Chars =>
+                        New_External_Name (Chars (U_Ent), 'C', 0, 'T'));
 
-                     Decl :=
-                       Make_Subtype_Declaration (Loc,
-                         Defining_Identifier => New_Ctyp,
-                         Subtype_Indication  =>
-                           New_Occurrence_Of (Component_Type (Btype), Loc));
+                  Decl :=
+                    Make_Subtype_Declaration (Loc,
+                      Defining_Identifier => New_Ctyp,
+                      Subtype_Indication  =>
+                        New_Occurrence_Of (Component_Type (Btype), Loc));
 
-                     Set_Parent (Decl, N);
-                     Analyze (Decl, Suppress => All_Checks);
+                  Set_Parent (Decl, N);
+                  Analyze (Decl, Suppress => All_Checks);
 
-                     Set_Has_Delayed_Freeze        (New_Ctyp, False);
-                     Set_Esize                     (New_Ctyp, Csize);
-                     Set_RM_Size                   (New_Ctyp, Csize);
-                     Init_Alignment                (New_Ctyp);
-                     Set_Is_Itype                  (New_Ctyp, True);
-                     Set_Associated_Node_For_Itype (New_Ctyp, U_Ent);
+                  Set_Has_Delayed_Freeze        (New_Ctyp, False);
+                  Set_Esize                     (New_Ctyp, Csize);
+                  Set_RM_Size                   (New_Ctyp, Csize);
+                  Init_Alignment                (New_Ctyp);
+                  Set_Is_Itype                  (New_Ctyp, True);
+                  Set_Associated_Node_For_Itype (New_Ctyp, U_Ent);
 
-                     Set_Component_Type (Btype, New_Ctyp);
-                     Set_Biased (New_Ctyp, N, "component size clause");
-                  end if;
-
-                  Set_Component_Size (Btype, Csize);
-
-               --  For VM case, we ignore component size clauses
-
-               else
-                  --  Give a warning unless we are in GNAT mode, in which case
-                  --  the warning is suppressed since it is not useful.
-
-                  if not GNAT_Mode then
-                     Error_Msg_N
-                       ("component size ignored in this configuration??", N);
-                  end if;
+                  Set_Component_Type (Btype, New_Ctyp);
+                  Set_Biased (New_Ctyp, N, "component size clause");
                end if;
+
+               Set_Component_Size (Btype, Csize);
 
                --  Deal with warning on overridden size
 
@@ -3362,7 +5056,7 @@ package body Sem_Ch13 is
                   Preanalyze_Spec_Expression (Expr, RTE (RE_CPU_Range));
                   Uninstall_Discriminants_And_Pop_Scope (U_Ent);
 
-                  if not Is_Static_Expression (Expr) then
+                  if not Is_OK_Static_Expression (Expr) then
                      Check_Restriction (Static_Priorities, Expr);
                   end if;
                end if;
@@ -3379,11 +5073,15 @@ package body Sem_Ch13 is
 
          when Attribute_Default_Iterator =>  Default_Iterator : declare
             Func : Entity_Id;
+            Typ  : Entity_Id;
 
          begin
+            --  If target type is untagged, further checks are irrelevant
+
             if not Is_Tagged_Type (U_Ent) then
                Error_Msg_N
-                 ("aspect Default_Iterator applies to  tagged type", Nam);
+                 ("aspect Default_Iterator applies to tagged type", Nam);
+               return;
             end if;
 
             Check_Iterator_Functions;
@@ -3394,13 +5092,32 @@ package body Sem_Ch13 is
               or else Ekind (Entity (Expr)) /= E_Function
             then
                Error_Msg_N ("aspect Iterator must be a function", Expr);
+               return;
             else
                Func := Entity (Expr);
             end if;
 
-            if No (First_Formal (Func))
-              or else Etype (First_Formal (Func)) /= U_Ent
+            --  The type of the first parameter must be T, T'class, or a
+            --  corresponding access type (5.5.1 (8/3). If function is
+            --  parameterless label type accordingly.
+
+            if No (First_Formal (Func)) then
+               Typ := Any_Type;
+            else
+               Typ := Etype (First_Formal (Func));
+            end if;
+
+            if Typ = U_Ent
+              or else Typ = Class_Wide_Type (U_Ent)
+              or else (Is_Access_Type (Typ)
+                        and then Designated_Type (Typ) = U_Ent)
+              or else (Is_Access_Type (Typ)
+                        and then Designated_Type (Typ) =
+                                          Class_Wide_Type (U_Ent))
             then
+               null;
+
+            else
                Error_Msg_NE
                  ("Default Iterator must be a primitive of&", Func, U_Ent);
             end if;
@@ -3417,9 +5134,8 @@ package body Sem_Ch13 is
 
             if From_Aspect_Specification (N) then
                if not Is_Task_Type (U_Ent) then
-                  Error_Msg_N ("Dispatching_Domain can only be defined" &
-                               "for task",
-                               Nam);
+                  Error_Msg_N
+                    ("Dispatching_Domain can only be defined for task", Nam);
 
                elsif Duplicate_Clause then
                   null;
@@ -3461,17 +5177,9 @@ package body Sem_Ch13 is
             else
                Analyze_And_Resolve (Expr, Standard_String);
 
-               if not Is_Static_Expression (Expr) then
+               if not Is_OK_Static_Expression (Expr) then
                   Flag_Non_Static_Expr
                     ("static string required for tag name!", Nam);
-               end if;
-
-               if VM_Target = No_VM then
-                  Set_Has_External_Tag_Rep_Clause (U_Ent);
-               else
-                  Error_Msg_Name_1 := Attr;
-                  Error_Msg_N
-                    ("% attribute unsupported in this configuration", Nam);
                end if;
 
                if not Is_Library_Level_Entity (U_Ent) then
@@ -3515,13 +5223,10 @@ package body Sem_Ch13 is
             --  except from aspect specification.
 
             if From_Aspect_Specification (N) then
-               if not (Is_Protected_Type (U_Ent)
-                        or else Is_Task_Type (U_Ent))
-               then
+               if not Is_Concurrent_Type (U_Ent) then
                   Error_Msg_N
-                    ("Interrupt_Priority can only be defined for task" &
-                     "and protected object",
-                     Nam);
+                    ("Interrupt_Priority can only be defined for task "
+                     & "and protected object", Nam);
 
                elsif Duplicate_Clause then
                   null;
@@ -3539,6 +5244,12 @@ package body Sem_Ch13 is
                     (Expr, RTE (RE_Interrupt_Priority));
 
                   Uninstall_Discriminants_And_Pop_Scope (U_Ent);
+
+                  --  Check the No_Task_At_Interrupt_Priority restriction
+
+                  if Is_Task_Type (U_Ent) then
+                     Check_Restriction (No_Task_At_Interrupt_Priority, N);
+                  end if;
                end if;
 
             else
@@ -3546,6 +5257,31 @@ package body Sem_Ch13 is
                  ("attribute& cannot be set with definition clause", N);
             end if;
          end Interrupt_Priority;
+
+         --------------
+         -- Iterable --
+         --------------
+
+         when Attribute_Iterable =>
+            Analyze (Expr);
+
+            if Nkind (Expr) /= N_Aggregate then
+               Error_Msg_N ("aspect Iterable must be an aggregate", Expr);
+            end if;
+
+            declare
+               Assoc : Node_Id;
+
+            begin
+               Assoc := First (Component_Associations (Expr));
+               while Present (Assoc) loop
+                  if not Is_Entity_Name (Expression (Assoc)) then
+                     Error_Msg_N ("value must be a function", Assoc);
+                  end if;
+
+                  Next (Assoc);
+               end loop;
+            end;
 
          ----------------------
          -- Iterator_Element --
@@ -3612,17 +5348,17 @@ package body Sem_Ch13 is
             else
                Check_Size (Expr, U_Ent, Size, Biased);
 
-               if Size /= 8
-                    and then
-                  Size /= 16
-                    and then
-                  Size /= 32
-                    and then
-                  UI_Mod (Size, 64) /= 0
-               then
-                  Error_Msg_N
-                    ("Object_Size must be 8, 16, 32, or multiple of 64",
-                     Expr);
+               if Is_Scalar_Type (U_Ent) then
+                  if Size /= 8 and then Size /= 16 and then Size /= 32
+                    and then UI_Mod (Size, 64) /= 0
+                  then
+                     Error_Msg_N
+                       ("Object_Size must be 8, 16, 32, or multiple of 64",
+                        Expr);
+                  end if;
+
+               elsif Size mod 8 /= 0 then
+                  Error_Msg_N ("Object_Size must be a multiple of 8", Expr);
                end if;
 
                Set_Esize (U_Ent, Size);
@@ -3649,14 +5385,12 @@ package body Sem_Ch13 is
             --  aspect specification.
 
             if From_Aspect_Specification (N) then
-               if not (Is_Protected_Type (U_Ent)
-                        or else Is_Task_Type (U_Ent)
+               if not (Is_Concurrent_Type (U_Ent)
                         or else Ekind (U_Ent) = E_Procedure)
                then
                   Error_Msg_N
-                    ("Priority can only be defined for task and protected " &
-                     "object",
-                     Nam);
+                    ("Priority can only be defined for task and protected "
+                     & "object", Nam);
 
                elsif Duplicate_Clause then
                   null;
@@ -3672,7 +5406,7 @@ package body Sem_Ch13 is
                   Preanalyze_Spec_Expression (Expr, Standard_Integer);
                   Uninstall_Discriminants_And_Pop_Scope (U_Ent);
 
-                  if not Is_Static_Expression (Expr) then
+                  if not Is_OK_Static_Expression (Expr) then
                      Check_Restriction (Static_Priorities, Expr);
                   end if;
                end if;
@@ -3713,7 +5447,7 @@ package body Sem_Ch13 is
                if Etype (Expr) = Any_Type then
                   return;
 
-               elsif not Is_Static_Expression (Expr) then
+               elsif not Is_OK_Static_Expression (Expr) then
                   Flag_Non_Static_Expr
                     ("Scalar_Storage_Order requires static expression!", Expr);
 
@@ -3730,6 +5464,12 @@ package body Sem_Ch13 is
                         & "not supported on target", Expr);
                   end if;
                end if;
+
+               --  Clear SSO default indications since explicit setting of the
+               --  order overrides the defaults.
+
+               Set_SSO_Set_Low_By_Default  (Base_Type (U_Ent), False);
+               Set_SSO_Set_High_By_Default (Base_Type (U_Ent), False);
             end if;
          end Scalar_Storage_Order;
 
@@ -3763,16 +5503,6 @@ package body Sem_Ch13 is
                  ("size cannot be given for unconstrained array", Nam);
 
             elsif Size /= No_Uint then
-               if VM_Target /= No_VM and then not GNAT_Mode then
-
-                  --  Size clause is not handled properly on VM targets.
-                  --  Display a warning unless we are in GNAT mode, in which
-                  --  case this is useless.
-
-                  Error_Msg_N
-                    ("size clauses are ignored in this configuration??", N);
-               end if;
-
                if Is_Type (U_Ent) then
                   Etyp := U_Ent;
                else
@@ -3868,7 +5598,7 @@ package body Sem_Ch13 is
             if Etype (Expr) = Any_Type then
                return;
 
-            elsif not Is_Static_Expression (Expr) then
+            elsif not Is_OK_Static_Expression (Expr) then
                Flag_Non_Static_Expr
                  ("small requires static expression!", Expr);
                return;
@@ -3940,6 +5670,20 @@ package body Sem_Ch13 is
                return;
             end if;
 
+            --  Check for Storage_Size previously given
+
+            declare
+               SS : constant Node_Id :=
+                      Get_Attribute_Definition_Clause
+                        (U_Ent, Attribute_Storage_Size);
+            begin
+               if Present (SS) then
+                  Check_Pool_Size_Clash (U_Ent, N, SS);
+               end if;
+            end;
+
+            --  Storage_Pool case
+
             if Id = Attribute_Storage_Pool then
                Analyze_And_Resolve
                  (Expr, Class_Wide_Type (RTE (RE_Root_Storage_Pool)));
@@ -4005,7 +5749,17 @@ package body Sem_Ch13 is
                               Name                => Expr);
 
                begin
-                  Insert_Before (N, Rnode);
+                  --  If the attribute definition clause comes from an aspect
+                  --  clause, then insert the renaming before the associated
+                  --  entity's declaration, since the attribute clause has
+                  --  not yet been appended to the declaration list.
+
+                  if From_Aspect_Specification (N) then
+                     Insert_Before (Parent (Entity (N)), Rnode);
+                  else
+                     Insert_Before (N, Rnode);
+                  end if;
+
                   Analyze (Rnode);
                   Set_Associated_Storage_Pool (U_Ent, Pool);
                end;
@@ -4055,13 +5809,18 @@ package body Sem_Ch13 is
 
          begin
             if Is_Task_Type (U_Ent) then
-               Check_Restriction (No_Obsolescent_Features, N);
 
-               if Warn_On_Obsolescent_Feature then
-                  Error_Msg_N
-                    ("?j?storage size clause for task is an " &
-                     "obsolescent feature (RM J.9)", N);
-                  Error_Msg_N ("\?j?use Storage_Size pragma instead", N);
+               --  Check obsolescent (but never obsolescent if from aspect)
+
+               if not From_Aspect_Specification (N) then
+                  Check_Restriction (No_Obsolescent_Features, N);
+
+                  if Warn_On_Obsolescent_Feature then
+                     Error_Msg_N
+                       ("?j?storage size clause for task is an " &
+                        "obsolescent feature (RM J.9)", N);
+                     Error_Msg_N ("\?j?use Storage_Size pragma instead", N);
+                  end if;
                end if;
 
                FOnly := True;
@@ -4084,10 +5843,21 @@ package body Sem_Ch13 is
                Analyze_And_Resolve (Expr, Any_Integer);
 
                if Is_Access_Type (U_Ent) then
-                  if Present (Associated_Storage_Pool (U_Ent)) then
-                     Error_Msg_N ("storage pool already given for &", Nam);
-                     return;
-                  end if;
+
+                  --  Check for Storage_Pool previously given
+
+                  declare
+                     SP : constant Node_Id :=
+                            Get_Attribute_Definition_Clause
+                              (U_Ent, Attribute_Storage_Pool);
+
+                  begin
+                     if Present (SP) then
+                        Check_Pool_Size_Clash (U_Ent, SP, N);
+                     end if;
+                  end;
+
+                  --  Special case of for x'Storage_Size use 0
 
                   if Is_OK_Static_Expression (Expr)
                     and then Expr_Value (Expr) = 0
@@ -4221,9 +5991,17 @@ package body Sem_Ch13 is
       DeclO : Node_Id;
 
    begin
+      --  Accept foreign code statements for CodePeer. The analysis is skipped
+      --  to avoid rejecting unrecognized constructs.
+
+      if CodePeer_Mode then
+         Set_Analyzed (N);
+         return;
+      end if;
+
       --  Analyze and check we get right type, note that this implements the
-      --  requirement (RM 13.8(1)) that Machine_Code be with'ed, since that
-      --  is the only way that Asm_Insn could possibly be visible.
+      --  requirement (RM 13.8(1)) that Machine_Code be with'ed, since that is
+      --  the only way that Asm_Insn could possibly be visible.
 
       Analyze_And_Resolve (Expression (N));
 
@@ -4236,8 +6014,8 @@ package body Sem_Ch13 is
 
       Check_Code_Statement (N);
 
-      --  Make sure we appear in the handled statement sequence of a
-      --  subprogram (RM 13.8(3)).
+      --  Make sure we appear in the handled statement sequence of a subprogram
+      --  (RM 13.8(3)).
 
       if Nkind (HSS) /= N_Handled_Sequence_Of_Statements
         or else Nkind (SBody) /= N_Subprogram_Body
@@ -4290,7 +6068,7 @@ package body Sem_Ch13 is
          while Present (Stmt) loop
             StmtO := Original_Node (Stmt);
 
-            --  A procedure call transformed into a code statement is OK.
+            --  A procedure call transformed into a code statement is OK
 
             if Ada_Version >= Ada_2012
               and then Nkind (StmtO) = N_Procedure_Call_Statement
@@ -4343,6 +6121,7 @@ package body Sem_Ch13 is
 
    begin
       if Ignore_Rep_Clauses then
+         Kill_Rep_Clause (N);
          return;
       end if;
 
@@ -4445,6 +6224,7 @@ package body Sem_Ch13 is
 
             if Val = No_Uint then
                Err := True;
+
             elsif Val < Lo or else Hi < Val then
                Error_Msg_N ("value outside permitted range", Expr);
                Err := True;
@@ -4498,7 +6278,7 @@ package body Sem_Ch13 is
                      --  ??? should allow static subtype with zero/one entry
 
                   elsif Etype (Choice) = Base_Type (Enumtype) then
-                     if not Is_Static_Expression (Choice) then
+                     if not Is_OK_Static_Expression (Choice) then
                         Flag_Non_Static_Expr
                           ("non-static expression used for choice!", Choice);
                         Err := True;
@@ -4628,7 +6408,7 @@ package body Sem_Ch13 is
          end;
       end if;
 
-      --  We repeat the too late test in case it froze itself!
+      --  We repeat the too late test in case it froze itself
 
       if Rep_Item_Too_Late (Enumtype, N) then
          null;
@@ -4649,189 +6429,18 @@ package body Sem_Ch13 is
    ---------------------------
 
    procedure Analyze_Freeze_Entity (N : Node_Id) is
-      E : constant Entity_Id := Entity (N);
-
    begin
-      --  Remember that we are processing a freezing entity. Required to
-      --  ensure correct decoration of internal entities associated with
-      --  interfaces (see New_Overloaded_Entity).
-
-      Inside_Freezing_Actions := Inside_Freezing_Actions + 1;
-
-      --  For tagged types covering interfaces add internal entities that link
-      --  the primitives of the interfaces with the primitives that cover them.
-      --  Note: These entities were originally generated only when generating
-      --  code because their main purpose was to provide support to initialize
-      --  the secondary dispatch tables. They are now generated also when
-      --  compiling with no code generation to provide ASIS the relationship
-      --  between interface primitives and tagged type primitives. They are
-      --  also used to locate primitives covering interfaces when processing
-      --  generics (see Derive_Subprograms).
-
-      if Ada_Version >= Ada_2005
-        and then Ekind (E) = E_Record_Type
-        and then Is_Tagged_Type (E)
-        and then not Is_Interface (E)
-        and then Has_Interfaces (E)
-      then
-         --  This would be a good common place to call the routine that checks
-         --  overriding of interface primitives (and thus factorize calls to
-         --  Check_Abstract_Overriding located at different contexts in the
-         --  compiler). However, this is not possible because it causes
-         --  spurious errors in case of late overriding.
-
-         Add_Internal_Interface_Entities (E);
-      end if;
-
-      --  Check CPP types
-
-      if Ekind (E) = E_Record_Type
-        and then Is_CPP_Class (E)
-        and then Is_Tagged_Type (E)
-        and then Tagged_Type_Expansion
-        and then Expander_Active
-      then
-         if CPP_Num_Prims (E) = 0 then
-
-            --  If the CPP type has user defined components then it must import
-            --  primitives from C++. This is required because if the C++ class
-            --  has no primitives then the C++ compiler does not added the _tag
-            --  component to the type.
-
-            pragma Assert (Chars (First_Entity (E)) = Name_uTag);
-
-            if First_Entity (E) /= Last_Entity (E) then
-               Error_Msg_N
-                 ("'C'P'P type must import at least one primitive from C++??",
-                  E);
-            end if;
-         end if;
-
-         --  Check that all its primitives are abstract or imported from C++.
-         --  Check also availability of the C++ constructor.
-
-         declare
-            Has_Constructors : constant Boolean := Has_CPP_Constructors (E);
-            Elmt             : Elmt_Id;
-            Error_Reported   : Boolean := False;
-            Prim             : Node_Id;
-
-         begin
-            Elmt := First_Elmt (Primitive_Operations (E));
-            while Present (Elmt) loop
-               Prim := Node (Elmt);
-
-               if Comes_From_Source (Prim) then
-                  if Is_Abstract_Subprogram (Prim) then
-                     null;
-
-                  elsif not Is_Imported (Prim)
-                    or else Convention (Prim) /= Convention_CPP
-                  then
-                     Error_Msg_N
-                       ("primitives of 'C'P'P types must be imported from C++ "
-                        & "or abstract??", Prim);
-
-                  elsif not Has_Constructors
-                     and then not Error_Reported
-                  then
-                     Error_Msg_Name_1 := Chars (E);
-                     Error_Msg_N
-                       ("??'C'P'P constructor required for type %", Prim);
-                     Error_Reported := True;
-                  end if;
-               end if;
-
-               Next_Elmt (Elmt);
-            end loop;
-         end;
-      end if;
-
-      --  Check Ada derivation of CPP type
-
-      if Expander_Active
-        and then Tagged_Type_Expansion
-        and then Ekind (E) = E_Record_Type
-        and then Etype (E) /= E
-        and then Is_CPP_Class (Etype (E))
-        and then CPP_Num_Prims (Etype (E)) > 0
-        and then not Is_CPP_Class (E)
-        and then not Has_CPP_Constructors (Etype (E))
-      then
-         --  If the parent has C++ primitives but it has no constructor then
-         --  check that all the primitives are overridden in this derivation;
-         --  otherwise the constructor of the parent is needed to build the
-         --  dispatch table.
-
-         declare
-            Elmt : Elmt_Id;
-            Prim : Node_Id;
-
-         begin
-            Elmt := First_Elmt (Primitive_Operations (E));
-            while Present (Elmt) loop
-               Prim := Node (Elmt);
-
-               if not Is_Abstract_Subprogram (Prim)
-                 and then No (Interface_Alias (Prim))
-                 and then Find_Dispatching_Type (Ultimate_Alias (Prim)) /= E
-               then
-                  Error_Msg_Name_1 := Chars (Etype (E));
-                  Error_Msg_N
-                    ("'C'P'P constructor required for parent type %", E);
-                  exit;
-               end if;
-
-               Next_Elmt (Elmt);
-            end loop;
-         end;
-      end if;
-
-      Inside_Freezing_Actions := Inside_Freezing_Actions - 1;
-
-      --  If we have a type with predicates, build predicate function
-
-      if Is_Type (E) and then Has_Predicates (E) then
-         Build_Predicate_Functions (E, N);
-      end if;
-
-      --  If type has delayed aspects, this is where we do the preanalysis at
-      --  the freeze point, as part of the consistent visibility check. Note
-      --  that this must be done after calling Build_Predicate_Functions or
-      --  Build_Invariant_Procedure since these subprograms fix occurrences of
-      --  the subtype name in the saved expression so that they will not cause
-      --  trouble in the preanalysis.
-
-      if Has_Delayed_Aspects (E)
-        and then Scope (E) = Current_Scope
-      then
-         --  Retrieve the visibility to the discriminants in order to properly
-         --  analyze the aspects.
-
-         Push_Scope_And_Install_Discriminants (E);
-
-         declare
-            Ritem : Node_Id;
-
-         begin
-            --  Look for aspect specification entries for this entity
-
-            Ritem := First_Rep_Item (E);
-            while Present (Ritem) loop
-               if Nkind (Ritem) = N_Aspect_Specification
-                 and then Entity (Ritem) = E
-                 and then Is_Delayed_Aspect (Ritem)
-               then
-                  Check_Aspect_At_Freeze_Point (Ritem);
-               end if;
-
-               Next_Rep_Item (Ritem);
-            end loop;
-         end;
-
-         Uninstall_Discriminants_And_Pop_Scope (E);
-      end if;
+      Freeze_Entity_Checks (N);
    end Analyze_Freeze_Entity;
+
+   -----------------------------------
+   -- Analyze_Freeze_Generic_Entity --
+   -----------------------------------
+
+   procedure Analyze_Freeze_Generic_Entity (N : Node_Id) is
+   begin
+      Freeze_Entity_Checks (N);
+   end Analyze_Freeze_Generic_Entity;
 
    ------------------------------------------
    -- Analyze_Record_Representation_Clause --
@@ -4889,6 +6498,7 @@ package body Sem_Ch13 is
 
    begin
       if Ignore_Rep_Clauses then
+         Kill_Rep_Clause (N);
          return;
       end if;
 
@@ -4924,7 +6534,7 @@ package body Sem_Ch13 is
          return;
       end if;
 
-      --  We know we have a first subtype, now possibly go the the anonymous
+      --  We know we have a first subtype, now possibly go to the anonymous
       --  base type to determine whether Rectype is a record extension.
 
       Recdef := Type_Definition (Declaration_Node (Base_Type (Rectype)));
@@ -4958,7 +6568,7 @@ package body Sem_Ch13 is
 
             --  In ASIS_Mode mode, expansion is disabled, but we must convert
             --  the Mod clause into an alignment clause anyway, so that the
-            --  back-end can compute and back-annotate properly the size and
+            --  back end can compute and back-annotate properly the size and
             --  alignment of types that may include this record.
 
             --  This seems dubious, this destroys the source tree in a manner
@@ -4967,7 +6577,7 @@ package body Sem_Ch13 is
             if Operating_Mode = Check_Semantics and then ASIS_Mode then
                AtM_Nod :=
                  Make_Attribute_Definition_Clause (Loc,
-                   Name       => New_Reference_To (Base_Type (Rectype), Loc),
+                   Name       => New_Occurrence_Of (Base_Type (Rectype), Loc),
                    Chars      => Name_Alignment,
                    Expression => Relocate_Node (Expression (M)));
 
@@ -5289,6 +6899,12 @@ package body Sem_Ch13 is
                                or else Size_Known_At_Compile_Time
                                          (Underlying_Type (Etype (Comp))))
                     and then not Has_Warnings_Off (Rectype)
+
+                    --  Ignore discriminant in unchecked union, since it is
+                    --  not there, and cannot have a component clause.
+
+                    and then (not Is_Unchecked_Union (Rectype)
+                               or else Ekind (Comp) /= E_Discriminant)
                   then
                      Error_Msg_Sloc := Sloc (Comp);
                      Error_Msg_NE
@@ -5303,964 +6919,11 @@ package body Sem_Ch13 is
       end if;
    end Analyze_Record_Representation_Clause;
 
-   -------------------------------------------
-   -- Build_Invariant_Procedure_Declaration --
-   -------------------------------------------
-
-   function Build_Invariant_Procedure_Declaration
-     (Typ : Entity_Id) return Node_Id
-   is
-      Loc           : constant Source_Ptr := Sloc (Typ);
-      Object_Entity : constant Entity_Id :=
-        Make_Defining_Identifier (Loc, New_Internal_Name ('I'));
-      Spec          : Node_Id;
-      SId           : Entity_Id;
-
-   begin
-      Set_Etype (Object_Entity, Typ);
-
-      --  Check for duplicate definiations.
-
-      if Has_Invariants (Typ) and then Present (Invariant_Procedure (Typ)) then
-         return Empty;
-      end if;
-
-      SId :=
-        Make_Defining_Identifier (Loc,
-          Chars => New_External_Name (Chars (Typ), "Invariant"));
-      Set_Has_Invariants (Typ);
-      Set_Ekind (SId, E_Procedure);
-      Set_Is_Invariant_Procedure (SId);
-      Set_Invariant_Procedure (Typ, SId);
-
-      Spec :=
-        Make_Procedure_Specification (Loc,
-          Defining_Unit_Name       => SId,
-          Parameter_Specifications => New_List (
-            Make_Parameter_Specification (Loc,
-              Defining_Identifier => Object_Entity,
-              Parameter_Type      => New_Occurrence_Of (Typ, Loc))));
-
-      return Make_Subprogram_Declaration (Loc, Specification => Spec);
-   end Build_Invariant_Procedure_Declaration;
-
-   -------------------------------
-   -- Build_Invariant_Procedure --
-   -------------------------------
-
-   --  The procedure that is constructed here has the form
-
-   --  procedure typInvariant (Ixxx : typ) is
-   --  begin
-   --     pragma Check (Invariant, exp, "failed invariant from xxx");
-   --     pragma Check (Invariant, exp, "failed invariant from xxx");
-   --     ...
-   --     pragma Check (Invariant, exp, "failed inherited invariant from xxx");
-   --     ...
-   --  end typInvariant;
-
-   procedure Build_Invariant_Procedure (Typ : Entity_Id; N : Node_Id) is
-      Loc   : constant Source_Ptr := Sloc (Typ);
-      Stmts : List_Id;
-      Spec  : Node_Id;
-      SId   : Entity_Id;
-      PDecl : Node_Id;
-      PBody : Node_Id;
-
-      Visible_Decls : constant List_Id := Visible_Declarations (N);
-      Private_Decls : constant List_Id := Private_Declarations (N);
-
-      procedure Add_Invariants (T : Entity_Id; Inherit : Boolean);
-      --  Appends statements to Stmts for any invariants in the rep item chain
-      --  of the given type. If Inherit is False, then we only process entries
-      --  on the chain for the type Typ. If Inherit is True, then we ignore any
-      --  Invariant aspects, but we process all Invariant'Class aspects, adding
-      --  "inherited" to the exception message and generating an informational
-      --  message about the inheritance of an invariant.
-
-      Object_Name : Name_Id;
-      --  Name for argument of invariant procedure
-
-      Object_Entity : Node_Id;
-      --  The entity of the formal for the procedure
-
-      --------------------
-      -- Add_Invariants --
-      --------------------
-
-      procedure Add_Invariants (T : Entity_Id; Inherit : Boolean) is
-         Ritem : Node_Id;
-         Arg1  : Node_Id;
-         Arg2  : Node_Id;
-         Arg3  : Node_Id;
-         Exp   : Node_Id;
-         Loc   : Source_Ptr;
-         Assoc : List_Id;
-         Str   : String_Id;
-
-         procedure Replace_Type_Reference (N : Node_Id);
-         --  Replace a single occurrence N of the subtype name with a reference
-         --  to the formal of the predicate function. N can be an identifier
-         --  referencing the subtype, or a selected component, representing an
-         --  appropriately qualified occurrence of the subtype name.
-
-         procedure Replace_Type_References is
-           new Replace_Type_References_Generic (Replace_Type_Reference);
-         --  Traverse an expression replacing all occurrences of the subtype
-         --  name with appropriate references to the object that is the formal
-         --  parameter of the predicate function. Note that we must ensure
-         --  that the type and entity information is properly set in the
-         --  replacement node, since we will do a Preanalyze call of this
-         --  expression without proper visibility of the procedure argument.
-
-         ----------------------------
-         -- Replace_Type_Reference --
-         ----------------------------
-
-         --  Note: See comments in Add_Predicates.Replace_Type_Reference
-         --  regarding handling of Sloc and Comes_From_Source.
-
-         procedure Replace_Type_Reference (N : Node_Id) is
-         begin
-            --  Invariant'Class, replace with T'Class (obj)
-
-            if Class_Present (Ritem) then
-               Rewrite (N,
-                 Make_Type_Conversion (Sloc (N),
-                   Subtype_Mark =>
-                     Make_Attribute_Reference (Sloc (N),
-                       Prefix         => New_Occurrence_Of (T, Sloc (N)),
-                       Attribute_Name => Name_Class),
-                   Expression   => Make_Identifier (Sloc (N), Object_Name)));
-
-               Set_Entity (Expression (N), Object_Entity);
-               Set_Etype  (Expression (N), Typ);
-
-            --  Invariant, replace with obj
-
-            else
-               Rewrite (N, Make_Identifier (Sloc (N), Object_Name));
-               Set_Entity (N, Object_Entity);
-               Set_Etype  (N, Typ);
-            end if;
-
-            Set_Comes_From_Source (N, True);
-         end Replace_Type_Reference;
-
-      --  Start of processing for Add_Invariants
-
-      begin
-         Ritem := First_Rep_Item (T);
-         while Present (Ritem) loop
-            if Nkind (Ritem) = N_Pragma
-              and then Pragma_Name (Ritem) = Name_Invariant
-            then
-               Arg1 := First (Pragma_Argument_Associations (Ritem));
-               Arg2 := Next (Arg1);
-               Arg3 := Next (Arg2);
-
-               Arg1 := Get_Pragma_Arg (Arg1);
-               Arg2 := Get_Pragma_Arg (Arg2);
-
-               --  For Inherit case, ignore Invariant, process only Class case
-
-               if Inherit then
-                  if not Class_Present (Ritem) then
-                     goto Continue;
-                  end if;
-
-               --  For Inherit false, process only item for right type
-
-               else
-                  if Entity (Arg1) /= Typ then
-                     goto Continue;
-                  end if;
-               end if;
-
-               if No (Stmts) then
-                  Stmts := Empty_List;
-               end if;
-
-               Exp := New_Copy_Tree (Arg2);
-
-               --  Preserve sloc of original pragma Invariant
-
-               Loc := Sloc (Ritem);
-
-               --  We need to replace any occurrences of the name of the type
-               --  with references to the object, converted to type'Class in
-               --  the case of Invariant'Class aspects.
-
-               Replace_Type_References (Exp, Chars (T));
-
-               --  If this invariant comes from an aspect, find the aspect
-               --  specification, and replace the saved expression because
-               --  we need the subtype references replaced for the calls to
-               --  Preanalyze_Spec_Expressin in Check_Aspect_At_Freeze_Point
-               --  and Check_Aspect_At_End_Of_Declarations.
-
-               if From_Aspect_Specification (Ritem) then
-                  declare
-                     Aitem : Node_Id;
-
-                  begin
-                     --  Loop to find corresponding aspect, note that this
-                     --  must be present given the pragma is marked delayed.
-
-                     Aitem := Next_Rep_Item (Ritem);
-                     while Present (Aitem) loop
-                        if Nkind (Aitem) = N_Aspect_Specification
-                          and then Aspect_Rep_Item (Aitem) = Ritem
-                        then
-                           Set_Entity
-                             (Identifier (Aitem), New_Copy_Tree (Exp));
-                           exit;
-                        end if;
-
-                        Aitem := Next_Rep_Item (Aitem);
-                     end loop;
-                  end;
-               end if;
-
-               --  Now we need to preanalyze the expression to properly capture
-               --  the visibility in the visible part. The expression will not
-               --  be analyzed for real until the body is analyzed, but that is
-               --  at the end of the private part and has the wrong visibility.
-
-               Set_Parent (Exp, N);
-               Preanalyze_Assert_Expression (Exp, Standard_Boolean);
-
-               --  Build first two arguments for Check pragma
-
-               Assoc := New_List (
-                 Make_Pragma_Argument_Association (Loc,
-                   Expression => Make_Identifier (Loc, Name_Invariant)),
-                 Make_Pragma_Argument_Association (Loc,
-                   Expression => Exp));
-
-               --  Add message if present in Invariant pragma
-
-               if Present (Arg3) then
-                  Str := Strval (Get_Pragma_Arg (Arg3));
-
-                  --  If inherited case, and message starts "failed invariant",
-                  --  change it to be "failed inherited invariant".
-
-                  if Inherit then
-                     String_To_Name_Buffer (Str);
-
-                     if Name_Buffer (1 .. 16) = "failed invariant" then
-                        Insert_Str_In_Name_Buffer ("inherited ", 8);
-                        Str := String_From_Name_Buffer;
-                     end if;
-                  end if;
-
-                  Append_To (Assoc,
-                    Make_Pragma_Argument_Association (Loc,
-                      Expression => Make_String_Literal (Loc, Str)));
-               end if;
-
-               --  Add Check pragma to list of statements
-
-               Append_To (Stmts,
-                 Make_Pragma (Loc,
-                   Pragma_Identifier            =>
-                     Make_Identifier (Loc, Name_Check),
-                   Pragma_Argument_Associations => Assoc));
-
-               --  If Inherited case and option enabled, output info msg. Note
-               --  that we know this is a case of Invariant'Class.
-
-               if Inherit and Opt.List_Inherited_Aspects then
-                  Error_Msg_Sloc := Sloc (Ritem);
-                  Error_Msg_N
-                    ("?L?info: & inherits `Invariant''Class` aspect from #",
-                     Typ);
-               end if;
-            end if;
-
-         <<Continue>>
-            Next_Rep_Item (Ritem);
-         end loop;
-      end Add_Invariants;
-
-   --  Start of processing for Build_Invariant_Procedure
-
-   begin
-      Stmts := No_List;
-      PDecl := Empty;
-      PBody := Empty;
-      SId   := Empty;
-
-      --  If the aspect specification exists for some view of the type, the
-      --  declaration for the procedure has been created.
-
-      if Has_Invariants (Typ) then
-         SId := Invariant_Procedure (Typ);
-      end if;
-
-      if Present (SId) then
-         PDecl := Unit_Declaration_Node (SId);
-
-      else
-         PDecl := Build_Invariant_Procedure_Declaration (Typ);
-      end if;
-
-      --  Recover formal of procedure, for use in the calls to invariant
-      --  functions (including inherited ones).
-
-      Object_Entity :=
-        Defining_Identifier
-          (First (Parameter_Specifications (Specification (PDecl))));
-      Object_Name := Chars (Object_Entity);
-
-      --  Add invariants for the current type
-
-      Add_Invariants (Typ, Inherit => False);
-
-      --  Add invariants for parent types
-
-      declare
-         Current_Typ : Entity_Id;
-         Parent_Typ  : Entity_Id;
-
-      begin
-         Current_Typ := Typ;
-         loop
-            Parent_Typ := Etype (Current_Typ);
-
-            if Is_Private_Type (Parent_Typ)
-              and then Present (Full_View (Base_Type (Parent_Typ)))
-            then
-               Parent_Typ := Full_View (Base_Type (Parent_Typ));
-            end if;
-
-            exit when Parent_Typ = Current_Typ;
-
-            Current_Typ := Parent_Typ;
-            Add_Invariants (Current_Typ, Inherit => True);
-         end loop;
-      end;
-
-      --  Build the procedure if we generated at least one Check pragma
-
-      if Stmts /= No_List then
-         Spec  := Copy_Separate_Tree (Specification (PDecl));
-
-         PBody :=
-           Make_Subprogram_Body (Loc,
-             Specification              => Spec,
-             Declarations               => Empty_List,
-             Handled_Statement_Sequence =>
-               Make_Handled_Sequence_Of_Statements (Loc,
-                 Statements => Stmts));
-
-         --  Insert procedure declaration and spec at the appropriate points.
-         --  If declaration is already analyzed, it was processed by the
-         --  generated pragma.
-
-         if Present (Private_Decls) then
-
-            --  The spec goes at the end of visible declarations, but they have
-            --  already been analyzed, so we need to explicitly do the analyze.
-
-            if not Analyzed (PDecl) then
-               Append_To (Visible_Decls, PDecl);
-               Analyze (PDecl);
-            end if;
-
-            --  The body goes at the end of the private declarations, which we
-            --  have not analyzed yet, so we do not need to perform an explicit
-            --  analyze call. We skip this if there are no private declarations
-            --  (this is an error that will be caught elsewhere);
-
-            Append_To (Private_Decls, PBody);
-
-            --  If the invariant appears on the full view of a type, the
-            --  analysis of the private part is complete, and we must
-            --  analyze the new body explicitly.
-
-            if In_Private_Part (Current_Scope) then
-               Analyze (PBody);
-            end if;
-
-         --  If there are no private declarations this may be an error that
-         --  will be diagnosed elsewhere. However, if this is a non-private
-         --  type that inherits invariants, it needs no completion and there
-         --  may be no private part. In this case insert invariant procedure
-         --  at end of current declarative list, and analyze at once, given
-         --  that the type is about to be frozen.
-
-         elsif not Is_Private_Type (Typ) then
-            Append_To (Visible_Decls, PDecl);
-            Append_To (Visible_Decls, PBody);
-            Analyze (PDecl);
-            Analyze (PBody);
-         end if;
-      end if;
-   end Build_Invariant_Procedure;
-
-   -------------------------------
-   -- Build_Predicate_Functions --
-   -------------------------------
-
-   --  The procedures that are constructed here have the form:
-
-   --    function typPredicate (Ixxx : typ) return Boolean is
-   --    begin
-   --       return
-   --          exp1 and then exp2 and then ...
-   --          and then typ1Predicate (typ1 (Ixxx))
-   --          and then typ2Predicate (typ2 (Ixxx))
-   --          and then ...;
-   --    end typPredicate;
-
-   --  Here exp1, and exp2 are expressions from Predicate pragmas. Note that
-   --  this is the point at which these expressions get analyzed, providing the
-   --  required delay, and typ1, typ2, are entities from which predicates are
-   --  inherited. Note that we do NOT generate Check pragmas, that's because we
-   --  use this function even if checks are off, e.g. for membership tests.
-
-   --  If the expression has at least one Raise_Expression, then we also build
-   --  the typPredicateM version of the function, in which any occurrence of a
-   --  Raise_Expression is converted to "return False".
-
-   procedure Build_Predicate_Functions (Typ : Entity_Id; N : Node_Id) is
-      Loc : constant Source_Ptr := Sloc (Typ);
-
-      Expr : Node_Id;
-      --  This is the expression for the result of the function. It is
-      --  is build by connecting the component predicates with AND THEN.
-
-      Expr_M : Node_Id;
-      --  This is the corresponding return expression for the Predicate_M
-      --  function. It differs in that raise expressions are marked for
-      --  special expansion (see Process_REs).
-
-      Object_Name : constant Name_Id := New_Internal_Name ('I');
-      --  Name for argument of Predicate procedure. Note that we use the same
-      --  name for both predicate procedure. That way the reference within the
-      --  predicate expression is the same in both functions.
-
-      Object_Entity : constant Entity_Id :=
-                        Make_Defining_Identifier (Loc, Chars => Object_Name);
-      --  Entity for argument of Predicate procedure
-
-      Object_Entity_M : constant Entity_Id :=
-                         Make_Defining_Identifier (Loc, Chars => Object_Name);
-      --  Entity for argument of Predicate_M procedure
-
-      Raise_Expression_Present : Boolean := False;
-      --  Set True if Expr has at least one Raise_Expression
-
-      Static_Predic : Node_Id := Empty;
-      --  Set to N_Pragma node for a static predicate if one is encountered
-
-      procedure Add_Call (T : Entity_Id);
-      --  Includes a call to the predicate function for type T in Expr if T
-      --  has predicates and Predicate_Function (T) is non-empty.
-
-      procedure Add_Predicates;
-      --  Appends expressions for any Predicate pragmas in the rep item chain
-      --  Typ to Expr. Note that we look only at items for this exact entity.
-      --  Inheritance of predicates for the parent type is done by calling the
-      --  Predicate_Function of the parent type, using Add_Call above.
-
-      function Test_RE (N : Node_Id) return Traverse_Result;
-      --  Used in Test_REs, tests one node for being a raise expression, and if
-      --  so sets Raise_Expression_Present True.
-
-      procedure Test_REs is new Traverse_Proc (Test_RE);
-      --  Tests to see if Expr contains any raise expressions
-
-      function Process_RE (N : Node_Id) return Traverse_Result;
-      --  Used in Process REs, tests if node N is a raise expression, and if
-      --  so, marks it to be converted to return False.
-
-      procedure Process_REs is new Traverse_Proc (Process_RE);
-      --  Marks any raise expressions in Expr_M to return False
-
-      --------------
-      -- Add_Call --
-      --------------
-
-      procedure Add_Call (T : Entity_Id) is
-         Exp : Node_Id;
-
-      begin
-         if Present (T) and then Present (Predicate_Function (T)) then
-            Set_Has_Predicates (Typ);
-
-            --  Build the call to the predicate function of T
-
-            Exp :=
-              Make_Predicate_Call
-                (T, Convert_To (T, Make_Identifier (Loc, Object_Name)));
-
-            --  Add call to evolving expression, using AND THEN if needed
-
-            if No (Expr) then
-               Expr := Exp;
-            else
-               Expr :=
-                 Make_And_Then (Loc,
-                   Left_Opnd  => Relocate_Node (Expr),
-                   Right_Opnd => Exp);
-            end if;
-
-            --  Output info message on inheritance if required. Note we do not
-            --  give this information for generic actual types, since it is
-            --  unwelcome noise in that case in instantiations. We also
-            --  generally suppress the message in instantiations, and also
-            --  if it involves internal names.
-
-            if Opt.List_Inherited_Aspects
-              and then not Is_Generic_Actual_Type (Typ)
-              and then Instantiation_Depth (Sloc (Typ)) = 0
-              and then not Is_Internal_Name (Chars (T))
-              and then not Is_Internal_Name (Chars (Typ))
-            then
-               Error_Msg_Sloc := Sloc (Predicate_Function (T));
-               Error_Msg_Node_2 := T;
-               Error_Msg_N ("info: & inherits predicate from & #?L?", Typ);
-            end if;
-         end if;
-      end Add_Call;
-
-      --------------------
-      -- Add_Predicates --
-      --------------------
-
-      procedure Add_Predicates is
-         Ritem : Node_Id;
-         Arg1  : Node_Id;
-         Arg2  : Node_Id;
-
-         procedure Replace_Type_Reference (N : Node_Id);
-         --  Replace a single occurrence N of the subtype name with a reference
-         --  to the formal of the predicate function. N can be an identifier
-         --  referencing the subtype, or a selected component, representing an
-         --  appropriately qualified occurrence of the subtype name.
-
-         procedure Replace_Type_References is
-           new Replace_Type_References_Generic (Replace_Type_Reference);
-         --  Traverse an expression changing every occurrence of an identifier
-         --  whose name matches the name of the subtype with a reference to
-         --  the formal parameter of the predicate function.
-
-         ----------------------------
-         -- Replace_Type_Reference --
-         ----------------------------
-
-         procedure Replace_Type_Reference (N : Node_Id) is
-         begin
-            Rewrite (N, Make_Identifier (Sloc (N), Object_Name));
-            --  Use the Sloc of the usage name, not the defining name
-
-            Set_Etype (N, Typ);
-            Set_Entity (N, Object_Entity);
-
-            --  We want to treat the node as if it comes from source, so that
-            --  ASIS will not ignore it
-
-            Set_Comes_From_Source (N, True);
-         end Replace_Type_Reference;
-
-      --  Start of processing for Add_Predicates
-
-      begin
-         Ritem := First_Rep_Item (Typ);
-         while Present (Ritem) loop
-            if Nkind (Ritem) = N_Pragma
-              and then Pragma_Name (Ritem) = Name_Predicate
-            then
-               --  Save the static predicate of the type for diagnostics and
-               --  error reporting purposes.
-
-               if Present (Corresponding_Aspect (Ritem))
-                 and then Chars (Identifier (Corresponding_Aspect (Ritem))) =
-                            Name_Static_Predicate
-               then
-                  Static_Predic := Ritem;
-               end if;
-
-               --  Acquire arguments
-
-               Arg1 := First (Pragma_Argument_Associations (Ritem));
-               Arg2 := Next (Arg1);
-
-               Arg1 := Get_Pragma_Arg (Arg1);
-               Arg2 := Get_Pragma_Arg (Arg2);
-
-               --  See if this predicate pragma is for the current type or for
-               --  its full view. A predicate on a private completion is placed
-               --  on the partial view beause this is the visible entity that
-               --  is frozen.
-
-               if Entity (Arg1) = Typ
-                 or else Full_View (Entity (Arg1)) = Typ
-               then
-                  --  We have a match, this entry is for our subtype
-
-                  --  We need to replace any occurrences of the name of the
-                  --  type with references to the object.
-
-                  Replace_Type_References (Arg2, Chars (Typ));
-
-                  --  If this predicate comes from an aspect, find the aspect
-                  --  specification, and replace the saved expression because
-                  --  we need the subtype references replaced for the calls to
-                  --  Preanalyze_Spec_Expressin in Check_Aspect_At_Freeze_Point
-                  --  and Check_Aspect_At_End_Of_Declarations.
-
-                  if From_Aspect_Specification (Ritem) then
-                     declare
-                        Aitem : Node_Id;
-
-                     begin
-                        --  Loop to find corresponding aspect, note that this
-                        --  must be present given the pragma is marked delayed.
-
-                        Aitem := Next_Rep_Item (Ritem);
-                        loop
-                           if Nkind (Aitem) = N_Aspect_Specification
-                             and then Aspect_Rep_Item (Aitem) = Ritem
-                           then
-                              Set_Entity
-                                (Identifier (Aitem), New_Copy_Tree (Arg2));
-                              exit;
-                           end if;
-
-                           Aitem := Next_Rep_Item (Aitem);
-                        end loop;
-                     end;
-                  end if;
-
-                  --  Now we can add the expression
-
-                  if No (Expr) then
-                     Expr := Relocate_Node (Arg2);
-
-                  --  There already was a predicate, so add to it
-
-                  else
-                     Expr :=
-                       Make_And_Then (Loc,
-                         Left_Opnd  => Relocate_Node (Expr),
-                         Right_Opnd => Relocate_Node (Arg2));
-                  end if;
-               end if;
-            end if;
-
-            Next_Rep_Item (Ritem);
-         end loop;
-      end Add_Predicates;
-
-      ----------------
-      -- Process_RE --
-      ----------------
-
-      function Process_RE (N : Node_Id) return Traverse_Result is
-      begin
-         if Nkind (N) = N_Raise_Expression then
-            Set_Convert_To_Return_False (N);
-            return Skip;
-         else
-            return OK;
-         end if;
-      end Process_RE;
-
-      -------------
-      -- Test_RE --
-      -------------
-
-      function Test_RE (N : Node_Id) return Traverse_Result is
-      begin
-         if Nkind (N) = N_Raise_Expression then
-            Raise_Expression_Present := True;
-            return Abandon;
-         else
-            return OK;
-         end if;
-      end Test_RE;
-
-   --  Start of processing for Build_Predicate_Functions
-
-   begin
-      --  Return if already built or if type does not have predicates
-
-      if not Has_Predicates (Typ)
-        or else Present (Predicate_Function (Typ))
-      then
-         return;
-      end if;
-
-      --  Prepare to construct predicate expression
-
-      Expr := Empty;
-
-      --  Add Predicates for the current type
-
-      Add_Predicates;
-
-      --  Add predicates for ancestor if present
-
-      declare
-         Atyp : constant Entity_Id := Nearest_Ancestor (Typ);
-      begin
-         if Present (Atyp) then
-            Add_Call (Atyp);
-         end if;
-      end;
-
-      --  Case where predicates are present
-
-      if Present (Expr) then
-
-         --  Test for raise expression present
-
-         Test_REs (Expr);
-
-         --  If raise expression is present, capture a copy of Expr for use
-         --  in building the predicateM function version later on. For this
-         --  copy we replace references to Object_Entity by Object_Entity_M.
-
-         if Raise_Expression_Present then
-            declare
-               Map : constant Elist_Id := New_Elmt_List;
-            begin
-               Append_Elmt (Object_Entity, Map);
-               Append_Elmt (Object_Entity_M, Map);
-               Expr_M := New_Copy_Tree (Expr, Map => Map);
-            end;
-         end if;
-
-         --  Build the main predicate function
-
-         declare
-            SId : constant Entity_Id :=
-                    Make_Defining_Identifier (Loc,
-                      Chars => New_External_Name (Chars (Typ), "Predicate"));
-            --  The entity for the the function spec
-
-            SIdB : constant Entity_Id :=
-              Make_Defining_Identifier (Loc,
-                Chars => New_External_Name (Chars (Typ), "Predicate"));
-            --  The entity for the function body
-
-            Spec  : Node_Id;
-            FDecl : Node_Id;
-            FBody : Node_Id;
-
-         begin
-            --  Build function declaration
-
-            Set_Ekind (SId, E_Function);
-            Set_Is_Predicate_Function (SId);
-            Set_Predicate_Function (Typ, SId);
-
-            --  The predicate function is shared between views of a type
-
-            if Is_Private_Type (Typ) and then Present (Full_View (Typ)) then
-               Set_Predicate_Function (Full_View (Typ), SId);
-            end if;
-
-            Spec :=
-              Make_Function_Specification (Loc,
-                Defining_Unit_Name       => SId,
-                Parameter_Specifications => New_List (
-                  Make_Parameter_Specification (Loc,
-                    Defining_Identifier => Object_Entity,
-                    Parameter_Type      => New_Occurrence_Of (Typ, Loc))),
-                Result_Definition        =>
-                  New_Occurrence_Of (Standard_Boolean, Loc));
-
-            FDecl :=
-              Make_Subprogram_Declaration (Loc,
-                Specification => Spec);
-
-            --  Build function body
-
-            Spec :=
-              Make_Function_Specification (Loc,
-                Defining_Unit_Name       => SIdB,
-                Parameter_Specifications => New_List (
-                  Make_Parameter_Specification (Loc,
-                    Defining_Identifier =>
-                      Make_Defining_Identifier (Loc, Object_Name),
-                    Parameter_Type =>
-                      New_Occurrence_Of (Typ, Loc))),
-                Result_Definition        =>
-                  New_Occurrence_Of (Standard_Boolean, Loc));
-
-            FBody :=
-              Make_Subprogram_Body (Loc,
-                Specification              => Spec,
-                Declarations               => Empty_List,
-                Handled_Statement_Sequence =>
-                  Make_Handled_Sequence_Of_Statements (Loc,
-                    Statements => New_List (
-                      Make_Simple_Return_Statement (Loc,
-                        Expression => Expr))));
-
-            --  Insert declaration before freeze node and body after
-
-            Insert_Before_And_Analyze (N, FDecl);
-            Insert_After_And_Analyze  (N, FBody);
-         end;
-
-         --  Test for raise expressions present and if so build M version
-
-         if Raise_Expression_Present then
-            declare
-               SId : constant Entity_Id :=
-                 Make_Defining_Identifier (Loc,
-                   Chars => New_External_Name (Chars (Typ), "PredicateM"));
-               --  The entity for the the function spec
-
-               SIdB : constant Entity_Id :=
-                 Make_Defining_Identifier (Loc,
-                   Chars => New_External_Name (Chars (Typ), "PredicateM"));
-               --  The entity for the function body
-
-               Spec  : Node_Id;
-               FDecl : Node_Id;
-               FBody : Node_Id;
-               BTemp : Entity_Id;
-
-            begin
-               --  Mark any raise expressions for special expansion
-
-               Process_REs (Expr_M);
-
-               --  Build function declaration
-
-               Set_Ekind (SId, E_Function);
-               Set_Is_Predicate_Function_M (SId);
-               Set_Predicate_Function_M (Typ, SId);
-
-               --  The predicate function is shared between views of a type
-
-               if Is_Private_Type (Typ) and then Present (Full_View (Typ)) then
-                  Set_Predicate_Function_M (Full_View (Typ), SId);
-               end if;
-
-               Spec :=
-                 Make_Function_Specification (Loc,
-                   Defining_Unit_Name       => SId,
-                   Parameter_Specifications => New_List (
-                     Make_Parameter_Specification (Loc,
-                       Defining_Identifier => Object_Entity_M,
-                       Parameter_Type      => New_Occurrence_Of (Typ, Loc))),
-                   Result_Definition        =>
-                     New_Occurrence_Of (Standard_Boolean, Loc));
-
-               FDecl :=
-                 Make_Subprogram_Declaration (Loc,
-                   Specification => Spec);
-
-               --  Build function body
-
-               Spec :=
-                 Make_Function_Specification (Loc,
-                   Defining_Unit_Name       => SIdB,
-                   Parameter_Specifications => New_List (
-                     Make_Parameter_Specification (Loc,
-                       Defining_Identifier =>
-                         Make_Defining_Identifier (Loc, Object_Name),
-                       Parameter_Type =>
-                         New_Occurrence_Of (Typ, Loc))),
-                   Result_Definition        =>
-                     New_Occurrence_Of (Standard_Boolean, Loc));
-
-               --  Build the body, we declare the boolean expression before
-               --  doing the return, because we are not really confident of
-               --  what happens if a return appears within a return!
-
-               BTemp :=
-                 Make_Defining_Identifier (Loc,
-                   Chars => New_Internal_Name ('B'));
-
-               FBody :=
-                 Make_Subprogram_Body (Loc,
-                   Specification              => Spec,
-
-                   Declarations               => New_List (
-                     Make_Object_Declaration (Loc,
-                       Defining_Identifier => BTemp,
-                       Constant_Present    => True,
-                         Object_Definition =>
-                           New_Reference_To (Standard_Boolean, Loc),
-                         Expression        => Expr_M)),
-
-                   Handled_Statement_Sequence =>
-                     Make_Handled_Sequence_Of_Statements (Loc,
-                       Statements => New_List (
-                         Make_Simple_Return_Statement (Loc,
-                           Expression => New_Reference_To (BTemp, Loc)))));
-
-               --  Insert declaration before freeze node and body after
-
-               Insert_Before_And_Analyze (N, FDecl);
-               Insert_After_And_Analyze  (N, FBody);
-            end;
-         end if;
-
-         if Is_Scalar_Type (Typ) then
-
-            --  Attempt to build a static predicate for a discrete or a real
-            --  subtype. This action may fail because the actual expression may
-            --  not be static. Note that the presence of an inherited or
-            --  explicitly declared dynamic predicate is orthogonal to this
-            --  check because we are only interested in the static predicate.
-
-            if Ekind_In (Typ, E_Decimal_Fixed_Point_Subtype,
-                              E_Enumeration_Subtype,
-                              E_Floating_Point_Subtype,
-                              E_Modular_Integer_Subtype,
-                              E_Ordinary_Fixed_Point_Subtype,
-                              E_Signed_Integer_Subtype)
-            then
-               Build_Static_Predicate (Typ, Expr, Object_Name);
-
-               --  Emit an error when the predicate is categorized as static
-               --  but its expression is dynamic.
-
-               if Present (Static_Predic)
-                 and then No (Static_Predicate (Typ))
-               then
-                  Error_Msg_F
-                    ("expression does not have required form for "
-                     & "static predicate",
-                     Next (First (Pragma_Argument_Associations
-                                   (Static_Predic))));
-               end if;
-            end if;
-
-         --  If a static predicate applies on other types, that's an error:
-         --  either the type is scalar but non-static, or it's not even a
-         --  scalar type. We do not issue an error on generated types, as
-         --  these may be duplicates of the same error on a source type.
-
-         elsif Present (Static_Predic) and then Comes_From_Source (Typ) then
-            if Is_Scalar_Type (Typ) then
-               Error_Msg_FE
-                 ("static predicate not allowed for non-static type&",
-                  Typ, Typ);
-            else
-               Error_Msg_FE
-                 ("static predicate not allowed for non-scalar type&",
-                  Typ, Typ);
-            end if;
-         end if;
-      end if;
-   end Build_Predicate_Functions;
-
-   ----------------------------
-   -- Build_Static_Predicate --
-   ----------------------------
-
-   procedure Build_Static_Predicate
+   -------------------------------------
+   -- Build_Discrete_Static_Predicate --
+   -------------------------------------
+
+   procedure Build_Discrete_Static_Predicate
      (Typ  : Entity_Id;
       Expr : Node_Id;
       Nam  : Name_Id)
@@ -6276,9 +6939,11 @@ package body Sem_Ch13 is
       BHi : constant Uint := Expr_Value (Type_High_Bound (Btyp));
       --  Low bound and high bound value of base type of Typ
 
-      TLo : constant Uint := Expr_Value (Type_Low_Bound  (Typ));
-      THi : constant Uint := Expr_Value (Type_High_Bound (Typ));
-      --  Low bound and high bound values of static subtype Typ
+      TLo : Uint;
+      THi : Uint;
+      --  Bounds for constructing the static predicate. We use the bound of the
+      --  subtype if it is static, otherwise the corresponding base type bound.
+      --  Note: a non-static subtype can have a static predicate.
 
       type REnt is record
          Lo, Hi : Uint;
@@ -6294,7 +6959,7 @@ package body Sem_Ch13 is
       --  within one of these ranges.
 
       False_Range : constant RList :=
-                      RList'(1 .. 0 => REnt'(No_Uint, No_Uint));
+        RList'(1 .. 0 => REnt'(No_Uint, No_Uint));
       --  An empty set of ranges represents a range list that can never be
       --  satisfied, since there are no ranges in which the value could lie,
       --  so it does not lie in any of them. False_Range is a canonical value
@@ -6320,13 +6985,13 @@ package body Sem_Ch13 is
 
       function Build_Val (V : Uint) return Node_Id;
       --  Return an analyzed N_Identifier node referencing this value, suitable
-      --  for use as an entry in the Static_Predicate list. This node is typed
-      --  with the base type.
+      --  for use as an entry in the Static_Discrte_Predicate list. This node
+      --  is typed with the base type.
 
       function Build_Range (Lo : Uint; Hi : Uint) return Node_Id;
       --  Return an analyzed N_Range node referencing this range, suitable for
-      --  use as an entry in the Static_Predicate list. This node is typed with
-      --  the base type.
+      --  use as an entry in the Static_Discrete_Predicate list. This node is
+      --  typed with the base type.
 
       function Get_RList (Exp : Node_Id) return RList;
       --  This is a recursive routine that converts the given expression into a
@@ -6345,15 +7010,18 @@ package body Sem_Ch13 is
       pragma Inline (Is_Type_Ref);
       --  Returns if True if N is a reference to the type for the predicate in
       --  the expression (i.e. if it is an identifier whose Chars field matches
-      --  the Nam given in the call).
+      --  the Nam given in the call). N must not be parenthesized, if the type
+      --  name appears in parens, this routine will return False.
 
       function Lo_Val (N : Node_Id) return Uint;
-      --  Given static expression or static range from a Static_Predicate list,
-      --  gets expression value or low bound of range.
+      --  Given an entry from a Static_Discrete_Predicate list that is either
+      --  a static expression or static range, gets either the expression value
+      --  or the low bound of the range.
 
       function Hi_Val (N : Node_Id) return Uint;
-      --  Given static expression or static range from a Static_Predicate list,
-      --  gets expression value of high bound of range.
+      --  Given an entry from a Static_Discrete_Predicate list that is either
+      --  a static expression or static range, gets either the expression value
+      --  or the high bound of the range.
 
       function Membership_Entry (N : Node_Id) return RList;
       --  Given a single membership entry (range, value, or subtype), returns
@@ -6487,8 +7155,7 @@ package body Sem_Ch13 is
 
             for J in Right'First .. Right'Last - 1 loop
                Count := Count + 1;
-               Result (Count) :=
-                 REnt'(Right (J).Hi + 1, Right (J + 1).Lo - 1);
+               Result (Count) := REnt'(Right (J).Hi + 1, Right (J + 1).Lo - 1);
             end loop;
 
             --  Gap at end
@@ -6585,15 +7252,13 @@ package body Sem_Ch13 is
 
       function Build_Range (Lo : Uint; Hi : Uint) return Node_Id is
          Result : Node_Id;
-
       begin
          Result :=
            Make_Range (Loc,
-             Low_Bound  => Build_Val (Lo),
-             High_Bound => Build_Val (Hi));
+              Low_Bound  => Build_Val (Lo),
+              High_Bound => Build_Val (Hi));
          Set_Etype (Result, Btyp);
          Set_Analyzed (Result);
-
          return Result;
       end Build_Range;
 
@@ -6629,9 +7294,6 @@ package body Sem_Ch13 is
          --  Static expression can only be true or false
 
          if Is_OK_Static_Expression (Exp) then
-
-            --  For False
-
             if Expr_Value (Exp) = 0 then
                return False_Range;
             else
@@ -6664,7 +7326,7 @@ package body Sem_Ch13 is
             when N_Op_Not =>
                return not Get_RList (Right_Opnd (Exp));
 
-            --  Comparisons of type with static value
+               --  Comparisons of type with static value
 
             when N_Op_Compare =>
 
@@ -6675,7 +7337,7 @@ package body Sem_Ch13 is
                then
                   Val := Expr_Value (Right_Opnd (Exp));
 
-                  --  Typ is right operand
+               --  Typ is right operand
 
                elsif Is_Type_Ref (Right_Opnd (Exp))
                  and then Is_OK_Static_Expression (Left_Opnd (Exp))
@@ -6692,7 +7354,7 @@ package body Sem_Ch13 is
                      when others  => null;
                   end case;
 
-                  --  Other cases are non-static
+               --  Other cases are non-static
 
                else
                   raise Non_Static;
@@ -6717,8 +7379,7 @@ package body Sem_Ch13 is
                      return RList'(1 => REnt'(BLo, Val - 1));
 
                   when N_Op_Ne =>
-                     return RList'(REnt'(BLo, Val - 1),
-                                   REnt'(Val + 1, BHi));
+                     return RList'(REnt'(BLo, Val - 1), REnt'(Val + 1, BHi));
 
                   when others  =>
                      raise Program_Error;
@@ -6775,6 +7436,51 @@ package body Sem_Ch13 is
             when N_Qualified_Expression =>
                return Get_RList (Expression (Exp));
 
+            when N_Case_Expression =>
+               declare
+                  Alt     : Node_Id;
+                  Choices : List_Id;
+                  Dep     : Node_Id;
+
+               begin
+                  if not Is_Entity_Name (Expression (Expr))
+                    or else Etype (Expression (Expr)) /= Typ
+                  then
+                     Error_Msg_N
+                       ("expression must denaote subtype", Expression (Expr));
+                     return False_Range;
+                  end if;
+
+                  --  Collect discrete choices in all True alternatives
+
+                  Choices := New_List;
+                  Alt := First (Alternatives (Exp));
+                  while Present (Alt) loop
+                     Dep := Expression (Alt);
+
+                     if not Is_OK_Static_Expression (Dep) then
+                        raise Non_Static;
+
+                     elsif Is_True (Expr_Value (Dep)) then
+                        Append_List_To (Choices,
+                          New_Copy_List (Discrete_Choices (Alt)));
+                     end if;
+
+                     Next (Alt);
+                  end loop;
+
+                  return Membership_Entries (First (Choices));
+               end;
+
+            --  Expression with actions: if no actions, dig out expression
+
+            when N_Expression_With_Actions =>
+               if Is_Empty_List (Actions (Exp)) then
+                  return Get_RList (Expression (Exp));
+               else
+                  raise Non_Static;
+               end if;
+
             --  Xor operator
 
             when N_Op_Xor =>
@@ -6796,7 +7502,7 @@ package body Sem_Ch13 is
 
       function Hi_Val (N : Node_Id) return Uint is
       begin
-         if Is_Static_Expression (N) then
+         if Is_OK_Static_Expression (N) then
             return Expr_Value (N);
          else
             pragma Assert (Nkind (N) = N_Range);
@@ -6830,7 +7536,9 @@ package body Sem_Ch13 is
 
       function Is_Type_Ref (N : Node_Id) return Boolean is
       begin
-         return Nkind (N) = N_Identifier and then Chars (N) = Nam;
+         return Nkind (N) = N_Identifier
+           and then Chars (N) = Nam
+           and then Paren_Count (N) = 0;
       end Is_Type_Ref;
 
       ------------
@@ -6839,7 +7547,7 @@ package body Sem_Ch13 is
 
       function Lo_Val (N : Node_Id) return Uint is
       begin
-         if Is_Static_Expression (N) then
+         if Is_OK_Static_Expression (N) then
             return Expr_Value (N);
          else
             pragma Assert (Nkind (N) = N_Range);
@@ -6873,9 +7581,9 @@ package body Sem_Ch13 is
          --  Range case
 
          if Nkind (N) = N_Range then
-            if not Is_Static_Expression (Low_Bound (N))
+            if not Is_OK_Static_Expression (Low_Bound  (N))
                  or else
-               not Is_Static_Expression (High_Bound (N))
+               not Is_OK_Static_Expression (High_Bound (N))
             then
                raise Non_Static;
             else
@@ -6886,7 +7594,7 @@ package body Sem_Ch13 is
 
          --  Static expression case
 
-         elsif Is_Static_Expression (N) then
+         elsif Is_OK_Static_Expression (N) then
             Val := Expr_Value (N);
             return RList'(1 => REnt'(Val, Val));
 
@@ -6905,7 +7613,7 @@ package body Sem_Ch13 is
 
                --  For static subtype without predicates, get range
 
-               elsif Is_Static_Subtype (Entity (N)) then
+               elsif Is_OK_Static_Subtype (Entity (N)) then
                   SLo := Expr_Value (Type_Low_Bound  (Entity (N)));
                   SHi := Expr_Value (Type_High_Bound (Entity (N)));
                   return RList'(1 => REnt'(SLo, SHi));
@@ -6933,18 +7641,19 @@ package body Sem_Ch13 is
       begin
          --  Not static if type does not have static predicates
 
-         if not Has_Predicates (Typ) or else No (Static_Predicate (Typ)) then
+         if not Has_Static_Predicate (Typ) then
             raise Non_Static;
          end if;
 
          --  Otherwise we convert the predicate list to a range list
 
          declare
-            Result : RList (1 .. List_Length (Static_Predicate (Typ)));
+            Spred  : constant List_Id := Static_Discrete_Predicate (Typ);
+            Result : RList (1 .. List_Length (Spred));
             P      : Node_Id;
 
          begin
-            P := First (Static_Predicate (Typ));
+            P := First (Static_Discrete_Predicate (Typ));
             for J in Result'Range loop
                Result (J) := REnt'(Lo_Val (P), Hi_Val (P));
                Next (P);
@@ -6954,10 +7663,24 @@ package body Sem_Ch13 is
          end;
       end Stat_Pred;
 
-   --  Start of processing for Build_Static_Predicate
+   --  Start of processing for Build_Discrete_Static_Predicate
 
    begin
-      --  Now analyze the expression to see if it is a static predicate
+      --  Establish bounds for the predicate
+
+      if Compile_Time_Known_Value (Type_Low_Bound (Typ)) then
+         TLo := Expr_Value (Type_Low_Bound (Typ));
+      else
+         TLo := BLo;
+      end if;
+
+      if Compile_Time_Known_Value (Type_High_Bound (Typ)) then
+         THi := Expr_Value (Type_High_Bound (Typ));
+      else
+         THi := BHi;
+      end if;
+
+      --  Analyze the expression to see if it is a static predicate
 
       declare
          Ranges : constant RList := Get_RList (Expr);
@@ -6989,7 +7712,7 @@ package body Sem_Ch13 is
                if Hi < TLo or else Lo > THi then
                   null;
 
-                  --  Otherwise process entry
+               --  Otherwise process entry
 
                else
                   --  Adjust out of range value to subtype range
@@ -7012,7 +7735,7 @@ package body Sem_Ch13 is
          --  Processing was successful and all entries were static, so now we
          --  can store the result as the predicate list.
 
-         Set_Static_Predicate (Typ, Plist);
+         Set_Static_Discrete_Predicate (Typ, Plist);
 
          --  The processing for static predicates put the expression into
          --  canonical form as a series of ranges. It also eliminated
@@ -7045,7 +7768,7 @@ package body Sem_Ch13 is
             if Is_Empty_List (New_Alts) then
                Rewrite (Expr, New_Occurrence_Of (Standard_False, Loc));
 
-            --  Else replace by set membership test
+               --  Else replace by set membership test
 
             else
                Rewrite (Expr,
@@ -7064,12 +7787,1242 @@ package body Sem_Ch13 is
          end;
       end;
 
-   --  If non-static, return doing nothing
+      --  If non-static, return doing nothing
 
    exception
       when Non_Static =>
          return;
-   end Build_Static_Predicate;
+   end Build_Discrete_Static_Predicate;
+
+   -------------------------------------------
+   -- Build_Invariant_Procedure_Declaration --
+   -------------------------------------------
+
+   function Build_Invariant_Procedure_Declaration
+     (Typ : Entity_Id) return Node_Id
+   is
+      Loc    : constant Source_Ptr := Sloc (Typ);
+      Decl   : Node_Id;
+      Obj_Id : Entity_Id;
+      SId    : Entity_Id;
+
+      Save_Ghost_Mode : constant Ghost_Mode_Type := Ghost_Mode;
+
+   begin
+      --  Check for duplicate definitions
+
+      if Has_Invariants (Typ) and then Present (Invariant_Procedure (Typ)) then
+         return Empty;
+      end if;
+
+      --  The related type may be subject to pragma Ghost. Set the mode now to
+      --  ensure that the invariant procedure is properly marked as Ghost.
+
+      Set_Ghost_Mode_From_Entity (Typ);
+
+      SId :=
+        Make_Defining_Identifier (Loc,
+          Chars => New_External_Name (Chars (Typ), "Invariant"));
+      Set_Has_Invariants (Typ);
+      Set_Ekind (SId, E_Procedure);
+      Set_Etype (SId, Standard_Void_Type);
+      Set_Is_Invariant_Procedure (SId);
+      Set_Invariant_Procedure (Typ, SId);
+
+      --  Mark the invariant procedure explicitly as Ghost because it does not
+      --  come from source.
+
+      if Ghost_Mode > None then
+         Set_Is_Ghost_Entity (SId);
+      end if;
+
+      Obj_Id := Make_Defining_Identifier (Loc, New_Internal_Name ('I'));
+      Set_Etype (Obj_Id, Typ);
+
+      Decl :=
+        Make_Subprogram_Declaration (Loc,
+          Make_Procedure_Specification (Loc,
+            Defining_Unit_Name       => SId,
+            Parameter_Specifications => New_List (
+              Make_Parameter_Specification (Loc,
+                Defining_Identifier => Obj_Id,
+                Parameter_Type      => New_Occurrence_Of (Typ, Loc)))));
+
+      Ghost_Mode := Save_Ghost_Mode;
+
+      return Decl;
+   end Build_Invariant_Procedure_Declaration;
+
+   -------------------------------
+   -- Build_Invariant_Procedure --
+   -------------------------------
+
+   --  The procedure that is constructed here has the form
+
+   --  procedure typInvariant (Ixxx : typ) is
+   --  begin
+   --     pragma Check (Invariant, exp, "failed invariant from xxx");
+   --     pragma Check (Invariant, exp, "failed invariant from xxx");
+   --     ...
+   --     pragma Check (Invariant, exp, "failed inherited invariant from xxx");
+   --     ...
+   --  end typInvariant;
+
+   procedure Build_Invariant_Procedure (Typ : Entity_Id; N : Node_Id) is
+      procedure Add_Invariants
+        (T       : Entity_Id;
+         Obj_Id  : Entity_Id;
+         Stmts   : in out List_Id;
+         Inherit : Boolean);
+      --  Appends statements to Stmts for any invariants in the rep item chain
+      --  of the given type. If Inherit is False, then we only process entries
+      --  on the chain for the type Typ. If Inherit is True, then we ignore any
+      --  Invariant aspects, but we process all Invariant'Class aspects, adding
+      --  "inherited" to the exception message and generating an informational
+      --  message about the inheritance of an invariant.
+
+      --------------------
+      -- Add_Invariants --
+      --------------------
+
+      procedure Add_Invariants
+        (T       : Entity_Id;
+         Obj_Id  : Entity_Id;
+         Stmts   : in out List_Id;
+         Inherit : Boolean)
+      is
+         procedure Add_Invariant (Prag : Node_Id);
+         --  Create a runtime check to verify the exression of invariant pragma
+         --  Prag. All generated code is added to list Stmts.
+
+         -------------------
+         -- Add_Invariant --
+         -------------------
+
+         procedure Add_Invariant (Prag : Node_Id) is
+            procedure Replace_Type_Reference (N : Node_Id);
+            --  Replace a single occurrence N of the subtype name with a
+            --  reference to the formal of the predicate function. N can be an
+            --  identifier referencing the subtype, or a selected component,
+            --  representing an appropriately qualified occurrence of the
+            --  subtype name.
+
+            procedure Replace_Type_References is
+              new Replace_Type_References_Generic (Replace_Type_Reference);
+            --  Traverse an expression replacing all occurrences of the subtype
+            --  name with appropriate references to the formal of the predicate
+            --  function. Note that we must ensure that the type and entity
+            --  information is properly set in the replacement node, since we
+            --  will do a Preanalyze call of this expression without proper
+            --  visibility of the procedure argument.
+
+            ----------------------------
+            -- Replace_Type_Reference --
+            ----------------------------
+
+            --  Note: See comments in Add_Predicates.Replace_Type_Reference
+            --  regarding handling of Sloc and Comes_From_Source.
+
+            procedure Replace_Type_Reference (N : Node_Id) is
+               Nloc : constant Source_Ptr := Sloc (N);
+
+            begin
+               --  Add semantic information to node to be rewritten, for ASIS
+               --  navigation needs.
+
+               if Nkind (N) = N_Identifier then
+                  Set_Entity (N, T);
+                  Set_Etype  (N, T);
+
+               elsif Nkind (N) = N_Selected_Component then
+                  Analyze (Prefix (N));
+                  Set_Entity (Selector_Name (N), T);
+                  Set_Etype  (Selector_Name (N), T);
+               end if;
+
+               --  Invariant'Class, replace with T'Class (obj)
+
+               if Class_Present (Prag) then
+
+                  --  In ASIS mode, an inherited item is already analyzed,
+                  --  and the replacement has been done, so do not repeat
+                  --  the transformation to prevent a malformed tree.
+
+                  if ASIS_Mode
+                    and then Nkind (Parent (N)) = N_Attribute_Reference
+                    and then Attribute_Name (Parent (N)) = Name_Class
+                  then
+                     null;
+
+                  else
+                     Rewrite (N,
+                       Make_Type_Conversion (Nloc,
+                         Subtype_Mark =>
+                           Make_Attribute_Reference (Nloc,
+                             Prefix         => New_Occurrence_Of (T, Nloc),
+                             Attribute_Name => Name_Class),
+                         Expression   =>
+                           Make_Identifier (Nloc, Chars (Obj_Id))));
+
+                     Set_Entity (Expression (N), Obj_Id);
+                     Set_Etype  (Expression (N), Typ);
+                  end if;
+
+               --  Invariant, replace with obj
+
+               else
+                  Rewrite (N, Make_Identifier (Nloc, Chars (Obj_Id)));
+                  Set_Entity (N, Obj_Id);
+                  Set_Etype  (N, Typ);
+               end if;
+
+               Set_Comes_From_Source (N, True);
+            end Replace_Type_Reference;
+
+            --  Local variables
+
+            Asp   : constant Node_Id    := Corresponding_Aspect (Prag);
+            Nam   : constant Name_Id    := Original_Aspect_Pragma_Name (Prag);
+            Ploc  : constant Source_Ptr := Sloc (Prag);
+            Arg1  : Node_Id;
+            Arg2  : Node_Id;
+            Arg3  : Node_Id;
+            Assoc : List_Id;
+            Expr  : Node_Id;
+            Str   : String_Id;
+
+         --  Start of processing for Add_Invariant
+
+         begin
+            --  Extract the arguments of the invariant pragma
+
+            Arg1 := First (Pragma_Argument_Associations (Prag));
+            Arg2 := Next (Arg1);
+            Arg3 := Next (Arg2);
+
+            Arg1 := Get_Pragma_Arg (Arg1);
+            Arg2 := Get_Pragma_Arg (Arg2);
+
+            --  The caller requests processing of all Invariant'Class pragmas,
+            --  but the current pragma does not fall in this category. Return
+            --  as there is nothing left to do.
+
+            if Inherit then
+               if not Class_Present (Prag) then
+                  return;
+               end if;
+
+            --  Otherwise the pragma must apply to the current type
+
+            elsif Entity (Arg1) /= T then
+               return;
+            end if;
+
+            Expr := New_Copy_Tree (Arg2);
+
+            --  Replace all occurrences of the type's name with references to
+            --  the formal parameter of the invariant procedure.
+
+            Replace_Type_References (Expr, T);
+
+            --  If the invariant pragma comes from an aspect, replace the saved
+            --  expression because we need the subtype references replaced for
+            --  the calls to Preanalyze_Spec_Expression in Check_Aspect_At_xxx
+            --  routines.
+
+            if Present (Asp) then
+               Set_Entity (Identifier (Asp), New_Copy_Tree (Expr));
+            end if;
+
+            --  Preanalyze the invariant expression to capture the visibility
+            --  of the proper package part. In general the expression is not
+            --  fully analyzed until the body of the invariant procedure is
+            --  analyzed at the end of the private part, but that yields the
+            --  wrong visibility.
+
+            --  Historical note: we used to set N as the parent, but a package
+            --  specification as the parent of an expression is bizarre.
+
+            Set_Parent (Expr, Parent (Arg2));
+            Preanalyze_Assert_Expression (Expr, Any_Boolean);
+
+            --  A class-wide invariant may be inherited in a separate unit,
+            --  where the corresponding expression cannot be resolved by
+            --  visibility, because it refers to a local function. Propagate
+            --  semantic information to the original representation item, to
+            --  be used when an invariant procedure for a derived type is
+            --  constructed.
+
+            --  ??? Unclear how to handle class-wide invariants that are not
+            --  function calls.
+
+            if not Inherit
+              and then Class_Present (Prag)
+              and then Nkind (Expr) = N_Function_Call
+              and then Nkind (Arg2) = N_Indexed_Component
+            then
+               Rewrite (Arg2,
+                 Make_Function_Call (Ploc,
+                   Name                   =>
+                     New_Occurrence_Of (Entity (Name (Expr)), Ploc),
+                   Parameter_Associations =>
+                     New_Copy_List (Expressions (Arg2))));
+            end if;
+
+            --  In ASIS mode, even if assertions are not enabled, we must
+            --  analyze the original expression in the aspect specification
+            --  because it is part of the original tree.
+
+            if ASIS_Mode and then Present (Asp) then
+               declare
+                  Orig_Expr : constant Node_Id := Expression (Asp);
+               begin
+                  Replace_Type_References (Orig_Expr, T);
+                  Preanalyze_Assert_Expression (Orig_Expr, Any_Boolean);
+               end;
+            end if;
+
+            --  An ignored invariant must not generate a runtime check. Add a
+            --  null statement to ensure that the invariant procedure does get
+            --  a completing body.
+
+            if No (Stmts) then
+               Stmts := Empty_List;
+            end if;
+
+            if Is_Ignored (Prag) then
+               Append_To (Stmts, Make_Null_Statement (Ploc));
+
+            --  Otherwise the invariant is checked. Build a Check pragma to
+            --  verify the expression at runtime.
+
+            else
+               Assoc := New_List (
+                 Make_Pragma_Argument_Association (Ploc,
+                   Expression => Make_Identifier (Ploc, Nam)),
+                 Make_Pragma_Argument_Association (Ploc,
+                   Expression => Expr));
+
+               --  Handle the String argument (if any)
+
+               if Present (Arg3) then
+                  Str := Strval (Get_Pragma_Arg (Arg3));
+
+                  --  When inheriting an invariant, modify the message from
+                  --  "failed invariant" to "failed inherited invariant".
+
+                  if Inherit then
+                     String_To_Name_Buffer (Str);
+
+                     if Name_Buffer (1 .. 16) = "failed invariant" then
+                        Insert_Str_In_Name_Buffer ("inherited ", 8);
+                        Str := String_From_Name_Buffer;
+                     end if;
+                  end if;
+
+                  Append_To (Assoc,
+                    Make_Pragma_Argument_Association (Ploc,
+                      Expression => Make_String_Literal (Ploc, Str)));
+               end if;
+
+               --  Generate:
+               --    pragma Check (Nam, Expr, Str);
+
+               Append_To (Stmts,
+                 Make_Pragma (Ploc,
+                   Pragma_Identifier            =>
+                     Make_Identifier (Ploc, Name_Check),
+                   Pragma_Argument_Associations => Assoc));
+            end if;
+
+            --  Output an info message when inheriting an invariant and the
+            --  listing option is enabled.
+
+            if Inherit and Opt.List_Inherited_Aspects then
+               Error_Msg_Sloc := Sloc (Prag);
+               Error_Msg_N
+                 ("info: & inherits `Invariant''Class` aspect from #?L?", Typ);
+            end if;
+         end Add_Invariant;
+
+         --  Local variables
+
+         Ritem : Node_Id;
+
+      --  Start of processing for Add_Invariants
+
+      begin
+         Ritem := First_Rep_Item (T);
+         while Present (Ritem) loop
+            if Nkind (Ritem) = N_Pragma
+              and then Pragma_Name (Ritem) = Name_Invariant
+            then
+               Add_Invariant (Ritem);
+            end if;
+
+            Next_Rep_Item (Ritem);
+         end loop;
+      end Add_Invariants;
+
+      --  Local variables
+
+      Loc        : constant Source_Ptr := Sloc (Typ);
+      Priv_Decls : constant List_Id    := Private_Declarations (N);
+      Vis_Decls  : constant List_Id    := Visible_Declarations (N);
+
+      Save_Ghost_Mode : constant Ghost_Mode_Type := Ghost_Mode;
+
+      PBody : Node_Id;
+      PDecl : Node_Id;
+      SId   : Entity_Id;
+      Spec  : Node_Id;
+      Stmts : List_Id;
+
+      Obj_Id : Node_Id;
+      --  The entity of the formal for the procedure
+
+   --  Start of processing for Build_Invariant_Procedure
+
+   begin
+      --  The related type may be subject to pragma Ghost. Set the mode now to
+      --  ensure that the invariant procedure is properly marked as Ghost.
+
+      Set_Ghost_Mode_From_Entity (Typ);
+
+      Stmts := No_List;
+      PDecl := Empty;
+      PBody := Empty;
+      SId   := Empty;
+
+      --  If the aspect specification exists for some view of the type, the
+      --  declaration for the procedure has been created.
+
+      if Has_Invariants (Typ) then
+         SId := Invariant_Procedure (Typ);
+      end if;
+
+      --  If the body is already present, nothing to do. This will occur when
+      --  the type is already frozen, which is the case when the invariant
+      --  appears in a private part, and the freezing takes place before the
+      --  final pass over full declarations.
+
+      --  See Exp_Ch3.Insert_Component_Invariant_Checks for details.
+
+      if Present (SId) then
+         PDecl := Unit_Declaration_Node (SId);
+
+         if Present (PDecl)
+           and then Nkind (PDecl) = N_Subprogram_Declaration
+           and then Present (Corresponding_Body (PDecl))
+         then
+            Ghost_Mode := Save_Ghost_Mode;
+            return;
+         end if;
+
+      else
+         PDecl := Build_Invariant_Procedure_Declaration (Typ);
+      end if;
+
+      --  Recover formal of procedure, for use in the calls to invariant
+      --  functions (including inherited ones).
+
+      Obj_Id :=
+        Defining_Identifier
+          (First (Parameter_Specifications (Specification (PDecl))));
+
+      --  Add invariants for the current type
+
+      Add_Invariants
+        (T       => Typ,
+         Obj_Id  => Obj_Id,
+         Stmts   => Stmts,
+         Inherit => False);
+
+      --  Add invariants for parent types
+
+      declare
+         Current_Typ : Entity_Id;
+         Parent_Typ  : Entity_Id;
+
+      begin
+         Current_Typ := Typ;
+         loop
+            Parent_Typ := Etype (Current_Typ);
+
+            if Is_Private_Type (Parent_Typ)
+              and then Present (Full_View (Base_Type (Parent_Typ)))
+            then
+               Parent_Typ := Full_View (Base_Type (Parent_Typ));
+            end if;
+
+            exit when Parent_Typ = Current_Typ;
+
+            Current_Typ := Parent_Typ;
+            Add_Invariants
+              (T       => Current_Typ,
+               Obj_Id  => Obj_Id,
+               Stmts   => Stmts,
+               Inherit => True);
+         end loop;
+      end;
+
+      --  Add invariants of progenitors
+
+      if Is_Tagged_Type (Typ) and then not Is_Interface (Typ) then
+         declare
+            Ifaces_List : Elist_Id;
+            AI          : Elmt_Id;
+            Iface       : Entity_Id;
+
+         begin
+            Collect_Interfaces (Typ, Ifaces_List);
+
+            AI := First_Elmt (Ifaces_List);
+            while Present (AI) loop
+               Iface := Node (AI);
+
+               if not Is_Ancestor (Iface, Typ, Use_Full_View => True) then
+                  Add_Invariants
+                    (T       => Iface,
+                     Obj_Id  => Obj_Id,
+                     Stmts   => Stmts,
+                     Inherit => True);
+               end if;
+
+               Next_Elmt (AI);
+            end loop;
+         end;
+      end if;
+
+      --  Build the procedure if we generated at least one Check pragma
+
+      if Stmts /= No_List then
+         Spec := Copy_Separate_Tree (Specification (PDecl));
+
+         PBody :=
+           Make_Subprogram_Body (Loc,
+             Specification              => Spec,
+             Declarations               => Empty_List,
+             Handled_Statement_Sequence =>
+               Make_Handled_Sequence_Of_Statements (Loc,
+                 Statements => Stmts));
+
+         --  Insert procedure declaration and spec at the appropriate points.
+         --  If declaration is already analyzed, it was processed by the
+         --  generated pragma.
+
+         if Present (Priv_Decls) then
+
+            --  The spec goes at the end of visible declarations, but they have
+            --  already been analyzed, so we need to explicitly do the analyze.
+
+            if not Analyzed (PDecl) then
+               Append_To (Vis_Decls, PDecl);
+               Analyze (PDecl);
+            end if;
+
+            --  The body goes at the end of the private declarations, which we
+            --  have not analyzed yet, so we do not need to perform an explicit
+            --  analyze call. We skip this if there are no private declarations
+            --  (this is an error that will be caught elsewhere);
+
+            Append_To (Priv_Decls, PBody);
+
+            --  If the invariant appears on the full view of a type, the
+            --  analysis of the private part is complete, and we must
+            --  analyze the new body explicitly.
+
+            if In_Private_Part (Current_Scope) then
+               Analyze (PBody);
+            end if;
+
+         --  If there are no private declarations this may be an error that
+         --  will be diagnosed elsewhere. However, if this is a non-private
+         --  type that inherits invariants, it needs no completion and there
+         --  may be no private part. In this case insert invariant procedure
+         --  at end of current declarative list, and analyze at once, given
+         --  that the type is about to be frozen.
+
+         elsif not Is_Private_Type (Typ) then
+            Append_To (Vis_Decls, PDecl);
+            Append_To (Vis_Decls, PBody);
+            Analyze (PDecl);
+            Analyze (PBody);
+         end if;
+      end if;
+
+      Ghost_Mode := Save_Ghost_Mode;
+   end Build_Invariant_Procedure;
+
+   -------------------------------
+   -- Build_Predicate_Functions --
+   -------------------------------
+
+   --  The procedures that are constructed here have the form:
+
+   --    function typPredicate (Ixxx : typ) return Boolean is
+   --    begin
+   --       return
+   --          typ1Predicate (typ1 (Ixxx))
+   --          and then typ2Predicate (typ2 (Ixxx))
+   --          and then ...;
+   --          exp1 and then exp2 and then ...
+   --    end typPredicate;
+
+   --  Here exp1, and exp2 are expressions from Predicate pragmas. Note that
+   --  this is the point at which these expressions get analyzed, providing the
+   --  required delay, and typ1, typ2, are entities from which predicates are
+   --  inherited. Note that we do NOT generate Check pragmas, that's because we
+   --  use this function even if checks are off, e.g. for membership tests.
+
+   --  Note that the inherited predicates are evaluated first, as required by
+   --  AI12-0071-1.
+
+   --  Note that Sem_Eval.Real_Or_String_Static_Predicate_Matches depends on
+   --  the form of this return expression.
+
+   --  If the expression has at least one Raise_Expression, then we also build
+   --  the typPredicateM version of the function, in which any occurrence of a
+   --  Raise_Expression is converted to "return False".
+
+   procedure Build_Predicate_Functions (Typ : Entity_Id; N : Node_Id) is
+      Loc : constant Source_Ptr := Sloc (Typ);
+
+      Expr : Node_Id;
+      --  This is the expression for the result of the function. It is
+      --  is build by connecting the component predicates with AND THEN.
+
+      Expr_M : Node_Id;
+      --  This is the corresponding return expression for the Predicate_M
+      --  function. It differs in that raise expressions are marked for
+      --  special expansion (see Process_REs).
+
+      Object_Name : constant Name_Id := New_Internal_Name ('I');
+      --  Name for argument of Predicate procedure. Note that we use the same
+      --  name for both predicate functions. That way the reference within the
+      --  predicate expression is the same in both functions.
+
+      Object_Entity : constant Entity_Id :=
+                        Make_Defining_Identifier (Loc, Chars => Object_Name);
+      --  Entity for argument of Predicate procedure
+
+      Object_Entity_M : constant Entity_Id :=
+                         Make_Defining_Identifier (Loc, Chars => Object_Name);
+      --  Entity for argument of Predicate_M procedure
+
+      Raise_Expression_Present : Boolean := False;
+      --  Set True if Expr has at least one Raise_Expression
+
+      procedure Add_Condition (Cond : Node_Id);
+      --  Append Cond to Expr using "and then" (or just copy Cond to Expr if
+      --  Expr is empty).
+
+      procedure Add_Predicates;
+      --  Appends expressions for any Predicate pragmas in the rep item chain
+      --  Typ to Expr. Note that we look only at items for this exact entity.
+      --  Inheritance of predicates for the parent type is done by calling the
+      --  Predicate_Function of the parent type, using Add_Call above.
+
+      procedure Add_Call (T : Entity_Id);
+      --  Includes a call to the predicate function for type T in Expr if T
+      --  has predicates and Predicate_Function (T) is non-empty.
+
+      function Process_RE (N : Node_Id) return Traverse_Result;
+      --  Used in Process REs, tests if node N is a raise expression, and if
+      --  so, marks it to be converted to return False.
+
+      procedure Process_REs is new Traverse_Proc (Process_RE);
+      --  Marks any raise expressions in Expr_M to return False
+
+      function Test_RE (N : Node_Id) return Traverse_Result;
+      --  Used in Test_REs, tests one node for being a raise expression, and if
+      --  so sets Raise_Expression_Present True.
+
+      procedure Test_REs is new Traverse_Proc (Test_RE);
+      --  Tests to see if Expr contains any raise expressions
+
+      --------------
+      -- Add_Call --
+      --------------
+
+      procedure Add_Call (T : Entity_Id) is
+         Exp : Node_Id;
+
+      begin
+         if Present (T) and then Present (Predicate_Function (T)) then
+            Set_Has_Predicates (Typ);
+
+            --  Build the call to the predicate function of T
+
+            Exp :=
+              Make_Predicate_Call
+                (T, Convert_To (T, Make_Identifier (Loc, Object_Name)));
+
+            --  "and"-in the call to evolving expression
+
+            Add_Condition (Exp);
+
+            --  Output info message on inheritance if required. Note we do not
+            --  give this information for generic actual types, since it is
+            --  unwelcome noise in that case in instantiations. We also
+            --  generally suppress the message in instantiations, and also
+            --  if it involves internal names.
+
+            if Opt.List_Inherited_Aspects
+              and then not Is_Generic_Actual_Type (Typ)
+              and then Instantiation_Depth (Sloc (Typ)) = 0
+              and then not Is_Internal_Name (Chars (T))
+              and then not Is_Internal_Name (Chars (Typ))
+            then
+               Error_Msg_Sloc := Sloc (Predicate_Function (T));
+               Error_Msg_Node_2 := T;
+               Error_Msg_N ("info: & inherits predicate from & #?L?", Typ);
+            end if;
+         end if;
+      end Add_Call;
+
+      -------------------
+      -- Add_Condition --
+      -------------------
+
+      procedure Add_Condition (Cond : Node_Id) is
+      begin
+         --  This is the first predicate expression
+
+         if No (Expr) then
+            Expr := Cond;
+
+         --  Otherwise concatenate to the existing predicate expressions by
+         --  using "and then".
+
+         else
+            Expr :=
+              Make_And_Then (Loc,
+                Left_Opnd  => Relocate_Node (Expr),
+                Right_Opnd => Cond);
+         end if;
+      end Add_Condition;
+
+      --------------------
+      -- Add_Predicates --
+      --------------------
+
+      procedure Add_Predicates is
+         procedure Add_Predicate (Prag : Node_Id);
+         --  Concatenate the expression of predicate pragma Prag to Expr by
+         --  using a short circuit "and then" operator.
+
+         -------------------
+         -- Add_Predicate --
+         -------------------
+
+         procedure Add_Predicate (Prag : Node_Id) is
+            procedure Replace_Type_Reference (N : Node_Id);
+            --  Replace a single occurrence N of the subtype name with a
+            --  reference to the formal of the predicate function. N can be an
+            --  identifier referencing the subtype, or a selected component,
+            --  representing an appropriately qualified occurrence of the
+            --  subtype name.
+
+            procedure Replace_Type_References is
+              new Replace_Type_References_Generic (Replace_Type_Reference);
+            --  Traverse an expression changing every occurrence of an
+            --  identifier whose name matches the name of the subtype with a
+            --  reference to the formal parameter of the predicate function.
+
+            ----------------------------
+            -- Replace_Type_Reference --
+            ----------------------------
+
+            procedure Replace_Type_Reference (N : Node_Id) is
+            begin
+               Rewrite (N, Make_Identifier (Sloc (N), Object_Name));
+               --  Use the Sloc of the usage name, not the defining name
+
+               Set_Etype (N, Typ);
+               Set_Entity (N, Object_Entity);
+
+               --  We want to treat the node as if it comes from source, so
+               --  that ASIS will not ignore it.
+
+               Set_Comes_From_Source (N, True);
+            end Replace_Type_Reference;
+
+            --  Local variables
+
+            Asp  : constant Node_Id := Corresponding_Aspect (Prag);
+            Arg1 : Node_Id;
+            Arg2 : Node_Id;
+
+         --  Start of processing for Add_Predicate
+
+         begin
+            --  Extract the arguments of the pragma. The expression itself
+            --  is copied for use in the predicate function, to preserve the
+            --  original version for ASIS use.
+
+            Arg1 := First (Pragma_Argument_Associations (Prag));
+            Arg2 := Next (Arg1);
+
+            Arg1 := Get_Pragma_Arg (Arg1);
+            Arg2 := New_Copy_Tree (Get_Pragma_Arg (Arg2));
+
+            --  When the predicate pragma applies to the current type or its
+            --  full view, replace all occurrences of the subtype name with
+            --  references to the formal parameter of the predicate function.
+
+            if Entity (Arg1) = Typ
+              or else Full_View (Entity (Arg1)) = Typ
+            then
+               Replace_Type_References (Arg2, Typ);
+
+               --  If the predicate pragma comes from an aspect, replace the
+               --  saved expression because we need the subtype references
+               --  replaced for the calls to Preanalyze_Spec_Expression in
+               --  Check_Aspect_At_xxx routines.
+
+               if Present (Asp) then
+                  Set_Entity (Identifier (Asp), New_Copy_Tree (Arg2));
+               end if;
+
+               --  "and"-in the Arg2 condition to evolving expression
+
+               Add_Condition (Relocate_Node (Arg2));
+            end if;
+         end Add_Predicate;
+
+         --  Local variables
+
+         Ritem : Node_Id;
+
+      --  Start of processing for Add_Predicates
+
+      begin
+         Ritem := First_Rep_Item (Typ);
+         while Present (Ritem) loop
+            if Nkind (Ritem) = N_Pragma
+              and then Pragma_Name (Ritem) = Name_Predicate
+            then
+               Add_Predicate (Ritem);
+            end if;
+
+            Next_Rep_Item (Ritem);
+         end loop;
+      end Add_Predicates;
+
+      ----------------
+      -- Process_RE --
+      ----------------
+
+      function Process_RE (N : Node_Id) return Traverse_Result is
+      begin
+         if Nkind (N) = N_Raise_Expression then
+            Set_Convert_To_Return_False (N);
+            return Skip;
+         else
+            return OK;
+         end if;
+      end Process_RE;
+
+      -------------
+      -- Test_RE --
+      -------------
+
+      function Test_RE (N : Node_Id) return Traverse_Result is
+      begin
+         if Nkind (N) = N_Raise_Expression then
+            Raise_Expression_Present := True;
+            return Abandon;
+         else
+            return OK;
+         end if;
+      end Test_RE;
+
+      --  Local variables
+
+      Save_Ghost_Mode : constant Ghost_Mode_Type := Ghost_Mode;
+
+   --  Start of processing for Build_Predicate_Functions
+
+   begin
+      --  Return if already built or if type does not have predicates
+
+      if not Has_Predicates (Typ)
+        or else Present (Predicate_Function (Typ))
+      then
+         return;
+      end if;
+
+      --  The related type may be subject to pragma Ghost. Set the mode now to
+      --  ensure that the predicate functions are properly marked as Ghost.
+
+      Set_Ghost_Mode_From_Entity (Typ);
+
+      --  Prepare to construct predicate expression
+
+      Expr := Empty;
+
+      --  Add predicates for ancestor if present. These must come before the
+      --  ones for the current type, as required by AI12-0071-1.
+
+      declare
+         Atyp : constant Entity_Id := Nearest_Ancestor (Typ);
+      begin
+         if Present (Atyp) then
+            Add_Call (Atyp);
+         end if;
+      end;
+
+      --  Add Predicates for the current type
+
+      Add_Predicates;
+
+      --  Case where predicates are present
+
+      if Present (Expr) then
+
+         --  Test for raise expression present
+
+         Test_REs (Expr);
+
+         --  If raise expression is present, capture a copy of Expr for use
+         --  in building the predicateM function version later on. For this
+         --  copy we replace references to Object_Entity by Object_Entity_M.
+
+         if Raise_Expression_Present then
+            declare
+               Map   : constant Elist_Id := New_Elmt_List;
+               New_V : Entity_Id := Empty;
+
+               --  The unanalyzed expression will be copied and appear in
+               --  both functions. Normally expressions do not declare new
+               --  entities, but quantified expressions do, so we need to
+               --  create new entities for their bound variables, to prevent
+               --  multiple definitions in gigi.
+
+               function Reset_Loop_Variable (N : Node_Id)
+                 return Traverse_Result;
+
+               procedure Collect_Loop_Variables is
+                 new Traverse_Proc (Reset_Loop_Variable);
+
+               ------------------------
+               -- Reset_Loop_Variable --
+               ------------------------
+
+               function Reset_Loop_Variable (N : Node_Id)
+                 return Traverse_Result
+               is
+               begin
+                  if Nkind (N) = N_Iterator_Specification then
+                     New_V := Make_Defining_Identifier
+                       (Sloc (N), Chars (Defining_Identifier (N)));
+
+                     Set_Defining_Identifier (N, New_V);
+                  end if;
+
+                  return OK;
+               end Reset_Loop_Variable;
+
+            begin
+               Append_Elmt (Object_Entity, Map);
+               Append_Elmt (Object_Entity_M, Map);
+               Expr_M := New_Copy_Tree (Expr, Map => Map);
+               Collect_Loop_Variables (Expr_M);
+            end;
+         end if;
+
+         --  Build the main predicate function
+
+         declare
+            SId : constant Entity_Id :=
+                    Make_Defining_Identifier (Loc,
+                      Chars => New_External_Name (Chars (Typ), "Predicate"));
+            --  The entity for the function spec
+
+            SIdB : constant Entity_Id :=
+              Make_Defining_Identifier (Loc,
+                Chars => New_External_Name (Chars (Typ), "Predicate"));
+            --  The entity for the function body
+
+            Spec  : Node_Id;
+            FDecl : Node_Id;
+            FBody : Node_Id;
+
+         begin
+            --  Build function declaration
+
+            Set_Ekind (SId, E_Function);
+            Set_Is_Internal (SId);
+            Set_Is_Predicate_Function (SId);
+            Set_Predicate_Function (Typ, SId);
+
+            --  The predicate function is shared between views of a type
+
+            if Is_Private_Type (Typ) and then Present (Full_View (Typ)) then
+               Set_Predicate_Function (Full_View (Typ), SId);
+            end if;
+
+            --  Mark the predicate function explicitly as Ghost because it does
+            --  not come from source.
+
+            if Ghost_Mode > None then
+               Set_Is_Ghost_Entity (SId);
+            end if;
+
+            Spec :=
+              Make_Function_Specification (Loc,
+                Defining_Unit_Name       => SId,
+                Parameter_Specifications => New_List (
+                  Make_Parameter_Specification (Loc,
+                    Defining_Identifier => Object_Entity,
+                    Parameter_Type      => New_Occurrence_Of (Typ, Loc))),
+                Result_Definition        =>
+                  New_Occurrence_Of (Standard_Boolean, Loc));
+
+            FDecl :=
+              Make_Subprogram_Declaration (Loc,
+                Specification => Spec);
+
+            --  Build function body
+
+            Spec :=
+              Make_Function_Specification (Loc,
+                Defining_Unit_Name       => SIdB,
+                Parameter_Specifications => New_List (
+                  Make_Parameter_Specification (Loc,
+                    Defining_Identifier =>
+                      Make_Defining_Identifier (Loc, Object_Name),
+                    Parameter_Type =>
+                      New_Occurrence_Of (Typ, Loc))),
+                Result_Definition        =>
+                  New_Occurrence_Of (Standard_Boolean, Loc));
+
+            FBody :=
+              Make_Subprogram_Body (Loc,
+                Specification              => Spec,
+                Declarations               => Empty_List,
+                Handled_Statement_Sequence =>
+                  Make_Handled_Sequence_Of_Statements (Loc,
+                    Statements => New_List (
+                      Make_Simple_Return_Statement (Loc,
+                        Expression => Expr))));
+
+            --  Insert declaration before freeze node and body after
+
+            Insert_Before_And_Analyze (N, FDecl);
+            Insert_After_And_Analyze  (N, FBody);
+
+            --  Static predicate functions are always side-effect free, and
+            --  in most cases dynamic predicate functions are as well. Mark
+            --  them as such whenever possible, so redundant predicate checks
+            --  can be optimized. If there is a variable reference within the
+            --  expression, the function is not pure.
+
+            if Expander_Active then
+               Set_Is_Pure (SId,
+                 Side_Effect_Free (Expr, Variable_Ref => True));
+               Set_Is_Inlined (SId);
+            end if;
+         end;
+
+         --  Test for raise expressions present and if so build M version
+
+         if Raise_Expression_Present then
+            declare
+               SId : constant Entity_Id :=
+                 Make_Defining_Identifier (Loc,
+                   Chars => New_External_Name (Chars (Typ), "PredicateM"));
+               --  The entity for the function spec
+
+               SIdB : constant Entity_Id :=
+                 Make_Defining_Identifier (Loc,
+                   Chars => New_External_Name (Chars (Typ), "PredicateM"));
+               --  The entity for the function body
+
+               Spec  : Node_Id;
+               FDecl : Node_Id;
+               FBody : Node_Id;
+               BTemp : Entity_Id;
+
+            begin
+               --  Mark any raise expressions for special expansion
+
+               Process_REs (Expr_M);
+
+               --  Build function declaration
+
+               Set_Ekind (SId, E_Function);
+               Set_Is_Predicate_Function_M (SId);
+               Set_Predicate_Function_M (Typ, SId);
+
+               --  The predicate function is shared between views of a type
+
+               if Is_Private_Type (Typ) and then Present (Full_View (Typ)) then
+                  Set_Predicate_Function_M (Full_View (Typ), SId);
+               end if;
+
+               --  Mark the predicate function explicitly as Ghost because it
+               --  does not come from source.
+
+               if Ghost_Mode > None then
+                  Set_Is_Ghost_Entity (SId);
+               end if;
+
+               Spec :=
+                 Make_Function_Specification (Loc,
+                   Defining_Unit_Name       => SId,
+                   Parameter_Specifications => New_List (
+                     Make_Parameter_Specification (Loc,
+                       Defining_Identifier => Object_Entity_M,
+                       Parameter_Type      => New_Occurrence_Of (Typ, Loc))),
+                   Result_Definition        =>
+                     New_Occurrence_Of (Standard_Boolean, Loc));
+
+               FDecl :=
+                 Make_Subprogram_Declaration (Loc,
+                   Specification => Spec);
+
+               --  Build function body
+
+               Spec :=
+                 Make_Function_Specification (Loc,
+                   Defining_Unit_Name       => SIdB,
+                   Parameter_Specifications => New_List (
+                     Make_Parameter_Specification (Loc,
+                       Defining_Identifier =>
+                         Make_Defining_Identifier (Loc, Object_Name),
+                       Parameter_Type =>
+                         New_Occurrence_Of (Typ, Loc))),
+                   Result_Definition        =>
+                     New_Occurrence_Of (Standard_Boolean, Loc));
+
+               --  Build the body, we declare the boolean expression before
+               --  doing the return, because we are not really confident of
+               --  what happens if a return appears within a return.
+
+               BTemp :=
+                 Make_Defining_Identifier (Loc,
+                   Chars => New_Internal_Name ('B'));
+
+               FBody :=
+                 Make_Subprogram_Body (Loc,
+                   Specification              => Spec,
+
+                   Declarations               => New_List (
+                     Make_Object_Declaration (Loc,
+                       Defining_Identifier => BTemp,
+                       Constant_Present    => True,
+                         Object_Definition =>
+                           New_Occurrence_Of (Standard_Boolean, Loc),
+                         Expression        => Expr_M)),
+
+                   Handled_Statement_Sequence =>
+                     Make_Handled_Sequence_Of_Statements (Loc,
+                       Statements => New_List (
+                         Make_Simple_Return_Statement (Loc,
+                           Expression => New_Occurrence_Of (BTemp, Loc)))));
+
+               --  Insert declaration before freeze node and body after
+
+               Insert_Before_And_Analyze (N, FDecl);
+               Insert_After_And_Analyze  (N, FBody);
+            end;
+         end if;
+
+         --  See if we have a static predicate. Note that the answer may be
+         --  yes even if we have an explicit Dynamic_Predicate present.
+
+         declare
+            PS : Boolean;
+            EN : Node_Id;
+
+         begin
+            if not Is_Scalar_Type (Typ) and then not Is_String_Type (Typ) then
+               PS := False;
+            else
+               PS := Is_Predicate_Static (Expr, Object_Name);
+            end if;
+
+            --  Case where we have a predicate-static aspect
+
+            if PS then
+
+               --  We don't set Has_Static_Predicate_Aspect, since we can have
+               --  any of the three cases (Predicate, Dynamic_Predicate, or
+               --  Static_Predicate) generating a predicate with an expression
+               --  that is predicate-static. We just indicate that we have a
+               --  predicate that can be treated as static.
+
+               Set_Has_Static_Predicate (Typ);
+
+               --  For discrete subtype, build the static predicate list
+
+               if Is_Discrete_Type (Typ) then
+                  Build_Discrete_Static_Predicate (Typ, Expr, Object_Name);
+
+                  --  If we don't get a static predicate list, it means that we
+                  --  have a case where this is not possible, most typically in
+                  --  the case where we inherit a dynamic predicate. We do not
+                  --  consider this an error, we just leave the predicate as
+                  --  dynamic. But if we do succeed in building the list, then
+                  --  we mark the predicate as static.
+
+                  if No (Static_Discrete_Predicate (Typ)) then
+                     Set_Has_Static_Predicate (Typ, False);
+                  end if;
+
+               --  For real or string subtype, save predicate expression
+
+               elsif Is_Real_Type (Typ) or else Is_String_Type (Typ) then
+                  Set_Static_Real_Or_String_Predicate (Typ, Expr);
+               end if;
+
+            --  Case of dynamic predicate (expression is not predicate-static)
+
+            else
+               --  Again, we don't set Has_Dynamic_Predicate_Aspect, since that
+               --  is only set if we have an explicit Dynamic_Predicate aspect
+               --  given. Here we may simply have a Predicate aspect where the
+               --  expression happens not to be predicate-static.
+
+               --  Emit an error when the predicate is categorized as static
+               --  but its expression is not predicate-static.
+
+               --  First a little fiddling to get a nice location for the
+               --  message. If the expression is of the form (A and then B),
+               --  where A is an inherited predicate, then use the right
+               --  operand for the Sloc. This avoids getting confused by a call
+               --  to an inherited predicate with a less convenient source
+               --  location.
+
+               EN := Expr;
+               while Nkind (EN) = N_And_Then
+                 and then Nkind (Left_Opnd (EN)) = N_Function_Call
+                 and then Is_Predicate_Function
+                            (Entity (Name (Left_Opnd (EN))))
+               loop
+                  EN := Right_Opnd (EN);
+               end loop;
+
+               --  Now post appropriate message
+
+               if Has_Static_Predicate_Aspect (Typ) then
+                  if Is_Scalar_Type (Typ) or else Is_String_Type (Typ) then
+                     Error_Msg_F
+                       ("expression is not predicate-static (RM 3.2.4(16-22))",
+                        EN);
+                  else
+                     Error_Msg_F
+                       ("static predicate requires scalar or string type", EN);
+                  end if;
+               end if;
+            end if;
+         end;
+      end if;
+
+      Ghost_Mode := Save_Ghost_Mode;
+   end Build_Predicate_Functions;
 
    -----------------------------------------
    -- Check_Aspect_At_End_Of_Declarations --
@@ -7110,7 +9063,8 @@ package body Sem_Ch13 is
       procedure Check_Overloaded_Name is
       begin
          if not Is_Overloaded (End_Decl_Expr) then
-            Err := Entity (End_Decl_Expr) /= Entity (Freeze_Expr);
+            Err := not Is_Entity_Name (End_Decl_Expr)
+                     or else Entity (End_Decl_Expr) /= Entity (Freeze_Expr);
 
          else
             Err := True;
@@ -7136,9 +9090,19 @@ package body Sem_Ch13 is
    --  Start of processing for Check_Aspect_At_End_Of_Declarations
 
    begin
+      --  In an instance we do not perform the consistency check between freeze
+      --  point and end of declarations, because it was done already in the
+      --  analysis of the generic. Furthermore, the delayed analysis of an
+      --  aspect of the instance may produce spurious errors when the generic
+      --  is a child unit that references entities in the parent (which might
+      --  not be in scope at the freeze point of the instance).
+
+      if In_Instance then
+         return;
+
       --  Case of aspects Dimension, Dimension_System and Synchronization
 
-      if A_Id = Aspect_Synchronization then
+      elsif A_Id = Aspect_Synchronization then
          return;
 
       --  Case of stream attributes, just have to compare entities. However,
@@ -7148,9 +9112,9 @@ package body Sem_Ch13 is
       --  at the freeze point.
 
       elsif A_Id = Aspect_Input  or else
-         A_Id = Aspect_Output    or else
-         A_Id = Aspect_Read      or else
-         A_Id = Aspect_Write
+            A_Id = Aspect_Output or else
+            A_Id = Aspect_Read   or else
+            A_Id = Aspect_Write
       then
          Analyze (End_Decl_Expr);
          Check_Overloaded_Name;
@@ -7179,6 +9143,11 @@ package body Sem_Ch13 is
       --  All other cases
 
       else
+         --  Indicate that the expression comes from an aspect specification,
+         --  which is used in subsequent analysis even if expansion is off.
+
+         Set_Parent (End_Decl_Expr, ASN);
+
          --  In a generic context the aspect expressions have not been
          --  preanalyzed, so do it now. There are no conformance checks
          --  to perform in this case.
@@ -7198,6 +9167,7 @@ package body Sem_Ch13 is
             and then Is_Private_Type (T)
          then
             Preanalyze_Spec_Expression (End_Decl_Expr, Full_View (T));
+
          else
             Preanalyze_Spec_Expression (End_Decl_Expr, T);
          end if;
@@ -7205,11 +9175,12 @@ package body Sem_Ch13 is
          Err := not Fully_Conformant_Expressions (End_Decl_Expr, Freeze_Expr);
       end if;
 
-      --  Output error message if error
+      --  Output error message if error. Force error on aspect specification
+      --  even if there is an error on the expression itself.
 
       if Err then
          Error_Msg_NE
-           ("visibility of aspect for& changes after freeze point",
+           ("!visibility of aspect for& changes after freeze point",
             ASN, Ent);
          Error_Msg_NE
            ("info: & is frozen here, aspects evaluated at this point??",
@@ -7255,6 +9226,7 @@ package body Sem_Ch13 is
 
          when Boolean_Aspects      |
               Library_Unit_Aspects =>
+
             T := Standard_Boolean;
 
          --  Aspects corresponding to attribute definition clauses
@@ -7279,18 +9251,13 @@ package body Sem_Ch13 is
          when Aspect_Default_Component_Value =>
             T := Component_Type (Entity (ASN));
 
+         when Aspect_Default_Storage_Pool =>
+            T := Class_Wide_Type (RTE (RE_Root_Storage_Pool));
+
          --  Default_Value is resolved with the type entity in question
 
          when Aspect_Default_Value =>
             T := Entity (ASN);
-
-         --  Depends is a delayed aspect because it mentiones names first
-         --  introduced by aspect Global which is already delayed. There is
-         --  no action to be taken with respect to the aspect itself as the
-         --  analysis is done by the corresponding pragma.
-
-         when Aspect_Depends =>
-            return;
 
          when Aspect_Dispatching_Domain =>
             T := RTE (RE_Dispatching_Domain);
@@ -7300,14 +9267,6 @@ package body Sem_Ch13 is
 
          when Aspect_External_Name =>
             T := Standard_String;
-
-         --  Global is a delayed aspect because it may reference names that
-         --  have not been declared yet. There is no action to be taken with
-         --  respect to the aspect itself as the reference checking is done
-         --  on the corresponding pragma.
-
-         when Aspect_Global =>
-            return;
 
          when Aspect_Link_Name =>
             T := Standard_String;
@@ -7341,6 +9300,9 @@ package body Sem_Ch13 is
               Aspect_Value_Size     =>
             T := Any_Integer;
 
+         when Aspect_Linker_Section =>
+            T := Standard_String;
+
          when Aspect_Synchronization =>
             return;
 
@@ -7367,6 +9329,37 @@ package body Sem_Ch13 is
             Analyze (Expression (ASN));
             return;
 
+         --  Ditto for Iterable, legality checks in Validate_Iterable_Aspect.
+
+         when Aspect_Iterable =>
+            T := Entity (ASN);
+
+            declare
+               Cursor : constant Entity_Id := Get_Cursor_Type (ASN, T);
+               Assoc  : Node_Id;
+               Expr   : Node_Id;
+
+            begin
+               if Cursor = Any_Type then
+                  return;
+               end if;
+
+               Assoc := First (Component_Associations (Expression (ASN)));
+               while Present (Assoc) loop
+                  Expr := Expression (Assoc);
+                  Analyze (Expr);
+
+                  if not Error_Posted (Expr) then
+                     Resolve_Iterable_Operation
+                       (Expr, Cursor, T, Chars (First (Choices (Assoc))));
+                  end if;
+
+                  Next (Assoc);
+               end loop;
+            end;
+
+            return;
+
          --  Invariant/Predicate take boolean expressions
 
          when Aspect_Dynamic_Predicate |
@@ -7376,18 +9369,43 @@ package body Sem_Ch13 is
               Aspect_Type_Invariant    =>
             T := Standard_Boolean;
 
+         when Aspect_Predicate_Failure =>
+            T := Standard_String;
+
          --  Here is the list of aspects that don't require delay analysis
 
-         when Aspect_Abstract_State       |
-              Aspect_Contract_Cases       |
-              Aspect_Dimension            |
-              Aspect_Dimension_System     |
-              Aspect_Implicit_Dereference |
-              Aspect_Post                 |
-              Aspect_Postcondition        |
-              Aspect_Pre                  |
-              Aspect_Precondition         |
-              Aspect_Test_Case     =>
+         when Aspect_Abstract_State             |
+              Aspect_Annotate                   |
+              Aspect_Async_Readers              |
+              Aspect_Async_Writers              |
+              Aspect_Constant_After_Elaboration |
+              Aspect_Contract_Cases             |
+              Aspect_Default_Initial_Condition  |
+              Aspect_Depends                    |
+              Aspect_Dimension                  |
+              Aspect_Dimension_System           |
+              Aspect_Effective_Reads            |
+              Aspect_Effective_Writes           |
+              Aspect_Extensions_Visible         |
+              Aspect_Ghost                      |
+              Aspect_Global                     |
+              Aspect_Implicit_Dereference       |
+              Aspect_Initial_Condition          |
+              Aspect_Initializes                |
+              Aspect_Obsolescent                |
+              Aspect_Part_Of                    |
+              Aspect_Post                       |
+              Aspect_Postcondition              |
+              Aspect_Pre                        |
+              Aspect_Precondition               |
+              Aspect_Refined_Depends            |
+              Aspect_Refined_Global             |
+              Aspect_Refined_Post               |
+              Aspect_Refined_State              |
+              Aspect_SPARK_Mode                 |
+              Aspect_Test_Case                  |
+              Aspect_Unimplemented              |
+              Aspect_Volatile_Function          =>
             raise Program_Error;
 
       end case;
@@ -7456,8 +9474,8 @@ package body Sem_Ch13 is
                     and then Has_Discriminants (T))
                  or else
                   (Is_Access_Type (T)
-                     and then Is_Record_Type (Designated_Type (T))
-                     and then Has_Discriminants (Designated_Type (T)))
+                    and then Is_Record_Type (Designated_Type (T))
+                    and then Has_Discriminants (Designated_Type (T)))
                then
                   Error_Msg_NE
                     ("invalid address clause for initialized object &!",
@@ -7548,11 +9566,8 @@ package body Sem_Ch13 is
                then
                   return;
 
-               elsif
-                  Ekind (Ent) = E_Constant
-                    or else
-                  Ekind (Ent) = E_In_Parameter
-               then
+               elsif Ekind_In (Ent, E_Constant, E_In_Parameter) then
+
                   --  This is the case where we must have Ent defined before
                   --  U_Ent. Clearly if they are in different units this
                   --  requirement is met since the unit containing Ent is
@@ -7720,14 +9735,42 @@ package body Sem_Ch13 is
 
    begin
       --  If rep_clauses are to be ignored, no need for legality checks. In
-      --  particular, no need to pester user about rep clauses that violate
-      --  the rule on constant addresses, given that these clauses will be
-      --  removed by Freeze before they reach the back end.
+      --  particular, no need to pester user about rep clauses that violate the
+      --  rule on constant addresses, given that these clauses will be removed
+      --  by Freeze before they reach the back end. Similarly in CodePeer mode,
+      --  we want to relax these checks.
 
-      if not Ignore_Rep_Clauses then
+      if not Ignore_Rep_Clauses and not CodePeer_Mode then
          Check_Expr_Constants (Expr);
       end if;
    end Check_Constant_Address_Clause;
+
+   ---------------------------
+   -- Check_Pool_Size_Clash --
+   ---------------------------
+
+   procedure Check_Pool_Size_Clash (Ent : Entity_Id; SP, SS : Node_Id) is
+      Post : Node_Id;
+
+   begin
+      --  We need to find out which one came first. Note that in the case of
+      --  aspects mixed with pragmas there are cases where the processing order
+      --  is reversed, which is why we do the check here.
+
+      if Sloc (SP) < Sloc (SS) then
+         Error_Msg_Sloc := Sloc (SP);
+         Post := SS;
+         Error_Msg_NE ("Storage_Pool previously given for&#", Post, Ent);
+
+      else
+         Error_Msg_Sloc := Sloc (SS);
+         Post := SP;
+         Error_Msg_NE ("Storage_Size previously given for&#", Post, Ent);
+      end if;
+
+      Error_Msg_N
+        ("\cannot have Storage_Size and Storage_Pool (RM 13.11(3))", Post);
+   end Check_Pool_Size_Clash;
 
    ----------------------------------------
    -- Check_Record_Representation_Clause --
@@ -7931,9 +9974,15 @@ package body Sem_Ch13 is
                          (Parent_Last_Bit,
                           Component_Bit_Offset (Pcomp) + Esize (Pcomp) - 1);
                   end if;
+               else
 
-                  Next_Entity (Pcomp);
+                  --  Skip anonymous types generated for constrained array
+                  --  or record components.
+
+                  null;
                end if;
+
+               Next_Entity (Pcomp);
             end loop;
          end if;
       end;
@@ -8526,7 +10575,7 @@ package body Sem_Ch13 is
                --  issued elsewhere, since sizes of non-static array types
                --  cannot be set implicitly or explicitly.
 
-               if not Is_Static_Subtype (Ityp) then
+               if not Is_OK_Static_Subtype (Ityp) then
                   return;
                end if;
 
@@ -8599,6 +10648,514 @@ package body Sem_Ch13 is
       end if;
    end Check_Size;
 
+   --------------------------
+   -- Freeze_Entity_Checks --
+   --------------------------
+
+   procedure Freeze_Entity_Checks (N : Node_Id) is
+      procedure Hide_Non_Overridden_Subprograms (Typ : Entity_Id);
+      --  Inspect the primitive operations of type Typ and hide all pairs of
+      --  implicitly declared non-overridden non-fully conformant homographs
+      --  (Ada RM 8.3 12.3/2).
+
+      -------------------------------------
+      -- Hide_Non_Overridden_Subprograms --
+      -------------------------------------
+
+      procedure Hide_Non_Overridden_Subprograms (Typ : Entity_Id) is
+         procedure Hide_Matching_Homographs
+           (Subp_Id    : Entity_Id;
+            Start_Elmt : Elmt_Id);
+         --  Inspect a list of primitive operations starting with Start_Elmt
+         --  and find matching implicitly declared non-overridden non-fully
+         --  conformant homographs of Subp_Id. If found, all matches along
+         --  with Subp_Id are hidden from all visibility.
+
+         function Is_Non_Overridden_Or_Null_Procedure
+           (Subp_Id : Entity_Id) return Boolean;
+         --  Determine whether subprogram Subp_Id is implicitly declared non-
+         --  overridden subprogram or an implicitly declared null procedure.
+
+         ------------------------------
+         -- Hide_Matching_Homographs --
+         ------------------------------
+
+         procedure Hide_Matching_Homographs
+           (Subp_Id    : Entity_Id;
+            Start_Elmt : Elmt_Id)
+         is
+            Prim      : Entity_Id;
+            Prim_Elmt : Elmt_Id;
+
+         begin
+            Prim_Elmt := Start_Elmt;
+            while Present (Prim_Elmt) loop
+               Prim := Node (Prim_Elmt);
+
+               --  The current primitive is implicitly declared non-overridden
+               --  non-fully conformant homograph of Subp_Id. Both subprograms
+               --  must be hidden from visibility.
+
+               if Chars (Prim) = Chars (Subp_Id)
+                 and then Is_Non_Overridden_Or_Null_Procedure (Prim)
+                 and then not Fully_Conformant (Prim, Subp_Id)
+               then
+                  Set_Is_Hidden_Non_Overridden_Subpgm (Prim);
+                  Set_Is_Immediately_Visible          (Prim, False);
+                  Set_Is_Potentially_Use_Visible      (Prim, False);
+
+                  Set_Is_Hidden_Non_Overridden_Subpgm (Subp_Id);
+                  Set_Is_Immediately_Visible          (Subp_Id, False);
+                  Set_Is_Potentially_Use_Visible      (Subp_Id, False);
+               end if;
+
+               Next_Elmt (Prim_Elmt);
+            end loop;
+         end Hide_Matching_Homographs;
+
+         -----------------------------------------
+         -- Is_Non_Overridden_Or_Null_Procedure --
+         -----------------------------------------
+
+         function Is_Non_Overridden_Or_Null_Procedure
+           (Subp_Id : Entity_Id) return Boolean
+         is
+            Alias_Id : Entity_Id;
+
+         begin
+            --  The subprogram is inherited (implicitly declared), it does not
+            --  override and does not cover a primitive of an interface.
+
+            if Ekind_In (Subp_Id, E_Function, E_Procedure)
+              and then Present (Alias (Subp_Id))
+              and then No (Interface_Alias (Subp_Id))
+              and then No (Overridden_Operation (Subp_Id))
+            then
+               Alias_Id := Alias (Subp_Id);
+
+               if Requires_Overriding (Alias_Id) then
+                  return True;
+
+               elsif Nkind (Parent (Alias_Id)) = N_Procedure_Specification
+                 and then Null_Present (Parent (Alias_Id))
+               then
+                  return True;
+               end if;
+            end if;
+
+            return False;
+         end Is_Non_Overridden_Or_Null_Procedure;
+
+         --  Local variables
+
+         Prim_Ops  : constant Elist_Id := Direct_Primitive_Operations (Typ);
+         Prim      : Entity_Id;
+         Prim_Elmt : Elmt_Id;
+
+      --  Start of processing for Hide_Non_Overridden_Subprograms
+
+      begin
+         --  Inspect the list of primitives looking for non-overridden
+         --  subprograms.
+
+         if Present (Prim_Ops) then
+            Prim_Elmt := First_Elmt (Prim_Ops);
+            while Present (Prim_Elmt) loop
+               Prim := Node (Prim_Elmt);
+               Next_Elmt (Prim_Elmt);
+
+               if Is_Non_Overridden_Or_Null_Procedure (Prim) then
+                  Hide_Matching_Homographs
+                    (Subp_Id    => Prim,
+                     Start_Elmt => Prim_Elmt);
+               end if;
+            end loop;
+         end if;
+      end Hide_Non_Overridden_Subprograms;
+
+      ---------------------
+      -- Local variables --
+      ---------------------
+
+      E : constant Entity_Id := Entity (N);
+
+      Non_Generic_Case : constant Boolean := Nkind (N) = N_Freeze_Entity;
+      --  True in non-generic case. Some of the processing here is skipped
+      --  for the generic case since it is not needed. Basically in the
+      --  generic case, we only need to do stuff that might generate error
+      --  messages or warnings.
+
+   --  Start of processing for Freeze_Entity_Checks
+
+   begin
+      --  Remember that we are processing a freezing entity. Required to
+      --  ensure correct decoration of internal entities associated with
+      --  interfaces (see New_Overloaded_Entity).
+
+      Inside_Freezing_Actions := Inside_Freezing_Actions + 1;
+
+      --  For tagged types covering interfaces add internal entities that link
+      --  the primitives of the interfaces with the primitives that cover them.
+      --  Note: These entities were originally generated only when generating
+      --  code because their main purpose was to provide support to initialize
+      --  the secondary dispatch tables. They are now generated also when
+      --  compiling with no code generation to provide ASIS the relationship
+      --  between interface primitives and tagged type primitives. They are
+      --  also used to locate primitives covering interfaces when processing
+      --  generics (see Derive_Subprograms).
+
+      --  This is not needed in the generic case
+
+      if Ada_Version >= Ada_2005
+        and then Non_Generic_Case
+        and then Ekind (E) = E_Record_Type
+        and then Is_Tagged_Type (E)
+        and then not Is_Interface (E)
+        and then Has_Interfaces (E)
+      then
+         --  This would be a good common place to call the routine that checks
+         --  overriding of interface primitives (and thus factorize calls to
+         --  Check_Abstract_Overriding located at different contexts in the
+         --  compiler). However, this is not possible because it causes
+         --  spurious errors in case of late overriding.
+
+         Add_Internal_Interface_Entities (E);
+      end if;
+
+      --  After all forms of overriding have been resolved, a tagged type may
+      --  be left with a set of implicitly declared and possibly erroneous
+      --  abstract subprograms, null procedures and subprograms that require
+      --  overriding. If this set contains fully conformat homographs, then one
+      --  is chosen arbitrarily (already done during resolution), otherwise all
+      --  remaining non-fully conformant homographs are hidden from visibility
+      --  (Ada RM 8.3 12.3/2).
+
+      if Is_Tagged_Type (E) then
+         Hide_Non_Overridden_Subprograms (E);
+      end if;
+
+      --  Check CPP types
+
+      if Ekind (E) = E_Record_Type
+        and then Is_CPP_Class (E)
+        and then Is_Tagged_Type (E)
+        and then Tagged_Type_Expansion
+      then
+         if CPP_Num_Prims (E) = 0 then
+
+            --  If the CPP type has user defined components then it must import
+            --  primitives from C++. This is required because if the C++ class
+            --  has no primitives then the C++ compiler does not added the _tag
+            --  component to the type.
+
+            if First_Entity (E) /= Last_Entity (E) then
+               Error_Msg_N
+                 ("'C'P'P type must import at least one primitive from C++??",
+                  E);
+            end if;
+         end if;
+
+         --  Check that all its primitives are abstract or imported from C++.
+         --  Check also availability of the C++ constructor.
+
+         declare
+            Has_Constructors : constant Boolean := Has_CPP_Constructors (E);
+            Elmt             : Elmt_Id;
+            Error_Reported   : Boolean := False;
+            Prim             : Node_Id;
+
+         begin
+            Elmt := First_Elmt (Primitive_Operations (E));
+            while Present (Elmt) loop
+               Prim := Node (Elmt);
+
+               if Comes_From_Source (Prim) then
+                  if Is_Abstract_Subprogram (Prim) then
+                     null;
+
+                  elsif not Is_Imported (Prim)
+                    or else Convention (Prim) /= Convention_CPP
+                  then
+                     Error_Msg_N
+                       ("primitives of 'C'P'P types must be imported from C++ "
+                        & "or abstract??", Prim);
+
+                  elsif not Has_Constructors
+                     and then not Error_Reported
+                  then
+                     Error_Msg_Name_1 := Chars (E);
+                     Error_Msg_N
+                       ("??'C'P'P constructor required for type %", Prim);
+                     Error_Reported := True;
+                  end if;
+               end if;
+
+               Next_Elmt (Elmt);
+            end loop;
+         end;
+      end if;
+
+      --  Check Ada derivation of CPP type
+
+      if Expander_Active              -- why? losing errors in -gnatc mode???
+        and then Present (Etype (E))  -- defend against errors
+        and then Tagged_Type_Expansion
+        and then Ekind (E) = E_Record_Type
+        and then Etype (E) /= E
+        and then Is_CPP_Class (Etype (E))
+        and then CPP_Num_Prims (Etype (E)) > 0
+        and then not Is_CPP_Class (E)
+        and then not Has_CPP_Constructors (Etype (E))
+      then
+         --  If the parent has C++ primitives but it has no constructor then
+         --  check that all the primitives are overridden in this derivation;
+         --  otherwise the constructor of the parent is needed to build the
+         --  dispatch table.
+
+         declare
+            Elmt : Elmt_Id;
+            Prim : Node_Id;
+
+         begin
+            Elmt := First_Elmt (Primitive_Operations (E));
+            while Present (Elmt) loop
+               Prim := Node (Elmt);
+
+               if not Is_Abstract_Subprogram (Prim)
+                 and then No (Interface_Alias (Prim))
+                 and then Find_Dispatching_Type (Ultimate_Alias (Prim)) /= E
+               then
+                  Error_Msg_Name_1 := Chars (Etype (E));
+                  Error_Msg_N
+                    ("'C'P'P constructor required for parent type %", E);
+                  exit;
+               end if;
+
+               Next_Elmt (Elmt);
+            end loop;
+         end;
+      end if;
+
+      Inside_Freezing_Actions := Inside_Freezing_Actions - 1;
+
+      --  If we have a type with predicates, build predicate function. This
+      --  is not needed in the generic case, and is not needed within TSS
+      --  subprograms and other predefined primitives.
+
+      if Non_Generic_Case
+        and then Is_Type (E)
+        and then Has_Predicates (E)
+        and then not Within_Internal_Subprogram
+      then
+         Build_Predicate_Functions (E, N);
+      end if;
+
+      --  If type has delayed aspects, this is where we do the preanalysis at
+      --  the freeze point, as part of the consistent visibility check. Note
+      --  that this must be done after calling Build_Predicate_Functions or
+      --  Build_Invariant_Procedure since these subprograms fix occurrences of
+      --  the subtype name in the saved expression so that they will not cause
+      --  trouble in the preanalysis.
+
+      --  This is also not needed in the generic case
+
+      if Non_Generic_Case
+        and then Has_Delayed_Aspects (E)
+        and then Scope (E) = Current_Scope
+      then
+         --  Retrieve the visibility to the discriminants in order to properly
+         --  analyze the aspects.
+
+         Push_Scope_And_Install_Discriminants (E);
+
+         declare
+            Ritem : Node_Id;
+
+         begin
+            --  Look for aspect specification entries for this entity
+
+            Ritem := First_Rep_Item (E);
+            while Present (Ritem) loop
+               if Nkind (Ritem) = N_Aspect_Specification
+                 and then Entity (Ritem) = E
+                 and then Is_Delayed_Aspect (Ritem)
+               then
+                  Check_Aspect_At_Freeze_Point (Ritem);
+               end if;
+
+               Next_Rep_Item (Ritem);
+            end loop;
+         end;
+
+         Uninstall_Discriminants_And_Pop_Scope (E);
+      end if;
+
+      --  For a record type, deal with variant parts. This has to be delayed
+      --  to this point, because of the issue of statically predicated
+      --  subtypes, which we have to ensure are frozen before checking
+      --  choices, since we need to have the static choice list set.
+
+      if Is_Record_Type (E) then
+         Check_Variant_Part : declare
+            D  : constant Node_Id := Declaration_Node (E);
+            T  : Node_Id;
+            C  : Node_Id;
+            VP : Node_Id;
+
+            Others_Present : Boolean;
+            pragma Warnings (Off, Others_Present);
+            --  Indicates others present, not used in this case
+
+            procedure Non_Static_Choice_Error (Choice : Node_Id);
+            --  Error routine invoked by the generic instantiation below when
+            --  the variant part has a non static choice.
+
+            procedure Process_Declarations (Variant : Node_Id);
+            --  Processes declarations associated with a variant. We analyzed
+            --  the declarations earlier (in Sem_Ch3.Analyze_Variant_Part),
+            --  but we still need the recursive call to Check_Choices for any
+            --  nested variant to get its choices properly processed. This is
+            --  also where we expand out the choices if expansion is active.
+
+            package Variant_Choices_Processing is new
+              Generic_Check_Choices
+                (Process_Empty_Choice      => No_OP,
+                 Process_Non_Static_Choice => Non_Static_Choice_Error,
+                 Process_Associated_Node   => Process_Declarations);
+            use Variant_Choices_Processing;
+
+            -----------------------------
+            -- Non_Static_Choice_Error --
+            -----------------------------
+
+            procedure Non_Static_Choice_Error (Choice : Node_Id) is
+            begin
+               Flag_Non_Static_Expr
+                 ("choice given in variant part is not static!", Choice);
+            end Non_Static_Choice_Error;
+
+            --------------------------
+            -- Process_Declarations --
+            --------------------------
+
+            procedure Process_Declarations (Variant : Node_Id) is
+               CL : constant Node_Id := Component_List (Variant);
+               VP : Node_Id;
+
+            begin
+               --  Check for static predicate present in this variant
+
+               if Has_SP_Choice (Variant) then
+
+                  --  Here we expand. You might expect to find this call in
+                  --  Expand_N_Variant_Part, but that is called when we first
+                  --  see the variant part, and we cannot do this expansion
+                  --  earlier than the freeze point, since for statically
+                  --  predicated subtypes, the predicate is not known till
+                  --  the freeze point.
+
+                  --  Furthermore, we do this expansion even if the expander
+                  --  is not active, because other semantic processing, e.g.
+                  --  for aggregates, requires the expanded list of choices.
+
+                  --  If the expander is not active, then we can't just clobber
+                  --  the list since it would invalidate the ASIS -gnatct tree.
+                  --  So we have to rewrite the variant part with a Rewrite
+                  --  call that replaces it with a copy and clobber the copy.
+
+                  if not Expander_Active then
+                     declare
+                        NewV : constant Node_Id := New_Copy (Variant);
+                     begin
+                        Set_Discrete_Choices
+                          (NewV, New_Copy_List (Discrete_Choices (Variant)));
+                        Rewrite (Variant, NewV);
+                     end;
+                  end if;
+
+                  Expand_Static_Predicates_In_Choices (Variant);
+               end if;
+
+               --  We don't need to worry about the declarations in the variant
+               --  (since they were analyzed by Analyze_Choices when we first
+               --  encountered the variant), but we do need to take care of
+               --  expansion of any nested variants.
+
+               if not Null_Present (CL) then
+                  VP := Variant_Part (CL);
+
+                  if Present (VP) then
+                     Check_Choices
+                       (VP, Variants (VP), Etype (Name (VP)), Others_Present);
+                  end if;
+               end if;
+            end Process_Declarations;
+
+         --  Start of processing for Check_Variant_Part
+
+         begin
+            --  Find component list
+
+            C := Empty;
+
+            if Nkind (D) = N_Full_Type_Declaration then
+               T := Type_Definition (D);
+
+               if Nkind (T) = N_Record_Definition then
+                  C := Component_List (T);
+
+               elsif Nkind (T) = N_Derived_Type_Definition
+                 and then Present (Record_Extension_Part (T))
+               then
+                  C := Component_List (Record_Extension_Part (T));
+               end if;
+            end if;
+
+            --  Case of variant part present
+
+            if Present (C) and then Present (Variant_Part (C)) then
+               VP := Variant_Part (C);
+
+               --  Check choices
+
+               Check_Choices
+                 (VP, Variants (VP), Etype (Name (VP)), Others_Present);
+
+               --  If the last variant does not contain the Others choice,
+               --  replace it with an N_Others_Choice node since Gigi always
+               --  wants an Others. Note that we do not bother to call Analyze
+               --  on the modified variant part, since its only effect would be
+               --  to compute the Others_Discrete_Choices node laboriously, and
+               --  of course we already know the list of choices corresponding
+               --  to the others choice (it's the list we're replacing).
+
+               --  We only want to do this if the expander is active, since
+               --  we do not want to clobber the ASIS tree.
+
+               if Expander_Active then
+                  declare
+                     Last_Var : constant Node_Id :=
+                                     Last_Non_Pragma (Variants (VP));
+
+                     Others_Node : Node_Id;
+
+                  begin
+                     if Nkind (First (Discrete_Choices (Last_Var))) /=
+                                                            N_Others_Choice
+                     then
+                        Others_Node := Make_Others_Choice (Sloc (Last_Var));
+                        Set_Others_Discrete_Choices
+                          (Others_Node, Discrete_Choices (Last_Var));
+                        Set_Discrete_Choices
+                          (Last_Var, New_List (Others_Node));
+                     end if;
+                  end;
+               end if;
+            end if;
+         end Check_Variant_Part;
+      end if;
+   end Freeze_Entity_Checks;
+
    -------------------------
    -- Get_Alignment_Value --
    -------------------------
@@ -8653,9 +11210,10 @@ package body Sem_Ch13 is
         (Rep_Item : Node_Id) return Boolean
       is
       begin
-         return Nkind (Rep_Item) = N_Pragma
-           or else Present_In_Rep_Item
-                     (Entity (Rep_Item), Aspect_Rep_Item (Rep_Item));
+         return
+           Nkind (Rep_Item) = N_Pragma
+             or else Present_In_Rep_Item
+                       (Entity (Rep_Item), Aspect_Rep_Item (Rep_Item));
       end Is_Pragma_Or_Corr_Pragma_Present_In_Rep_Item;
 
    --  Start of processing for Inherit_Aspects_At_Freeze_Point
@@ -8686,6 +11244,9 @@ package body Sem_Ch13 is
       --  be moved to this routine: Alignment, Component_Alignment,
       --  Component_Size, Machine_Radix, Object_Size, Pack, Predicates,
       --  Preelaborable_Initialization, RM_Size and Small.
+
+      --  In addition, Convention must be propagated from base type to subtype,
+      --  because the subtype may have been declared on an incomplete view.
 
       if Nkind (Parent (Typ)) = N_Private_Extension_Declaration then
          return;
@@ -8719,14 +11280,26 @@ package body Sem_Ch13 is
                    (Get_Rep_Item (Typ, Name_Atomic, Name_Shared))
       then
          Set_Is_Atomic (Typ);
-         Set_Treat_As_Volatile (Typ);
          Set_Is_Volatile (Typ);
+         Set_Treat_As_Volatile (Typ);
+      end if;
+
+      --  Convention
+
+      if Is_Record_Type (Typ)
+        and then Typ /= Base_Type (Typ) and then Is_Frozen (Base_Type (Typ))
+      then
+         Set_Convention (Typ, Convention (Base_Type (Typ)));
       end if;
 
       --  Default_Component_Value
 
+      --  Verify that there is no rep_item declared for the type, and there
+      --  is one coming from an ancestor.
+
       if Is_Array_Type (Typ)
-        and then Has_Rep_Item (Typ, Name_Default_Component_Value, False)
+        and then Is_Base_Type (Typ)
+        and then not Has_Rep_Item (Typ, Name_Default_Component_Value, False)
         and then Has_Rep_Item (Typ, Name_Default_Component_Value)
       then
          Set_Default_Aspect_Component_Value (Typ,
@@ -8737,9 +11310,11 @@ package body Sem_Ch13 is
       --  Default_Value
 
       if Is_Scalar_Type (Typ)
-        and then Has_Rep_Item (Typ, Name_Default_Value, False)
+        and then Is_Base_Type (Typ)
+        and then not Has_Rep_Item (Typ, Name_Default_Value, False)
         and then Has_Rep_Item (Typ, Name_Default_Value)
       then
+         Set_Has_Default_Aspect (Typ);
          Set_Default_Aspect_Value (Typ,
            Default_Aspect_Value
              (Entity (Get_Rep_Item (Typ, Name_Default_Value))));
@@ -8767,6 +11342,16 @@ package body Sem_Ch13 is
          if Class_Present (Get_Rep_Item (Typ, Name_Invariant)) then
             Set_Has_Inheritable_Invariants (Typ);
          end if;
+
+      --  If we have a subtype with invariants, whose base type does not have
+      --  invariants, copy these invariants to the base type. This happens for
+      --  the case of implicit base types created for scalar and array types.
+
+      elsif Has_Invariants (Typ)
+        and then not Has_Invariants (Base_Type (Typ))
+      then
+         Set_Has_Invariants (Base_Type (Typ));
+         Set_Invariant_Procedure (Base_Type (Typ), Invariant_Procedure (Typ));
       end if;
 
       --  Volatile
@@ -8776,8 +11361,20 @@ package body Sem_Ch13 is
         and then Is_Pragma_Or_Corr_Pragma_Present_In_Rep_Item
                    (Get_Rep_Item (Typ, Name_Volatile))
       then
-         Set_Treat_As_Volatile (Typ);
          Set_Is_Volatile (Typ);
+         Set_Treat_As_Volatile (Typ);
+      end if;
+
+      --  Volatile_Full_Access
+
+      if not Has_Rep_Item (Typ, Name_Volatile_Full_Access, False)
+        and then Has_Rep_Pragma (Typ, Name_Volatile_Full_Access)
+        and then Is_Pragma_Or_Corr_Pragma_Present_In_Rep_Item
+                   (Get_Rep_Item (Typ, Name_Volatile_Full_Access))
+      then
+         Set_Is_Volatile_Full_Access (Typ);
+         Set_Is_Volatile (Typ);
+         Set_Treat_As_Volatile (Typ);
       end if;
 
       --  Inheritance for derived types only
@@ -8808,7 +11405,7 @@ package body Sem_Ch13 is
                Set_Has_Volatile_Components (Imp_Bas_Typ);
             end if;
 
-            --  Finalize_Storage_Only.
+            --  Finalize_Storage_Only
 
             if not Has_Rep_Pragma (Typ, Name_Finalize_Storage_Only, False)
               and then Has_Rep_Pragma (Typ, Name_Finalize_Storage_Only)
@@ -8826,12 +11423,9 @@ package body Sem_Ch13 is
                Set_Universal_Aliasing (Imp_Bas_Typ);
             end if;
 
-            --  Record type specific aspects
+            --  Bit_Order
 
             if Is_Record_Type (Typ) then
-
-               --  Bit_Order
-
                if not Has_Rep_Item (Typ, Name_Bit_Order, False)
                  and then Has_Rep_Item (Typ, Name_Bit_Order)
                then
@@ -8839,15 +11433,37 @@ package body Sem_Ch13 is
                     Reverse_Bit_Order (Entity (Name
                       (Get_Rep_Item (Typ, Name_Bit_Order)))));
                end if;
+            end if;
 
-               --  Scalar_Storage_Order
+            --  Scalar_Storage_Order
 
-               if not Has_Rep_Item (Typ, Name_Scalar_Storage_Order, False)
-                 and then Has_Rep_Item (Typ, Name_Scalar_Storage_Order)
+            --  Note: the aspect is specified on a first subtype, but recorded
+            --  in a flag of the base type!
+
+            if (Is_Record_Type (Typ) or else Is_Array_Type (Typ))
+                 and then Typ = Bas_Typ
+            then
+               --  For a type extension, always inherit from parent; otherwise
+               --  inherit if no default applies. Note: we do not check for
+               --  an explicit rep item on the parent type when inheriting,
+               --  because the parent SSO may itself have been set by default.
+
+               if not Has_Rep_Item (First_Subtype (Typ),
+                                    Name_Scalar_Storage_Order, False)
+                 and then (Is_Tagged_Type (Bas_Typ)
+                            or else not (SSO_Set_Low_By_Default  (Bas_Typ)
+                                           or else
+                                         SSO_Set_High_By_Default (Bas_Typ)))
                then
                   Set_Reverse_Storage_Order (Bas_Typ,
-                    Reverse_Storage_Order (Entity (Name
-                      (Get_Rep_Item (Typ, Name_Scalar_Storage_Order)))));
+                    Reverse_Storage_Order
+                      (Implementation_Base_Type (Etype (Bas_Typ))));
+
+                  --  Clear default SSO indications, since the inherited aspect
+                  --  which was set explicitly overrides the default.
+
+                  Set_SSO_Set_Low_By_Default  (Bas_Typ, False);
+                  Set_SSO_Set_High_By_Default (Bas_Typ, False);
                end if;
             end if;
          end;
@@ -8861,9 +11477,30 @@ package body Sem_Ch13 is
    procedure Initialize is
    begin
       Address_Clause_Checks.Init;
-      Independence_Checks.Init;
       Unchecked_Conversions.Init;
+
+      if AAMP_On_Target then
+         Independence_Checks.Init;
+      end if;
    end Initialize;
+
+   ---------------------------
+   -- Install_Discriminants --
+   ---------------------------
+
+   procedure Install_Discriminants (E : Entity_Id) is
+      Disc : Entity_Id;
+      Prev : Entity_Id;
+   begin
+      Disc := First_Discriminant (E);
+      while Present (Disc) loop
+         Prev := Current_Entity (Disc);
+         Set_Current_Entity (Disc);
+         Set_Is_Immediately_Visible (Disc);
+         Set_Homonym (Disc, Prev);
+         Next_Discriminant (Disc);
+      end loop;
+   end Install_Discriminants;
 
    -------------------------
    -- Is_Operational_Item --
@@ -8878,14 +11515,267 @@ package body Sem_Ch13 is
          declare
             Id : constant Attribute_Id := Get_Attribute_Id (Chars (N));
          begin
-            return    Id = Attribute_Input
+
+            --  List of operational items is given in AARM 13.1(8.mm/1).
+            --  It is clearly incomplete, as it does not include iterator
+            --  aspects, among others.
+
+            return    Id = Attribute_Constant_Indexing
+              or else Id = Attribute_Default_Iterator
+              or else Id = Attribute_Implicit_Dereference
+              or else Id = Attribute_Input
+              or else Id = Attribute_Iterator_Element
+              or else Id = Attribute_Iterable
               or else Id = Attribute_Output
               or else Id = Attribute_Read
+              or else Id = Attribute_Variable_Indexing
               or else Id = Attribute_Write
               or else Id = Attribute_External_Tag;
          end;
       end if;
    end Is_Operational_Item;
+
+   -------------------------
+   -- Is_Predicate_Static --
+   -------------------------
+
+   --  Note: the basic legality of the expression has already been checked, so
+   --  we don't need to worry about cases or ranges on strings for example.
+
+   function Is_Predicate_Static
+     (Expr : Node_Id;
+      Nam  : Name_Id) return Boolean
+   is
+      function All_Static_Case_Alternatives (L : List_Id) return Boolean;
+      --  Given a list of case expression alternatives, returns True if all
+      --  the alternatives are static (have all static choices, and a static
+      --  expression).
+
+      function All_Static_Choices (L : List_Id) return Boolean;
+      --  Returns true if all elements of the list are OK static choices
+      --  as defined below for Is_Static_Choice. Used for case expression
+      --  alternatives and for the right operand of a membership test. An
+      --  others_choice is static if the corresponding expression is static.
+      --  The staticness of the bounds is checked separately.
+
+      function Is_Static_Choice (N : Node_Id) return Boolean;
+      --  Returns True if N represents a static choice (static subtype, or
+      --  static subtype indication, or static expression, or static range).
+      --
+      --  Note that this is a bit more inclusive than we actually need
+      --  (in particular membership tests do not allow the use of subtype
+      --  indications). But that doesn't matter, we have already checked
+      --  that the construct is legal to get this far.
+
+      function Is_Type_Ref (N : Node_Id) return Boolean;
+      pragma Inline (Is_Type_Ref);
+      --  Returns True if N is a reference to the type for the predicate in the
+      --  expression (i.e. if it is an identifier whose Chars field matches the
+      --  Nam given in the call). N must not be parenthesized, if the type name
+      --  appears in parens, this routine will return False.
+
+      ----------------------------------
+      -- All_Static_Case_Alternatives --
+      ----------------------------------
+
+      function All_Static_Case_Alternatives (L : List_Id) return Boolean is
+         N : Node_Id;
+
+      begin
+         N := First (L);
+         while Present (N) loop
+            if not (All_Static_Choices (Discrete_Choices (N))
+                     and then Is_OK_Static_Expression (Expression (N)))
+            then
+               return False;
+            end if;
+
+            Next (N);
+         end loop;
+
+         return True;
+      end All_Static_Case_Alternatives;
+
+      ------------------------
+      -- All_Static_Choices --
+      ------------------------
+
+      function All_Static_Choices (L : List_Id) return Boolean is
+         N : Node_Id;
+
+      begin
+         N := First (L);
+         while Present (N) loop
+            if not Is_Static_Choice (N) then
+               return False;
+            end if;
+
+            Next (N);
+         end loop;
+
+         return True;
+      end All_Static_Choices;
+
+      ----------------------
+      -- Is_Static_Choice --
+      ----------------------
+
+      function Is_Static_Choice (N : Node_Id) return Boolean is
+      begin
+         return Nkind (N) = N_Others_Choice
+           or else Is_OK_Static_Expression (N)
+           or else (Is_Entity_Name (N) and then Is_Type (Entity (N))
+                     and then Is_OK_Static_Subtype (Entity (N)))
+           or else (Nkind (N) = N_Subtype_Indication
+                     and then Is_OK_Static_Subtype (Entity (N)))
+           or else (Nkind (N) = N_Range and then Is_OK_Static_Range (N));
+      end Is_Static_Choice;
+
+      -----------------
+      -- Is_Type_Ref --
+      -----------------
+
+      function Is_Type_Ref (N : Node_Id) return Boolean is
+      begin
+         return Nkind (N) = N_Identifier
+           and then Chars (N) = Nam
+           and then Paren_Count (N) = 0;
+      end Is_Type_Ref;
+
+   --  Start of processing for Is_Predicate_Static
+
+   begin
+      --  Predicate_Static means one of the following holds. Numbers are the
+      --  corresponding paragraph numbers in (RM 3.2.4(16-22)).
+
+      --  16: A static expression
+
+      if Is_OK_Static_Expression (Expr) then
+         return True;
+
+      --  17: A membership test whose simple_expression is the current
+      --  instance, and whose membership_choice_list meets the requirements
+      --  for a static membership test.
+
+      elsif Nkind (Expr) in N_Membership_Test
+        and then ((Present (Right_Opnd (Expr))
+                    and then Is_Static_Choice (Right_Opnd (Expr)))
+                  or else
+                    (Present (Alternatives (Expr))
+                      and then All_Static_Choices (Alternatives (Expr))))
+      then
+         return True;
+
+      --  18. A case_expression whose selecting_expression is the current
+      --  instance, and whose dependent expressions are static expressions.
+
+      elsif Nkind (Expr) = N_Case_Expression
+        and then Is_Type_Ref (Expression (Expr))
+        and then All_Static_Case_Alternatives (Alternatives (Expr))
+      then
+         return True;
+
+      --  19. A call to a predefined equality or ordering operator, where one
+      --  operand is the current instance, and the other is a static
+      --  expression.
+
+      --  Note: the RM is clearly wrong here in not excluding string types.
+      --  Without this exclusion, we would allow expressions like X > "ABC"
+      --  to be considered as predicate-static, which is clearly not intended,
+      --  since the idea is for predicate-static to be a subset of normal
+      --  static expressions (and "DEF" > "ABC" is not a static expression).
+
+      --  However, we do allow internally generated (not from source) equality
+      --  and inequality operations to be valid on strings (this helps deal
+      --  with cases where we transform A in "ABC" to A = "ABC).
+
+      elsif Nkind (Expr) in N_Op_Compare
+        and then ((not Is_String_Type (Etype (Left_Opnd (Expr))))
+                    or else (Nkind_In (Expr, N_Op_Eq, N_Op_Ne)
+                              and then not Comes_From_Source (Expr)))
+        and then ((Is_Type_Ref (Left_Opnd (Expr))
+                    and then Is_OK_Static_Expression (Right_Opnd (Expr)))
+                  or else
+                    (Is_Type_Ref (Right_Opnd (Expr))
+                      and then Is_OK_Static_Expression (Left_Opnd (Expr))))
+      then
+         return True;
+
+      --  20. A call to a predefined boolean logical operator, where each
+      --  operand is predicate-static.
+
+      elsif (Nkind_In (Expr, N_Op_And, N_Op_Or, N_Op_Xor)
+              and then Is_Predicate_Static (Left_Opnd (Expr), Nam)
+              and then Is_Predicate_Static (Right_Opnd (Expr), Nam))
+        or else
+            (Nkind (Expr) = N_Op_Not
+              and then Is_Predicate_Static (Right_Opnd (Expr), Nam))
+      then
+         return True;
+
+      --  21. A short-circuit control form where both operands are
+      --  predicate-static.
+
+      elsif Nkind (Expr) in N_Short_Circuit
+        and then Is_Predicate_Static (Left_Opnd (Expr), Nam)
+        and then Is_Predicate_Static (Right_Opnd (Expr), Nam)
+      then
+         return True;
+
+      --  22. A parenthesized predicate-static expression. This does not
+      --  require any special test, since we just ignore paren levels in
+      --  all the cases above.
+
+      --  One more test that is an implementation artifact caused by the fact
+      --  that we are analyzing not the original expression, but the generated
+      --  expression in the body of the predicate function. This can include
+      --  references to inherited predicates, so that the expression we are
+      --  processing looks like:
+
+      --    xxPredicate (typ (Inns)) and then expression
+
+      --  Where the call is to a Predicate function for an inherited predicate.
+      --  We simply ignore such a call, which could be to either a dynamic or
+      --  a static predicate. Note that if the parent predicate is dynamic then
+      --  eventually this type will be marked as dynamic, but you are allowed
+      --  to specify a static predicate for a subtype which is inheriting a
+      --  dynamic predicate, so the static predicate validation here ignores
+      --  the inherited predicate even if it is dynamic.
+
+      elsif Nkind (Expr) = N_Function_Call
+        and then Is_Predicate_Function (Entity (Name (Expr)))
+      then
+         return True;
+
+      --  That's an exhaustive list of tests, all other cases are not
+      --  predicate-static, so we return False.
+
+      else
+         return False;
+      end if;
+   end Is_Predicate_Static;
+
+   ---------------------
+   -- Kill_Rep_Clause --
+   ---------------------
+
+   procedure Kill_Rep_Clause (N : Node_Id) is
+   begin
+      pragma Assert (Ignore_Rep_Clauses);
+
+      --  Note: we use Replace rather than Rewrite, because we don't want
+      --  ASIS to be able to use Original_Node to dig out the (undecorated)
+      --  rep clause that is being replaced.
+
+      Replace (N, Make_Null_Statement (Sloc (N)));
+
+      --  The null statement must be marked as not coming from source. This is
+      --  so that ASIS ignores it, and also the back end does not expect bogus
+      --  "from source" null statements in weird places (e.g. in declarative
+      --  regions where such null statements are not allowed).
+
+      Set_Comes_From_Source (N, False);
+   end Kill_Rep_Clause;
 
    ------------------
    -- Minimum_Size --
@@ -8916,24 +11806,13 @@ package body Sem_Ch13 is
       --  need to know such a size, but this routine may be called with a
       --  generic type as part of normal processing.
 
-      elsif Is_Generic_Type (R_Typ)
-        or else R_Typ = Any_Type
-      then
+      elsif Is_Generic_Type (R_Typ) or else R_Typ = Any_Type then
          return 0;
 
-         --  Access types. Normally an access type cannot have a size smaller
-         --  than the size of System.Address. The exception is on VMS, where
-         --  we have short and long addresses, and it is possible for an access
-         --  type to have a short address size (and thus be less than the size
-         --  of System.Address itself). We simply skip the check for VMS, and
-         --  leave it to the back end to do the check.
+         --  Access types (cannot have size smaller than System.Address)
 
       elsif Is_Access_Type (T) then
-         if OpenVMS_On_Target then
-            return 0;
-         else
-            return System_Address_Size;
-         end if;
+         return System_Address_Size;
 
       --  Floating-point types
 
@@ -9063,11 +11942,20 @@ package body Sem_Ch13 is
          Lo := Uint_0;
       end if;
 
+      --  Null range case, size is always zero. We only do this in the discrete
+      --  type case, since that's the odd case that came up. Probably we should
+      --  also do this in the fixed-point case, but doing so causes peculiar
+      --  gigi failures, and it is not worth worrying about this incredibly
+      --  marginal case (explicit null-range fixed-point type declarations)???
+
+      if Lo > Hi and then Is_Discrete_Type (T) then
+         S := 0;
+
       --  Signed case. Note that we consider types like range 1 .. -1 to be
       --  signed for the purpose of computing the size, since the bounds have
       --  to be accommodated in the base type.
 
-      if Lo < 0 or else Hi < 0 then
+      elsif Lo < 0 or else Hi < 0 then
          S := 1;
          B := Uint_1;
 
@@ -9145,7 +12033,7 @@ package body Sem_Ch13 is
          Out_P   : constant Boolean := (Nam = TSS_Stream_Read);
          Formals : List_Id;
          Spec    : Node_Id;
-         T_Ref   : constant Node_Id := New_Reference_To (Etyp, Loc);
+         T_Ref   : constant Node_Id := New_Occurrence_Of (Etyp, Loc);
 
       begin
          Subp_Id := Make_Defining_Identifier (Loc, Sname);
@@ -9159,7 +12047,7 @@ package body Sem_Ch13 is
                         Parameter_Type =>
                           Make_Access_Definition (Loc,
                             Subtype_Mark =>
-                              New_Reference_To (
+                              New_Occurrence_Of (
                                 Designated_Type (Etype (F)), Loc))));
 
          if Nam = TSS_Stream_Input then
@@ -9229,7 +12117,7 @@ package body Sem_Ch13 is
       Subp_Decl :=
         Make_Subprogram_Renaming_Declaration (Loc,
           Specification => Build_Spec,
-          Name => New_Reference_To (Subp, Loc));
+          Name => New_Occurrence_Of (Subp, Loc));
 
       if Defer_Declaration then
          Set_TSS (Base_Type (Ent), Subp_Id);
@@ -9238,6 +12126,24 @@ package body Sem_Ch13 is
          Copy_TSS (Subp_Id, Base_Type (Ent));
       end if;
    end New_Stream_Subprogram;
+
+   ------------------------------------------
+   -- Push_Scope_And_Install_Discriminants --
+   ------------------------------------------
+
+   procedure Push_Scope_And_Install_Discriminants (E : Entity_Id) is
+   begin
+      if Has_Discriminants (E) then
+         Push_Scope (E);
+
+         --  Make discriminants visible for type declarations and protected
+         --  type declarations, not for subtype declarations (RM 13.1.1 (12/3))
+
+         if Nkind (Parent (E)) /= N_Subtype_Declaration then
+            Install_Discriminants (E);
+         end if;
+      end if;
+   end Push_Scope_And_Install_Discriminants;
 
    ------------------------
    -- Rep_Item_Too_Early --
@@ -9252,6 +12158,8 @@ package body Sem_Ch13 is
 
       elsif Is_Type (T)
         and then Is_Generic_Type (Root_Type (T))
+        and then (Nkind (N) /= N_Pragma
+                   or else Get_Pragma_Id (N) /= Pragma_Convention)
       then
          Error_Msg_N ("representation item not allowed for generic type", N);
          return True;
@@ -9299,10 +12207,28 @@ package body Sem_Ch13 is
       S           : Entity_Id;
       Parent_Type : Entity_Id;
 
+      procedure No_Type_Rep_Item;
+      --  Output message indicating that no type-related aspects can be
+      --  specified due to some property of the parent type.
+
       procedure Too_Late;
-      --  Output the too late message. Note that this is not considered a
-      --  serious error, since the effect is simply that we ignore the
-      --  representation clause in this case.
+      --  Output message for an aspect being specified too late
+
+      --  Note that neither of the above errors is considered a serious one,
+      --  since the effect is simply that we ignore the representation clause
+      --  in these cases.
+      --  Is this really true? In any case if we make this change we must
+      --  document the requirement in the spec of Rep_Item_Too_Late that
+      --  if True is returned, then the rep item must be completely ignored???
+
+      ----------------------
+      -- No_Type_Rep_Item --
+      ----------------------
+
+      procedure No_Type_Rep_Item is
+      begin
+         Error_Msg_N ("|type-related representation item not permitted!", N);
+      end No_Type_Rep_Item;
 
       --------------
       -- Too_Late --
@@ -9329,7 +12255,7 @@ package body Sem_Ch13 is
         --  Exclude imported types, which may be frozen if they appear in a
         --  representation clause for a local type.
 
-        and then not From_With_Type (T)
+        and then not From_Limited_With (T)
 
         --  Exclude generated entities (not coming from source). The common
         --  case is when we generate a renaming which prematurely freezes the
@@ -9342,14 +12268,18 @@ package body Sem_Ch13 is
          S := First_Subtype (T);
 
          if Present (Freeze_Node (S)) then
-            Error_Msg_NE
-              ("??no more representation items for }", Freeze_Node (S), S);
+            if not Relaxed_RM_Semantics then
+               Error_Msg_NE
+                 ("??no more representation items for }", Freeze_Node (S), S);
+            end if;
          end if;
 
          return True;
 
-      --  Check for case of non-tagged derived type whose parent either has
-      --  primitive operations, or is a by reference type (RM 13.1(10)).
+      --  Check for case of untagged derived type whose parent either has
+      --  primitive operations, or is a by reference type (RM 13.1(10)). In
+      --  this case we do not output a Too_Late message, since there is no
+      --  earlier point where the rep item could be placed to make it legal.
 
       elsif Is_Type (T)
         and then not FOnly
@@ -9359,17 +12289,67 @@ package body Sem_Ch13 is
          Parent_Type := Etype (Base_Type (T));
 
          if Has_Primitive_Operations (Parent_Type) then
-            Too_Late;
-            Error_Msg_NE
-              ("primitive operations already defined for&!", N, Parent_Type);
+            No_Type_Rep_Item;
+
+            if not Relaxed_RM_Semantics then
+               Error_Msg_NE
+                 ("\parent type & has primitive operations!", N, Parent_Type);
+            end if;
+
             return True;
 
          elsif Is_By_Reference_Type (Parent_Type) then
-            Too_Late;
-            Error_Msg_NE
-              ("parent type & is a by reference type!", N, Parent_Type);
+            No_Type_Rep_Item;
+
+            if not Relaxed_RM_Semantics then
+               Error_Msg_NE
+                 ("\parent type & is a by reference type!", N, Parent_Type);
+            end if;
+
             return True;
          end if;
+      end if;
+
+      --  No error, but one more warning to consider. The RM (surprisingly)
+      --  allows this pattern:
+
+      --    type S is ...
+      --    primitive operations for S
+      --    type R is new S;
+      --    rep clause for S
+
+      --  Meaning that calls on the primitive operations of S for values of
+      --  type R may require possibly expensive implicit conversion operations.
+      --  This is not an error, but is worth a warning.
+
+      if not Relaxed_RM_Semantics and then Is_Type (T) then
+         declare
+            DTL : constant Entity_Id := Derived_Type_Link (Base_Type (T));
+
+         begin
+            if Present (DTL)
+              and then Has_Primitive_Operations (Base_Type (T))
+
+              --  For now, do not generate this warning for the case of aspect
+              --  specification using Ada 2012 syntax, since we get wrong
+              --  messages we do not understand. The whole business of derived
+              --  types and rep items seems a bit confused when aspects are
+              --  used, since the aspects are not evaluated till freeze time.
+
+              and then not From_Aspect_Specification (N)
+            then
+               Error_Msg_Sloc := Sloc (DTL);
+               Error_Msg_N
+                 ("representation item for& appears after derived type "
+                  & "declaration#??", N);
+               Error_Msg_NE
+                 ("\may result in implicit conversions for primitive "
+                  & "operations of&??", N, T);
+               Error_Msg_NE
+                 ("\to change representations when called with arguments "
+                  & "of type&??", N, DTL);
+            end if;
+         end;
       end if;
 
       --  No error, link item into head of chain of rep items for the entity,
@@ -9396,7 +12376,8 @@ package body Sem_Ch13 is
    -- Replace_Type_References_Generic --
    -------------------------------------
 
-   procedure Replace_Type_References_Generic (N : Node_Id; TName : Name_Id) is
+   procedure Replace_Type_References_Generic (N : Node_Id; T : Entity_Id) is
+      TName : constant Name_Id := Chars (T);
 
       function Replace_Node (N : Node_Id) return Traverse_Result;
       --  Processes a single node in the traversal procedure below, checking
@@ -9418,9 +12399,18 @@ package body Sem_Ch13 is
 
          if Nkind (N) = N_Identifier then
 
-            --  If not the type name, all done with this node
+            --  If not the type name, check whether it is a reference to
+            --  some other type, which must be frozen before the predicate
+            --  function is analyzed, i.e. before the freeze node of the
+            --  type to which the predicate applies.
 
             if Chars (N) /= TName then
+               if Present (Current_Entity (N))
+                  and then Is_Type (Current_Entity (N))
+               then
+                  Freeze_Before (Freeze_Node (T), Current_Entity (N));
+               end if;
+
                return Skip;
 
             --  Otherwise do the replacement and we are done with this node
@@ -9488,7 +12478,7 @@ package body Sem_Ch13 is
                end loop;
             end if;
 
-            --  Continue for any other node kind
+         --  Continue for any other node kind
 
          else
             return OK;
@@ -9498,6 +12488,76 @@ package body Sem_Ch13 is
    begin
       Replace_Type_Refs (N);
    end Replace_Type_References_Generic;
+
+   --------------------------------
+   -- Resolve_Aspect_Expressions --
+   --------------------------------
+
+   procedure Resolve_Aspect_Expressions (E : Entity_Id) is
+      ASN  : Node_Id;
+      A_Id : Aspect_Id;
+      Expr : Node_Id;
+
+   begin
+      ASN := First_Rep_Item (E);
+      while Present (ASN) loop
+         if Nkind (ASN) = N_Aspect_Specification and then Entity (ASN) = E then
+            A_Id := Get_Aspect_Id (ASN);
+            Expr := Expression (ASN);
+
+            case A_Id is
+               --  For now we only deal with aspects that do not generate
+               --  subprograms, or that may mention current instances of
+               --  types. These will require special handling (???TBD).
+
+               when Aspect_Predicate |
+                    Aspect_Predicate_Failure |
+                    Aspect_Invariant |
+                    Aspect_Static_Predicate |
+                    Aspect_Dynamic_Predicate =>
+                  null;
+
+               when Pre_Post_Aspects =>
+                  null;
+
+               when Aspect_Iterable =>
+                  if Nkind (Expr) = N_Aggregate then
+                     declare
+                        Assoc : Node_Id;
+
+                     begin
+                        Assoc := First (Component_Associations (Expr));
+                        while Present (Assoc) loop
+                           Find_Direct_Name (Expression (Assoc));
+                           Next (Assoc);
+                        end loop;
+                     end;
+                  end if;
+
+               when others =>
+                  if Present (Expr) then
+                     case Aspect_Argument (A_Id) is
+                        when Expression | Optional_Expression  =>
+                           Analyze_And_Resolve (Expression (ASN));
+
+                        when Name | Optional_Name =>
+                           if Nkind (Expr) = N_Identifier then
+                              Find_Direct_Name (Expr);
+
+                           elsif Nkind (Expr) = N_Selected_Component then
+                              Find_Selected_Component (Expr);
+
+                           else
+                              null;
+                           end if;
+                     end case;
+                  end if;
+            end case;
+         end if;
+
+         ASN := Next_Rep_Item (ASN);
+      end loop;
+   end Resolve_Aspect_Expressions;
 
    -------------------------
    -- Same_Representation --
@@ -9542,8 +12602,7 @@ package body Sem_Ch13 is
          (Is_Record_Type (T2) or else Is_Array_Type (T2))
         and then
          (Component_Alignment (T1) /= Component_Alignment (T2)
-            or else
-              Reverse_Storage_Order (T1) /= Reverse_Storage_Order (T2))
+           or else Reverse_Storage_Order (T1) /= Reverse_Storage_Order (T2))
       then
          return False;
       end if;
@@ -9557,17 +12616,7 @@ package body Sem_Ch13 is
            and then Known_Component_Size (T2)
            and then Component_Size (T1) = Component_Size (T2)
          then
-            if VM_Target = No_VM then
-               return True;
-
-            --  In VM targets the representation of arrays with aliased
-            --  components differs from arrays with non-aliased components
-
-            else
-               return Has_Aliased_Components (Base_Type (T1))
-                        =
-                      Has_Aliased_Components (Base_Type (T2));
-            end if;
+            return True;
          end if;
       end if;
 
@@ -9713,6 +12762,152 @@ package body Sem_Ch13 is
       end if;
    end Same_Representation;
 
+   --------------------------------
+   -- Resolve_Iterable_Operation --
+   --------------------------------
+
+   procedure Resolve_Iterable_Operation
+     (N      : Node_Id;
+      Cursor : Entity_Id;
+      Typ    : Entity_Id;
+      Nam    : Name_Id)
+   is
+      Ent : Entity_Id;
+      F1  : Entity_Id;
+      F2  : Entity_Id;
+
+   begin
+      if not Is_Overloaded (N) then
+         if not Is_Entity_Name (N)
+           or else Ekind (Entity (N)) /= E_Function
+           or else Scope (Entity (N)) /= Scope (Typ)
+           or else No (First_Formal (Entity (N)))
+           or else Etype (First_Formal (Entity (N))) /= Typ
+         then
+            Error_Msg_N ("iterable primitive must be local function name "
+                         & "whose first formal is an iterable type", N);
+            return;
+         end if;
+
+         Ent := Entity (N);
+         F1 := First_Formal (Ent);
+         if Nam = Name_First then
+
+            --  First (Container) => Cursor
+
+            if Etype (Ent) /= Cursor then
+               Error_Msg_N ("primitive for First must yield a curosr", N);
+            end if;
+
+         elsif Nam = Name_Next then
+
+            --  Next (Container, Cursor) => Cursor
+
+            F2 := Next_Formal (F1);
+
+            if Etype (F2) /= Cursor
+              or else Etype (Ent) /= Cursor
+              or else Present (Next_Formal (F2))
+            then
+               Error_Msg_N ("no match for Next iterable primitive", N);
+            end if;
+
+         elsif Nam = Name_Has_Element then
+
+            --  Has_Element (Container, Cursor) => Boolean
+
+            F2 := Next_Formal (F1);
+            if Etype (F2) /= Cursor
+              or else Etype (Ent) /= Standard_Boolean
+              or else Present (Next_Formal (F2))
+            then
+               Error_Msg_N ("no match for Has_Element iterable primitive", N);
+            end if;
+
+         elsif Nam = Name_Element then
+            F2 := Next_Formal (F1);
+
+            if No (F2)
+              or else Etype (F2) /= Cursor
+              or else Present (Next_Formal (F2))
+            then
+               Error_Msg_N ("no match for Element iterable primitive", N);
+            end if;
+            null;
+
+         else
+            raise Program_Error;
+         end if;
+
+      else
+         --  Overloaded case: find subprogram with proper signature.
+         --  Caller will report error if no match is found.
+
+         declare
+            I  : Interp_Index;
+            It : Interp;
+
+         begin
+            Get_First_Interp (N, I, It);
+            while Present (It.Typ) loop
+               if Ekind (It.Nam) = E_Function
+                  and then Scope (It.Nam) = Scope (Typ)
+                  and then Etype (First_Formal (It.Nam)) = Typ
+               then
+                  F1 := First_Formal (It.Nam);
+
+                  if Nam = Name_First then
+                     if Etype (It.Nam) = Cursor
+                       and then No (Next_Formal (F1))
+                     then
+                        Set_Entity (N, It.Nam);
+                        exit;
+                     end if;
+
+                  elsif Nam = Name_Next then
+                     F2 := Next_Formal (F1);
+
+                     if Present (F2)
+                       and then No (Next_Formal (F2))
+                       and then Etype (F2) = Cursor
+                       and then Etype (It.Nam) = Cursor
+                     then
+                        Set_Entity (N, It.Nam);
+                        exit;
+                     end if;
+
+                  elsif Nam = Name_Has_Element then
+                     F2 := Next_Formal (F1);
+
+                     if Present (F2)
+                       and then No (Next_Formal (F2))
+                       and then Etype (F2) = Cursor
+                       and then Etype (It.Nam) = Standard_Boolean
+                     then
+                        Set_Entity (N, It.Nam);
+                        F2 := Next_Formal (F1);
+                        exit;
+                     end if;
+
+                  elsif Nam = Name_Element then
+                     F2 := Next_Formal (F1);
+
+                     if Present (F2)
+                       and then No (Next_Formal (F2))
+                       and then Etype (F2) = Cursor
+                     then
+                        Set_Entity (N, It.Nam);
+                        exit;
+                     end if;
+                  end if;
+               end if;
+
+               Get_Next_Interp (I, It);
+            end loop;
+         end;
+      end if;
+   end Resolve_Iterable_Operation;
+
    ----------------
    -- Set_Biased --
    ----------------
@@ -9787,12 +12982,79 @@ package body Sem_Ch13 is
 
       if Has_Foreign_Convention (T)
         and then Esize (T) < Standard_Integer_Size
+
+        --  Don't do this if Short_Enums on target
+
+        and then not Target_Short_Enums
       then
          Init_Esize (T, Standard_Integer_Size);
       else
          Init_Esize (T, Sz);
       end if;
    end Set_Enum_Esize;
+
+   -----------------------------
+   -- Uninstall_Discriminants --
+   -----------------------------
+
+   procedure Uninstall_Discriminants (E : Entity_Id) is
+      Disc  : Entity_Id;
+      Prev  : Entity_Id;
+      Outer : Entity_Id;
+
+   begin
+      --  Discriminants have been made visible for type declarations and
+      --  protected type declarations, not for subtype declarations.
+
+      if Nkind (Parent (E)) /= N_Subtype_Declaration then
+         Disc := First_Discriminant (E);
+         while Present (Disc) loop
+            if Disc /= Current_Entity (Disc) then
+               Prev := Current_Entity (Disc);
+               while Present (Prev)
+                 and then Present (Homonym (Prev))
+                 and then Homonym (Prev) /= Disc
+               loop
+                  Prev := Homonym (Prev);
+               end loop;
+            else
+               Prev := Empty;
+            end if;
+
+            Set_Is_Immediately_Visible (Disc, False);
+
+            Outer := Homonym (Disc);
+            while Present (Outer) and then Scope (Outer) = E loop
+               Outer := Homonym (Outer);
+            end loop;
+
+            --  Reset homonym link of other entities, but do not modify link
+            --  between entities in current scope, so that the back end can
+            --  have a proper count of local overloadings.
+
+            if No (Prev) then
+               Set_Name_Entity_Id (Chars (Disc), Outer);
+
+            elsif Scope (Prev) /= Scope (Disc) then
+               Set_Homonym (Prev,  Outer);
+            end if;
+
+            Next_Discriminant (Disc);
+         end loop;
+      end if;
+   end Uninstall_Discriminants;
+
+   -------------------------------------------
+   -- Uninstall_Discriminants_And_Pop_Scope --
+   -------------------------------------------
+
+   procedure Uninstall_Discriminants_And_Pop_Scope (E : Entity_Id) is
+   begin
+      if Has_Discriminants (E) then
+         Uninstall_Discriminants (E);
+         Pop_Scope;
+      end if;
+   end Uninstall_Discriminants_And_Pop_Scope;
 
    ------------------------------
    -- Validate_Address_Clauses --
@@ -9836,7 +13098,7 @@ package body Sem_Ch13 is
                  and then X_Size > Y_Size
                then
                   Error_Msg_NE
-                    ("?& overlays smaller object", ACCR.N, ACCR.X);
+                    ("??& overlays smaller object", ACCR.N, ACCR.X);
                   Error_Msg_N
                     ("\??program execution may be erroneous", ACCR.N);
                   Error_Msg_Uint_1 := X_Size;
@@ -9847,12 +13109,16 @@ package body Sem_Ch13 is
                     ("\??size of & is ^", ACCR.N, ACCR.Y);
 
                --  Check for inadequate alignment, both of the base object
-               --  and of the offset, if any.
+               --  and of the offset, if any. We only do this check if the
+               --  run-time Alignment_Check is active. No point in warning
+               --  if this check has been suppressed (or is suppressed by
+               --  default in the non-strict alignment machine case).
 
                --  Note: we do not check the alignment if we gave a size
                --  warning, since it would likely be redundant.
 
-               elsif Y_Alignment /= Uint_0
+               elsif not Alignment_Checks_Suppressed (ACCR.Y)
+                 and then Y_Alignment /= Uint_0
                  and then (Y_Alignment < X_Alignment
                              or else (ACCR.Off
                                         and then
@@ -9934,11 +13200,24 @@ package body Sem_Ch13 is
             return;
          end if;
 
+         --  Case of component size is greater than or equal to 64 and the
+         --  alignment of the array is at least as large as the alignment
+         --  of the component. We are definitely OK in this situation.
+
+         if Known_Component_Size (Atyp)
+           and then Component_Size (Atyp) >= 64
+           and then Known_Alignment (Atyp)
+           and then Known_Alignment (Ctyp)
+           and then Alignment (Atyp) >= Alignment (Ctyp)
+         then
+            return;
+         end if;
+
          --  Check actual component size
 
          if not Known_Component_Size (Atyp)
            or else not (Addressable (Component_Size (Atyp))
-                          and then Component_Size (Atyp) < 64)
+                         and then Component_Size (Atyp) < 64)
            or else Component_Size (Atyp) mod Esize (Ctyp) /= 0
          then
             No_Independence;
@@ -10169,6 +13448,83 @@ package body Sem_Ch13 is
       end loop;
    end Validate_Independence;
 
+   ------------------------------
+   -- Validate_Iterable_Aspect --
+   ------------------------------
+
+   procedure Validate_Iterable_Aspect (Typ : Entity_Id; ASN : Node_Id) is
+      Assoc : Node_Id;
+      Expr  : Node_Id;
+
+      Prim   : Node_Id;
+      Cursor : constant Entity_Id := Get_Cursor_Type (ASN, Typ);
+
+      First_Id       : Entity_Id;
+      Next_Id        : Entity_Id;
+      Has_Element_Id : Entity_Id;
+      Element_Id     : Entity_Id;
+
+   begin
+      --  If previous error aspect is unusable
+
+      if Cursor = Any_Type then
+         return;
+      end if;
+
+      First_Id       := Empty;
+      Next_Id        := Empty;
+      Has_Element_Id := Empty;
+      Element_Id     := Empty;
+
+      --  Each expression must resolve to a function with the proper signature
+
+      Assoc := First (Component_Associations (Expression (ASN)));
+      while Present (Assoc) loop
+         Expr := Expression (Assoc);
+         Analyze (Expr);
+
+         Prim := First (Choices (Assoc));
+
+         if Nkind (Prim) /= N_Identifier or else Present (Next (Prim)) then
+            Error_Msg_N ("illegal name in association", Prim);
+
+         elsif Chars (Prim) = Name_First then
+            Resolve_Iterable_Operation (Expr, Cursor, Typ, Name_First);
+            First_Id := Entity (Expr);
+
+         elsif Chars (Prim) = Name_Next then
+            Resolve_Iterable_Operation (Expr, Cursor, Typ, Name_Next);
+            Next_Id := Entity (Expr);
+
+         elsif Chars (Prim) = Name_Has_Element then
+            Resolve_Iterable_Operation (Expr, Cursor, Typ, Name_Has_Element);
+            Has_Element_Id := Entity (Expr);
+
+         elsif Chars (Prim) = Name_Element then
+            Resolve_Iterable_Operation (Expr, Cursor, Typ, Name_Element);
+            Element_Id := Entity (Expr);
+
+         else
+            Error_Msg_N ("invalid name for iterable function", Prim);
+         end if;
+
+         Next (Assoc);
+      end loop;
+
+      if No (First_Id) then
+         Error_Msg_N ("match for First primitive not found", ASN);
+
+      elsif No (Next_Id) then
+         Error_Msg_N ("match for Next primitive not found", ASN);
+
+      elsif No (Has_Element_Id) then
+         Error_Msg_N ("match for Has_Element primitive not found", ASN);
+
+      elsif No (Element_Id) then
+         null;  --  Optional.
+      end if;
+   end Validate_Iterable_Aspect;
+
    -----------------------------------
    -- Validate_Unchecked_Conversion --
    -----------------------------------
@@ -10188,7 +13544,7 @@ package body Sem_Ch13 is
 
       --  If we are dealing with private types, then do the check on their
       --  fully declared counterparts if the full declarations have been
-      --  encountered (they don't have to be visible, but they must exist!)
+      --  encountered (they don't have to be visible, but they must exist).
 
       Source := Ancestor_Subtype (Etype (First_Formal (Act_Unit)));
 
@@ -10214,9 +13570,13 @@ package body Sem_Ch13 is
          Target := Underlying_Type (Target);
       end if;
 
-      --  Source may be unconstrained array, but not target
+      --  Source may be unconstrained array, but not target, except in relaxed
+      --  semantics mode.
 
-      if Is_Array_Type (Target) and then not Is_Constrained (Target) then
+      if Is_Array_Type (Target)
+        and then not Is_Constrained (Target)
+        and then not Relaxed_RM_Semantics
+      then
          Error_Msg_N
            ("unchecked conversion to unconstrained array not allowed", N);
          return;
@@ -10229,13 +13589,10 @@ package body Sem_Ch13 is
         and then Convention (Target) /= Convention (Source)
         and then Warn_On_Unchecked_Conversion
       then
-         --  Give warnings for subprogram pointers only on most targets. The
-         --  exception is VMS, where data pointers can have different lengths
-         --  depending on the pointer convention.
+         --  Give warnings for subprogram pointers only on most targets
 
          if Is_Access_Subprogram_Type (Target)
            or else Is_Access_Subprogram_Type (Source)
-           or else OpenVMS_On_Target
          then
             Error_Msg_N
               ("?z?conversion between pointers with different conventions!",
@@ -10249,38 +13606,37 @@ package body Sem_Ch13 is
       if Warn_On_Unchecked_Conversion
         and then not In_Predefined_Unit (N)
         and then RTU_Loaded (Ada_Calendar)
-        and then
-          (Chars (Source) = Name_Time
-             or else
-           Chars (Target) = Name_Time)
+        and then (Chars (Source) = Name_Time
+                    or else
+                  Chars (Target) = Name_Time)
       then
          --  If Ada.Calendar is loaded and the name of one of the operands is
          --  Time, there is a good chance that this is Ada.Calendar.Time.
 
          declare
-            Calendar_Time : constant Entity_Id :=
-                              Full_View (RTE (RO_CA_Time));
+            Calendar_Time : constant Entity_Id := Full_View (RTE (RO_CA_Time));
          begin
             pragma Assert (Present (Calendar_Time));
 
             if Source = Calendar_Time or else Target = Calendar_Time then
                Error_Msg_N
-                 ("?z?representation of 'Time values may change between " &
-                  "'G'N'A'T versions", N);
+                 ("?z?representation of 'Time values may change between "
+                  & "'G'N'A'T versions", N);
             end if;
          end;
       end if;
 
       --  Make entry in unchecked conversion table for later processing by
       --  Validate_Unchecked_Conversions, which will check sizes and alignments
-      --  (using values set by the back-end where possible). This is only done
+      --  (using values set by the back end where possible). This is only done
       --  if the appropriate warning is active.
 
       if Warn_On_Unchecked_Conversion then
          Unchecked_Conversions.Append
-           (New_Val => UC_Entry'(Eloc   => Sloc (N),
-                                 Source => Source,
-                                 Target => Target));
+           (New_Val => UC_Entry'(Eloc     => Sloc (N),
+                                 Source   => Source,
+                                 Target   => Target,
+                                 Act_Unit => Act_Unit));
 
          --  If both sizes are known statically now, then back end annotation
          --  is not required to do a proper check but if either size is not
@@ -10335,14 +13691,21 @@ package body Sem_Ch13 is
          declare
             T : UC_Entry renames Unchecked_Conversions.Table (N);
 
-            Eloc   : constant Source_Ptr := T.Eloc;
-            Source : constant Entity_Id  := T.Source;
-            Target : constant Entity_Id  := T.Target;
+            Eloc     : constant Source_Ptr := T.Eloc;
+            Source   : constant Entity_Id  := T.Source;
+            Target   : constant Entity_Id  := T.Target;
+            Act_Unit : constant Entity_Id  := T.Act_Unit;
 
             Source_Siz : Uint;
             Target_Siz : Uint;
 
          begin
+            --  Skip if function marked as warnings off
+
+            if Warnings_Off (Act_Unit) then
+               goto Continue;
+            end if;
+
             --  This validation check, which warns if we have unequal sizes for
             --  unchecked conversion, and thus potentially implementation
             --  dependent semantics, is one of the few occasions on which we
@@ -10390,7 +13753,7 @@ package body Sem_Ch13 is
                         elsif Is_Unsigned_Type (Source) then
                            Error_Msg
                              ("\?z?source will be extended with ^ high order "
-                              & "zero bits?!", Eloc);
+                              & "zero bits!", Eloc);
 
                         else
                            Error_Msg
@@ -10417,9 +13780,22 @@ package body Sem_Ch13 is
                         end if;
 
                      else pragma Assert (Source_Siz > Target_Siz);
-                        Error_Msg
-                          ("\?z?^ trailing bits of source will be ignored!",
-                           Eloc);
+                        if Is_Discrete_Type (Source) then
+                           if Bytes_Big_Endian then
+                              Error_Msg
+                                ("\?z?^ low order bits of source will be "
+                                 & "ignored!", Eloc);
+                           else
+                              Error_Msg
+                                ("\?z?^ high order bits of source will be "
+                                 & "ignored!", Eloc);
+                           end if;
+
+                        else
+                           Error_Msg
+                             ("\?z?^ trailing bits of source will be "
+                              & "ignored!", Eloc);
+                        end if;
                      end if;
                   end if;
                end if;
@@ -10429,8 +13805,8 @@ package body Sem_Ch13 is
             --  If the alignment of both is specified, we can do it here.
 
             if Serious_Errors_Detected = 0
-              and then Ekind (Source) in Access_Kind
-              and then Ekind (Target) in Access_Kind
+              and then Is_Access_Type (Source)
+              and then Is_Access_Type (Target)
               and then Target_Strict_Alignment
               and then Present (Designated_Type (Source))
               and then Present (Designated_Type (Target))
@@ -10482,6 +13858,9 @@ package body Sem_Ch13 is
                end;
             end if;
          end;
+
+      <<Continue>>
+         null;
       end loop;
    end Validate_Unchecked_Conversions;
 

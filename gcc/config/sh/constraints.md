@@ -1,5 +1,5 @@
 ;; Constraint definitions for Renesas / SuperH SH.
-;; Copyright (C) 2007-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2007-2015 Free Software Foundation, Inc.
 ;;
 ;; This file is part of GCC.
 ;;
@@ -18,10 +18,14 @@
 ;; <http://www.gnu.org/licenses/>.
 
 ;; Overview of uppercase letter constraints:
+;; Axx: atomic memory operand constraints
+;;  Ara: Same as Sra but disallows r15
+;;  Add: Same as Sdd but disallows r15
 ;; Bxx: miscellaneous constraints
 ;;  Bsc: SCRATCH - for the scratch register in movsi_ie in the
 ;;       fldi0 / fldi0 cases
 ;; Cxx: Constants other than only CONST_INT
+;;  Ccl: call site label
 ;;  Css: signed 16-bit constant, literal or symbolic
 ;;  Csu: unsigned 16-bit constant, literal or symbolic
 ;;  Csy: label or symbol
@@ -55,7 +59,7 @@
 ;; Z: zero in any mode
 ;;
 ;; unused CONST_INT constraint letters: LO
-;; unused EXTRA_CONSTRAINT letters: D T U Y
+;; unused "extra" constraint letters: D T U Y
 
 ;; Register constraints
 (define_register_constraint "a" "ALL_REGS"
@@ -210,17 +214,18 @@
 (define_constraint "G"
   "Double constant 0."
   (and (match_code "const_double")
-       (match_test "fp_zero_operand (op) && fldi_ok ()")))
+       (match_test "fp_zero_operand (op)")))
 
 (define_constraint "H"
   "Double constant 1."
   (and (match_code "const_double")
-       (match_test "fp_one_operand (op) && fldi_ok ()")))
+       (match_test "fp_one_operand (op)")))
 
 ;; Extra constraints
 (define_constraint "Q"
   "A pc relative load operand."
   (and (match_code "mem")
+       (match_test "GET_MODE (op) != QImode")
        (match_test "IS_PC_RELATIVE_LOAD_ADDR_P (XEXP (op, 0))")))
 
 (define_constraint "Bsc"
@@ -228,6 +233,11 @@
    operand is not SCRATCH (i.e. REG) then R0 is probably being used,
    hence mova is being used, hence do not select this pattern."
   (match_code "scratch"))
+
+(define_constraint "Ccl"
+  "A call site label, for bsrf."
+  (and (match_code "unspec")
+       (match_test "XINT (op, 1) == UNSPEC_CALLER")))
 
 (define_constraint "Css"
   "A signed 16-bit constant, literal or symbolic."
@@ -295,13 +305,28 @@
 
 (define_memory_constraint "Sdd"
   "A memory reference that uses displacement addressing."
-  (and (match_test "MEM_P (op) && GET_CODE (XEXP (op, 0)) == PLUS")
-       (match_test "REG_P (XEXP (XEXP (op, 0), 0))")
-       (match_test "CONST_INT_P (XEXP (XEXP (op, 0), 1))")))
+  (and (match_code "mem")
+       (match_code "plus" "0")
+       (match_code "reg" "00")
+       (match_code "const_int" "01")))
 
 (define_memory_constraint "Snd"
   "A memory reference that excludes displacement addressing."
-  (match_test "! satisfies_constraint_Sdd (op)"))
+  (and (match_code "mem")
+       (match_test "! satisfies_constraint_Sdd (op)")))
+
+(define_memory_constraint "Sid"
+  "A memory reference that uses index addressing."
+  (and (match_code "mem")
+       (match_code "plus" "0")
+       (match_code "reg" "00")
+       (match_code "reg" "01")))
+
+(define_memory_constraint "Ssd"
+  "A memory reference that excludes index and displacement addressing."
+  (and (match_code "mem")
+       (match_test "! satisfies_constraint_Sid (op)")
+       (match_test "! satisfies_constraint_Sdd (op)")))
 
 (define_memory_constraint "Sbv"
   "A memory reference, as used in SH2A bclr.b, bset.b, etc."
@@ -316,6 +341,22 @@
 
 (define_memory_constraint "Sra"
   "A memory reference that uses simple register addressing."
-  (and (match_test "MEM_P (op)")
-       (match_test "REG_P (XEXP (op, 0))")))
+  (and (match_code "mem")
+       (match_code "reg" "0")))
 
+(define_memory_constraint "Ara"
+  "A memory reference that uses simple register addressing suitable for
+   gusa atomic operations."
+  (and (match_code "mem")
+       (match_code "reg" "0")
+       (match_test "REGNO (XEXP (op, 0)) != SP_REG")))
+
+(define_memory_constraint "Add"
+  "A memory reference that uses displacement addressing suitable for
+   gusa atomic operations."
+  (and (match_code "mem")
+       (match_test "GET_MODE (op) == SImode")
+       (match_code "plus" "0")
+       (match_code "reg" "00")
+       (match_code "const_int" "01")
+       (match_test "REGNO (XEXP (XEXP (op, 0), 0)) != SP_REG")))

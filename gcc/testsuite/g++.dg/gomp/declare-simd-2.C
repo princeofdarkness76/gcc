@@ -52,9 +52,56 @@ int t;
 #pragma omp threadprivate(t)	// { dg-error "not immediately followed by function declaration or definition" }
 int fn10 (int a);
 
+<<<<<<< HEAD
 #pragma omp declare simd inbranch notinbranch
 int fn11 (int);		// { dg-error "clause is incompatible with" }
 
 #pragma omp declare simd simdlen (N)	// { dg-error "was not declared in this scope" }
 template <int N>
 int fn12 (int);
+=======
+#pragma omp declare simd inbranch notinbranch // { dg-error "clause is incompatible with" }
+int fn11 (int);
+
+struct D
+{
+  int d;
+  #pragma omp declare simd simdlen (N) linear (a : sizeof (e) + sizeof (this->e)) // { dg-error "was not declared" }
+  template <int N>
+  int fn12 (int a);
+  int e;
+};
+
+#pragma omp declare simd aligned (a, b, c, d)
+int fn13 (int *a, int b[64], int *&c, int (&d)[64]);
+
+#pragma omp declare simd aligned (a)	// { dg-error "neither a pointer nor an array" }
+int fn14 (int a);
+
+#pragma omp declare simd aligned (b)	// { dg-error "neither a pointer nor an array" }
+int fn14 (int &b);
+
+#pragma omp declare simd aligned (c)	// { dg-error "neither a pointer nor an array" }
+int fn14 (float c);
+
+#pragma omp declare simd aligned (d)	// { dg-error "neither a pointer nor an array" }
+int fn14 (double &d);
+
+#pragma omp declare simd aligned (e)	// { dg-error "neither a pointer nor an array" }
+int fn14 (D e);
+
+#pragma omp declare simd linear(a:7) uniform(a)	// { dg-error "appears more than once" }
+int f15 (int a);
+#pragma omp declare simd linear(a) linear(a)	// { dg-error "appears more than once" }
+int f16 (int a);
+#pragma omp declare simd linear(a) linear(a:7)	// { dg-error "appears more than once" }
+int f17 (int a);
+#pragma omp declare simd linear(a:6) linear(a:6)// { dg-error "appears more than once" }
+int f18 (int a);
+#pragma omp declare simd uniform(a) uniform(a)	// { dg-error "appears more than once" }
+int f19 (int a);
+#pragma omp declare simd uniform(a) aligned (a: 32)
+int f20 (int *a);
+
+// { dg-error "has no member" "" { target *-*-* } 61 }
+>>>>>>> gcc-mirror/master

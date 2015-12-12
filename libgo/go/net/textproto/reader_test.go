@@ -24,7 +24,14 @@ var canonicalHeaderKeyTests = []canonicalHeaderKeyTest{
 	{"uSER-aGENT", "User-Agent"},
 	{"user-agent", "User-Agent"},
 	{"USER-AGENT", "User-Agent"},
-	{"üser-agenT", "üser-Agent"}, // non-ASCII unchanged
+
+	// Non-ASCII or anything with spaces or non-token chars is unchanged:
+	{"üser-agenT", "üser-agenT"},
+	{"a B", "a B"},
+
+	// This caused a panic due to mishandling of a space:
+	{"C Ontent-Transfer-Encoding", "C Ontent-Transfer-Encoding"},
+	{"foo bar", "foo bar"},
 }
 
 func TestCanonicalMIMEHeaderKey(t *testing.T) {
@@ -149,6 +156,15 @@ func TestReadMIMEHeaderSingle(t *testing.T) {
 	}
 }
 
+func TestReadMIMEHeaderNoKey(t *testing.T) {
+	r := reader(": bar\ntest-1: 1\n\n")
+	m, err := r.ReadMIMEHeader()
+	want := MIMEHeader{"Test-1": {"1"}}
+	if !reflect.DeepEqual(m, want) || err != nil {
+		t.Fatalf("ReadMIMEHeader: %v, %v; want %v", m, err, want)
+	}
+}
+
 func TestLargeReadMIMEHeader(t *testing.T) {
 	data := make([]byte, 16*1024)
 	for i := 0; i < len(data); i++ {
@@ -181,7 +197,7 @@ func TestReadMIMEHeaderNonCompliant(t *testing.T) {
 		"Foo":              {"bar"},
 		"Content-Language": {"en"},
 		"Sid":              {"0"},
-		"Audio-Mode":       {"None"},
+		"Audio Mode":       {"None"},
 		"Privilege":        {"127"},
 	}
 	if !reflect.DeepEqual(m, want) || err != nil {
@@ -243,24 +259,21 @@ func TestRFC959Lines(t *testing.T) {
 }
 
 func TestCommonHeaders(t *testing.T) {
-	// need to disable the commonHeaders-based optimization
-	// during this check, or we'd not be testing anything
-	oldch := commonHeaders
-	commonHeaders = []string{}
-	defer func() { commonHeaders = oldch }()
-
-	last := ""
-	for _, h := range oldch {
-		if last > h {
-			t.Errorf("%v is out of order", h)
+	for h := range commonHeader {
+		if h != CanonicalMIMEHeaderKey(h) {
+			t.Errorf("Non-canonical header %q in commonHeader", h)
 		}
-		if last == h {
-			t.Errorf("%v is duplicated", h)
+	}
+	t.Skip("gccgo escape analysis")
+	b := []byte("content-Length")
+	want := "Content-Length"
+	n := testing.AllocsPerRun(200, func() {
+		if x := canonicalMIMEHeaderKey(b); x != want {
+			t.Fatalf("canonicalMIMEHeaderKey(%q) = %q; want %q", b, x, want)
 		}
-		if canon := CanonicalMIMEHeaderKey(h); h != canon {
-			t.Errorf("%v is not canonical", h)
-		}
-		last = h
+	})
+	if n > 0 {
+		t.Errorf("canonicalMIMEHeaderKey allocs = %v; want 0", n)
 	}
 }
 
@@ -290,6 +303,7 @@ Non-Interned: test
 `, "\n", "\r\n", -1)
 
 func BenchmarkReadMIMEHeader(b *testing.B) {
+	b.ReportAllocs()
 	var buf bytes.Buffer
 	br := bufio.NewReader(&buf)
 	r := NewReader(br)
@@ -319,6 +333,7 @@ func BenchmarkReadMIMEHeader(b *testing.B) {
 }
 
 func BenchmarkUncommon(b *testing.B) {
+	b.ReportAllocs()
 	var buf bytes.Buffer
 	br := bufio.NewReader(&buf)
 	r := NewReader(br)

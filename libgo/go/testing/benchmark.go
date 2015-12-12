@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -34,12 +35,15 @@ type InternalBenchmark struct {
 // timing and to specify the number of iterations to run.
 type B struct {
 	common
-	N               int
-	benchmark       InternalBenchmark
-	bytes           int64
-	timerOn         bool
-	showAllocResult bool
-	result          BenchmarkResult
+	N                int
+	previousN        int           // number of iterations in the previous run
+	previousDuration time.Duration // total duration of the previous run
+	benchmark        InternalBenchmark
+	bytes            int64
+	timerOn          bool
+	showAllocResult  bool
+	result           BenchmarkResult
+	parallelism      int // RunParallel creates parallelism*GOMAXPROCS goroutines
 	// The initial states of memStats.Mallocs and memStats.TotalAlloc.
 	startAllocs uint64
 	startBytes  uint64
@@ -74,7 +78,7 @@ func (b *B) StopTimer() {
 	}
 }
 
-// ResetTimer sets the elapsed benchmark time to zero.
+// ResetTimer zeros the elapsed benchmark time and memory allocation counters.
 // It does not affect whether the timer is running.
 func (b *B) ResetTimer() {
 	if b.timerOn {
@@ -114,10 +118,13 @@ func (b *B) runN(n int) {
 	// by clearing garbage from previous runs.
 	runtime.GC()
 	b.N = n
+	b.parallelism = 1
 	b.ResetTimer()
 	b.StartTimer()
 	b.benchmark.F(b)
 	b.StopTimer()
+	b.previousN = n
+	b.previousDuration = b.duration
 }
 
 func min(x, y int) int {
@@ -138,7 +145,7 @@ func max(x, y int) int {
 func roundDown10(n int) int {
 	var tens = 0
 	// tens = floor(log_10(n))
-	for n > 10 {
+	for n >= 10 {
 		n = n / 10
 		tens++
 	}
@@ -150,16 +157,21 @@ func roundDown10(n int) int {
 	return result
 }
 
-// roundUp rounds x up to a number of the form [1eX, 2eX, 5eX].
+// roundUp rounds x up to a number of the form [1eX, 2eX, 3eX, 5eX].
 func roundUp(n int) int {
 	base := roundDown10(n)
-	if n < (2 * base) {
+	switch {
+	case n <= base:
+		return base
+	case n <= (2 * base):
 		return 2 * base
-	}
-	if n < (5 * base) {
+	case n <= (3 * base):
+		return 3 * base
+	case n <= (5 * base):
 		return 5 * base
+	default:
+		return 10 * base
 	}
-	return 10 * base
 }
 
 // run times the benchmark function in a separate goroutine.
@@ -170,10 +182,10 @@ func (b *B) run() BenchmarkResult {
 }
 
 // launch launches the benchmark function.  It gradually increases the number
-// of benchmark iterations until the benchmark runs for a second in order
-// to get a reasonable measurement.  It prints timing information in this form
+// of benchmark iterations until the benchmark runs for the requested benchtime.
+// It prints timing information in this form
 //		testing.BenchmarkHello	100000		19 ns/op
-// launch is run by the fun function as a separate goroutine.
+// launch is run by the run function as a separate goroutine.
 func (b *B) launch() {
 	// Run the benchmark for a single iteration in case it's expensive.
 	n := 1
@@ -189,16 +201,16 @@ func (b *B) launch() {
 	d := *benchTime
 	for !b.failed && b.duration < d && n < 1e9 {
 		last := n
-		// Predict iterations/sec.
+		// Predict required iterations.
 		if b.nsPerOp() == 0 {
 			n = 1e9
 		} else {
 			n = int(d.Nanoseconds() / b.nsPerOp())
 		}
-		// Run more iterations than we think we'll need for a second (1.5x).
+		// Run more iterations than we think we'll need (1.2x).
 		// Don't grow too fast in case we had timing errors previously.
 		// Be sure to run at least one more than last time.
-		n = max(min(n+n/2, 100*last), last+1)
+		n = max(min(n+n/5, 100*last), last+1)
 		// Round up to something easy to read.
 		n = roundUp(n)
 		b.runN(n)
@@ -268,6 +280,14 @@ func (r BenchmarkResult) MemString() string {
 		r.AllocedBytesPerOp(), r.AllocsPerOp())
 }
 
+// benchmarkName returns full name of benchmark including procs suffix.
+func benchmarkName(name string, n int) string {
+	if n != 1 {
+		return fmt.Sprintf("%s-%d", name, n)
+	}
+	return name
+}
+
 // An internal function but exported because it is cross-package; part of the implementation
 // of the "go test" command.
 func RunBenchmarks(matchString func(pat, str string) (bool, error), benchmarks []InternalBenchmark) {
@@ -275,15 +295,30 @@ func RunBenchmarks(matchString func(pat, str string) (bool, error), benchmarks [
 	if len(*matchBenchmarks) == 0 {
 		return
 	}
+	// Collect matching benchmarks and determine longest name.
+	maxprocs := 1
+	for _, procs := range cpuList {
+		if procs > maxprocs {
+			maxprocs = procs
+		}
+	}
+	maxlen := 0
+	var bs []InternalBenchmark
 	for _, Benchmark := range benchmarks {
 		matched, err := matchString(*matchBenchmarks, Benchmark.Name)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "testing: invalid regexp for -test.bench: %s\n", err)
 			os.Exit(1)
 		}
-		if !matched {
-			continue
+		if matched {
+			bs = append(bs, Benchmark)
+			benchName := benchmarkName(Benchmark.Name, maxprocs)
+			if l := len(benchName); l > maxlen {
+				maxlen = l
+			}
 		}
+	}
+	for _, Benchmark := range bs {
 		for _, procs := range cpuList {
 			runtime.GOMAXPROCS(procs)
 			b := &B{
@@ -292,11 +327,8 @@ func RunBenchmarks(matchString func(pat, str string) (bool, error), benchmarks [
 				},
 				benchmark: Benchmark,
 			}
-			benchName := Benchmark.Name
-			if procs != 1 {
-				benchName = fmt.Sprintf("%s-%d", Benchmark.Name, procs)
-			}
-			fmt.Printf("%s\t", benchName)
+			benchName := benchmarkName(Benchmark.Name, procs)
+			fmt.Printf("%-*s\t", maxlen, benchName)
 			r := b.run()
 			if b.failed {
 				// The output could be very long here, but probably isn't.
@@ -337,6 +369,87 @@ func (b *B) trimOutput() {
 				break
 			}
 		}
+	}
+}
+
+// A PB is used by RunParallel for running parallel benchmarks.
+type PB struct {
+	globalN *uint64 // shared between all worker goroutines iteration counter
+	grain   uint64  // acquire that many iterations from globalN at once
+	cache   uint64  // local cache of acquired iterations
+	bN      uint64  // total number of iterations to execute (b.N)
+}
+
+// Next reports whether there are more iterations to execute.
+func (pb *PB) Next() bool {
+	if pb.cache == 0 {
+		n := atomic.AddUint64(pb.globalN, pb.grain)
+		if n <= pb.bN {
+			pb.cache = pb.grain
+		} else if n < pb.bN+pb.grain {
+			pb.cache = pb.bN + pb.grain - n
+		} else {
+			return false
+		}
+	}
+	pb.cache--
+	return true
+}
+
+// RunParallel runs a benchmark in parallel.
+// It creates multiple goroutines and distributes b.N iterations among them.
+// The number of goroutines defaults to GOMAXPROCS. To increase parallelism for
+// non-CPU-bound benchmarks, call SetParallelism before RunParallel.
+// RunParallel is usually used with the go test -cpu flag.
+//
+// The body function will be run in each goroutine. It should set up any
+// goroutine-local state and then iterate until pb.Next returns false.
+// It should not use the StartTimer, StopTimer, or ResetTimer functions,
+// because they have global effect.
+func (b *B) RunParallel(body func(*PB)) {
+	// Calculate grain size as number of iterations that take ~100µs.
+	// 100µs is enough to amortize the overhead and provide sufficient
+	// dynamic load balancing.
+	grain := uint64(0)
+	if b.previousN > 0 && b.previousDuration > 0 {
+		grain = 1e5 * uint64(b.previousN) / uint64(b.previousDuration)
+	}
+	if grain < 1 {
+		grain = 1
+	}
+	// We expect the inner loop and function call to take at least 10ns,
+	// so do not do more than 100µs/10ns=1e4 iterations.
+	if grain > 1e4 {
+		grain = 1e4
+	}
+
+	n := uint64(0)
+	numProcs := b.parallelism * runtime.GOMAXPROCS(0)
+	var wg sync.WaitGroup
+	wg.Add(numProcs)
+	for p := 0; p < numProcs; p++ {
+		go func() {
+			defer wg.Done()
+			pb := &PB{
+				globalN: &n,
+				grain:   grain,
+				bN:      uint64(b.N),
+			}
+			body(pb)
+		}()
+	}
+	wg.Wait()
+	if n <= uint64(b.N) && !b.Failed() {
+		b.Fatal("RunParallel: body exited without pb.Next() == false")
+	}
+}
+
+// SetParallelism sets the number of goroutines used by RunParallel to p*GOMAXPROCS.
+// There is usually no need to call SetParallelism for CPU-bound benchmarks.
+// If p is less than 1, this call will have no effect.
+func (b *B) SetParallelism(p int) {
+	if p >= 1 {
+		b.parallelism = p
 	}
 }
 

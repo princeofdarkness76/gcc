@@ -69,6 +69,9 @@ var numberTests = []numberTest{
 	{text: "1+2."},
 	{text: "'x"},
 	{text: "'xx'"},
+	{text: "'433937734937734969526500969526500'"}, // Integer too large - issue 10634.
+	// Issue 8622 - 0xe parsed as floating point. Very embarrassing.
+	{"0xef", true, true, true, false, 0xef, 0xef, 0xef, 0},
 }
 
 func TestNumberParse(t *testing.T) {
@@ -77,6 +80,7 @@ func TestNumberParse(t *testing.T) {
 		// because imaginary comes out as a number.
 		var c complex128
 		typ := itemNumber
+		var tree *Tree
 		if test.text[0] == '\'' {
 			typ = itemCharConstant
 		} else {
@@ -85,7 +89,7 @@ func TestNumberParse(t *testing.T) {
 				typ = itemComplex
 			}
 		}
-		n, err := newNumber(0, test.text, typ)
+		n, err := tree.newNumber(0, test.text, typ)
 		ok := test.isInt || test.isUint || test.isFloat || test.isComplex
 		if ok && err != nil {
 			t.Errorf("unexpected error for %q: %s", test.text, err)
@@ -194,6 +198,10 @@ var parseTests = []parseTest{
 		`{{if .X}}"hello"{{end}}`},
 	{"if with else", "{{if .X}}true{{else}}false{{end}}", noError,
 		`{{if .X}}"true"{{else}}"false"{{end}}`},
+	{"if with else if", "{{if .X}}true{{else if .Y}}false{{end}}", noError,
+		`{{if .X}}"true"{{else}}{{if .Y}}"false"{{end}}{{end}}`},
+	{"if else chain", "+{{if .X}}X{{else if .Y}}Y{{else if .Z}}Z{{end}}+", noError,
+		`"+"{{if .X}}"X"{{else}}{{if .Y}}"Y"{{else}}{{if .Z}}"Z"{{end}}{{end}}{{end}}"+"`},
 	{"simple range", "{{range .X}}hello{{end}}", noError,
 		`{{range .X}}"hello"{{end}}`},
 	{"chained field range", "{{range .X.Y.Z}}hello{{end}}", noError,
@@ -223,6 +231,9 @@ var parseTests = []parseTest{
 	// Errors.
 	{"unclosed action", "hello{{range", hasError, ""},
 	{"unmatched end", "{{end}}", hasError, ""},
+	{"unmatched else", "{{else}}", hasError, ""},
+	{"unmatched else after if", "{{if .X}}hello{{end}}{{else}}", hasError, ""},
+	{"multiple else", "{{if .X}}1{{else}}2{{else}}3{{end}}", hasError, ""},
 	{"missing end", "hello{{range .x}}", hasError, ""},
 	{"missing end after else", "hello{{range .x}}{{else}}", hasError, ""},
 	{"undefined function", "hello{{undefined}}", hasError, ""},
@@ -238,6 +249,7 @@ var parseTests = []parseTest{
 	{"dot applied to parentheses", "{{printf (printf .).}}", hasError, ""},
 	{"adjacent args", "{{printf 3`x`}}", hasError, ""},
 	{"adjacent args with .", "{{printf `x`.}}", hasError, ""},
+	{"extra end after if", "{{if .X}}a{{else if .Y}}b{{end}}{{end}}", hasError, ""},
 	// Equals (and other chars) do not assignments make (yet).
 	{"bug0a", "{{$x := 0}}{{$x}}", noError, "{{$x := 0}}{{$x}}"},
 	{"bug0b", "{{$x = 1}}{{$x}}", hasError, ""},
@@ -249,6 +261,22 @@ var parseTests = []parseTest{
 	{"bug1a", "{{$x:=.}}{{$x!2}}", hasError, ""},                     // ! is just illegal here.
 	{"bug1b", "{{$x:=.}}{{$x+2}}", hasError, ""},                     // $x+2 should not parse as ($x) (+2).
 	{"bug1c", "{{$x:=.}}{{$x +2}}", noError, "{{$x := .}}{{$x +2}}"}, // It's OK with a space.
+	// dot following a literal value
+	{"dot after integer", "{{1.E}}", hasError, ""},
+	{"dot after float", "{{0.1.E}}", hasError, ""},
+	{"dot after boolean", "{{true.E}}", hasError, ""},
+	{"dot after char", "{{'a'.any}}", hasError, ""},
+	{"dot after string", `{{"hello".guys}}`, hasError, ""},
+	{"dot after dot", "{{..E}}", hasError, ""},
+	{"dot after nil", "{{nil.E}}", hasError, ""},
+	// Wrong pipeline
+	{"wrong pipeline dot", "{{12|.}}", hasError, ""},
+	{"wrong pipeline number", "{{.|12|printf}}", hasError, ""},
+	{"wrong pipeline string", "{{.|printf|\"error\"}}", hasError, ""},
+	{"wrong pipeline char", "{{12|printf|'e'}}", hasError, ""},
+	{"wrong pipeline boolean", "{{.|true}}", hasError, ""},
+	{"wrong pipeline nil", "{{'c'|nil}}", hasError, ""},
+	{"empty pipeline", `{{printf "%d" ( ) }}`, hasError, ""},
 }
 
 var builtins = map[string]interface{}{
@@ -256,6 +284,8 @@ var builtins = map[string]interface{}{
 }
 
 func testParse(doCopy bool, t *testing.T) {
+	textFormat = "%q"
+	defer func() { textFormat = "%s" }()
 	for _, test := range parseTests {
 		tmpl, err := New(test.name).Parse(test.input, "", "", make(map[string]*Tree), builtins)
 		switch {
@@ -305,7 +335,7 @@ var isEmptyTests = []isEmptyTest{
 	{"spaces only", " \t\n \t\n", true},
 	{"definition", `{{define "x"}}something{{end}}`, true},
 	{"definitions and space", "{{define `x`}}something{{end}}\n\n{{define `y`}}something{{end}}\n\n", true},
-	{"definitions and text", "{{define `x`}}something{{end}}\nx\n{{define `y`}}something{{end}}\ny\n}}", false},
+	{"definitions and text", "{{define `x`}}something{{end}}\nx\n{{define `y`}}something{{end}}\ny\n", false},
 	{"definition and action", "{{define `x`}}something{{end}}{{if 3}}foo{{end}}", false},
 }
 
@@ -322,6 +352,22 @@ func TestIsEmpty(t *testing.T) {
 		if empty := IsEmptyTree(tree.Root); empty != test.empty {
 			t.Errorf("%q: expected %t got %t", test.name, test.empty, empty)
 		}
+	}
+}
+
+func TestErrorContextWithTreeCopy(t *testing.T) {
+	tree, err := New("root").Parse("{{if true}}{{end}}", "", "", make(map[string]*Tree), nil)
+	if err != nil {
+		t.Fatalf("unexpected tree parse failure: %v", err)
+	}
+	treeCopy := tree.Copy()
+	wantLocation, wantContext := tree.ErrorContext(tree.Root.Nodes[0])
+	gotLocation, gotContext := treeCopy.ErrorContext(treeCopy.Root.Nodes[0])
+	if wantLocation != gotLocation {
+		t.Errorf("wrong error location want %q got %q", wantLocation, gotLocation)
+	}
+	if wantContext != gotContext {
+		t.Errorf("wrong error location want %q got %q", wantContext, gotContext)
 	}
 }
 
@@ -349,7 +395,7 @@ var errorTests = []parseTest{
 		hasError, `unexpected ")"`},
 	{"space",
 		"{{`x`3}}",
-		hasError, `missing space?`},
+		hasError, `in operand`},
 	{"idchar",
 		"{{a#}}",
 		hasError, `'#'`},
@@ -381,6 +427,15 @@ var errorTests = []parseTest{
 	{"undefvar",
 		"{{$a}}",
 		hasError, `undefined variable`},
+	{"wrongdot",
+		"{{true.any}}",
+		hasError, `unexpected . after term`},
+	{"wrongpipeline",
+		"{{12|false}}",
+		hasError, `non executable command in pipeline`},
+	{"emptypipeline",
+		`{{ ( ) }}`,
+		hasError, `missing value for parenthesized pipeline`},
 }
 
 func TestErrors(t *testing.T) {

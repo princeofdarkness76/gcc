@@ -1,5 +1,7 @@
 /* { dg-do compile } */
 /* { dg-options "-fstack-usage" } */
+/* nvptx doesn't have a reg allocator, and hence no stack usage data.  */
+/* { dg-skip-if "" { nvptx-*-* } { "*" } { "" } } */
 
 /* This is aimed at testing basic support for -fstack-usage in the back-ends.
    See the SPARC back-end for example (grep flag_stack_usage_info in sparc.c).
@@ -9,6 +11,8 @@
 
 #if defined(__aarch64__)
 #  define SIZE 256 /* No frame pointer for leaf functions (default) */
+#elif defined(__arc__)
+#  define SIZE (256-4)
 #elif defined(__i386__)
 #  define SIZE 248
 #elif defined(__x86_64__)
@@ -36,9 +40,16 @@
 #  else
 #    define SIZE 248
 #  endif
+#elif defined (__nds32__)
+#  define SIZE 248 /* 256 - 8 bytes, only $fp and padding bytes are saved in
+                      the register save area under O0 optimization level.  */
 #elif defined (__powerpc64__) || defined (__ppc64__) || defined (__POWERPC64__) \
       || defined (__PPC64__)
-#  define SIZE 180
+#  if _CALL_ELF == 2
+#     define SIZE 208
+#  else
+#     define SIZE 180
+#  endif
 #elif defined (__powerpc__) || defined (__PPC__) || defined (__ppc__) \
       || defined (__POWERPC__) || defined (PPC) || defined (_IBMR2)
 #  if defined (__ALTIVEC__)
@@ -70,6 +81,16 @@
 #  define SIZE 248
 #elif defined (xstormy16)
 #  define SIZE 254
+#elif defined (__nios2__)
+#  define SIZE 252
+#elif defined (__v850__)
+#define SIZE 260
+#elif defined (__mn10300__)
+#define SIZE 252
+#elif defined (__H8300SX__) || defined (__H8300S__) || defined (__H8300H__) || defined (__H8300__) 
+#define SIZE 252
+#elif defined (__M32R__)
+#define SIZE 252
 #else
 #  define SIZE 256
 #endif

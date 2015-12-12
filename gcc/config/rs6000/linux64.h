@@ -1,6 +1,6 @@
 /* Definitions of target machine for GNU compiler,
    for 64 bit PowerPC linux.
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2015 Free Software Foundation, Inc.
 
    This file is part of GCC.
 
@@ -24,9 +24,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef RS6000_BI_ARCH
-
-#undef	DEFAULT_ABI
-#define	DEFAULT_ABI ABI_AIX
 
 #undef	TARGET_64BIT
 #define	TARGET_64BIT 1
@@ -74,7 +71,7 @@ extern int dot_symbols;
 #undef  PROCESSOR_DEFAULT
 #define PROCESSOR_DEFAULT PROCESSOR_POWER7
 #undef  PROCESSOR_DEFAULT64
-#define PROCESSOR_DEFAULT64 PROCESSOR_POWER7
+#define PROCESSOR_DEFAULT64 PROCESSOR_POWER8
 
 /* We don't need to generate entries in .fixup, except when
    -mrelocatable or -mrelocatable-lib is given.  */
@@ -88,13 +85,19 @@ extern int dot_symbols;
 #define INVALID_64BIT "-m%s not supported in this configuration"
 #define INVALID_32BIT INVALID_64BIT
 
+#ifdef LINUX64_DEFAULT_ABI_ELFv2
+#define ELFv2_ABI_CHECK (rs6000_elf_abi != 1)
+#else
+#define ELFv2_ABI_CHECK (rs6000_elf_abi == 2)
+#endif
+
 #undef	SUBSUBTARGET_OVERRIDE_OPTIONS
 #define	SUBSUBTARGET_OVERRIDE_OPTIONS				\
   do								\
     {								\
       if (!global_options_set.x_rs6000_alignment_flags)		\
 	rs6000_alignment_flags = MASK_ALIGN_NATURAL;		\
-      if (TARGET_64BIT)						\
+      if (rs6000_isa_flags & OPTION_MASK_64BIT)			\
 	{							\
 	  if (DEFAULT_ABI != ABI_AIX)				\
 	    {							\
@@ -102,6 +105,12 @@ extern int dot_symbols;
 	      error (INVALID_64BIT, "call");			\
 	    }							\
 	  dot_symbols = !strcmp (rs6000_abi_name, "aixdesc");	\
+	  if (ELFv2_ABI_CHECK)					\
+	    {							\
+	      rs6000_current_abi = ABI_ELFv2;			\
+	      if (dot_symbols)					\
+		error ("-mcall-aixdesc incompatible with -mabi=elfv2"); \
+	    }							\
 	  if (rs6000_isa_flags & OPTION_MASK_RELOCATABLE)	\
 	    {							\
 	      rs6000_isa_flags &= ~OPTION_MASK_RELOCATABLE;	\
@@ -165,25 +174,29 @@ extern int dot_symbols;
 #undef	ASM_DEFAULT_SPEC
 #undef	ASM_SPEC
 #undef	LINK_OS_LINUX_SPEC
+#undef	LINK_SECURE_PLT_SPEC
 
 #ifndef	RS6000_BI_ARCH
 #define	ASM_DEFAULT_SPEC "-mppc64"
 #define	ASM_SPEC	 "%(asm_spec64) %(asm_spec_common)"
 #define	LINK_OS_LINUX_SPEC "%(link_os_linux_spec64)"
+#define	LINK_SECURE_PLT_SPEC ""
 #else
 #if DEFAULT_ARCH64_P
 #define	ASM_DEFAULT_SPEC "-mppc%{!m32:64}"
 #define	ASM_SPEC	 "%{m32:%(asm_spec32)}%{!m32:%(asm_spec64)} %(asm_spec_common)"
 #define	LINK_OS_LINUX_SPEC "%{m32:%(link_os_linux_spec32)}%{!m32:%(link_os_linux_spec64)}"
+#define	LINK_SECURE_PLT_SPEC "%{m32: " LINK_SECURE_PLT_DEFAULT_SPEC "}"
 #else
 #define	ASM_DEFAULT_SPEC "-mppc%{m64:64}"
 #define	ASM_SPEC	 "%{!m64:%(asm_spec32)}%{m64:%(asm_spec64)} %(asm_spec_common)"
 #define	LINK_OS_LINUX_SPEC "%{!m64:%(link_os_linux_spec32)}%{m64:%(link_os_linux_spec64)}"
+#define	LINK_SECURE_PLT_SPEC "%{!m64: " LINK_SECURE_PLT_DEFAULT_SPEC "}"
 #endif
 #endif
 
 #define ASM_SPEC32 "-a32 \
-%{mrelocatable} %{mrelocatable-lib} %{fpic|fpie|fPIC|fPIE:-K PIC} \
+%{mrelocatable} %{mrelocatable-lib} %{" FPIE_OR_FPIC_SPEC ":-K PIC} \
 %{memb|msdata=eabi: -memb}"
 
 #define ASM_SPEC64 "-a64"
@@ -198,13 +211,57 @@ extern int dot_symbols;
   { "asm_spec32",		ASM_SPEC32 },				\
   { "asm_spec64",		ASM_SPEC64 },				\
   { "link_os_linux_spec32",	LINK_OS_LINUX_SPEC32 },			\
-  { "link_os_linux_spec64",	LINK_OS_LINUX_SPEC64 },
+  { "link_os_linux_spec64",	LINK_OS_LINUX_SPEC64 },			\
+  { "link_os_extra_spec32",	LINK_OS_EXTRA_SPEC32 },			\
+  { "link_os_extra_spec64",	LINK_OS_EXTRA_SPEC64 },			\
+  { "link_os_new_dtags",	LINK_OS_NEW_DTAGS_SPEC },		\
+  { "include_extra",		INCLUDE_EXTRA_SPEC },			\
+  { "dynamic_linker_prefix",	DYNAMIC_LINKER_PREFIX },
+
+/* Optional specs used for overriding the system include directory, default
+   -rpath links, and prefix for the dynamic linker.  Normally, there are not
+   defined, but if the user configure with the --with-advance-toolchain=<xxx>
+   option, the advance-toolchain.h file will override these.  */
+#ifndef INCLUDE_EXTRA_SPEC
+#define INCLUDE_EXTRA_SPEC	""
+#endif
+
+#ifndef LINK_OS_EXTRA_SPEC32
+#define LINK_OS_EXTRA_SPEC32	""
+#endif
+
+#ifndef LINK_OS_EXTRA_SPEC64
+#define LINK_OS_EXTRA_SPEC64	""
+#endif
+
+#ifndef LINK_OS_NEW_DTAGS_SPEC
+#define LINK_OS_NEW_DTAGS_SPEC	""
+#endif
+
+#ifndef DYNAMIC_LINKER_PREFIX
+#define DYNAMIC_LINKER_PREFIX	""
+#endif
 
 #undef	MULTILIB_DEFAULTS
 #if DEFAULT_ARCH64_P
 #define MULTILIB_DEFAULTS { "m64" }
 #else
 #define MULTILIB_DEFAULTS { "m32" }
+#endif
+
+/* Split stack is only supported for 64 bit, and requires glibc >= 2.18.  */
+#if TARGET_GLIBC_MAJOR * 1000 + TARGET_GLIBC_MINOR >= 2018
+# ifndef RS6000_BI_ARCH
+#  define TARGET_CAN_SPLIT_STACK
+# else
+#  if DEFAULT_ARCH64_P
+/* Supported, and the default is -m64  */
+#   define TARGET_CAN_SPLIT_STACK_64BIT 1
+#  else
+/* Supported, and the default is -m32  */
+#   define TARGET_CAN_SPLIT_STACK_64BIT 0
+#  endif
+# endif
 #endif
 
 #ifndef RS6000_BI_ARCH
@@ -233,7 +290,7 @@ extern int dot_symbols;
 /* PowerPC64 Linux word-aligns FP doubles when -malign-power is given.  */
 #undef  ADJUST_FIELD_ALIGN
 #define ADJUST_FIELD_ALIGN(FIELD, COMPUTED) \
-  ((TARGET_ALTIVEC && TREE_CODE (TREE_TYPE (FIELD)) == VECTOR_TYPE)	\
+  (rs6000_special_adjust_field_align_p ((FIELD), (COMPUTED))		\
    ? 128								\
    : (TARGET_64BIT							\
       && TARGET_ALIGN_NATURAL == 0					\
@@ -288,17 +345,22 @@ extern int dot_symbols;
 
 #ifdef SINGLE_LIBC
 #define OPTION_GLIBC  (DEFAULT_LIBC == LIBC_GLIBC)
+#define OPTION_UCLIBC (DEFAULT_LIBC == LIBC_UCLIBC)
+#define OPTION_BIONIC (DEFAULT_LIBC == LIBC_BIONIC)
+#undef OPTION_MUSL
+#define OPTION_MUSL   (DEFAULT_LIBC == LIBC_MUSL)
 #else
 #define OPTION_GLIBC  (linux_libc == LIBC_GLIBC)
+#define OPTION_UCLIBC (linux_libc == LIBC_UCLIBC)
+#define OPTION_BIONIC (linux_libc == LIBC_BIONIC)
+#undef OPTION_MUSL
+#define OPTION_MUSL   (linux_libc == LIBC_MUSL)
 #endif
 
-/* glibc has float and long double forms of math functions.  */
-#undef  TARGET_C99_FUNCTIONS
-#define TARGET_C99_FUNCTIONS (OPTION_GLIBC)
-
-/* Whether we have sincos that follows the GNU extension.  */
-#undef  TARGET_HAS_SINCOS
-#define TARGET_HAS_SINCOS (OPTION_GLIBC)
+/* Determine what functions are present at the runtime;
+   this includes full c99 runtime and sincos.  */
+#undef TARGET_LIBC_HAS_FUNCTION
+#define TARGET_LIBC_HAS_FUNCTION linux_libc_has_function
 
 #undef  TARGET_OS_CPP_BUILTINS
 #define TARGET_OS_CPP_BUILTINS()			\
@@ -327,13 +389,7 @@ extern int dot_symbols;
   while (0)
 
 #undef  CPP_OS_DEFAULT_SPEC
-#define CPP_OS_DEFAULT_SPEC "%(cpp_os_linux)"
-
-/* The GNU C++ standard library currently requires _GNU_SOURCE being
-   defined on glibc-based systems. This temporary hack accomplishes this,
-   it should go away as soon as libstdc++-v3 has a real fix.  */
-#undef  CPLUSPLUS_CPP_SPEC
-#define CPLUSPLUS_CPP_SPEC "-D_GNU_SOURCE %(cpp)"
+#define CPP_OS_DEFAULT_SPEC "%(cpp_os_linux) %(include_extra)"
 
 #undef  LINK_SHLIB_SPEC
 #define LINK_SHLIB_SPEC "%{shared:-shared} %{!shared: %{static:-static}}"
@@ -353,21 +409,43 @@ extern int dot_symbols;
 #undef	LINK_OS_DEFAULT_SPEC
 #define LINK_OS_DEFAULT_SPEC "%(link_os_linux)"
 
-#define GLIBC_DYNAMIC_LINKER32 "/lib/ld.so.1"
-#define GLIBC_DYNAMIC_LINKER64 "/lib64/ld64.so.1"
+#define GLIBC_DYNAMIC_LINKER32 "%(dynamic_linker_prefix)/lib/ld.so.1"
+
+#ifdef LINUX64_DEFAULT_ABI_ELFv2
+#define GLIBC_DYNAMIC_LINKER64 \
+"%{mabi=elfv1:%(dynamic_linker_prefix)/lib64/ld64.so.1;" \
+":%(dynamic_linker_prefix)/lib64/ld64.so.2}"
+#else
+#define GLIBC_DYNAMIC_LINKER64 \
+"%{mabi=elfv2:%(dynamic_linker_prefix)/lib64/ld64.so.2;" \
+":%(dynamic_linker_prefix)/lib64/ld64.so.1}"
+#endif
+
+#define MUSL_DYNAMIC_LINKER32 \
+  "/lib/ld-musl-powerpc" MUSL_DYNAMIC_LINKER_E "%{msoft-float:-sf}.so.1"
+#define MUSL_DYNAMIC_LINKER64 \
+  "/lib/ld-musl-powerpc64" MUSL_DYNAMIC_LINKER_E "%{msoft-float:-sf}.so.1"
+
 #define UCLIBC_DYNAMIC_LINKER32 "/lib/ld-uClibc.so.0"
 #define UCLIBC_DYNAMIC_LINKER64 "/lib/ld64-uClibc.so.0"
 #if DEFAULT_LIBC == LIBC_UCLIBC
-#define CHOOSE_DYNAMIC_LINKER(G, U) "%{mglibc:" G ";:" U "}"
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{mglibc:" G ";:%{mmusl:" M ";:" U "}}"
 #elif DEFAULT_LIBC == LIBC_GLIBC
-#define CHOOSE_DYNAMIC_LINKER(G, U) "%{muclibc:" U ";:" G "}"
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{muclibc:" U ";:%{mmusl:" M ";:" G "}}"
+#elif DEFAULT_LIBC == LIBC_MUSL
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{mglibc:" G ";:%{muclibc:" U ";:" M "}}"
 #else
 #error "Unsupported DEFAULT_LIBC"
 #endif
 #define GNU_USER_DYNAMIC_LINKER32 \
-  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER32, UCLIBC_DYNAMIC_LINKER32)
+  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER32, UCLIBC_DYNAMIC_LINKER32, \
+			 MUSL_DYNAMIC_LINKER32)
 #define GNU_USER_DYNAMIC_LINKER64 \
-  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER64, UCLIBC_DYNAMIC_LINKER64)
+  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER64, UCLIBC_DYNAMIC_LINKER64, \
+			 MUSL_DYNAMIC_LINKER64)
 
 #undef  DEFAULT_ASM_ENDIAN
 #if (TARGET_DEFAULT & MASK_LITTLE_ENDIAN)
@@ -390,11 +468,13 @@ extern int dot_symbols;
 
 #define LINK_OS_LINUX_SPEC32 LINK_OS_LINUX_EMUL32 " %{!shared: %{!static: \
   %{rdynamic:-export-dynamic} \
-  -dynamic-linker " GNU_USER_DYNAMIC_LINKER32 "}}"
+  -dynamic-linker " GNU_USER_DYNAMIC_LINKER32 "}} \
+  %(link_os_extra_spec32)"
 
 #define LINK_OS_LINUX_SPEC64 LINK_OS_LINUX_EMUL64 " %{!shared: %{!static: \
   %{rdynamic:-export-dynamic} \
-  -dynamic-linker " GNU_USER_DYNAMIC_LINKER64 "}}"
+  -dynamic-linker " GNU_USER_DYNAMIC_LINKER64 "}} \
+  %(link_os_extra_spec64)"
 
 #undef  TOC_SECTION_ASM_OP
 #define TOC_SECTION_ASM_OP \
@@ -421,14 +501,6 @@ extern int dot_symbols;
 #define	WCHAR_TYPE (TARGET_64BIT ? "int" : "long int")
 #undef  WCHAR_TYPE_SIZE
 #define WCHAR_TYPE_SIZE 32
-
-/* Override rs6000.h definition.  */
-#undef  ASM_APP_ON
-#define ASM_APP_ON "#APP\n"
-
-/* Override rs6000.h definition.  */
-#undef  ASM_APP_OFF
-#define ASM_APP_OFF "#NO_APP\n"
 
 #undef  RS6000_MCOUNT
 #define RS6000_MCOUNT "_mcount"
@@ -529,16 +601,6 @@ extern int dot_symbols;
 #undef DRAFT_V4_STRUCT_RET
 #define DRAFT_V4_STRUCT_RET (!TARGET_64BIT)
 
-#define TARGET_POSIX_IO
-
-#define LINK_GCC_C_SEQUENCE_SPEC \
-  "%{static:--start-group} %G %L %{static:--end-group}%{!static:%G}"
-
-/* Use --as-needed -lgcc_s for eh support.  */
-#ifdef HAVE_LD_AS_NEEDED
-#define USE_LD_AS_NEEDED 1
-#endif
-
 #ifdef TARGET_LIBC_PROVIDES_SSP
 /* ppc32 glibc provides __stack_chk_guard in -0x7008(2),
    ppc64 glibc provides it at -0x7010(13).  */
@@ -557,3 +619,16 @@ extern int dot_symbols;
 
 /* The default value isn't sufficient in 64-bit mode.  */
 #define STACK_CHECK_PROTECT (TARGET_64BIT ? 16 * 1024 : 12 * 1024)
+
+/* Software floating point support for exceptions and rounding modes
+   depends on the C library in use.  */
+#undef TARGET_FLOAT_EXCEPTIONS_ROUNDING_SUPPORTED_P
+#define TARGET_FLOAT_EXCEPTIONS_ROUNDING_SUPPORTED_P \
+  rs6000_linux_float_exceptions_rounding_supported_p
+
+/* Support for TARGET_ATOMIC_ASSIGN_EXPAND_FENV without FPRs depends
+   on glibc 2.19 or greater.  */
+#if TARGET_GLIBC_MAJOR > 2 \
+  || (TARGET_GLIBC_MAJOR == 2 && TARGET_GLIBC_MINOR >= 19)
+#define RS6000_GLIBC_ATOMIC_FENV 1
+#endif

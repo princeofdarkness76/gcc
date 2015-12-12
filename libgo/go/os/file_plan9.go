@@ -25,7 +25,8 @@ type file struct {
 	dirinfo *dirInfo // nil unless directory being read
 }
 
-// Fd returns the integer Unix file descriptor referencing the open file.
+// Fd returns the integer Plan 9 file descriptor referencing the open file.
+// The file descriptor is valid only until f.Close is called or f is garbage collected.
 func (f *File) Fd() uintptr {
 	if f == nil {
 		return ^(uintptr(0))
@@ -78,7 +79,7 @@ func syscallMode(i FileMode) (o uint32) {
 // (O_RDONLY etc.) and perm, (0666 etc.) if applicable.  If successful,
 // methods on the returned File can be used for I/O.
 // If there is an error, it will be of type *PathError.
-func OpenFile(name string, flag int, perm FileMode) (file *File, err error) {
+func OpenFile(name string, flag int, perm FileMode) (*File, error) {
 	var (
 		fd     int
 		e      error
@@ -104,7 +105,6 @@ func OpenFile(name string, flag int, perm FileMode) (file *File, err error) {
 		append = true
 	}
 
-	syscall.ForkLock.RLock()
 	if (create && trunc) || excl {
 		fd, e = syscall.Create(name, flag, syscallMode(perm))
 	} else {
@@ -117,7 +117,6 @@ func OpenFile(name string, flag int, perm FileMode) (file *File, err error) {
 			}
 		}
 	}
-	syscall.ForkLock.RUnlock()
 
 	if e != nil {
 		return nil, &PathError{"open", name, e}
@@ -135,6 +134,9 @@ func OpenFile(name string, flag int, perm FileMode) (file *File, err error) {
 // Close closes the File, rendering it unusable for I/O.
 // It returns an error, if any.
 func (f *File) Close() error {
+	if f == nil {
+		return ErrInvalid
+	}
 	return f.file.close()
 }
 
@@ -157,7 +159,10 @@ func (file *file) close() error {
 
 // Stat returns the FileInfo structure describing file.
 // If there is an error, it will be of type *PathError.
-func (f *File) Stat() (fi FileInfo, err error) {
+func (f *File) Stat() (FileInfo, error) {
+	if f == nil {
+		return nil, ErrInvalid
+	}
 	d, err := dirstat(f)
 	if err != nil {
 		return nil, err
@@ -169,8 +174,11 @@ func (f *File) Stat() (fi FileInfo, err error) {
 // It does not change the I/O offset.
 // If there is an error, it will be of type *PathError.
 func (f *File) Truncate(size int64) error {
-	var d syscall.Dir
+	if f == nil {
+		return ErrInvalid
+	}
 
+	var d syscall.Dir
 	d.Null()
 	d.Length = size
 
@@ -190,6 +198,9 @@ const chmodMask = uint32(syscall.DMAPPEND | syscall.DMEXCL | syscall.DMTMP | Mod
 // Chmod changes the mode of the file to mode.
 // If there is an error, it will be of type *PathError.
 func (f *File) Chmod(mode FileMode) error {
+	if f == nil {
+		return ErrInvalid
+	}
 	var d syscall.Dir
 
 	odir, e := dirstat(f)
@@ -213,7 +224,7 @@ func (f *File) Chmod(mode FileMode) error {
 // Sync commits the current contents of the file to stable storage.
 // Typically, this means flushing the file system's in-memory copy
 // of recently written data to disk.
-func (f *File) Sync() (err error) {
+func (f *File) Sync() error {
 	if f == nil {
 		return ErrInvalid
 	}
@@ -234,26 +245,36 @@ func (f *File) Sync() (err error) {
 // read reads up to len(b) bytes from the File.
 // It returns the number of bytes read and an error, if any.
 func (f *File) read(b []byte) (n int, err error) {
-	return syscall.Read(f.fd, b)
+	return fixCount(syscall.Read(f.fd, b))
 }
 
 // pread reads len(b) bytes from the File starting at byte offset off.
 // It returns the number of bytes read and the error, if any.
 // EOF is signaled by a zero count with err set to nil.
 func (f *File) pread(b []byte, off int64) (n int, err error) {
-	return syscall.Pread(f.fd, b, off)
+	return fixCount(syscall.Pread(f.fd, b, off))
 }
 
 // write writes len(b) bytes to the File.
 // It returns the number of bytes written and an error, if any.
+// Since Plan 9 preserves message boundaries, never allow
+// a zero-byte write.
 func (f *File) write(b []byte) (n int, err error) {
-	return syscall.Write(f.fd, b)
+	if len(b) == 0 {
+		return 0, nil
+	}
+	return fixCount(syscall.Write(f.fd, b))
 }
 
 // pwrite writes len(b) bytes to the File starting at byte offset off.
 // It returns the number of bytes written and an error, if any.
+// Since Plan 9 preserves message boundaries, never allow
+// a zero-byte write.
 func (f *File) pwrite(b []byte, off int64) (n int, err error) {
-	return syscall.Pwrite(f.fd, b, off)
+	if len(b) == 0 {
+		return 0, nil
+	}
+	return fixCount(syscall.Pwrite(f.fd, b, off))
 }
 
 // seek sets the offset for the next Read or Write on file to offset, interpreted
@@ -293,20 +314,45 @@ func Remove(name string) error {
 	return nil
 }
 
-// Rename renames a file.
-func Rename(oldname, newname string) error {
+// HasPrefix from the strings package.
+func hasPrefix(s, prefix string) bool {
+	return len(s) >= len(prefix) && s[0:len(prefix)] == prefix
+}
+
+// LastIndexByte from the strings package.
+func lastIndex(s string, sep byte) int {
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == sep {
+			return i
+		}
+	}
+	return -1
+}
+
+func rename(oldname, newname string) error {
+	dirname := oldname[:lastIndex(oldname, '/')+1]
+	if hasPrefix(newname, dirname) {
+		newname = newname[len(dirname):]
+	} else {
+		return &LinkError{"rename", oldname, newname, ErrInvalid}
+	}
+
+	// If newname still contains slashes after removing the oldname
+	// prefix, the rename is cross-directory and must be rejected.
+	// This case is caught by d.Marshal below.
+
 	var d syscall.Dir
 
 	d.Null()
 	d.Name = newname
 
-	var buf [syscall.STATFIXLEN]byte
+	buf := make([]byte, syscall.STATFIXLEN+len(d.Name))
 	n, err := d.Marshal(buf[:])
 	if err != nil {
-		return &PathError{"rename", oldname, err}
+		return &LinkError{"rename", oldname, newname, err}
 	}
 	if err = syscall.Wstat(oldname, buf[:n]); err != nil {
-		return &PathError{"rename", oldname, err}
+		return &LinkError{"rename", oldname, newname, err}
 	}
 	return nil
 }
@@ -411,6 +457,9 @@ func Lchown(name string, uid, gid int) error {
 // Chown changes the numeric uid and gid of the named file.
 // If there is an error, it will be of type *PathError.
 func (f *File) Chown(uid, gid int) error {
+	if f == nil {
+		return ErrInvalid
+	}
 	return &PathError{"chown", f.name, syscall.EPLAN9}
 }
 

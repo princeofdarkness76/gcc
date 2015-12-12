@@ -1,6 +1,6 @@
 /* Operating system specific defines to be used when targeting GCC for
    hosting on Windows32, using a Unix style C library and tools.
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -171,6 +171,9 @@ along with GCC; see the file COPYING3.  If not see
 #undef MATH_LIBRARY
 #define MATH_LIBRARY ""
 
+#undef TARGET_LIBC_HAS_FUNCTION
+#define TARGET_LIBC_HAS_FUNCTION no_c99_libc_has_function
+
 #define SIZE_TYPE (TARGET_64BIT ? "long long unsigned int" : "unsigned int")
 #define PTRDIFF_TYPE (TARGET_64BIT ? "long long int" : "int")
 
@@ -195,20 +198,7 @@ along with GCC; see the file COPYING3.  If not see
 #undef  SUBTARGET_OVERRIDE_OPTIONS
 #define SUBTARGET_OVERRIDE_OPTIONS					\
 do {									\
-  if (TARGET_64BIT && flag_pic != 1)					\
-    {									\
-      if (flag_pic > 1)							\
-        warning (0,							\
-	         "-fPIC ignored for target (all code is position independent)"\
-                 );                         				\
-      flag_pic = 1;							\
-    }									\
-  else if (!TARGET_64BIT && flag_pic)					\
-    {									\
-      warning (0, "-f%s ignored for target (all code is position independent)",\
-	       (flag_pic > 1) ? "PIC" : "pic");				\
-      flag_pic = 0;							\
-    }									\
+  flag_pic = TARGET_64BIT ? 1 : 0;                                      \
 } while (0)
 
 /* Define this macro if references to a symbol must be treated
@@ -335,12 +325,6 @@ do {						\
 #undef ASM_OUTPUT_ALIGNED_BSS
 #define ASM_OUTPUT_ALIGNED_BSS(FILE, DECL, NAME, SIZE, ALIGN) \
   asm_output_aligned_bss ((FILE), (DECL), (NAME), (SIZE), (ALIGN))
-
-/* Put all *tf routines in libgcc.  */
-#undef LIBGCC2_HAS_TF_MODE
-#define LIBGCC2_HAS_TF_MODE 1
-#define LIBGCC2_TF_CEXT q
-#define TF_SIZE 113
 
 /* Output function declarations at the end of the file.  */
 #undef TARGET_ASM_FILE_END

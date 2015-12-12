@@ -1,5 +1,5 @@
 /* Definitions of target machine for GNU compiler, Argonaut EPIPHANY cpu.
-   Copyright (C) 1994-2013 Free Software Foundation, Inc.
+   Copyright (C) 1994-2015 Free Software Foundation, Inc.
    Contributed by Embecosm on behalf of Adapteva, Inc.
 
 This file is part of GCC.
@@ -467,7 +467,7 @@ typedef struct GTY (()) machine_function
 
 /* Define this macro if pushing a word onto the stack moves the stack
    pointer to a smaller address.  */
-#define STACK_GROWS_DOWNWARD
+#define STACK_GROWS_DOWNWARD 1
 
 /* Define this to nonzero if the nominal address of the stack frame
    is at the high-address end of the local variables;
@@ -692,7 +692,7 @@ typedef struct GTY (()) machine_function
 /* Define this macro if it is as good or better to call a constant
    function address than to call an address kept in a register.  */
 /* On the EPIPHANY, calling through registers is slow.  */
-#define NO_FUNCTION_CSE
+#define NO_FUNCTION_CSE 1
 
 /* Section selection.  */
 /* WARNING: These section names also appear in dwarf2out.c.  */
@@ -845,7 +845,7 @@ do \
 
 /* Define if operations between registers always perform the operation
    on the full register even if a narrower mode is specified.  */
-#define WORD_REGISTER_OPERATIONS
+#define WORD_REGISTER_OPERATIONS 1
 
 /* Define if loading in MODE, an integral mode narrower than BITS_PER_WORD
    will either zero-extend or sign-extend.  The value of this macro should
@@ -899,19 +899,6 @@ enum epiphany_function_type
   { 2, 2, 2, \
     FP_MODE_NONE, FP_MODE_NONE, FP_MODE_NONE, FP_MODE_NONE, FP_MODE_NONE }
 
-#define MODE_NEEDED(ENTITY, INSN) epiphany_mode_needed((ENTITY), (INSN))
-
-#define MODE_PRIORITY_TO_MODE(ENTITY, N) \
-  (epiphany_mode_priority_to_mode ((ENTITY), (N)))
-
-#define EMIT_MODE_SET(ENTITY, MODE, HARD_REGS_LIVE) \
-  emit_set_fp_mode ((ENTITY), (MODE), (HARD_REGS_LIVE))
-
-#define MODE_ENTRY(ENTITY) (epiphany_mode_entry_exit ((ENTITY), false))
-#define MODE_EXIT(ENTITY) (epiphany_mode_entry_exit ((ENTITY), true))
-#define MODE_AFTER(ENTITY, LAST_MODE, INSN) \
-  (epiphany_mode_after ((ENTITY), (LAST_MODE), (INSN)))
-
 #define TARGET_INSERT_MODE_SWITCH_USE epiphany_insert_mode_switch_use
 
 /* Mode switching entities.  */
@@ -929,8 +916,10 @@ enum
 };
 
 extern int epiphany_normal_fp_rounding;
-extern struct rtl_opt_pass pass_mode_switch_use;
-extern struct rtl_opt_pass pass_resolve_sw_modes;
+#ifndef IN_LIBGCC2
+extern rtl_opt_pass *make_pass_mode_switch_use (gcc::context *ctxt);
+extern rtl_opt_pass *make_pass_resolve_sw_modes (gcc::context *ctxt);
+#endif
 
 /* This will need to be adjusted when FP_CONTRACT_ON is properly
    implemented.  */
@@ -939,5 +928,16 @@ extern struct rtl_opt_pass pass_resolve_sw_modes;
 #undef ASM_DECLARE_FUNCTION_NAME
 #define ASM_DECLARE_FUNCTION_NAME(FILE, NAME, DECL) \
   epiphany_start_function ((FILE), (NAME), (DECL))
+
+/* This is how we tell the assembler that two symbols have the same value.  */
+#define ASM_OUTPUT_DEF(FILE, NAME1, NAME2) \
+  do					   \
+    {					   \
+      assemble_name (FILE, NAME1); 	   \
+      fputs (" = ", FILE);		   \
+      assemble_name (FILE, NAME2);	   \
+      fputc ('\n', FILE);		   \
+    }					   \
+  while (0)
 
 #endif /* !GCC_EPIPHANY_H */

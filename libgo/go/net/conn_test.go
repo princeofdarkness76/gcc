@@ -2,104 +2,64 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package net_test
+// This file implements API tests across platforms and will never have a build
+// tag.
+
+package net
 
 import (
-	"net"
-	"os"
-	"runtime"
 	"testing"
 	"time"
 )
 
-var connTests = []struct {
-	net  string
-	addr string
-}{
-	{"tcp", "127.0.0.1:0"},
-	{"unix", "/tmp/gotest.net1"},
-	{"unixpacket", "/tmp/gotest.net2"},
-}
+// someTimeout is used just to test that net.Conn implementations
+// don't explode when their SetFooDeadline methods are called.
+// It isn't actually used for testing timeouts.
+const someTimeout = 10 * time.Second
 
 func TestConnAndListener(t *testing.T) {
-	for _, tt := range connTests {
-		switch tt.net {
-		case "unix", "unixpacket":
-			switch runtime.GOOS {
-			case "plan9", "windows":
-				continue
-			}
-			if tt.net == "unixpacket" && runtime.GOOS != "linux" {
-				continue
-			}
-			os.Remove(tt.addr)
+	for i, network := range []string{"tcp", "unix", "unixpacket"} {
+		if !testableNetwork(network) {
+			t.Logf("skipping %s test", network)
+			continue
 		}
 
-		ln, err := net.Listen(tt.net, tt.addr)
+		ls, err := newLocalServer(network)
 		if err != nil {
-			t.Errorf("net.Listen failed: %v", err)
-			return
+			t.Fatal(err)
 		}
-		ln.Addr()
-		defer func(ln net.Listener, net, addr string) {
-			ln.Close()
-			switch net {
-			case "unix", "unixpacket":
-				os.Remove(addr)
-			}
-		}(ln, tt.net, tt.addr)
+		defer ls.teardown()
+		ch := make(chan error, 1)
+		handler := func(ls *localServer, ln Listener) { transponder(ln, ch) }
+		if err := ls.buildup(handler); err != nil {
+			t.Fatal(err)
+		}
+		if ls.Listener.Addr().Network() != network {
+			t.Fatalf("got %s; want %s", ls.Listener.Addr().Network(), network)
+		}
 
-		done := make(chan int)
-		go transponder(t, ln, done)
-
-		c, err := net.Dial(tt.net, ln.Addr().String())
+		c, err := Dial(ls.Listener.Addr().Network(), ls.Listener.Addr().String())
 		if err != nil {
-			t.Errorf("net.Dial failed: %v", err)
-			return
+			t.Fatal(err)
 		}
-		c.LocalAddr()
-		c.RemoteAddr()
-		c.SetDeadline(time.Now().Add(100 * time.Millisecond))
-		c.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
-		c.SetWriteDeadline(time.Now().Add(100 * time.Millisecond))
 		defer c.Close()
+		if c.LocalAddr().Network() != network || c.LocalAddr().Network() != network {
+			t.Fatalf("got %s->%s; want %s->%s", c.LocalAddr().Network(), c.RemoteAddr().Network(), network, network)
+		}
+		c.SetDeadline(time.Now().Add(someTimeout))
+		c.SetReadDeadline(time.Now().Add(someTimeout))
+		c.SetWriteDeadline(time.Now().Add(someTimeout))
 
-		if _, err := c.Write([]byte("CONN TEST")); err != nil {
-			t.Errorf("net.Conn.Write failed: %v", err)
-			return
+		if _, err := c.Write([]byte("CONN AND LISTENER TEST")); err != nil {
+			t.Fatal(err)
 		}
 		rb := make([]byte, 128)
 		if _, err := c.Read(rb); err != nil {
-			t.Errorf("net.Conn.Read failed: %v", err)
+			t.Fatal(err)
 		}
 
-		<-done
-	}
-}
-
-func transponder(t *testing.T, ln net.Listener, done chan<- int) {
-	defer func() { done <- 1 }()
-
-	c, err := ln.Accept()
-	if err != nil {
-		t.Errorf("net.Listener.Accept failed: %v", err)
-		return
-	}
-	c.LocalAddr()
-	c.RemoteAddr()
-	c.SetDeadline(time.Now().Add(100 * time.Millisecond))
-	c.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
-	c.SetWriteDeadline(time.Now().Add(100 * time.Millisecond))
-	defer c.Close()
-
-	b := make([]byte, 128)
-	n, err := c.Read(b)
-	if err != nil {
-		t.Errorf("net.Conn.Read failed: %v", err)
-		return
-	}
-	if _, err := c.Write(b[:n]); err != nil {
-		t.Errorf("net.Conn.Write failed: %v", err)
-		return
+		for err := range ch {
+			t.Errorf("#%d: %v", i, err)
+		}
 	}
 }

@@ -6,6 +6,7 @@ package regexp
 
 import (
 	"reflect"
+	"regexp/syntax"
 	"strings"
 	"testing"
 )
@@ -308,14 +309,14 @@ func TestReplaceAllFunc(t *testing.T) {
 		}
 		actual := re.ReplaceAllStringFunc(tc.input, tc.replacement)
 		if actual != tc.output {
-			t.Errorf("%q.ReplaceFunc(%q,%q) = %q; want %q",
-				tc.pattern, tc.input, tc.replacement, actual, tc.output)
+			t.Errorf("%q.ReplaceFunc(%q,fn) = %q; want %q",
+				tc.pattern, tc.input, actual, tc.output)
 		}
 		// now try bytes
 		actual = string(re.ReplaceAllFunc([]byte(tc.input), func(s []byte) []byte { return []byte(tc.replacement(string(s))) }))
 		if actual != tc.output {
-			t.Errorf("%q.ReplaceFunc(%q,%q) = %q; want %q",
-				tc.pattern, tc.input, tc.replacement, actual, tc.output)
+			t.Errorf("%q.ReplaceFunc(%q,fn) = %q; want %q",
+				tc.pattern, tc.input, actual, tc.output)
 		}
 	}
 }
@@ -473,6 +474,32 @@ func TestSplit(t *testing.T) {
 	}
 }
 
+// Check that one-pass cutoff does trigger.
+func TestOnePassCutoff(t *testing.T) {
+	re, err := syntax.Parse(`^x{1,1000}y{1,1000}$`, syntax.Perl)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	p, err := syntax.Compile(re.Simplify())
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	if compileOnePass(p) != notOnePass {
+		t.Fatalf("makeOnePass succeeded; wanted notOnePass")
+	}
+}
+
+// Check that the same machine can be used with the standard matcher
+// and then the backtracker when there are no captures.
+func TestSwitchBacktrack(t *testing.T) {
+	re := MustCompile(`a|b`)
+	long := make([]byte, maxBacktrackVector+1)
+
+	// The following sequence of Match calls used to panic. See issue #10319.
+	re.Match(long)     // triggers standard matcher
+	re.Match(long[:1]) // triggers backtracker
+}
+
 func BenchmarkLiteral(b *testing.B) {
 	x := strings.Repeat("x", 50) + "y"
 	b.StopTimer()
@@ -573,6 +600,66 @@ func BenchmarkAnchoredLongMatch(b *testing.B) {
 		x = append(x, x...)
 	}
 	re := MustCompile("^.bc(d|e)")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkOnePassShortA(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcddddddeeeededd")
+	re := MustCompile("^.bc(d|e)*$")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkNotOnePassShortA(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcddddddeeeededd")
+	re := MustCompile(".bc(d|e)*$")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkOnePassShortB(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcddddddeeeededd")
+	re := MustCompile("^.bc(?:d|e)*$")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkNotOnePassShortB(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcddddddeeeededd")
+	re := MustCompile(".bc(?:d|e)*$")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkOnePassLongPrefix(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcdefghijklmnopqrstuvwxyz")
+	re := MustCompile("^abcdefghijklmnopqrstuvwxyz.*$")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		re.Match(x)
+	}
+}
+
+func BenchmarkOnePassLongNotPrefix(b *testing.B) {
+	b.StopTimer()
+	x := []byte("abcdefghijklmnopqrstuvwxyz")
+	re := MustCompile("^.bcdefghijklmnopqrstuvwxyz.*$")
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		re.Match(x)

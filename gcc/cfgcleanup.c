@@ -1,5 +1,5 @@
 /* Control flow optimization code for GNU compiler.
-   Copyright (C) 1987-2013 Free Software Foundation, Inc.
+   Copyright (C) 1987-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -32,26 +32,26 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
+#include "backend.h"
+#include "target.h"
 #include "rtl.h"
-#include "hard-reg-set.h"
-#include "regs.h"
+#include "tree.h"
+#include "cfghooks.h"
+#include "df.h"
+#include "tm_p.h"
 #include "insn-config.h"
-#include "flags.h"
-#include "recog.h"
-#include "diagnostic-core.h"
+#include "emit-rtl.h"
 #include "cselib.h"
 #include "params.h"
-#include "tm_p.h"
-#include "target.h"
-#include "function.h" /* For inline functions in emit-rtl.h they need crtl.  */
-#include "emit-rtl.h"
 #include "tree-pass.h"
 #include "cfgloop.h"
-#include "expr.h"
-#include "df.h"
+#include "cfgrtl.h"
+#include "cfganal.h"
+#include "cfgbuild.h"
+#include "cfgcleanup.h"
 #include "dce.h"
 #include "dbgcnt.h"
+#include "rtl-iter.h"
 
 #define FORWARDER_BLOCK_P(BB) ((BB)->flags & BB_FORWARDER_BLOCK)
 
@@ -68,7 +68,7 @@ static bool block_was_dirty;
 static bool try_crossjump_to_edge (int, edge, edge, enum replace_direction);
 static bool try_crossjump_bb (int, basic_block);
 static bool outgoing_edges_match (int, basic_block, basic_block);
-static enum replace_direction old_insns_match_p (int, rtx, rtx);
+static enum replace_direction old_insns_match_p (int, rtx_insn *, rtx_insn *);
 
 static void merge_blocks_move_predecessor_nojumps (basic_block, basic_block);
 static void merge_blocks_move_successor_nojumps (basic_block, basic_block);
@@ -79,7 +79,6 @@ static edge thread_jump (edge, basic_block);
 static bool mark_effect (rtx, bitmap);
 static void notice_new_block (basic_block);
 static void update_forwarder_flag (basic_block);
-static int mentions_nonequal_regs (rtx *, void *);
 static void merge_memattrs (rtx, rtx);
 
 /* Set flags for newly created block.  */
@@ -113,7 +112,7 @@ try_simplify_condjump (basic_block cbranch_block)
 {
   basic_block jump_block, jump_dest_block, cbranch_dest_block;
   edge cbranch_jump_edge, cbranch_fallthru_edge;
-  rtx cbranch_insn;
+  rtx_insn *cbranch_insn;
 
   /* Verify that there are exactly two successors.  */
   if (EDGE_COUNT (cbranch_block->succs) != 2)
@@ -133,7 +132,7 @@ try_simplify_condjump (basic_block cbranch_block)
      unconditional jump.  */
   jump_block = cbranch_fallthru_edge->dest;
   if (!single_pred_p (jump_block)
-      || jump_block->next_bb == EXIT_BLOCK_PTR
+      || jump_block->next_bb == EXIT_BLOCK_PTR_FOR_FN (cfun)
       || !FORWARDER_BLOCK_P (jump_block))
     return false;
   jump_dest_block = single_succ (jump_block);
@@ -156,12 +155,13 @@ try_simplify_condjump (basic_block cbranch_block)
      unconditional branch.  */
   cbranch_dest_block = cbranch_jump_edge->dest;
 
-  if (cbranch_dest_block == EXIT_BLOCK_PTR
+  if (cbranch_dest_block == EXIT_BLOCK_PTR_FOR_FN (cfun)
       || !can_fallthru (jump_block, cbranch_dest_block))
     return false;
 
   /* Invert the conditional branch.  */
-  if (!invert_jump (cbranch_insn, block_label (jump_dest_block), 0))
+  if (!invert_jump (as_a <rtx_jump_insn *> (cbranch_insn),
+		    block_label (jump_dest_block), 0))
     return false;
 
   if (dump_file)
@@ -193,23 +193,15 @@ try_simplify_condjump (basic_block cbranch_block)
 static bool
 mark_effect (rtx exp, regset nonequal)
 {
-  int regno;
   rtx dest;
   switch (GET_CODE (exp))
     {
       /* In case we do clobber the register, mark it as equal, as we know the
 	 value is dead so it don't have to match.  */
     case CLOBBER:
-      if (REG_P (XEXP (exp, 0)))
-	{
-	  dest = XEXP (exp, 0);
-	  regno = REGNO (dest);
-	  if (HARD_REGISTER_NUM_P (regno))
-	    bitmap_clear_range (nonequal, regno,
-				hard_regno_nregs[regno][GET_MODE (dest)]);
-	  else
-	    bitmap_clear_bit (nonequal, regno);
-	}
+      dest = XEXP (exp, 0);
+      if (REG_P (dest))
+	bitmap_clear_range (nonequal, REGNO (dest), REG_NREGS (dest));
       return false;
 
     case SET:
@@ -220,12 +212,7 @@ mark_effect (rtx exp, regset nonequal)
 	return false;
       if (!REG_P (dest))
 	return true;
-      regno = REGNO (dest);
-      if (HARD_REGISTER_NUM_P (regno))
-	bitmap_set_range (nonequal, regno,
-			  hard_regno_nregs[regno][GET_MODE (dest)]);
-      else
-	bitmap_set_bit (nonequal, regno);
+      bitmap_set_range (nonequal, REGNO (dest), REG_NREGS (dest));
       return false;
 
     default:
@@ -233,29 +220,25 @@ mark_effect (rtx exp, regset nonequal)
     }
 }
 
-/* Return nonzero if X is a register set in regset DATA.
-   Called via for_each_rtx.  */
-static int
-mentions_nonequal_regs (rtx *x, void *data)
+/* Return true if X contains a register in NONEQUAL.  */
+static bool
+mentions_nonequal_regs (const_rtx x, regset nonequal)
 {
-  regset nonequal = (regset) data;
-  if (REG_P (*x))
+  subrtx_iterator::array_type array;
+  FOR_EACH_SUBRTX (iter, array, x, NONCONST)
     {
-      int regno;
-
-      regno = REGNO (*x);
-      if (REGNO_REG_SET_P (nonequal, regno))
-	return 1;
-      if (regno < FIRST_PSEUDO_REGISTER)
+      const_rtx x = *iter;
+      if (REG_P (x))
 	{
-	  int n = hard_regno_nregs[regno][GET_MODE (*x)];
-	  while (--n > 0)
-	    if (REGNO_REG_SET_P (nonequal, regno + n))
-	      return 1;
+	  unsigned int end_regno = END_REGNO (x);
+	  for (unsigned int regno = REGNO (x); regno < end_regno; ++regno)
+	    if (REGNO_REG_SET_P (nonequal, regno))
+	      return true;
 	}
     }
-  return 0;
+  return false;
 }
+
 /* Attempt to prove that the basic block B will have no side effects and
    always continues in the same edge if reached via E.  Return the edge
    if exist, NULL otherwise.  */
@@ -263,7 +246,8 @@ mentions_nonequal_regs (rtx *x, void *data)
 static edge
 thread_jump (edge e, basic_block b)
 {
-  rtx set1, set2, cond1, cond2, insn;
+  rtx set1, set2, cond1, cond2;
+  rtx_insn *insn;
   enum rtx_code code1, code2, reversed_code2;
   bool reverse1 = false;
   unsigned i;
@@ -378,7 +362,7 @@ thread_jump (edge e, basic_block b)
 
   /* cond2 must not mention any register that is not equal to the
      former block.  */
-  if (for_each_rtx (&cond2, mentions_nonequal_regs, nonequal))
+  if (mentions_nonequal_regs (cond2, nonequal))
     goto failed_exit;
 
   EXECUTE_IF_SET_IN_REG_SET (nonequal, 0, i, rsi)
@@ -418,13 +402,14 @@ try_forward_edges (int mode, basic_block b)
      partition boundaries).  See the comments at the top of
      bb-reorder.c:partition_hot_cold_basic_blocks for complete details.  */
 
-  if (find_reg_note (BB_END (b), REG_CROSSING_JUMP, NULL_RTX))
+  if (JUMP_P (BB_END (b)) && CROSSING_JUMP_P (BB_END (b)))
     return false;
 
   for (ei = ei_start (b->succs); (e = ei_safe_edge (ei)); )
     {
       basic_block target, first;
-      int counter, goto_locus;
+      location_t goto_locus;
+      int counter;
       bool threaded = false;
       int nthreaded_edges = 0;
       bool may_thread = first_pass || (b->flags & BB_MODIFIED) != 0;
@@ -454,11 +439,12 @@ try_forward_edges (int mode, basic_block b)
 	 bb-reorder.c:partition_hot_cold_basic_blocks for complete
 	 details.  */
 
-      if (first != EXIT_BLOCK_PTR
-	  && find_reg_note (BB_END (first), REG_CROSSING_JUMP, NULL_RTX))
+      if (first != EXIT_BLOCK_PTR_FOR_FN (cfun)
+	  && JUMP_P (BB_END (first))
+	  && CROSSING_JUMP_P (BB_END (first)))
 	return changed;
 
-      while (counter < n_basic_blocks)
+      while (counter < n_basic_blocks_for_fn (cfun))
 	{
 	  basic_block new_target = NULL;
 	  bool new_target_threaded = false;
@@ -466,44 +452,43 @@ try_forward_edges (int mode, basic_block b)
 
 	  if (FORWARDER_BLOCK_P (target)
 	      && !(single_succ_edge (target)->flags & EDGE_CROSSING)
-	      && single_succ (target) != EXIT_BLOCK_PTR)
+	      && single_succ (target) != EXIT_BLOCK_PTR_FOR_FN (cfun))
 	    {
 	      /* Bypass trivial infinite loops.  */
 	      new_target = single_succ (target);
 	      if (target == new_target)
-		counter = n_basic_blocks;
+		counter = n_basic_blocks_for_fn (cfun);
 	      else if (!optimize)
 		{
 		  /* When not optimizing, ensure that edges or forwarder
 		     blocks with different locus are not optimized out.  */
-		  int new_locus = single_succ_edge (target)->goto_locus;
-		  int locus = goto_locus;
+		  location_t new_locus = single_succ_edge (target)->goto_locus;
+		  location_t locus = goto_locus;
 
-		  if (new_locus != UNKNOWN_LOCATION
-		      && locus != UNKNOWN_LOCATION
+		  if (LOCATION_LOCUS (new_locus) != UNKNOWN_LOCATION
+		      && LOCATION_LOCUS (locus) != UNKNOWN_LOCATION
 		      && new_locus != locus)
 		    new_target = NULL;
 		  else
 		    {
-		      rtx last;
-
-		      if (new_locus != UNKNOWN_LOCATION)
+		      if (LOCATION_LOCUS (new_locus) != UNKNOWN_LOCATION)
 			locus = new_locus;
 
-		      last = BB_END (target);
+		      rtx_insn *last = BB_END (target);
 		      if (DEBUG_INSN_P (last))
 			last = prev_nondebug_insn (last);
+		      if (last && INSN_P (last))
+			new_locus = INSN_LOCATION (last);
+		      else
+			new_locus = UNKNOWN_LOCATION;
 
-		      new_locus = last && INSN_P (last)
-				  ? INSN_LOCATION (last) : 0;
-
-		      if (new_locus != UNKNOWN_LOCATION
-			  && locus != UNKNOWN_LOCATION
+		      if (LOCATION_LOCUS (new_locus) != UNKNOWN_LOCATION
+			  && LOCATION_LOCUS (locus) != UNKNOWN_LOCATION
 			  && new_locus != locus)
 			new_target = NULL;
 		      else
 			{
-			  if (new_locus != UNKNOWN_LOCATION)
+			  if (LOCATION_LOCUS (new_locus) != UNKNOWN_LOCATION)
 			    locus = new_locus;
 
 			  goto_locus = locus;
@@ -520,7 +505,8 @@ try_forward_edges (int mode, basic_block b)
 	      if (t)
 		{
 		  if (!threaded_edges)
-		    threaded_edges = XNEWVEC (edge, n_basic_blocks);
+		    threaded_edges = XNEWVEC (edge,
+					      n_basic_blocks_for_fn (cfun));
 		  else
 		    {
 		      int i;
@@ -532,7 +518,7 @@ try_forward_edges (int mode, basic_block b)
 			  break;
 		      if (i < nthreaded_edges)
 			{
-			  counter = n_basic_blocks;
+			  counter = n_basic_blocks_for_fn (cfun);
 			  break;
 			}
 		    }
@@ -541,7 +527,9 @@ try_forward_edges (int mode, basic_block b)
 		  if (t->dest == b)
 		    break;
 
-		  gcc_assert (nthreaded_edges < n_basic_blocks - NUM_FIXED_BLOCKS);
+		  gcc_assert (nthreaded_edges
+			      < (n_basic_blocks_for_fn (cfun)
+				 - NUM_FIXED_BLOCKS));
 		  threaded_edges[nthreaded_edges++] = t;
 
 		  new_target = t->dest;
@@ -557,7 +545,7 @@ try_forward_edges (int mode, basic_block b)
 	  threaded |= new_target_threaded;
 	}
 
-      if (counter >= n_basic_blocks)
+      if (counter >= n_basic_blocks_for_fn (cfun))
 	{
 	  if (dump_file)
 	    fprintf (dump_file, "Infinite loop in BB %i.\n",
@@ -576,7 +564,7 @@ try_forward_edges (int mode, basic_block b)
 	  e->goto_locus = goto_locus;
 
 	  /* Don't force if target is exit block.  */
-	  if (threaded && target != EXIT_BLOCK_PTR)
+	  if (threaded && target != EXIT_BLOCK_PTR_FOR_FN (cfun))
 	    {
 	      notice_new_block (redirect_edge_and_branch_force (e, target));
 	      if (dump_file)
@@ -653,7 +641,7 @@ try_forward_edges (int mode, basic_block b)
 static void
 merge_blocks_move_predecessor_nojumps (basic_block a, basic_block b)
 {
-  rtx barrier;
+  rtx_insn *barrier;
 
   /* If we are partitioning hot/cold basic blocks, we don't want to
      mess up unconditional or indirect jumps that cross between hot
@@ -697,8 +685,9 @@ merge_blocks_move_predecessor_nojumps (basic_block a, basic_block b)
 static void
 merge_blocks_move_successor_nojumps (basic_block a, basic_block b)
 {
-  rtx barrier, real_b_end;
-  rtx label, table;
+  rtx_insn *barrier, *real_b_end;
+  rtx label;
+  rtx_jump_table_data *table;
 
   /* If we are partitioning hot/cold basic blocks, we don't want to
      mess up unconditional or indirect jumps that cross between hot
@@ -789,7 +778,7 @@ merge_blocks_move (edge e, basic_block b, basic_block c, int mode)
 	fprintf (dump_file, "Merged %d and %d without moving.\n",
 		 b_index, c_index);
 
-      return b->prev_bb == ENTRY_BLOCK_PTR ? b : b->prev_bb;
+      return b->prev_bb == ENTRY_BLOCK_PTR_FOR_FN (cfun) ? b : b->prev_bb;
     }
 
   /* Otherwise we will need to move code around.  Do that only if expensive
@@ -827,7 +816,7 @@ merge_blocks_move (edge e, basic_block b, basic_block c, int mode)
       if (! c_has_outgoing_fallthru)
 	{
 	  merge_blocks_move_successor_nojumps (b, c);
-	  return next == ENTRY_BLOCK_PTR ? next->next_bb : next;
+	  return next == ENTRY_BLOCK_PTR_FOR_FN (cfun) ? next->next_bb : next;
 	}
 
       /* If B does not have an incoming fallthru, then it can be moved
@@ -839,7 +828,7 @@ merge_blocks_move (edge e, basic_block b, basic_block c, int mode)
 	{
 	  basic_block bb;
 
-	  if (b_fallthru_edge->src == ENTRY_BLOCK_PTR)
+	  if (b_fallthru_edge->src == ENTRY_BLOCK_PTR_FOR_FN (cfun))
 	    return NULL;
 	  bb = force_nonfallthru (b_fallthru_edge);
 	  if (bb)
@@ -847,7 +836,7 @@ merge_blocks_move (edge e, basic_block b, basic_block c, int mode)
 	}
 
       merge_blocks_move_predecessor_nojumps (b, c);
-      return next == ENTRY_BLOCK_PTR ? next->next_bb : next;
+      return next == ENTRY_BLOCK_PTR_FOR_FN (cfun) ? next->next_bb : next;
     }
 
   return NULL;
@@ -857,7 +846,7 @@ merge_blocks_move (edge e, basic_block b, basic_block c, int mode)
 /* Removes the memory attributes of MEM expression
    if they are not equal.  */
 
-void
+static void
 merge_memattrs (rtx x, rtx y)
 {
   int i;
@@ -878,7 +867,7 @@ merge_memattrs (rtx x, rtx y)
   if (GET_MODE (x) != GET_MODE (y))
     return;
 
-  if (code == MEM && MEM_ATTRS (x) != MEM_ATTRS (y))
+  if (code == MEM && !mem_attrs_eq_p (MEM_ATTRS (x), MEM_ATTRS (y)))
     {
       if (! MEM_ATTRS (x))
 	MEM_ATTRS (y) = 0;
@@ -923,6 +912,24 @@ merge_memattrs (rtx x, rtx y)
 
 	  set_mem_align (x, MIN (MEM_ALIGN (x), MEM_ALIGN (y)));
 	  set_mem_align (y, MEM_ALIGN (x));
+	}
+    }
+  if (code == MEM)
+    {
+      if (MEM_READONLY_P (x) != MEM_READONLY_P (y))
+	{
+	  MEM_READONLY_P (x) = 0;
+	  MEM_READONLY_P (y) = 0;
+	}
+      if (MEM_NOTRAP_P (x) != MEM_NOTRAP_P (y))
+	{
+	  MEM_NOTRAP_P (x) = 0;
+	  MEM_NOTRAP_P (y) = 0;
+	}
+      if (MEM_VOLATILE_P (x) != MEM_VOLATILE_P (y))
+	{
+	  MEM_VOLATILE_P (x) = 1;
+	  MEM_VOLATILE_P (y) = 1;
 	}
     }
 
@@ -977,10 +984,49 @@ equal_different_set_p (rtx p1, rtx s1, rtx p2, rtx s2)
           ? rtx_renumbered_equal_p (e1, e2) : rtx_equal_p (e1, e2))
         continue;
 
-        return false;
+      return false;
     }
 
   return true;
+}
+
+
+/* NOTE1 is the REG_EQUAL note, if any, attached to an insn
+   that is a single_set with a SET_SRC of SRC1.  Similarly
+   for NOTE2/SRC2.
+
+   So effectively NOTE1/NOTE2 are an alternate form of 
+   SRC1/SRC2 respectively.
+
+   Return nonzero if SRC1 or NOTE1 has the same constant
+   integer value as SRC2 or NOTE2.   Else return zero.  */
+static int
+values_equal_p (rtx note1, rtx note2, rtx src1, rtx src2)
+{
+  if (note1
+      && note2
+      && CONST_INT_P (XEXP (note1, 0))
+      && rtx_equal_p (XEXP (note1, 0), XEXP (note2, 0)))
+    return 1;
+
+  if (!note1
+      && !note2
+      && CONST_INT_P (src1)
+      && CONST_INT_P (src2)
+      && rtx_equal_p (src1, src2))
+    return 1;
+
+  if (note1
+      && CONST_INT_P (src2)
+      && rtx_equal_p (XEXP (note1, 0), src2))
+    return 1;
+
+  if (note2
+      && CONST_INT_P (src1)
+      && rtx_equal_p (XEXP (note2, 0), src1))
+    return 1;
+
+  return 0;
 }
 
 /* Examine register notes on I1 and I2 and return:
@@ -989,7 +1035,7 @@ equal_different_set_p (rtx p1, rtx s1, rtx p2, rtx s2)
    - dir_both if both are the case.  */
 
 static enum replace_direction
-can_replace_by (rtx i1, rtx i2)
+can_replace_by (rtx_insn *i1, rtx_insn *i2)
 {
   rtx s1, s2, d1, d2, src1, src2, note1, note2;
   bool c1, c2;
@@ -1011,8 +1057,11 @@ can_replace_by (rtx i1, rtx i2)
      set dest to the same value.  */
   note1 = find_reg_equal_equiv_note (i1);
   note2 = find_reg_equal_equiv_note (i2);
-  if (!note1 || !note2 || !rtx_equal_p (XEXP (note1, 0), XEXP (note2, 0))
-      || !CONST_INT_P (XEXP (note1, 0)))
+
+  src1 = SET_SRC (s1);
+  src2 = SET_SRC (s2);
+
+  if (!values_equal_p (note1, note2, src1, src2))
     return dir_none;
 
   if (!equal_different_set_p (PATTERN (i1), s1, PATTERN (i2), s2))
@@ -1024,8 +1073,6 @@ can_replace_by (rtx i1, rtx i2)
        (set (dest) (reg))
      because we don't know if the reg is live and has the same value at the
      location of replacement.  */
-  src1 = SET_SRC (s1);
-  src2 = SET_SRC (s2);
   c1 = CONST_INT_P (src1);
   c2 = CONST_INT_P (src2);
   if (c1 && c2)
@@ -1068,7 +1115,7 @@ merge_dir (enum replace_direction a, enum replace_direction b)
    - dir_both if both are the case.  */
 
 static enum replace_direction
-old_insns_match_p (int mode ATTRIBUTE_UNUSED, rtx i1, rtx i2)
+old_insns_match_p (int mode ATTRIBUTE_UNUSED, rtx_insn *i1, rtx_insn *i2)
 {
   rtx p1, p2;
 
@@ -1137,7 +1184,7 @@ old_insns_match_p (int mode ATTRIBUTE_UNUSED, rtx i1, rtx i2)
 
       /* For address sanitizer, never crossjump __asan_report_* builtins,
 	 otherwise errors might be reported on incorrect lines.  */
-      if (flag_asan)
+      if (flag_sanitize & SANITIZE_ADDRESS)
 	{
 	  rtx call = get_call_rtx_from (i1);
 	  if (call && GET_CODE (XEXP (XEXP (call, 0), 0)) == SYMBOL_REF)
@@ -1151,7 +1198,7 @@ old_insns_match_p (int mode ATTRIBUTE_UNUSED, rtx i1, rtx i2)
 		      && DECL_FUNCTION_CODE (SYMBOL_REF_DECL (symbol))
 			 >= BUILT_IN_ASAN_REPORT_LOAD1
 		      && DECL_FUNCTION_CODE (SYMBOL_REF_DECL (symbol))
-			 <= BUILT_IN_ASAN_REPORT_STORE16)
+			 <= BUILT_IN_ASAN_STOREN)
 		    return dir_none;
 		}
 	    }
@@ -1199,7 +1246,7 @@ old_insns_match_p (int mode ATTRIBUTE_UNUSED, rtx i1, rtx i2)
    flow_find_head_matching_sequence, ensure the notes match.  */
 
 static void
-merge_notes (rtx i1, rtx i2)
+merge_notes (rtx_insn *i1, rtx_insn *i2)
 {
   /* If the merged insns have different REG_EQUAL notes, then
      remove them.  */
@@ -1225,7 +1272,7 @@ merge_notes (rtx i1, rtx i2)
     DID_FALLTHRU.  Otherwise, stops at the head of the bb.  */
 
 static void
-walk_to_nondebug_insn (rtx *i1, basic_block *bb1, bool follow_fallthru,
+walk_to_nondebug_insn (rtx_insn **i1, basic_block *bb1, bool follow_fallthru,
                        bool *did_fallthru)
 {
   edge fallthru;
@@ -1245,7 +1292,7 @@ walk_to_nondebug_insn (rtx *i1, basic_block *bb1, bool follow_fallthru,
         return;
 
       fallthru = find_fallthru_edge ((*bb1)->preds);
-      if (!fallthru || fallthru->src == ENTRY_BLOCK_PTR_FOR_FUNCTION (cfun)
+      if (!fallthru || fallthru->src == ENTRY_BLOCK_PTR_FOR_FN (cfun)
           || !single_succ_p (fallthru->src))
         return;
 
@@ -1268,12 +1315,11 @@ walk_to_nondebug_insn (rtx *i1, basic_block *bb1, bool follow_fallthru,
    store the head of the blocks in *F1 and *F2.  */
 
 int
-flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
-                      enum replace_direction *dir_p)
+flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx_insn **f1,
+		      rtx_insn **f2, enum replace_direction *dir_p)
 {
-  rtx i1, i2, last1, last2, afterlast1, afterlast2;
+  rtx_insn *i1, *i2, *last1, *last2, *afterlast1, *afterlast2;
   int ninsns = 0;
-  rtx p1;
   enum replace_direction dir, last_dir, afterlast_dir;
   bool follow_fallthru, did_fallthru;
 
@@ -1288,7 +1334,7 @@ flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
      need to be compared for equivalence, which we'll do below.  */
 
   i1 = BB_END (bb1);
-  last1 = afterlast1 = last2 = afterlast2 = NULL_RTX;
+  last1 = afterlast1 = last2 = afterlast2 = NULL;
   if (onlyjump_p (i1)
       || (returnjump_p (i1) && !side_effects_p (PATTERN (i1))))
     {
@@ -1301,8 +1347,9 @@ flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
       || (returnjump_p (i2) && !side_effects_p (PATTERN (i2))))
     {
       last2 = i2;
-      /* Count everything except for unconditional jump as insn.  */
-      if (!simplejump_p (i2) && !returnjump_p (i2) && last1)
+      /* Count everything except for unconditional jump as insn.
+	 Don't count any jumps if dir_p is NULL.  */
+      if (!simplejump_p (i2) && !returnjump_p (i2) && last1 && dir_p)
 	ninsns++;
       i2 = PREV_INSN (i2);
     }
@@ -1353,8 +1400,7 @@ flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
 	  last1 = i1, last2 = i2;
 	  afterlast_dir = last_dir;
 	  last_dir = dir;
-	  p1 = PATTERN (i1);
-	  if (!(GET_CODE (p1) == USE || GET_CODE (p1) == CLOBBER))
+	  if (active_insn_p (i1))
 	    ninsns++;
 	}
 
@@ -1362,12 +1408,11 @@ flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
       i2 = PREV_INSN (i2);
     }
 
-#ifdef HAVE_cc0
   /* Don't allow the insn after a compare to be shared by
      cross-jumping unless the compare is also shared.  */
-  if (ninsns && reg_mentioned_p (cc0_rtx, last1) && ! sets_cc0_p (last1))
+  if (HAVE_cc0 && ninsns && reg_mentioned_p (cc0_rtx, last1)
+      && ! sets_cc0_p (last1))
     last1 = afterlast1, last2 = afterlast2, last_dir = afterlast_dir, ninsns--;
-#endif
 
   /* Include preceding notes and labels in the cross-jump.  One,
      this may bring us to the head of the blocks as requested above.
@@ -1400,13 +1445,14 @@ flow_find_cross_jump (basic_block bb1, basic_block bb2, rtx *f1, rtx *f2,
 /* Like flow_find_cross_jump, except start looking for a matching sequence from
    the head of the two blocks.  Do not include jumps at the end.
    If STOP_AFTER is nonzero, stop after finding that many matching
-   instructions.  */
+   instructions.  If STOP_AFTER is zero, count all INSN_P insns, if it is
+   non-zero, only count active insns.  */
 
 int
-flow_find_head_matching_sequence (basic_block bb1, basic_block bb2, rtx *f1,
-				  rtx *f2, int stop_after)
+flow_find_head_matching_sequence (basic_block bb1, basic_block bb2, rtx_insn **f1,
+				  rtx_insn **f2, int stop_after)
 {
-  rtx i1, i2, last1, last2, beforelast1, beforelast2;
+  rtx_insn *i1, *i2, *last1, *last2, *beforelast1, *beforelast2;
   int ninsns = 0;
   edge e;
   edge_iterator ei;
@@ -1421,7 +1467,7 @@ flow_find_head_matching_sequence (basic_block bb1, basic_block bb2, rtx *f1,
 
   i1 = BB_HEAD (bb1);
   i2 = BB_HEAD (bb2);
-  last1 = beforelast1 = last2 = beforelast2 = NULL_RTX;
+  last1 = beforelast1 = last2 = beforelast2 = NULL;
 
   while (true)
     {
@@ -1472,7 +1518,8 @@ flow_find_head_matching_sequence (basic_block bb1, basic_block bb2, rtx *f1,
 
 	  beforelast1 = last1, beforelast2 = last2;
 	  last1 = i1, last2 = i2;
-	  ninsns++;
+	  if (!stop_after || active_insn_p (i1))
+	    ninsns++;
 	}
 
       if (i1 == BB_END (bb1) || i2 == BB_END (bb2)
@@ -1483,12 +1530,11 @@ flow_find_head_matching_sequence (basic_block bb1, basic_block bb2, rtx *f1,
       i2 = NEXT_INSN (i2);
     }
 
-#ifdef HAVE_cc0
   /* Don't allow a compare to be shared by cross-jumping unless the insn
      after the compare is also shared.  */
-  if (ninsns && reg_mentioned_p (cc0_rtx, last1) && sets_cc0_p (last1))
+  if (HAVE_cc0 && ninsns && reg_mentioned_p (cc0_rtx, last1)
+      && sets_cc0_p (last1))
     last1 = beforelast1, last2 = beforelast2, ninsns--;
-#endif
 
   if (ninsns)
     {
@@ -1513,12 +1559,13 @@ outgoing_edges_match (int mode, basic_block bb1, basic_block bb2)
   edge e1, e2;
   edge_iterator ei;
 
-  /* If we performed shrink-wrapping, edges to the EXIT_BLOCK_PTR can
+  /* If we performed shrink-wrapping, edges to the exit block can
      only be distinguished for JUMP_INSNs.  The two paths may differ in
      whether they went through the prologue.  Sibcalls are fine, we know
      that we either didn't need or inserted an epilogue before them.  */
   if (crtl->shrink_wrapped
-      && single_succ_p (bb1) && single_succ (bb1) == EXIT_BLOCK_PTR
+      && single_succ_p (bb1)
+      && single_succ (bb1) == EXIT_BLOCK_PTR_FOR_FN (cfun)
       && !JUMP_P (BB_END (bb1))
       && !(CALL_P (BB_END (bb1)) && SIBLING_CALL_P (BB_END (bb1))))
     return false;
@@ -1649,7 +1696,7 @@ outgoing_edges_match (int mode, basic_block bb1, basic_block bb2)
      Return true if they are identical.  */
     {
       rtx label1, label2;
-      rtx table1, table2;
+      rtx_jump_table_data *table1, *table2;
 
       if (tablejump_p (BB_END (bb1), &label1, &table1)
 	  && tablejump_p (BB_END (bb2), &label2, &table2)
@@ -1689,15 +1736,11 @@ outgoing_edges_match (int mode, basic_block bb1, basic_block bb2)
 
 	      if (identical)
 		{
-		  replace_label_data rr;
 		  bool match;
 
 		  /* Temporarily replace references to LABEL1 with LABEL2
 		     in BB1->END so that we could compare the instructions.  */
-		  rr.r1 = label1;
-		  rr.r2 = label2;
-		  rr.update_label_nuses = false;
-		  for_each_rtx (&BB_END (bb1), replace_label, &rr);
+		  replace_label_in_insn (BB_END (bb1), label1, label2, false);
 
 		  match = (old_insns_match_p (mode, BB_END (bb1), BB_END (bb2))
 			   == dir_both);
@@ -1709,9 +1752,7 @@ outgoing_edges_match (int mode, basic_block bb1, basic_block bb2)
 		  /* Set the original label in BB1->END because when deleting
 		     a block whose end is a tablejump, the tablejump referenced
 		     from the instruction is deleted too.  */
-		  rr.r1 = label2;
-		  rr.r2 = label1;
-		  for_each_rtx (&BB_END (bb1), replace_label, &rr);
+		  replace_label_in_insn (BB_END (bb1), label2, label1, false);
 
 		  return match;
 		}
@@ -1720,12 +1761,20 @@ outgoing_edges_match (int mode, basic_block bb1, basic_block bb2)
 	}
     }
 
-  rtx last1 = BB_END (bb1);
-  rtx last2 = BB_END (bb2);
-  if (DEBUG_INSN_P (last1))
-    last1 = prev_nondebug_insn (last1);
-  if (DEBUG_INSN_P (last2))
-    last2 = prev_nondebug_insn (last2);
+  /* Find the last non-debug non-note instruction in each bb, except
+     stop when we see the NOTE_INSN_BASIC_BLOCK, as old_insns_match_p
+     handles that case specially. old_insns_match_p does not handle
+     other types of instruction notes.  */
+  rtx_insn *last1 = BB_END (bb1);
+  rtx_insn *last2 = BB_END (bb2);
+  while (!NOTE_INSN_BASIC_BLOCK_P (last1) &&
+         (DEBUG_INSN_P (last1) || NOTE_P (last1)))
+    last1 = PREV_INSN (last1);
+  while (!NOTE_INSN_BASIC_BLOCK_P (last2) &&
+         (DEBUG_INSN_P (last2) || NOTE_P (last2)))
+    last2 = PREV_INSN (last2);
+  gcc_assert (last1 && last2);
+
   /* First ensure that the instructions match.  There may be many outgoing
      edges so this test is generally cheaper.  */
   if (old_insns_match_p (mode, last1, last2) != dir_both)
@@ -1849,11 +1898,11 @@ try_crossjump_to_edge (int mode, edge e1, edge e2,
   basic_block src1 = e1->src, src2 = e2->src;
   basic_block redirect_to, redirect_from, to_remove;
   basic_block osrc1, osrc2, redirect_edges_to, tmp;
-  rtx newpos1, newpos2;
+  rtx_insn *newpos1, *newpos2;
   edge s;
   edge_iterator ei;
 
-  newpos1 = newpos2 = NULL_RTX;
+  newpos1 = newpos2 = NULL;
 
   /* If we have partitioned hot/cold basic blocks, it is a bad idea
      to try this optimization.
@@ -1880,7 +1929,8 @@ try_crossjump_to_edge (int mode, edge e1, edge e2,
     e2 = single_pred_edge (src2), src2 = e2->src;
 
   /* Nothing to do if we reach ENTRY, or a common source block.  */
-  if (src1 == ENTRY_BLOCK_PTR || src2 == ENTRY_BLOCK_PTR)
+  if (src1 == ENTRY_BLOCK_PTR_FOR_FN (cfun) || src2
+      == ENTRY_BLOCK_PTR_FOR_FN (cfun))
     return false;
   if (src1 == src2)
     return false;
@@ -1919,7 +1969,7 @@ try_crossjump_to_edge (int mode, edge e1, edge e2,
       SWAP (basic_block, osrc1, osrc2);
       SWAP (basic_block, src1, src2);
       SWAP (edge, e1, e2);
-      SWAP (rtx, newpos1, newpos2);
+      SWAP (rtx_insn *, newpos1, newpos2);
 #undef SWAP
     }
 
@@ -1941,31 +1991,27 @@ try_crossjump_to_edge (int mode, edge e1, edge e2,
      If we have tablejumps in the end of SRC1 and SRC2
      they have been already compared for equivalence in outgoing_edges_match ()
      so replace the references to TABLE1 by references to TABLE2.  */
-    {
+  {
       rtx label1, label2;
-      rtx table1, table2;
+      rtx_jump_table_data *table1, *table2;
 
       if (tablejump_p (BB_END (osrc1), &label1, &table1)
 	  && tablejump_p (BB_END (osrc2), &label2, &table2)
 	  && label1 != label2)
 	{
-	  replace_label_data rr;
-	  rtx insn;
+	  rtx_insn *insn;
 
 	  /* Replace references to LABEL1 with LABEL2.  */
-	  rr.r1 = label1;
-	  rr.r2 = label2;
-	  rr.update_label_nuses = true;
 	  for (insn = get_insns (); insn; insn = NEXT_INSN (insn))
 	    {
 	      /* Do not replace the label in SRC1->END because when deleting
 		 a block whose end is a tablejump, the tablejump referenced
 		 from the instruction is deleted too.  */
 	      if (insn != BB_END (osrc1))
-		for_each_rtx (&insn, replace_label, &rr);
+		replace_label_in_insn (insn, label1, label2, true);
 	    }
 	}
-    }
+  }
 
   /* Avoid splitting if possible.  We must always split when SRC2 has
      EH predecessor edges, or we may end up with basic blocks with both
@@ -2124,7 +2170,7 @@ try_crossjump_bb (int mode, basic_block bb)
   /* Don't crossjump if this block ends in a computed jump,
      unless we are optimizing for size.  */
   if (optimize_bb_for_size_p (bb)
-      && bb != EXIT_BLOCK_PTR
+      && bb != EXIT_BLOCK_PTR_FOR_FN (cfun)
       && computed_jump_p (BB_END (bb)))
     return false;
 
@@ -2250,12 +2296,14 @@ try_head_merge_bb (basic_block bb)
   basic_block final_dest_bb = NULL;
   int max_match = INT_MAX;
   edge e0;
-  rtx *headptr, *currptr, *nextptr;
+  rtx_insn **headptr, **currptr, **nextptr;
   bool changed, moveall;
   unsigned ix;
-  rtx e0_last_head, cond, move_before;
+  rtx_insn *e0_last_head;
+  rtx cond;
+  rtx_insn *move_before;
   unsigned nedges = EDGE_COUNT (bb->succs);
-  rtx jump = BB_END (bb);
+  rtx_insn *jump = BB_END (bb);
   regset live, live_union;
 
   /* Nothing to do if there is not at least two outgoing edges.  */
@@ -2265,23 +2313,21 @@ try_head_merge_bb (basic_block bb)
   /* Don't crossjump if this block ends in a computed jump,
      unless we are optimizing for size.  */
   if (optimize_bb_for_size_p (bb)
-      && bb != EXIT_BLOCK_PTR
+      && bb != EXIT_BLOCK_PTR_FOR_FN (cfun)
       && computed_jump_p (BB_END (bb)))
     return false;
 
   cond = get_condition (jump, &move_before, true, false);
   if (cond == NULL_RTX)
     {
-#ifdef HAVE_cc0
-      if (reg_mentioned_p (cc0_rtx, jump))
+      if (HAVE_cc0 && reg_mentioned_p (cc0_rtx, jump))
 	move_before = prev_nonnote_nondebug_insn (jump);
       else
-#endif
 	move_before = jump;
     }
 
   for (ix = 0; ix < nedges; ix++)
-    if (EDGE_SUCC (bb, ix)->dest == EXIT_BLOCK_PTR)
+    if (EDGE_SUCC (bb, ix)->dest == EXIT_BLOCK_PTR_FOR_FN (cfun))
       return false;
 
   for (ix = 0; ix < nedges; ix++)
@@ -2345,13 +2391,13 @@ try_head_merge_bb (basic_block bb)
     }
 
   e0 = EDGE_SUCC (bb, 0);
-  e0_last_head = NULL_RTX;
+  e0_last_head = NULL;
   changed = false;
 
   for (ix = 1; ix < nedges; ix++)
     {
       edge e = EDGE_SUCC (bb, ix);
-      rtx e0_last, e_last;
+      rtx_insn *e0_last, *e_last;
       int nmatch;
 
       nmatch = flow_find_head_matching_sequence (e0->dest, e->dest,
@@ -2388,15 +2434,15 @@ try_head_merge_bb (basic_block bb)
   live = BITMAP_ALLOC (NULL);
   live_union = BITMAP_ALLOC (NULL);
 
-  currptr = XNEWVEC (rtx, nedges);
-  headptr = XNEWVEC (rtx, nedges);
-  nextptr = XNEWVEC (rtx, nedges);
+  currptr = XNEWVEC (rtx_insn *, nedges);
+  headptr = XNEWVEC (rtx_insn *, nedges);
+  nextptr = XNEWVEC (rtx_insn *, nedges);
 
   for (ix = 0; ix < nedges; ix++)
     {
       int j;
       basic_block merge_bb = EDGE_SUCC (bb, ix)->dest;
-      rtx head = BB_HEAD (merge_bb);
+      rtx_insn *head = BB_HEAD (merge_bb);
 
       while (!NONDEBUG_INSN_P (head))
 	head = NEXT_INSN (head);
@@ -2417,7 +2463,7 @@ try_head_merge_bb (basic_block bb)
      with the final move.  */
   if (final_dest_bb != NULL)
     {
-      rtx move_upto;
+      rtx_insn *move_upto;
 
       moveall = can_move_insns_across (currptr[0], e0_last_head, move_before,
 				       jump, e0->dest, live_union,
@@ -2441,18 +2487,16 @@ try_head_merge_bb (basic_block bb)
       cond = get_condition (jump, &move_before, true, false);
       if (cond == NULL_RTX)
 	{
-#ifdef HAVE_cc0
-	  if (reg_mentioned_p (cc0_rtx, jump))
+	  if (HAVE_cc0 && reg_mentioned_p (cc0_rtx, jump))
 	    move_before = prev_nonnote_nondebug_insn (jump);
 	  else
-#endif
 	    move_before = jump;
 	}
     }
 
   do
     {
-      rtx move_upto;
+      rtx_insn *move_upto;
       moveall = can_move_insns_across (currptr[0], e0_last_head,
 				       move_before, jump, e0->dest, live_union,
 				       NULL, &move_upto);
@@ -2464,12 +2508,10 @@ try_head_merge_bb (basic_block bb)
 	  /* Try again, using a different insertion point.  */
 	  move_before = jump;
 
-#ifdef HAVE_cc0
 	  /* Don't try moving before a cc0 user, as that may invalidate
 	     the cc0.  */
-	  if (reg_mentioned_p (cc0_rtx, jump))
+	  if (HAVE_cc0 && reg_mentioned_p (cc0_rtx, jump))
 	    break;
-#endif
 
 	  continue;
 	}
@@ -2486,7 +2528,7 @@ try_head_merge_bb (basic_block bb)
 	    break;
 	  for (ix = 0; ix < nedges; ix++)
 	    {
-	      rtx curr = currptr[ix];
+	      rtx_insn *curr = currptr[ix];
 	      do
 		curr = NEXT_INSN (curr);
 	      while (!NONDEBUG_INSN_P (curr));
@@ -2499,7 +2541,7 @@ try_head_merge_bb (basic_block bb)
       if (!moveall)
 	for (ix = 0; ix < nedges; ix++)
 	  {
-	    rtx curr = currptr[ix];
+	    rtx_insn *curr = currptr[ix];
 	    do
 	      curr = NEXT_INSN (curr);
 	    while (!NONDEBUG_INSN_P (curr));
@@ -2524,12 +2566,10 @@ try_head_merge_bb (basic_block bb)
 	  /* For the unmerged insns, try a different insertion point.  */
 	  move_before = jump;
 
-#ifdef HAVE_cc0
 	  /* Don't try moving before a cc0 user, as that may invalidate
 	     the cc0.  */
-	  if (reg_mentioned_p (cc0_rtx, jump))
+	  if (HAVE_cc0 && reg_mentioned_p (cc0_rtx, jump))
 	    break;
-#endif
 
 	  for (ix = 0; ix < nedges; ix++)
 	    currptr[ix] = headptr[ix] = nextptr[ix];
@@ -2553,7 +2593,7 @@ try_head_merge_bb (basic_block bb)
 static bool
 trivially_empty_bb_p (basic_block bb)
 {
-  rtx insn = BB_END (bb);
+  rtx_insn *insn = BB_END (bb);
 
   while (1)
     {
@@ -2581,7 +2621,7 @@ try_optimize_cfg (int mode)
 
   crossjumps_occured = false;
 
-  FOR_EACH_BB (bb)
+  FOR_EACH_BB_FN (bb, cfun)
     update_forwarder_flag (bb);
 
   if (! targetm.cannot_modify_jumps_p ())
@@ -2601,7 +2641,8 @@ try_optimize_cfg (int mode)
 		     "\n\ntry_optimize_cfg iteration %i\n\n",
 		     iterations);
 
-	  for (b = ENTRY_BLOCK_PTR->next_bb; b != EXIT_BLOCK_PTR;)
+	  for (b = ENTRY_BLOCK_PTR_FOR_FN (cfun)->next_bb; b
+	       != EXIT_BLOCK_PTR_FOR_FN (cfun);)
 	    {
 	      basic_block c;
 	      edge s;
@@ -2618,7 +2659,8 @@ try_optimize_cfg (int mode)
 	      if (EDGE_COUNT (b->preds) == 0
 		  || (EDGE_COUNT (b->succs) == 0
 		      && trivially_empty_bb_p (b)
-		      && single_succ_edge (ENTRY_BLOCK_PTR)->dest != b))
+		      && single_succ_edge (ENTRY_BLOCK_PTR_FOR_FN (cfun))->dest
+		      != b))
 		{
 		  c = b->prev_bb;
 		  if (EDGE_COUNT (b->preds) > 0)
@@ -2649,7 +2691,7 @@ try_optimize_cfg (int mode)
 			}
 		      else
 			{
-			  rtx last = get_last_bb_insn (b);
+			  rtx_insn *last = get_last_bb_insn (b);
 			  if (last && BARRIER_P (last))
 			    FOR_EACH_EDGE (e, ei, b->preds)
 			      if ((e->flags & EDGE_FALLTHRU))
@@ -2658,8 +2700,8 @@ try_optimize_cfg (int mode)
 		    }
 		  delete_basic_block (b);
 		  changed = true;
-		  /* Avoid trying to remove ENTRY_BLOCK_PTR.  */
-		  b = (c == ENTRY_BLOCK_PTR ? c->next_bb : c);
+		  /* Avoid trying to remove the exit block.  */
+		  b = (c == ENTRY_BLOCK_PTR_FOR_FN (cfun) ? c->next_bb : c);
 		  continue;
 		}
 
@@ -2668,13 +2710,14 @@ try_optimize_cfg (int mode)
 		  && (single_pred_edge (b)->flags & EDGE_FALLTHRU)
 		  && !(single_pred_edge (b)->flags & EDGE_COMPLEX)
 		  && LABEL_P (BB_HEAD (b))
+		  && !LABEL_PRESERVE_P (BB_HEAD (b))
 		  /* If the previous block ends with a branch to this
 		     block, we can't delete the label.  Normally this
 		     is a condjump that is yet to be simplified, but
 		     if CASE_DROPS_THRU, this can be a tablejump with
 		     some element going to the same place as the
 		     default (fallthru).  */
-		  && (single_pred (b) == ENTRY_BLOCK_PTR
+		  && (single_pred (b) == ENTRY_BLOCK_PTR_FOR_FN (cfun)
 		      || !JUMP_P (BB_END (single_pred (b)))
 		      || ! label_is_jump_target_p (BB_HEAD (b),
 						   BB_END (single_pred (b)))))
@@ -2694,14 +2737,15 @@ try_optimize_cfg (int mode)
 		  /* Note that forwarder_block_p true ensures that
 		     there is a successor for this block.  */
 		  && (single_succ_edge (b)->flags & EDGE_FALLTHRU)
-		  && n_basic_blocks > NUM_FIXED_BLOCKS + 1)
+		  && n_basic_blocks_for_fn (cfun) > NUM_FIXED_BLOCKS + 1)
 		{
 		  if (dump_file)
 		    fprintf (dump_file,
 			     "Deleting fallthru block %i.\n",
 			     b->index);
 
-		  c = b->prev_bb == ENTRY_BLOCK_PTR ? b->next_bb : b->prev_bb;
+		  c = ((b->prev_bb == ENTRY_BLOCK_PTR_FOR_FN (cfun))
+		       ? b->next_bb : b->prev_bb);
 		  redirect_edge_succ_nodup (single_pred_edge (b),
 					    single_succ (b));
 		  delete_basic_block (b);
@@ -2714,7 +2758,7 @@ try_optimize_cfg (int mode)
 	      if (single_succ_p (b)
 		  && (s = single_succ_edge (b))
 		  && !(s->flags & EDGE_COMPLEX)
-		  && (c = s->dest) != EXIT_BLOCK_PTR
+		  && (c = s->dest) != EXIT_BLOCK_PTR_FOR_FN (cfun)
 		  && single_pred_p (c)
 		  && b != c)
 		{
@@ -2758,9 +2802,9 @@ try_optimize_cfg (int mode)
 		 can either delete the jump entirely, or replace it
 		 with a simple unconditional jump.  */
 	      if (single_succ_p (b)
-		  && single_succ (b) != EXIT_BLOCK_PTR
+		  && single_succ (b) != EXIT_BLOCK_PTR_FOR_FN (cfun)
 		  && onlyjump_p (BB_END (b))
-		  && !find_reg_note (BB_END (b), REG_CROSSING_JUMP, NULL_RTX)
+		  && !CROSSING_JUMP_P (BB_END (b))
 		  && try_redirect_by_replacing_jump (single_succ_edge (b),
 						     single_succ (b),
 						     (mode & CLEANUP_CFGLAYOUT) != 0))
@@ -2797,7 +2841,7 @@ try_optimize_cfg (int mode)
 	    }
 
 	  if ((mode & CLEANUP_CROSSJUMP)
-	      && try_crossjump_bb (mode, EXIT_BLOCK_PTR))
+	      && try_crossjump_bb (mode, EXIT_BLOCK_PTR_FOR_FN (cfun)))
 	    changed = true;
 
 	  if (block_was_dirty)
@@ -2807,10 +2851,18 @@ try_optimize_cfg (int mode)
 	      df_analyze ();
 	    }
 
-#ifdef ENABLE_CHECKING
 	  if (changed)
-	    verify_flow_info ();
-#endif
+            {
+              /* Edge forwarding in particular can cause hot blocks previously
+                 reached by both hot and cold blocks to become dominated only
+                 by cold blocks. This will cause the verification below to fail,
+                 and lead to now cold code in the hot section. This is not easy
+                 to detect and fix during edge forwarding, and in some cases
+                 is only visible after newly unreachable blocks are deleted,
+                 which will be done in fixup_partitions.  */
+	      fixup_partitions ();
+	      checking_verify_flow_info ();
+            }
 
 	  changed_overall |= changed;
 	  first_pass = false;
@@ -2818,7 +2870,7 @@ try_optimize_cfg (int mode)
       while (changed);
     }
 
-  FOR_ALL_BB (b)
+  FOR_ALL_BB_FN (b, cfun)
     b->flags &= ~(BB_FORWARDER_BLOCK | BB_NONTHREADABLE_BLOCK);
 
   return changed_overall;
@@ -2843,7 +2895,8 @@ delete_unreachable_blocks (void)
   if (MAY_HAVE_DEBUG_INSNS && current_ir_type () == IR_GIMPLE
       && dom_info_available_p (CDI_DOMINATORS))
     {
-      for (b = EXIT_BLOCK_PTR->prev_bb; b != ENTRY_BLOCK_PTR; b = prev_bb)
+      for (b = EXIT_BLOCK_PTR_FOR_FN (cfun)->prev_bb;
+	   b != ENTRY_BLOCK_PTR_FOR_FN (cfun); b = prev_bb)
 	{
 	  prev_bb = b->prev_bb;
 
@@ -2879,7 +2932,8 @@ delete_unreachable_blocks (void)
     }
   else
     {
-      for (b = EXIT_BLOCK_PTR->prev_bb; b != ENTRY_BLOCK_PTR; b = prev_bb)
+      for (b = EXIT_BLOCK_PTR_FOR_FN (cfun)->prev_bb;
+	   b != ENTRY_BLOCK_PTR_FOR_FN (cfun); b = prev_bb)
 	{
 	  prev_bb = b->prev_bb;
 
@@ -2907,9 +2961,9 @@ delete_dead_jumptables (void)
 
   /* A dead jump table does not belong to any basic block.  Scan insns
      between two adjacent basic blocks.  */
-  FOR_EACH_BB (bb)
+  FOR_EACH_BB_FN (bb, cfun)
     {
-      rtx insn, next;
+      rtx_insn *insn, *next;
 
       for (insn = NEXT_INSN (BB_END (bb));
 	   insn && !NOTE_INSN_BASIC_BLOCK_P (insn);
@@ -2920,7 +2974,7 @@ delete_dead_jumptables (void)
 	      && LABEL_NUSES (insn) == LABEL_PRESERVE_P (insn)
 	      && JUMP_TABLE_DATA_P (next))
 	    {
-	      rtx label = insn, jump = next;
+	      rtx_insn *label = insn, *jump = next;
 
 	      if (dump_file)
 		fprintf (dump_file, "Dead jumptable %i removed\n",
@@ -3029,8 +3083,35 @@ cleanup_cfg (int mode)
   return changed;
 }
 
-static unsigned int
-execute_jump (void)
+namespace {
+
+const pass_data pass_data_jump =
+{
+  RTL_PASS, /* type */
+  "jump", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_JUMP, /* tv_id */
+  0, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_jump : public rtl_opt_pass
+{
+public:
+  pass_jump (gcc::context *ctxt)
+    : rtl_opt_pass (pass_data_jump, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *);
+
+}; // class pass_jump
+
+unsigned int
+pass_jump::execute (function *)
 {
   delete_trivially_dead_insns (get_insns (), max_reg_num ());
   if (dump_file)
@@ -3040,49 +3121,49 @@ execute_jump (void)
   return 0;
 }
 
-struct rtl_opt_pass pass_jump =
-{
- {
-  RTL_PASS,
-  "jump",				/* name */
-  OPTGROUP_NONE,                        /* optinfo_flags */
-  NULL,					/* gate */
-  execute_jump,				/* execute */
-  NULL,					/* sub */
-  NULL,					/* next */
-  0,					/* static_pass_number */
-  TV_JUMP,				/* tv_id */
-  0,					/* properties_required */
-  0,					/* properties_provided */
-  0,					/* properties_destroyed */
-  0,					/* todo_flags_start */
-  TODO_verify_rtl_sharing,		/* todo_flags_finish */
- }
-};
-
-static unsigned int
-execute_jump2 (void)
-{
-  cleanup_cfg (flag_crossjumping ? CLEANUP_CROSSJUMP : 0);
-  return 0;
-}
+} // anon namespace
 
-struct rtl_opt_pass pass_jump2 =
+rtl_opt_pass *
+make_pass_jump (gcc::context *ctxt)
 {
- {
-  RTL_PASS,
-  "jump2",				/* name */
-  OPTGROUP_NONE,                        /* optinfo_flags */
-  NULL,					/* gate */
-  execute_jump2,			/* execute */
-  NULL,					/* sub */
-  NULL,					/* next */
-  0,					/* static_pass_number */
-  TV_JUMP,				/* tv_id */
-  0,					/* properties_required */
-  0,					/* properties_provided */
-  0,					/* properties_destroyed */
-  0,					/* todo_flags_start */
-  TODO_verify_rtl_sharing,		/* todo_flags_finish */
- }
+  return new pass_jump (ctxt);
+}
+
+namespace {
+
+const pass_data pass_data_jump2 =
+{
+  RTL_PASS, /* type */
+  "jump2", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_JUMP, /* tv_id */
+  0, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
 };
+
+class pass_jump2 : public rtl_opt_pass
+{
+public:
+  pass_jump2 (gcc::context *ctxt)
+    : rtl_opt_pass (pass_data_jump2, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual unsigned int execute (function *)
+    {
+      cleanup_cfg (flag_crossjumping ? CLEANUP_CROSSJUMP : 0);
+      return 0;
+    }
+
+}; // class pass_jump2
+
+} // anon namespace
+
+rtl_opt_pass *
+make_pass_jump2 (gcc::context *ctxt)
+{
+  return new pass_jump2 (ctxt);
+}

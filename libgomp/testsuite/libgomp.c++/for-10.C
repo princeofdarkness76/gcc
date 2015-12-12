@@ -19,11 +19,20 @@ extern "C" void abort ();
 #undef F
 #undef G
 
+<<<<<<< HEAD
+=======
+#undef SC
+#define SC static
+>>>>>>> gcc-mirror/master
 #define F for simd
 #define G f_simd
 #include "../libgomp.c/for-1.h"
 #undef F
 #undef G
+<<<<<<< HEAD
+=======
+#undef SC
+>>>>>>> gcc-mirror/master
 
 int
 main ()

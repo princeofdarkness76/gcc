@@ -1,5 +1,5 @@
 ;; Predicate definitions for S/390 and zSeries.
-;; Copyright (C) 2005-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2005-2015 Free Software Foundation, Inc.
 ;; Contributed by Hartmut Penner (hpenner@de.ibm.com) and
 ;;                Ulrich Weigand (uweigand@de.ibm.com).
 ;;
@@ -24,16 +24,20 @@
 
 ;; operands --------------------------------------------------------------
 
-;; Return true if OP a (const_int 0) operand.
-
+;; Return true if OP a const 0 operand (int/float/vector).
 (define_predicate "const0_operand"
-  (and (match_code "const_int, const_double")
+  (and (match_code "const_int,const_double,const_vector")
        (match_test "op == CONST0_RTX (mode)")))
+
+;; Return true if OP an all ones operand (int/float/vector).
+(define_predicate "constm1_operand"
+  (and (match_code "const_int, const_double,const_vector")
+       (match_test "op == CONSTM1_RTX (mode)")))
 
 ;; Return true if OP is constant.
 
 (define_special_predicate "consttable_operand"
-  (and (match_code "symbol_ref, label_ref, const, const_int, const_double")
+  (and (match_code "symbol_ref, label_ref, const, const_int, const_double, const_vector")
        (match_test "CONSTANT_P (op)")))
 
 ;; Return true if OP is a valid S-type operand.
@@ -75,13 +79,17 @@
        (and (match_test "mode == Pmode")
 	    (match_test "!legitimate_la_operand_p (op)"))))
 
-;; Return true if OP is a valid operand as shift count or setmem.
+;; Return true if OP is a valid operand as scalar shift count or setmem.
 
 (define_predicate "shift_count_or_setmem_operand"
   (match_code "reg, subreg, plus, const_int")
 {
   HOST_WIDE_INT offset;
   rtx base;
+
+  if (GET_MODE (op) != VOIDmode
+      && GET_MODE_CLASS (GET_MODE (op)) != MODE_INT)
+    return false;
 
   /* Extract base register and offset.  */
   if (!s390_decompose_shift_count (op, &base, &offset))
@@ -114,7 +122,7 @@
   if (GET_CODE (op) == LABEL_REF)
     return true;
   if (GET_CODE (op) == SYMBOL_REF)
-    return (!SYMBOL_REF_ALIGN1_P (op)
+    return (!SYMBOL_FLAG_NOTALIGN2_P (op)
 	    && SYMBOL_REF_TLS_MODEL (op) == 0
 	    && (!flag_pic || SYMBOL_REF_LOCAL_P (op)));
 
@@ -139,7 +147,7 @@
   if (GET_CODE (op) == LABEL_REF)
     return true;
   if (GET_CODE (op) == SYMBOL_REF)
-    return ((SYMBOL_REF_FLAGS (op) & SYMBOL_FLAG_ALIGN1) == 0
+    return (!SYMBOL_FLAG_NOTALIGN2_P (op)
 	    && SYMBOL_REF_TLS_MODEL (op) == 0
 	    && (!flag_pic || SYMBOL_REF_LOCAL_P (op)));
 
@@ -314,7 +322,7 @@
 (define_special_predicate "load_multiple_operation"
   (match_code "parallel")
 {
-  enum machine_mode elt_mode;
+  machine_mode elt_mode;
   int count = XVECLEN (op, 0);
   unsigned int dest_regno;
   rtx src_addr;
@@ -374,7 +382,7 @@
   (match_code "parallel")
 {
   rtx pattern = op;
-  rtx insn;
+  rtx_insn *insn;
   int icode;
 
   /* This is redundant but since this predicate is evaluated
@@ -406,8 +414,7 @@
   if (icode < 0)
     return false;
 
-  extract_insn (insn);
-  constrain_operands (1);
+  extract_constrain_insn (insn);
 
   return which_alternative >= 0;
 })
@@ -418,7 +425,7 @@
 (define_special_predicate "store_multiple_operation"
   (match_code "parallel")
 {
-  enum machine_mode elt_mode;
+  machine_mode elt_mode;
   int count = XVECLEN (op, 0);
   unsigned int src_regno;
   rtx dest_addr;

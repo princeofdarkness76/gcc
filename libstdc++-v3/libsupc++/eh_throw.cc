@@ -1,5 +1,5 @@
 // -*- C++ -*- Exception handling routines for throwing.
-// Copyright (C) 2001-2013 Free Software Foundation, Inc.
+// Copyright (C) 2001-2015 Free Software Foundation, Inc.
 //
 // This file is part of GCC.
 //
@@ -62,6 +62,9 @@ __cxxabiv1::__cxa_throw (void *obj, std::type_info *tinfo,
 {
   PROBE2 (throw, obj, tinfo);
 
+  __cxa_eh_globals *globals = __cxa_get_globals ();
+  globals->uncaughtExceptions += 1;
+
   // Definitely a primary.
   __cxa_refcounted_exception *header
     = __get_refcounted_exception_header_from_obj (obj);
@@ -73,7 +76,7 @@ __cxxabiv1::__cxa_throw (void *obj, std::type_info *tinfo,
   __GXX_INIT_PRIMARY_EXCEPTION_CLASS(header->exc.unwindHeader.exception_class);
   header->exc.unwindHeader.exception_cleanup = __gxx_exception_cleanup;
 
-#ifdef _GLIBCXX_SJLJ_EXCEPTIONS
+#ifdef __USING_SJLJ_EXCEPTIONS__
   _Unwind_SjLj_RaiseException (&header->exc.unwindHeader);
 #else
   _Unwind_RaiseException (&header->exc.unwindHeader);
@@ -106,7 +109,7 @@ __cxxabiv1::__cxa_rethrow ()
 		  header->exceptionType);
 	}
 
-#ifdef _GLIBCXX_SJLJ_EXCEPTIONS
+#ifdef __USING_SJLJ_EXCEPTIONS__
       _Unwind_SjLj_Resume_or_Rethrow (&header->unwindHeader);
 #else
 #if defined(_LIBUNWIND_STD_ABI)

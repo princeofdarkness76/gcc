@@ -1,4 +1,5 @@
 /* { dg-do compile } */
+/* { dg-require-effective-target int32 } */
 /* { dg-options "-O2 -fdump-tree-pre-details" } */
 
 int f;
@@ -24,4 +25,3 @@ bar (int b, int x)
    are using different types (of the same size).  */
 
 /* { dg-final { scan-tree-dump-times "Replaced MEM" 2 "pre" } } */
-/* { dg-final { cleanup-tree-dump "pre" } } */

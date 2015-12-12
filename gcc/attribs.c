@@ -1,5 +1,5 @@
 /* Functions dealing with attribute handling, used by most front ends.
-   Copyright (C) 1992-2013 Free Software Foundation, Inc.
+   Copyright (C) 1992-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -20,16 +20,13 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "tree.h"
-#include "flags.h"
-#include "diagnostic-core.h"
-#include "ggc.h"
-#include "tm_p.h"
-#include "cpplib.h"
 #include "target.h"
+#include "tree.h"
+#include "stringpool.h"
+#include "diagnostic-core.h"
+#include "attribs.h"
+#include "stor-layout.h"
 #include "langhooks.h"
-#include "hash-table.h"
 #include "plugin.h"
 
 /* Table of the tables of attributes (common, language, format, machine)
@@ -54,23 +51,22 @@ substring_hash (const char *str, int l)
 
 /* Used for attribute_hash.  */
 
-struct attribute_hasher : typed_noop_remove <attribute_spec>
+struct attribute_hasher : nofree_ptr_hash <attribute_spec>
 {
-  typedef attribute_spec value_type;
-  typedef substring compare_type;
-  static inline hashval_t hash (const value_type *);
-  static inline bool equal (const value_type *, const compare_type *);
+  typedef substring *compare_type;
+  static inline hashval_t hash (const attribute_spec *);
+  static inline bool equal (const attribute_spec *, const substring *);
 };
 
 inline hashval_t
-attribute_hasher::hash (const value_type *spec)
+attribute_hasher::hash (const attribute_spec *spec)
 {
   const int l = strlen (spec->name);
   return substring_hash (spec->name, l);
 }
 
 inline bool
-attribute_hasher::equal (const value_type *spec, const compare_type *str)
+attribute_hasher::equal (const attribute_spec *spec, const substring *str)
 {
   return (strncmp (spec->name, str->str, str->length) == 0
 	  && !spec->name[str->length]);
@@ -82,7 +78,7 @@ struct scoped_attributes
 {
   const char *ns;
   vec<attribute_spec> attributes;
-  hash_table <attribute_hasher> attribute_hash;
+  hash_table<attribute_hasher> *attribute_hash;
 };
 
 /* The table of scope attributes.  */
@@ -141,7 +137,7 @@ register_scoped_attributes (const struct attribute_spec * attributes,
       sa.ns = ns;
       sa.attributes.create (64);
       result = attributes_table.safe_push (sa);
-      result->attribute_hash.create (200);
+      result->attribute_hash = new hash_table<attribute_hasher> (200);
     }
 
   /* Really add the attributes to their namespace now.  */
@@ -173,8 +169,58 @@ find_attribute_namespace (const char* ns)
   return NULL;
 }
 
-/* Initialize attribute tables, and make some sanity checks
-   if --enable-checking.  */
+/* Make some sanity checks on the attribute tables.  */
+
+static void
+check_attribute_tables (void)
+{
+  for (size_t i = 0; i < ARRAY_SIZE (attribute_tables); i++)
+    for (size_t j = 0; attribute_tables[i][j].name != NULL; j++)
+      {
+	/* The name must not begin and end with __.  */
+	const char *name = attribute_tables[i][j].name;
+	int len = strlen (name);
+
+	gcc_assert (!(name[0] == '_' && name[1] == '_'
+		      && name[len - 1] == '_' && name[len - 2] == '_'));
+
+	/* The minimum and maximum lengths must be consistent.  */
+	gcc_assert (attribute_tables[i][j].min_length >= 0);
+
+	gcc_assert (attribute_tables[i][j].max_length == -1
+		    || (attribute_tables[i][j].max_length
+			>= attribute_tables[i][j].min_length));
+
+	/* An attribute cannot require both a DECL and a TYPE.  */
+	gcc_assert (!attribute_tables[i][j].decl_required
+		    || !attribute_tables[i][j].type_required);
+
+	  /* If an attribute requires a function type, in particular
+	     it requires a type.  */
+	gcc_assert (!attribute_tables[i][j].function_type_required
+		    || attribute_tables[i][j].type_required);
+      }
+
+  /* Check that each name occurs just once in each table.  */
+  for (size_t i = 0; i < ARRAY_SIZE (attribute_tables); i++)
+    for (size_t j = 0; attribute_tables[i][j].name != NULL; j++)
+      for (size_t k = j + 1; attribute_tables[i][k].name != NULL; k++)
+	gcc_assert (strcmp (attribute_tables[i][j].name,
+			    attribute_tables[i][k].name));
+
+  /* Check that no name occurs in more than one table.  Names that
+     begin with '*' are exempt, and may be overridden.  */
+  for (size_t i = 0; i < ARRAY_SIZE (attribute_tables); i++)
+    for (size_t j = i + 1; j < ARRAY_SIZE (attribute_tables); j++)
+      for (size_t k = 0; attribute_tables[i][k].name != NULL; k++)
+	for (size_t l = 0; attribute_tables[j][l].name != NULL; l++)
+	  gcc_assert (attribute_tables[i][k].name[0] == '*'
+		      || strcmp (attribute_tables[i][k].name,
+				 attribute_tables[j][l].name));
+}
+
+/* Initialize attribute tables, and make some sanity checks if checking is
+   enabled.  */
 
 void
 init_attributes (void)
@@ -194,62 +240,8 @@ init_attributes (void)
     if (attribute_tables[i] == NULL)
       attribute_tables[i] = empty_attribute_table;
 
-#ifdef ENABLE_CHECKING
-  /* Make some sanity checks on the attribute tables.  */
-  for (i = 0; i < ARRAY_SIZE (attribute_tables); i++)
-    {
-      int j;
-
-      for (j = 0; attribute_tables[i][j].name != NULL; j++)
-	{
-	  /* The name must not begin and end with __.  */
-	  const char *name = attribute_tables[i][j].name;
-	  int len = strlen (name);
-
-	  gcc_assert (!(name[0] == '_' && name[1] == '_'
-			&& name[len - 1] == '_' && name[len - 2] == '_'));
-
-	  /* The minimum and maximum lengths must be consistent.  */
-	  gcc_assert (attribute_tables[i][j].min_length >= 0);
-
-	  gcc_assert (attribute_tables[i][j].max_length == -1
-		      || (attribute_tables[i][j].max_length
-			  >= attribute_tables[i][j].min_length));
-
-	  /* An attribute cannot require both a DECL and a TYPE.  */
-	  gcc_assert (!attribute_tables[i][j].decl_required
-		      || !attribute_tables[i][j].type_required);
-
-	  /* If an attribute requires a function type, in particular
-	     it requires a type.  */
-	  gcc_assert (!attribute_tables[i][j].function_type_required
-		      || attribute_tables[i][j].type_required);
-	}
-    }
-
-  /* Check that each name occurs just once in each table.  */
-  for (i = 0; i < ARRAY_SIZE (attribute_tables); i++)
-    {
-      int j, k;
-      for (j = 0; attribute_tables[i][j].name != NULL; j++)
-	for (k = j + 1; attribute_tables[i][k].name != NULL; k++)
-	  gcc_assert (strcmp (attribute_tables[i][j].name,
-			      attribute_tables[i][k].name));
-    }
-  /* Check that no name occurs in more than one table.  Names that
-     begin with '*' are exempt, and may be overridden.  */
-  for (i = 0; i < ARRAY_SIZE (attribute_tables); i++)
-    {
-      size_t j, k, l;
-
-      for (j = i + 1; j < ARRAY_SIZE (attribute_tables); j++)
-	for (k = 0; attribute_tables[i][k].name != NULL; k++)
-	  for (l = 0; attribute_tables[j][l].name != NULL; l++)
-	    gcc_assert (attribute_tables[i][k].name[0] == '*'
-			|| strcmp (attribute_tables[i][k].name,
-				   attribute_tables[j][l].name));
-    }
-#endif
+  if (flag_checking)
+    check_attribute_tables ();
 
   for (i = 0; i < ARRAY_SIZE (attribute_tables); ++i)
     /* Put all the GNU attributes into the "gnu" namespace.  */
@@ -278,7 +270,7 @@ register_scoped_attribute (const struct attribute_spec *attr,
 
   gcc_assert (attr != NULL && name_space != NULL);
 
-  gcc_assert (name_space->attribute_hash.is_created ());
+  gcc_assert (name_space->attribute_hash);
 
   str.str = attr->name;
   str.length = strlen (str.str);
@@ -288,8 +280,8 @@ register_scoped_attribute (const struct attribute_spec *attr,
   gcc_assert (str.length > 0 && str.str[0] != '_');
 
   slot = name_space->attribute_hash
-	 .find_slot_with_hash (&str, substring_hash (str.str, str.length),
-			       INSERT);
+	 ->find_slot_with_hash (&str, substring_hash (str.str, str.length),
+				INSERT);
   gcc_assert (!*slot || attr->name[0] == '*');
   *slot = CONST_CAST (struct attribute_spec *, attr);
 }
@@ -297,7 +289,7 @@ register_scoped_attribute (const struct attribute_spec *attr,
 /* Return the spec for the scoped attribute with namespace NS and
    name NAME.   */
 
-const struct attribute_spec *
+static const struct attribute_spec *
 lookup_scoped_attribute_spec (const_tree ns, const_tree name)
 {
   struct substring attr;
@@ -313,8 +305,9 @@ lookup_scoped_attribute_spec (const_tree ns, const_tree name)
   attr.str = IDENTIFIER_POINTER (name);
   attr.length = IDENTIFIER_LENGTH (name);
   extract_attribute_substring (&attr);
-  return attrs->attribute_hash.find_with_hash (&attr,
-			 substring_hash (attr.str, attr.length));
+  return attrs->attribute_hash->find_with_hash (&attr,
+						substring_hash (attr.str,
+							       	attr.length));
 }
 
 /* Return the spec for the attribute named NAME.  If NAME is a TREE_LIST,
@@ -334,7 +327,23 @@ lookup_attribute_spec (const_tree name)
   return lookup_scoped_attribute_spec (ns, name);
 }
 
-
+
+/* Return the namespace of the attribute ATTR.  This accessor works on
+   GNU and C++11 (scoped) attributes.  On GNU attributes,
+   it returns an identifier tree for the string "gnu".
+
+   Please read the comments of cxx11_attribute_p to understand the
+   format of attributes.  */
+
+static tree
+get_attribute_namespace (const_tree attr)
+{
+  if (cxx11_attribute_p (attr))
+    return TREE_PURPOSE (TREE_PURPOSE (attr));
+  return get_identifier ("gnu");
+}
+
+
 /* Process the attributes listed in ATTRIBUTES and install them in *NODE,
    which is either a DECL (including a TYPE_DECL) or a TYPE.  If a DECL,
    it should be modified in place; if a TYPE, a copy should be created
@@ -450,10 +459,10 @@ decl_attributes (tree *node, tree attributes, int flags)
 	  /* This is a c++11 attribute that appertains to a
 	     type-specifier, outside of the definition of, a class
 	     type.  Ignore it.  */
-	  warning (OPT_Wattributes, "attribute ignored");
-	  inform (input_location,
-		  "an attribute that appertains to a type-specifier "
-		  "is ignored");
+	  if (warning (OPT_Wattributes, "attribute ignored"))
+	    inform (input_location,
+		    "an attribute that appertains to a type-specifier "
+		    "is ignored");
 	  continue;
 	}
 
@@ -482,11 +491,7 @@ decl_attributes (tree *node, tree attributes, int flags)
       if (spec->type_required && DECL_P (*anode))
 	{
 	  anode = &TREE_TYPE (*anode);
-	  /* Allow ATTR_FLAG_TYPE_IN_PLACE for the type's naming decl.  */
-	  if (!(TREE_CODE (*anode) == TYPE_DECL
-		&& *anode == TYPE_NAME (TYPE_MAIN_VARIANT
-					(TREE_TYPE (*anode)))))
-	    flags &= ~(int) ATTR_FLAG_TYPE_IN_PLACE;
+	  flags &= ~(int) ATTR_FLAG_TYPE_IN_PLACE;
 	}
 
       if (spec->function_type_required && TREE_CODE (*anode) != FUNCTION_TYPE
@@ -659,21 +664,6 @@ get_attribute_name (const_tree attr)
   return TREE_PURPOSE (attr);
 }
 
-/* Return the namespace of the attribute ATTR.  This accessor works on
-   GNU and C++11 (scoped) attributes.  On GNU attributes,
-   it returns an identifier tree for the string "gnu".
-
-   Please read the comments of cxx11_attribute_p to understand the
-   format of attributes.  */
-
-tree
-get_attribute_namespace (const_tree attr)
-{
-  if (cxx11_attribute_p (attr))
-    return TREE_PURPOSE (TREE_PURPOSE (attr));
-  return get_identifier ("gnu");
-}
-
 /* Subroutine of set_method_tm_attributes.  Apply TM attribute ATTR
    to the method FNDECL.  */
 
@@ -681,4 +671,22 @@ void
 apply_tm_attr (tree fndecl, tree attr)
 {
   decl_attributes (&TREE_TYPE (fndecl), tree_cons (attr, NULL, NULL), 0);
+}
+
+/* Makes a function attribute of the form NAME(ARG_NAME) and chains
+   it to CHAIN.  */
+
+tree
+make_attribute (const char *name, const char *arg_name, tree chain)
+{
+  tree attr_name;
+  tree attr_arg_name;
+  tree attr_args;
+  tree attr;
+
+  attr_name = get_identifier (name);
+  attr_arg_name = build_string (strlen (arg_name), arg_name);
+  attr_args = tree_cons (NULL_TREE, attr_arg_name, NULL_TREE);
+  attr = tree_cons (attr_name, attr_args, chain);
+  return attr;
 }

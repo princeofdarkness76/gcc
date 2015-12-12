@@ -231,6 +231,23 @@ func TestMixedReadsAndWrites(t *testing.T) {
 	empty(t, "TestMixedReadsAndWrites (2)", &buf, s, make([]byte, buf.Len()))
 }
 
+func TestCapWithPreallocatedSlice(t *testing.T) {
+	buf := NewBuffer(make([]byte, 10))
+	n := buf.Cap()
+	if n != 10 {
+		t.Errorf("expected 10, got %d", n)
+	}
+}
+
+func TestCapWithSliceAndWrittenData(t *testing.T) {
+	buf := NewBuffer(make([]byte, 0, 10))
+	buf.Write([]byte("test"))
+	n := buf.Cap()
+	if n != 10 {
+		t.Errorf("expected 10, got %d", n)
+	}
+}
+
 func TestNil(t *testing.T) {
 	var b *Buffer
 	if b.String() != "<nil>" {
@@ -473,5 +490,55 @@ func TestUnreadByte(t *testing.T) {
 	}
 	if c != 'm' {
 		t.Errorf("ReadByte = %q; want %q", c, 'm')
+	}
+}
+
+// Tests that we occasionally compact. Issue 5154.
+func TestBufferGrowth(t *testing.T) {
+	var b Buffer
+	buf := make([]byte, 1024)
+	b.Write(buf[0:1])
+	var cap0 int
+	for i := 0; i < 5<<10; i++ {
+		b.Write(buf)
+		b.Read(buf)
+		if i == 0 {
+			cap0 = b.Cap()
+		}
+	}
+	cap1 := b.Cap()
+	// (*Buffer).grow allows for 2x capacity slop before sliding,
+	// so set our error threshold at 3x.
+	if cap1 > cap0*3 {
+		t.Errorf("buffer cap = %d; too big (grew from %d)", cap1, cap0)
+	}
+}
+
+// From Issue 5154.
+func BenchmarkBufferNotEmptyWriteRead(b *testing.B) {
+	buf := make([]byte, 1024)
+	for i := 0; i < b.N; i++ {
+		var b Buffer
+		b.Write(buf[0:1])
+		for i := 0; i < 5<<10; i++ {
+			b.Write(buf)
+			b.Read(buf)
+		}
+	}
+}
+
+// Check that we don't compact too often. From Issue 5154.
+func BenchmarkBufferFullSmallReads(b *testing.B) {
+	buf := make([]byte, 1024)
+	for i := 0; i < b.N; i++ {
+		var b Buffer
+		b.Write(buf)
+		for b.Len()+20 < b.Cap() {
+			b.Write(buf[:10])
+		}
+		for i := 0; i < 5<<10; i++ {
+			b.Read(buf[:1])
+			b.Write(buf[:1])
+		}
 	}
 }

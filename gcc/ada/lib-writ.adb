@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -38,11 +38,13 @@ with Gnatvsn;  use Gnatvsn;
 with Opt;      use Opt;
 with Osint;    use Osint;
 with Osint.C;  use Osint.C;
+with Output;   use Output;
 with Par;
 with Par_SCO;  use Par_SCO;
 with Restrict; use Restrict;
 with Rident;   use Rident;
 with Scn;      use Scn;
+with Sem_Eval; use Sem_Eval;
 with Sinfo;    use Sinfo;
 with Sinput;   use Sinput;
 with Snames;   use Snames;
@@ -71,28 +73,29 @@ package body Lib.Writ is
    begin
       Units.Increment_Last;
       Units.Table (Units.Last) :=
-        (Unit_File_Name   => File_Name (S),
-         Unit_Name        => No_Unit_Name,
-         Expected_Unit    => No_Unit_Name,
-         Source_Index     => S,
-         Cunit            => Empty,
-         Cunit_Entity     => Empty,
-         Dependency_Num   => 0,
-         Dynamic_Elab     => False,
-         Fatal_Error      => False,
-         Generate_Code    => False,
-         Has_Allocator    => False,
-         Has_RACW         => False,
-         Is_Compiler_Unit => False,
-         Ident_String     => Empty,
-         Loading          => False,
-         Main_Priority    => -1,
-         Main_CPU         => -1,
-         Munit_Index      => 0,
-         Serial_Number    => 0,
-         Version          => 0,
-         Error_Location   => No_Location,
-         OA_Setting       => 'O');
+        (Unit_File_Name    => File_Name (S),
+         Unit_Name         => No_Unit_Name,
+         Expected_Unit     => No_Unit_Name,
+         Source_Index      => S,
+         Cunit             => Empty,
+         Cunit_Entity      => Empty,
+         Dependency_Num    => 0,
+         Dynamic_Elab      => False,
+         Fatal_Error       => None,
+         Generate_Code     => False,
+         Has_RACW          => False,
+         Filler            => False,
+         Ident_String      => Empty,
+         Loading           => False,
+         Main_Priority     => -1,
+         Main_CPU          => -1,
+         Munit_Index       => 0,
+         No_Elab_Code_All  => False,
+         Serial_Number     => 0,
+         Version           => 0,
+         Error_Location    => No_Location,
+         OA_Setting        => 'O',
+         SPARK_Mode_Pragma => Empty);
    end Add_Preprocessing_Dependency;
 
    ------------------------------
@@ -128,28 +131,29 @@ package body Lib.Writ is
 
       Units.Increment_Last;
       Units.Table (Units.Last) := (
-        Unit_File_Name   => System_Fname,
-        Unit_Name        => System_Uname,
-        Expected_Unit    => System_Uname,
-        Source_Index     => System_Source_File_Index,
-        Cunit            => Empty,
-        Cunit_Entity     => Empty,
-        Dependency_Num   => 0,
-        Dynamic_Elab     => False,
-        Fatal_Error      => False,
-        Generate_Code    => False,
-        Has_Allocator    => False,
-        Has_RACW         => False,
-        Is_Compiler_Unit => False,
-        Ident_String     => Empty,
-        Loading          => False,
-        Main_Priority    => -1,
-        Main_CPU         => -1,
-        Munit_Index      => 0,
-        Serial_Number    => 0,
-        Version          => 0,
-        Error_Location   => No_Location,
-        OA_Setting       => 'O');
+        Unit_File_Name    => System_Fname,
+        Unit_Name         => System_Uname,
+        Expected_Unit     => System_Uname,
+        Source_Index      => System_Source_File_Index,
+        Cunit             => Empty,
+        Cunit_Entity      => Empty,
+        Dependency_Num    => 0,
+        Dynamic_Elab      => False,
+        Fatal_Error       => None,
+        Generate_Code     => False,
+        Has_RACW          => False,
+        Filler            => False,
+        Ident_String      => Empty,
+        Loading           => False,
+        Main_Priority     => -1,
+        Main_CPU          => -1,
+        Munit_Index       => 0,
+        No_Elab_Code_All  => False,
+        Serial_Number     => 0,
+        Version           => 0,
+        Error_Location    => No_Location,
+        OA_Setting        => 'O',
+        SPARK_Mode_Pragma => Empty);
 
       --  Parse system.ads so that the checksum is set right
       --  Style checks are not applied.
@@ -279,7 +283,7 @@ package body Lib.Writ is
                   end if;
 
                else
-                  Set_From_With_Type (Cunit_Entity (Unum));
+                  Set_From_Limited_With (Cunit_Entity (Unum));
                end if;
 
                if Implicit_With (Unum) /= Yes then
@@ -425,10 +429,8 @@ package body Lib.Writ is
          --  If this is a spec ...
 
          if (Is_Subprogram (Uent)
-               or else
-             Ekind (Uent) = E_Package
-               or else
-             Is_Generic_Unit (Uent))
+              or else Ekind (Uent) = E_Package
+              or else Is_Generic_Unit (Uent))
 
             --  and an elaboration entity was declared ...
 
@@ -436,8 +438,7 @@ package body Lib.Writ is
 
             --  and either the elaboration flag is required ...
 
-            and then
-              (Elaboration_Entity_Required (Uent)
+            and then (Elaboration_Entity_Required (Uent)
 
                --  or this unit has elaboration code ...
 
@@ -451,20 +452,9 @@ package body Lib.Writ is
                    and then Present (Body_Entity (Uent))
                    and then
                      not Has_No_Elaboration_Code
-                           (Parent
-                             (Declaration_Node
-                               (Body_Entity (Uent))))))
+                           (Parent (Declaration_Node (Body_Entity (Uent))))))
          then
-            if Convention (Uent) = Convention_CIL then
-
-               --  Special case for generic CIL packages which never have
-               --  elaboration code
-
-               Write_Info_Str (" NE");
-
-            else
-               Write_Info_Str (" EE");
-            end if;
+            Write_Info_Str (" EE");
          end if;
 
          if Has_No_Elaboration_Code (Unode) then
@@ -500,6 +490,10 @@ package body Lib.Writ is
             Write_Info_Str (" RT");
          end if;
 
+         if Serious_Errors_Detected /= 0 then
+            Write_Info_Str (" SE");
+         end if;
+
          if Is_Shared_Passive (Uent) then
             Write_Info_Str (" SP");
          end if;
@@ -532,7 +526,7 @@ package body Lib.Writ is
            or else
              (Present (Library_Unit (Unode))
                 and then
-              Nkind (Unit (Library_Unit (Unode))) in N_Generic_Declaration)
+                  Nkind (Unit (Library_Unit (Unode))) in N_Generic_Declaration)
          then
             Write_Info_Str (" GE");
          end if;
@@ -577,19 +571,18 @@ package body Lib.Writ is
          if Nkind (Unit (Unode)) in N_Unit_Body then
             for S in Units.First .. Last_Unit loop
 
-               --  We are only interested in subunits.
-               --  For preproc. data and def. files, Cunit is Empty, so
-               --  we need to test that first.
+               --  We are only interested in subunits. For preproc. data and
+               --  def. files, Cunit is Empty, so we need to test that first.
 
                if Cunit (S) /= Empty
                  and then Nkind (Unit (Cunit (S))) = N_Subunit
                then
                   Pnode := Library_Unit (Cunit (S));
 
-                  --  In gnatc mode, the errors in the subunits will not
-                  --  have been recorded, but the analysis of the subunit
-                  --  may have failed. There is no information to add to
-                  --  ALI file in this case.
+                  --  In gnatc mode, the errors in the subunits will not have
+                  --  been recorded, but the analysis of the subunit may have
+                  --  failed. There is no information to add to ALI file in
+                  --  this case.
 
                   if No (Pnode) then
                      exit;
@@ -613,9 +606,28 @@ package body Lib.Writ is
 
          Write_With_Lines;
 
-         --  Output linker option lines
+         --  Generate the linker option lines
 
          for J in 1 .. Linker_Option_Lines.Last loop
+
+            --  Pragma Linker_Options is not allowed in predefined generic
+            --  units. This is because they won't be read, due to the fact that
+            --  with lines for generic units lack the file name and lib name
+            --  parameters (see Lib_Writ spec for an explanation).
+
+            if Is_Generic_Unit (Cunit_Entity (Main_Unit))
+              and then
+                Is_Predefined_File_Name (Unit_File_Name (Current_Sem_Unit))
+              and then Linker_Option_Lines.Table (J).Unit = Unit_Num
+            then
+               Set_Standard_Error;
+               Write_Line
+                 ("linker options not allowed in predefined generic unit");
+               raise Unrecoverable_Error;
+            end if;
+
+            --  Output one linker option line
+
             declare
                S : Linker_Option_Entry renames Linker_Option_Lines.Table (J);
             begin
@@ -632,13 +644,27 @@ package body Lib.Writ is
 
          for J in 1 .. Notes.Last loop
             declare
-               N : constant Node_Id          := Notes.Table (J).Pragma_Node;
+               N : constant Node_Id          := Notes.Table (J);
                L : constant Source_Ptr       := Sloc (N);
-               U : constant Unit_Number_Type := Notes.Table (J).Unit;
+               U : constant Unit_Number_Type :=
+                     Unit (Get_Source_File_Index (L));
                C : Character;
 
+               Note_Unit : Unit_Number_Type;
+               --  The unit in whose U section this note must be emitted:
+               --  notes for subunits are emitted along with the main unit;
+               --  all other notes are emitted as part of the enclosing
+               --  compilation unit.
+
             begin
-               if U = Unit_Num then
+               if U /= No_Unit and then Nkind (Unit (Cunit (U))) = N_Subunit
+               then
+                  Note_Unit := Main_Unit;
+               else
+                  Note_Unit := U;
+               end if;
+
+               if Note_Unit = Unit_Num then
                   Write_Info_Initiate ('N');
                   Write_Info_Char (' ');
 
@@ -662,6 +688,15 @@ package body Lib.Writ is
                   Write_Info_Char (':');
                   Write_Info_Int (Int (Get_Column_Number (L)));
 
+                  --  Indicate source file of annotation if different from
+                  --  compilation unit source file (case of annotation coming
+                  --  from a separate).
+
+                  if Get_Source_File_Index (L) /= Source_Index (Unit_Num) then
+                     Write_Info_Char (':');
+                     Write_Info_Name (File_Name (Get_Source_File_Index (L)));
+                  end if;
+
                   declare
                      A : Node_Id;
 
@@ -683,12 +718,12 @@ package body Lib.Writ is
                               Write_Info_Name (Chars (Expr));
 
                            elsif Nkind (Expr) = N_Integer_Literal
-                             and then Is_Static_Expression (Expr)
+                             and then Is_OK_Static_Expression (Expr)
                            then
                               Write_Info_Uint (Intval (Expr));
 
                            elsif Nkind (Expr) = N_String_Literal
-                             and then Is_Static_Expression (Expr)
+                             and then Is_OK_Static_Expression (Expr)
                            then
                               Write_Info_Slit (Strval (Expr));
 
@@ -762,8 +797,8 @@ package body Lib.Writ is
             --  Add element to with table if it is with'ed or if it is the
             --  parent spec of the main unit (case of main unit is a child
             --  unit). The latter with is not needed for semantic purposes,
-            --  but is required by the binder for elaboration purposes.
-            --  For preproc. data and def. files, there is no Unit_Name,
+            --  but is required by the binder for elaboration purposes. For
+            --  preprocessing data and definition files, there is no Unit_Name,
             --  check for that first.
 
             if Unit_Name (J) /= No_Unit_Name
@@ -788,7 +823,7 @@ package body Lib.Writ is
                Write_Info_Initiate ('Z');
 
             elsif Ekind (Cunit_Entity (Unum)) = E_Package
-              and then From_With_Type (Cunit_Entity (Unum))
+              and then From_Limited_With (Cunit_Entity (Unum))
             then
                Write_Info_Initiate ('Y');
 
@@ -819,7 +854,7 @@ package body Lib.Writ is
               --  files, which are required to compute frame conditions
               --  of subprograms.
 
-              or else SPARK_Mode
+              or else GNATprove_Mode
             then
                Write_Info_Tab (25);
 
@@ -856,7 +891,7 @@ package body Lib.Writ is
                end if;
 
                if Ekind (Cunit_Entity (Unum)) = E_Package
-                  and then From_With_Type (Cunit_Entity (Unum))
+                  and then From_Limited_With (Cunit_Entity (Unum))
                then
                   null;
                else
@@ -880,6 +915,38 @@ package body Lib.Writ is
 
             Write_Info_EOL;
          end loop;
+
+         --  Finally generate the special lines for cases of Restriction_Set
+         --  with No_Dependence and no restriction present.
+
+         declare
+            Unam : Unit_Name_Type;
+
+         begin
+            for J in Restriction_Set_Dependences.First ..
+                     Restriction_Set_Dependences.Last
+            loop
+               Unam := Restriction_Set_Dependences.Table (J);
+
+               --  Don't need an entry if already in the unit table
+
+               for U in 0 .. Last_Unit loop
+                  if Unit_Name (U) = Unam then
+                     goto Continue;
+                  end if;
+               end loop;
+
+               --  Otherwise generate the entry
+
+               Write_Info_Initiate ('W');
+               Write_Info_Char (' ');
+               Write_Info_Name (Unam);
+               Write_Info_EOL;
+
+            <<Continue>>
+               null;
+            end loop;
+         end;
       end Write_With_Lines;
 
    --  Start of processing for Write_ALI
@@ -906,7 +973,7 @@ package body Lib.Writ is
 
       for Unum in Units.First .. Last_Unit loop
          if Cunit_Entity (Unum) = Empty
-           or else not From_With_Type (Cunit_Entity (Unum))
+           or else not From_Limited_With (Cunit_Entity (Unum))
          then
             Num_Sdep := Num_Sdep + 1;
             Sdep_Table (Num_Sdep) := Unum;
@@ -919,9 +986,10 @@ package body Lib.Writ is
 
       --  If we are not generating code, and there is an up to date ALI file
       --  file accessible, read it, and acquire the compilation arguments from
-      --  this file.
+      --  this file. In GNATprove mode, always generate the ALI file, which
+      --  contains a special section for formal verification.
 
-      if Operating_Mode /= Generate_Code then
+      if Operating_Mode /= Generate_Code and then not GNATprove_Mode then
          if Up_To_Date_ALI_File_Exists then
             Update_Tables_From_ALI_File;
             return;
@@ -967,10 +1035,6 @@ package body Lib.Writ is
                Write_Info_Nat (Opt.Time_Slice_Value);
             end if;
 
-            if Has_Allocator (Main_Unit) then
-               Write_Info_Str (" AB");
-            end if;
-
             if Main_CPU (Main_Unit) /= Default_Main_CPU then
                Write_Info_Str (" C=");
                Write_Info_Nat (Main_CPU (Main_Unit));
@@ -1010,8 +1074,8 @@ package body Lib.Writ is
             if Nkind (U) = N_Subprogram_Body
               and then Present (Corresponding_Spec (U))
               and then
-                Ekind_In (Corresponding_Spec (U),
-                  E_Generic_Procedure, E_Generic_Function)
+                Ekind_In (Corresponding_Spec (U), E_Generic_Procedure,
+                                                  E_Generic_Function)
             then
                null;
 
@@ -1064,20 +1128,6 @@ package body Lib.Writ is
          Write_Info_Str (" DB");
       end if;
 
-      if Opt.Float_Format /= ' ' then
-         Write_Info_Str (" F");
-
-         if Opt.Float_Format = 'I' then
-            Write_Info_Char ('I');
-
-         elsif Opt.Float_Format_Long = 'D' then
-            Write_Info_Char ('D');
-
-         else
-            Write_Info_Char ('G');
-         end if;
-      end if;
-
       if Tasking_Used
         and then not Is_Predefined_File_Name (Unit_File_Name (Main_Unit))
       then
@@ -1098,6 +1148,10 @@ package body Lib.Writ is
          end if;
       end if;
 
+      if GNATprove_Mode then
+         Write_Info_Str (" GP");
+      end if;
+
       if Partition_Elaboration_Policy /= ' ' then
          Write_Info_Str  (" E");
          Write_Info_Char (Partition_Elaboration_Policy);
@@ -1115,6 +1169,11 @@ package body Lib.Writ is
          Write_Info_Str (" NS");
       end if;
 
+      if Default_SSO_Config /= ' ' then
+         Write_Info_Str (" O");
+         Write_Info_Char (Default_SSO_Config);
+      end if;
+
       if Sec_Stack_Used then
          Write_Info_Str (" SS");
       end if;
@@ -1123,7 +1182,11 @@ package body Lib.Writ is
          Write_Info_Str (" UA");
       end if;
 
-      if Exception_Mechanism = Back_End_Exceptions then
+      if Front_End_Exceptions then
+         Write_Info_Str (" FX");
+      end if;
+
+      if ZCX_Exceptions then
          Write_Info_Str (" ZX");
       end if;
 
@@ -1136,9 +1199,7 @@ package body Lib.Writ is
       --  for which we have generated code
 
       for Unit in Units.First .. Last_Unit loop
-         if Units.Table (Unit).Generate_Code
-           or else Unit = Main_Unit
-         then
+         if Units.Table (Unit).Generate_Code or else Unit = Main_Unit then
             if not Has_No_Elaboration_Code (Cunit (Unit)) then
                Main_Restrictions.Violated (No_Elaboration_Code) := True;
             end if;
@@ -1365,8 +1426,8 @@ package body Lib.Writ is
             if Sind /= No_Source_File then
                Fname := File_Name (Sind);
 
-               --  Ensure that on platforms where the file names are not
-               --  case sensitive, the recorded file name is in lower case.
+               --  Ensure that on platforms where the file names are not case
+               --  sensitive, the recorded file name is in lower case.
 
                if not File_Names_Case_Sensitive then
                   Get_Name_String (Fname);
@@ -1374,7 +1435,7 @@ package body Lib.Writ is
                   Fname := Name_Find;
                end if;
 
-               Write_Info_Name (Fname);
+               Write_Info_Name_May_Be_Quoted (Fname);
                Write_Info_Tab (25);
                Write_Info_Str (String (Time_Stamp (Sind)));
                Write_Info_Char (' ');
@@ -1382,15 +1443,18 @@ package body Lib.Writ is
 
                --  If subunit, add unit name, omitting the %b at the end
 
-               if Present (Cunit (Unum))
-                 and then Nkind (Unit (Cunit (Unum))) = N_Subunit
-               then
+               if Present (Cunit (Unum)) then
                   Get_Decoded_Name_String (Unit_Name (Unum));
                   Write_Info_Char (' ');
-                  Write_Info_Str (Name_Buffer (1 .. Name_Len - 2));
+
+                  if Nkind (Unit (Cunit (Unum))) = N_Subunit then
+                     Write_Info_Str (Name_Buffer (1 .. Name_Len - 2));
+                  else
+                     Write_Info_Str (Name_Buffer (1 .. Name_Len));
+                  end if;
                end if;
 
-               --  If Source_Reference pragma used output information
+               --  If Source_Reference pragma used, output information
 
                if Num_SRef_Pragmas (Sind) > 0 then
                   Write_Info_Char (' ');
@@ -1429,19 +1493,20 @@ package body Lib.Writ is
       --  Output SCO information if present
 
       if Generate_SCO then
+         SCO_Record_Filtered;
          SCO_Output;
       end if;
 
       --  Output SPARK cross-reference information if needed
 
-      if Opt.Xref_Active and then SPARK_Mode then
+      if Opt.Xref_Active and then GNATprove_Mode then
          SPARK_Specific.Collect_SPARK_Xrefs (Sdep_Table => Sdep_Table,
                                              Num_Sdep   => Num_Sdep);
          SPARK_Specific.Output_SPARK_Xrefs;
       end if;
 
       --  Output final blank line and we are done. This final blank line is
-      --  probably junk, but we don't feel like making an incompatible change!
+      --  probably junk, but we don't feel like making an incompatible change.
 
       Write_Info_Terminate;
       Close_Output_Library_Info;

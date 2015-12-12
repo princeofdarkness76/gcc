@@ -1,5 +1,5 @@
 /* Vectorizer
-   Copyright (C) 2003-2013 Free Software Foundation, Inc.
+   Copyright (C) 2003-2015 Free Software Foundation, Inc.
    Contributed by Dorit Naishlos <dorit@il.ibm.com>
 
 This file is part of GCC.
@@ -57,32 +57,55 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "dumpfile.h"
-#include "tm.h"
-#include "ggc.h"
+#include "backend.h"
 #include "tree.h"
-#include "tree-pretty-print.h"
-#include "tree-flow.h"
+#include "gimple.h"
+#include "predict.h"
+#include "tree-pass.h"
+#include "ssa.h"
+#include "cgraph.h"
+#include "fold-const.h"
+#include "stor-layout.h"
+#include "gimple-iterator.h"
+#include "gimple-walk.h"
+#include "tree-ssa-loop-manip.h"
+#include "tree-cfg.h"
 #include "cfgloop.h"
 #include "tree-vectorizer.h"
+<<<<<<< HEAD
 #include "tree-pass.h"
 #include "hash-table.h"
 #include "tree-ssa-propagate.h"
+=======
+#include "tree-ssa-propagate.h"
+#include "dbgcnt.h"
+#include "tree-scalar-evolution.h"
+
+>>>>>>> gcc-mirror/master
 
 /* Loop or bb location.  */
-LOC vect_location;
+source_location vect_location;
 
 /* Vector mapping GIMPLE stmt to stmt_vec_info. */
+<<<<<<< HEAD
 vec<vec_void_p> stmt_vec_info_vec;
 
 /* For mapping simduid to vectorization factor.  */
 
 struct simduid_to_vf : typed_free_remove<simduid_to_vf>
+=======
+vec<stmt_vec_info> stmt_vec_info_vec;
+
+/* For mapping simduid to vectorization factor.  */
+
+struct simduid_to_vf : free_ptr_hash<simduid_to_vf>
+>>>>>>> gcc-mirror/master
 {
   unsigned int simduid;
   int vf;
 
   /* hash_table support.  */
+<<<<<<< HEAD
   typedef simduid_to_vf value_type;
   typedef simduid_to_vf compare_type;
   static inline hashval_t hash (const value_type *);
@@ -91,24 +114,53 @@ struct simduid_to_vf : typed_free_remove<simduid_to_vf>
 
 inline hashval_t
 simduid_to_vf::hash (const value_type *p)
+=======
+  static inline hashval_t hash (const simduid_to_vf *);
+  static inline int equal (const simduid_to_vf *, const simduid_to_vf *);
+};
+
+inline hashval_t
+simduid_to_vf::hash (const simduid_to_vf *p)
+>>>>>>> gcc-mirror/master
 {
   return p->simduid;
 }
 
 inline int
+<<<<<<< HEAD
 simduid_to_vf::equal (const value_type *p1, const value_type *p2)
+=======
+simduid_to_vf::equal (const simduid_to_vf *p1, const simduid_to_vf *p2)
+>>>>>>> gcc-mirror/master
 {
   return p1->simduid == p2->simduid;
 }
 
+<<<<<<< HEAD
 /* For mapping decl to simduid.  */
 
 struct decl_to_simduid : typed_free_remove<decl_to_simduid>
+=======
+/* This hash maps the OMP simd array to the corresponding simduid used
+   to index into it.  Like thus,
+
+        _7 = GOMP_SIMD_LANE (simduid.0)
+        ...
+        ...
+        D.1737[_7] = stuff;
+
+
+   This hash maps from the OMP simd array (D.1737[]) to DECL_UID of
+   simduid.0.  */
+
+struct simd_array_to_simduid : free_ptr_hash<simd_array_to_simduid>
+>>>>>>> gcc-mirror/master
 {
   tree decl;
   unsigned int simduid;
 
   /* hash_table support.  */
+<<<<<<< HEAD
   typedef decl_to_simduid value_type;
   typedef decl_to_simduid compare_type;
   static inline hashval_t hash (const value_type *);
@@ -117,16 +169,31 @@ struct decl_to_simduid : typed_free_remove<decl_to_simduid>
 
 inline hashval_t
 decl_to_simduid::hash (const value_type *p)
+=======
+  static inline hashval_t hash (const simd_array_to_simduid *);
+  static inline int equal (const simd_array_to_simduid *,
+			   const simd_array_to_simduid *);
+};
+
+inline hashval_t
+simd_array_to_simduid::hash (const simd_array_to_simduid *p)
+>>>>>>> gcc-mirror/master
 {
   return DECL_UID (p->decl);
 }
 
 inline int
+<<<<<<< HEAD
 decl_to_simduid::equal (const value_type *p1, const value_type *p2)
+=======
+simd_array_to_simduid::equal (const simd_array_to_simduid *p1,
+			      const simd_array_to_simduid *p2)
+>>>>>>> gcc-mirror/master
 {
   return p1->decl == p2->decl;
 }
 
+<<<<<<< HEAD
 /* Fold IFN_GOMP_SIMD_LANE, IFN_GOMP_SIMD_VF and IFN_GOMP_SIMD_LAST_LANE
    into their corresponding constants.  */
 
@@ -148,6 +215,33 @@ adjust_simduid_builtins (hash_table <simduid_to_vf> &htab)
 	  if (!is_gimple_call (stmt)
 	      || !gimple_call_internal_p (stmt))
 	    continue;
+=======
+/* Fold IFN_GOMP_SIMD_LANE, IFN_GOMP_SIMD_VF, IFN_GOMP_SIMD_LAST_LANE,
+   into their corresponding constants and remove
+   IFN_GOMP_SIMD_ORDERED_{START,END}.  */
+
+static void
+adjust_simduid_builtins (hash_table<simduid_to_vf> *htab)
+{
+  basic_block bb;
+
+  FOR_EACH_BB_FN (bb, cfun)
+    {
+      gimple_stmt_iterator i;
+
+      for (i = gsi_start_bb (bb); !gsi_end_p (i); )
+	{
+	  unsigned int vf = 1;
+	  enum internal_fn ifn;
+	  gimple *stmt = gsi_stmt (i);
+	  tree t;
+	  if (!is_gimple_call (stmt)
+	      || !gimple_call_internal_p (stmt))
+	    {
+	      gsi_next (&i);
+	      continue;
+	    }
+>>>>>>> gcc-mirror/master
 	  ifn = gimple_call_internal_fn (stmt);
 	  switch (ifn)
 	    {
@@ -155,7 +249,32 @@ adjust_simduid_builtins (hash_table <simduid_to_vf> &htab)
 	    case IFN_GOMP_SIMD_VF:
 	    case IFN_GOMP_SIMD_LAST_LANE:
 	      break;
+<<<<<<< HEAD
 	    default:
+=======
+	    case IFN_GOMP_SIMD_ORDERED_START:
+	    case IFN_GOMP_SIMD_ORDERED_END:
+	      if (integer_onep (gimple_call_arg (stmt, 0)))
+		{
+		  enum built_in_function bcode
+		    = (ifn == IFN_GOMP_SIMD_ORDERED_START
+		       ? BUILT_IN_GOMP_ORDERED_START
+		       : BUILT_IN_GOMP_ORDERED_END);
+		  gimple *g
+		    = gimple_build_call (builtin_decl_explicit (bcode), 0);
+		  tree vdef = gimple_vdef (stmt);
+		  gimple_set_vdef (g, vdef);
+		  SSA_NAME_DEF_STMT (vdef) = g;
+		  gimple_set_vuse (g, gimple_vuse (stmt));
+		  gsi_replace (&i, g, true);
+		  continue;
+		}
+	      gsi_remove (&i, true);
+	      unlink_stmt_vdef (stmt);
+	      continue;
+	    default:
+	      gsi_next (&i);
+>>>>>>> gcc-mirror/master
 	      continue;
 	    }
 	  tree arg = gimple_call_arg (stmt, 0);
@@ -163,10 +282,19 @@ adjust_simduid_builtins (hash_table <simduid_to_vf> &htab)
 	  gcc_assert (TREE_CODE (arg) == SSA_NAME);
 	  simduid_to_vf *p = NULL, data;
 	  data.simduid = DECL_UID (SSA_NAME_VAR (arg));
+<<<<<<< HEAD
 	  if (htab.is_created ())
 	    p = htab.find (&data);
 	  if (p)
 	    vf = p->vf;
+=======
+	  if (htab)
+	    {
+	      p = htab->find (&data);
+	      if (p)
+		vf = p->vf;
+	    }
+>>>>>>> gcc-mirror/master
 	  switch (ifn)
 	    {
 	    case IFN_GOMP_SIMD_VF:
@@ -182,6 +310,7 @@ adjust_simduid_builtins (hash_table <simduid_to_vf> &htab)
 	      gcc_unreachable ();
 	    }
 	  update_call_from_tree (&i, t);
+<<<<<<< HEAD
 	}
     }
 }
@@ -233,6 +362,60 @@ note_simd_array_uses_cb (tree *tp, int *walk_subtrees, void *data)
 
 static void
 note_simd_array_uses (hash_table <decl_to_simduid> *htab)
+=======
+	  gsi_next (&i);
+	}
+    }
+}
+
+/* Helper structure for note_simd_array_uses.  */
+
+struct note_simd_array_uses_struct
+{
+  hash_table<simd_array_to_simduid> **htab;
+  unsigned int simduid;
+};
+
+/* Callback for note_simd_array_uses, called through walk_gimple_op.  */
+
+static tree
+note_simd_array_uses_cb (tree *tp, int *walk_subtrees, void *data)
+{
+  struct walk_stmt_info *wi = (struct walk_stmt_info *) data;
+  struct note_simd_array_uses_struct *ns
+    = (struct note_simd_array_uses_struct *) wi->info;
+
+  if (TYPE_P (*tp))
+    *walk_subtrees = 0;
+  else if (VAR_P (*tp)
+	   && lookup_attribute ("omp simd array", DECL_ATTRIBUTES (*tp))
+	   && DECL_CONTEXT (*tp) == current_function_decl)
+    {
+      simd_array_to_simduid data;
+      if (!*ns->htab)
+	*ns->htab = new hash_table<simd_array_to_simduid> (15);
+      data.decl = *tp;
+      data.simduid = ns->simduid;
+      simd_array_to_simduid **slot = (*ns->htab)->find_slot (&data, INSERT);
+      if (*slot == NULL)
+	{
+	  simd_array_to_simduid *p = XNEW (simd_array_to_simduid);
+	  *p = data;
+	  *slot = p;
+	}
+      else if ((*slot)->simduid != ns->simduid)
+	(*slot)->simduid = -1U;
+      *walk_subtrees = 0;
+    }
+  return NULL_TREE;
+}
+
+/* Find "omp simd array" temporaries and map them to corresponding
+   simduid.  */
+
+static void
+note_simd_array_uses (hash_table<simd_array_to_simduid> **htab)
+>>>>>>> gcc-mirror/master
 {
   basic_block bb;
   gimple_stmt_iterator gsi;
@@ -243,10 +426,17 @@ note_simd_array_uses (hash_table <decl_to_simduid> *htab)
   wi.info = &ns;
   ns.htab = htab;
 
+<<<<<<< HEAD
   FOR_EACH_BB (bb)
     for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
       {
 	gimple stmt = gsi_stmt (gsi);
+=======
+  FOR_EACH_BB_FN (bb, cfun)
+    for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+      {
+	gimple *stmt = gsi_stmt (gsi);
+>>>>>>> gcc-mirror/master
 	if (!is_gimple_call (stmt) || !gimple_call_internal_p (stmt))
 	  continue;
 	switch (gimple_call_internal_fn (stmt))
@@ -262,14 +452,189 @@ note_simd_array_uses (hash_table <decl_to_simduid> *htab)
 	if (lhs == NULL_TREE)
 	  continue;
 	imm_use_iterator use_iter;
+<<<<<<< HEAD
 	gimple use_stmt;
+=======
+	gimple *use_stmt;
+>>>>>>> gcc-mirror/master
 	ns.simduid = DECL_UID (SSA_NAME_VAR (gimple_call_arg (stmt, 0)));
 	FOR_EACH_IMM_USE_STMT (use_stmt, use_iter, lhs)
 	  if (!is_gimple_debug (use_stmt))
 	    walk_gimple_op (use_stmt, note_simd_array_uses_cb, &wi);
       }
 }
+<<<<<<< HEAD
+=======
+
+/* Shrink arrays with "omp simd array" attribute to the corresponding
+   vectorization factor.  */
+
+static void
+shrink_simd_arrays
+  (hash_table<simd_array_to_simduid> *simd_array_to_simduid_htab,
+   hash_table<simduid_to_vf> *simduid_to_vf_htab)
+{
+  for (hash_table<simd_array_to_simduid>::iterator iter
+	 = simd_array_to_simduid_htab->begin ();
+       iter != simd_array_to_simduid_htab->end (); ++iter)
+    if ((*iter)->simduid != -1U)
+      {
+	tree decl = (*iter)->decl;
+	int vf = 1;
+	if (simduid_to_vf_htab)
+	  {
+	    simduid_to_vf *p = NULL, data;
+	    data.simduid = (*iter)->simduid;
+	    p = simduid_to_vf_htab->find (&data);
+	    if (p)
+	      vf = p->vf;
+	  }
+	tree atype
+	  = build_array_type_nelts (TREE_TYPE (TREE_TYPE (decl)), vf);
+	TREE_TYPE (decl) = atype;
+	relayout_decl (decl);
+      }
+
+  delete simd_array_to_simduid_htab;
+}
+>>>>>>> gcc-mirror/master
 
+/* A helper function to free data refs.  */
+
+void
+vect_destroy_datarefs (vec_info *vinfo)
+{
+  struct data_reference *dr;
+  unsigned int i;
+
+  FOR_EACH_VEC_ELT (vinfo->datarefs, i, dr)
+    if (dr->aux)
+      {
+        free (dr->aux);
+        dr->aux = NULL;
+      }
+
+  free_data_refs (vinfo->datarefs);
+}
+
+
+/* Return whether STMT is inside the region we try to vectorize.  */
+
+bool
+vect_stmt_in_region_p (vec_info *vinfo, gimple *stmt)
+{
+  if (!gimple_bb (stmt))
+    return false;
+
+  if (loop_vec_info loop_vinfo = dyn_cast <loop_vec_info> (vinfo))
+    {
+      struct loop *loop = LOOP_VINFO_LOOP (loop_vinfo);
+      if (!flow_bb_inside_loop_p (loop, gimple_bb (stmt)))
+	return false;
+    }
+  else
+    {
+      bb_vec_info bb_vinfo = as_a <bb_vec_info> (vinfo);
+      if (gimple_bb (stmt) != BB_VINFO_BB (bb_vinfo)
+	  || gimple_uid (stmt) == -1U
+	  || gimple_code (stmt) == GIMPLE_PHI)
+	return false;
+    }
+
+  return true;
+}
+
+
+/* If LOOP has been versioned during ifcvt, return the internal call
+   guarding it.  */
+
+static gimple *
+vect_loop_vectorized_call (struct loop *loop)
+{
+  basic_block bb = loop_preheader_edge (loop)->src;
+  gimple *g;
+  do
+    {
+      g = last_stmt (bb);
+      if (g)
+	break;
+      if (!single_pred_p (bb))
+	break;
+      bb = single_pred (bb);
+    }
+  while (1);
+  if (g && gimple_code (g) == GIMPLE_COND)
+    {
+      gimple_stmt_iterator gsi = gsi_for_stmt (g);
+      gsi_prev (&gsi);
+      if (!gsi_end_p (gsi))
+	{
+	  g = gsi_stmt (gsi);
+	  if (is_gimple_call (g)
+	      && gimple_call_internal_p (g)
+	      && gimple_call_internal_fn (g) == IFN_LOOP_VECTORIZED
+	      && (tree_to_shwi (gimple_call_arg (g, 0)) == loop->num
+		  || tree_to_shwi (gimple_call_arg (g, 1)) == loop->num))
+	    return g;
+	}
+    }
+  return NULL;
+}
+
+/* Fold LOOP_VECTORIZED internal call G to VALUE and
+   update any immediate uses of it's LHS.  */
+
+static void
+fold_loop_vectorized_call (gimple *g, tree value)
+{
+  tree lhs = gimple_call_lhs (g);
+  use_operand_p use_p;
+  imm_use_iterator iter;
+  gimple *use_stmt;
+  gimple_stmt_iterator gsi = gsi_for_stmt (g);
+
+  update_call_from_tree (&gsi, value);
+  FOR_EACH_IMM_USE_STMT (use_stmt, iter, lhs)
+    {
+      FOR_EACH_IMM_USE_ON_STMT (use_p, iter)
+	SET_USE (use_p, value);
+      update_stmt (use_stmt);
+    }
+}
+/* Set the uids of all the statements in basic blocks inside loop
+   represented by LOOP_VINFO. LOOP_VECTORIZED_CALL is the internal
+   call guarding the loop which has been if converted.  */
+static void
+set_uid_loop_bbs (loop_vec_info loop_vinfo, gimple *loop_vectorized_call)
+{
+  tree arg = gimple_call_arg (loop_vectorized_call, 1);
+  basic_block *bbs;
+  unsigned int i;
+  struct loop *scalar_loop = get_loop (cfun, tree_to_shwi (arg));
+
+  LOOP_VINFO_SCALAR_LOOP (loop_vinfo) = scalar_loop;
+  gcc_checking_assert (vect_loop_vectorized_call
+		       (LOOP_VINFO_SCALAR_LOOP (loop_vinfo))
+		       == loop_vectorized_call);
+  bbs = get_loop_body (scalar_loop);
+  for (i = 0; i < scalar_loop->num_nodes; i++)
+    {
+      basic_block bb = bbs[i];
+      gimple_stmt_iterator gsi;
+      for (gsi = gsi_start_phis (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+	{
+	  gimple *phi = gsi_stmt (gsi);
+	  gimple_set_uid (phi, 0);
+	}
+      for (gsi = gsi_start_bb (bb); !gsi_end_p (gsi); gsi_next (&gsi))
+	{
+	  gimple *stmt = gsi_stmt (gsi);
+	  gimple_set_uid (stmt, 0);
+	}
+    }
+  free (bbs);
+}
+
 /* Function vectorize_loops.
 
    Entry point to loop vectorization phase.  */
@@ -280,10 +645,16 @@ vectorize_loops (void)
   unsigned int i;
   unsigned int num_vectorized_loops = 0;
   unsigned int vect_loops_num;
-  loop_iterator li;
   struct loop *loop;
+<<<<<<< HEAD
   hash_table <simduid_to_vf> simduid_to_vf_htab;
   hash_table <decl_to_simduid> decl_to_simduid_htab;
+=======
+  hash_table<simduid_to_vf> *simduid_to_vf_htab = NULL;
+  hash_table<simd_array_to_simduid> *simd_array_to_simduid_htab = NULL;
+  bool any_ifcvt_loops = false;
+  unsigned ret = 0;
+>>>>>>> gcc-mirror/master
 
   vect_loops_num = number_of_loops (cfun);
 
@@ -298,6 +669,9 @@ vectorize_loops (void)
   if (cfun->has_simduid_loops)
     note_simd_array_uses (&decl_to_simduid_htab);
 
+  if (cfun->has_simduid_loops)
+    note_simd_array_uses (&simd_array_to_simduid_htab);
+
   init_stmt_vec_info_vec ();
 
   /*  ----------- Analyze loops. -----------  */
@@ -305,16 +679,26 @@ vectorize_loops (void)
   /* If some loop was duplicated, it gets bigger number
      than all previously defined loops.  This fact allows us to run
      only over initial loops skipping newly generated ones.  */
+<<<<<<< HEAD
   FOR_EACH_LOOP (li, loop, 0)
     if ((flag_tree_vectorize && optimize_loop_nest_for_speed_p (loop))
 	|| loop->force_vect)
+=======
+  FOR_EACH_LOOP (loop, 0)
+    if (loop->dont_vectorize)
+      any_ifcvt_loops = true;
+    else if ((flag_tree_loop_vectorize
+	      && optimize_loop_nest_for_speed_p (loop))
+	     || loop->force_vectorize)
+>>>>>>> gcc-mirror/master
       {
 	loop_vec_info loop_vinfo;
 	vect_location = find_loop_location (loop);
-        if (LOCATION_LOCUS (vect_location) != UNKNOWN_LOC
+        if (LOCATION_LOCUS (vect_location) != UNKNOWN_LOCATION
 	    && dump_enabled_p ())
 	  dump_printf (MSG_NOTE, "\nAnalyzing loop at %s:%d\n",
-                       LOC_FILE (vect_location), LOC_LINE (vect_location));
+                       LOCATION_FILE (vect_location),
+		       LOCATION_LINE (vect_location));
 
 	loop_vinfo = vect_analyze_loop (loop);
 	loop->aux = loop_vinfo;
@@ -322,19 +706,30 @@ vectorize_loops (void)
 	if (!loop_vinfo || !LOOP_VINFO_VECTORIZABLE_P (loop_vinfo))
 	  continue;
 
-        if (LOCATION_LOCUS (vect_location) != UNKNOWN_LOC
+        if (!dbg_cnt (vect_loop))
+	  break;
+
+	gimple *loop_vectorized_call = vect_loop_vectorized_call (loop);
+	if (loop_vectorized_call)
+	  set_uid_loop_bbs (loop_vinfo, loop_vectorized_call);
+        if (LOCATION_LOCUS (vect_location) != UNKNOWN_LOCATION
 	    && dump_enabled_p ())
           dump_printf_loc (MSG_OPTIMIZED_LOCATIONS, vect_location,
-                           "Vectorized loop\n");
+                           "loop vectorized\n");
 	vect_transform_loop (loop_vinfo);
 	num_vectorized_loops++;
 	/* Now that the loop has been vectorized, allow it to be unrolled
 	   etc.  */
+<<<<<<< HEAD
 	loop->force_vect = false;
+=======
+	loop->force_vectorize = false;
+>>>>>>> gcc-mirror/master
 
 	if (loop->simduid)
 	  {
 	    simduid_to_vf *simduid_to_vf_data = XNEW (simduid_to_vf);
+<<<<<<< HEAD
 	    if (!simduid_to_vf_htab.is_created ())
 	      simduid_to_vf_htab.create (15);
 	    simduid_to_vf_data->simduid = DECL_UID (loop->simduid);
@@ -342,9 +737,24 @@ vectorize_loops (void)
 	    *simduid_to_vf_htab.find_slot (simduid_to_vf_data, INSERT)
 	      = simduid_to_vf_data;
 	  }
+=======
+	    if (!simduid_to_vf_htab)
+	      simduid_to_vf_htab = new hash_table<simduid_to_vf> (15);
+	    simduid_to_vf_data->simduid = DECL_UID (loop->simduid);
+	    simduid_to_vf_data->vf = loop_vinfo->vectorization_factor;
+	    *simduid_to_vf_htab->find_slot (simduid_to_vf_data, INSERT)
+	      = simduid_to_vf_data;
+	  }
+
+	if (loop_vectorized_call)
+	  {
+	    fold_loop_vectorized_call (loop_vectorized_call, boolean_true_node);
+	    ret |= TODO_cleanup_cfg;
+	  }
+>>>>>>> gcc-mirror/master
       }
 
-  vect_location = UNKNOWN_LOC;
+  vect_location = UNKNOWN_LOCATION;
 
   statistics_counter_event (cfun, "Vectorized loops", num_vectorized_loops);
   if (dump_enabled_p ()
@@ -354,6 +764,21 @@ vectorize_loops (void)
                      num_vectorized_loops);
 
   /*  ----------- Finalize. -----------  */
+
+  if (any_ifcvt_loops)
+    for (i = 1; i < vect_loops_num; i++)
+      {
+	loop = get_loop (cfun, i);
+	if (loop && loop->dont_vectorize)
+	  {
+	    gimple *g = vect_loop_vectorized_call (loop);
+	    if (g)
+	      {
+		fold_loop_vectorized_call (g, boolean_false_node);
+		ret |= TODO_cleanup_cfg;
+	      }
+	  }
+      }
 
   for (i = 1; i < vect_loops_num; i++)
     {
@@ -369,12 +794,17 @@ vectorize_loops (void)
 
   free_stmt_vec_info_vec ();
 
+<<<<<<< HEAD
   /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE} builtins.  */
+=======
+  /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE,ORDERED_{START,END}} builtins.  */
+>>>>>>> gcc-mirror/master
   if (cfun->has_simduid_loops)
     adjust_simduid_builtins (simduid_to_vf_htab);
 
   /* Shrink any "omp array simd" temporary arrays to the
      actual vectorization factors.  */
+<<<<<<< HEAD
   if (decl_to_simduid_htab.is_created ())
     {
       for (hash_table <decl_to_simduid>::iterator iter
@@ -402,6 +832,12 @@ vectorize_loops (void)
     }
   if (simduid_to_vf_htab.is_created ())
     simduid_to_vf_htab.dispose ();
+=======
+  if (simd_array_to_simduid_htab)
+    shrink_simd_arrays (simd_array_to_simduid_htab, simduid_to_vf_htab);
+  delete simduid_to_vf_htab;
+  cfun->has_simduid_loops = false;
+>>>>>>> gcc-mirror/master
 
   if (num_vectorized_loops > 0)
     {
@@ -412,67 +848,150 @@ vectorize_loops (void)
       return TODO_cleanup_cfg;
     }
 
+  return ret;
+}
+
+
+/* Entry point to the simduid cleanup pass.  */
+
+namespace {
+
+const pass_data pass_data_simduid_cleanup =
+{
+  GIMPLE_PASS, /* type */
+  "simduid", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_NONE, /* tv_id */
+  ( PROP_ssa | PROP_cfg ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_simduid_cleanup : public gimple_opt_pass
+{
+public:
+  pass_simduid_cleanup (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_simduid_cleanup, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  opt_pass * clone () { return new pass_simduid_cleanup (m_ctxt); }
+  virtual bool gate (function *fun) { return fun->has_simduid_loops; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_simduid_cleanup
+
+unsigned int
+pass_simduid_cleanup::execute (function *fun)
+{
+  hash_table<simd_array_to_simduid> *simd_array_to_simduid_htab = NULL;
+
+  note_simd_array_uses (&simd_array_to_simduid_htab);
+
+  /* Fold IFN_GOMP_SIMD_{VF,LANE,LAST_LANE,ORDERED_{START,END}} builtins.  */
+  adjust_simduid_builtins (NULL);
+
+  /* Shrink any "omp array simd" temporary arrays to the
+     actual vectorization factors.  */
+  if (simd_array_to_simduid_htab)
+    shrink_simd_arrays (simd_array_to_simduid_htab, NULL);
+  fun->has_simduid_loops = false;
   return 0;
+}
+
+}  // anon namespace
+
+gimple_opt_pass *
+make_pass_simduid_cleanup (gcc::context *ctxt)
+{
+  return new pass_simduid_cleanup (ctxt);
 }
 
 
 /*  Entry point to basic block SLP phase.  */
 
-static unsigned int
-execute_vect_slp (void)
+namespace {
+
+const pass_data pass_data_slp_vectorize =
+{
+  GIMPLE_PASS, /* type */
+  "slp", /* name */
+  OPTGROUP_LOOP | OPTGROUP_VEC, /* optinfo_flags */
+  TV_TREE_SLP_VECTORIZATION, /* tv_id */
+  ( PROP_ssa | PROP_cfg ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  TODO_update_ssa, /* todo_flags_finish */
+};
+
+class pass_slp_vectorize : public gimple_opt_pass
+{
+public:
+  pass_slp_vectorize (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_slp_vectorize, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  opt_pass * clone () { return new pass_slp_vectorize (m_ctxt); }
+  virtual bool gate (function *) { return flag_tree_slp_vectorize != 0; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_slp_vectorize
+
+unsigned int
+pass_slp_vectorize::execute (function *fun)
 {
   basic_block bb;
 
+  bool in_loop_pipeline = scev_initialized_p ();
+  if (!in_loop_pipeline)
+    {
+      loop_optimizer_init (LOOPS_NORMAL);
+      scev_initialize ();
+    }
+
+  /* Mark all stmts as not belonging to the current region and unvisited.  */
+  FOR_EACH_BB_FN (bb, fun)
+    {
+      for (gimple_stmt_iterator gsi = gsi_start_bb (bb); !gsi_end_p (gsi);
+	   gsi_next (&gsi))
+	{
+	  gimple *stmt = gsi_stmt (gsi);
+	  gimple_set_uid (stmt, -1);
+	  gimple_set_visited (stmt, false);
+	}
+    }
+
   init_stmt_vec_info_vec ();
 
-  FOR_EACH_BB (bb)
+  FOR_EACH_BB_FN (bb, fun)
     {
-      vect_location = find_bb_location (bb);
-
-      if (vect_slp_analyze_bb (bb))
-        {
-          vect_slp_transform_bb (bb);
-          if (dump_enabled_p ())
-            dump_printf_loc (MSG_OPTIMIZED_LOCATIONS, vect_location,
-			     "Vectorized basic-block\n");
-        }
+      if (vect_slp_bb (bb))
+	dump_printf_loc (MSG_OPTIMIZED_LOCATIONS, vect_location,
+			 "basic block vectorized\n");
     }
 
   free_stmt_vec_info_vec ();
+
+  if (!in_loop_pipeline)
+    {
+      scev_finalize ();
+      loop_optimizer_finalize ();
+    }
+
   return 0;
 }
 
-static bool
-gate_vect_slp (void)
-{
-  /* Apply SLP either if the vectorizer is on and the user didn't specify
-     whether to run SLP or not, or if the SLP flag was set by the user.  */
-  return ((flag_tree_vectorize != 0 && flag_tree_slp_vectorize != 0)
-          || flag_tree_slp_vectorize == 1);
-}
+} // anon namespace
 
-struct gimple_opt_pass pass_slp_vectorize =
+gimple_opt_pass *
+make_pass_slp_vectorize (gcc::context *ctxt)
 {
- {
-  GIMPLE_PASS,
-  "slp",                                /* name */
-  OPTGROUP_LOOP
-  | OPTGROUP_VEC,                       /* optinfo_flags */
-  gate_vect_slp,                        /* gate */
-  execute_vect_slp,                     /* execute */
-  NULL,                                 /* sub */
-  NULL,                                 /* next */
-  0,                                    /* static_pass_number */
-  TV_TREE_SLP_VECTORIZATION,            /* tv_id */
-  PROP_ssa | PROP_cfg,                  /* properties_required */
-  0,                                    /* properties_provided */
-  0,                                    /* properties_destroyed */
-  0,                                    /* todo_flags_start */
-  TODO_verify_ssa
-    | TODO_update_ssa
-    | TODO_verify_stmts                 /* todo_flags_finish */
- }
-};
+  return new pass_slp_vectorize (ctxt);
+}
 
 
 /* Increase alignment of global arrays to improve vectorization potential.
@@ -485,18 +1004,18 @@ struct gimple_opt_pass pass_slp_vectorize =
 static unsigned int
 increase_alignment (void)
 {
-  struct varpool_node *vnode;
+  varpool_node *vnode;
 
-  vect_location = UNKNOWN_LOC;
+  vect_location = UNKNOWN_LOCATION;
 
   /* Increase the alignment of all global arrays for vectorization.  */
   FOR_EACH_DEFINED_VARIABLE (vnode)
     {
-      tree vectype, decl = vnode->symbol.decl;
+      tree vectype, decl = vnode->decl;
       tree t;
       unsigned int alignment;
 
-      t = TREE_TYPE(decl);
+      t = TREE_TYPE (decl);
       if (TREE_CODE (t) != ARRAY_TYPE)
         continue;
       vectype = get_vectype_for_scalar_type (strip_array_types (t));
@@ -508,8 +1027,7 @@ increase_alignment (void)
 
       if (vect_can_force_dr_alignment_p (decl, alignment))
         {
-          DECL_ALIGN (decl) = TYPE_ALIGN (vectype);
-          DECL_USER_ALIGN (decl) = 1;
+	  vnode->increase_alignment (TYPE_ALIGN (vectype));
           dump_printf (MSG_NOTE, "Increasing alignment of decl: ");
           dump_generic_expr (MSG_NOTE, TDF_SLIM, decl);
           dump_printf (MSG_NOTE, "\n");
@@ -519,30 +1037,42 @@ increase_alignment (void)
 }
 
 
-static bool
-gate_increase_alignment (void)
-{
-  return flag_section_anchors && flag_tree_vectorize;
-}
+namespace {
 
-
-struct simple_ipa_opt_pass pass_ipa_increase_alignment =
+const pass_data pass_data_ipa_increase_alignment =
 {
- {
-  SIMPLE_IPA_PASS,
-  "increase_alignment",                 /* name */
-  OPTGROUP_LOOP
-  | OPTGROUP_VEC,                       /* optinfo_flags */
-  gate_increase_alignment,              /* gate */
-  increase_alignment,                   /* execute */
-  NULL,                                 /* sub */
-  NULL,                                 /* next */
-  0,                                    /* static_pass_number */
-  TV_IPA_OPT,                           /* tv_id */
-  0,                                    /* properties_required */
-  0,                                    /* properties_provided */
-  0,                                    /* properties_destroyed */
-  0,                                    /* todo_flags_start */
-  0                                     /* todo_flags_finish */
- }
+  SIMPLE_IPA_PASS, /* type */
+  "increase_alignment", /* name */
+  OPTGROUP_LOOP | OPTGROUP_VEC, /* optinfo_flags */
+  TV_IPA_OPT, /* tv_id */
+  0, /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
 };
+
+class pass_ipa_increase_alignment : public simple_ipa_opt_pass
+{
+public:
+  pass_ipa_increase_alignment (gcc::context *ctxt)
+    : simple_ipa_opt_pass (pass_data_ipa_increase_alignment, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *)
+    {
+      return flag_section_anchors && flag_tree_loop_vectorize;
+    }
+
+  virtual unsigned int execute (function *) { return increase_alignment (); }
+
+}; // class pass_ipa_increase_alignment
+
+} // anon namespace
+
+simple_ipa_opt_pass *
+make_pass_ipa_increase_alignment (gcc::context *ctxt)
+{
+  return new pass_ipa_increase_alignment (ctxt);
+}

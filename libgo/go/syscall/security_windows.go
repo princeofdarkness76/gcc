@@ -41,22 +41,29 @@ func TranslateAccountName(username string, from, to uint32, initSize int) (strin
 	if e != nil {
 		return "", e
 	}
-	b := make([]uint16, 50)
-	n := uint32(len(b))
-	e = TranslateName(u, from, to, &b[0], &n)
-	if e != nil {
+	n := uint32(50)
+	for {
+		b := make([]uint16, n)
+		e = TranslateName(u, from, to, &b[0], &n)
+		if e == nil {
+			return UTF16ToString(b[:n]), nil
+		}
 		if e != ERROR_INSUFFICIENT_BUFFER {
 			return "", e
 		}
-		// make receive buffers of requested size and try again
-		b = make([]uint16, n)
-		e = TranslateName(u, from, to, &b[0], &n)
-		if e != nil {
+		if n <= uint32(len(b)) {
 			return "", e
 		}
 	}
-	return UTF16ToString(b), nil
 }
+
+const (
+	// do not reorder
+	NetSetupUnknownStatus = iota
+	NetSetupUnjoined
+	NetSetupWorkgroupName
+	NetSetupDomainName
+)
 
 type UserInfo10 struct {
 	Name       *uint16
@@ -66,11 +73,12 @@ type UserInfo10 struct {
 }
 
 //sys	NetUserGetInfo(serverName *uint16, userName *uint16, level uint32, buf **byte) (neterr error) = netapi32.NetUserGetInfo
+//sys	NetGetJoinInformation(server *uint16, name **uint16, bufType *uint32) (neterr error) = netapi32.NetGetJoinInformation
 //sys	NetApiBufferFree(buf *byte) (neterr error) = netapi32.NetApiBufferFree
 
 const (
 	// do not reorder
-	SidTypeUser = 1 << iota
+	SidTypeUser = 1 + iota
 	SidTypeGroup
 	SidTypeDomain
 	SidTypeAlias
@@ -127,26 +135,23 @@ func LookupSID(system, account string) (sid *SID, domain string, accType uint32,
 			return nil, "", 0, e
 		}
 	}
-	db := make([]uint16, 50)
-	dn := uint32(len(db))
-	b := make([]byte, 50)
-	n := uint32(len(b))
-	sid = (*SID)(unsafe.Pointer(&b[0]))
-	e = LookupAccountName(sys, acc, sid, &n, &db[0], &dn, &accType)
-	if e != nil {
+	n := uint32(50)
+	dn := uint32(50)
+	for {
+		b := make([]byte, n)
+		db := make([]uint16, dn)
+		sid = (*SID)(unsafe.Pointer(&b[0]))
+		e = LookupAccountName(sys, acc, sid, &n, &db[0], &dn, &accType)
+		if e == nil {
+			return sid, UTF16ToString(db), accType, nil
+		}
 		if e != ERROR_INSUFFICIENT_BUFFER {
 			return nil, "", 0, e
 		}
-		// make receive buffers of requested size and try again
-		b = make([]byte, n)
-		sid = (*SID)(unsafe.Pointer(&b[0]))
-		db = make([]uint16, dn)
-		e = LookupAccountName(sys, acc, sid, &n, &db[0], &dn, &accType)
-		if e != nil {
+		if n <= uint32(len(b)) {
 			return nil, "", 0, e
 		}
 	}
-	return sid, UTF16ToString(db), accType, nil
 }
 
 // String converts sid to a string format
@@ -188,24 +193,22 @@ func (sid *SID) LookupAccount(system string) (account, domain string, accType ui
 			return "", "", 0, err
 		}
 	}
-	b := make([]uint16, 50)
-	n := uint32(len(b))
-	db := make([]uint16, 50)
-	dn := uint32(len(db))
-	e := LookupAccountSid(sys, sid, &b[0], &n, &db[0], &dn, &accType)
-	if e != nil {
+	n := uint32(50)
+	dn := uint32(50)
+	for {
+		b := make([]uint16, n)
+		db := make([]uint16, dn)
+		e := LookupAccountSid(sys, sid, &b[0], &n, &db[0], &dn, &accType)
+		if e == nil {
+			return UTF16ToString(b), UTF16ToString(db), accType, nil
+		}
 		if e != ERROR_INSUFFICIENT_BUFFER {
 			return "", "", 0, e
 		}
-		// make receive buffers of requested size and try again
-		b = make([]uint16, n)
-		db = make([]uint16, dn)
-		e = LookupAccountSid(nil, sid, &b[0], &n, &db[0], &dn, &accType)
-		if e != nil {
+		if n <= uint32(len(b)) {
 			return "", "", 0, e
 		}
 	}
-	return UTF16ToString(b), UTF16ToString(db), accType, nil
 }
 
 const (
@@ -317,21 +320,20 @@ func (t Token) Close() error {
 
 // getInfo retrieves a specified type of information about an access token.
 func (t Token) getInfo(class uint32, initSize int) (unsafe.Pointer, error) {
-	b := make([]byte, initSize)
-	var n uint32
-	e := GetTokenInformation(t, class, &b[0], uint32(len(b)), &n)
-	if e != nil {
+	n := uint32(initSize)
+	for {
+		b := make([]byte, n)
+		e := GetTokenInformation(t, class, &b[0], uint32(len(b)), &n)
+		if e == nil {
+			return unsafe.Pointer(&b[0]), nil
+		}
 		if e != ERROR_INSUFFICIENT_BUFFER {
 			return nil, e
 		}
-		// make receive buffers of requested size and try again
-		b = make([]byte, n)
-		e = GetTokenInformation(t, class, &b[0], uint32(len(b)), &n)
-		if e != nil {
+		if n <= uint32(len(b)) {
 			return nil, e
 		}
 	}
-	return unsafe.Pointer(&b[0]), nil
 }
 
 // GetTokenUser retrieves access token t user account information.
@@ -357,19 +359,18 @@ func (t Token) GetTokenPrimaryGroup() (*Tokenprimarygroup, error) {
 // GetUserProfileDirectory retrieves path to the
 // root directory of the access token t user's profile.
 func (t Token) GetUserProfileDirectory() (string, error) {
-	b := make([]uint16, 100)
-	n := uint32(len(b))
-	e := GetUserProfileDirectory(t, &b[0], &n)
-	if e != nil {
+	n := uint32(100)
+	for {
+		b := make([]uint16, n)
+		e := GetUserProfileDirectory(t, &b[0], &n)
+		if e == nil {
+			return UTF16ToString(b), nil
+		}
 		if e != ERROR_INSUFFICIENT_BUFFER {
 			return "", e
 		}
-		// make receive buffers of requested size and try again
-		b = make([]uint16, n)
-		e = GetUserProfileDirectory(t, &b[0], &n)
-		if e != nil {
+		if n <= uint32(len(b)) {
 			return "", e
 		}
 	}
-	return UTF16ToString(b), nil
 }

@@ -5,11 +5,13 @@
 package xml
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"reflect"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 const testInput = `
@@ -168,7 +170,7 @@ var xmlInput = []string{
 func TestRawToken(t *testing.T) {
 	d := NewDecoder(strings.NewReader(testInput))
 	d.Entity = testEntity
-	testRawToken(t, d, rawTokens)
+	testRawToken(t, d, testInput, rawTokens)
 }
 
 const nonStrictInput = `
@@ -223,7 +225,7 @@ var nonStrictTokens = []Token{
 func TestNonStrictRawToken(t *testing.T) {
 	d := NewDecoder(strings.NewReader(nonStrictInput))
 	d.Strict = false
-	testRawToken(t, d, nonStrictTokens)
+	testRawToken(t, d, nonStrictInput, nonStrictTokens)
 }
 
 type downCaser struct {
@@ -245,16 +247,14 @@ func (d *downCaser) Read(p []byte) (int, error) {
 }
 
 func TestRawTokenAltEncoding(t *testing.T) {
-	sawEncoding := ""
 	d := NewDecoder(strings.NewReader(testInputAltEncoding))
 	d.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
-		sawEncoding = charset
 		if charset != "x-testing-uppercase" {
 			t.Fatalf("unexpected charset %q", charset)
 		}
 		return &downCaser{t, input.(io.ByteReader)}, nil
 	}
-	testRawToken(t, d, rawTokensAltEncoding)
+	testRawToken(t, d, testInputAltEncoding, rawTokensAltEncoding)
 }
 
 func TestRawTokenAltEncodingNoConverter(t *testing.T) {
@@ -280,9 +280,12 @@ func TestRawTokenAltEncodingNoConverter(t *testing.T) {
 	}
 }
 
-func testRawToken(t *testing.T, d *Decoder, rawTokens []Token) {
+func testRawToken(t *testing.T, d *Decoder, raw string, rawTokens []Token) {
+	lastEnd := int64(0)
 	for i, want := range rawTokens {
+		start := d.InputOffset()
 		have, err := d.RawToken()
+		end := d.InputOffset()
 		if err != nil {
 			t.Fatalf("token %d: unexpected error: %s", i, err)
 		}
@@ -300,6 +303,26 @@ func testRawToken(t *testing.T, d *Decoder, rawTokens []Token) {
 			}
 			t.Errorf("token %d = %s, want %s", i, shave, swant)
 		}
+
+		// Check that InputOffset returned actual token.
+		switch {
+		case start < lastEnd:
+			t.Errorf("token %d: position [%d,%d) for %T is before previous token", i, start, end, have)
+		case start >= end:
+			// Special case: EndElement can be synthesized.
+			if start == end && end == lastEnd {
+				break
+			}
+			t.Errorf("token %d: position [%d,%d) for %T is empty", i, start, end, have)
+		case end > int64(len(raw)):
+			t.Errorf("token %d: position [%d,%d) for %T extends beyond input", i, start, end, have)
+		default:
+			text := raw[start:end]
+			if strings.ContainsAny(text, "<>") && (!strings.HasPrefix(text, "<") || !strings.HasSuffix(text, ">")) {
+				t.Errorf("token %d: misaligned raw token %#q for %T", i, text, have)
+			}
+		}
+		lastEnd = end
 	}
 }
 
@@ -595,13 +618,6 @@ func TestEntityInsideCDATA(t *testing.T) {
 	}
 }
 
-// The last three tests (respectively one for characters in attribute
-// names and two for character entities) pass not because of code
-// changed for issue 1259, but instead pass with the given messages
-// from other parts of xml.Decoder.  I provide these to note the
-// current behavior of situations where one might think that character
-// range checking would detect the error, but it does not in fact.
-
 var characterTests = []struct {
 	in  string
 	err string
@@ -611,8 +627,10 @@ var characterTests = []struct {
 	{"\xef\xbf\xbe<doc/>", "illegal character code U+FFFE"},
 	{"<?xml version=\"1.0\"?><doc>\r\n<hiya/>\x07<toots/></doc>", "illegal character code U+0007"},
 	{"<?xml version=\"1.0\"?><doc \x12='value'>what's up</doc>", "expected attribute name in element"},
+	{"<doc>&abc\x01;</doc>", "invalid character entity &abc (no semicolon)"},
 	{"<doc>&\x01;</doc>", "invalid character entity & (no semicolon)"},
-	{"<doc>&\xef\xbf\xbe;</doc>", "invalid character entity & (no semicolon)"},
+	{"<doc>&\xef\xbf\xbe;</doc>", "invalid character entity &\uFFFE;"},
+	{"<doc>&hello;</doc>", "invalid character entity &hello;"},
 }
 
 func TestDisallowedCharacters(t *testing.T) {
@@ -629,7 +647,7 @@ func TestDisallowedCharacters(t *testing.T) {
 			t.Fatalf("input %d d.Token() = _, %v, want _, *SyntaxError", i, err)
 		}
 		if synerr.Msg != tt.err {
-			t.Fatalf("input %d synerr.Msg wrong: want '%s', got '%s'", i, tt.err, synerr.Msg)
+			t.Fatalf("input %d synerr.Msg wrong: want %q, got %q", i, tt.err, synerr.Msg)
 		}
 	}
 }
@@ -639,20 +657,23 @@ type procInstEncodingTest struct {
 }
 
 var procInstTests = []struct {
-	input, expect string
+	input  string
+	expect [2]string
 }{
-	{`version="1.0" encoding="utf-8"`, "utf-8"},
-	{`version="1.0" encoding='utf-8'`, "utf-8"},
-	{`version="1.0" encoding='utf-8' `, "utf-8"},
-	{`version="1.0" encoding=utf-8`, ""},
-	{`encoding="FOO" `, "FOO"},
+	{`version="1.0" encoding="utf-8"`, [2]string{"1.0", "utf-8"}},
+	{`version="1.0" encoding='utf-8'`, [2]string{"1.0", "utf-8"}},
+	{`version="1.0" encoding='utf-8' `, [2]string{"1.0", "utf-8"}},
+	{`version="1.0" encoding=utf-8`, [2]string{"1.0", ""}},
+	{`encoding="FOO" `, [2]string{"", "FOO"}},
 }
 
 func TestProcInstEncoding(t *testing.T) {
 	for _, test := range procInstTests {
-		got := procInstEncoding(test.input)
-		if got != test.expect {
-			t.Errorf("procInstEncoding(%q) = %q; want %q", test.input, got, test.expect)
+		if got := procInst("version", test.input); got != test.expect[0] {
+			t.Errorf("procInst(version, %q) = %q; want %q", test.input, got, test.expect[0])
+		}
+		if got := procInst("encoding", test.input); got != test.expect[1] {
+			t.Errorf("procInst(encoding, %q) = %q; want %q", test.input, got, test.expect[1])
 		}
 	}
 }
@@ -687,5 +708,45 @@ func TestDirectivesWithComments(t *testing.T) {
 		if !reflect.DeepEqual(have, want) {
 			t.Errorf("token %d = %#v want %#v", i, have, want)
 		}
+	}
+}
+
+// Writer whose Write method always returns an error.
+type errWriter struct{}
+
+func (errWriter) Write(p []byte) (n int, err error) { return 0, fmt.Errorf("unwritable") }
+
+func TestEscapeTextIOErrors(t *testing.T) {
+	expectErr := "unwritable"
+	err := EscapeText(errWriter{}, []byte{'A'})
+
+	if err == nil || err.Error() != expectErr {
+		t.Errorf("have %v, want %v", err, expectErr)
+	}
+}
+
+func TestEscapeTextInvalidChar(t *testing.T) {
+	input := []byte("A \x00 terminated string.")
+	expected := "A \uFFFD terminated string."
+
+	buff := new(bytes.Buffer)
+	if err := EscapeText(buff, input); err != nil {
+		t.Fatalf("have %v, want nil", err)
+	}
+	text := buff.String()
+
+	if text != expected {
+		t.Errorf("have %v, want %v", text, expected)
+	}
+}
+
+func TestIssue5880(t *testing.T) {
+	type T []byte
+	data, err := Marshal(T{192, 168, 0, 1})
+	if err != nil {
+		t.Errorf("Marshal error: %v", err)
+	}
+	if !utf8.Valid(data) {
+		t.Errorf("Marshal generated invalid UTF-8: %x", data)
 	}
 }

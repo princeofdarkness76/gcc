@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -69,7 +69,7 @@
 --  restrictions are ignored, and the consistency checking for restrictions
 --  might be incomplete, which is no big deal.
 
-pragma Compiler_Unit;
+pragma Compiler_Unit_Warning;
 
 generic
 package System.Rident is
@@ -112,17 +112,22 @@ package System.Rident is
       No_Exception_Registration,                 -- GNAT
       No_Exceptions,                             -- (RM H.4(12))
       No_Finalization,                           -- GNAT
+      No_Fixed_IO,                               -- GNAT
       No_Fixed_Point,                            -- (RM H.4(15))
       No_Floating_Point,                         -- (RM H.4(14))
       No_IO,                                     -- (RM H.4(20))
       No_Implicit_Conditionals,                  -- GNAT
       No_Implicit_Dynamic_Code,                  -- GNAT
       No_Implicit_Heap_Allocations,              -- (RM D.8(8), H.4(3))
+      No_Implicit_Task_Allocations,              -- GNAT
+      No_Implicit_Protected_Object_Allocations,  -- GNAT
       No_Implicit_Loops,                         -- GNAT
       No_Initialize_Scalars,                     -- GNAT
       No_Local_Allocators,                       -- (RM H.4(8))
       No_Local_Timing_Events,                    -- (RM D.7(10.2/2))
       No_Local_Protected_Objects,                -- Ada 2012 (D.7(10/1.3))
+      No_Long_Long_Integers,                     -- GNAT
+      No_Multiple_Elaboration,                   -- GNAT
       No_Nested_Finalization,                    -- (RM D.7(4))
       No_Protected_Type_Allocators,              -- Ada 2012 (D.7 (10.3/2))
       No_Protected_Types,                        -- (RM H.4(5))
@@ -139,6 +144,7 @@ package System.Rident is
       No_Streams,                                -- GNAT
       No_Task_Allocators,                        -- (RM D.7(7))
       No_Task_Attributes_Package,                -- GNAT
+      No_Task_At_Interrupt_Priority,             -- GNAT
       No_Task_Hierarchy,                         -- (RM D.7(3), H.4(3))
       No_Task_Termination,                       -- GNAT (Ravenscar)
       No_Tasking,                                -- GNAT
@@ -165,6 +171,7 @@ package System.Rident is
       --  units, it applies to all units in this extended main source.
 
       Immediate_Reclamation,                     -- (RM H.4(10))
+      No_Dynamic_Sized_Objects,                  -- GNAT
       No_Implementation_Aspect_Specifications,   -- Ada 2012 AI-241
       No_Implementation_Attributes,              -- Ada 2005 AI-257
       No_Implementation_Identifiers,             -- Ada 2012 AI-246
@@ -175,7 +182,8 @@ package System.Rident is
       No_Elaboration_Code,                       -- GNAT
       No_Obsolescent_Features,                   -- Ada 2005 AI-368
       No_Wide_Characters,                        -- GNAT
-      SPARK,                                     -- GNAT
+      Pure_Barriers,                             -- GNAT
+      SPARK_05,                                  -- GNAT
 
       --  The following cases require a parameter value
 
@@ -223,13 +231,14 @@ package System.Rident is
    No_Dynamic_Interrupts  : Restriction_Id renames No_Dynamic_Attachment;
    No_Requeue             : Restriction_Id renames No_Requeue_Statements;
    No_Task_Attributes     : Restriction_Id renames No_Task_Attributes_Package;
+   SPARK                  : Restriction_Id renames SPARK_05;
 
    subtype All_Restrictions is Restriction_Id range
      Simple_Barriers .. Max_Storage_At_Blocking;
    --  All restrictions (excluding only Not_A_Restriction_Id)
 
    subtype All_Boolean_Restrictions is Restriction_Id range
-     Simple_Barriers .. SPARK;
+     Simple_Barriers .. SPARK_05;
    --  All restrictions which do not take a parameter
 
    subtype Partition_Boolean_Restrictions is All_Boolean_Restrictions range
@@ -240,7 +249,7 @@ package System.Rident is
    --  case of Boolean restrictions.
 
    subtype Cunit_Boolean_Restrictions is All_Boolean_Restrictions range
-     Immediate_Reclamation .. SPARK;
+     Immediate_Reclamation .. SPARK_05;
    --  Boolean restrictions that are not checked for partition consistency
    --  and that thus apply only to the current unit. Note that for these
    --  restrictions, the compiler does not apply restrictions found in
@@ -250,6 +259,11 @@ package System.Rident is
      Restriction_Id range
        No_Specification_Of_Aspect .. Max_Storage_At_Blocking;
    --  All restrictions that take a parameter
+
+   subtype Integer_Parameter_Restrictions is
+     Restriction_Id range
+       Max_Protected_Entries .. Max_Storage_At_Blocking;
+   --  All restrictions taking an integer parameter
 
    subtype Checked_Parameter_Restrictions is
      All_Parameter_Restrictions range
@@ -365,6 +379,7 @@ package System.Rident is
      (No_Profile,
       No_Implementation_Extensions,
       Ravenscar,
+      GNAT_Extended_Ravenscar,
       Restricted);
    --  Names of recognized profiles. No_Profile is used to indicate that a
    --  restriction came from pragma Restrictions[_Warning], as opposed to
@@ -449,7 +464,7 @@ package System.Rident is
 
                      --    pragma Dispatching_Policy (FIFO_Within_Priorities);
                      --    pragma Locking_Policy (Ceiling_Locking);
-                     --    pragma Detect_Blocking
+                     --    pragma Detect_Blocking;
 
                      Ravenscar  =>
 
@@ -475,13 +490,61 @@ package System.Rident is
 
                            --  plus these additional restrictions:
 
-                           No_Calendar                     => True,
-                           No_Implicit_Heap_Allocations    => True,
-                           No_Relative_Delay               => True,
-                           No_Select_Statements            => True,
-                           No_Task_Termination             => True,
-                           Simple_Barriers                 => True,
-                           others                          => False),
+                           No_Calendar                      => True,
+                           No_Implicit_Heap_Allocations     => True,
+                           No_Local_Timing_Events           => True,
+                           No_Relative_Delay                => True,
+                           No_Select_Statements             => True,
+                           No_Specific_Termination_Handlers => True,
+                           No_Task_Termination              => True,
+                           Simple_Barriers                  => True,
+                           others                           => False),
+
+                        --  Value settings for Ravenscar (same as Restricted)
+
+                        Value =>
+                          (Max_Asynchronous_Select_Nesting => 0,
+                           Max_Protected_Entries           => 1,
+                           Max_Select_Alternatives         => 0,
+                           Max_Task_Entries                => 0,
+                           others                          => 0)),
+
+                     GNAT_Extended_Ravenscar  =>
+
+                     --  Restrictions for GNAT_Extended_Ravenscar =
+                     --    Restricted profile ..
+
+                       (Set   =>
+                          (No_Abort_Statements             => True,
+                           No_Asynchronous_Control         => True,
+                           No_Dynamic_Attachment           => True,
+                           No_Dynamic_Priorities           => True,
+                           No_Entry_Queue                  => True,
+                           No_Local_Protected_Objects      => True,
+                           No_Protected_Type_Allocators    => True,
+                           No_Requeue_Statements           => True,
+                           No_Task_Allocators              => True,
+                           No_Task_Attributes_Package      => True,
+                           No_Task_Hierarchy               => True,
+                           No_Terminate_Alternatives       => True,
+                           Max_Asynchronous_Select_Nesting => True,
+                           Max_Protected_Entries           => True,
+                           Max_Select_Alternatives         => True,
+                           Max_Task_Entries                => True,
+
+                           --  plus these additional restrictions:
+
+                           No_Calendar                      => True,
+                           No_Implicit_Task_Allocations     => True,
+                           No_Implicit_Protected_Object_Allocations
+                                                            => True,
+                           No_Local_Timing_Events           => True,
+                           No_Relative_Delay                => True,
+                           No_Select_Statements             => True,
+                           No_Specific_Termination_Handlers => True,
+                           No_Task_Termination              => True,
+                           Pure_Barriers                    => True,
+                           others                           => False),
 
                         --  Value settings for Ravenscar (same as Restricted)
 

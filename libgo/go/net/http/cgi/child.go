@@ -100,10 +100,21 @@ func RequestFromMap(params map[string]string) (*http.Request, error) {
 			uriStr += "?" + s
 		}
 	}
+
+	// There's apparently a de-facto standard for this.
+	// http://docstore.mik.ua/orelly/linux/cgi/ch03_02.htm#ch03-35636
+	if s := params["HTTPS"]; s == "on" || s == "ON" || s == "1" {
+		r.TLS = &tls.ConnectionState{HandshakeComplete: true}
+	}
+
 	if r.Host != "" {
-		// Hostname is provided, so we can reasonably construct a URL,
-		// even if we have to assume 'http' for the scheme.
-		rawurl := "http://" + r.Host + uriStr
+		// Hostname is provided, so we can reasonably construct a URL.
+		rawurl := r.Host + uriStr
+		if r.TLS == nil {
+			rawurl = "http://" + rawurl
+		} else {
+			rawurl = "https://" + rawurl
+		}
 		url, err := url.Parse(rawurl)
 		if err != nil {
 			return nil, errors.New("cgi: failed to parse host and REQUEST_URI into a URL: " + rawurl)
@@ -120,16 +131,10 @@ func RequestFromMap(params map[string]string) (*http.Request, error) {
 		r.URL = url
 	}
 
-	// There's apparently a de-facto standard for this.
-	// http://docstore.mik.ua/orelly/linux/cgi/ch03_02.htm#ch03-35636
-	if s := params["HTTPS"]; s == "on" || s == "ON" || s == "1" {
-		r.TLS = &tls.ConnectionState{HandshakeComplete: true}
-	}
-
 	// Request.RemoteAddr has its port set by Go's standard http
-	// server, so we do here too. We don't have one, though, so we
-	// use a dummy one.
-	r.RemoteAddr = net.JoinHostPort(params["REMOTE_ADDR"], "0")
+	// server, so we do here too.
+	remotePort, _ := strconv.Atoi(params["REMOTE_PORT"]) // zero if unset or invalid
+	r.RemoteAddr = net.JoinHostPort(params["REMOTE_ADDR"], strconv.Itoa(remotePort))
 
 	return r, nil
 }

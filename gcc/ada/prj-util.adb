@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2001-2012, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -25,6 +25,8 @@
 
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Directories;
+with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
+with Ada.Strings.Maps;           use Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Case_Util; use GNAT.Case_Util;
@@ -467,9 +469,15 @@ package body Prj.Util is
          --  the interface for standalone libraries.
 
          if Sid.Kind = Spec
+           and then (not Sid.Project.Externally_Built
+                      or else Sid.Project = Project)
            and then not Sid.Locally_Removed
            and then (Project.Standalone_Library = No
                       or else Sid.Declared_In_Interfaces)
+
+           --  Handle case of non-compilable languages
+
+           and then Sid.Dep_Name /= No_File
          then
             Action (Sid);
 
@@ -525,7 +533,11 @@ package body Prj.Util is
       --  Now handle the bodies and separates if needed
 
       if Deps.Length /= 0 then
-         Iter := For_Each_Source (Tree, Project);
+         if Project.Qualifier = Aggregate_Library then
+            Iter := For_Each_Source (Tree);
+         else
+            Iter := For_Each_Source (Tree, Project);
+         end if;
 
          loop
             Sid := Element (Iter);
@@ -787,6 +799,76 @@ package body Prj.Util is
       L (L'Last) := ASCII.LF;
       Put (File, L);
    end Put_Line;
+
+   -------------------
+   -- Relative_Path --
+   -------------------
+
+   function Relative_Path (Pathname : String; To : String) return String is
+      function Ensure_Directory (Path : String) return String;
+      --  Returns Path with an added directory separator if needed
+
+      ----------------------
+      -- Ensure_Directory --
+      ----------------------
+
+      function Ensure_Directory (Path : String) return String is
+      begin
+         if Path'Length = 0
+           or else Path (Path'Last) = Directory_Separator
+           or else Path (Path'Last) = '/' -- on Windows check also for /
+         then
+            return Path;
+         else
+            return Path & Directory_Separator;
+         end if;
+      end Ensure_Directory;
+
+      --  Local variables
+
+      Dir_Sep_Map : constant Character_Mapping := To_Mapping ("\", "/");
+
+      P  : String (1 .. Pathname'Length) := Pathname;
+      T  : String (1 .. To'Length) := To;
+
+      Pi : Natural; -- common prefix ending
+      N  : Natural := 0;
+
+   --  Start of processing for Relative_Path
+
+   begin
+      pragma Assert (Is_Absolute_Path (Pathname));
+      pragma Assert (Is_Absolute_Path (To));
+
+      --  Use canonical directory separator
+
+      Translate (Source => P, Mapping => Dir_Sep_Map);
+      Translate (Source => T, Mapping => Dir_Sep_Map);
+
+      --  First check for common prefix
+
+      Pi := 1;
+      while Pi < P'Last and then Pi < T'Last and then P (Pi) = T (Pi) loop
+         Pi := Pi + 1;
+      end loop;
+
+      --  Cut common prefix at a directory separator
+
+      while Pi > P'First and then P (Pi) /= '/' loop
+         Pi := Pi - 1;
+      end loop;
+
+      --  Count directory under prefix in P, these will be replaced by the
+      --  corresponding number of "..".
+
+      N := Count (T (Pi + 1 .. T'Last), "/");
+
+      if T (T'Last) /= '/' then
+         N := N + 1;
+      end if;
+
+      return N * "../" & Ensure_Directory (P (Pi + 1 .. P'Last));
+   end Relative_Path;
 
    ---------------------------
    -- Read_Source_Info_File --
@@ -1328,8 +1410,7 @@ package body Prj.Util is
                Last := Last - 1;
             end loop;
 
-            --  If we do not find a separator, we output the maximum length
-            --  possible.
+            --  If we do not find a separator, output maximum length possible
 
             if Last < First then
                Last := First + Max_Length - Positive (Column);
@@ -1347,4 +1428,5 @@ package body Prj.Util is
          Write_Str (S (First .. S'Last));
       end if;
    end Write_Str;
+
 end Prj.Util;

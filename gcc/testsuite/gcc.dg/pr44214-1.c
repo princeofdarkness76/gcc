@@ -1,7 +1,7 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -freciprocal-math -fdump-tree-ccp1" } */
 
-typedef double v2df __attribute__ ((vector_size (16)));
+typedef double v2df __attribute__ ((vector_size (2 * sizeof (double))));
 
 void do_div (v2df *a, v2df *b)
 {
@@ -15,4 +15,3 @@ void do_div (v2df *a, v2df *b)
 
 /* { dg-final { scan-tree-dump-times " \\\* " 3 "ccp1" } } */
 /* { dg-final { scan-tree-dump-times " / " 0 "ccp1" } } */
-/* { dg-final { cleanup-tree-dump "ccp1" } } */

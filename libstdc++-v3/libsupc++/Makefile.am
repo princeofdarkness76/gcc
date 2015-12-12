@@ -1,6 +1,6 @@
 ## Makefile for the GNU C++ Support library.
 ##
-## Copyright (C) 2000-2013 Free Software Foundation, Inc.
+## Copyright (C) 2000-2015 Free Software Foundation, Inc.
 ##
 ## Process this file with automake to produce Makefile.in.
 ##
@@ -26,6 +26,7 @@ include $(top_srcdir)/fragment.am
 # separately too.
 # 1) separate libsupc++.la
 toolexeclib_LTLIBRARIES = libsupc++.la
+
 # 2) integrated libsupc++convenience.la that is to be a part of libstdc++.a
 noinst_LTLIBRARIES = libsupc++convenience.la
 
@@ -54,8 +55,10 @@ sources = \
 	bad_typeid.cc \
 	class_type_info.cc \
 	del_op.cc \
+	del_ops.cc \
 	del_opnt.cc \
 	del_opv.cc \
+	del_opvs.cc \
 	del_opvnt.cc \
 	dyncast.cc \
 	eh_alloc.cc \
@@ -96,8 +99,15 @@ sources = \
 	vmi_class_type_info.cc \
 	vterminate.cc
 
-libsupc___la_SOURCES = $(sources) $(c_sources)
-libsupc__convenience_la_SOURCES = $(sources) $(c_sources)
+if ENABLE_VTABLE_VERIFY
+if !VTV_CYGMIN
+  vtv_sources = \
+	vtv_stubs.cc
+endif
+endif
+
+libsupc___la_SOURCES = $(sources) $(c_sources) $(vtv_sources)
+libsupc__convenience_la_SOURCES = $(sources) $(c_sources) $(vtv_sources)
 
 cp-demangle.c:
 	rm -f $@
@@ -168,6 +178,16 @@ new_opnt.lo: new_opnt.cc
 	$(LTCXXCOMPILE) -std=gnu++11 -c $<
 new_opnt.o: new_opnt.cc
 	$(CXXCOMPILE) -std=gnu++11 -c $<
+
+# Use special rules for the C++14 sources so that the proper flags are passed.
+del_ops.lo: del_ops.cc
+	$(LTCXXCOMPILE) -std=gnu++14 -Wno-sized-deallocation -c $<
+del_ops.o: del_ops.cc
+	$(CXXCOMPILE) -std=gnu++14 -Wno-sized-deallocation -c $<
+del_opvs.lo: del_opvs.cc
+	$(LTCXXCOMPILE) -std=gnu++14 -Wno-sized-deallocation -c $<
+del_opvs.o: del_opvs.cc
+	$(CXXCOMPILE) -std=gnu++14 -Wno-sized-deallocation -c $<
 
 # AM_CXXFLAGS needs to be in each subdirectory so that it can be
 # modified in a per-library or per-sub-library way.  Need to manually
@@ -282,3 +302,8 @@ uninstall-bitsHEADERS:
 	  q=`echo $$p | sed -e 's,.*/,,'`; \
 	  rm -f $(DESTDIR)$(bitsdir)/$$q; \
 	done
+
+
+# By adding these files here, automake will remove them for 'make clean'
+CLEANFILES = stamp-*
+

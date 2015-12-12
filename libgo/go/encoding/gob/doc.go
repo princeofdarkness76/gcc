@@ -6,7 +6,13 @@
 Package gob manages streams of gobs - binary values exchanged between an
 Encoder (transmitter) and a Decoder (receiver).  A typical use is transporting
 arguments and results of remote procedure calls (RPCs) such as those provided by
-package "rpc".
+package "net/rpc".
+
+The implementation compiles a custom codec for each data type in the stream and
+is most efficient when a single Encoder is used to transmit a stream of values,
+amortizing the cost of compilation.
+
+Basics
 
 A stream of gobs is self-describing.  Each data item in the stream is preceded by
 a specification of its type, expressed in terms of a small set of predefined
@@ -19,6 +25,8 @@ values or addresses that can be dereferenced to values.  The Encoder makes sure
 all type information is sent before it is needed.  At the receive side, a
 Decoder retrieves values from the encoded stream and unpacks them into local
 variables.
+
+Types and Values
 
 The source and destination values/types need not correspond exactly.  For structs,
 fields (identified by name) that are in the source but absent from the receiving
@@ -67,19 +75,29 @@ point values may be received into any floating point variable.  However,
 the destination variable must be able to represent the value or the decode
 operation will fail.
 
-Structs, arrays and slices are also supported.  Structs encode and
-decode only exported fields. Strings and arrays of bytes are supported
-with a special, efficient representation (see below).  When a slice
-is decoded, if the existing slice has capacity the slice will be
-extended in place; if not, a new array is allocated.  Regardless,
-the length of the resulting slice reports the number of elements
-decoded.
+Structs, arrays and slices are also supported. Structs encode and decode only
+exported fields. Strings and arrays of bytes are supported with a special,
+efficient representation (see below). When a slice is decoded, if the existing
+slice has capacity the slice will be extended in place; if not, a new array is
+allocated. Regardless, the length of the resulting slice reports the number of
+elements decoded.
 
-Functions and channels cannot be sent in a gob.  Attempting
-to encode a value that contains one will fail.
+Functions and channels will not be sent in a gob. Attempting to encode such a value
+at the top level will fail. A struct field of chan or func type is treated exactly
+like an unexported field and is ignored.
 
-The rest of this comment documents the encoding, details that are not important
-for most users.  Details are presented bottom-up.
+Gob can encode a value of any type implementing the GobEncoder or
+encoding.BinaryMarshaler interfaces by calling the corresponding method,
+in that order of preference.
+
+Gob can decode a value of any type implementing the GobDecoder or
+encoding.BinaryUnmarshaler interfaces by calling the corresponding method,
+again in that order of preference.
+
+Encoding Details
+
+This section documents the encoding, details that are not important for most
+users. Details are presented bottom-up.
 
 An unsigned integer is sent one of two ways.  If it is less than 128, it is sent
 as a byte with that value.  Otherwise it is sent as a minimal-length big-endian
@@ -93,11 +111,11 @@ A signed integer, i, is encoded within an unsigned integer, u.  Within u, bits 1
 upward contain the value; bit 0 says whether they should be complemented upon
 receipt.  The encode algorithm looks like this:
 
-	uint u;
+	var u uint
 	if i < 0 {
-		u = (^i << 1) | 1	// complement i, bit 0 is 1
+		u = (^uint(i) << 1) | 1 // complement i, bit 0 is 1
 	} else {
-		u = (i << 1)	// do not complement i, bit 0 is 0
+		u = (uint(i) << 1) // do not complement i, bit 0 is 0
 	}
 	encodeUnsigned(u)
 
@@ -119,9 +137,9 @@ All other slices and arrays are sent as an unsigned count followed by that many
 elements using the standard gob encoding for their type, recursively.
 
 Maps are sent as an unsigned count followed by that many key, element
-pairs. Empty but non-nil maps are sent, so if the sender has allocated
-a map, the receiver will allocate a map even if no elements are
-transmitted.
+pairs. Empty but non-nil maps are sent, so if the receiver has not allocated
+one already, one will always be allocated on receipt unless the transmitted map
+is nil and not at the top level.
 
 Structs are sent as a sequence of (field number, field value) pairs.  The field
 value is sent using the standard gob encoding for its type, recursively.  If a
@@ -228,7 +246,7 @@ where * signifies zero or more repetitions and the type id of a value must
 be predefined or be defined before the value in the stream.
 
 See "Gobs of data" for a design discussion of the gob wire format:
-http://golang.org/doc/articles/gobs_of_data.html
+https://blog.golang.org/gobs-of-data
 */
 package gob
 

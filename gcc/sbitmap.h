@@ -1,5 +1,5 @@
 /* Simple bitmaps.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -52,7 +52,7 @@ along with GCC; see the file COPYING3.  If not see
      * set_disjuction		: (not implemented)
      * set_compare		: bitmap_equal_p
 
-   Some operations on 3 sets that occur frequently in in data flow problems
+   Some operations on 3 sets that occur frequently in data flow problems
    are also implemented:
 
       * A | (B & C)		: bitmap_or_and
@@ -126,7 +126,7 @@ bitmap_clear_bit (sbitmap map, int bitno)
 }
 
 /* The iterator for sbitmap.  */
-typedef struct {
+struct sbitmap_iterator {
   /* The pointer to the first word of the bitmap.  */
   const SBITMAP_ELT_TYPE *ptr;
 
@@ -141,7 +141,7 @@ typedef struct {
 
   /* The words currently visited.  */
   SBITMAP_ELT_TYPE word;
-} sbitmap_iterator;
+};
 
 /* Initialize the iterator I with sbitmap BMP and the initial index
    MIN.  */

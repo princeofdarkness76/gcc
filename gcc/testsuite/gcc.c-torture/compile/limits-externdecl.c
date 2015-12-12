@@ -1,3 +1,6 @@
+/* { dg-skip-if "ptxas runs out of memory" { nvptx-*-* } { "*" } { "" } } */
+
+/* { dg-require-effective-target int32plus } */
 /* Inspired by the test case for PR middle-end/52640.  */
 
 typedef struct
@@ -52,4 +55,4 @@ LIM5 (X);
 REFERENCE references[] = {
   LIM5 (X)
   0
-}; /* { dg-error "size of array is too large" "" { target avr-*-* } } */
+};

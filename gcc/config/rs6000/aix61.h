@@ -1,6 +1,6 @@
 /* Definitions of target machine for GNU compiler,
    for IBM RS/6000 POWER running AIX V6.1.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015 Free Software Foundation, Inc.
    Contributed by David Edelsohn (edelsohn@gnu.org).
 
    This file is part of GCC.
@@ -80,6 +80,7 @@ do {									\
 %{mcpu=power6x: -mpwr6} \
 %{mcpu=power7: -mpwr7} \
 %{mcpu=power8: -mpwr8} \
+%{mcpu=power9: -mpwr9} \
 %{mcpu=powerpc: -mppc} \
 %{mcpu=rs64a: -mppc} \
 %{mcpu=603: -m603} \
@@ -156,7 +157,7 @@ do {									\
    %{pthread:-lpthreads} -lc"
 
 #undef LINK_SPEC
-#define LINK_SPEC "-bpT:0x10000000 -bpD:0x20000000 %{!r:-btextro} -bnodelcsect\
+#define LINK_SPEC "-bpT:0x10000000 -bpD:0x20000000 %{!r:-btextro}\
    %{static:-bnso %(link_syscalls) } %{shared:-bM:SRE %{!e:-bnoentry}}\
    %{!maix64:%{!shared:%{g*: %(link_libg) }}} %{maix64:-b64}\
    %{mpe:-binitfini:poe_remote_main}"
@@ -167,7 +168,7 @@ do {									\
    %{!maix64:\
      %{pthread:%{pg:gcrt0_r%O%s}%{!pg:%{p:mcrt0_r%O%s}%{!p:crt0_r%O%s}}}\
      %{!pthread:%{pg:gcrt0%O%s}%{!pg:%{p:mcrt0%O%s}%{!p:crt0%O%s}}}}}\
-   %{shared:crtcxa_s%O%s;:crtcxa%O%s}"
+   %{shared:crtcxa_s%O%s;:crtcxa%O%s} crtdbase%O%s"
 
 /* AIX V5 typedefs ptrdiff_t as "long" while earlier releases used "int".  */
 
@@ -189,10 +190,6 @@ do {									\
 
 #undef LD_INIT_SWITCH
 #define LD_INIT_SWITCH "-binitfini"
-
-/* AIX 5.2 has the float and long double forms of math functions.  */
-#undef TARGET_C99_FUNCTIONS
-#define TARGET_C99_FUNCTIONS  1
 
 #ifndef _AIX52
 extern long long int    atoll(const char *);  

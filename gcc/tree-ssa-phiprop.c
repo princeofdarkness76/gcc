@@ -1,5 +1,5 @@
 /* Backward propagation of indirect loads through PHIs.
-   Copyright (C) 2007-2013 Free Software Foundation, Inc.
+   Copyright (C) 2007-2015 Free Software Foundation, Inc.
    Contributed by Richard Guenther <rguenther@suse.de>
 
 This file is part of GCC.
@@ -21,15 +21,16 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
+#include "backend.h"
 #include "tree.h"
-#include "tm_p.h"
-#include "basic-block.h"
-#include "gimple-pretty-print.h"
-#include "tree-flow.h"
+#include "gimple.h"
 #include "tree-pass.h"
-#include "langhooks.h"
-#include "flags.h"
+#include "ssa.h"
+#include "gimple-pretty-print.h"
+#include "fold-const.h"
+#include "tree-eh.h"
+#include "gimplify.h"
+#include "gimple-iterator.h"
 
 /* This pass propagates indirect loads through the PHI node for its
    address to make the load source possibly non-addressable and to
@@ -101,7 +102,7 @@ static bool
 phivn_valid_p (struct phiprop_d *phivn, tree name, basic_block bb)
 {
   tree vuse = phivn[SSA_NAME_VERSION (name)].vuse;
-  gimple use_stmt;
+  gimple *use_stmt;
   imm_use_iterator ui2;
   bool ok = true;
 
@@ -127,11 +128,11 @@ phivn_valid_p (struct phiprop_d *phivn, tree name, basic_block bb)
    BB with the virtual operands from USE_STMT.  */
 
 static tree
-phiprop_insert_phi (basic_block bb, gimple phi, gimple use_stmt,
+phiprop_insert_phi (basic_block bb, gphi *phi, gimple *use_stmt,
 		    struct phiprop_d *phivn, size_t n)
 {
   tree res;
-  gimple new_phi;
+  gphi *new_phi;
   edge_iterator ei;
   edge e;
 
@@ -154,7 +155,7 @@ phiprop_insert_phi (basic_block bb, gimple phi, gimple use_stmt,
   FOR_EACH_EDGE (e, ei, bb->preds)
     {
       tree old_arg, new_var;
-      gimple tmp;
+      gassign *tmp;
       source_location locus;
 
       old_arg = PHI_ARG_DEF_FROM_EDGE (phi, e);
@@ -163,7 +164,7 @@ phiprop_insert_phi (basic_block bb, gimple phi, gimple use_stmt,
 	     && (SSA_NAME_VERSION (old_arg) >= n
 	         || phivn[SSA_NAME_VERSION (old_arg)].value == NULL_TREE))
 	{
-	  gimple def_stmt = SSA_NAME_DEF_STMT (old_arg);
+	  gimple *def_stmt = SSA_NAME_DEF_STMT (old_arg);
 	  old_arg = gimple_assign_rhs1 (def_stmt);
 	  locus = gimple_location (def_stmt);
 	}
@@ -186,7 +187,7 @@ phiprop_insert_phi (basic_block bb, gimple phi, gimple use_stmt,
 	{
 	  tree rhs = gimple_assign_rhs1 (use_stmt);
 	  gcc_assert (TREE_CODE (old_arg) == ADDR_EXPR);
-	  new_var = make_ssa_name (TREE_TYPE (rhs), NULL);
+	  new_var = make_ssa_name (TREE_TYPE (rhs));
 	  if (!is_gimple_min_invariant (old_arg))
 	    old_arg = PHI_ARG_DEF_FROM_EDGE (phi, e);
 	  else
@@ -235,11 +236,11 @@ phiprop_insert_phi (basic_block bb, gimple phi, gimple use_stmt,
    with aliasing issues as we are moving memory reads.  */
 
 static bool
-propagate_with_phi (basic_block bb, gimple phi, struct phiprop_d *phivn,
+propagate_with_phi (basic_block bb, gphi *phi, struct phiprop_d *phivn,
 		    size_t n)
 {
   tree ptr = PHI_RESULT (phi);
-  gimple use_stmt;
+  gimple *use_stmt;
   tree res = NULL_TREE;
   gimple_stmt_iterator gsi;
   imm_use_iterator ui;
@@ -264,7 +265,7 @@ propagate_with_phi (basic_block bb, gimple phi, struct phiprop_d *phivn,
 	     && (SSA_NAME_VERSION (arg) >= n
 	         || phivn[SSA_NAME_VERSION (arg)].value == NULL_TREE))
 	{
-	  gimple def_stmt = SSA_NAME_DEF_STMT (arg);
+	  gimple *def_stmt = SSA_NAME_DEF_STMT (arg);
 	  if (!gimple_assign_single_p (def_stmt))
 	    return false;
 	  arg = gimple_assign_rhs1 (def_stmt);
@@ -294,9 +295,15 @@ propagate_with_phi (basic_block bb, gimple phi, struct phiprop_d *phivn,
   phi_inserted = false;
   FOR_EACH_IMM_USE_STMT (use_stmt, ui, ptr)
     {
-      gimple def_stmt;
+      gimple *def_stmt;
       tree vuse;
 
+      /* Only replace loads in blocks that post-dominate the PHI node.  That
+         makes sure we don't end up speculating loads.  */
+      if (!dominated_by_p (CDI_POST_DOMINATORS,
+			   bb, gimple_bb (use_stmt)))
+	continue;
+         
       /* Check whether this is a load of *ptr.  */
       if (!(is_gimple_assign (use_stmt)
 	    && TREE_CODE (gimple_assign_lhs (use_stmt)) == SSA_NAME
@@ -356,28 +363,57 @@ next:;
 
 /* Main entry for phiprop pass.  */
 
-static unsigned int
-tree_ssa_phiprop (void)
+namespace {
+
+const pass_data pass_data_phiprop =
+{
+  GIMPLE_PASS, /* type */
+  "phiprop", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_PHIPROP, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  TODO_update_ssa, /* todo_flags_finish */
+};
+
+class pass_phiprop : public gimple_opt_pass
+{
+public:
+  pass_phiprop (gcc::context *ctxt)
+    : gimple_opt_pass (pass_data_phiprop, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_phiprop; }
+  virtual unsigned int execute (function *);
+
+}; // class pass_phiprop
+
+unsigned int
+pass_phiprop::execute (function *fun)
 {
   vec<basic_block> bbs;
   struct phiprop_d *phivn;
   bool did_something = false;
   basic_block bb;
-  gimple_stmt_iterator gsi;
+  gphi_iterator gsi;
   unsigned i;
   size_t n;
 
   calculate_dominance_info (CDI_DOMINATORS);
+  calculate_dominance_info (CDI_POST_DOMINATORS);
 
   n = num_ssa_names;
   phivn = XCNEWVEC (struct phiprop_d, n);
 
   /* Walk the dominator tree in preorder.  */
   bbs = get_all_dominated_blocks (CDI_DOMINATORS,
-				  single_succ (ENTRY_BLOCK_PTR));
+				  single_succ (ENTRY_BLOCK_PTR_FOR_FN (fun)));
   FOR_EACH_VEC_ELT (bbs, i, bb)
     for (gsi = gsi_start_phis (bb); !gsi_end_p (gsi); gsi_next (&gsi))
-      did_something |= propagate_with_phi (bb, gsi_stmt (gsi), phivn, n);
+      did_something |= propagate_with_phi (bb, gsi.phi (), phivn, n);
 
   if (did_something)
     gsi_commit_edge_inserts ();
@@ -385,32 +421,15 @@ tree_ssa_phiprop (void)
   bbs.release ();
   free (phivn);
 
+  free_dominance_info (CDI_POST_DOMINATORS);
+
   return 0;
 }
 
-static bool
-gate_phiprop (void)
-{
-  return flag_tree_phiprop;
-}
+} // anon namespace
 
-struct gimple_opt_pass pass_phiprop =
+gimple_opt_pass *
+make_pass_phiprop (gcc::context *ctxt)
 {
- {
-  GIMPLE_PASS,
-  "phiprop",			/* name */
-  OPTGROUP_NONE,                        /* optinfo_flags */
-  gate_phiprop,			/* gate */
-  tree_ssa_phiprop,		/* execute */
-  NULL,				/* sub */
-  NULL,				/* next */
-  0,				/* static_pass_number */
-  TV_TREE_PHIPROP,		/* tv_id */
-  PROP_cfg | PROP_ssa,		/* properties_required */
-  0,				/* properties_provided */
-  0,				/* properties_destroyed */
-  0,				/* todo_flags_start */
-  TODO_update_ssa
-  | TODO_verify_ssa		/* todo_flags_finish */
- }
-};
+  return new pass_phiprop (ctxt);
+}

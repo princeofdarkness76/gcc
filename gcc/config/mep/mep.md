@@ -1,5 +1,5 @@
 ;; Toshiba Media Processor Machine description template
-;; Copyright (C) 2001-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2001-2015 Free Software Foundation, Inc.
 ;; Contributed by Red Hat Inc
 ;;
 ;; This file is part of GCC.
@@ -760,13 +760,11 @@
   [(const_int 0)]
   "
 {
-  REAL_VALUE_TYPE rv;
   HOST_WIDE_INT value;
   HOST_WIDE_INT lo, hi;
   rtx out;
 
-  REAL_VALUE_FROM_CONST_DOUBLE (rv, operands[1]);
-  REAL_VALUE_TO_TARGET_SINGLE (rv, value);
+  REAL_VALUE_TO_TARGET_SINGLE (*CONST_DOUBLE_REAL_VALUE (operands[1]), value);
 
   lo = value & 0xffff;
   hi = trunc_int_for_mode (value & 0xffff0000, SImode);
@@ -2076,14 +2074,9 @@
 
 (define_expand "doloop_begin"
   [(use (match_operand 0 "register_operand" ""))
-   (use (match_operand:QI 1 "const_int_operand" ""))
-   (use (match_operand:QI 2 "const_int_operand" ""))
-   (use (match_operand:QI 3 "const_int_operand" ""))
-   (use (match_operand 4 "" ""))]
+   (use (match_operand 1 "" ""))]
   "!profile_arc_flag && TARGET_OPT_REPEAT"
-  "if (INTVAL (operands[3]) > 1)
-     FAIL;
-   mep_emit_doloop (operands, 0);
+  "mep_emit_doloop (operands, 0);
    DONE;
   ")
 
@@ -2112,15 +2105,9 @@
 
 (define_expand "doloop_end"
   [(use (match_operand 0 "nonimmediate_operand" ""))
-   (use (match_operand:QI 1 "const_int_operand" ""))
-   (use (match_operand:QI 2 "const_int_operand" ""))
-   (use (match_operand:QI 3 "const_int_operand" ""))
-   (use (label_ref (match_operand 4 "" "")))
-   (use (match_operand 5 "" ""))]
+   (use (label_ref (match_operand 1 "" "")))]
   "!profile_arc_flag && TARGET_OPT_REPEAT"
-  "if (INTVAL (operands[3]) > 1)
-     FAIL;
-   if (GET_CODE (operands[0]) == REG && GET_MODE (operands[0]) != SImode)
+  "if (GET_CODE (operands[0]) == REG && GET_MODE (operands[0]) != SImode)
      FAIL;
    mep_emit_doloop (operands, 1);
    DONE;

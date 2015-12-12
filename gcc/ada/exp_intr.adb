@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -28,6 +28,7 @@ with Checks;   use Checks;
 with Einfo;    use Einfo;
 with Elists;   use Elists;
 with Errout;   use Errout;
+with Expander; use Expander;
 with Exp_Atag; use Exp_Atag;
 with Exp_Ch4;  use Exp_Ch4;
 with Exp_Ch7;  use Exp_Ch7;
@@ -36,7 +37,7 @@ with Exp_Code; use Exp_Code;
 with Exp_Fixd; use Exp_Fixd;
 with Exp_Util; use Exp_Util;
 with Freeze;   use Freeze;
-with Namet;    use Namet;
+with Inline;   use Inline;
 with Nmake;    use Nmake;
 with Nlists;   use Nlists;
 with Opt;      use Opt;
@@ -54,7 +55,6 @@ with Sinput;   use Sinput;
 with Snames;   use Snames;
 with Stand;    use Stand;
 with Stringt;  use Stringt;
-with Targparm; use Targparm;
 with Tbuild;   use Tbuild;
 with Uintp;    use Uintp;
 with Urealp;   use Urealp;
@@ -109,10 +109,102 @@ package body Exp_Intr is
    procedure Expand_Source_Info (N : Node_Id; Nam : Name_Id);
    --  Rewrite the node by the appropriate string or positive constant.
    --  Nam can be one of the following:
-   --    Name_File             - expand string that is the name of source file
-   --    Name_Line             - expand integer line number
-   --    Name_Source_Location  - expand string of form file:line
-   --    Name_Enclosing_Entity - expand string  with name of enclosing entity
+   --    Name_File                  - expand string name of source file
+   --    Name_Line                  - expand integer line number
+   --    Name_Source_Location       - expand string of form file:line
+   --    Name_Enclosing_Entity      - expand string name of enclosing entity
+   --    Name_Compilation_Date      - expand string with compilation date
+   --    Name_Compilation_Time      - expand string with compilation time
+
+   procedure Write_Entity_Name (E : Entity_Id);
+   --  Recursive procedure to construct string for qualified name of enclosing
+   --  program unit. The qualification stops at an enclosing scope has no
+   --  source name (block or loop). If entity is a subprogram instance, skip
+   --  enclosing wrapper package. The name is appended to the current contents
+   --  of Name_Buffer, incrementing Name_Len.
+
+   ---------------------
+   -- Add_Source_Info --
+   ---------------------
+
+   procedure Add_Source_Info (Loc : Source_Ptr; Nam : Name_Id) is
+      Ent : Entity_Id;
+
+      Save_NB : constant String  := Name_Buffer (1 .. Name_Len);
+      Save_NL : constant Natural := Name_Len;
+      --  Save current Name_Buffer contents
+
+   begin
+      Name_Len := 0;
+
+      --  Line
+
+      case Nam is
+
+         when Name_Line =>
+            Add_Nat_To_Name_Buffer (Nat (Get_Logical_Line_Number (Loc)));
+
+         when Name_File =>
+            Get_Decoded_Name_String
+              (Reference_Name (Get_Source_File_Index (Loc)));
+
+         when Name_Source_Location =>
+            Build_Location_String (Loc);
+
+         when Name_Enclosing_Entity =>
+
+            --  Skip enclosing blocks to reach enclosing unit
+
+            Ent := Current_Scope;
+            while Present (Ent) loop
+               exit when not Ekind_In (Ent, E_Block, E_Loop);
+               Ent := Scope (Ent);
+            end loop;
+
+            --  Ent now points to the relevant defining entity
+
+            Write_Entity_Name (Ent);
+
+         when Name_Compilation_Date =>
+            declare
+               subtype S13 is String (1 .. 3);
+               Months : constant array (1 .. 12) of S13 :=
+                          ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+
+               M1 : constant Character := Opt.Compilation_Time (6);
+               M2 : constant Character := Opt.Compilation_Time (7);
+
+               MM : constant Natural range 1 .. 12 :=
+                      (Character'Pos (M1) - Character'Pos ('0')) * 10 +
+                 (Character'Pos (M2) - Character'Pos ('0'));
+
+            begin
+               --  Reformat ISO date into MMM DD YYYY (__DATE__) format
+
+               Name_Buffer (1 .. 3)  := Months (MM);
+               Name_Buffer (4)       := ' ';
+               Name_Buffer (5 .. 6)  := Opt.Compilation_Time (9 .. 10);
+               Name_Buffer (7)       := ' ';
+               Name_Buffer (8 .. 11) := Opt.Compilation_Time (1 .. 4);
+               Name_Len := 11;
+            end;
+
+         when Name_Compilation_Time =>
+            Name_Buffer (1 .. 8) := Opt.Compilation_Time (12 .. 19);
+            Name_Len := 8;
+
+         when others =>
+            raise Program_Error;
+      end case;
+
+      --  Prepend original Name_Buffer contents
+
+      Name_Buffer (Save_NL + 1 .. Save_NL + Name_Len) :=
+        Name_Buffer (1 .. Name_Len);
+      Name_Buffer (1 .. Save_NL) := Save_NB;
+      Name_Len := Name_Len + Save_NL;
+   end Add_Source_Info;
 
    ---------------------------------
    -- Expand_Binary_Operator_Call --
@@ -219,6 +311,31 @@ package body Exp_Intr is
 
       Remove_Side_Effects (Tag_Arg);
 
+      --  Check that we have a proper tag
+
+      Insert_Action (N,
+        Make_Implicit_If_Statement (N,
+          Condition       => Make_Op_Eq (Loc,
+            Left_Opnd  => New_Copy_Tree (Tag_Arg),
+            Right_Opnd => New_Occurrence_Of (RTE (RE_No_Tag), Loc)),
+
+          Then_Statements => New_List (
+            Make_Raise_Statement (Loc,
+              New_Occurrence_Of (RTE (RE_Tag_Error), Loc)))));
+
+      --  Check that it is not the tag of an abstract type
+
+      Insert_Action (N,
+        Make_Implicit_If_Statement (N,
+          Condition       => Make_Function_Call (Loc,
+             Name                   =>
+               New_Occurrence_Of (RTE (RE_Type_Is_Abstract), Loc),
+             Parameter_Associations => New_List (New_Copy_Tree (Tag_Arg))),
+
+          Then_Statements => New_List (
+            Make_Raise_Statement (Loc,
+              New_Occurrence_Of (RTE (RE_Tag_Error), Loc)))));
+
       --  The subprogram is the third actual in the instantiation, and is
       --  retrieved from the corresponding renaming declaration. However,
       --  freeze nodes may appear before, so we retrieve the declaration
@@ -231,6 +348,22 @@ package body Exp_Intr is
 
       Act_Constr := Entity (Name (Act_Rename));
       Result_Typ := Class_Wide_Type (Etype (Act_Constr));
+
+      --  Check that the accessibility level of the tag is no deeper than that
+      --  of the constructor function.
+
+      Insert_Action (N,
+        Make_Implicit_If_Statement (N,
+          Condition       =>
+            Make_Op_Gt (Loc,
+              Left_Opnd  =>
+                Build_Get_Access_Level (Loc, New_Copy_Tree (Tag_Arg)),
+              Right_Opnd =>
+                Make_Integer_Literal (Loc, Scope_Depth (Act_Constr))),
+
+          Then_Statements => New_List (
+            Make_Raise_Statement (Loc,
+              New_Occurrence_Of (RTE (RE_Tag_Error), Loc)))));
 
       if Is_Interface (Etype (Act_Constr)) then
 
@@ -247,24 +380,27 @@ package body Exp_Intr is
 
             declare
                Fname : constant Node_Id :=
-                         New_Reference_To (RTE (RE_Secondary_Tag), Loc);
+                         New_Occurrence_Of (RTE (RE_Secondary_Tag), Loc);
 
             begin
                pragma Assert (not Is_Interface (Etype (Tag_Arg)));
+
+               --  The tag is the first entry in the dispatch table of the
+               --  return type of the constructor.
 
                Iface_Tag :=
                  Make_Object_Declaration (Loc,
                    Defining_Identifier => Make_Temporary (Loc, 'V'),
                    Object_Definition   =>
-                     New_Reference_To (RTE (RE_Tag), Loc),
+                     New_Occurrence_Of (RTE (RE_Tag), Loc),
                    Expression          =>
                      Make_Function_Call (Loc,
                        Name                   => Fname,
                        Parameter_Associations => New_List (
                          Relocate_Node (Tag_Arg),
-                         New_Reference_To
-                           (Node (First_Elmt (Access_Disp_Table
-                                               (Etype (Etype (Act_Constr))))),
+                         New_Occurrence_Of
+                           (Node (First_Elmt
+                                    (Access_Disp_Table (Etype (Act_Constr)))),
                             Loc))));
                Insert_Action (N, Iface_Tag);
             end;
@@ -295,10 +431,10 @@ package body Exp_Intr is
       --  conversion of the call to the actual constructor.
 
       Rewrite (N, Convert_To (Result_Typ, Cnstr_Call));
-      Analyze_And_Resolve (N, Etype (Act_Constr));
 
       --  Do not generate a run-time check on the built object if tag
-      --  checks are suppressed for the result type or VM_Target /= No_VM
+      --  checks are suppressed for the result type or tagged type expansion
+      --  is disabled.
 
       if Tag_Checks_Suppressed (Etype (Result_Typ))
         or else not Tagged_Type_Expansion
@@ -324,7 +460,7 @@ package body Exp_Intr is
             Build_CW_Membership (Loc,
               Obj_Tag_Node => Obj_Tag_Node,
               Typ_Tag_Node =>
-                New_Reference_To (
+                New_Occurrence_Of (
                    Node (First_Elmt (Access_Disp_Table (
                                        Root_Type (Result_Typ)))), Loc),
               Related_Nod => N,
@@ -354,7 +490,7 @@ package body Exp_Intr is
                         Prefix         => New_Copy_Tree (Tag_Arg),
                         Attribute_Name => Name_Address),
 
-                      New_Reference_To (
+                      New_Occurrence_Of (
                         Node (First_Elmt (Access_Disp_Table (
                                             Root_Type (Result_Typ)))), Loc)))),
              Then_Statements =>
@@ -362,6 +498,8 @@ package body Exp_Intr is
                  Make_Raise_Statement (Loc,
                    Name => New_Occurrence_Of (RTE (RE_Tag_Error), Loc)))));
       end if;
+
+      Analyze_And_Resolve (N, Etype (Act_Constr));
    end Expand_Dispatching_Constructor_Call;
 
    ---------------------------
@@ -421,7 +559,7 @@ package body Exp_Intr is
                   New_Occurrence_Of (Choice_Parameter (P), Loc))));
             exit;
 
-         --  Keep climbing!
+         --  Keep climbing
 
          else
             P := Parent (P);
@@ -557,7 +695,9 @@ package body Exp_Intr is
       elsif Nam_In (Nam, Name_File,
                          Name_Line,
                          Name_Source_Location,
-                         Name_Enclosing_Entity)
+                         Name_Enclosing_Entity,
+                         Name_Compilation_Date,
+                         Name_Compilation_Time)
       then
          Expand_Source_Info (N, Nam);
 
@@ -644,7 +784,7 @@ package body Exp_Intr is
 
    --  As a result, whenever a shift is used in the source program, it will
    --  remain as a call until converted by this routine to the operator node
-   --  form which Gigi is expecting to see.
+   --  form which the back end is expecting to see.
 
    --  Note: it is possible for the expander to generate shift operator nodes
    --  directly, which will be analyzed in the normal manner by calling Analyze
@@ -682,8 +822,15 @@ package body Exp_Intr is
          Rewrite (N, Snode);
          Set_Analyzed (N);
 
-      else
+         --  However, we do call the expander, so that the expansion for
+         --  rotates and shift_right_arithmetic happens if Modify_Tree_For_C
+         --  is set.
 
+         if Expander_Active then
+            Expand (N);
+         end if;
+
+      else
          --  If the context type is not the type of the operator, it is an
          --  inherited operator for a derived type. Wrap the node in a
          --  conversion so that it is type-consistent for possible further
@@ -706,61 +853,6 @@ package body Exp_Intr is
    procedure Expand_Source_Info (N : Node_Id; Nam : Name_Id) is
       Loc : constant Source_Ptr := Sloc (N);
       Ent : Entity_Id;
-
-      procedure Write_Entity_Name (E : Entity_Id);
-      --  Recursive procedure to construct string for qualified name of
-      --  enclosing program unit. The qualification stops at an enclosing
-      --  scope has no source name (block or loop). If entity is a subprogram
-      --  instance, skip enclosing wrapper package.
-
-      -----------------------
-      -- Write_Entity_Name --
-      -----------------------
-
-      procedure Write_Entity_Name (E : Entity_Id) is
-         SDef : Source_Ptr;
-         TDef : constant Source_Buffer_Ptr :=
-                  Source_Text (Get_Source_File_Index (Sloc (E)));
-
-      begin
-         --  Nothing to do if at outer level
-
-         if Scope (E) = Standard_Standard then
-            null;
-
-         --  If scope comes from source, write its name
-
-         elsif Comes_From_Source (Scope (E)) then
-            Write_Entity_Name (Scope (E));
-            Add_Char_To_Name_Buffer ('.');
-
-         --  If in wrapper package skip past it
-
-         elsif Is_Wrapper_Package (Scope (E)) then
-            Write_Entity_Name (Scope (Scope (E)));
-            Add_Char_To_Name_Buffer ('.');
-
-         --  Otherwise nothing to output (happens in unnamed block statements)
-
-         else
-            null;
-         end if;
-
-         --  Loop to output the name
-
-         --  is this right wrt wide char encodings ??? (no!)
-
-         SDef := Sloc (E);
-         while TDef (SDef) in '0' .. '9'
-           or else TDef (SDef) >= 'A'
-           or else TDef (SDef) = ASCII.ESC
-         loop
-            Add_Char_To_Name_Buffer (TDef (SDef));
-            SDef := SDef + 1;
-         end loop;
-      end Write_Entity_Name;
-
-   --  Start of processing for Expand_Source_Info
 
    begin
       --  Integer cases
@@ -798,6 +890,35 @@ package body Exp_Intr is
                --  Ent now points to the relevant defining entity
 
                Write_Entity_Name (Ent);
+
+            when Name_Compilation_Date =>
+               declare
+                  subtype S13 is String (1 .. 3);
+                  Months : constant array (1 .. 12) of S13 :=
+                    ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+
+                  M1 : constant Character := Opt.Compilation_Time (6);
+                  M2 : constant Character := Opt.Compilation_Time (7);
+
+                  MM : constant Natural range 1 .. 12 :=
+                    (Character'Pos (M1) - Character'Pos ('0')) * 10 +
+                    (Character'Pos (M2) - Character'Pos ('0'));
+
+               begin
+                  --  Reformat ISO date into MMM DD YYYY (__DATE__) format
+
+                  Name_Buffer (1 .. 3)  := Months (MM);
+                  Name_Buffer (4)       := ' ';
+                  Name_Buffer (5 .. 6)  := Opt.Compilation_Time (9 .. 10);
+                  Name_Buffer (7)       := ' ';
+                  Name_Buffer (8 .. 11) := Opt.Compilation_Time (1 .. 4);
+                  Name_Len := 11;
+               end;
+
+            when Name_Compilation_Time =>
+               Name_Buffer (1 .. 8) := Opt.Compilation_Time (12 .. 19);
+               Name_Len := 8;
 
             when others =>
                raise Program_Error;
@@ -880,44 +1001,36 @@ package body Exp_Intr is
    -- Expand_Unc_Deallocation --
    -----------------------------
 
-   --  Generate the following Code :
-
-   --    if Arg /= null then
-   --     <Finalize_Call> (.., T'Class(Arg.all), ..);  -- for controlled types
-   --       Free (Arg);
-   --       Arg := Null;
-   --    end if;
-
-   --  For a task, we also generate a call to Free_Task to ensure that the
-   --  task itself is freed if it is terminated, ditto for a simple protected
-   --  object, with a call to Finalize_Protection. For composite types that
-   --  have tasks or simple protected objects as components, we traverse the
-   --  structures to find and terminate those components.
-
    procedure Expand_Unc_Deallocation (N : Node_Id) is
       Arg       : constant Node_Id    := First_Actual (N);
       Loc       : constant Source_Ptr := Sloc (N);
       Typ       : constant Entity_Id  := Etype (Arg);
-      Desig_T   : constant Entity_Id  := Designated_Type (Typ);
-      Rtyp      : constant Entity_Id  := Underlying_Type (Root_Type (Typ));
-      Pool      : constant Entity_Id  := Associated_Storage_Pool (Rtyp);
+      Desig_Typ : constant Entity_Id  := Designated_Type (Typ);
+      Needs_Fin : constant Boolean    := Needs_Finalization (Desig_Typ);
+      Root_Typ  : constant Entity_Id  := Underlying_Type (Root_Type (Typ));
+      Pool      : constant Entity_Id  := Associated_Storage_Pool (Root_Typ);
       Stmts     : constant List_Id    := New_List;
-      Needs_Fin : constant Boolean    := Needs_Finalization (Desig_T);
-
-      Finalizer_Data  : Finalization_Exception_Data;
-
-      Blk        : Node_Id := Empty;
-      Deref      : Node_Id;
-      Final_Code : List_Id;
-      Free_Arg   : Node_Id;
-      Free_Node  : Node_Id;
-      Gen_Code   : Node_Id;
 
       Arg_Known_Non_Null : constant Boolean := Known_Non_Null (N);
       --  This captures whether we know the argument to be non-null so that
       --  we can avoid the test. The reason that we need to capture this is
       --  that we analyze some generated statements before properly attaching
       --  them to the tree, and that can disturb current value settings.
+
+      Exceptions_OK : constant Boolean :=
+                        not Restriction_Active (No_Exception_Propagation);
+
+      Abrt_Blk    : Node_Id := Empty;
+      Abrt_Blk_Id : Entity_Id;
+      Abrt_HSS    : Node_Id;
+      AUD         : Entity_Id;
+      Fin_Blk     : Node_Id;
+      Fin_Call    : Node_Id;
+      Fin_Data    : Finalization_Exception_Data;
+      Free_Arg    : Node_Id;
+      Free_Nod    : Node_Id;
+      Gen_Code    : Node_Id;
+      Obj_Ref     : Node_Id;
 
    begin
       --  Nothing to do if we know the argument is null
@@ -926,169 +1039,185 @@ package body Exp_Intr is
          return;
       end if;
 
-      --  Processing for pointer to controlled type
+      --  Processing for pointer to controlled types. Generate:
+
+      --    Abrt   : constant Boolean := ...;
+      --    Ex     : Exception_Occurrence;
+      --    Raised : Boolean := False;
+
+      --    begin
+      --       Abort_Defer;
+
+      --       begin
+      --          [Deep_]Finalize (Obj_Ref);
+
+      --       exception
+      --          when others =>
+      --             if not Raised then
+      --                Raised := True;
+      --                Save_Occurrence (Ex, Get_Current_Excep.all.all);
+      --       end;
+      --    at end
+      --       Abort_Undefer_Direct;
+      --    end;
+
+      --  Depending on whether exception propagation is enabled and/or aborts
+      --  are allowed, the generated code may lack block statements.
 
       if Needs_Fin then
-         Deref :=
+         Obj_Ref :=
            Make_Explicit_Dereference (Loc,
              Prefix => Duplicate_Subexpr_No_Checks (Arg));
 
-         --  If the type is tagged, then we must force dispatching on the
-         --  finalization call because the designated type may not be the
-         --  actual type of the object.
+         --  If the designated type is tagged, the finalization call must
+         --  dispatch because the designated type may not be the actual type
+         --  of the object. If the type is synchronized, the deallocation
+         --  applies to the corresponding record type.
 
-         if Is_Tagged_Type (Desig_T)
-           and then not Is_Class_Wide_Type (Desig_T)
-         then
-            Deref := Unchecked_Convert_To (Class_Wide_Type (Desig_T), Deref);
+         if Is_Tagged_Type (Desig_Typ) then
+            if Is_Concurrent_Type (Desig_Typ) then
+               Obj_Ref :=
+                 Unchecked_Convert_To
+                   (Class_Wide_Type (Corresponding_Record_Type (Desig_Typ)),
+                      Obj_Ref);
 
-         elsif not Is_Tagged_Type (Desig_T) then
+            elsif not Is_Class_Wide_Type (Desig_Typ) then
+               Obj_Ref :=
+                 Unchecked_Convert_To (Class_Wide_Type (Desig_Typ), Obj_Ref);
+            end if;
 
-            --  Set type of result, to force a conversion when needed (see
-            --  exp_ch7, Convert_View), given that Deep_Finalize may be
-            --  inherited from the parent type, and we need the type of the
-            --  expression to see whether the conversion is in fact needed.
+         --  Otherwise the designated type is untagged. Set the type of the
+         --  dereference explicitly to force a conversion when needed given
+         --  that [Deep_]Finalize may be inherited from a parent type.
 
-            Set_Etype (Deref, Desig_T);
+         else
+            Set_Etype (Obj_Ref, Desig_Typ);
          end if;
 
-         --  The finalization call is expanded wrapped in a block to catch any
-         --  possible exception. If an exception does occur, then Program_Error
-         --  must be raised following the freeing of the object and its removal
-         --  from the finalization collection's list. We set a flag to record
-         --  that an exception was raised, and save its occurrence for use in
-         --  the later raise.
-         --
          --  Generate:
-         --    Abort  : constant Boolean :=
-         --               Exception_Occurrence (Get_Current_Excep.all.all) =
-         --                 Standard'Abort_Signal'Identity;
-         --      <or>
-         --    Abort  : constant Boolean := False;  --  no abort
+         --    [Deep_]Finalize (Obj_Ref);
 
-         --    E      : Exception_Occurrence;
+         Fin_Call := Make_Final_Call (Obj_Ref => Obj_Ref, Typ => Desig_Typ);
+
+         --  Generate:
+         --    Abrt   : constant Boolean := ...;
+         --    Ex     : Exception_Occurrence;
          --    Raised : Boolean := False;
-         --
+
          --    begin
-         --       [Deep_]Finalize (Obj);
+         --       <Fin_Call>
+
          --    exception
          --       when others =>
-         --          Raised := True;
-         --          Save_Occurrence (E, Get_Current_Excep.all.all);
+         --          if not Raised then
+         --             Raised := True;
+         --             Save_Occurrence (Ex, Get_Current_Excep.all.all);
          --    end;
 
-         Build_Object_Declarations (Finalizer_Data, Stmts, Loc);
+         if Exceptions_OK then
+            Build_Object_Declarations (Fin_Data, Stmts, Loc);
 
-         Final_Code := New_List (
-           Make_Block_Statement (Loc,
-             Handled_Statement_Sequence =>
-               Make_Handled_Sequence_Of_Statements (Loc,
-                 Statements         => New_List (
-                   Make_Final_Call (Obj_Ref => Deref, Typ => Desig_T)),
-                 Exception_Handlers => New_List (
-                   Build_Exception_Handler (Finalizer_Data)))));
+            Fin_Blk :=
+              Make_Block_Statement (Loc,
+                Handled_Statement_Sequence =>
+                  Make_Handled_Sequence_Of_Statements (Loc,
+                    Statements         => New_List (Fin_Call),
+                    Exception_Handlers => New_List (
+                      Build_Exception_Handler (Fin_Data))));
 
-         --  For .NET/JVM, detach the object from the containing finalization
-         --  collection before finalizing it.
+         --  Otherwise exception propagation is not allowed
 
-         if VM_Target /= No_VM and then Is_Controlled (Desig_T) then
-            Prepend_To (Final_Code,
-              Make_Detach_Call (New_Copy_Tree (Arg)));
+         else
+            Fin_Blk := Fin_Call;
          end if;
 
-         --  If aborts are allowed, then the finalization code must be
-         --  protected by an abort defer/undefer pair.
+         --  The finalization action must be protected by an abort defer and
+         --  undefer pair when aborts are allowed. Generate:
+
+         --    begin
+         --       Abort_Defer;
+         --       <Fin_Blk>
+         --    at end
+         --       Abort_Undefer_Direct;
+         --    end;
 
          if Abort_Allowed then
-            Prepend_To (Final_Code,
-              Build_Runtime_Call (Loc, RE_Abort_Defer));
+            AUD := RTE (RE_Abort_Undefer_Direct);
 
-            Blk :=
-              Make_Block_Statement (Loc, Handled_Statement_Sequence =>
-                Make_Handled_Sequence_Of_Statements (Loc,
-                  Statements  => Final_Code,
-                  At_End_Proc =>
-                    New_Occurrence_Of (RTE (RE_Abort_Undefer_Direct), Loc)));
+            Abrt_HSS :=
+              Make_Handled_Sequence_Of_Statements (Loc,
+                Statements  => New_List (
+                  Build_Runtime_Call (Loc, RE_Abort_Defer),
+                  Fin_Blk),
+                At_End_Proc => New_Occurrence_Of (AUD, Loc));
 
-            Append (Blk, Stmts);
+            Abrt_Blk :=
+              Make_Block_Statement (Loc,
+                Handled_Statement_Sequence => Abrt_HSS);
+
+            Add_Block_Identifier  (Abrt_Blk, Abrt_Blk_Id);
+            Expand_At_End_Handler (Abrt_HSS, Abrt_Blk_Id);
+
+            --  Present the Abort_Undefer_Direct function to the backend so
+            --  that it can inline the call to the function.
+
+            Add_Inlined_Body (AUD, N);
+
+         --  Otherwise aborts are not allowed
+
          else
-            Append_List_To (Stmts, Final_Code);
+            Abrt_Blk := Fin_Blk;
          end if;
+
+         Append_To (Stmts, Abrt_Blk);
       end if;
 
-      --  For a task type, call Free_Task before freeing the ATCB
+      --  For a task type, call Free_Task before freeing the ATCB. We used to
+      --  detect the case of Abort followed by a Free here, because the Free
+      --  wouldn't actually free if it happens before the aborted task actually
+      --  terminates. The warning was removed, because Free now works properly
+      --  (the task will be freed once it terminates).
 
-      if Is_Task_Type (Desig_T) then
-         declare
-            Stat : Node_Id := Prev (N);
-            Nam1 : Node_Id;
-            Nam2 : Node_Id;
-
-         begin
-            --  An Abort followed by a Free will not do what the user expects,
-            --  because the abort is not immediate. This is worth a warning.
-
-            while Present (Stat)
-              and then not Comes_From_Source (Original_Node (Stat))
-            loop
-               Prev (Stat);
-            end loop;
-
-            if Present (Stat)
-              and then Nkind (Original_Node (Stat)) = N_Abort_Statement
-            then
-               Stat := Original_Node (Stat);
-               Nam1 := First (Names (Stat));
-               Nam2 := Original_Node (First (Parameter_Associations (N)));
-
-               if Nkind (Nam1) = N_Explicit_Dereference
-                 and then Is_Entity_Name (Prefix (Nam1))
-                 and then Is_Entity_Name (Nam2)
-                 and then Entity (Prefix (Nam1)) = Entity (Nam2)
-               then
-                  Error_Msg_N ("abort may take time to complete??", N);
-                  Error_Msg_N ("\deallocation might have no effect??", N);
-                  Error_Msg_N ("\safer to wait for termination??", N);
-               end if;
-            end if;
-         end;
-
-         Append_To
-           (Stmts, Cleanup_Task (N, Duplicate_Subexpr_No_Checks (Arg)));
+      if Is_Task_Type (Desig_Typ) then
+         Append_To (Stmts,
+           Cleanup_Task (N, Duplicate_Subexpr_No_Checks (Arg)));
 
       --  For composite types that contain tasks, recurse over the structure
       --  to build the selectors for the task subcomponents.
 
-      elsif Has_Task (Desig_T) then
-         if Is_Record_Type (Desig_T) then
-            Append_List_To (Stmts, Cleanup_Record (N, Arg, Desig_T));
+      elsif Has_Task (Desig_Typ) then
+         if Is_Array_Type (Desig_Typ) then
+            Append_List_To (Stmts, Cleanup_Array (N, Arg, Desig_Typ));
 
-         elsif Is_Array_Type (Desig_T) then
-            Append_List_To (Stmts, Cleanup_Array (N, Arg, Desig_T));
+         elsif Is_Record_Type (Desig_Typ) then
+            Append_List_To (Stmts, Cleanup_Record (N, Arg, Desig_Typ));
          end if;
       end if;
 
       --  Same for simple protected types. Eventually call Finalize_Protection
       --  before freeing the PO for each protected component.
 
-      if Is_Simple_Protected_Type (Desig_T) then
+      if Is_Simple_Protected_Type (Desig_Typ) then
          Append_To (Stmts,
            Cleanup_Protected_Object (N, Duplicate_Subexpr_No_Checks (Arg)));
 
-      elsif Has_Simple_Protected_Object (Desig_T) then
-         if Is_Record_Type (Desig_T) then
-            Append_List_To (Stmts, Cleanup_Record (N, Arg, Desig_T));
-         elsif Is_Array_Type (Desig_T) then
-            Append_List_To (Stmts, Cleanup_Array (N, Arg, Desig_T));
+      elsif Has_Simple_Protected_Object (Desig_Typ) then
+         if Is_Array_Type (Desig_Typ) then
+            Append_List_To (Stmts, Cleanup_Array (N, Arg, Desig_Typ));
+
+         elsif Is_Record_Type (Desig_Typ) then
+            Append_List_To (Stmts, Cleanup_Record (N, Arg, Desig_Typ));
          end if;
       end if;
 
-      --  Normal processing for non-controlled types
+      --  Normal processing for non-controlled types. The argument to free is
+      --  a renaming rather than a constant to ensure that the original context
+      --  is always set to null after the deallocation takes place.
 
-      Free_Arg := Duplicate_Subexpr_No_Checks (Arg);
-      Free_Node := Make_Free_Statement (Loc, Empty);
-      Append_To (Stmts, Free_Node);
-      Set_Storage_Pool (Free_Node, Pool);
+      Free_Arg := Duplicate_Subexpr_No_Checks (Arg, Renaming_Req => True);
+      Free_Nod := Make_Free_Statement (Loc, Empty);
+      Append_To (Stmts, Free_Nod);
+      Set_Storage_Pool (Free_Nod, Pool);
 
       --  Attach to tree before analysis of generated subtypes below
 
@@ -1109,23 +1238,24 @@ package body Exp_Intr is
          --  Deallocate (which is allowed), then the actual will simply be set
          --  to null.
 
-         elsif Present (Get_Rep_Pragma
-                          (Etype (Pool), Name_Simple_Storage_Pool_Type))
+         elsif Present
+                 (Get_Rep_Pragma (Etype (Pool), Name_Simple_Storage_Pool_Type))
          then
             declare
-               Pool_Type  : constant Entity_Id := Base_Type (Etype (Pool));
-               Dealloc_Op : Entity_Id;
+               Pool_Typ : constant Entity_Id := Base_Type (Etype (Pool));
+               Dealloc  : Entity_Id;
+
             begin
-               Dealloc_Op := Get_Name_Entity_Id (Name_Deallocate);
-               while Present (Dealloc_Op) loop
-                  if Scope (Dealloc_Op) = Scope (Pool_Type)
-                    and then Present (First_Formal (Dealloc_Op))
-                    and then Etype (First_Formal (Dealloc_Op)) = Pool_Type
+               Dealloc := Get_Name_Entity_Id (Name_Deallocate);
+               while Present (Dealloc) loop
+                  if Scope (Dealloc) = Scope (Pool_Typ)
+                    and then Present (First_Formal (Dealloc))
+                    and then Etype (First_Formal (Dealloc)) = Pool_Typ
                   then
-                     Set_Procedure_To_Call (Free_Node, Dealloc_Op);
+                     Set_Procedure_To_Call (Free_Nod, Dealloc);
                      exit;
                   else
-                     Dealloc_Op := Homonym (Dealloc_Op);
+                     Dealloc := Homonym (Dealloc);
                   end if;
                end loop;
             end;
@@ -1134,17 +1264,17 @@ package body Exp_Intr is
          --  Deallocate through the class-wide Deallocate_Any.
 
          elsif Is_Class_Wide_Type (Etype (Pool)) then
-            Set_Procedure_To_Call (Free_Node, RTE (RE_Deallocate_Any));
+            Set_Procedure_To_Call (Free_Nod, RTE (RE_Deallocate_Any));
 
          --  Case of a specific pool type: make a statically bound call
 
          else
-            Set_Procedure_To_Call (Free_Node,
-              Find_Prim_Op (Etype (Pool), Name_Deallocate));
+            Set_Procedure_To_Call
+              (Free_Nod, Find_Prim_Op (Etype (Pool), Name_Deallocate));
          end if;
       end if;
 
-      if Present (Procedure_To_Call (Free_Node)) then
+      if Present (Procedure_To_Call (Free_Nod)) then
 
          --  For all cases of a Deallocate call, the back-end needs to be able
          --  to compute the size of the object being freed. This may require
@@ -1155,11 +1285,11 @@ package body Exp_Intr is
          --  size parameter computed by GIGI. Same for an access to
          --  unconstrained packed array.
 
-         if Is_Class_Wide_Type (Desig_T)
+         if Is_Class_Wide_Type (Desig_Typ)
            or else
-            (Is_Array_Type (Desig_T)
-              and then not Is_Constrained (Desig_T)
-              and then Is_Packed (Desig_T))
+            (Is_Array_Type (Desig_Typ)
+              and then not Is_Constrained (Desig_Typ)
+              and then Is_Packed (Desig_Typ))
          then
             declare
                Deref    : constant Node_Id :=
@@ -1172,9 +1302,9 @@ package body Exp_Intr is
                --  Perform minor decoration as it is needed by the side effect
                --  removal mechanism.
 
-               Set_Etype  (Deref, Desig_T);
-               Set_Parent (Deref, Free_Node);
-               D_Subtyp := Make_Subtype_From_Expr (Deref, Desig_T);
+               Set_Etype  (Deref, Desig_Typ);
+               Set_Parent (Deref, Free_Nod);
+               D_Subtyp := Make_Subtype_From_Expr (Deref, Desig_Typ);
 
                if Nkind (D_Subtyp) in N_Has_Entity then
                   D_Type := Entity (D_Subtyp);
@@ -1193,9 +1323,8 @@ package body Exp_Intr is
 
                Freeze_Itype (D_Type, Deref);
 
-               Set_Actual_Designated_Subtype (Free_Node, D_Type);
+               Set_Actual_Designated_Subtype (Free_Nod, D_Type);
             end;
-
          end if;
       end if;
 
@@ -1210,10 +1339,11 @@ package body Exp_Intr is
       if Is_Interface (Directly_Designated_Type (Typ))
         and then Tagged_Type_Expansion
       then
-         Set_Expression (Free_Node,
+         Set_Expression (Free_Nod,
            Unchecked_Convert_To (Typ,
              Make_Function_Call (Loc,
-               Name => New_Reference_To (RTE (RE_Base_Address), Loc),
+               Name                   =>
+                 New_Occurrence_Of (RTE (RE_Base_Address), Loc),
                Parameter_Associations => New_List (
                  Unchecked_Convert_To (RTE (RE_Address), Free_Arg)))));
 
@@ -1221,7 +1351,7 @@ package body Exp_Intr is
       --    free (Obj_Ptr)
 
       else
-         Set_Expression (Free_Node, Free_Arg);
+         Set_Expression (Free_Nod, Free_Arg);
       end if;
 
       --  Only remaining step is to set result to null, or generate a raise of
@@ -1249,15 +1379,14 @@ package body Exp_Intr is
       --  exception occurrence.
 
       --  Generate:
-      --    if Raised and then not Abort then
-      --       raise Program_Error;                  --  for .NET and
-      --                                             --  restricted RTS
+      --    if Raised and then not Abrt then
+      --       raise Program_Error;                  --  for restricted RTS
       --         <or>
       --       Raise_From_Controlled_Operation (E);  --  all other cases
       --    end if;
 
-      if Needs_Fin then
-         Append_To (Stmts, Build_Raise_Statement (Finalizer_Data));
+      if Needs_Fin and then Exceptions_OK then
+         Append_To (Stmts, Build_Raise_Statement (Fin_Data));
       end if;
 
       --  If we know the argument is non-null, then make a block statement
@@ -1276,7 +1405,7 @@ package body Exp_Intr is
       else
          Gen_Code :=
            Make_Implicit_If_Statement (N,
-             Condition =>
+             Condition       =>
                Make_Op_Ne (Loc,
                  Left_Opnd  => Duplicate_Subexpr (Arg),
                  Right_Opnd => Make_Null (Loc)),
@@ -1287,14 +1416,6 @@ package body Exp_Intr is
 
       Rewrite (N, Gen_Code);
       Analyze (N);
-
-      --  If we generated a block with an At_End_Proc, expand the exception
-      --  handler. We need to wait until after everything else is analyzed.
-
-      if Present (Blk) then
-         Expand_At_End_Handler
-           (Handled_Statement_Sequence (Blk), Entity (Identifier (Blk)));
-      end if;
    end Expand_Unc_Deallocation;
 
    -----------------------
@@ -1337,4 +1458,109 @@ package body Exp_Intr is
       Analyze (N);
    end Expand_To_Pointer;
 
+   -----------------------
+   -- Write_Entity_Name --
+   -----------------------
+
+   procedure Write_Entity_Name (E : Entity_Id) is
+
+      procedure Write_Entity_Name_Inner (E : Entity_Id);
+      --  Inner recursive routine, keep outer routine non-recursive to ease
+      --  debugging when we get strange results from this routine.
+
+      -----------------------------
+      -- Write_Entity_Name_Inner --
+      -----------------------------
+
+      procedure Write_Entity_Name_Inner (E : Entity_Id) is
+      begin
+         --  If entity has an internal name, skip by it, and print its scope.
+         --  Note that Is_Internal_Name destroys Name_Buffer, hence the save
+         --  and restore since we depend on its current contents. Note that
+         --  we strip a final R from the name before the test, this is needed
+         --  for some cases of instantiations.
+
+         declare
+            Save_NB : constant String  := Name_Buffer (1 .. Name_Len);
+            Save_NL : constant Natural := Name_Len;
+            Iname   : Boolean;
+
+         begin
+            Get_Name_String (Chars (E));
+
+            if Name_Buffer (Name_Len) = 'R' then
+               Name_Len := Name_Len - 1;
+            end if;
+
+            Iname := Is_Internal_Name;
+
+            Name_Buffer (1 .. Save_NL) := Save_NB;
+            Name_Len := Save_NL;
+
+            if Iname then
+               Write_Entity_Name_Inner (Scope (E));
+               return;
+            end if;
+         end;
+
+         --  Just print entity name if its scope is at the outer level
+
+         if Scope (E) = Standard_Standard then
+            null;
+
+         --  If scope comes from source, write scope and entity
+
+         elsif Comes_From_Source (Scope (E)) then
+            Write_Entity_Name (Scope (E));
+            Add_Char_To_Name_Buffer ('.');
+
+         --  If in wrapper package skip past it
+
+         elsif Is_Wrapper_Package (Scope (E)) then
+            Write_Entity_Name (Scope (Scope (E)));
+            Add_Char_To_Name_Buffer ('.');
+
+         --  Otherwise nothing to output (happens in unnamed block statements)
+
+         else
+            null;
+         end if;
+
+         --  Output the name
+
+         declare
+            Save_NB : constant String  := Name_Buffer (1 .. Name_Len);
+            Save_NL : constant Natural := Name_Len;
+
+         begin
+            Get_Unqualified_Decoded_Name_String (Chars (E));
+
+            --  Remove trailing upper case letters from the name (useful for
+            --  dealing with some cases of internal names generated in the case
+            --  of references from within a generic.
+
+            while Name_Len > 1
+              and then Name_Buffer (Name_Len) in 'A' .. 'Z'
+            loop
+               Name_Len := Name_Len  - 1;
+            end loop;
+
+            --  Adjust casing appropriately (gets name from source if possible)
+
+            Adjust_Name_Case (Sloc (E));
+
+            --  Append to original entry value of Name_Buffer
+
+            Name_Buffer (Save_NL + 1 ..  Save_NL + Name_Len) :=
+              Name_Buffer (1 .. Name_Len);
+            Name_Buffer (1 .. Save_NL) := Save_NB;
+            Name_Len := Save_NL + Name_Len;
+         end;
+      end Write_Entity_Name_Inner;
+
+   --  Start of processing for Write_Entity_Name
+
+   begin
+      Write_Entity_Name_Inner (E);
+   end Write_Entity_Name;
 end Exp_Intr;

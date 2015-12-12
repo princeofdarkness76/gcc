@@ -24,9 +24,13 @@ func toMyNode(node *LFNode) *MyNode {
 	return (*MyNode)(unsafe.Pointer(node))
 }
 
+var global interface{}
+
 func TestLFStack(t *testing.T) {
 	stack := new(uint64)
-	// Need to keep additional referenfces to nodes, the stack is not all that type-safe.
+	global = stack // force heap allocation
+
+	// Need to keep additional references to nodes, the stack is not all that type-safe.
 	var nodes []*MyNode
 
 	// Check the stack is initially empty.
@@ -71,6 +75,8 @@ func TestLFStack(t *testing.T) {
 	}
 }
 
+var stress []*MyNode
+
 func TestLFStackStress(t *testing.T) {
 	const K = 100
 	P := 4 * GOMAXPROCS(-1)
@@ -80,14 +86,15 @@ func TestLFStackStress(t *testing.T) {
 	}
 	// Create 2 stacks.
 	stacks := [2]*uint64{new(uint64), new(uint64)}
-	// Need to keep additional referenfces to nodes, the stack is not all that type-safe.
-	var nodes []*MyNode
+	// Need to keep additional references to nodes,
+	// the lock-free stack is not type-safe.
+	stress = nil
 	// Push K elements randomly onto the stacks.
 	sum := 0
 	for i := 0; i < K; i++ {
 		sum += i
 		node := &MyNode{data: i}
-		nodes = append(nodes, node)
+		stress = append(stress, node)
 		LFStackPush(stacks[i%2], fromMyNode(node))
 	}
 	c := make(chan bool, P)
@@ -118,7 +125,7 @@ func TestLFStackStress(t *testing.T) {
 			}
 			cnt++
 			sum2 += node.data
-			node.Next = nil
+			node.Next = 0
 		}
 	}
 	if cnt != K {
@@ -127,4 +134,7 @@ func TestLFStackStress(t *testing.T) {
 	if sum2 != sum {
 		t.Fatalf("Wrong sum %d/%d", sum2, sum)
 	}
+
+	// Let nodes be collected now.
+	stress = nil
 }

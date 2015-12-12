@@ -256,7 +256,7 @@ var uint64pow10 = [...]uint64{
 }
 
 // AssignDecimal sets f to an approximate value mantissa*10^exp. It
-// returns true if the value represented by f is guaranteed to be the
+// reports whether the value represented by f is guaranteed to be the
 // best approximation of d after being rounded to a float64 or
 // float32 depending on flt.
 func (f *extFloat) AssignDecimal(mantissa uint64, exp10 int, neg bool, trunc bool, flt *floatInfo) (ok bool) {
@@ -636,7 +636,6 @@ func (f *extFloat) ShortestDecimal(d *decimalSlice, lower, upper *extFloat) bool
 				1<<shift, multiplier*2)
 		}
 	}
-	return false
 }
 
 // adjustLastDigit modifies d = x-currentDiff*ε, to get closest to

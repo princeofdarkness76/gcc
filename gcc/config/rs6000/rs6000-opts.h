@@ -1,6 +1,6 @@
 /* Definitions of target machine needed for option handling for GNU compiler,
    for IBM RS/6000.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2015 Free Software Foundation, Inc.
    Contributed by Michael Meissner (meissner@linux.vnet.ibm.com)
 
    This file is part of GCC.
@@ -60,6 +60,7 @@ enum processor_type
    PROCESSOR_POWER6,
    PROCESSOR_POWER7,
    PROCESSOR_POWER8,
+   PROCESSOR_POWER9,
 
    PROCESSOR_RS64A,
    PROCESSOR_MPCCORE,
@@ -78,6 +79,7 @@ enum fpu_type_t
   FPU_SF_FULL,			/* Full Single Precision FPU */
   FPU_DF_FULL			/* Full Double Single Precision FPU */
 };
+
 
 /* Types of costly dependences.  */
 enum rs6000_dependence_cost
@@ -107,7 +109,8 @@ enum group_termination
 /* Enumeration to give which calling sequence to use.  */
 enum rs6000_abi {
   ABI_NONE,
-  ABI_AIX,			/* IBM's AIX */
+  ABI_AIX,			/* IBM's AIX, or Linux ELFv1 */
+  ABI_ELFv2,			/* Linux ELFv2 ABI */
   ABI_V4,			/* System V.4/eabi */
   ABI_DARWIN			/* Apple's Darwin (OS X kernel) */
 };

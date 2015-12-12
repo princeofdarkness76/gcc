@@ -148,27 +148,64 @@ func TestWriter(t *testing.T) {
 			t.Error(tc.filename, err)
 			continue
 		}
-		// Compute the average delta in RGB space.
-		b := m0.Bounds()
-		var sum, n int64
-		for y := b.Min.Y; y < b.Max.Y; y++ {
-			for x := b.Min.X; x < b.Max.X; x++ {
-				c0 := m0.At(x, y)
-				c1 := m1.At(x, y)
-				r0, g0, b0, _ := c0.RGBA()
-				r1, g1, b1, _ := c1.RGBA()
-				sum += delta(r0, r1)
-				sum += delta(g0, g1)
-				sum += delta(b0, b1)
-				n += 3
-			}
+		if m0.Bounds() != m1.Bounds() {
+			t.Errorf("%s, bounds differ: %v and %v", tc.filename, m0.Bounds(), m1.Bounds())
+			continue
 		}
 		// Compare the average delta to the tolerance level.
-		if sum/n > tc.tolerance {
+		if averageDelta(m0, m1) > tc.tolerance {
 			t.Errorf("%s, quality=%d: average delta is too high", tc.filename, tc.quality)
 			continue
 		}
 	}
+}
+
+// TestWriteGrayscale tests that a grayscale images survives a round-trip
+// through encode/decode cycle.
+func TestWriteGrayscale(t *testing.T) {
+	m0 := image.NewGray(image.Rect(0, 0, 32, 32))
+	for i := range m0.Pix {
+		m0.Pix[i] = uint8(i)
+	}
+	var buf bytes.Buffer
+	if err := Encode(&buf, m0, nil); err != nil {
+		t.Fatal(err)
+	}
+	m1, err := Decode(&buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m0.Bounds() != m1.Bounds() {
+		t.Fatalf("bounds differ: %v and %v", m0.Bounds(), m1.Bounds())
+	}
+	if _, ok := m1.(*image.Gray); !ok {
+		t.Errorf("got %T, want *image.Gray", m1)
+	}
+	// Compare the average delta to the tolerance level.
+	want := int64(2 << 8)
+	if got := averageDelta(m0, m1); got > want {
+		t.Errorf("average delta too high; got %d, want <= %d", got, want)
+	}
+}
+
+// averageDelta returns the average delta in RGB space. The two images must
+// have the same bounds.
+func averageDelta(m0, m1 image.Image) int64 {
+	b := m0.Bounds()
+	var sum, n int64
+	for y := b.Min.Y; y < b.Max.Y; y++ {
+		for x := b.Min.X; x < b.Max.X; x++ {
+			c0 := m0.At(x, y)
+			c1 := m1.At(x, y)
+			r0, g0, b0, _ := c0.RGBA()
+			r1, g1, b1, _ := c1.RGBA()
+			sum += delta(r0, r1)
+			sum += delta(g0, g1)
+			sum += delta(b0, b1)
+			n += 3
+		}
+	}
+	return sum / n
 }
 
 func BenchmarkEncode(b *testing.B) {

@@ -1,6 +1,6 @@
 ;;   This file contains instructions that support fixed-point operations
 ;;   for Atmel AVR micro controllers.
-;;   Copyright (C) 2012-2013 Free Software Foundation, Inc.
+;;   Copyright (C) 2012-2015 Free Software Foundation, Inc.
 ;;
 ;;   Contributed by Sean D'Epagnier  (sean@depagnier.com)
 ;;                  Georg-Johann Lay (avr@gjlay.de)
@@ -231,7 +231,11 @@
               (clobber (reg:HI 24))])
    (set (match_operand:QQ 0 "register_operand" "")
         (reg:QQ 23))]
-  "!AVR_HAVE_MUL")
+  "!AVR_HAVE_MUL"
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (QQmode, 24));
+  })
+
 
 (define_expand "muluqq3_nomul"
   [(set (reg:UQQ 22)
@@ -246,7 +250,10 @@
               (clobber (reg:HI 22))])
    (set (match_operand:UQQ 0 "register_operand" "")
         (reg:UQQ 25))]
-  "!AVR_HAVE_MUL")
+  "!AVR_HAVE_MUL"
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (UQQmode, 22));
+  })
 
 (define_insn "*mulqq3.call"
   [(set (reg:QQ 23)
@@ -274,7 +281,10 @@
               (clobber (reg:HI 22))])
    (set (match_operand:ALL2QA 0 "register_operand" "")
         (reg:ALL2QA 24))]
-  "AVR_HAVE_MUL")
+  "AVR_HAVE_MUL"
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, 18));
+  })
 
 ;; "*mulhq3.call"  "*muluhq3.call"
 ;; "*mulha3.call"  "*muluha3.call"
@@ -302,7 +312,10 @@
                     (reg:ALL4A 20)))
    (set (match_operand:ALL4A 0 "register_operand" "")
         (reg:ALL4A 24))]
-  "AVR_HAVE_MUL")
+  "AVR_HAVE_MUL"
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, 16));
+  })
 
 ;; "*mulsa3.call" "*mulusa3.call"
 (define_insn "*mul<mode>3.call"
@@ -330,7 +343,12 @@
                                 (reg:ALL1Q 22)))
               (clobber (reg:QI 25))])
    (set (match_operand:ALL1Q 0 "register_operand" "")
-        (reg:ALL1Q 24))])
+        (reg:ALL1Q 24))]
+  ""
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, 25));
+  })
+
 
 ;; "*divqq3.call" "*udivuqq3.call"
 (define_insn "*<code><mode>3.call"
@@ -356,7 +374,11 @@
               (clobber (reg:HI 26))
               (clobber (reg:QI 21))])
    (set (match_operand:ALL2QA 0 "register_operand" "")
-        (reg:ALL2QA 24))])
+        (reg:ALL2QA 24))]
+  ""
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, 26));
+  })
 
 ;; "*divhq3.call" "*udivuhq3.call"
 ;; "*divha3.call" "*udivuha3.call"
@@ -385,7 +407,11 @@
               (clobber (reg:HI 26))
               (clobber (reg:HI 30))])
    (set (match_operand:ALL4A 0 "register_operand" "")
-        (reg:ALL4A 22))])
+        (reg:ALL4A 22))]
+  ""
+  {
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, 24));
+  })
 
 ;; "*divsa3.call" "*udivusa3.call"
 (define_insn "*<code><mode>3.call"
@@ -430,11 +456,12 @@
       }
 
     // Input and output of the libgcc function
-    const unsigned int regno_in[]  = { -1, 22, 22, -1, 18 };
-    const unsigned int regno_out[] = { -1, 24, 24, -1, 22 };
+    const unsigned int regno_in[]  = { -1U, 22, 22, -1U, 18 };
+    const unsigned int regno_out[] = { -1U, 24, 24, -1U, 22 };
 
     operands[3] = gen_rtx_REG (<MODE>mode, regno_out[(size_t) GET_MODE_SIZE (<MODE>mode)]);
     operands[4] = gen_rtx_REG (<MODE>mode,  regno_in[(size_t) GET_MODE_SIZE (<MODE>mode)]);
+    avr_fix_inputs (operands, 1 << 2, regmask (<MODE>mode, REGNO (operands[4])));
     operands[5] = simplify_gen_subreg (QImode, force_reg (HImode, operands[2]), HImode, 0);
     // $2 is no more needed, but is referenced for expand.
     operands[2] = const0_rtx;
@@ -447,49 +474,18 @@
 ;; "roundqq3_const"  "rounduqq3_const"
 ;; "roundhq3_const"  "rounduhq3_const"  "roundha3_const"  "rounduha3_const"
 ;; "roundsq3_const"  "roundusq3_const"  "roundsa3_const"  "roundusa3_const"
-(define_expand "round<mode>3_const"
-  [(parallel [(match_operand:ALL124QA 0 "register_operand" "")
-              (match_operand:ALL124QA 1 "register_operand" "")
-              (match_operand:HI 2 "const_int_operand" "")])]
+(define_insn "round<mode>3_const"
+  [(set (match_operand:ALL124QA 0 "register_operand"                  "=d")
+        (unspec:ALL124QA [(match_operand:ALL124QA 1 "register_operand" "0")
+                          (match_operand:HI 2 "const_int_operand"      "n")
+                          (const_int 0)]
+                         UNSPEC_ROUND))]
   ""
   {
-    // The rounding point RP is $2.  The smallest fractional
-    // bit that is not cleared by the rounding is 2^(-RP).
-
-    enum machine_mode imode = int_mode_for_mode (<MODE>mode);
-    int fbit = (int) GET_MODE_FBIT (<MODE>mode);
-
-    // Add-Saturate  1/2 * 2^(-RP)
-
-    double_int i_add = double_int_zero.set_bit (fbit-1 - INTVAL (operands[2]));
-    rtx x_add = const_fixed_from_double_int (i_add, <MODE>mode);
-
-    if (SIGNED_FIXED_POINT_MODE_P (<MODE>mode))
-      emit_move_insn (operands[0],
-                      gen_rtx_SS_PLUS (<MODE>mode, operands[1], x_add));
-    else
-      emit_move_insn (operands[0],
-                      gen_rtx_US_PLUS (<MODE>mode, operands[1], x_add));
-
-    // Keep  all bits from RP and higher:   ... 2^(-RP)
-    // Clear all bits from RP+1 and lower:              2^(-RP-1) ...
-    // Rounding point                           ^^^^^^^
-    // Added above                                      ^^^^^^^^^
-
-    rtx xreg = simplify_gen_subreg (imode, operands[0], <MODE>mode, 0);
-    rtx xmask = immed_double_int_const (-i_add - i_add, imode);
-
-    if (SImode == imode)
-      emit_insn (gen_andsi3 (xreg, xreg, xmask));
-    else if (HImode == imode)
-      emit_insn (gen_andhi3 (xreg, xreg, xmask));
-    else if (QImode == imode)
-      emit_insn (gen_andqi3 (xreg, xreg, xmask));
-    else
-      gcc_unreachable();
-
-    DONE;
-  })
+    return avr_out_round (insn, operands);
+  }
+  [(set_attr "cc" "clobber")
+   (set_attr "adjust_len" "round")])
 
 
 ;; "*roundqq3.libgcc"  "*rounduqq3.libgcc"

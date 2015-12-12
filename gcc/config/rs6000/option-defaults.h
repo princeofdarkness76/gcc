@@ -1,5 +1,5 @@
 /* Definitions of default options for config/rs6000 configurations.
-   Copyright (C) 1992-2013 Free Software Foundation, Inc.
+   Copyright (C) 1992-2015 Free Software Foundation, Inc.
 
    This file is part of GCC.
 
@@ -39,11 +39,11 @@
 #endif
 
 #if TARGET_DEFAULT & OPTION_MASK_64BIT
-#define OPT_ARCH64 "!"OPT_32
+#define OPT_ARCH64 "!" OPT_32
 #define OPT_ARCH32 OPT_32
 #else
 #define OPT_ARCH64 OPT_64
-#define OPT_ARCH32 "!"OPT_64
+#define OPT_ARCH32 "!" OPT_64
 #endif
 
 /* Support for a compile-time default CPU, et cetera.  The rules are:
@@ -54,6 +54,7 @@
    --with-float is ignored if -mhard-float or -msoft-float are
      specified.  */
 #define OPTION_DEFAULT_SPECS \
+  {"abi", "%{!mabi=elfv*:-mabi=%(VALUE)}" }, \
   {"tune", "%{!mtune=*:%{!mcpu=*:-mtune=%(VALUE)}}" }, \
   {"tune_32", "%{" OPT_ARCH32 ":%{!mtune=*:%{!mcpu=*:-mtune=%(VALUE)}}}" }, \
   {"tune_64", "%{" OPT_ARCH64 ":%{!mtune=*:%{!mcpu=*:-mtune=%(VALUE)}}}" }, \

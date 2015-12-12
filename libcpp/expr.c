@@ -1,5 +1,5 @@
 /* Parse C expressions for cpplib.
-   Copyright (C) 1987-2013 Free Software Foundation, Inc.
+   Copyright (C) 1987-2015 Free Software Foundation, Inc.
    Contributed by Per Bothner, 1994.
 
 This program is free software; you can redistribute it and/or modify it
@@ -63,6 +63,8 @@ static struct op *reduce (cpp_reader *, struct op *, enum cpp_ttype);
 static unsigned int interpret_float_suffix (cpp_reader *, const uchar *, size_t);
 static unsigned int interpret_int_suffix (cpp_reader *, const uchar *, size_t);
 static void check_promotion (cpp_reader *, const struct op *);
+
+static cpp_num parse_has_include (cpp_reader *, enum include_type);
 
 /* Token type abuse to create unary plus and minus operators.  */
 #define CPP_UPLUS ((enum cpp_ttype) (CPP_LAST_CPP_OP + 1))
@@ -305,6 +307,8 @@ cpp_userdef_char_remove_type (enum cpp_ttype type)
     return CPP_CHAR16;
   else if (type == CPP_CHAR32_USERDEF)
     return CPP_CHAR32;
+  else if (type == CPP_UTF8CHAR_USERDEF)
+    return CPP_UTF8CHAR;
   else
     return type;
 }
@@ -323,6 +327,8 @@ cpp_userdef_char_add_type (enum cpp_ttype type)
     return CPP_CHAR16_USERDEF;
   else if (type == CPP_CHAR32)
     return CPP_CHAR32_USERDEF;
+  else if (type == CPP_UTF8CHAR)
+    return CPP_UTF8CHAR_USERDEF;
   else
     return type;
 }
@@ -348,7 +354,8 @@ cpp_userdef_char_p (enum cpp_ttype type)
   if (type == CPP_CHAR_USERDEF
    || type == CPP_WCHAR_USERDEF
    || type == CPP_CHAR16_USERDEF
-   || type == CPP_CHAR32_USERDEF)
+   || type == CPP_CHAR32_USERDEF
+   || type == CPP_UTF8CHAR_USERDEF)
     return true;
   else
     return false;
@@ -394,6 +401,7 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
   unsigned int max_digit, result, radix;
   enum {NOT_FLOAT = 0, AFTER_POINT, AFTER_EXPON} float_flag;
   bool seen_digit;
+  bool seen_digit_sep;
 
   if (ud_suffix)
     *ud_suffix = NULL;
@@ -408,6 +416,7 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
   max_digit = 0;
   radix = 10;
   seen_digit = false;
+  seen_digit_sep = false;
 
   /* First, interpret the radix.  */
   if (*str == '0')
@@ -416,16 +425,27 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
       str++;
 
       /* Require at least one hex digit to classify it as hex.  */
-      if ((*str == 'x' || *str == 'X')
-	  && (str[1] == '.' || ISXDIGIT (str[1])))
+      if (*str == 'x' || *str == 'X')
 	{
-	  radix = 16;
-	  str++;
+	  if (str[1] == '.' || ISXDIGIT (str[1]))
+	    {
+	      radix = 16;
+	      str++;
+	    }
+	  else if (DIGIT_SEP (str[1]))
+	    SYNTAX_ERROR_AT (virtual_location,
+			     "digit separator after base indicator");
 	}
-      else if ((*str == 'b' || *str == 'B') && (str[1] == '0' || str[1] == '1'))
+      else if (*str == 'b' || *str == 'B')
 	{
-	  radix = 2;
-	  str++;
+	  if (str[1] == '0' || str[1] == '1')
+	    {
+	      radix = 2;
+	      str++;
+	    }
+	  else if (DIGIT_SEP (str[1]))
+	    SYNTAX_ERROR_AT (virtual_location,
+			     "digit separator after base indicator");
 	}
     }
 
@@ -436,13 +456,24 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
 
       if (ISDIGIT (c) || (ISXDIGIT (c) && radix == 16))
 	{
+	  seen_digit_sep = false;
 	  seen_digit = true;
 	  c = hex_value (c);
 	  if (c > max_digit)
 	    max_digit = c;
 	}
+      else if (DIGIT_SEP (c))
+	{
+	  if (seen_digit_sep)
+	    SYNTAX_ERROR_AT (virtual_location, "adjacent digit separators");
+	  seen_digit_sep = true;
+	}
       else if (c == '.')
 	{
+	  if (seen_digit_sep || DIGIT_SEP (*str))
+	    SYNTAX_ERROR_AT (virtual_location,
+			     "digit separator adjacent to decimal point");
+	  seen_digit_sep = false;
 	  if (float_flag == NOT_FLOAT)
 	    float_flag = AFTER_POINT;
 	  else
@@ -452,6 +483,9 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
       else if ((radix <= 10 && (c == 'e' || c == 'E'))
 	       || (radix == 16 && (c == 'p' || c == 'P')))
 	{
+	  if (seen_digit_sep || DIGIT_SEP (*str))
+	    SYNTAX_ERROR_AT (virtual_location,
+			     "digit separator adjacent to exponent");
 	  float_flag = AFTER_EXPON;
 	  break;
 	}
@@ -462,6 +496,10 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
 	  break;
 	}
     }
+
+  if (seen_digit_sep && float_flag != AFTER_EXPON)
+    SYNTAX_ERROR_AT (virtual_location,
+		     "digit separator outside digit sequence");
 
   /* The suffix may be for decimal fixed-point constants without exponent.  */
   if (radix != 16 && float_flag == NOT_FLOAT)
@@ -509,9 +547,16 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
 	SYNTAX_ERROR_AT (virtual_location,
 			 "no digits in hexadecimal floating constant");
 
-      if (radix == 16 && CPP_PEDANTIC (pfile) && !CPP_OPTION (pfile, c99))
-	cpp_error_with_line (pfile, CPP_DL_PEDWARN, virtual_location, 0,
-			     "use of C99 hexadecimal floating constant");
+      if (radix == 16 && CPP_PEDANTIC (pfile)
+	  && !CPP_OPTION (pfile, extended_numbers))
+	{
+	  if (CPP_OPTION (pfile, cplusplus))
+	    cpp_error_with_line (pfile, CPP_DL_PEDWARN, virtual_location, 0,
+				 "use of C++11 hexadecimal floating constant");
+	  else
+	    cpp_error_with_line (pfile, CPP_DL_PEDWARN, virtual_location, 0,
+				 "use of C99 hexadecimal floating constant");
+	}
 
       if (float_flag == AFTER_EXPON)
 	{
@@ -520,15 +565,27 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
 
 	  /* Exponent is decimal, even if string is a hex float.  */
 	  if (!ISDIGIT (*str))
-	    SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
-
+	    {
+	      if (DIGIT_SEP (*str))
+		SYNTAX_ERROR_AT (virtual_location,
+				 "digit separator adjacent to exponent");
+	      else
+		SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
+	    }
 	  do
-	    str++;
-	  while (ISDIGIT (*str));
+	    {
+	      seen_digit_sep = DIGIT_SEP (*str);
+	      str++;
+	    }
+	  while (ISDIGIT (*str) || DIGIT_SEP (*str));
 	}
       else if (radix == 16)
 	SYNTAX_ERROR_AT (virtual_location,
 			 "hexadecimal floating constants require an exponent");
+
+      if (seen_digit_sep)
+	SYNTAX_ERROR_AT (virtual_location,
+			 "digit separator outside digit sequence");
 
       result = interpret_float_suffix (pfile, str, limit - str);
       if (result == 0)
@@ -644,9 +701,9 @@ cpp_classify_number (cpp_reader *pfile, const cpp_token *token,
       && CPP_PEDANTIC (pfile))
     cpp_error_with_line (pfile, CPP_DL_PEDWARN, virtual_location, 0,
 			 CPP_OPTION (pfile, cplusplus)
-			 ? "binary constants are a C++1y feature "
-			   "or GCC extension"
-			 : "binary constants are a GCC extension");
+			 ? N_("binary constants are a C++14 feature "
+			      "or GCC extension")
+			 : N_("binary constants are a GCC extension"));
 
   if (radix == 10)
     result |= CPP_N_DECIMAL;
@@ -723,6 +780,8 @@ cpp_interpret_integer (cpp_reader *pfile, const cpp_token *token,
 
 	  if (ISDIGIT (c) || (base == 16 && ISXDIGIT (c)))
 	    c = hex_value (c);
+	  else if (DIGIT_SEP (c))
+	    continue;
 	  else
 	    break;
 
@@ -975,6 +1034,7 @@ eval_token (cpp_reader *pfile, const cpp_token *token,
     case CPP_CHAR:
     case CPP_CHAR16:
     case CPP_CHAR32:
+    case CPP_UTF8CHAR:
       {
 	cppchar_t cc = cpp_interpret_charconst (pfile, token,
 						&temp, &unsignedp);
@@ -996,6 +1056,10 @@ eval_token (cpp_reader *pfile, const cpp_token *token,
     case CPP_NAME:
       if (token->val.node.node == pfile->spec_nodes.n_defined)
 	return parse_defined (pfile);
+      else if (token->val.node.node == pfile->spec_nodes.n__has_include__)
+	return parse_has_include (pfile, IT_INCLUDE);
+      else if (token->val.node.node == pfile->spec_nodes.n__has_include_next__)
+	return parse_has_include (pfile, IT_INCLUDE_NEXT);
       else if (CPP_OPTION (pfile, cplusplus)
 	       && (token->val.node.node == pfile->spec_nodes.n_true
 		   || token->val.node.node == pfile->spec_nodes.n_false))
@@ -1156,6 +1220,7 @@ _cpp_parse_expr (cpp_reader *pfile, bool is_if)
 	case CPP_WCHAR:
 	case CPP_CHAR16:
 	case CPP_CHAR32:
+	case CPP_UTF8CHAR:
 	case CPP_NAME:
 	case CPP_HASH:
 	  if (!want_value)
@@ -1791,7 +1856,22 @@ num_binary_op (cpp_reader *pfile, cpp_num lhs, cpp_num rhs, enum cpp_ttype op)
 
       /* Arithmetic.  */
     case CPP_MINUS:
-      rhs = num_negate (rhs, precision);
+      result.low = lhs.low - rhs.low;
+      result.high = lhs.high - rhs.high;
+      if (result.low > lhs.low)
+	result.high--;
+      result.unsignedp = lhs.unsignedp || rhs.unsignedp;
+      result.overflow = false;
+
+      result = num_trim (result, precision);
+      if (!result.unsignedp)
+	{
+	  bool lhsp = num_positive (lhs, precision);
+	  result.overflow = (lhsp != num_positive (rhs, precision)
+			     && lhsp != num_positive (result, precision));
+	}
+      return result;
+
     case CPP_PLUS:
       result.low = lhs.low + rhs.low;
       result.high = lhs.high + rhs.high;
@@ -1813,8 +1893,8 @@ num_binary_op (cpp_reader *pfile, cpp_num lhs, cpp_num rhs, enum cpp_ttype op)
     default: /* case CPP_COMMA: */
       if (CPP_PEDANTIC (pfile) && (!CPP_OPTION (pfile, c99)
 				   || !pfile->state.skip_eval))
-	cpp_error (pfile, CPP_DL_PEDWARN,
-		   "comma operator in operand of #if");
+	cpp_pedwarning (pfile, CPP_W_PEDANTIC,
+			"comma operator in operand of #if");
       lhs = rhs;
       break;
     }
@@ -2004,4 +2084,73 @@ num_div_op (cpp_reader *pfile, cpp_num lhs, cpp_num rhs, enum cpp_ttype op,
     lhs = num_negate (lhs, precision);
 
   return lhs;
+}
+
+/* Handle meeting "__has_include__" in a preprocessor expression.  */
+static cpp_num
+parse_has_include (cpp_reader *pfile, enum include_type type)
+{
+  cpp_num result;
+  bool paren = false;
+  cpp_hashnode *node = 0;
+  const cpp_token *token;
+  bool bracket = false;
+  char *fname = 0;
+
+  result.unsignedp = false;
+  result.high = 0;
+  result.overflow = false;
+  result.low = 0;
+
+  pfile->state.in__has_include__++;
+
+  token = cpp_get_token (pfile);
+  if (token->type == CPP_OPEN_PAREN)
+    {
+      paren = true;
+      token = cpp_get_token (pfile);
+    }
+
+  if (token->type == CPP_STRING || token->type == CPP_HEADER_NAME)
+    {
+      if (token->type == CPP_HEADER_NAME)
+	bracket = true;
+      fname = XNEWVEC (char, token->val.str.len - 1);
+      memcpy (fname, token->val.str.text + 1, token->val.str.len - 2);
+      fname[token->val.str.len - 2] = '\0';
+      node = token->val.node.node;
+    }
+  else if (token->type == CPP_LESS)
+    {
+      bracket = true;
+      fname = _cpp_bracket_include (pfile);
+    }
+  else
+    cpp_error (pfile, CPP_DL_ERROR,
+	       "operator \"__has_include__\" requires a header string");
+
+  if (fname)
+    {
+      int angle_brackets = (bracket ? 1 : 0);
+
+      if (_cpp_has_header (pfile, fname, angle_brackets, type))
+	result.low = 1;
+      else
+	result.low = 0;
+
+      XDELETEVEC (fname);
+    }
+
+  if (paren && cpp_get_token (pfile)->type != CPP_CLOSE_PAREN)
+    cpp_error (pfile, CPP_DL_ERROR,
+	       "missing ')' after \"__has_include__\"");
+
+  /* A possible controlling macro of the form #if !__has_include__ ().
+     _cpp_parse_expr checks there was no other junk on the line.  */
+  if (node)
+    pfile->mi_ind_cmacro = node;
+
+  pfile->state.in__has_include__--;
+
+  return result;
 }

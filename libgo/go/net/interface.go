@@ -2,18 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Network interface identification
-
 package net
 
 import "errors"
 
 var (
-	errInvalidInterface         = errors.New("net: invalid interface")
-	errInvalidInterfaceIndex    = errors.New("net: invalid interface index")
-	errInvalidInterfaceName     = errors.New("net: invalid interface name")
-	errNoSuchInterface          = errors.New("net: no such interface")
-	errNoSuchMulticastInterface = errors.New("net: no such multicast interface")
+	errInvalidInterface         = errors.New("invalid network interface")
+	errInvalidInterfaceIndex    = errors.New("invalid network interface index")
+	errInvalidInterfaceName     = errors.New("invalid network interface name")
+	errNoSuchInterface          = errors.New("no such network interface")
+	errNoSuchMulticastInterface = errors.New("no such multicast network interface")
 )
 
 // Interface represents a mapping between network interface name
@@ -64,42 +62,68 @@ func (f Flags) String() string {
 // Addrs returns interface addresses for a specific interface.
 func (ifi *Interface) Addrs() ([]Addr, error) {
 	if ifi == nil {
-		return nil, errInvalidInterface
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: errInvalidInterface}
 	}
-	return interfaceAddrTable(ifi.Index)
+	ifat, err := interfaceAddrTable(ifi)
+	if err != nil {
+		err = &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
+	}
+	return ifat, err
 }
 
 // MulticastAddrs returns multicast, joined group addresses for
 // a specific interface.
 func (ifi *Interface) MulticastAddrs() ([]Addr, error) {
 	if ifi == nil {
-		return nil, errInvalidInterface
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: errInvalidInterface}
 	}
-	return interfaceMulticastAddrTable(ifi.Index)
+	ifat, err := interfaceMulticastAddrTable(ifi)
+	if err != nil {
+		err = &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
+	}
+	return ifat, err
 }
 
 // Interfaces returns a list of the system's network interfaces.
 func Interfaces() ([]Interface, error) {
-	return interfaceTable(0)
+	ift, err := interfaceTable(0)
+	if err != nil {
+		err = &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
+	}
+	return ift, err
 }
 
 // InterfaceAddrs returns a list of the system's network interface
 // addresses.
 func InterfaceAddrs() ([]Addr, error) {
-	return interfaceAddrTable(0)
+	ifat, err := interfaceAddrTable(nil)
+	if err != nil {
+		err = &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
+	}
+	return ifat, err
 }
 
 // InterfaceByIndex returns the interface specified by index.
 func InterfaceByIndex(index int) (*Interface, error) {
 	if index <= 0 {
-		return nil, errInvalidInterfaceIndex
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: errInvalidInterfaceIndex}
 	}
 	ift, err := interfaceTable(index)
 	if err != nil {
-		return nil, err
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
 	}
+	ifi, err := interfaceByIndex(ift, index)
+	if err != nil {
+		err = &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
+	}
+	return ifi, err
+}
+
+func interfaceByIndex(ift []Interface, index int) (*Interface, error) {
 	for _, ifi := range ift {
-		return &ifi, nil
+		if index == ifi.Index {
+			return &ifi, nil
+		}
 	}
 	return nil, errNoSuchInterface
 }
@@ -107,16 +131,16 @@ func InterfaceByIndex(index int) (*Interface, error) {
 // InterfaceByName returns the interface specified by name.
 func InterfaceByName(name string) (*Interface, error) {
 	if name == "" {
-		return nil, errInvalidInterfaceName
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: errInvalidInterfaceName}
 	}
 	ift, err := interfaceTable(0)
 	if err != nil {
-		return nil, err
+		return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: err}
 	}
 	for _, ifi := range ift {
 		if name == ifi.Name {
 			return &ifi, nil
 		}
 	}
-	return nil, errNoSuchInterface
+	return nil, &OpError{Op: "route", Net: "ip+net", Source: nil, Addr: nil, Err: errNoSuchInterface}
 }

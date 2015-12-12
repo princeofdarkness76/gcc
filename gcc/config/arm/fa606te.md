@@ -1,5 +1,5 @@
 ;; Faraday FA606TE Pipeline Description
-;; Copyright (C) 2010-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2015 Free Software Foundation, Inc.
 ;; Written by Mingfeng Wu, based on ARM926EJ-S Pipeline Description.
 ;;
 ;; This file is part of GCC.
@@ -54,7 +54,7 @@
 
 ;; ALU instructions require two cycles to execute, and use the ALU
 ;; pipeline in each of the three stages.  The results are available
-;; after the execute stage stage has finished.
+;; after the execute stage has finished.
 ;;
 ;; If the destination register is the PC, the pipelines are stalled
 ;; for several cycles.  That case is not modeled here.
@@ -62,7 +62,18 @@
 ;; ALU operations
 (define_insn_reservation "606te_alu_op" 1
  (and (eq_attr "tune" "fa606te")
-      (eq_attr "type" "alu_reg,simple_alu_imm,simple_alu_shift,alu_shift,alu_shift_reg"))
+      (eq_attr "type" "alu_imm,alus_imm,logic_imm,logics_imm,\
+                       alu_sreg,alus_sreg,logic_reg,logics_reg,\
+                       adc_imm,adcs_imm,adc_reg,adcs_reg,\
+                       adr,bfm,rev,\
+                       shift_imm,shift_reg,extend,\
+                       alu_shift_imm,alus_shift_imm,\
+                       logic_shift_imm,logics_shift_imm,\
+                       alu_shift_reg,alus_shift_reg,\
+                       logic_shift_reg,logics_shift_reg,\
+                       mov_imm,mov_reg,mov_shift,mov_shift_reg,\
+                       mvn_imm,mvn_reg,mvn_shift,mvn_shift_reg,\
+                       mrs,multiple,no_insn"))
  "fa606te_core")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

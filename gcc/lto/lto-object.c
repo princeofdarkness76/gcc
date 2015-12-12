@@ -1,5 +1,5 @@
 /* LTO routines to use object files.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2015 Free Software Foundation, Inc.
    Written by Ian Lance Taylor, Google.
 
 This file is part of GCC.
@@ -21,16 +21,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+#include "tm.h"
 #include "diagnostic-core.h"
 #include "lto.h"
-#include "tm.h"
-#include "lto-streamer.h"
+#include "lto-section-names.h"
 #include "simple-object.h"
-
-/* Segment name for LTO sections.  This is only used for Mach-O.
-   FIXME: This needs to be kept in sync with darwin.c.  */
-
-#define LTO_SEGMENT_NAME "__GNU_LTO"
 
 /* An LTO file wrapped around an simple_object.  */
 
@@ -186,9 +181,9 @@ lto_obj_file_close (lto_file *file)
       if (errmsg != NULL)
 	{
 	  if (err == 0)
-	    fatal_error ("%s", errmsg);
+	    fatal_error (input_location, "%s", errmsg);
 	  else
-	    fatal_error ("%s: %s", errmsg, xstrerror (err));
+	    fatal_error (input_location, "%s: %s", errmsg, xstrerror (err));
 	}
 
       simple_object_release_write (lo->sobj_w);
@@ -197,7 +192,7 @@ lto_obj_file_close (lto_file *file)
   if (lo->fd != -1)
     {
       if (close (lo->fd) < 0)
-	fatal_error ("close: %s", xstrerror (errno));
+	fatal_error (input_location, "close: %s", xstrerror (errno));
     }
 }
 
@@ -227,8 +222,7 @@ lto_obj_add_section (void *data, const char *name, off_t offset,
   void **slot;
   struct lto_section_list *list = loasd->list;
 
-  if (strncmp (name, LTO_SECTION_NAME_PREFIX,
-	       strlen (LTO_SECTION_NAME_PREFIX)) != 0)
+  if (strncmp (name, section_name_prefix, strlen (section_name_prefix)))
     return 1;
 
   new_name = xstrdup (name);
@@ -335,15 +329,15 @@ lto_obj_begin_section (const char *name)
 	      && lo->sobj_w != NULL
 	      && lo->section == NULL);
 
-  align = exact_log2 (POINTER_SIZE / BITS_PER_UNIT);
+  align = ceil_log2 (POINTER_SIZE_UNITS);
   lo->section = simple_object_write_create_section (lo->sobj_w, name, align,
 						    &errmsg, &err);
   if (lo->section == NULL)
     {
       if (err == 0)
-	fatal_error ("%s", errmsg);
+	fatal_error (input_location, "%s", errmsg);
       else
-	fatal_error ("%s: %s", errmsg, xstrerror (errno));
+	fatal_error (input_location, "%s: %s", errmsg, xstrerror (errno));
     }
 }
 
@@ -351,7 +345,7 @@ lto_obj_begin_section (const char *name)
    DATA.  */
 
 void
-lto_obj_append_data (const void *data, size_t len, void *block)
+lto_obj_append_data (const void *data, size_t len, void *)
 {
   struct lto_simple_object *lo;
   const char *errmsg;
@@ -365,12 +359,10 @@ lto_obj_append_data (const void *data, size_t len, void *block)
   if (errmsg != NULL)
     {
       if (err == 0)
-	fatal_error ("%s", errmsg);
+	fatal_error (input_location, "%s", errmsg);
       else
-	fatal_error ("%s: %s", errmsg, xstrerror (errno));
+	fatal_error (input_location, "%s: %s", errmsg, xstrerror (errno));
     }
-
-  free (block);
 }
 
 /* Stop writing to the current output section.  */

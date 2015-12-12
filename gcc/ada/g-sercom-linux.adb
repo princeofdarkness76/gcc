@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---                    Copyright (C) 2007-2012, AdaCore                      --
+--                    Copyright (C) 2007-2015, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -58,7 +58,12 @@ package body GNAT.Serial_Communications is
    pragma Import (C, fcntl, "fcntl");
 
    C_Data_Rate : constant array (Data_Rate) of unsigned :=
-                   (B1200   => OSC.B1200,
+                   (B75     => OSC.B75,
+                    B110    => OSC.B110,
+                    B150    => OSC.B150,
+                    B300    => OSC.B300,
+                    B600    => OSC.B600,
+                    B1200   => OSC.B1200,
                     B2400   => OSC.B2400,
                     B4800   => OSC.B4800,
                     B9600   => OSC.B9600,
@@ -132,7 +137,10 @@ package body GNAT.Serial_Communications is
 
    procedure Raise_Error (Message : String; Error : Integer := Errno) is
    begin
-      raise Serial_Error with Message & " (" & Integer'Image (Error) & ')';
+      raise Serial_Error with Message
+        & (if Error /= 0
+           then " (" & Errno_Message (Err => Error) & ')'
+           else "");
    end Raise_Error;
 
    ----------
@@ -217,23 +225,23 @@ package body GNAT.Serial_Communications is
 
       --  Change settings now
 
-      Current.c_cflag      := C_Data_Rate (Rate)
-                                or C_Bits (Bits)
-                                or C_Stop_Bits (Stop_Bits)
-                                or C_Parity (Parity)
-                                or CREAD;
-      Current.c_iflag      := 0;
-      Current.c_lflag      := 0;
-      Current.c_oflag      := 0;
+      Current.c_cflag := C_Data_Rate (Rate)
+                           or C_Bits (Bits)
+                           or C_Stop_Bits (Stop_Bits)
+                           or C_Parity (Parity)
+                           or CREAD;
+      Current.c_iflag := 0;
+      Current.c_lflag := 0;
+      Current.c_oflag := 0;
 
       if Local then
          Current.c_cflag := Current.c_cflag or CLOCAL;
       end if;
 
       case Flow is
-         when None =>
+         when None     =>
             null;
-         when RTS_CTS =>
+         when RTS_CTS  =>
             Current.c_cflag := Current.c_cflag or CRTSCTS;
          when Xon_Xoff =>
             Current.c_iflag := Current.c_iflag or IXON;

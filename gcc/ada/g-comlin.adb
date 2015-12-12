@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1999-2012, Free Software Foundation, Inc.         --
+--          Copyright (C) 1999-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -449,21 +449,16 @@ package body GNAT.Command_Line is
          declare
             Arg   : constant String :=
                       Argument (Parser, Parser.Current_Argument - 1);
-            Index : Positive;
-
          begin
-            Index := Arg'First;
-            while Index <= Arg'Last loop
+            for Index in Arg'Range loop
                if Arg (Index) = '*'
                  or else Arg (Index) = '?'
                  or else Arg (Index) = '['
                then
                   Parser.In_Expansion := True;
                   Start_Expansion (Parser.Expansion_It, Arg);
-                  return Get_Argument (Do_Expansion);
+                  return Get_Argument (Do_Expansion, Parser);
                end if;
-
-               Index := Index + 1;
             end loop;
          end;
       end if;
@@ -561,6 +556,10 @@ package body GNAT.Command_Line is
            and then Switches (Index .. Last) =
                       Arg (Arg'First .. Arg'First + Last - Index)
            and then Last - Index + 1 > Switch_Length
+           and then
+             (P /= Parameter_With_Space_Or_Equal
+               or else Arg'Last = Arg'First + Last - Index
+               or else Arg (Arg'First + Last - Index + 1) = '=')
          then
             Param             := P;
             Index_In_Switches := Index;
@@ -589,7 +588,6 @@ package body GNAT.Command_Line is
       Parser      : Opt_Parser := Command_Line_Parser) return Character
    is
       Dummy : Boolean;
-      pragma Unreferenced (Dummy);
 
    begin
       <<Restart>>
@@ -1681,7 +1679,13 @@ package body GNAT.Command_Line is
                   --  the argument. In the second case, the switch matches "*",
                   --  and is then decomposed below.
 
-                  S := Getopt (Switches    => "*",
+                  --  Note: When a Command_Line object is associated with a
+                  --  Command_Line_Config (which is mostly the case for tools
+                  --  that let users choose the command line before spawning
+                  --  other tools, for instance IDEs), the configuration of
+                  --  the switches must be taken from the Command_Line_Config.
+
+                  S := Getopt (Switches    => "* " & Get_Switches (Cmd.Config),
                                Concatenate => False,
                                Parser      => Parser);
 
@@ -3533,10 +3537,7 @@ package body GNAT.Command_Line is
                    & ": unrecognized option '"
                    & Full_Switch (Parser)
                    & "'");
-         Put_Line (Standard_Error,
-                   "Try `"
-                   & Base_Name (Ada.Command_Line.Command_Name)
-                   & " --help` for more information.");
+         Try_Help;
 
          raise;
 
@@ -3586,5 +3587,20 @@ package body GNAT.Command_Line is
          Next (Iter);
       end loop;
    end Build;
+
+   --------------
+   -- Try_Help --
+   --------------
+
+   --  Note: Any change to the message displayed should also be done in
+   --  gnatbind.adb that does not use this interface.
+
+   procedure Try_Help is
+   begin
+      Put_Line
+        (Standard_Error,
+         "try """ & Base_Name (Ada.Command_Line.Command_Name)
+         & " --help"" for more information.");
+   end Try_Help;
 
 end GNAT.Command_Line;

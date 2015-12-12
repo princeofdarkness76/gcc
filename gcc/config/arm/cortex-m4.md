@@ -1,5 +1,5 @@
 ;; ARM Cortex-M4 pipeline description
-;; Copyright (C) 2010-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2015 Free Software Foundation, Inc.
 ;; Contributed by CodeSourcery.
 ;;
 ;; This file is part of GCC.
@@ -31,8 +31,18 @@
 ;; ALU and multiply is one cycle.
 (define_insn_reservation "cortex_m4_alu" 1
   (and (eq_attr "tune" "cortexm4")
-       (ior (eq_attr "type" "alu_reg,simple_alu_imm,simple_alu_shift,\
-                             alu_shift,alu_shift_reg")
+       (ior (eq_attr "type" "alu_imm,alus_imm,logic_imm,logics_imm,\
+                             alu_sreg,alus_sreg,logic_reg,logics_reg,\
+                             adc_imm,adcs_imm,adc_reg,adcs_reg,\
+                             adr,bfm,clz,rbit,rev,alu_dsp_reg,\
+                             shift_imm,shift_reg,extend,\
+                             alu_shift_imm,alus_shift_imm,\
+                             logic_shift_imm,logics_shift_imm,\
+                             alu_shift_reg,alus_shift_reg,\
+                             logic_shift_reg,logics_shift_reg,\
+                             mov_imm,mov_reg,mov_shift,mov_shift_reg,\
+                             mvn_imm,mvn_reg,mvn_shift,mvn_shift_reg,\
+                             mrs,multiple,no_insn")
 	    (ior (eq_attr "mul32" "yes")
 		 (eq_attr "mul64" "yes"))))
   "cortex_m4_ex")

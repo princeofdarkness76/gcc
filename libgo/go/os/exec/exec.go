@@ -12,7 +12,11 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
+	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -28,11 +32,15 @@ func (e *Error) Error() string {
 }
 
 // Cmd represents an external command being prepared or run.
+//
+// A Cmd cannot be reused after calling its Run, Output or CombinedOutput
+// methods.
 type Cmd struct {
 	// Path is the path of the command to run.
 	//
 	// This is the only field that must be set to a non-zero
-	// value.
+	// value. If Path is relative, it is evaluated relative
+	// to Dir.
 	Path string
 
 	// Args holds command line arguments, including the command as Args[0].
@@ -50,8 +58,15 @@ type Cmd struct {
 	// calling process's current directory.
 	Dir string
 
-	// Stdin specifies the process's standard input. If Stdin is
-	// nil, the process reads from the null device (os.DevNull).
+	// Stdin specifies the process's standard input.
+	// If Stdin is nil, the process reads from the null device (os.DevNull).
+	// If Stdin is an *os.File, the process's standard input is connected
+	// directly to that file.
+	// Otherwise, during the execution of the command a separate
+	// goroutine reads from Stdin and delivers that data to the command
+	// over a pipe. In this case, Wait does not complete until the goroutine
+	// stops copying, either because it has reached the end of Stdin
+	// (EOF or a read error) or because writing to the pipe returned an error.
 	Stdin io.Reader
 
 	// Stdout and Stderr specify the process's standard output and error.
@@ -68,8 +83,8 @@ type Cmd struct {
 	// new process. It does not include standard input, standard output, or
 	// standard error. If non-nil, entry i becomes file descriptor 3+i.
 	//
-	// BUG: on OS X 10.6, child processes may sometimes inherit unwanted fds.
-	// http://golang.org/issue/2603
+	// BUG(rsc): On OS X 10.6, child processes may sometimes inherit unwanted fds.
+	// https://golang.org/issue/2603
 	ExtraFiles []*os.File
 
 	// SysProcAttr holds optional, operating system-specific attributes.
@@ -83,7 +98,7 @@ type Cmd struct {
 	// available after a call to Wait or Run.
 	ProcessState *os.ProcessState
 
-	err             error // last error (from LookPath, stdin, stdout, stderr)
+	lookPathErr     error // LookPath error, if any.
 	finished        bool  // when Wait was called
 	childFiles      []*os.File
 	closeAfterStart []io.Closer
@@ -95,8 +110,7 @@ type Cmd struct {
 // Command returns the Cmd struct to execute the named program with
 // the given arguments.
 //
-// It sets Path and Args in the returned structure and zeroes the
-// other fields.
+// It sets only the Path and Args in the returned structure.
 //
 // If name contains no path separators, Command uses LookPath to
 // resolve the path to a complete name if possible. Otherwise it uses
@@ -106,19 +120,22 @@ type Cmd struct {
 // followed by the elements of arg, so arg should not include the
 // command name itself. For example, Command("echo", "hello")
 func Command(name string, arg ...string) *Cmd {
-	aname, err := LookPath(name)
-	if err != nil {
-		aname = name
-	}
-	return &Cmd{
-		Path: aname,
+	cmd := &Cmd{
+		Path: name,
 		Args: append([]string{name}, arg...),
-		err:  err,
 	}
+	if filepath.Base(name) == name {
+		if lp, err := LookPath(name); err != nil {
+			cmd.lookPathErr = err
+		} else {
+			cmd.Path = lp
+		}
+	}
+	return cmd
 }
 
 // interfaceEqual protects against panics from doing equality tests on
-// two interfaces with non-comparable underlying types
+// two interfaces with non-comparable underlying types.
 func interfaceEqual(a, b interface{}) bool {
 	defer func() {
 		recover()
@@ -139,6 +156,11 @@ func (c *Cmd) argv() []string {
 	}
 	return []string{c.Path}
 }
+
+// skipStdinCopyError optionally specifies a function which reports
+// whether the provided the stdin copy error should be ignored.
+// It is non-nil everywhere but Plan 9, which lacks EPIPE. See exec_posix.go.
+var skipStdinCopyError func(error) bool
 
 func (c *Cmd) stdin() (f *os.File, err error) {
 	if c.Stdin == nil {
@@ -163,6 +185,9 @@ func (c *Cmd) stdin() (f *os.File, err error) {
 	c.closeAfterWait = append(c.closeAfterWait, pw)
 	c.goroutine = append(c.goroutine, func() error {
 		_, err := io.Copy(pw, c.Stdin)
+		if skip := skipStdinCopyError; skip != nil && skip(err) {
+			err = nil
+		}
 		if err1 := pw.Close(); err == nil {
 			err = err1
 		}
@@ -205,6 +230,7 @@ func (c *Cmd) writerDescriptor(w io.Writer) (f *os.File, err error) {
 	c.closeAfterWait = append(c.closeAfterWait, pr)
 	c.goroutine = append(c.goroutine, func() error {
 		_, err := io.Copy(w, pr)
+		pr.Close() // in case io.Copy stopped due to write error
 		return err
 	})
 	return pw, nil
@@ -232,10 +258,50 @@ func (c *Cmd) Run() error {
 	return c.Wait()
 }
 
+// lookExtensions finds windows executable by its dir and path.
+// It uses LookPath to try appropriate extensions.
+// lookExtensions does not search PATH, instead it converts `prog` into `.\prog`.
+func lookExtensions(path, dir string) (string, error) {
+	if filepath.Base(path) == path {
+		path = filepath.Join(".", path)
+	}
+	if dir == "" {
+		return LookPath(path)
+	}
+	if filepath.VolumeName(path) != "" {
+		return LookPath(path)
+	}
+	if len(path) > 1 && os.IsPathSeparator(path[0]) {
+		return LookPath(path)
+	}
+	dirandpath := filepath.Join(dir, path)
+	// We assume that LookPath will only add file extension.
+	lp, err := LookPath(dirandpath)
+	if err != nil {
+		return "", err
+	}
+	ext := strings.TrimPrefix(lp, dirandpath)
+	return path + ext, nil
+}
+
 // Start starts the specified command but does not wait for it to complete.
+//
+// The Wait method will return the exit code and release associated resources
+// once the command exits.
 func (c *Cmd) Start() error {
-	if c.err != nil {
-		return c.err
+	if c.lookPathErr != nil {
+		c.closeDescriptors(c.closeAfterStart)
+		c.closeDescriptors(c.closeAfterWait)
+		return c.lookPathErr
+	}
+	if runtime.GOOS == "windows" {
+		lp, err := lookExtensions(c.Path, c.Dir)
+		if err != nil {
+			c.closeDescriptors(c.closeAfterStart)
+			c.closeDescriptors(c.closeAfterWait)
+			return err
+		}
+		c.Path = lp
 	}
 	if c.Process != nil {
 		return errors.New("exec: already started")
@@ -297,6 +363,12 @@ func (e *ExitError) Error() string {
 // If the command fails to run or doesn't complete successfully, the
 // error is of type *ExitError. Other error types may be
 // returned for I/O problems.
+//
+// If c.Stdin is not an *os.File, Wait also waits for the I/O loop
+// copying from c.Stdin into the process's standard input
+// to complete.
+//
+// Wait releases any resources associated with the Cmd.
 func (c *Cmd) Wait() error {
 	if c.Process == nil {
 		return errors.New("exec: not started")
@@ -309,7 +381,7 @@ func (c *Cmd) Wait() error {
 	c.ProcessState = state
 
 	var copyError error
-	for _ = range c.goroutine {
+	for range c.goroutine {
 		if err := <-c.errch; err != nil && copyError == nil {
 			copyError = err
 		}
@@ -355,6 +427,10 @@ func (c *Cmd) CombinedOutput() ([]byte, error) {
 
 // StdinPipe returns a pipe that will be connected to the command's
 // standard input when the command starts.
+// The pipe will be closed automatically after Wait sees the command exit.
+// A caller need only call Close to force the pipe to close sooner.
+// For example, if the command being run will not exit until standard input
+// is closed, the caller must close the pipe.
 func (c *Cmd) StdinPipe() (io.WriteCloser, error) {
 	if c.Stdin != nil {
 		return nil, errors.New("exec: Stdin already set")
@@ -368,13 +444,35 @@ func (c *Cmd) StdinPipe() (io.WriteCloser, error) {
 	}
 	c.Stdin = pr
 	c.closeAfterStart = append(c.closeAfterStart, pr)
-	c.closeAfterWait = append(c.closeAfterWait, pw)
-	return pw, nil
+	wc := &closeOnce{File: pw}
+	c.closeAfterWait = append(c.closeAfterWait, wc)
+	return wc, nil
+}
+
+type closeOnce struct {
+	*os.File
+
+	once sync.Once
+	err  error
+}
+
+func (c *closeOnce) Close() error {
+	c.once.Do(c.close)
+	return c.err
+}
+
+func (c *closeOnce) close() {
+	c.err = c.File.Close()
 }
 
 // StdoutPipe returns a pipe that will be connected to the command's
 // standard output when the command starts.
-// The pipe will be closed automatically after Wait sees the command exit.
+//
+// Wait will close the pipe after seeing the command exit, so most callers
+// need not close the pipe themselves; however, an implication is that
+// it is incorrect to call Wait before all reads from the pipe have completed.
+// For the same reason, it is incorrect to call Run when using StdoutPipe.
+// See the example for idiomatic usage.
 func (c *Cmd) StdoutPipe() (io.ReadCloser, error) {
 	if c.Stdout != nil {
 		return nil, errors.New("exec: Stdout already set")
@@ -394,7 +492,12 @@ func (c *Cmd) StdoutPipe() (io.ReadCloser, error) {
 
 // StderrPipe returns a pipe that will be connected to the command's
 // standard error when the command starts.
-// The pipe will be closed automatically after Wait sees the command exit.
+//
+// Wait will close the pipe after seeing the command exit, so most callers
+// need not close the pipe themselves; however, an implication is that
+// it is incorrect to call Wait before all reads from the pipe have completed.
+// For the same reason, it is incorrect to use Run when using StderrPipe.
+// See the StdoutPipe example for idiomatic usage.
 func (c *Cmd) StderrPipe() (io.ReadCloser, error) {
 	if c.Stderr != nil {
 		return nil, errors.New("exec: Stderr already set")

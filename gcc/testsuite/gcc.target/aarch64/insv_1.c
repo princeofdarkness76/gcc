@@ -1,5 +1,6 @@
-/* { dg-do run } */
+/* { dg-do run { target aarch64*-*-* } } */
 /* { dg-options "-O2 --save-temps -fno-inline" } */
+/* { dg-require-effective-target aarch64_little_endian } */
 
 extern void abort (void);
 
@@ -81,4 +82,3 @@ main (int argc, char** argv)
   return 0;
 }
 
-/* { dg-final { cleanup-saved-temps } } */

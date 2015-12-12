@@ -99,7 +99,7 @@ func nextJSCtx(s []byte, preceding jsCtx) jsCtx {
 	return jsCtxDivOp
 }
 
-// regexPrecederKeywords is a set of reserved JS keywords that can precede a
+// regexpPrecederKeywords is a set of reserved JS keywords that can precede a
 // regular expression in JS source.
 var regexpPrecederKeywords = map[string]bool{
 	"break":      true,
@@ -246,8 +246,10 @@ func jsRegexpEscaper(args ...interface{}) string {
 // `\u2029`.
 func replace(s string, replacementTable []string) string {
 	var b bytes.Buffer
-	written := 0
-	for i, r := range s {
+	r, w, written := rune(0), 0, 0
+	for i := 0; i < len(s); i += w {
+		// See comment in htmlEscaper.
+		r, w = utf8.DecodeRuneInString(s[i:])
 		var repl string
 		switch {
 		case int(r) < len(replacementTable) && replacementTable[r] != "":
@@ -261,7 +263,7 @@ func replace(s string, replacementTable []string) string {
 		}
 		b.WriteString(s[written:i])
 		b.WriteString(repl)
-		written = i + utf8.RuneLen(r)
+		written = i + w
 	}
 	if written == 0 {
 		return s
@@ -341,7 +343,7 @@ var jsRegexpReplacementTable = []string{
 	'}':  `\}`,
 }
 
-// isJSIdentPart returns whether the given rune is a JS identifier part.
+// isJSIdentPart reports whether the given rune is a JS identifier part.
 // It does not handle all the non-Latin letters, joiners, and combining marks,
 // but it does handle every codepoint that can occur in a numeric literal or
 // a keyword.

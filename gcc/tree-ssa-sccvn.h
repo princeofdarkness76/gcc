@@ -1,5 +1,5 @@
 /* Tree SCC value numbering
-   Copyright (C) 2007-2013 Free Software Foundation, Inc.
+   Copyright (C) 2007-2015 Free Software Foundation, Inc.
    Contributed by Daniel Berlin <dberlin@dberlin.org>
 
    This file is part of GCC.
@@ -80,13 +80,19 @@ typedef const struct vn_phi_s *const_vn_phi_t;
 
 typedef struct vn_reference_op_struct
 {
-  enum tree_code opcode;
+  ENUM_BITFIELD(tree_code) opcode : 16;
+  /* 1 for instrumented calls.  */
+  unsigned with_bounds : 1;
+  /* Dependence info, used for [TARGET_]MEM_REF only.  */
+  unsigned short clique;
+  unsigned short base;
   /* Constant offset this op adds or -1 if it is variable.  */
   HOST_WIDE_INT off;
   tree type;
   tree op0;
   tree op1;
   tree op2;
+  bool reverse;
 } vn_reference_op_s;
 typedef vn_reference_op_s *vn_reference_op_t;
 typedef const vn_reference_op_s *const_vn_reference_op_t;
@@ -121,7 +127,7 @@ typedef struct vn_constant_s
 } *vn_constant_t;
 
 enum vn_kind { VN_NONE, VN_CONSTANT, VN_NARY, VN_REFERENCE, VN_PHI };
-enum vn_kind vn_get_stmt_kind (gimple);
+enum vn_kind vn_get_stmt_kind (gimple *);
 
 /* Hash the type TYPE using bits that distinguishes it in the
    types_compatible_p sense.  */
@@ -140,8 +146,10 @@ vn_hash_type (tree type)
 static inline hashval_t
 vn_hash_constant_with_type (tree constant)
 {
-  return (iterative_hash_expr (constant, 0)
-	  + vn_hash_type (TREE_TYPE (constant)));
+  inchash::hash hstate;
+  inchash::add_expr (constant, hstate);
+  hstate.merge_hash (vn_hash_type (TREE_TYPE (constant)));
+  return hstate.end ();
 }
 
 /* Compare the constants C1 and C2 with distinguishing type incompatible
@@ -158,8 +166,8 @@ typedef struct vn_ssa_aux
 {
   /* Value number. This may be an SSA name or a constant.  */
   tree valnum;
-  /* Representative expression, if not a direct constant. */
-  tree expr;
+  /* Statements to insert if needs_insertion is true.  */
+  gimple_seq expr;
 
   /* Unique identifier that all expressions with the same value have. */
   unsigned int value_id;
@@ -170,8 +178,6 @@ typedef struct vn_ssa_aux
   unsigned visited : 1;
   unsigned on_sccstack : 1;
 
-  /* Whether the representative expression contains constants.  */
-  unsigned has_constants : 1;
   /* Whether the SSA_NAME has been value numbered already.  This is
      only saying whether visit_use has been called on it at least
      once.  It cannot be used to avoid visitation for SSA_NAME's
@@ -184,7 +190,7 @@ typedef struct vn_ssa_aux
   unsigned needs_insertion : 1;
 } *vn_ssa_aux_t;
 
-typedef enum { VN_NOWALK, VN_WALK, VN_WALKREWRITE } vn_lookup_kind;
+enum vn_lookup_kind { VN_NOWALK, VN_WALK, VN_WALKREWRITE };
 
 /* Return the value numbering info for an SSA_NAME.  */
 extern vn_ssa_aux_t VN_INFO (tree);
@@ -193,33 +199,26 @@ tree vn_get_expr_for (tree);
 bool run_scc_vn (vn_lookup_kind);
 void free_scc_vn (void);
 tree vn_nary_op_lookup (tree, vn_nary_op_t *);
-tree vn_nary_op_lookup_stmt (gimple, vn_nary_op_t *);
+tree vn_nary_op_lookup_stmt (gimple *, vn_nary_op_t *);
 tree vn_nary_op_lookup_pieces (unsigned int, enum tree_code,
 			       tree, tree *, vn_nary_op_t *);
 vn_nary_op_t vn_nary_op_insert (tree, tree);
-vn_nary_op_t vn_nary_op_insert_stmt (gimple, tree);
 vn_nary_op_t vn_nary_op_insert_pieces (unsigned int, enum tree_code,
 				       tree, tree *, tree, unsigned int);
-void vn_reference_fold_indirect (vec<vn_reference_op_s> *,
-				 unsigned int *);
-void copy_reference_ops_from_ref (tree, vec<vn_reference_op_s> *);
-void copy_reference_ops_from_call (gimple, vec<vn_reference_op_s> *);
 bool ao_ref_init_from_vn_reference (ao_ref *, alias_set_type, tree,
 				    vec<vn_reference_op_s> );
 tree vn_reference_lookup_pieces (tree, alias_set_type, tree,
 				 vec<vn_reference_op_s> ,
 				 vn_reference_t *, vn_lookup_kind);
 tree vn_reference_lookup (tree, tree, vn_lookup_kind, vn_reference_t *);
-vn_reference_t vn_reference_insert (tree, tree, tree, tree);
+void vn_reference_lookup_call (gcall *, vn_reference_t *, vn_reference_t);
 vn_reference_t vn_reference_insert_pieces (tree, alias_set_type, tree,
 					   vec<vn_reference_op_s> ,
 					   tree, unsigned int);
 
-hashval_t vn_nary_op_compute_hash (const vn_nary_op_t);
 bool vn_nary_op_eq (const_vn_nary_op_t const vno1,
 		    const_vn_nary_op_t const vno2);
 bool vn_nary_may_trap (vn_nary_op_t);
-hashval_t vn_reference_compute_hash (const vn_reference_t);
 bool vn_reference_eq (const_vn_reference_t const, const_vn_reference_t const);
 unsigned int get_max_value_id (void);
 unsigned int get_next_value_id (void);

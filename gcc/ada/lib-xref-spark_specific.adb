@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2011-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 2011-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -23,10 +23,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with SPARK_Xrefs;     use SPARK_Xrefs;
-with Einfo;           use Einfo;
-with Nmake;           use Nmake;
-with Put_SPARK_Xrefs;
+with Einfo;       use Einfo;
+with Nmake;       use Nmake;
+with SPARK_Xrefs; use SPARK_Xrefs;
 
 with GNAT.HTable;
 
@@ -105,6 +104,10 @@ package body SPARK_Specific is
    function Entity_Hash (E : Entity_Id) return Entity_Hashed_Range;
    --  Hash function for hash table
 
+   procedure Traverse_Declaration_Or_Statement
+     (N            : Node_Id;
+      Process      : Node_Processing;
+      Inside_Stubs : Boolean);
    procedure Traverse_Declarations_Or_Statements
      (L            : List_Id;
       Process      : Node_Processing;
@@ -113,11 +116,11 @@ package body SPARK_Specific is
      (N            : Node_Id;
       Process      : Node_Processing;
       Inside_Stubs : Boolean);
-   procedure Traverse_Package_Body
+   procedure Traverse_Protected_Body
      (N            : Node_Id;
       Process      : Node_Processing;
       Inside_Stubs : Boolean);
-   procedure Traverse_Package_Declaration
+   procedure Traverse_Package_Body
      (N            : Node_Id;
       Process      : Node_Processing;
       Inside_Stubs : Boolean);
@@ -155,7 +158,7 @@ package body SPARK_Specific is
          Traverse_Compilation_Unit
            (CU           => Cunit (Ubody),
             Process      => Detect_And_Add_SPARK_Scope'Access,
-            Inside_Stubs => False);
+            Inside_Stubs => True);
       end if;
 
       --  When two units are present for the same compilation unit, as it
@@ -167,7 +170,7 @@ package body SPARK_Specific is
             Traverse_Compilation_Unit
               (CU           => Cunit (Uspec),
                Process      => Detect_And_Add_SPARK_Scope'Access,
-               Inside_Stubs => False);
+               Inside_Stubs => True);
          end if;
       end if;
 
@@ -240,6 +243,11 @@ package body SPARK_Specific is
    procedure Add_SPARK_Scope (N : Node_Id) is
       E   : constant Entity_Id  := Defining_Entity (N);
       Loc : constant Source_Ptr := Sloc (E);
+
+      --  The character describing the kind of scope is chosen to be the same
+      --  as the one describing the corresponding entity in cross references,
+      --  see Xref_Entity_Letters in lib-xrefs.ads
+
       Typ : Character;
 
    begin
@@ -250,39 +258,23 @@ package body SPARK_Specific is
       end if;
 
       case Ekind (E) is
-         when E_Function | E_Generic_Function =>
-            Typ := 'V';
+         when E_Entry
+            | E_Function
+            | E_Generic_Function
+            | E_Generic_Package
+            | E_Generic_Procedure
+            | E_Package
+            | E_Procedure
+         =>
+            Typ := Xref_Entity_Letters (Ekind (E));
 
-         when E_Procedure | E_Generic_Procedure =>
-            Typ := 'U';
-
-         when E_Subprogram_Body =>
-            declare
-               Spec : Node_Id;
-
-            begin
-               Spec := Parent (E);
-
-               if Nkind (Spec) = N_Defining_Program_Unit_Name then
-                  Spec := Parent (Spec);
-               end if;
-
-               if Nkind (Spec) = N_Function_Specification then
-                  Typ := 'V';
-               else
-                  pragma Assert
-                    (Nkind (Spec) = N_Procedure_Specification);
-                  Typ := 'U';
-               end if;
-            end;
-
-         when E_Package | E_Package_Body | E_Generic_Package =>
-            Typ := 'K';
+         when E_Package_Body | E_Subprogram_Body =>
+            Typ := Xref_Entity_Letters (Ekind (Unique_Entity (E)));
 
          when E_Void =>
-            --  Compilation of prj-attr.adb with -gnatn creates a node with
-            --  entity E_Void for the package defined at a-charac.ads16:13
 
+            --  Compilation of prj-attr.adb with -gnatn creates a node with
+            --  entity E_Void for the package defined at a-charac.ads16:13.
             --  ??? TBD
 
             return;
@@ -319,6 +311,16 @@ package body SPARK_Specific is
       function Get_Entity_Type (E : Entity_Id) return Character;
       --  Return a character representing the type of entity
 
+      function Is_Constant_Object_Without_Variable_Input
+        (E : Entity_Id) return Boolean;
+      --  Return True if E is known to have no variable input, as defined in
+      --  SPARK RM.
+
+      function Is_Future_Scope_Entity
+        (E : Entity_Id;
+         S : Scope_Index) return Boolean;
+      --  Check whether entity E is in SPARK_Scope_Table at index S or higher
+
       function Is_SPARK_Reference
         (E   : Entity_Id;
          Typ : Character) return Boolean;
@@ -328,15 +330,6 @@ package body SPARK_Specific is
       function Is_SPARK_Scope (E : Entity_Id) return Boolean;
       --  Return whether the entity or reference scope meets requirements for
       --  being an SPARK scope.
-
-      function Is_Future_Scope_Entity
-        (E : Entity_Id;
-         S : Scope_Index) return Boolean;
-      --  Check whether entity E is in SPARK_Scope_Table at index S or higher
-
-      function Is_Global_Constant (E : Entity_Id) return Boolean;
-      --  Return True if E is a global constant for which we should ignore
-      --  reads in SPARK.
 
       function Lt (Op1 : Natural; Op2 : Natural) return Boolean;
       --  Comparison function for Sort call
@@ -424,56 +417,51 @@ package body SPARK_Specific is
          return Scopes.Get (N).Num;
       end Get_Scope_Num;
 
-      ------------------------
-      -- Is_SPARK_Reference --
-      ------------------------
+      -----------------------------------------------
+      -- Is_Constant_Object_Without_Variable_Input --
+      -----------------------------------------------
 
-      function Is_SPARK_Reference
-        (E   : Entity_Id;
-         Typ : Character) return Boolean
+      function Is_Constant_Object_Without_Variable_Input
+        (E : Entity_Id) return Boolean
       is
+         Result : Boolean;
+
       begin
-         --  The only references of interest on callable entities are calls. On
-         --  non-callable entities, the only references of interest are reads
-         --  and writes.
+         case Ekind (E) is
 
-         if Ekind (E) in Overloadable_Kind then
-            return Typ = 's';
+            --  A constant is known to have no variable input if its
+            --  initializing expression is static (a value which is
+            --  compile-time-known is not guaranteed to have no variable input
+            --  as defined in the SPARK RM). Otherwise, the constant may or not
+            --  have variable input.
 
-         --  References to constant objects are not considered in SPARK
-         --  section, as these will be translated as constants in the
-         --  intermediate language for formal verification, and should
-         --  therefore never appear in frame conditions.
+            when E_Constant =>
+               declare
+                  Decl : Node_Id;
+               begin
+                  if Present (Full_View (E)) then
+                     Decl := Parent (Full_View (E));
+                  else
+                     Decl := Parent (E);
+                  end if;
 
-         elsif Is_Constant_Object (E) then
-            return False;
+                  if Is_Imported (E) then
+                     Result := False;
+                  else
+                     pragma Assert (Present (Expression (Decl)));
+                     Result := Is_Static_Expression (Expression (Decl));
+                  end if;
+               end;
 
-         --  Objects of Task type or protected type are not SPARK references
+            when E_Loop_Parameter | E_In_Parameter =>
+               Result := True;
 
-         elsif Present (Etype (E))
-           and then Ekind (Etype (E)) in Concurrent_Kind
-         then
-            return False;
+            when others =>
+               Result := False;
+         end case;
 
-         --  In all other cases, result is true for reference/modify cases,
-         --  and false for all other cases.
-
-         else
-            return Typ = 'r' or else Typ = 'm';
-         end if;
-      end Is_SPARK_Reference;
-
-      --------------------
-      -- Is_SPARK_Scope --
-      --------------------
-
-      function Is_SPARK_Scope (E : Entity_Id) return Boolean is
-      begin
-         return Present (E)
-           and then not Is_Generic_Unit (E)
-           and then Renamed_Entity (E) = Empty
-           and then Get_Scope_Num (E) /= No_Scope;
-      end Is_SPARK_Scope;
+         return Result;
+      end Is_Constant_Object_Without_Variable_Input;
 
       ----------------------------
       -- Is_Future_Scope_Entity --
@@ -495,13 +483,7 @@ package body SPARK_Specific is
          begin
             for Index in SPARK_Scope_Table.First .. S - 1 loop
                if SPARK_Scope_Table.Table (Index).Scope_Entity = E then
-                  declare
-                     Dummy : constant SPARK_Scope_Record :=
-                               SPARK_Scope_Table.Table (Index);
-                     pragma Unreferenced (Dummy);
-                  begin
-                     return True;
-                  end;
+                  return True;
                end if;
             end loop;
 
@@ -527,14 +509,47 @@ package body SPARK_Specific is
       end Is_Future_Scope_Entity;
 
       ------------------------
-      -- Is_Global_Constant --
+      -- Is_SPARK_Reference --
       ------------------------
 
-      function Is_Global_Constant (E : Entity_Id) return Boolean is
+      function Is_SPARK_Reference
+        (E   : Entity_Id;
+         Typ : Character) return Boolean
+      is
       begin
-         return Ekind (E) = E_Constant
-           and then Ekind_In (Scope (E), E_Package, E_Package_Body);
-      end Is_Global_Constant;
+         --  The only references of interest on callable entities are calls. On
+         --  uncallable entities, the only references of interest are reads and
+         --  writes.
+
+         if Ekind (E) in Overloadable_Kind then
+            return Typ = 's';
+
+         --  Objects of task or protected types are not SPARK references
+
+         elsif Present (Etype (E))
+           and then Ekind (Etype (E)) in Concurrent_Kind
+         then
+            return False;
+
+         --  In all other cases, result is true for reference/modify cases,
+         --  and false for all other cases.
+
+         else
+            return Typ = 'r' or else Typ = 'm';
+         end if;
+      end Is_SPARK_Reference;
+
+      --------------------
+      -- Is_SPARK_Scope --
+      --------------------
+
+      function Is_SPARK_Scope (E : Entity_Id) return Boolean is
+      begin
+         return Present (E)
+           and then not Is_Generic_Unit (E)
+           and then Renamed_Entity (E) = Empty
+           and then Get_Scope_Num (E) /= No_Scope;
+      end Is_SPARK_Scope;
 
       --------
       -- Lt --
@@ -726,7 +741,6 @@ package body SPARK_Specific is
               and then SPARK_References (Ref.Typ)
               and then Is_SPARK_Scope (Ref.Ent_Scope)
               and then Is_SPARK_Scope (Ref.Ref_Scope)
-              and then not Is_Global_Constant (Ref.Ent)
               and then Is_SPARK_Reference (Ref.Ent, Ref.Typ)
 
               --  Discard references from unknown scopes, e.g. generic scopes
@@ -805,6 +819,7 @@ package body SPARK_Specific is
          declare
             Ref_Entry : Xref_Entry renames Xrefs.Table (Rnums (Refno));
             Ref       : Xref_Key   renames Ref_Entry.Key;
+            Typ       : Character;
 
          begin
             --  If this assertion fails, the scope which we are looking for is
@@ -844,6 +859,20 @@ package body SPARK_Specific is
                Col  := Int (Get_Column_Number (Ref_Entry.Def));
             end if;
 
+            --  References to constant objects without variable inputs (see
+            --  SPARK RM 3.3.1) are considered specially in SPARK section,
+            --  because these will be translated as constants in the
+            --  intermediate language for formal verification, and should
+            --  therefore never appear in frame conditions. Other constants may
+            --  later be treated the same, up to GNATprove to decide based on
+            --  its flow analysis.
+
+            if Is_Constant_Object_Without_Variable_Input (Ref.Ent) then
+               Typ := 'c';
+            else
+               Typ := Ref.Typ;
+            end if;
+
             SPARK_Xref_Table.Append (
               (Entity_Name => Ref_Name,
                Entity_Line => Line,
@@ -852,7 +881,7 @@ package body SPARK_Specific is
                File_Num    => Dependency_Num (Ref.Lun),
                Scope_Num   => Get_Scope_Num (Ref.Ref_Scope),
                Line        => Int (Get_Logical_Line_Number (Ref.Loc)),
-               Rtype       => Ref.Typ,
+               Rtype       => Typ,
                Col         => Int (Get_Column_Number (Ref.Loc))));
          end;
       end loop;
@@ -902,10 +931,18 @@ package body SPARK_Specific is
             D2 := D1;
          end if;
 
-         Add_SPARK_File
-           (Ubody => Sdep_Table (D1),
-            Uspec => Sdep_Table (D2),
-            Dspec => D2);
+         --  Some files do not correspond to Ada units, and as such present no
+         --  interest for SPARK cross references. Skip these files, as printing
+         --  their name may require printing the full name with spaces, which
+         --  is not handled in the code doing I/O of SPARK cross references.
+
+         if Present (Cunit_Entity (Sdep_Table (D1))) then
+            Add_SPARK_File
+              (Ubody => Sdep_Table (D1),
+               Uspec => Sdep_Table (D2),
+               Dspec => D2);
+         end if;
+
          D1 := D2 + 1;
       end loop;
 
@@ -969,11 +1006,14 @@ package body SPARK_Specific is
 
    procedure Detect_And_Add_SPARK_Scope (N : Node_Id) is
    begin
-      if Nkind_In (N, N_Subprogram_Declaration,
+      if Nkind_In (N, N_Entry_Body,
+                      N_Entry_Declaration,
+                      N_Package_Body,
+                      N_Package_Body_Stub,
+                      N_Package_Declaration,
                       N_Subprogram_Body,
                       N_Subprogram_Body_Stub,
-                      N_Package_Declaration,
-                      N_Package_Body)
+                      N_Subprogram_Declaration)
       then
          Add_SPARK_Scope (N);
       end if;
@@ -983,7 +1023,9 @@ package body SPARK_Specific is
    -- Enclosing_Subprogram_Or_Package --
    -------------------------------------
 
-   function Enclosing_Subprogram_Or_Package (N : Node_Id) return Entity_Id is
+   function Enclosing_Subprogram_Or_Library_Package
+     (N : Node_Id) return Entity_Id
+   is
       Result : Entity_Id;
 
    begin
@@ -994,6 +1036,13 @@ package body SPARK_Specific is
         and then Nkind (Parent (N)) in N_Subprogram_Specification
       then
          Result := Parent (Parent (Parent (N)));
+
+         --  If this was a library-level subprogram then replace Result with
+         --  its Unit, which points to N_Subprogram_* node.
+
+         if Nkind (Result) = N_Compilation_Unit then
+            Result := Unit (Result);
+         end if;
       else
          Result := N;
       end if;
@@ -1001,12 +1050,26 @@ package body SPARK_Specific is
       while Present (Result) loop
          case Nkind (Result) is
             when N_Package_Specification =>
-               Result := Defining_Unit_Name (Result);
-               exit;
+
+               --  Only return a library-level package
+
+               if Is_Library_Level_Entity (Defining_Entity (Result)) then
+                  Result := Defining_Entity (Result);
+                  exit;
+               else
+                  Result := Parent (Result);
+               end if;
 
             when N_Package_Body =>
-               Result := Defining_Unit_Name (Result);
-               exit;
+
+               --  Only return a library-level package
+
+               if Is_Library_Level_Entity (Defining_Entity (Result)) then
+                  Result := Defining_Entity (Result);
+                  exit;
+               else
+                  Result := Parent (Result);
+               end if;
 
             when N_Subprogram_Specification =>
                Result := Defining_Unit_Name (Result);
@@ -1020,20 +1083,27 @@ package body SPARK_Specific is
                Result := Defining_Unit_Name (Specification (Result));
                exit;
 
-            --  The enclosing subprogram for a pre- or postconditions should be
-            --  the subprogram to which the pragma is attached. This is not
-            --  always the case in the AST, as the pragma may be declared after
-            --  the declaration of the subprogram. Return Empty in this case.
-
             when N_Pragma =>
-               if Get_Pragma_Id (Result) = Pragma_Precondition
-                    or else
-                  Get_Pragma_Id (Result) = Pragma_Postcondition
-               then
-                  return Empty;
-               else
+
+               --  The enclosing subprogram for a precondition, postcondition,
+               --  or contract case should be the declaration preceding the
+               --  pragma (skipping any other pragmas between this pragma and
+               --  this declaration.
+
+               while Nkind (Result) = N_Pragma
+                 and then Is_List_Member (Result)
+                 and then Present (Prev (Result))
+               loop
+                  Result := Prev (Result);
+               end loop;
+
+               if Nkind (Result) = N_Pragma then
                   Result := Parent (Result);
                end if;
+
+            when N_Entry_Body =>
+               Result := Defining_Identifier (Result);
+               exit;
 
             when others =>
                Result := Parent (Result);
@@ -1053,7 +1123,7 @@ package body SPARK_Specific is
       end if;
 
       return Result;
-   end Enclosing_Subprogram_Or_Package;
+   end Enclosing_Subprogram_Or_Library_Package;
 
    -----------------
    -- Entity_Hash --
@@ -1115,7 +1185,7 @@ package body SPARK_Specific is
                Create_Heap;
             end if;
 
-            Ref_Scope := Enclosing_Subprogram_Or_Package (N);
+            Ref_Scope := Enclosing_Subprogram_Or_Library_Package (N);
 
             Deref.Ent := Heap;
             Deref.Loc := Loc;
@@ -1136,17 +1206,6 @@ package body SPARK_Specific is
          end;
       end if;
    end Generate_Dereference;
-
-   ------------------------------------
-   -- Traverse_All_Compilation_Units --
-   ------------------------------------
-
-   procedure Traverse_All_Compilation_Units (Process : Node_Processing) is
-   begin
-      for U in Units.First .. Last_Unit loop
-         Traverse_Compilation_Unit (Cunit (U), Process, Inside_Stubs => False);
-      end loop;
-   end Traverse_All_Compilation_Units;
 
    -------------------------------
    -- Traverse_Compilation_Unit --
@@ -1186,25 +1245,185 @@ package body SPARK_Specific is
 
       --  Traverse the unit
 
-      if Nkind (Lu) = N_Subprogram_Body then
-         Traverse_Subprogram_Body (Lu, Process, Inside_Stubs);
-
-      elsif Nkind (Lu) = N_Subprogram_Declaration then
-         null;
-
-      elsif Nkind (Lu) = N_Package_Declaration then
-         Traverse_Package_Declaration (Lu, Process, Inside_Stubs);
-
-      elsif Nkind (Lu) = N_Package_Body then
-         Traverse_Package_Body (Lu, Process, Inside_Stubs);
-
-      --  All other cases of compilation units (e.g. renamings), are not
-      --  declarations, or else generic declarations which are ignored.
-
-      else
-         null;
-      end if;
+      Traverse_Declaration_Or_Statement (Lu, Process, Inside_Stubs);
    end Traverse_Compilation_Unit;
+
+   ---------------------------------------
+   -- Traverse_Declaration_Or_Statement --
+   ---------------------------------------
+
+   procedure Traverse_Declaration_Or_Statement
+     (N            : Node_Id;
+      Process      : Node_Processing;
+      Inside_Stubs : Boolean)
+   is
+   begin
+      case Nkind (N) is
+         when N_Package_Declaration =>
+            declare
+               Spec : constant Node_Id := Specification (N);
+            begin
+               Traverse_Declarations_Or_Statements
+                 (Visible_Declarations (Spec), Process, Inside_Stubs);
+               Traverse_Declarations_Or_Statements
+                 (Private_Declarations (Spec), Process, Inside_Stubs);
+            end;
+
+         when N_Package_Body =>
+            if Ekind (Defining_Entity (N)) /= E_Generic_Package then
+               Traverse_Package_Body (N, Process, Inside_Stubs);
+            end if;
+
+         when N_Package_Body_Stub =>
+            if Present (Library_Unit (N)) then
+               declare
+                  Body_N : constant Node_Id := Get_Body_From_Stub (N);
+               begin
+                  if Inside_Stubs
+                    and then
+                      Ekind (Defining_Entity (Body_N)) /= E_Generic_Package
+                  then
+                     Traverse_Package_Body (Body_N, Process, Inside_Stubs);
+                  end if;
+               end;
+            end if;
+
+         when N_Subprogram_Declaration =>
+            null;
+
+         when N_Entry_Body | N_Subprogram_Body =>
+            if not Is_Generic_Subprogram (Defining_Entity (N)) then
+               Traverse_Subprogram_Body (N, Process, Inside_Stubs);
+            end if;
+
+         when N_Subprogram_Body_Stub =>
+            if Present (Library_Unit (N)) then
+               declare
+                  Body_N : constant Node_Id := Get_Body_From_Stub (N);
+               begin
+                  if Inside_Stubs
+                    and then
+                      not Is_Generic_Subprogram (Defining_Entity (Body_N))
+                  then
+                     Traverse_Subprogram_Body (Body_N, Process, Inside_Stubs);
+                  end if;
+               end;
+            end if;
+
+         when N_Protected_Body =>
+            Traverse_Protected_Body (N, Process, Inside_Stubs);
+
+         when N_Protected_Body_Stub =>
+            if Present (Library_Unit (N)) then
+               declare
+                  Body_N : constant Node_Id := Get_Body_From_Stub (N);
+               begin
+                  if Inside_Stubs then
+                     Traverse_Declarations_Or_Statements
+                       (Declarations (Body_N), Process, Inside_Stubs);
+                  end if;
+               end;
+            end if;
+
+         when N_Protected_Type_Declaration | N_Single_Protected_Declaration =>
+            declare
+               Def : constant Node_Id := Protected_Definition (N);
+            begin
+               Traverse_Declarations_Or_Statements
+                 (Visible_Declarations (Def), Process, Inside_Stubs);
+               Traverse_Declarations_Or_Statements
+                 (Private_Declarations (Def), Process, Inside_Stubs);
+            end;
+
+         when N_Task_Definition =>
+            Traverse_Declarations_Or_Statements
+              (Visible_Declarations (N), Process, Inside_Stubs);
+            Traverse_Declarations_Or_Statements
+              (Private_Declarations (N), Process, Inside_Stubs);
+
+         when N_Task_Body =>
+            Traverse_Declarations_Or_Statements
+              (Declarations (N), Process, Inside_Stubs);
+            Traverse_Handled_Statement_Sequence
+              (Handled_Statement_Sequence (N), Process, Inside_Stubs);
+
+         when N_Task_Body_Stub =>
+            if Present (Library_Unit (N)) then
+               declare
+                  Body_N : constant Node_Id := Get_Body_From_Stub (N);
+               begin
+                  if Inside_Stubs then
+                     Traverse_Declarations_Or_Statements
+                       (Declarations (Body_N), Process, Inside_Stubs);
+                     Traverse_Handled_Statement_Sequence
+                       (Handled_Statement_Sequence (Body_N), Process,
+                        Inside_Stubs);
+                  end if;
+               end;
+            end if;
+
+         when N_Block_Statement =>
+            Traverse_Declarations_Or_Statements
+              (Declarations (N), Process, Inside_Stubs);
+            Traverse_Handled_Statement_Sequence
+              (Handled_Statement_Sequence (N), Process, Inside_Stubs);
+
+         when N_If_Statement =>
+
+            --  Traverse the statements in the THEN part
+
+            Traverse_Declarations_Or_Statements
+              (Then_Statements (N), Process, Inside_Stubs);
+
+            --  Loop through ELSIF parts if present
+
+            if Present (Elsif_Parts (N)) then
+               declare
+                  Elif : Node_Id := First (Elsif_Parts (N));
+
+               begin
+                  while Present (Elif) loop
+                     Traverse_Declarations_Or_Statements
+                       (Then_Statements (Elif), Process, Inside_Stubs);
+                     Next (Elif);
+                  end loop;
+               end;
+            end if;
+
+            --  Finally traverse the ELSE statements if present
+
+            Traverse_Declarations_Or_Statements
+              (Else_Statements (N), Process, Inside_Stubs);
+
+         when N_Case_Statement =>
+
+            --  Process case branches
+
+            declare
+               Alt : Node_Id;
+            begin
+               Alt := First (Alternatives (N));
+               while Present (Alt) loop
+                  Traverse_Declarations_Or_Statements
+                    (Statements (Alt), Process, Inside_Stubs);
+                  Next (Alt);
+               end loop;
+            end;
+
+         when N_Extended_Return_Statement =>
+            Traverse_Handled_Statement_Sequence
+              (Handled_Statement_Sequence (N), Process, Inside_Stubs);
+
+         when N_Loop_Statement =>
+            Traverse_Declarations_Or_Statements
+              (Statements (N), Process, Inside_Stubs);
+
+         --  Generic declarations are ignored
+
+         when others =>
+            null;
+      end case;
+   end Traverse_Declaration_Or_Statement;
 
    -----------------------------------------
    -- Traverse_Declarations_Or_Statements --
@@ -1227,134 +1446,13 @@ package body SPARK_Specific is
          if Nkind (N) in N_Declaration
               or else
             Nkind (N) in N_Later_Decl_Item
+              or else
+            Nkind (N) = N_Entry_Body
          then
             Process (N);
          end if;
 
-         case Nkind (N) is
-
-            --  Package declaration
-
-            when N_Package_Declaration =>
-               Traverse_Package_Declaration (N, Process, Inside_Stubs);
-
-            --  Package body
-
-            when N_Package_Body =>
-               if Ekind (Defining_Entity (N)) /= E_Generic_Package then
-                  Traverse_Package_Body (N, Process, Inside_Stubs);
-               end if;
-
-            when N_Package_Body_Stub =>
-               if Present (Library_Unit (N)) then
-                  declare
-                     Body_N : constant Node_Id := Get_Body_From_Stub (N);
-                  begin
-                     if Inside_Stubs
-                       and then
-                         Ekind (Defining_Entity (Body_N)) /= E_Generic_Package
-                     then
-                        Traverse_Package_Body (Body_N, Process, Inside_Stubs);
-                     end if;
-                  end;
-               end if;
-
-            --  Subprogram declaration
-
-            when N_Subprogram_Declaration =>
-               null;
-
-            --  Subprogram body
-
-            when N_Subprogram_Body =>
-               if not Is_Generic_Subprogram (Defining_Entity (N)) then
-                  Traverse_Subprogram_Body (N, Process, Inside_Stubs);
-               end if;
-
-            when N_Subprogram_Body_Stub =>
-               if Present (Library_Unit (N)) then
-                  declare
-                     Body_N : constant Node_Id := Get_Body_From_Stub (N);
-                  begin
-                     if Inside_Stubs
-                       and then
-                         not Is_Generic_Subprogram (Defining_Entity (Body_N))
-                     then
-                        Traverse_Subprogram_Body
-                          (Body_N, Process, Inside_Stubs);
-                     end if;
-                  end;
-               end if;
-
-            --  Block statement
-
-            when N_Block_Statement =>
-               Traverse_Declarations_Or_Statements
-                 (Declarations (N), Process, Inside_Stubs);
-               Traverse_Handled_Statement_Sequence
-                 (Handled_Statement_Sequence (N), Process, Inside_Stubs);
-
-            when N_If_Statement =>
-
-               --  Traverse the statements in the THEN part
-
-               Traverse_Declarations_Or_Statements
-                 (Then_Statements (N), Process, Inside_Stubs);
-
-               --  Loop through ELSIF parts if present
-
-               if Present (Elsif_Parts (N)) then
-                  declare
-                     Elif : Node_Id := First (Elsif_Parts (N));
-
-                  begin
-                     while Present (Elif) loop
-                        Traverse_Declarations_Or_Statements
-                          (Then_Statements (Elif), Process, Inside_Stubs);
-                        Next (Elif);
-                     end loop;
-                  end;
-               end if;
-
-               --  Finally traverse the ELSE statements if present
-
-               Traverse_Declarations_Or_Statements
-                 (Else_Statements (N), Process, Inside_Stubs);
-
-            --  Case statement
-
-            when N_Case_Statement =>
-
-               --  Process case branches
-
-               declare
-                  Alt : Node_Id;
-               begin
-                  Alt := First (Alternatives (N));
-                  while Present (Alt) loop
-                     Traverse_Declarations_Or_Statements
-                       (Statements (Alt), Process, Inside_Stubs);
-                     Next (Alt);
-                  end loop;
-               end;
-
-            --  Extended return statement
-
-            when N_Extended_Return_Statement =>
-               Traverse_Handled_Statement_Sequence
-                 (Handled_Statement_Sequence (N), Process, Inside_Stubs);
-
-            --  Loop
-
-            when N_Loop_Statement =>
-               Traverse_Declarations_Or_Statements
-                 (Statements (N), Process, Inside_Stubs);
-
-            --  Generic declarations are ignored
-
-            when others =>
-               null;
-         end case;
+         Traverse_Declaration_Or_Statement (N, Process, Inside_Stubs);
 
          Next (N);
       end loop;
@@ -1402,22 +1500,18 @@ package body SPARK_Specific is
         (Handled_Statement_Sequence (N), Process, Inside_Stubs);
    end Traverse_Package_Body;
 
-   ----------------------------------
-   -- Traverse_Package_Declaration --
-   ----------------------------------
+   -----------------------------
+   -- Traverse_Protected_Body --
+   -----------------------------
 
-   procedure Traverse_Package_Declaration
+   procedure Traverse_Protected_Body
      (N            : Node_Id;
       Process      : Node_Processing;
-      Inside_Stubs : Boolean)
-   is
-      Spec : constant Node_Id := Specification (N);
+      Inside_Stubs : Boolean) is
    begin
       Traverse_Declarations_Or_Statements
-        (Visible_Declarations (Spec), Process, Inside_Stubs);
-      Traverse_Declarations_Or_Statements
-        (Private_Declarations (Spec), Process, Inside_Stubs);
-   end Traverse_Package_Declaration;
+        (Declarations (N), Process, Inside_Stubs);
+   end Traverse_Protected_Body;
 
    ------------------------------
    -- Traverse_Subprogram_Body --

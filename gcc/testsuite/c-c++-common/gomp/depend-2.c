@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* { dg-do compile { target c++ } } */
+=======
+/* { dg-do compile } */
+>>>>>>> gcc-mirror/master
 /* { dg-options "-fopenmp" } */
 
 void bar (int a[10][10][10]);

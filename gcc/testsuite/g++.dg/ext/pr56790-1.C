@@ -1,5 +1,6 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -fdump-tree-ccp1" } */
+/* { dg-prune-output "changes the ABI" } */
 
 typedef long vec __attribute__ ((vector_size (2 * sizeof (long))));
 
@@ -13,4 +14,3 @@ vec f (void)
 
 /* { dg-final { scan-tree-dump "{ 5, 13 }" "ccp1" } } */
 /* { dg-final { scan-tree-dump-not "VEC_COND_EXPR" "ccp1" } } */
-/* { dg-final { cleanup-tree-dump "ccp1" } } */

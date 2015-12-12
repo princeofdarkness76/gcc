@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2015 Free Software Foundation, Inc.
 
    This file is free software; you can redistribute it and/or modify it under
    the terms of the GNU General Public License as published by the Free
@@ -53,8 +53,6 @@ extern GTY(()) int spu_tune;
 #define BYTES_BIG_ENDIAN 1
 
 #define WORDS_BIG_ENDIAN 1
-
-#define BITS_PER_UNIT 8
 
 /* GCC uses word_mode in many places, assuming that it is the fastest
    integer mode.  That is not the case for SPU though.  We can't use
@@ -239,7 +237,7 @@ targetm.resolve_overloaded_builtin = spu_resolve_overloaded_builtin;	\
 
 /* Frame Layout */
 
-#define STACK_GROWS_DOWNWARD
+#define STACK_GROWS_DOWNWARD 1
 
 #define FRAME_GROWS_DOWNWARD 1
 
@@ -409,7 +407,7 @@ do {									\
 
 #define MOVE_RATIO(speed) ((speed)? 32 : 4)
 
-#define NO_FUNCTION_CSE
+#define NO_FUNCTION_CSE 1
 
 
 /* Sections */

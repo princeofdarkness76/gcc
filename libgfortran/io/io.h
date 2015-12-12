@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2002-2015 Free Software Foundation, Inc.
    Contributed by Andy Vaught
    F2003 I/O support contributed by Jerry DeLisle
 
@@ -32,6 +32,17 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #include <gthr.h>
 
+
+/* POSIX 2008 specifies that the extended locale stuff is found in
+   locale.h, but some systems have them in xlocale.h.  */
+
+#include <locale.h>
+
+#ifdef HAVE_XLOCALE_H
+#include <xlocale.h>
+#endif
+
+
 /* Forward declarations.  */
 struct st_parameter_dt;
 typedef struct stream stream;
@@ -39,6 +50,19 @@ struct fbuf;
 struct format_data;
 typedef struct fnode fnode;
 struct gfc_unit;
+
+#ifdef HAVE_NEWLOCALE
+/* We have POSIX 2008 extended locale stuff.  */
+extern locale_t c_locale;
+internal_proto(c_locale);
+#else
+extern char* old_locale;
+internal_proto(old_locale);
+extern int old_locale_ctr;
+internal_proto(old_locale_ctr);
+extern __gthread_mutex_t old_locale_lock;
+internal_proto(old_locale_lock);
+#endif
 
 
 /* Macros for testing what kinds of I/O we are doing.  */
@@ -186,8 +210,14 @@ typedef enum
 unit_encoding;
 
 typedef enum
-{ ROUND_UP, ROUND_DOWN, ROUND_ZERO, ROUND_NEAREST, ROUND_COMPATIBLE,
-  ROUND_PROCDEFINED, ROUND_UNSPECIFIED }
+{ ROUND_UP = GFC_FPE_UPWARD,
+  ROUND_DOWN = GFC_FPE_DOWNWARD,
+  ROUND_ZERO = GFC_FPE_TOWARDZERO,
+  ROUND_NEAREST = GFC_FPE_TONEAREST,
+  ROUND_COMPATIBLE = 10, /* round away from zero.  */
+  ROUND_PROCDEFINED, /* Here as ROUND_NEAREST. */
+  ROUND_UNSPECIFIED /* Should never occur. */
+}
 unit_round;
 
 /* NOTE: unit_sign must correspond with the sign_status enumerator in
@@ -201,7 +231,7 @@ typedef enum
 unit_advance;
 
 typedef enum
-{READING, WRITING}
+{READING, WRITING, LIST_READING, LIST_WRITING}
 unit_mode;
 
 typedef enum
@@ -281,7 +311,7 @@ st_parameter_filepos;
 #define IOPARM_INQUIRE_HAS_WRITE	(1 << 28)
 #define IOPARM_INQUIRE_HAS_READWRITE	(1 << 29)
 #define IOPARM_INQUIRE_HAS_CONVERT	(1 << 30)
-#define IOPARM_INQUIRE_HAS_FLAGS2	(1 << 31)
+#define IOPARM_INQUIRE_HAS_FLAGS2	(1u << 31)
 
 #define IOPARM_INQUIRE_HAS_ASYNCHRONOUS	(1 << 0)
 #define IOPARM_INQUIRE_HAS_DECIMAL	(1 << 1)
@@ -350,7 +380,7 @@ st_parameter_inquire;
 #define IOPARM_DT_HAS_SIGN			(1 << 24)
 #define IOPARM_DT_HAS_F2003                     (1 << 25)
 /* Internal use bit.  */
-#define IOPARM_DT_IONML_SET			(1 << 31)
+#define IOPARM_DT_IONML_SET			(1u << 31)
 
 
 typedef struct st_parameter_dt
@@ -424,7 +454,10 @@ typedef struct st_parameter_dt
 	  unsigned g0_no_blanks : 1;
 	  /* Used to signal use of free_format_data.  */
 	  unsigned format_not_saved : 1;
-	  /* 14 unused bits.  */
+	  /* A flag used to identify when a non-standard expanded namelist read
+	     has occurred.  */
+	  unsigned expanded_read : 1;
+	  /* 13 unused bits.  */
 
 	  /* Used for ungetc() style functionality. Possible values
 	     are an unsigned char, EOF, or EOF - 1 used to mark the
@@ -441,9 +474,11 @@ typedef struct st_parameter_dt
 	  char *line_buffer;
 	  struct format_data *fmt;
 	  namelist_info *ionml;
-	  /* A flag used to identify when a non-standard expanded namelist read
-	     has occurred.  */
-	  int expanded_read;
+#ifdef HAVE_NEWLOCALE
+	  locale_t old_locale;
+#endif
+	  /* Current position within the look-ahead line buffer.  */
+	  int line_buffer_pos;
 	  /* Storage area for values except for strings.  Must be
 	     large enough to hold a complex value (two reals) of the
 	     largest kind.  */
@@ -559,14 +594,19 @@ typedef struct gfc_unit
   array_loop_spec *ls;
   int rank;
 
-  int file_len;
-  char *file;
+  /* Name of the file at the time OPEN was executed, as a
+     null-terminated C string.  */
+  char *filename;
 
   /* The format hash table.  */
   struct format_hash_entry format_hash_table[FORMAT_HASH_SIZE];
   
   /* Formatting buffer.  */
   struct fbuf *fbuf;
+  
+  /* Function pointer, points to list_read worker functions.  */
+  int (*next_char_fn_ptr) (st_parameter_dt *);
+  void (*push_char_fn_ptr) (st_parameter_dt *, int);
 }
 gfc_unit;
 

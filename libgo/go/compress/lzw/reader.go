@@ -6,12 +6,16 @@
 // described in T. A. Welch, ``A Technique for High-Performance Data
 // Compression'', Computer, 17(6) (June 1984), pp 8-19.
 //
-// In particular, it implements LZW as used by the GIF, TIFF and PDF file
+// In particular, it implements LZW as used by the GIF and PDF file
 // formats, which means variable-width codes up to 12 bits and the first
 // two non-literal codes are a clear code and an EOF code.
+//
+// The TIFF file format uses a similar but incompatible version of the LZW
+// algorithm. See the golang.org/x/image/tiff/lzw package for an
+// implementation.
 package lzw
 
-// TODO(nigeltao): check that TIFF and PDF use LZW in the same way as GIF,
+// TODO(nigeltao): check that PDF uses LZW in the same way as GIF,
 // modulo LSB/MSB packing order.
 
 import (
@@ -121,7 +125,6 @@ func (d *decoder) Read(b []byte) (int, error) {
 		}
 		d.decode()
 	}
-	panic("unreachable")
 }
 
 // decode decompresses bytes from r and leaves them in d.toRead.
@@ -136,6 +139,7 @@ func (d *decoder) decode() {
 				err = io.ErrUnexpectedEOF
 			}
 			d.err = err
+			d.flush()
 			return
 		}
 		switch {
@@ -187,6 +191,7 @@ func (d *decoder) decode() {
 			}
 		default:
 			d.err = errors.New("lzw: invalid code")
+			d.flush()
 			return
 		}
 		d.last, d.hi = code, d.hi+1
@@ -203,7 +208,6 @@ func (d *decoder) decode() {
 			return
 		}
 	}
-	panic("unreachable")
 }
 
 func (d *decoder) flush() {
@@ -211,19 +215,22 @@ func (d *decoder) flush() {
 	d.o = 0
 }
 
-var errClosed = errors.New("compress/lzw: reader/writer is closed")
+var errClosed = errors.New("lzw: reader/writer is closed")
 
 func (d *decoder) Close() error {
 	d.err = errClosed // in case any Reads come along
 	return nil
 }
 
-// NewReader creates a new io.ReadCloser that satisfies reads by decompressing
-// the data read from r.
+// NewReader creates a new io.ReadCloser.
+// Reads from the returned io.ReadCloser read and decompress data from r.
+// If r does not also implement io.ByteReader,
+// the decompressor may read more data than necessary from r.
 // It is the caller's responsibility to call Close on the ReadCloser when
 // finished reading.
 // The number of bits to use for literal codes, litWidth, must be in the
-// range [2,8] and is typically 8.
+// range [2,8] and is typically 8. It must equal the litWidth
+// used during compression.
 func NewReader(r io.Reader, order Order, litWidth int) io.ReadCloser {
 	d := new(decoder)
 	switch order {

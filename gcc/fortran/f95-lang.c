@@ -1,5 +1,5 @@
 /* gfortran backend interface
-   Copyright (C) 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2000-2015 Free Software Foundation, Inc.
    Contributed by Paul Brook.
 
 This file is part of GCC.
@@ -24,27 +24,18 @@ along with GCC; see the file COPYING3.  If not see
 
 #include "config.h"
 #include "system.h"
-#include "ansidecl.h"
-#include "system.h"
 #include "coretypes.h"
+#include "target.h"
+#include "function.h"
 #include "tree.h"
-#include "gimple.h"
-#include "flags.h"
+#include "gfortran.h"
+#include "trans.h"
+#include "diagnostic.h" /* For errorcount/warningcount */
 #include "langhooks.h"
 #include "langhooks-def.h"
-#include "timevar.h"
-#include "tm.h"
-#include "function.h"
-#include "ggc.h"
 #include "toplev.h"
-#include "target.h"
 #include "debug.h"
-#include "diagnostic.h"
-#include "dumpfile.h"
-#include "cgraph.h"
-#include "gfortran.h"
 #include "cpp.h"
-#include "trans.h"
 #include "trans-types.h"
 #include "trans-const.h"
 
@@ -82,16 +73,32 @@ static bool global_bindings_p (void);
 /* Each front end provides its own.  */
 static bool gfc_init (void);
 static void gfc_finish (void);
-static void gfc_write_global_declarations (void);
 static void gfc_be_parse_file (void);
 static alias_set_type gfc_get_alias_set (tree);
 static void gfc_init_ts (void);
 static tree gfc_builtin_function (tree);
 
+/* Handle an "omp declare target" attribute; arguments as in
+   struct attribute_spec.handler.  */
+static tree
+gfc_handle_omp_declare_target_attribute (tree *, tree, tree, int, bool *)
+{
+  return NULL_TREE;
+}
+
+/* Table of valid Fortran attributes.  */
+static const struct attribute_spec gfc_attribute_table[] =
+{
+  /* { name, min_len, max_len, decl_req, type_req, fn_type_req, handler,
+       affects_type_identity } */
+  { "omp declare target", 0, 0, true,  false, false,
+    gfc_handle_omp_declare_target_attribute, false },
+  { NULL,		  0, 0, false, false, false, NULL, false }
+};
+
 #undef LANG_HOOKS_NAME
 #undef LANG_HOOKS_INIT
 #undef LANG_HOOKS_FINISH
-#undef LANG_HOOKS_WRITE_GLOBALS
 #undef LANG_HOOKS_OPTION_LANG_MASK
 #undef LANG_HOOKS_INIT_OPTIONS_STRUCT
 #undef LANG_HOOKS_INIT_OPTIONS
@@ -109,7 +116,9 @@ static tree gfc_builtin_function (tree);
 #undef LANG_HOOKS_OMP_CLAUSE_DEFAULT_CTOR
 #undef LANG_HOOKS_OMP_CLAUSE_COPY_CTOR
 #undef LANG_HOOKS_OMP_CLAUSE_ASSIGN_OP
+#undef LANG_HOOKS_OMP_CLAUSE_LINEAR_CTOR
 #undef LANG_HOOKS_OMP_CLAUSE_DTOR
+#undef LANG_HOOKS_OMP_FINISH_CLAUSE
 #undef LANG_HOOKS_OMP_DISREGARD_VALUE_EXPR
 #undef LANG_HOOKS_OMP_PRIVATE_DEBUG_CLAUSE
 #undef LANG_HOOKS_OMP_PRIVATE_OUTER_REF
@@ -117,12 +126,12 @@ static tree gfc_builtin_function (tree);
 #undef LANG_HOOKS_BUILTIN_FUNCTION
 #undef LANG_HOOKS_BUILTIN_FUNCTION
 #undef LANG_HOOKS_GET_ARRAY_DESCR_INFO
+#undef LANG_HOOKS_ATTRIBUTE_TABLE
 
 /* Define lang hooks.  */
 #define LANG_HOOKS_NAME                 "GNU Fortran"
 #define LANG_HOOKS_INIT                 gfc_init
 #define LANG_HOOKS_FINISH               gfc_finish
-#define LANG_HOOKS_WRITE_GLOBALS	gfc_write_global_declarations
 #define LANG_HOOKS_OPTION_LANG_MASK	gfc_option_lang_mask
 #define LANG_HOOKS_INIT_OPTIONS_STRUCT  gfc_init_options_struct
 #define LANG_HOOKS_INIT_OPTIONS         gfc_init_options
@@ -139,14 +148,17 @@ static tree gfc_builtin_function (tree);
 #define LANG_HOOKS_OMP_CLAUSE_DEFAULT_CTOR	gfc_omp_clause_default_ctor
 #define LANG_HOOKS_OMP_CLAUSE_COPY_CTOR		gfc_omp_clause_copy_ctor
 #define LANG_HOOKS_OMP_CLAUSE_ASSIGN_OP		gfc_omp_clause_assign_op
+#define LANG_HOOKS_OMP_CLAUSE_LINEAR_CTOR	gfc_omp_clause_linear_ctor
 #define LANG_HOOKS_OMP_CLAUSE_DTOR		gfc_omp_clause_dtor
+#define LANG_HOOKS_OMP_FINISH_CLAUSE		gfc_omp_finish_clause
 #define LANG_HOOKS_OMP_DISREGARD_VALUE_EXPR	gfc_omp_disregard_value_expr
 #define LANG_HOOKS_OMP_PRIVATE_DEBUG_CLAUSE	gfc_omp_private_debug_clause
 #define LANG_HOOKS_OMP_PRIVATE_OUTER_REF	gfc_omp_private_outer_ref
 #define LANG_HOOKS_OMP_FIRSTPRIVATIZE_TYPE_SIZES \
   gfc_omp_firstprivatize_type_sizes
-#define LANG_HOOKS_BUILTIN_FUNCTION          gfc_builtin_function
-#define LANG_HOOKS_GET_ARRAY_DESCR_INFO	     gfc_get_array_descr_info
+#define LANG_HOOKS_BUILTIN_FUNCTION	gfc_builtin_function
+#define LANG_HOOKS_GET_ARRAY_DESCR_INFO	gfc_get_array_descr_info
+#define LANG_HOOKS_ATTRIBUTE_TABLE	gfc_attribute_table
 
 struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
 
@@ -176,27 +188,36 @@ gfc_create_decls (void)
 
   /* Build our translation-unit decl.  */
   current_translation_unit = build_translation_unit_decl (NULL_TREE);
+  debug_hooks->register_main_translation_unit (current_translation_unit);
 }
 
 
 static void
 gfc_be_parse_file (void)
 {
-  int errors;
-  int warnings;
-
   gfc_create_decls ();
   gfc_parse_file ();
   gfc_generate_constructors ();
 
-  /* Tell the frontend about any errors.  */
-  gfc_get_errors (&warnings, &errors);
-  errorcount += errors;
-  warningcount += warnings;
-
   /* Clear the binding level stack.  */
   while (!global_bindings_p ())
     poplevel (0, 0);
+
+  /* Finalize all of the globals.
+
+     Emulated tls lowering needs to see all TLS variables before we
+     call finalize_compilation_unit.  The C/C++ front ends manage this
+     by calling decl_rest_of_compilation on each global and static
+     variable as they are seen.  The Fortran front end waits until
+     here.  */
+  for (tree decl = getdecls (); decl ; decl = DECL_CHAIN (decl))
+    rest_of_decl_compilation (decl, true, true);
+
+  /* Switch to the default tree diagnostics here, because there may be
+     diagnostics before gfc_finish().  */
+  gfc_diagnostics_finish ();
+
+  global_decl_processing ();
 }
 
 
@@ -222,7 +243,10 @@ gfc_init (void)
   gfc_init_1 ();
 
   if (!gfc_new_file ())
-    fatal_error ("can't open input file: %s", gfc_source_file);
+    fatal_error (input_location, "can't open input file: %s", gfc_source_file);
+
+  if (flag_preprocess_only)
+    return false;
 
   return true;
 }
@@ -235,32 +259,6 @@ gfc_finish (void)
   gfc_done_1 ();
   gfc_release_include_path ();
   return;
-}
-
-/* ??? This is something of a hack.
-
-   Emulated tls lowering needs to see all TLS variables before we call
-   finalize_compilation_unit.  The C/C++ front ends manage this
-   by calling decl_rest_of_compilation on each global and static variable
-   as they are seen.  The Fortran front end waits until this hook.
-
-   A Correct solution is for finalize_compilation_unit not to be
-   called during the WRITE_GLOBALS langhook, and have that hook only do what
-   its name suggests and write out globals.  But the C++ and Java front ends
-   have (unspecified) problems with aliases that gets in the way.  It has
-   been suggested that these problems would be solved by completing the
-   conversion to cgraph-based aliases.  */
-
-static void
-gfc_write_global_declarations (void)
-{
-  tree decl;
-
-  /* Finalize all of the globals.  */
-  for (decl = getdecls(); decl ; decl = DECL_CHAIN (decl))
-    rest_of_decl_compilation (decl, true, true);
-
-  write_global_declarations ();
 }
 
 /* These functions and variables deal with binding contours.  We only
@@ -316,12 +314,12 @@ getdecls (void)
   return current_binding_level->names;
 }
 
-/* Enter a new binding level. */
+/* Enter a new binding level.  */
 
 void
 pushlevel (void)
 {
-  struct binding_level *newlevel = ggc_alloc_binding_level ();
+  struct binding_level *newlevel = ggc_alloc<binding_level> ();
 
   *newlevel = clear_binding_level;
 
@@ -384,7 +382,7 @@ poplevel (int keep, int functionbody)
   current_binding_level = current_binding_level->level_chain;
 
   if (functionbody)
-    /* This is the top level block of a function. */
+    /* This is the top level block of a function.  */
     DECL_INITIAL (current_function_decl) = block_node;
   else if (current_binding_level == global_binding_level)
     /* When using gfc_start_block/gfc_finish_block from middle-end hooks,
@@ -531,11 +529,18 @@ gfc_builtin_function (tree decl)
   return decl;
 }
 
+<<<<<<< HEAD
 /* So far we need just these 6 attribute types.  */
 #define ATTR_NULL			0
+=======
+/* So far we need just these 7 attribute types.  */
+#define ATTR_NULL			0
+#define ATTR_LEAF_LIST			(ECF_LEAF)
+>>>>>>> gcc-mirror/master
 #define ATTR_NOTHROW_LEAF_LIST		(ECF_NOTHROW | ECF_LEAF)
 #define ATTR_NOTHROW_LEAF_MALLOC_LIST	(ECF_NOTHROW | ECF_LEAF | ECF_MALLOC)
 #define ATTR_CONST_NOTHROW_LEAF_LIST	(ECF_NOTHROW | ECF_LEAF | ECF_CONST)
+#define ATTR_PURE_NOTHROW_LEAF_LIST	(ECF_NOTHROW | ECF_LEAF | ECF_PURE)
 #define ATTR_NOTHROW_LIST		(ECF_NOTHROW)
 #define ATTR_CONST_NOTHROW_LIST		(ECF_NOTHROW | ECF_CONST)
 
@@ -617,10 +622,31 @@ gfc_init_builtin_functions (void)
 #define DEF_FUNCTION_TYPE_3(NAME, RETURN, ARG1, ARG2, ARG3) NAME,
 #define DEF_FUNCTION_TYPE_4(NAME, RETURN, ARG1, ARG2, ARG3, ARG4) NAME,
 #define DEF_FUNCTION_TYPE_5(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5) NAME,
+<<<<<<< HEAD
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) NAME,
 #define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) NAME,
+=======
+#define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			    ARG6) NAME,
+#define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			    ARG6, ARG7) NAME,
+#define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			    ARG6, ARG7, ARG8) NAME,
+#define DEF_FUNCTION_TYPE_9(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			    ARG6, ARG7, ARG8, ARG9) NAME,
+#define DEF_FUNCTION_TYPE_10(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			     ARG6, ARG7, ARG8, ARG9, ARG10) NAME,
+#define DEF_FUNCTION_TYPE_11(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) NAME,
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(NAME, RETURN) NAME,
+#define DEF_FUNCTION_TYPE_VAR_1(NAME, RETURN, ARG1) NAME,
+#define DEF_FUNCTION_TYPE_VAR_2(NAME, RETURN, ARG1, ARG2) NAME,
+#define DEF_FUNCTION_TYPE_VAR_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+				 ARG6) NAME,
+#define DEF_FUNCTION_TYPE_VAR_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+				ARG6, ARG7) NAME,
 #define DEF_POINTER_TYPE(NAME, TYPE) NAME,
 #include "types.def"
 #undef DEF_PRIMITIVE_TYPE
@@ -633,7 +659,17 @@ gfc_init_builtin_functions (void)
 #undef DEF_FUNCTION_TYPE_6
 #undef DEF_FUNCTION_TYPE_7
 #undef DEF_FUNCTION_TYPE_8
+<<<<<<< HEAD
+=======
+#undef DEF_FUNCTION_TYPE_9
+#undef DEF_FUNCTION_TYPE_10
+#undef DEF_FUNCTION_TYPE_11
+>>>>>>> gcc-mirror/master
 #undef DEF_FUNCTION_TYPE_VAR_0
+#undef DEF_FUNCTION_TYPE_VAR_1
+#undef DEF_FUNCTION_TYPE_VAR_2
+#undef DEF_FUNCTION_TYPE_VAR_6
+#undef DEF_FUNCTION_TYPE_VAR_7
 #undef DEF_POINTER_TYPE
     BT_LAST
   };
@@ -652,6 +688,8 @@ gfc_init_builtin_functions (void)
   tree func_longdouble_longdoublep_longdoublep;
   tree ftype, ptype;
   tree builtin_types[(int) BT_LAST + 1];
+
+  int attr;
 
   build_builtin_fntypes (mfunc_float, float_type_node);
   build_builtin_fntypes (mfunc_double, double_type_node);
@@ -740,6 +778,32 @@ gfc_init_builtin_functions (void)
 		      BUILT_IN_NEXTAFTERF, "nextafterf",
 		      ATTR_CONST_NOTHROW_LEAF_LIST);
  
+  /* Some built-ins depend on rounding mode. Depending on compilation options, they
+     will be "pure" or "const".  */
+  attr = flag_rounding_math ? ATTR_PURE_NOTHROW_LEAF_LIST : ATTR_CONST_NOTHROW_LEAF_LIST;
+
+  gfc_define_builtin ("__builtin_rintl", mfunc_longdouble[0], 
+		      BUILT_IN_RINTL, "rintl", attr);
+  gfc_define_builtin ("__builtin_rint", mfunc_double[0], 
+		      BUILT_IN_RINT, "rint", attr);
+  gfc_define_builtin ("__builtin_rintf", mfunc_float[0], 
+		      BUILT_IN_RINTF, "rintf", attr);
+
+  gfc_define_builtin ("__builtin_remainderl", mfunc_longdouble[1], 
+		      BUILT_IN_REMAINDERL, "remainderl", attr);
+  gfc_define_builtin ("__builtin_remainder", mfunc_double[1], 
+		      BUILT_IN_REMAINDER, "remainder", attr);
+  gfc_define_builtin ("__builtin_remainderf", mfunc_float[1], 
+		      BUILT_IN_REMAINDERF, "remainderf", attr);
+ 
+  gfc_define_builtin ("__builtin_logbl", mfunc_longdouble[0], 
+		      BUILT_IN_LOGBL, "logbl", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_logb", mfunc_double[0], 
+		      BUILT_IN_LOGB, "logb", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_logbf", mfunc_float[0], 
+		      BUILT_IN_LOGBF, "logbf", ATTR_CONST_NOTHROW_LEAF_LIST);
+
+
   gfc_define_builtin ("__builtin_frexpl", mfunc_longdouble[4], 
 		      BUILT_IN_FREXPL, "frexpl", ATTR_NOTHROW_LEAF_LIST);
   gfc_define_builtin ("__builtin_frexp", mfunc_double[4], 
@@ -754,11 +818,11 @@ gfc_init_builtin_functions (void)
   gfc_define_builtin ("__builtin_fabsf", mfunc_float[0], 
 		      BUILT_IN_FABSF, "fabsf", ATTR_CONST_NOTHROW_LEAF_LIST);
  
-  gfc_define_builtin ("__builtin_scalbnl", mfunc_longdouble[5], 
+  gfc_define_builtin ("__builtin_scalbnl", mfunc_longdouble[2],
 		      BUILT_IN_SCALBNL, "scalbnl", ATTR_CONST_NOTHROW_LEAF_LIST);
-  gfc_define_builtin ("__builtin_scalbn", mfunc_double[5], 
+  gfc_define_builtin ("__builtin_scalbn", mfunc_double[2],
 		      BUILT_IN_SCALBN, "scalbn", ATTR_CONST_NOTHROW_LEAF_LIST);
-  gfc_define_builtin ("__builtin_scalbnf", mfunc_float[5], 
+  gfc_define_builtin ("__builtin_scalbnf", mfunc_float[2],
 		      BUILT_IN_SCALBNF, "scalbnf", ATTR_CONST_NOTHROW_LEAF_LIST);
  
   gfc_define_builtin ("__builtin_fmodl", mfunc_longdouble[1], 
@@ -821,15 +885,15 @@ gfc_init_builtin_functions (void)
 		      BUILT_IN_CPOW, "cpow", ATTR_CONST_NOTHROW_LEAF_LIST);
   gfc_define_builtin ("__builtin_cpowf", mfunc_cfloat[1], 
 		      BUILT_IN_CPOWF, "cpowf", ATTR_CONST_NOTHROW_LEAF_LIST);
-  gfc_define_builtin ("__builtin_powil", mfunc_longdouble[2], 
+  gfc_define_builtin ("__builtin_powil", mfunc_longdouble[2],
 		      BUILT_IN_POWIL, "powil", ATTR_CONST_NOTHROW_LEAF_LIST);
-  gfc_define_builtin ("__builtin_powi", mfunc_double[2], 
+  gfc_define_builtin ("__builtin_powi", mfunc_double[2],
 		      BUILT_IN_POWI, "powi", ATTR_CONST_NOTHROW_LEAF_LIST);
-  gfc_define_builtin ("__builtin_powif", mfunc_float[2], 
+  gfc_define_builtin ("__builtin_powif", mfunc_float[2],
 		      BUILT_IN_POWIF, "powif", ATTR_CONST_NOTHROW_LEAF_LIST);
 
 
-  if (TARGET_C99_FUNCTIONS)
+  if (targetm.libc_has_function (function_c99_math_complex))
     {
       gfc_define_builtin ("__builtin_cbrtl", mfunc_longdouble[0],
 			  BUILT_IN_CBRTL, "cbrtl",
@@ -851,7 +915,7 @@ gfc_init_builtin_functions (void)
 			  ATTR_CONST_NOTHROW_LEAF_LIST);
     }
 
-  if (TARGET_HAS_SINCOS)
+  if (targetm.libc_has_function (function_sincos))
     {
       gfc_define_builtin ("__builtin_sincosl",
 			  func_longdouble_longdoublep_longdoublep,
@@ -926,10 +990,37 @@ gfc_init_builtin_functions (void)
   gfc_define_builtin ("__builtin_realloc", ftype, BUILT_IN_REALLOC,
 		      "realloc", ATTR_NOTHROW_LEAF_LIST);
 
-  ftype = build_function_type_list (integer_type_node,
-                                    void_type_node, NULL_TREE);
+  /* Type-generic floating-point classification built-ins.  */
+
+  ftype = build_function_type (integer_type_node, NULL_TREE);
+  gfc_define_builtin ("__builtin_isfinite", ftype, BUILT_IN_ISFINITE,
+		      "__builtin_isfinite", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isinf", ftype, BUILT_IN_ISINF,
+		      "__builtin_isinf", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isinf_sign", ftype, BUILT_IN_ISINF_SIGN,
+		      "__builtin_isinf_sign", ATTR_CONST_NOTHROW_LEAF_LIST);
   gfc_define_builtin ("__builtin_isnan", ftype, BUILT_IN_ISNAN,
 		      "__builtin_isnan", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isnormal", ftype, BUILT_IN_ISNORMAL,
+		      "__builtin_isnormal", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_signbit", ftype, BUILT_IN_SIGNBIT,
+		      "__builtin_signbit", ATTR_CONST_NOTHROW_LEAF_LIST);
+
+  ftype = build_function_type (integer_type_node, NULL_TREE);
+  gfc_define_builtin ("__builtin_isless", ftype, BUILT_IN_ISLESS,
+		      "__builtin_isless", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_islessequal", ftype, BUILT_IN_ISLESSEQUAL,
+		      "__builtin_islessequal", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_islessgreater", ftype, BUILT_IN_ISLESSGREATER,
+		      "__builtin_islessgreater", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isgreater", ftype, BUILT_IN_ISGREATER,
+		      "__builtin_isgreater", ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isgreaterequal", ftype,
+		      BUILT_IN_ISGREATEREQUAL, "__builtin_isgreaterequal",
+		      ATTR_CONST_NOTHROW_LEAF_LIST);
+  gfc_define_builtin ("__builtin_isunordered", ftype, BUILT_IN_ISUNORDERED,
+		      "__builtin_isunordered", ATTR_CONST_NOTHROW_LEAF_LIST);
+
 
 #define DEF_PRIMITIVE_TYPE(ENUM, VALUE) \
   builtin_types[(int) ENUM] = VALUE;
@@ -1008,22 +1099,112 @@ gfc_init_builtin_functions (void)
 				builtin_types[(int) ARG7],		\
 				builtin_types[(int) ARG8],		\
 				NULL_TREE);
+<<<<<<< HEAD
+=======
+#define DEF_FUNCTION_TYPE_9(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+			    ARG6, ARG7, ARG8, ARG9)			\
+  builtin_types[(int) ENUM]						\
+    = build_function_type_list (builtin_types[(int) RETURN],		\
+				builtin_types[(int) ARG1],		\
+				builtin_types[(int) ARG2],		\
+				builtin_types[(int) ARG3],		\
+				builtin_types[(int) ARG4],		\
+				builtin_types[(int) ARG5],		\
+				builtin_types[(int) ARG6],		\
+				builtin_types[(int) ARG7],		\
+				builtin_types[(int) ARG8],		\
+				builtin_types[(int) ARG9],		\
+				NULL_TREE);
+#define DEF_FUNCTION_TYPE_10(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4,	\
+			     ARG5, ARG6, ARG7, ARG8, ARG9, ARG10)	\
+  builtin_types[(int) ENUM]						\
+    = build_function_type_list (builtin_types[(int) RETURN],		\
+				builtin_types[(int) ARG1],		\
+				builtin_types[(int) ARG2],		\
+				builtin_types[(int) ARG3],		\
+				builtin_types[(int) ARG4],		\
+				builtin_types[(int) ARG5],		\
+				builtin_types[(int) ARG6],		\
+				builtin_types[(int) ARG7],		\
+				builtin_types[(int) ARG8],		\
+				builtin_types[(int) ARG9],		\
+				builtin_types[(int) ARG10],		\
+				NULL_TREE);
+#define DEF_FUNCTION_TYPE_11(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4,	\
+			     ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11)\
+  builtin_types[(int) ENUM]						\
+    = build_function_type_list (builtin_types[(int) RETURN],		\
+				builtin_types[(int) ARG1],		\
+				builtin_types[(int) ARG2],		\
+				builtin_types[(int) ARG3],		\
+				builtin_types[(int) ARG4],		\
+				builtin_types[(int) ARG5],		\
+				builtin_types[(int) ARG6],		\
+				builtin_types[(int) ARG7],		\
+				builtin_types[(int) ARG8],		\
+				builtin_types[(int) ARG9],		\
+				builtin_types[(int) ARG10],		\
+				builtin_types[(int) ARG11],		\
+				NULL_TREE);
+>>>>>>> gcc-mirror/master
 #define DEF_FUNCTION_TYPE_VAR_0(ENUM, RETURN)				\
   builtin_types[(int) ENUM]						\
     = build_varargs_function_type_list (builtin_types[(int) RETURN],    \
                                         NULL_TREE);
+#define DEF_FUNCTION_TYPE_VAR_1(ENUM, RETURN, ARG1)			\
+  builtin_types[(int) ENUM]						\
+    = build_varargs_function_type_list (builtin_types[(int) RETURN],    \
+					builtin_types[(int) ARG1],     	\
+					NULL_TREE);
+#define DEF_FUNCTION_TYPE_VAR_2(ENUM, RETURN, ARG1, ARG2)		\
+  builtin_types[(int) ENUM]						\
+    = build_varargs_function_type_list (builtin_types[(int) RETURN],   	\
+					builtin_types[(int) ARG1],     	\
+					builtin_types[(int) ARG2],     	\
+					NULL_TREE);
+#define DEF_FUNCTION_TYPE_VAR_6(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+				ARG6)	\
+  builtin_types[(int) ENUM]						\
+    = build_varargs_function_type_list (builtin_types[(int) RETURN],   	\
+					builtin_types[(int) ARG1],     	\
+					builtin_types[(int) ARG2],     	\
+					builtin_types[(int) ARG3],	\
+					builtin_types[(int) ARG4],	\
+					builtin_types[(int) ARG5],	\
+					builtin_types[(int) ARG6],	\
+					NULL_TREE);
+#define DEF_FUNCTION_TYPE_VAR_7(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
+				ARG6, ARG7)				\
+  builtin_types[(int) ENUM]						\
+    = build_varargs_function_type_list (builtin_types[(int) RETURN],   	\
+					builtin_types[(int) ARG1],     	\
+					builtin_types[(int) ARG2],     	\
+					builtin_types[(int) ARG3],	\
+					builtin_types[(int) ARG4],	\
+					builtin_types[(int) ARG5],	\
+					builtin_types[(int) ARG6],	\
+					builtin_types[(int) ARG7],	\
+					NULL_TREE);
 #define DEF_POINTER_TYPE(ENUM, TYPE)			\
   builtin_types[(int) ENUM]				\
     = build_pointer_type (builtin_types[(int) TYPE]);
 #include "types.def"
 #undef DEF_PRIMITIVE_TYPE
+#undef DEF_FUNCTION_TYPE_0
 #undef DEF_FUNCTION_TYPE_1
 #undef DEF_FUNCTION_TYPE_2
 #undef DEF_FUNCTION_TYPE_3
 #undef DEF_FUNCTION_TYPE_4
 #undef DEF_FUNCTION_TYPE_5
 #undef DEF_FUNCTION_TYPE_6
+#undef DEF_FUNCTION_TYPE_7
+#undef DEF_FUNCTION_TYPE_8
+#undef DEF_FUNCTION_TYPE_10
 #undef DEF_FUNCTION_TYPE_VAR_0
+#undef DEF_FUNCTION_TYPE_VAR_1
+#undef DEF_FUNCTION_TYPE_VAR_2
+#undef DEF_FUNCTION_TYPE_VAR_6
+#undef DEF_FUNCTION_TYPE_VAR_7
 #undef DEF_POINTER_TYPE
   builtin_types[(int) BT_LAST] = NULL_TREE;
 
@@ -1035,19 +1216,49 @@ gfc_init_builtin_functions (void)
 #include "../sync-builtins.def"
 #undef DEF_SYNC_BUILTIN
 
-  if (gfc_option.gfc_flag_openmp || flag_tree_parallelize_loops)
+  if (flag_openacc)
     {
+#undef DEF_GOACC_BUILTIN
+#define DEF_GOACC_BUILTIN(code, name, type, attr) \
+      gfc_define_builtin ("__builtin_" name, builtin_types[type], \
+			  code, name, attr);
+#undef DEF_GOACC_BUILTIN_COMPILER
+#define DEF_GOACC_BUILTIN_COMPILER(code, name, type, attr) \
+      gfc_define_builtin (name, builtin_types[type], code, name, attr);
+#undef DEF_GOMP_BUILTIN
+#define DEF_GOMP_BUILTIN(code, name, type, attr) /* ignore */
+#include "../omp-builtins.def"
+#undef DEF_GOACC_BUILTIN
+#undef DEF_GOACC_BUILTIN_COMPILER
+#undef DEF_GOMP_BUILTIN
+    }
+
+  if (flag_openmp || flag_openmp_simd || flag_tree_parallelize_loops)
+    {
+#undef DEF_GOACC_BUILTIN
+#define DEF_GOACC_BUILTIN(code, name, type, attr) /* ignore */
+#undef DEF_GOACC_BUILTIN_COMPILER
+#define DEF_GOACC_BUILTIN_COMPILER(code, name, type, attr)  /* ignore */
 #undef DEF_GOMP_BUILTIN
 #define DEF_GOMP_BUILTIN(code, name, type, attr) \
       gfc_define_builtin ("__builtin_" name, builtin_types[type], \
 			  code, name, attr);
 #include "../omp-builtins.def"
+#undef DEF_GOACC_BUILTIN
+#undef DEF_GOACC_BUILTIN_COMPILER
 #undef DEF_GOMP_BUILTIN
     }
 
   gfc_define_builtin ("__builtin_trap", builtin_types[BT_FN_VOID],
 		      BUILT_IN_TRAP, NULL, ATTR_NOTHROW_LEAF_LIST);
   TREE_THIS_VOLATILE (builtin_decl_explicit (BUILT_IN_TRAP)) = 1;
+
+  ftype = build_varargs_function_type_list (ptr_type_node, const_ptr_type_node,
+					    size_type_node, NULL_TREE);
+  gfc_define_builtin ("__builtin_assume_aligned", ftype,
+		      BUILT_IN_ASSUME_ALIGNED,
+		      "__builtin_assume_aligned",
+		      ATTR_CONST_NOTHROW_LEAF_LIST);
 
   gfc_define_builtin ("__emutls_get_address",
 		      builtin_types[BT_FN_PTR_PTR],

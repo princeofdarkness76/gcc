@@ -1,4 +1,4 @@
-/* { dg-do run } */
+/* { dg-require-effective-target vect_int } */
 
 #include "tree-vect.h"
 
@@ -61,5 +61,5 @@ main ()
   return 0;
 }
 
-/* { dg-final { scan-tree-dump-times "vectorized 1 loop" 3 "vect" } } */
-/* { dg-final { cleanup-tree-dump "vect" } } */
+/* { dg-final { scan-tree-dump-times "vectorized 1 loop" 3 "vect" { target vect_pack_trunc } } } */
+/* { dg-final { scan-tree-dump-times "vectorized 1 loop" 2 "vect" { target { ! vect_pack_trunc } } } } */

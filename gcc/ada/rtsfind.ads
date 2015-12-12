@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 S p e c                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -23,14 +23,14 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Types; use Types;
-
-package Rtsfind is
-
 --  This package contains the routine that is used to obtain runtime library
 --  entities, loading in the required runtime library packages on demand. It
 --  is also used for such purposes as finding System.Address when System has
 --  not been explicitly With'ed.
+
+with Types; use Types;
+
+package Rtsfind is
 
    ------------------------
    -- Runtime Unit Table --
@@ -71,7 +71,8 @@ package Rtsfind is
    --    of Ada.Wide_Wide_Text_IO.
 
    --    Names of the form Interfaces_xxx are first level children of
-   --    Interfaces_CPP refers to package Interfaces.CPP
+   --    Interfaces. For example, the name Interfaces_Packed_Decimal refers to
+   --    package Interfaces.Packed_Decimal.
 
    --    Names of the form System_xxx are first level children of System, whose
    --    name is System.xxx. For example, the name System_Str_Concat refers to
@@ -108,8 +109,9 @@ package Rtsfind is
    --  ambiguities).
 
    type RTU_Id is (
-      --  Runtime packages, for list of accessible entities in each
-      --  package see declarations in the runtime entity table below.
+
+      --  Runtime packages, for list of accessible entities in each package,
+      --  see declarations in the runtime entity table below.
 
       RTU_Null,
       --  Used as a null entry (will cause an error if referenced)
@@ -132,6 +134,9 @@ package Rtsfind is
       Ada_Tags,
       Ada_Task_Identification,
       Ada_Task_Termination,
+      Ada_Text_IO,
+      Ada_Wide_Text_IO,
+      Ada_Wide_Wide_Text_IO,
 
       --  Children of Ada.Calendar
 
@@ -165,7 +170,7 @@ package Rtsfind is
       Ada_Strings_Wide_Wide_Superbounded,
       Ada_Strings_Unbounded,
 
-      --  Children of Ada.Text_IO (for Text_IO_Kludge)
+      --  Children of Ada.Text_IO (for Check_Text_IO_Special_Unit)
 
       Ada_Text_IO_Decimal_IO,
       Ada_Text_IO_Enumeration_IO,
@@ -174,7 +179,7 @@ package Rtsfind is
       Ada_Text_IO_Integer_IO,
       Ada_Text_IO_Modular_IO,
 
-      --  Children of Ada.Wide_Text_IO (for Text_IO_Kludge)
+      --  Children of Ada.Wide_Text_IO (for Check_Text_IO_Special_Unit)
 
       Ada_Wide_Text_IO_Decimal_IO,
       Ada_Wide_Text_IO_Enumeration_IO,
@@ -183,7 +188,7 @@ package Rtsfind is
       Ada_Wide_Text_IO_Integer_IO,
       Ada_Wide_Text_IO_Modular_IO,
 
-      --  Children of Ada.Wide_Wide_Text_IO (for Text_IO_Kludge)
+      --  Children of Ada.Wide_Wide_Text_IO (for Check_Text_IO_Special_Unit)
 
       Ada_Wide_Wide_Text_IO_Decimal_IO,
       Ada_Wide_Wide_Text_IO_Enumeration_IO,
@@ -198,7 +203,6 @@ package Rtsfind is
 
       --  Children of Interfaces
 
-      Interfaces_CPP,
       Interfaces_Packed_Decimal,
 
       --  Package System
@@ -237,6 +241,7 @@ package Rtsfind is
       System_Dim,
       System_DSA_Services,
       System_DSA_Types,
+      System_Elaboration_Allocators,
       System_Exception_Table,
       System_Exceptions_Debug,
       System_Exn_Int,
@@ -278,6 +283,7 @@ package Rtsfind is
       System_Machine_Code,
       System_Mantissa,
       System_Memcop,
+      System_Memory,
       System_Multiprocessors,
       System_Pack_03,
       System_Pack_05,
@@ -368,9 +374,7 @@ package Rtsfind is
       System_Val_Real,
       System_Val_Uns,
       System_Val_WChar,
-      System_Vax_Float_Operations,
       System_Version_Control,
-      System_VMS_Exception_Table,
       System_WCh_StW,
       System_WCh_WtS,
       System_Wid_Bool,
@@ -460,7 +464,7 @@ package Rtsfind is
            Ada_Wide_Wide_Text_IO_Modular_IO;
 
    subtype Interfaces_Child is RTU_Id
-     range Interfaces_CPP .. Interfaces_Packed_Decimal;
+     range Interfaces_Packed_Decimal .. Interfaces_Packed_Decimal;
    --  Range of values for children of Interfaces
 
    subtype System_Child is RTU_Id
@@ -546,7 +550,6 @@ package Rtsfind is
      RE_Set_Deadline,                    -- Ada.Dispatching.EDF
 
      RE_Code_Loc,                        -- Ada.Exceptions
-     RE_Current_Target_Exception,        -- Ada.Exceptions (JGNAT use only)
      RE_Exception_Id,                    -- Ada.Exceptions
      RE_Exception_Identity,              -- Ada.Exceptions
      RE_Exception_Information,           -- Ada.Exceptions
@@ -585,11 +588,12 @@ package Rtsfind is
      RO_RT_Delay_Until,                  -- Ada.Real_Time.Delays
      RO_RT_To_Duration,                  -- Ada.Real_Time.Delays
 
-     RE_Set_Handler,                     -- Ada_Real_Time.Timing_Events
-     RE_Timing_Event,                    -- Ada_Real_Time.Timing_Events
+     RE_Set_Handler,                     -- Ada.Real_Time.Timing_Events
+     RE_Timing_Event,                    -- Ada.Real_Time.Timing_Events
 
      RE_Root_Stream_Type,                -- Ada.Streams
      RE_Stream_Element,                  -- Ada.Streams
+     RE_Stream_Element_Array,            -- Ada.Streams
      RE_Stream_Element_Offset,           -- Ada.Streams
 
      RE_Stream_Access,                   -- Ada.Streams.Stream_IO
@@ -636,6 +640,7 @@ package Rtsfind is
      RE_Max_Predef_Prims,                -- Ada.Tags
      RE_Needs_Finalization,              -- Ada.Tags
      RE_No_Dispatch_Table_Wrapper,       -- Ada.Tags
+     RE_No_Tag,                          -- Ada.Tags
      RE_NDT_Prims_Ptr,                   -- Ada.Tags
      RE_NDT_TSD,                         -- Ada.Tags
      RE_Num_Prims,                       -- Ada.Tags
@@ -699,6 +704,15 @@ package Rtsfind is
      RE_Current_Task,                    -- Ada.Task_Identification
      RO_AT_Task_Id,                      -- Ada.Task_Identification
 
+     RE_Decimal_IO,                      -- Ada.Text_IO
+     RE_Fixed_IO,                        -- Ada.Text_IO
+
+     RO_WT_Decimal_IO,                   -- Ada.Wide_Text_IO
+     RO_WT_Fixed_IO,                     -- Ada.Wide_Text_IO
+
+     RO_WW_Decimal_IO,                   -- Ada.Wide_Wide_Text_IO
+     RO_WW_Fixed_IO,                     -- Ada.Wide_Wide_Text_IO
+
      RE_Integer_8,                       -- Interfaces
      RE_Integer_16,                      -- Interfaces
      RE_Integer_32,                      -- Interfaces
@@ -747,6 +761,7 @@ package Rtsfind is
      RE_Uint64,                          -- System.Atomic_Primitives
 
      RE_AST_Handler,                     -- System.Aux_DEC
+     RE_Import_Address,                  -- System.Aux_DEC
      RE_Import_Value,                    -- System.Aux_DEC
      RE_No_AST_Handler,                  -- System.Aux_DEC
      RE_Type_Class,                      -- System.Aux_DEC
@@ -788,13 +803,13 @@ package Rtsfind is
      RE_Bit_Or,                          -- System.Bit_Ops
      RE_Bit_Xor,                         -- System.Bit_Ops
 
-     RE_Vector_Not,                      -- System_Boolean_Array_Operations,
-     RE_Vector_And,                      -- System_Boolean_Array_Operations,
-     RE_Vector_Or,                       -- System_Boolean_Array_Operations,
-     RE_Vector_Nand,                     -- System_Boolean_Array_Operations,
-     RE_Vector_Nor,                      -- System_Boolean_Array_Operations,
-     RE_Vector_Nxor,                     -- System_Boolean_Array_Operations,
-     RE_Vector_Xor,                      -- System_Boolean_Array_Operations,
+     RE_Vector_Not,                      -- System.Boolean_Array_Operations,
+     RE_Vector_And,                      -- System.Boolean_Array_Operations,
+     RE_Vector_Or,                       -- System.Boolean_Array_Operations,
+     RE_Vector_Nand,                     -- System.Boolean_Array_Operations,
+     RE_Vector_Nor,                      -- System.Boolean_Array_Operations,
+     RE_Vector_Nxor,                     -- System.Boolean_Array_Operations,
+     RE_Vector_Xor,                      -- System.Boolean_Array_Operations,
 
      RE_Bswap_16,                        -- System.Byte_Swapping
      RE_Bswap_32,                        -- System.Byte_Swapping
@@ -840,12 +855,16 @@ package Rtsfind is
 
      RE_Any_Container_Ptr,               -- System.DSA_Types
 
+     RE_Check_Standard_Allocator,        -- System.Elaboration_Allocators
+
      RE_Register_Exception,              -- System.Exception_Table
 
      RE_Local_Raise,                     -- System.Exceptions_Debug
 
      RE_Exn_Integer,                     -- System.Exn_Int
 
+     RE_Exn_Float,                       -- System.Exn_LLF
+     RE_Exn_Long_Float,                  -- System.Exn_LLF
      RE_Exn_Long_Long_Float,             -- System.Exn_LLF
 
      RE_Exn_Long_Long_Integer,           -- System.Exn_LLI
@@ -940,7 +959,9 @@ package Rtsfind is
      RE_Asm_Input_Operand,               -- System.Machine_Code
      RE_Asm_Output_Operand,              -- System.Machine_Code
 
-     RE_Mantissa_Value,                  -- System_Mantissa
+     RE_Mantissa_Value,                  -- System.Mantissa
+
+     RE_Free,                            -- System.Memory
 
      RE_CPU_Range,                       -- System.Multiprocessors
 
@@ -1224,7 +1245,7 @@ package Rtsfind is
      RE_Get_63,                          -- System.Pack_63
      RE_Set_63,                          -- System.Pack_63
 
-     RE_Adjust_Storage_Size,             -- System_Parameters
+     RE_Adjust_Storage_Size,             -- System.Parameters
      RE_Default_Stack_Size,              -- System.Parameters
      RE_Garbage_Collected,               -- System.Parameters
      RE_Size_Type,                       -- System.Parameters
@@ -1410,7 +1431,6 @@ package Rtsfind is
      RE_Shared_Var_Procs,                -- System.Shared_Storage
 
      RE_Abort_Undefer_Direct,            -- System.Standard_Library
-     RE_Exception_Code,                  -- System.Standard_Library
      RE_Exception_Data_Ptr,              -- System.Standard_Library
 
      RE_Integer_Address,                 -- System.Storage_Elements
@@ -1474,6 +1494,24 @@ package Rtsfind is
      RE_W_WC,                            -- System.Stream_Attributes
      RE_W_WWC,                           -- System.Stream_Attributes
 
+     RE_Storage_Array_Input,             -- System.Strings.Stream_Ops
+     RE_Storage_Array_Input_Blk_IO,      -- System.Strings.Stream_Ops
+     RE_Storage_Array_Output,            -- System.Strings.Stream_Ops
+     RE_Storage_Array_Output_Blk_IO,     -- System.Strings.Stream_Ops
+     RE_Storage_Array_Read,              -- System.Strings.Stream_Ops
+     RE_Storage_Array_Read_Blk_IO,       -- System.Strings.Stream_Ops
+     RE_Storage_Array_Write,             -- System.Strings.Stream_Ops
+     RE_Storage_Array_Write_Blk_IO,      -- System.Strings.Stream_Ops
+
+     RE_Stream_Element_Array_Input,         -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Input_Blk_IO,  -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Output,        -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Output_Blk_IO, -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Read,          -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Read_Blk_IO,   -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Write,         -- System.Strings.Stream_Ops
+     RE_Stream_Element_Array_Write_Blk_IO,  -- System.Strings.Stream_Ops
+
      RE_String_Input,                    -- System.Strings.Stream_Ops
      RE_String_Input_Blk_IO,             -- System.Strings.Stream_Ops
      RE_String_Output,                   -- System.Strings.Stream_Ops
@@ -1482,6 +1520,7 @@ package Rtsfind is
      RE_String_Read_Blk_IO,              -- System.Strings.Stream_Ops
      RE_String_Write,                    -- System.Strings.Stream_Ops
      RE_String_Write_Blk_IO,             -- System.Strings.Stream_Ops
+
      RE_Wide_String_Input,               -- System.Strings.Stream_Ops
      RE_Wide_String_Input_Blk_IO,        -- System.Strings.Stream_Ops
      RE_Wide_String_Output,              -- System.Strings.Stream_Ops
@@ -1490,6 +1529,7 @@ package Rtsfind is
      RE_Wide_String_Read_Blk_IO,         -- System.Strings.Stream_Ops
      RE_Wide_String_Write,               -- System.Strings.Stream_Ops
      RE_Wide_String_Write_Blk_IO,        -- System.Strings.Stream_Ops
+
      RE_Wide_Wide_String_Input,          -- System.Strings.Stream_Ops
      RE_Wide_Wide_String_Input_Blk_IO,   -- System.Strings.Stream_Ops
      RE_Wide_Wide_String_Output,         -- System.Strings.Stream_Ops
@@ -1556,7 +1596,6 @@ package Rtsfind is
      RE_Get_Current_Excep,               -- System.Soft_Links
      RE_Get_GNAT_Exception,              -- System.Soft_Links
      RE_Save_Library_Occurrence,         -- System.Soft_Links
-     RE_Update_Exception,                -- System.Soft_Links
 
      RE_Bits_1,                          -- System.Unsigned_Types
      RE_Bits_2,                          -- System.Unsigned_Types
@@ -1597,60 +1636,8 @@ package Rtsfind is
      RE_Value_Wide_Character,            -- System.Val_WChar
      RE_Value_Wide_Wide_Character,       -- System.Val_WChar
 
-     RE_D,                               -- System.Vax_Float_Operations
-     RE_F,                               -- System.Vax_Float_Operations
-     RE_G,                               -- System.Vax_Float_Operations
-     RE_Q,                               -- System.Vax_Float_Operations
-     RE_S,                               -- System.Vax_Float_Operations
-     RE_T,                               -- System.Vax_Float_Operations
-
-     RE_D_To_G,                          -- System.Vax_Float_Operations
-     RE_F_To_G,                          -- System.Vax_Float_Operations
-     RE_F_To_Q,                          -- System.Vax_Float_Operations
-     RE_F_To_S,                          -- System.Vax_Float_Operations
-     RE_G_To_D,                          -- System.Vax_Float_Operations
-     RE_G_To_F,                          -- System.Vax_Float_Operations
-     RE_G_To_Q,                          -- System.Vax_Float_Operations
-     RE_G_To_T,                          -- System.Vax_Float_Operations
-     RE_Q_To_F,                          -- System.Vax_Float_Operations
-     RE_Q_To_G,                          -- System.Vax_Float_Operations
-     RE_S_To_F,                          -- System.Vax_Float_Operations
-     RE_T_To_D,                          -- System.Vax_Float_Operations
-     RE_T_To_G,                          -- System.Vax_Float_Operations
-
-     RE_Abs_F,                           -- System.Vax_Float_Operations
-     RE_Abs_G,                           -- System.Vax_Float_Operations
-     RE_Add_F,                           -- System.Vax_Float_Operations
-     RE_Add_G,                           -- System.Vax_Float_Operations
-     RE_Div_F,                           -- System.Vax_Float_Operations
-     RE_Div_G,                           -- System.Vax_Float_Operations
-     RE_Mul_F,                           -- System.Vax_Float_Operations
-     RE_Mul_G,                           -- System.Vax_Float_Operations
-     RE_Neg_F,                           -- System.Vax_Float_Operations
-     RE_Neg_G,                           -- System.Vax_Float_Operations
-     RE_Return_D,                        -- System.Vax_Float_Operations
-     RE_Return_F,                        -- System.Vax_Float_Operations
-     RE_Return_G,                        -- System.Vax_Float_Operations
-     RE_Sub_F,                           -- System.Vax_Float_Operations
-     RE_Sub_G,                           -- System.Vax_Float_Operations
-
-     RE_Eq_F,                            -- System.Vax_Float_Operations
-     RE_Eq_G,                            -- System.Vax_Float_Operations
-     RE_Le_F,                            -- System.Vax_Float_Operations
-     RE_Le_G,                            -- System.Vax_Float_Operations
-     RE_Lt_F,                            -- System.Vax_Float_Operations
-     RE_Lt_G,                            -- System.Vax_Float_Operations
-     RE_Ne_F,                            -- System.Vax_Float_Operations
-     RE_Ne_G,                            -- System.Vax_Float_Operations
-
-     RE_Valid_D,                         -- System.Vax_Float_Operations
-     RE_Valid_F,                         -- System.Vax_Float_Operations
-     RE_Valid_G,                         -- System.Vax_Float_Operations
-
      RE_Version_String,                  -- System.Version_Control
      RE_Get_Version_String,              -- System.Version_Control
-
-     RE_Register_VMS_Exception,          -- System.VMS_Exception_Table
 
      RE_String_To_Wide_String,           -- System.WCh_StW
      RE_String_To_Wide_Wide_String,      -- System.WCh_StW
@@ -1689,7 +1676,7 @@ package Rtsfind is
      RE_Width_Wide_Character,            -- System.Wid_WChar
      RE_Width_Wide_Wide_Character,       -- System.Wid_WChar
 
-     RE_Dispatching_Domain,              -- Dispatching_Domains
+     RE_Dispatching_Domain,              -- Multiprocessors.Dispatching_Domains
 
      RE_Protected_Entry_Body_Array,      -- Tasking.Protected_Objects.Entries
      RE_Protected_Entry_Names_Array,     -- Tasking.Protected_Objects.Entries
@@ -1723,11 +1710,9 @@ package Rtsfind is
      RE_Unlock_Entry,                    -- Protected_Objects.Single_Entry
      RE_Protected_Single_Entry_Call,     -- Protected_Objects.Single_Entry
      RE_Service_Entry,                   -- Protected_Objects.Single_Entry
-     RE_Complete_Single_Entry_Body,      -- Protected_Objects.Single_Entry
      RE_Exceptional_Complete_Single_Entry_Body,
      RE_Protected_Count_Entry,           -- Protected_Objects.Single_Entry
      RE_Protected_Single_Entry_Caller,   -- Protected_Objects.Single_Entry
-     RE_Timed_Protected_Single_Entry_Call,
 
      RE_Protected_Entry_Index,           -- System.Tasking.Protected_Objects
      RE_Entry_Body,                      -- System.Tasking.Protected_Objects
@@ -1777,7 +1762,7 @@ package Rtsfind is
      RE_Complete_Task,                   -- System.Tasking.Stages
      RE_Free_Task,                       -- System.Tasking.Stages
      RE_Expunge_Unactivated_Tasks,       -- System.Tasking.Stages
-     RE_Move_Activation_Chain,           -- System_Tasking_Stages
+     RE_Move_Activation_Chain,           -- System.Tasking_Stages
      RE_Terminated);                     -- System.Tasking.Stages
 
    --  The following declarations build a table that is indexed by the RTE
@@ -1797,7 +1782,6 @@ package Rtsfind is
      RE_Set_Deadline                     => Ada_Dispatching_EDF,
 
      RE_Code_Loc                         => Ada_Exceptions,
-     RE_Current_Target_Exception         => Ada_Exceptions, -- of JGNAT
      RE_Exception_Id                     => Ada_Exceptions,
      RE_Exception_Identity               => Ada_Exceptions,
      RE_Exception_Information            => Ada_Exceptions,
@@ -1841,6 +1825,7 @@ package Rtsfind is
 
      RE_Root_Stream_Type                 => Ada_Streams,
      RE_Stream_Element                   => Ada_Streams,
+     RE_Stream_Element_Array             => Ada_Streams,
      RE_Stream_Element_Offset            => Ada_Streams,
 
      RE_Stream_Access                    => Ada_Streams_Stream_IO,
@@ -1887,6 +1872,7 @@ package Rtsfind is
      RE_Max_Predef_Prims                 => Ada_Tags,
      RE_Needs_Finalization               => Ada_Tags,
      RE_No_Dispatch_Table_Wrapper        => Ada_Tags,
+     RE_No_Tag                           => Ada_Tags,
      RE_NDT_Prims_Ptr                    => Ada_Tags,
      RE_NDT_TSD                          => Ada_Tags,
      RE_Num_Prims                        => Ada_Tags,
@@ -1950,6 +1936,15 @@ package Rtsfind is
      RE_Current_Task                     => Ada_Task_Identification,
      RO_AT_Task_Id                       => Ada_Task_Identification,
 
+     RE_Decimal_IO                       => Ada_Text_IO,
+     RE_Fixed_IO                         => Ada_Text_IO,
+
+     RO_WT_Decimal_IO                    => Ada_Wide_Text_IO,
+     RO_WT_Fixed_IO                      => Ada_Wide_Text_IO,
+
+     RO_WW_Decimal_IO                    => Ada_Wide_Wide_Text_IO,
+     RO_WW_Fixed_IO                      => Ada_Wide_Wide_Text_IO,
+
      RE_Integer_8                        => Interfaces,
      RE_Integer_16                       => Interfaces,
      RE_Integer_32                       => Interfaces,
@@ -1998,6 +1993,7 @@ package Rtsfind is
      RE_Uint64                           => System_Atomic_Primitives,
 
      RE_AST_Handler                      => System_Aux_DEC,
+     RE_Import_Address                   => System_Aux_DEC,
      RE_Import_Value                     => System_Aux_DEC,
      RE_No_AST_Handler                   => System_Aux_DEC,
      RE_Type_Class                       => System_Aux_DEC,
@@ -2095,12 +2091,16 @@ package Rtsfind is
 
      RE_Any_Container_Ptr                => System_DSA_Types,
 
+     RE_Check_Standard_Allocator         => System_Elaboration_Allocators,
+
      RE_Register_Exception               => System_Exception_Table,
 
      RE_Local_Raise                      => System_Exceptions_Debug,
 
      RE_Exn_Integer                      => System_Exn_Int,
 
+     RE_Exn_Float                        => System_Exn_LLF,
+     RE_Exn_Long_Float                   => System_Exn_LLF,
      RE_Exn_Long_Long_Float              => System_Exn_LLF,
 
      RE_Exn_Long_Long_Integer            => System_Exn_LLI,
@@ -2196,6 +2196,8 @@ package Rtsfind is
      RE_Asm_Output_Operand               => System_Machine_Code,
 
      RE_Mantissa_Value                   => System_Mantissa,
+
+     RE_Free                             => System_Memory,
 
      RE_CPU_Range                        => System_Multiprocessors,
 
@@ -2665,7 +2667,6 @@ package Rtsfind is
      RE_Shared_Var_Procs                 => System_Shared_Storage,
 
      RE_Abort_Undefer_Direct             => System_Standard_Library,
-     RE_Exception_Code                   => System_Standard_Library,
      RE_Exception_Data_Ptr               => System_Standard_Library,
 
      RE_Integer_Address                  => System_Storage_Elements,
@@ -2729,6 +2730,24 @@ package Rtsfind is
      RE_W_WC                             => System_Stream_Attributes,
      RE_W_WWC                            => System_Stream_Attributes,
 
+     RE_Storage_Array_Input              =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Input_Blk_IO       =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Output             =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Output_Blk_IO      =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Read               =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Read_Blk_IO        =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Write              =>  System_Strings_Stream_Ops,
+     RE_Storage_Array_Write_Blk_IO       =>  System_Strings_Stream_Ops,
+
+     RE_Stream_Element_Array_Input          =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Input_Blk_IO   =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Output         =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Output_Blk_IO  =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Read           =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Read_Blk_IO    =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Write          =>  System_Strings_Stream_Ops,
+     RE_Stream_Element_Array_Write_Blk_IO   =>  System_Strings_Stream_Ops,
+
      RE_String_Input                     => System_Strings_Stream_Ops,
      RE_String_Input_Blk_IO              => System_Strings_Stream_Ops,
      RE_String_Output                    => System_Strings_Stream_Ops,
@@ -2737,6 +2756,7 @@ package Rtsfind is
      RE_String_Read_Blk_IO               => System_Strings_Stream_Ops,
      RE_String_Write                     => System_Strings_Stream_Ops,
      RE_String_Write_Blk_IO              => System_Strings_Stream_Ops,
+
      RE_Wide_String_Input                => System_Strings_Stream_Ops,
      RE_Wide_String_Input_Blk_IO         => System_Strings_Stream_Ops,
      RE_Wide_String_Output               => System_Strings_Stream_Ops,
@@ -2744,6 +2764,7 @@ package Rtsfind is
      RE_Wide_String_Read                 => System_Strings_Stream_Ops,
      RE_Wide_String_Read_Blk_IO          => System_Strings_Stream_Ops,
      RE_Wide_String_Write                => System_Strings_Stream_Ops,
+
      RE_Wide_String_Write_Blk_IO         => System_Strings_Stream_Ops,
      RE_Wide_Wide_String_Input           => System_Strings_Stream_Ops,
      RE_Wide_Wide_String_Input_Blk_IO    => System_Strings_Stream_Ops,
@@ -2811,7 +2832,6 @@ package Rtsfind is
      RE_Get_Current_Excep                => System_Soft_Links,
      RE_Get_GNAT_Exception               => System_Soft_Links,
      RE_Save_Library_Occurrence          => System_Soft_Links,
-     RE_Update_Exception                 => System_Soft_Links,
 
      RE_Bits_1                           => System_Unsigned_Types,
      RE_Bits_2                           => System_Unsigned_Types,
@@ -2852,60 +2872,8 @@ package Rtsfind is
      RE_Value_Wide_Character             => System_Val_WChar,
      RE_Value_Wide_Wide_Character        => System_Val_WChar,
 
-     RE_D                                => System_Vax_Float_Operations,
-     RE_F                                => System_Vax_Float_Operations,
-     RE_G                                => System_Vax_Float_Operations,
-     RE_Q                                => System_Vax_Float_Operations,
-     RE_S                                => System_Vax_Float_Operations,
-     RE_T                                => System_Vax_Float_Operations,
-
-     RE_D_To_G                           => System_Vax_Float_Operations,
-     RE_F_To_G                           => System_Vax_Float_Operations,
-     RE_F_To_Q                           => System_Vax_Float_Operations,
-     RE_F_To_S                           => System_Vax_Float_Operations,
-     RE_G_To_D                           => System_Vax_Float_Operations,
-     RE_G_To_F                           => System_Vax_Float_Operations,
-     RE_G_To_Q                           => System_Vax_Float_Operations,
-     RE_G_To_T                           => System_Vax_Float_Operations,
-     RE_Q_To_F                           => System_Vax_Float_Operations,
-     RE_Q_To_G                           => System_Vax_Float_Operations,
-     RE_S_To_F                           => System_Vax_Float_Operations,
-     RE_T_To_D                           => System_Vax_Float_Operations,
-     RE_T_To_G                           => System_Vax_Float_Operations,
-
-     RE_Abs_F                            => System_Vax_Float_Operations,
-     RE_Abs_G                            => System_Vax_Float_Operations,
-     RE_Add_F                            => System_Vax_Float_Operations,
-     RE_Add_G                            => System_Vax_Float_Operations,
-     RE_Div_F                            => System_Vax_Float_Operations,
-     RE_Div_G                            => System_Vax_Float_Operations,
-     RE_Mul_F                            => System_Vax_Float_Operations,
-     RE_Mul_G                            => System_Vax_Float_Operations,
-     RE_Neg_F                            => System_Vax_Float_Operations,
-     RE_Neg_G                            => System_Vax_Float_Operations,
-     RE_Return_D                         => System_Vax_Float_Operations,
-     RE_Return_F                         => System_Vax_Float_Operations,
-     RE_Return_G                         => System_Vax_Float_Operations,
-     RE_Sub_F                            => System_Vax_Float_Operations,
-     RE_Sub_G                            => System_Vax_Float_Operations,
-
-     RE_Eq_F                             => System_Vax_Float_Operations,
-     RE_Eq_G                             => System_Vax_Float_Operations,
-     RE_Le_F                             => System_Vax_Float_Operations,
-     RE_Le_G                             => System_Vax_Float_Operations,
-     RE_Lt_F                             => System_Vax_Float_Operations,
-     RE_Lt_G                             => System_Vax_Float_Operations,
-     RE_Ne_F                             => System_Vax_Float_Operations,
-     RE_Ne_G                             => System_Vax_Float_Operations,
-
-     RE_Valid_D                          => System_Vax_Float_Operations,
-     RE_Valid_F                          => System_Vax_Float_Operations,
-     RE_Valid_G                          => System_Vax_Float_Operations,
-
      RE_Version_String                   => System_Version_Control,
      RE_Get_Version_String               => System_Version_Control,
-
-     RE_Register_VMS_Exception           => System_VMS_Exception_Table,
 
      RE_String_To_Wide_String            => System_WCh_StW,
      RE_String_To_Wide_Wide_String       => System_WCh_StW,
@@ -3010,15 +2978,11 @@ package Rtsfind is
        System_Tasking_Protected_Objects_Single_Entry,
      RE_Service_Entry                    =>
        System_Tasking_Protected_Objects_Single_Entry,
-     RE_Complete_Single_Entry_Body       =>
-       System_Tasking_Protected_Objects_Single_Entry,
      RE_Exceptional_Complete_Single_Entry_Body =>
        System_Tasking_Protected_Objects_Single_Entry,
      RE_Protected_Count_Entry            =>
        System_Tasking_Protected_Objects_Single_Entry,
      RE_Protected_Single_Entry_Caller    =>
-       System_Tasking_Protected_Objects_Single_Entry,
-     RE_Timed_Protected_Single_Entry_Call =>
        System_Tasking_Protected_Objects_Single_Entry,
 
      RE_Protected_Entry_Index            => System_Tasking_Protected_Objects,
@@ -3141,6 +3105,20 @@ package Rtsfind is
    --  occur either because the file in which the entity should be found
    --  does not exist, or because the entity is not present in the file.
 
+   procedure Check_Text_IO_Special_Unit (Nam : Node_Id);
+   --  In Ada 83, and hence for compatibility in later versions of Ada, package
+   --  Text_IO has generic subpackages (e.g. Integer_IO). They really should be
+   --  child packages, and in GNAT, they *are* child packages. To maintain the
+   --  required compatibility, this routine is called for package renamings and
+   --  generic instantiations, with the simple name of the referenced package.
+   --  If Text_IO has been with'ed and if the simple name of Nam matches
+   --  one of the subpackages of Text_IO, then this subpackage is with'ed
+   --  automatically. The important result of this approach is that Text_IO
+   --  does not drag in all the code for the subpackages unless they are used.
+   --  Our test is a little crude, and could drag in stuff when it is not
+   --  necessary, but that is acceptable. Wide_[Wide_]Text_IO is handled in
+   --  a similar manner.
+
    procedure Initialize;
    --  Procedure to initialize data structures used by RTE. Called at the
    --  start of processing a new main source file. Must be called after
@@ -3163,11 +3141,11 @@ package Rtsfind is
    --  entity id values are compared and True is returned if Ent is the
    --  entity for this unit.
 
-   function Is_Text_IO_Kludge_Unit (Nam : Node_Id) return Boolean;
+   function Is_Text_IO_Special_Unit (Nam : Node_Id) return Boolean;
    --  Returns True if the given Nam is an Expanded Name, whose Prefix is Ada,
    --  and whose selector is either Text_IO.xxx or Wide_Text_IO.xxx or
    --  Wide_Wide_Text_IO.xxx, where xxx is one of the subpackages of Text_IO
-   --  that is specially handled as described below for Text_IO_Kludge.
+   --  that is specially handled as described for Check_Text_IO_Special_Unit.
 
    function RTE (E : RE_Id) return Entity_Id;
    --  Given the entity defined in the above tables, as identified by the
@@ -3242,19 +3220,5 @@ package Rtsfind is
 
    procedure Set_RTU_Loaded (N : Node_Id);
    --  Register the predefined unit N as already loaded
-
-   procedure Text_IO_Kludge (Nam : Node_Id);
-   --  In Ada 83, and hence for compatibility in Ada 9X, package Text_IO has
-   --  generic subpackages (e.g. Integer_IO). They really should be child
-   --  packages, and in GNAT, they *are* child packages. To maintain the
-   --  required compatibility, this routine is called for package renamings
-   --  and generic instantiations, with the simple name of the referenced
-   --  package. If Text_IO has been with'ed and if the simple name of Nam
-   --  matches one of the subpackages of Text_IO, then this subpackage is
-   --  with'ed automatically. The important result of this approach is that
-   --  Text_IO does not drag in all the code for the subpackages unless they
-   --  are used. Our test is a little crude, and could drag in stuff when it
-   --  is not necessary, but that doesn't matter. Wide_[Wide_]Text_IO is
-   --  handled in a similar manner.
 
 end Rtsfind;

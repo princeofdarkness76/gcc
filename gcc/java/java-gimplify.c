@@ -1,5 +1,5 @@
 /* Java(TM) language-specific gimplification routines.
-   Copyright (C) 2003-2013 Free Software Foundation, Inc.
+   Copyright (C) 2003-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -24,10 +24,13 @@ The Free Software Foundation is independent of Sun Microsystems, Inc.  */
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+#include "function.h"
+#include "basic-block.h"
 #include "tree.h"
+#include "gimple.h"
 #include "java-tree.h"
 #include "dumpfile.h"
-#include "gimple.h"
+#include "gimplify.h"
 
 static tree java_gimplify_block (tree);
 static enum gimplify_status java_gimplify_modify_expr (tree *);
@@ -122,7 +125,7 @@ java_gimplify_block (tree java_block)
 {
   tree decls = BLOCK_VARS (java_block);
   tree body = BLOCK_EXPR_BODY (java_block);
-  gimple outer = gimple_current_bind_expr ();
+  gbind *outer = gimple_current_bind_expr ();
   tree block;
 
   /* Don't bother with empty blocks.  */

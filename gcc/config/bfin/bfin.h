@@ -1,5 +1,5 @@
 /* Definitions for the Blackfin port.
-   Copyright (C) 2005-2013 Free Software Foundation, Inc.
+   Copyright (C) 2005-2015 Free Software Foundation, Inc.
    Contributed by Analog Devices.
 
    This file is part of GCC.
@@ -42,6 +42,8 @@
 						\
       switch (bfin_cpu_type)			\
 	{					\
+	case BFIN_CPU_UNKNOWN:			\
+	  break;				\
 	case BFIN_CPU_BF512:			\
 	  builtin_define ("__ADSPBF512__");	\
 	  builtin_define ("__ADSPBF51x__");	\
@@ -231,7 +233,7 @@ extern const char *bfin_library_id_string;
 
 /* Define this if pushing a word on the stack
    makes the stack pointer a smaller address.  */
-#define STACK_GROWS_DOWNWARD
+#define STACK_GROWS_DOWNWARD 1
 
 #define STACK_PUSH_CODE PRE_DEC
 
@@ -859,9 +861,6 @@ typedef struct {
 /* Define this if most significant word of a multiword number is numbered. */
 #define WORDS_BIG_ENDIAN 0
 
-/* number of bits in an addressable storage unit */
-#define BITS_PER_UNIT 8
-
 /* Width in bits of a "word", which is the contents of a machine register.
    Note that this is not necessarily the width of data type `int';
    if using 16-bit ints on a 68000, this would still be 32.
@@ -983,7 +982,7 @@ typedef struct {
 
 /* Define if operations between registers always perform the operation
    on the full register even if a narrower mode is specified. 
-#define WORD_REGISTER_OPERATIONS
+#define WORD_REGISTER_OPERATIONS 1
 */
 
 /* Evaluates to true if A and B are mac flags that can be used

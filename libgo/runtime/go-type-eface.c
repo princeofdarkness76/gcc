@@ -24,10 +24,13 @@ __go_type_hash_empty_interface (const void *vval,
     return 0;
   size = descriptor->__size;
   if (__go_is_pointer_type (descriptor))
-    return descriptor->__hashfn (&val->__object, size);
+    return __go_call_hashfn (descriptor->__hashfn, &val->__object, size);
   else
-    return descriptor->__hashfn (val->__object, size);
+    return __go_call_hashfn (descriptor->__hashfn, val->__object, size);
 }
+
+const FuncVal __go_type_hash_empty_interface_descriptor =
+  { (void *) __go_type_hash_empty_interface };
 
 /* An equality function for an empty interface.  */
 
@@ -44,9 +47,6 @@ __go_type_equal_empty_interface (const void *vv1, const void *vv2,
   v2 = (const struct __go_empty_interface *) vv2;
   v1_descriptor = v1->__type_descriptor;
   v2_descriptor = v2->__type_descriptor;
-  if (((uintptr_t) v1_descriptor & reflectFlags) != 0
-      || ((uintptr_t) v2_descriptor & reflectFlags) != 0)
-    runtime_panicstring ("invalid interface value");
   if (v1_descriptor == NULL || v2_descriptor == NULL)
     return v1_descriptor == v2_descriptor;
   if (!__go_type_descriptors_equal (v1_descriptor, v2_descriptor))
@@ -54,6 +54,9 @@ __go_type_equal_empty_interface (const void *vv1, const void *vv2,
   if (__go_is_pointer_type (v1_descriptor))
     return v1->__object == v2->__object;
   else
-    return v1_descriptor->__equalfn (v1->__object, v2->__object,
-				     v1_descriptor->__size);
+    return __go_call_equalfn (v1_descriptor->__equalfn, v1->__object,
+			      v2->__object, v1_descriptor->__size);
 }
+
+const FuncVal __go_type_equal_empty_interface_descriptor =
+  { (void *) __go_type_equal_empty_interface };

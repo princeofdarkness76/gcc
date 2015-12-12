@@ -13,6 +13,7 @@ import (
 	"mime"
 	"mime/multipart"
 	"net/textproto"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -21,8 +22,12 @@ import (
 	"time"
 )
 
-// A Dir implements http.FileSystem using the native file
-// system restricted to a specific directory tree.
+// A Dir implements FileSystem using the native file system restricted to a
+// specific directory tree.
+//
+// While the FileSystem.Open method takes '/'-separated paths, a Dir's string
+// value is a filename on the native file system, not a URL, so it is separated
+// by filepath.Separator, which isn't necessarily '/'.
 //
 // An empty Dir is treated as ".".
 type Dir string
@@ -52,12 +57,14 @@ type FileSystem interface {
 
 // A File is returned by a FileSystem's Open method and can be
 // served by the FileServer implementation.
+//
+// The methods should behave the same as those on an *os.File.
 type File interface {
-	Close() error
-	Stat() (os.FileInfo, error)
+	io.Closer
+	io.Reader
 	Readdir(count int) ([]os.FileInfo, error)
-	Read([]byte) (int, error)
 	Seek(offset int64, whence int) (int64, error)
+	Stat() (os.FileInfo, error)
 }
 
 func dirList(w ResponseWriter, f File) {
@@ -73,8 +80,11 @@ func dirList(w ResponseWriter, f File) {
 			if d.IsDir() {
 				name += "/"
 			}
-			// TODO htmlescape
-			fmt.Fprintf(w, "<a href=\"%s\">%s</a>\n", name, name)
+			// name may contain '?' or '#', which must be escaped to remain
+			// part of the URL path, and not indicate the start of a query
+			// string or fragment.
+			url := url.URL{Path: name}
+			fmt.Fprintf(w, "<a href=\"%s\">%s</a>\n", url.String(), htmlReplacer.Replace(name))
 		}
 	}
 	fmt.Fprintf(w, "</pre>\n")
@@ -92,10 +102,10 @@ func dirList(w ResponseWriter, f File) {
 // The name is otherwise unused; in particular it can be empty and is
 // never sent in the response.
 //
-// If modtime is not the zero time, ServeContent includes it in a
-// Last-Modified header in the response.  If the request includes an
-// If-Modified-Since header, ServeContent uses modtime to decide
-// whether the content needs to be sent at all.
+// If modtime is not the zero time or Unix epoch, ServeContent
+// includes it in a Last-Modified header in the response.  If the
+// request includes an If-Modified-Since header, ServeContent uses
+// modtime to decide whether the content needs to be sent at all.
 //
 // The content's Seek method must work: ServeContent uses
 // a seek to the end of the content to determine its size.
@@ -105,43 +115,52 @@ func dirList(w ResponseWriter, f File) {
 //
 // Note that *os.File implements the io.ReadSeeker interface.
 func ServeContent(w ResponseWriter, req *Request, name string, modtime time.Time, content io.ReadSeeker) {
-	size, err := content.Seek(0, os.SEEK_END)
-	if err != nil {
-		Error(w, "seeker can't seek", StatusInternalServerError)
-		return
+	sizeFunc := func() (int64, error) {
+		size, err := content.Seek(0, os.SEEK_END)
+		if err != nil {
+			return 0, errSeeker
+		}
+		_, err = content.Seek(0, os.SEEK_SET)
+		if err != nil {
+			return 0, errSeeker
+		}
+		return size, nil
 	}
-	_, err = content.Seek(0, os.SEEK_SET)
-	if err != nil {
-		Error(w, "seeker can't seek", StatusInternalServerError)
-		return
-	}
-	serveContent(w, req, name, modtime, size, content)
+	serveContent(w, req, name, modtime, sizeFunc, content)
 }
+
+// errSeeker is returned by ServeContent's sizeFunc when the content
+// doesn't seek properly. The underlying Seeker's error text isn't
+// included in the sizeFunc reply so it's not sent over HTTP to end
+// users.
+var errSeeker = errors.New("seeker can't seek")
 
 // if name is empty, filename is unknown. (used for mime type, before sniffing)
 // if modtime.IsZero(), modtime is unknown.
 // content must be seeked to the beginning of the file.
-func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, size int64, content io.ReadSeeker) {
+// The sizeFunc is called at most once. Its error, if any, is sent in the HTTP response.
+func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, sizeFunc func() (int64, error), content io.ReadSeeker) {
 	if checkLastModified(w, r, modtime) {
 		return
 	}
-	rangeReq, done := checkETag(w, r)
+	rangeReq, done := checkETag(w, r, modtime)
 	if done {
 		return
 	}
 
 	code := StatusOK
 
-	// If Content-Type isn't set, use the file's extension to find it.
-	ctype := w.Header().Get("Content-Type")
-	if ctype == "" {
+	// If Content-Type isn't set, use the file's extension to find it, but
+	// if the Content-Type is unset explicitly, do not sniff the type.
+	ctypes, haveType := w.Header()["Content-Type"]
+	var ctype string
+	if !haveType {
 		ctype = mime.TypeByExtension(filepath.Ext(name))
 		if ctype == "" {
 			// read a chunk to decide between utf-8 text and binary
-			var buf [1024]byte
+			var buf [sniffLen]byte
 			n, _ := io.ReadFull(content, buf[:])
-			b := buf[:n]
-			ctype = DetectContentType(b)
+			ctype = DetectContentType(buf[:n])
 			_, err := content.Seek(0, os.SEEK_SET) // rewind to output whole file
 			if err != nil {
 				Error(w, "seeker can't seek", StatusInternalServerError)
@@ -149,6 +168,14 @@ func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, 
 			}
 		}
 		w.Header().Set("Content-Type", ctype)
+	} else if len(ctypes) > 0 {
+		ctype = ctypes[0]
+	}
+
+	size, err := sizeFunc()
+	if err != nil {
+		Error(w, err.Error(), StatusInternalServerError)
+		return
 	}
 
 	// handle Content-Range header.
@@ -160,7 +187,7 @@ func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, 
 			Error(w, err.Error(), StatusRequestedRangeNotSatisfiable)
 			return
 		}
-		if sumRangesSize(ranges) >= size {
+		if sumRangesSize(ranges) > size {
 			// The total number of bytes in all the ranges
 			// is larger than the size of the file by
 			// itself, so this is probably an attack, or a
@@ -189,12 +216,6 @@ func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, 
 			code = StatusPartialContent
 			w.Header().Set("Content-Range", ra.contentRange(size))
 		case len(ranges) > 1:
-			for _, ra := range ranges {
-				if ra.start > size {
-					Error(w, err.Error(), StatusRequestedRangeNotSatisfiable)
-					return
-				}
-			}
 			sendSize = rangesMIMESize(ranges, ctype, size)
 			code = StatusPartialContent
 
@@ -237,10 +258,15 @@ func serveContent(w ResponseWriter, r *Request, name string, modtime time.Time, 
 	}
 }
 
+var unixEpochTime = time.Unix(0, 0)
+
 // modtime is the modification time of the resource to be served, or IsZero().
 // return value is whether this request is now complete.
 func checkLastModified(w ResponseWriter, r *Request, modtime time.Time) bool {
-	if modtime.IsZero() {
+	if modtime.IsZero() || modtime.Equal(unixEpochTime) {
+		// If the file doesn't have a modtime (IsZero), or the modtime
+		// is obviously garbage (Unix time == 0), then ignore modtimes
+		// and don't process the If-Modified-Since header.
 		return false
 	}
 
@@ -258,11 +284,14 @@ func checkLastModified(w ResponseWriter, r *Request, modtime time.Time) bool {
 }
 
 // checkETag implements If-None-Match and If-Range checks.
-// The ETag must have been previously set in the ResponseWriter's headers.
+//
+// The ETag or modtime must have been previously set in the
+// ResponseWriter's headers.  The modtime is only compared at second
+// granularity and may be the zero value to mean unknown.
 //
 // The return value is the effective request "Range" header to use and
 // whether this request is now considered done.
-func checkETag(w ResponseWriter, r *Request) (rangeReq string, done bool) {
+func checkETag(w ResponseWriter, r *Request, modtime time.Time) (rangeReq string, done bool) {
 	etag := w.Header().get("Etag")
 	rangeReq = r.Header.get("Range")
 
@@ -273,11 +302,17 @@ func checkETag(w ResponseWriter, r *Request) (rangeReq string, done bool) {
 	// We only support ETag versions.
 	// The caller must have set the ETag on the response already.
 	if ir := r.Header.get("If-Range"); ir != "" && ir != etag {
-		// TODO(bradfitz): handle If-Range requests with Last-Modified
-		// times instead of ETags? I'd rather not, at least for
-		// now. That seems like a bug/compromise in the RFC 2616, and
-		// I've never heard of anybody caring about that (yet).
-		rangeReq = ""
+		// The If-Range value is typically the ETag value, but it may also be
+		// the modtime date. See golang.org/issue/8367.
+		timeMatches := false
+		if !modtime.IsZero() {
+			if t, err := ParseTime(ir); err == nil && t.Unix() == modtime.Unix() {
+				timeMatches = true
+			}
+		}
+		if !timeMatches {
+			rangeReq = ""
+		}
 	}
 
 	if inm := r.Header.get("If-None-Match"); inm != "" {
@@ -323,16 +358,16 @@ func serveFile(w ResponseWriter, r *Request, fs FileSystem, name string, redirec
 
 	f, err := fs.Open(name)
 	if err != nil {
-		// TODO expose actual error?
-		NotFound(w, r)
+		msg, code := toHTTPError(err)
+		Error(w, msg, code)
 		return
 	}
 	defer f.Close()
 
 	d, err1 := f.Stat()
 	if err1 != nil {
-		// TODO expose actual error?
-		NotFound(w, r)
+		msg, code := toHTTPError(err)
+		Error(w, msg, code)
 		return
 	}
 
@@ -355,7 +390,7 @@ func serveFile(w ResponseWriter, r *Request, fs FileSystem, name string, redirec
 
 	// use contents of index.html for directory, if present
 	if d.IsDir() {
-		index := name + indexPage
+		index := strings.TrimSuffix(name, "/") + indexPage
 		ff, err := fs.Open(index)
 		if err == nil {
 			defer ff.Close()
@@ -377,8 +412,25 @@ func serveFile(w ResponseWriter, r *Request, fs FileSystem, name string, redirec
 		return
 	}
 
-	// serverContent will check modification time
-	serveContent(w, r, d.Name(), d.ModTime(), d.Size(), f)
+	// serveContent will check modification time
+	sizeFunc := func() (int64, error) { return d.Size(), nil }
+	serveContent(w, r, d.Name(), d.ModTime(), sizeFunc, f)
+}
+
+// toHTTPError returns a non-specific HTTP error message and status code
+// for a given non-nil error value. It's important that toHTTPError does not
+// actually return err.Error(), since msg and httpStatus are returned to users,
+// and historically Go's ServeContent always returned just "404 Not Found" for
+// all errors. We don't want to start leaking information in error messages.
+func toHTTPError(err error) (msg string, httpStatus int) {
+	if os.IsNotExist(err) {
+		return "404 page not found", StatusNotFound
+	}
+	if os.IsPermission(err) {
+		return "403 Forbidden", StatusForbidden
+	}
+	// Default:
+	return "500 Internal Server Error", StatusInternalServerError
 }
 
 // localRedirect gives a Moved Permanently response.
@@ -391,7 +443,13 @@ func localRedirect(w ResponseWriter, r *Request, newPath string) {
 	w.WriteHeader(StatusMovedPermanently)
 }
 
-// ServeFile replies to the request with the contents of the named file or directory.
+// ServeFile replies to the request with the contents of the named
+// file or directory.
+//
+// As a special case, ServeFile redirects any request where r.URL.Path
+// ends in "/index.html" to the same path, without the final
+// "index.html". To avoid such redirects either modify the path or
+// use ServeContent.
 func ServeFile(w ResponseWriter, r *Request, name string) {
 	dir, file := filepath.Split(name)
 	serveFile(w, r, Dir(dir), file, false)
@@ -408,6 +466,10 @@ type fileHandler struct {
 // use http.Dir:
 //
 //     http.Handle("/", http.FileServer(http.Dir("/tmp")))
+//
+// As a special case, the returned file server redirects any request
+// ending in "/index.html" to the same path, without the final
+// "index.html".
 func FileServer(root FileSystem) Handler {
 	return &fileHandler{root}
 }
@@ -472,7 +534,7 @@ func parseRange(s string, size int64) ([]httpRange, error) {
 			r.length = size - r.start
 		} else {
 			i, err := strconv.ParseInt(start, 10, 64)
-			if err != nil || i > size || i < 0 {
+			if err != nil || i >= size || i < 0 {
 				return nil, errors.New("invalid range")
 			}
 			r.start = i
@@ -503,7 +565,7 @@ func (w *countingWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-// rangesMIMESize returns the nunber of bytes it takes to encode the
+// rangesMIMESize returns the number of bytes it takes to encode the
 // provided ranges as a multipart response.
 func rangesMIMESize(ranges []httpRange, contentType string, contentSize int64) (encSize int64) {
 	var w countingWriter

@@ -1,5 +1,5 @@
 /* Loop header copying on trees.
-   Copyright (C) 2004-2013 Free Software Foundation, Inc.
+   Copyright (C) 2004-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -20,16 +20,19 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
+#include "backend.h"
 #include "tree.h"
-#include "tm_p.h"
-#include "basic-block.h"
-#include "tree-flow.h"
+#include "gimple.h"
+#include "cfghooks.h"
 #include "tree-pass.h"
+#include "gimple-ssa.h"
+#include "gimple-iterator.h"
+#include "tree-cfg.h"
+#include "tree-into-ssa.h"
 #include "cfgloop.h"
 #include "tree-inline.h"
-#include "flags.h"
-#include "tree-inline.h"
+#include "tree-ssa-scopedtables.h"
+#include "tree-ssa-threadedge.h"
 
 /* Duplicates headers of loops if they are small enough, so that the statements
    in the loop body are always executed when the loop is entered.  This
@@ -45,7 +48,7 @@ should_duplicate_loop_header_p (basic_block header, struct loop *loop,
 				int *limit)
 {
   gimple_stmt_iterator bsi;
-  gimple last;
+  gimple *last;
 
   /* Do not copy one block more than once (we do not really want to do
      loop peeling here).  */
@@ -100,10 +103,10 @@ should_duplicate_loop_header_p (basic_block header, struct loop *loop,
 
 /* Checks whether LOOP is a do-while style loop.  */
 
-bool
+static bool
 do_while_loop_p (struct loop *loop)
 {
-  gimple stmt = last_stmt (loop->latch);
+  gimple *stmt = last_stmt (loop->latch);
 
   /* If the latch of the loop is not empty, it is not a do-while loop.  */
   if (stmt
@@ -119,34 +122,115 @@ do_while_loop_p (struct loop *loop)
   return true;
 }
 
+namespace {
+
+/* Common superclass for both header-copying phases.  */
+class ch_base : public gimple_opt_pass
+{
+  protected:
+    ch_base (pass_data data, gcc::context *ctxt)
+      : gimple_opt_pass (data, ctxt)
+    {}
+
+  /* Copies headers of all loops in FUN for which process_loop_p is true.  */
+  unsigned int copy_headers (function *fun);
+
+  /* Return true to copy headers of LOOP or false to skip.  */
+  virtual bool process_loop_p (struct loop *loop) = 0;
+};
+
+const pass_data pass_data_ch =
+{
+  GIMPLE_PASS, /* type */
+  "ch", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_CH, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+class pass_ch : public ch_base
+{
+public:
+  pass_ch (gcc::context *ctxt)
+    : ch_base (pass_data_ch, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_ch != 0; }
+  
+  /* Initialize and finalize loop structures, copying headers inbetween.  */
+  virtual unsigned int execute (function *);
+
+protected:
+  /* ch_base method: */
+  virtual bool process_loop_p (struct loop *loop);
+}; // class pass_ch
+
+const pass_data pass_data_ch_vect =
+{
+  GIMPLE_PASS, /* type */
+  "ch_vect", /* name */
+  OPTGROUP_LOOP, /* optinfo_flags */
+  TV_TREE_CH, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+/* This is a more aggressive version of the same pass, designed to run just
+   before if-conversion and vectorization, to put more loops into the form
+   required for those phases.  */
+class pass_ch_vect : public ch_base
+{
+public:
+  pass_ch_vect (gcc::context *ctxt)
+    : ch_base (pass_data_ch_vect, ctxt)
+  {}
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fun)
+  {
+    return flag_tree_ch != 0
+	   && (flag_tree_loop_vectorize != 0 || fun->has_force_vectorize_loops);
+  }
+  
+  /* Just copy headers, no initialization/finalization of loop structures.  */
+  virtual unsigned int execute (function *);
+
+protected:
+  /* ch_base method: */
+  virtual bool process_loop_p (struct loop *loop);
+}; // class pass_ch_vect
+
 /* For all loops, copy the condition at the end of the loop body in front
    of the loop.  This is beneficial since it increases efficiency of
    code motion optimizations.  It also saves one jump on entry to the loop.  */
 
-static unsigned int
-copy_loop_headers (void)
+unsigned int
+ch_base::copy_headers (function *fun)
 {
-  loop_iterator li;
   struct loop *loop;
   basic_block header;
   edge exit, entry;
   basic_block *bbs, *copied_bbs;
   unsigned n_bbs;
   unsigned bbs_size;
+  bool changed = false;
 
-  loop_optimizer_init (LOOPS_HAVE_PREHEADERS
-		       | LOOPS_HAVE_SIMPLE_LATCHES);
-  if (number_of_loops (cfun) <= 1)
-    {
-      loop_optimizer_finalize ();
+  if (number_of_loops (fun) <= 1)
       return 0;
-    }
 
-  bbs = XNEWVEC (basic_block, n_basic_blocks);
-  copied_bbs = XNEWVEC (basic_block, n_basic_blocks);
-  bbs_size = n_basic_blocks;
+  bbs = XNEWVEC (basic_block, n_basic_blocks_for_fn (fun));
+  copied_bbs = XNEWVEC (basic_block, n_basic_blocks_for_fn (fun));
+  bbs_size = n_basic_blocks_for_fn (fun);
 
-  FOR_EACH_LOOP (li, loop, 0)
+  FOR_EACH_LOOP (loop, 0)
     {
       /* Copy at most 20 insns.  */
       int limit = 20;
@@ -157,7 +241,7 @@ copy_loop_headers (void)
 	 written as such, or because jump threading transformed it into one),
 	 we might be in fact peeling the first iteration of the loop.  This
 	 in general is not a good idea.  */
-      if (do_while_loop_p (loop))
+      if (!process_loop_p (loop))
 	continue;
 
       /* Iterate the header copying up to limit; this takes care of the cases
@@ -223,7 +307,7 @@ copy_loop_headers (void)
 		   !gsi_end_p (bsi);
 		   gsi_next (&bsi))
 		{
-		  gimple stmt = gsi_stmt (bsi);
+		  gimple *stmt = gsi_stmt (bsi);
 		  if (gimple_code (stmt) == GIMPLE_COND)
 		    gimple_set_no_warning (stmt, true);
 		  else if (is_gimple_assign (stmt))
@@ -240,40 +324,93 @@ copy_loop_headers (void)
 	 are not now, since there was the loop exit condition.  */
       split_edge (loop_preheader_edge (loop));
       split_edge (loop_latch_edge (loop));
+
+      changed = true;
     }
 
-  update_ssa (TODO_update_ssa);
+  if (changed)
+    update_ssa (TODO_update_ssa);
   free (bbs);
   free (copied_bbs);
 
+  return changed ? TODO_cleanup_cfg : 0;
+}
+
+/* Initialize the loop structures we need, and finalize after.  */
+
+unsigned int
+pass_ch::execute (function *fun)
+{
+  loop_optimizer_init (LOOPS_HAVE_PREHEADERS
+		       | LOOPS_HAVE_SIMPLE_LATCHES);
+
+  unsigned int res = copy_headers (fun);
+
   loop_optimizer_finalize ();
-  return 0;
+  return res;
 }
 
-static bool
-gate_ch (void)
+/* Assume an earlier phase has already initialized all the loop structures that
+   we need here (and perhaps others too), and that these will be finalized by
+   a later phase.  */
+   
+unsigned int
+pass_ch_vect::execute (function *fun)
 {
-  return flag_tree_ch != 0;
+  return copy_headers (fun);
 }
 
-struct gimple_opt_pass pass_ch =
+/* Apply header copying according to a very simple test of do-while shape.  */
+
+bool
+pass_ch::process_loop_p (struct loop *loop)
 {
- {
-  GIMPLE_PASS,
-  "ch",					/* name */
-  OPTGROUP_LOOP,                        /* optinfo_flags */
-  gate_ch,				/* gate */
-  copy_loop_headers,			/* execute */
-  NULL,					/* sub */
-  NULL,					/* next */
-  0,					/* static_pass_number */
-  TV_TREE_CH,				/* tv_id */
-  PROP_cfg | PROP_ssa,			/* properties_required */
-  0,					/* properties_provided */
-  0,					/* properties_destroyed */
-  0,					/* todo_flags_start */
-  TODO_cleanup_cfg
-    | TODO_verify_ssa
-    | TODO_verify_flow			/* todo_flags_finish */
- }
-};
+  return !do_while_loop_p (loop);
+}
+
+/* Apply header-copying to loops where we might enable vectorization.  */
+
+bool
+pass_ch_vect::process_loop_p (struct loop *loop)
+{
+  if (!flag_tree_vectorize && !loop->force_vectorize)
+    return false;
+
+  if (loop->dont_vectorize)
+    return false;
+
+  if (!do_while_loop_p (loop))
+    return true;
+
+ /* The vectorizer won't handle anything with multiple exits, so skip.  */
+  edge exit = single_exit (loop);
+  if (!exit)
+    return false;
+
+  /* Copy headers iff there looks to be code in the loop after the exit block,
+     i.e. the exit block has an edge to another block (besides the latch,
+     which should be empty).  */
+  edge_iterator ei;
+  edge e;
+  FOR_EACH_EDGE (e, ei, exit->src->succs)
+    if (!loop_exit_edge_p (loop, e)
+	&& e->dest != loop->header
+	&& e->dest != loop->latch)
+      return true;
+
+  return false;
+}
+
+} // anon namespace
+
+gimple_opt_pass *
+make_pass_ch_vect (gcc::context *ctxt)
+{
+  return new pass_ch_vect (ctxt);
+}
+
+gimple_opt_pass *
+make_pass_ch (gcc::context *ctxt)
+{
+  return new pass_ch (ctxt);
+}

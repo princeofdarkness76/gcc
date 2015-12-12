@@ -139,12 +139,13 @@ AM_PROG_CC_C_O
 # Add -Wall -fno-repack-arrays -fno-underscoring if we are using GCC.
 if test "x$GCC" = "xyes"; then
   AM_FCFLAGS="-I . -Wall -Werror -fimplicit-none -fno-repack-arrays -fno-underscoring"
-  ## We like to use C99 routines when available.  This makes sure that
+  ## We like to use C11 and C99 routines when available.  This makes
+  ## sure that
   ## __STDC_VERSION__ is set such that libc includes make them available.
-  AM_CFLAGS="-std=gnu99 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition -Wextra -Wwrite-strings"
+  AM_CFLAGS="-std=gnu11 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition -Wextra -Wwrite-strings -Werror=implicit-function-declaration -Werror=vla"
   ## Compile the following tests with the same system header contents
   ## that we'll encounter when compiling our own source files.
-  CFLAGS="-std=gnu99 $CFLAGS"
+  CFLAGS="-std=gnu11 $CFLAGS"
 fi
 AC_SUBST(AM_FCFLAGS)
 AC_SUBST(AM_CFLAGS)
@@ -187,6 +188,18 @@ AC_MSG_RESULT($gfortran_use_symver)
 AM_CONDITIONAL(LIBGFOR_USE_SYMVER, [test "x$gfortran_use_symver" != xno])
 AM_CONDITIONAL(LIBGFOR_USE_SYMVER_GNU, [test "x$gfortran_use_symver" = xgnu])
 AM_CONDITIONAL(LIBGFOR_USE_SYMVER_SUN, [test "x$gfortran_use_symver" = xsun])
+
+# For GPU offloading, not everything in libfortran can be supported.
+# Currently, the only target that has this problem is nvptx.  The
+# following is a (partial) list of features that are unsupportable on
+# this particular target:
+# * Constructors
+# * alloca
+# * C library support for I/O, with printf as the one notable exception
+# * C library support for other features such as signal, environment
+#   variables, time functions
+
+AM_CONDITIONAL(LIBGFOR_MINIMAL, [test "x${target_cpu}" = xnvptx])
 
 # Figure out whether the compiler supports "-ffunction-sections -fdata-sections",
 # similarly to how libstdc++ does it
@@ -254,33 +267,46 @@ AC_CHECK_TYPES([ptrdiff_t])
 # check header files (we assume C89 is available, so don't check for that)
 AC_CHECK_HEADERS_ONCE(unistd.h sys/time.h sys/times.h sys/resource.h \
 sys/types.h sys/stat.h sys/wait.h floatingpoint.h ieeefp.h fenv.h fptrap.h \
-fpxcp.h pwd.h complex.h) 
+fpxcp.h pwd.h complex.h xlocale.h)
 
 GCC_HEADER_STDINT(gstdint.h)
 
 AC_CHECK_MEMBERS([struct stat.st_blksize, struct stat.st_blocks, struct stat.st_rdev])
 
+case "${host}--x${with_newlib}" in
+  mips*--xyes)
+    hardwire_newlib=1;;
+esac
+
 # Check for library functions.
-if test "x${with_newlib}" = "xyes"; then
+if test "${hardwire_newlib:-0}" -eq 1; then
    # We are being configured with a cross compiler.  AC_REPLACE_FUNCS
    # may not work correctly, because the compiler may not be able to
    # link executables.
    AC_DEFINE(HAVE_MKSTEMP, 1, [Define if you have mkstemp.])
    AC_DEFINE(HAVE_STRTOF, 1, [Define if you have strtof.])
-   AC_DEFINE(HAVE_STRTOLD, 1, [Define if you have strtold.])
    AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have snprintf.])
-   AC_DEFINE(HAVE_STRCASESTR, 1, [Define if you have strcasestr.])
    AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have vsnprintf.])
    AC_DEFINE(HAVE_LOCALTIME_R, 1, [Define if you have localtime_r.])
    AC_DEFINE(HAVE_GMTIME_R, 1, [Define if you have gmtime_r.])
+   AC_DEFINE(HAVE_STRNLEN, 1, [Define if you have strnlen.])
+   AC_DEFINE(HAVE_STRNDUP, 1, [Define if you have strndup.])
+
+   # At some point, we should differentiate between architectures
+   # like x86, which have long double versions, and alpha/powerpc/etc.,
+   # which don't. For the time being, punt.
+   if test x"long_double_math_on_this_cpu" = x"yes"; then
+     AC_DEFINE(HAVE_STRTOLD, 1, [Define if you have strtold.])
+   fi
 else
    AC_CHECK_FUNCS_ONCE(getrusage times mkstemp strtof strtold snprintf \
    ftruncate chsize chdir getlogin gethostname kill link symlink sleep ttyname \
-   alarm access fork execl wait setmode execve pipe dup2 close \
-   strcasestr getrlimit gettimeofday stat fstat lstat getpwuid vsnprintf dup \
+   alarm access fork setmode fcntl \
+   gettimeofday stat fstat lstat getpwuid vsnprintf dup \
    getcwd localtime_r gmtime_r getpwuid_r ttyname_r clock_gettime \
-   readlink getgid getpid getppid getuid geteuid umask getegid \
-   secure_getenv __secure_getenv)
+   getgid getpid getuid geteuid umask getegid \
+   secure_getenv __secure_getenv mkostemp strnlen strndup newlocale \
+   freelocale uselocale strerror_l)
 fi
 
 # Check strerror_r, cannot be above as versions with two and three arguments exist
@@ -373,7 +399,6 @@ GCC_CHECK_MATH_FUNC([nextafter])
 GCC_CHECK_MATH_FUNC([nextafterl])
 GCC_CHECK_MATH_FUNC([powf])
 GCC_CHECK_MATH_FUNC([pow])
-GCC_CHECK_MATH_FUNC([powl])
 GCC_CHECK_MATH_FUNC([cpowf])
 GCC_CHECK_MATH_FUNC([cpow])
 GCC_CHECK_MATH_FUNC([cpowl])
@@ -424,34 +449,27 @@ GCC_CHECK_MATH_FUNC([trunc])
 GCC_CHECK_MATH_FUNC([truncl])
 GCC_CHECK_MATH_FUNC([erff])
 GCC_CHECK_MATH_FUNC([erf])
-GCC_CHECK_MATH_FUNC([erfl])
 GCC_CHECK_MATH_FUNC([erfcf])
 GCC_CHECK_MATH_FUNC([erfc])
 GCC_CHECK_MATH_FUNC([erfcl])
 GCC_CHECK_MATH_FUNC([j0f])
 GCC_CHECK_MATH_FUNC([j0])
-GCC_CHECK_MATH_FUNC([j0l])
 GCC_CHECK_MATH_FUNC([j1f])
 GCC_CHECK_MATH_FUNC([j1])
-GCC_CHECK_MATH_FUNC([j1l])
 GCC_CHECK_MATH_FUNC([jnf])
 GCC_CHECK_MATH_FUNC([jn])
 GCC_CHECK_MATH_FUNC([jnl])
 GCC_CHECK_MATH_FUNC([y0f])
 GCC_CHECK_MATH_FUNC([y0])
-GCC_CHECK_MATH_FUNC([y0l])
 GCC_CHECK_MATH_FUNC([y1f])
 GCC_CHECK_MATH_FUNC([y1])
-GCC_CHECK_MATH_FUNC([y1l])
 GCC_CHECK_MATH_FUNC([ynf])
 GCC_CHECK_MATH_FUNC([yn])
 GCC_CHECK_MATH_FUNC([ynl])
 GCC_CHECK_MATH_FUNC([tgamma])
 GCC_CHECK_MATH_FUNC([tgammaf])
-GCC_CHECK_MATH_FUNC([tgammal])
 GCC_CHECK_MATH_FUNC([lgamma])
 GCC_CHECK_MATH_FUNC([lgammaf])
-GCC_CHECK_MATH_FUNC([lgammal])
 
 # Check for GFORTRAN_C99_1.1 funcs
 GCC_CHECK_MATH_FUNC([cacos])
@@ -504,7 +522,7 @@ AC_CHECK_LIB([m],[feenableexcept],[have_feenableexcept=yes AC_DEFINE([HAVE_FEENA
 # test is copied from libgomp, and modified to not link in -lrt as
 # libgfortran calls clock_gettime via a weak reference if it's found
 # in librt.
-if test $ac_cv_func_clock_gettime = no; then
+if test "$ac_cv_func_clock_gettime" = no; then
   AC_CHECK_LIB(rt, clock_gettime,
     [AC_DEFINE(HAVE_CLOCK_GETTIME_LIBRT, 1,
                [Define to 1 if you have the `clock_gettime' function in librt.])])
@@ -512,7 +530,22 @@ fi
 
 # Check for SysV fpsetmask
 LIBGFOR_CHECK_FPSETMASK
-AC_CHECK_TYPES([fp_except,fp_except_t], [], [], [[#include <ieeefp.h>]])
+AC_CHECK_TYPES([fp_except,fp_except_t], [], [], [[
+#ifdef HAVE_IEEEFP_H
+#include <ieeefp.h>
+#endif
+#include <math.h>
+]])
+AC_CHECK_TYPES([fp_rnd,fp_rnd_t], [], [], [[
+#ifdef HAVE_IEEEFP_H
+#include <ieeefp.h>
+#endif
+#include <math.h>
+]])
+
+# Check whether we have fpsetsticky or fpresetsticky
+AC_CHECK_FUNC([fpsetsticky],[have_fpsetsticky=yes AC_DEFINE([HAVE_FPSETSTICKY],[1],[fpsetsticky is present])])
+AC_CHECK_FUNC([fpresetsticky],[have_fpresetsticky=yes AC_DEFINE([HAVE_FPRESETSTICKY],[1],[fpresetsticky is present])])
 
 # Check for AIX fp_trap and fp_enable
 AC_CHECK_FUNC([fp_trap],[have_fp_trap=yes AC_DEFINE([HAVE_FP_TRAP],[1],[fp_trap is present])])
@@ -523,8 +556,13 @@ AC_CHECK_FUNC([fp_enable],[have_fp_enable=yes AC_DEFINE([HAVE_FP_ENABLE],[1],[fp
 # build chain.
 . ${srcdir}/configure.host
 AC_MSG_NOTICE([FPU dependent file will be ${fpu_host}.h])
+AC_MSG_NOTICE([Support for IEEE modules: ${ieee_support}])
 FPU_HOST_HEADER=config/${fpu_host}.h
 AC_SUBST(FPU_HOST_HEADER)
+
+# Whether we will build the IEEE modules
+AM_CONDITIONAL(IEEE_SUPPORT,[test x${ieee_support} = xyes])
+AC_SUBST(IEEE_SUPPORT)
 
 # Some targets require additional compiler options for IEEE compatibility.
 IEEE_FLAGS="${ieee_flags}"
@@ -552,7 +590,6 @@ fi
 
 # Check out attribute support.
 LIBGFOR_CHECK_ATTRIBUTE_VISIBILITY
-LIBGFOR_CHECK_ATTRIBUTE_DLLEXPORT
 LIBGFOR_CHECK_ATTRIBUTE_ALIAS
 
 # Check out sync builtins support.
@@ -561,14 +598,14 @@ LIBGFOR_CHECK_SYNC_FETCH_AND_ADD
 # Check out #pragma weak.
 LIBGFOR_GTHREAD_WEAK
 
+# Check out weakref support.
+LIBGFOR_CHECK_WEAKREF
+
 # Various other checks on target
 LIBGFOR_CHECK_UNLINK_OPEN_FILE
 
 # Check whether line terminator is LF or CRLF
 LIBGFOR_CHECK_CRLF
-
-# Check whether we have _Unwind_GetIPInfo for backtrace
-GCC_CHECK_UNWIND_GETIPINFO
 
 AC_CACHE_SAVE
 

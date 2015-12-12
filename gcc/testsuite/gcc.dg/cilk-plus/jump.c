@@ -10,7 +10,11 @@ void foo()
     {
       a[i] = b[i];
       if (c == 5)
+<<<<<<< HEAD
 	return;	 /* { dg-error "invalid branch to.from a Cilk" } */
+=======
+	return; /* { dg-error "invalid branch to/from Cilk Plus structured block" } */
+>>>>>>> gcc-mirror/master
     }
 }
 
@@ -23,5 +27,9 @@ void bar()
       a[i] = b[i];
     }
   if (c == 6)
+<<<<<<< HEAD
     goto lab; /* { dg-error "invalid entry to Cilk Plus" } */
+=======
+    goto lab; /* { dg-error "invalid entry to Cilk Plus structured block" } */
+>>>>>>> gcc-mirror/master
 }

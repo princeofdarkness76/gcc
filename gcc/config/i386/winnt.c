@@ -1,6 +1,6 @@
 /* Subroutines for insn-output.c for Windows NT.
    Contributed by Douglas Rupp (drupp@cs.washington.edu)
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -21,21 +21,20 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "rtl.h"
-#include "regs.h"
-#include "hard-reg-set.h"
-#include "output.h"
-#include "tree.h"
-#include "flags.h"
-#include "tm_p.h"
-#include "diagnostic-core.h"
-#include "hash-table.h"
-#include "langhooks.h"
-#include "ggc.h"
 #include "target.h"
-#include "except.h"
+#include "function.h"
+#include "basic-block.h"
+#include "rtl.h"
+#include "tree.h"
+#include "gimple.h"
+#include "tm_p.h"
+#include "stringpool.h"
+#include "emit-rtl.h"
+#include "cgraph.h"
 #include "lto-streamer.h"
+#include "output.h"
+#include "varasm.h"
+#include "lto-section-names.h"
 
 /* i386/PE specific attribute support.
 
@@ -51,9 +50,8 @@ along with GCC; see the file COPYING3.  If not see
 /* Handle a "shared" attribute;
    arguments as in struct attribute_spec.handler.  */
 tree
-ix86_handle_shared_attribute (tree *node, tree name,
-			      tree args ATTRIBUTE_UNUSED,
-			      int flags ATTRIBUTE_UNUSED, bool *no_add_attrs)
+ix86_handle_shared_attribute (tree *node, tree name, tree, int,
+			      bool *no_add_attrs)
 {
   if (TREE_CODE (*node) != VAR_DECL)
     {
@@ -68,22 +66,26 @@ ix86_handle_shared_attribute (tree *node, tree name,
 /* Handle a "selectany" attribute;
    arguments as in struct attribute_spec.handler.  */
 tree
-ix86_handle_selectany_attribute (tree *node, tree name,
-			         tree args ATTRIBUTE_UNUSED,
-			         int flags ATTRIBUTE_UNUSED,
+ix86_handle_selectany_attribute (tree *node, tree name, tree, int,
 				 bool *no_add_attrs)
 {
+  tree decl = *node;
   /* The attribute applies only to objects that are initialized and have
      external linkage.  However, we may not know about initialization
-     until the language frontend has processed the decl. We'll check for
-     initialization later in encode_section_info.  */
-  if (TREE_CODE (*node) != VAR_DECL || !TREE_PUBLIC (*node))
-    {	
-      error ("%qE attribute applies only to initialized variables"
-       	     " with external linkage", name);
-      *no_add_attrs = true;
+     until the language frontend has processed the decl.   Therefore
+     we make sure that variable isn't initialized as common.  */
+  if (TREE_CODE (decl) != VAR_DECL || !TREE_PUBLIC (decl))
+    error ("%qE attribute applies only to initialized variables"
+       	   " with external linkage", name);
+  else
+    {
+      make_decl_one_only (decl, DECL_ASSEMBLER_NAME (decl));
+      /* A variable with attribute selectany never can be common.  */
+      DECL_COMMON (decl) = 0;
     }
 
+  /* We don't need to keep attribute itself.  */
+  *no_add_attrs = true;
   return NULL_TREE;
 }
 
@@ -109,6 +111,11 @@ i386_pe_determine_dllexport_p (tree decl)
   /* Don't export local clones of dllexports.  */
   if (!TREE_PUBLIC (decl))
     return false;
+
+  if (TREE_CODE (decl) == FUNCTION_DECL
+      && DECL_DECLARED_INLINE_P (decl)
+      && !flag_keep_inline_dllexport)
+    return false; 
 
   if (lookup_attribute ("dllexport", DECL_ATTRIBUTES (decl)))
     return true;
@@ -244,8 +251,7 @@ i386_pe_maybe_mangle_decl_assembler_name (tree decl, tree id)
    user-specified visibility attributes.  */
 
 void
-i386_pe_assemble_visibility (tree decl,
-			     int vis ATTRIBUTE_UNUSED)
+i386_pe_assemble_visibility (tree decl, int)
 {
   if (!decl
       || !lookup_attribute ("visibility", DECL_ATTRIBUTES (decl)))
@@ -272,7 +278,7 @@ i386_pe_mangle_decl_assembler_name (tree decl, tree id)
    a file stream.  */
 
 tree
-i386_pe_mangle_assembler_name (const char *name ATTRIBUTE_UNUSED)
+i386_pe_mangle_assembler_name (const char *name)
 {
   const char *skipped = name + (*name == '*' ? 1 : 0);
   const char *stripped = targetm.strip_name_encoding (skipped);
@@ -300,37 +306,7 @@ i386_pe_encode_section_info (tree decl, rtx rtl, int first)
   switch (TREE_CODE (decl))
     {
     case FUNCTION_DECL:
-      /* FIXME:  Imported stdcall names are not modified by the Ada frontend.
-	 Check and decorate the RTL name now.  */
-      if  (strcmp (lang_hooks.name, "GNU Ada") == 0)
-	{
-	  tree new_id;
-	  tree old_id = DECL_ASSEMBLER_NAME (decl);
-	  const char* asm_str = IDENTIFIER_POINTER (old_id);
-	  /* Do not change the identifier if a verbatim asmspec
-	     or if stdcall suffix already added. */
-	  if (!(*asm_str == '*' || strchr (asm_str, '@'))
-	      && (new_id = i386_pe_maybe_mangle_decl_assembler_name (decl,
-								     old_id)))
-	    XSTR (symbol, 0) = IDENTIFIER_POINTER (new_id);
-	}
-      break;
-
     case VAR_DECL:
-      if (lookup_attribute ("selectany", DECL_ATTRIBUTES (decl)))
-	{
-	  if (DECL_INITIAL (decl)
-	      /* If an object is initialized with a ctor, the static
-		 initialization and destruction code for it is present in
-		 each unit defining the object.  The code that calls the
-		 ctor is protected by a link-once guard variable, so that
-		 the object still has link-once semantics,  */
-	      || TYPE_NEEDS_CONSTRUCTING (TREE_TYPE (decl)))
-	    make_decl_one_only (decl, DECL_ASSEMBLER_NAME (decl));
-	  else
-	    error ("%q+D:'selectany' attribute applies only to "
-		   "initialized objects", decl);
-	}
       break;
 
     default:
@@ -418,7 +394,7 @@ i386_pe_unique_section (tree decl, int reloc)
   string = XALLOCAVEC (char, len + 1);
   sprintf (string, "%s%s", prefix, name);
 
-  DECL_SECTION_NAME (decl) = build_string (len, string);
+  set_decl_section_name (decl, string);
 }
 
 /* Local and global relocs can be placed always into readonly memory for
@@ -447,21 +423,14 @@ i386_pe_reloc_rw_mask (void)
 #define SECTION_PE_SHARED	SECTION_MACH_DEP
 
 unsigned int
-i386_pe_section_type_flags (tree decl, const char *name, int reloc)
+i386_pe_section_type_flags (tree decl, const char *, int reloc)
 {
-  static hash_table <pointer_hash <unsigned int> > htab;
   unsigned int flags;
-  unsigned int **slot;
 
   /* Ignore RELOC, if we are allowed to put relocated
      const data into read-only section.  */
   if (!flag_writable_rel_rdata)
     reloc = 0;
-  /* The names we put in the hashtable will always be the unique
-     versions given to us by the stringtable, so we can just use
-     their addresses as the keys.  */
-  if (!htab.is_created ())
-    htab.create (31);
 
   if (decl && TREE_CODE (decl) == FUNCTION_DECL)
     flags = SECTION_CODE;
@@ -478,19 +447,6 @@ i386_pe_section_type_flags (tree decl, const char *name, int reloc)
 
   if (decl && DECL_P (decl) && DECL_ONE_ONLY (decl))
     flags |= SECTION_LINKONCE;
-
-  /* See if we already have an entry for this section.  */
-  slot = htab.find_slot ((unsigned int *)name, INSERT);
-  if (!*slot)
-    {
-      *slot = (unsigned int *) xmalloc (sizeof (unsigned int));
-      **slot = flags;
-    }
-  else
-    {
-      if (decl && **slot != flags)
-	error ("%q+D causes a section type conflict", decl);
-    }
 
   return flags;
 }
@@ -547,8 +503,9 @@ i386_pe_asm_named_section (const char *name, unsigned int flags,
 	 sets 'discard' characteristic, rather than telling linker
 	 to warn of size or content mismatch, so do the same.  */ 
       bool discard = (flags & SECTION_CODE)
-		      || lookup_attribute ("selectany",
-					   DECL_ATTRIBUTES (decl));	 
+		      || (TREE_CODE (decl) != IDENTIFIER_NODE
+			  && lookup_attribute ("selectany",
+					       DECL_ATTRIBUTES (decl)));
       fprintf (asm_out_file, "\t.linkonce %s\n",
 	       (discard  ? "discard" : "same_size"));
     }
@@ -559,7 +516,7 @@ i386_pe_asm_named_section (const char *name, unsigned int flags,
 void
 i386_pe_asm_output_aligned_decl_common (FILE *stream, tree decl,
 					const char *name, HOST_WIDE_INT size,
-					HOST_WIDE_INT align ATTRIBUTE_UNUSED)
+					HOST_WIDE_INT align)
 {
   HOST_WIDE_INT rounded;
 
@@ -579,7 +536,7 @@ i386_pe_asm_output_aligned_decl_common (FILE *stream, tree decl,
   assemble_name (stream, name);
   if (use_pe_aligned_common)
     fprintf (stream, ", " HOST_WIDE_INT_PRINT_DEC ", %d\n",
-	   size ? size : (HOST_WIDE_INT) 1,
+	   size ? size : HOST_WIDE_INT_1,
 	   exact_log2 (align) - exact_log2 (CHAR_BIT));
   else
     fprintf (stream, ", " HOST_WIDE_INT_PRINT_DEC "\t" ASM_COMMENT_START
@@ -630,7 +587,7 @@ i386_pe_record_external_function (tree decl, const char *name)
 {
   struct extern_list *p;
 
-  p = ggc_alloc_extern_list ();
+  p = ggc_alloc<extern_list> ();
   p->next = extern_head;
   p->decl = decl;
   p->name = name;
@@ -681,7 +638,7 @@ i386_pe_maybe_record_exported_symbol (tree decl, const char *name, int is_data)
 
   gcc_assert (TREE_PUBLIC (decl));
 
-  p = ggc_alloc_export_list ();
+  p = ggc_alloc<export_list> ();
   p->next = export_head;
   p->name = name;
   p->is_data = is_data;
@@ -705,7 +662,7 @@ i386_pe_record_stub (const char *name)
       p = p->next;
     }
 
-  p = ggc_alloc_stub_list ();
+  p = ggc_alloc<stub_list> ();
   p->next = stub_head;
   p->name = name;
   stub_head = p;
@@ -713,31 +670,6 @@ i386_pe_record_stub (const char *name)
 
 
 #ifdef CXX_WRAP_SPEC_LIST
-
-/* Hashtable helpers.  */
-
-struct wrapped_symbol_hasher : typed_noop_remove <char>
-{
-  typedef char value_type;
-  typedef char compare_type;
-  static inline hashval_t hash (const value_type *);
-  static inline bool equal (const value_type *, const compare_type *);
-  static inline void remove (value_type *);
-};
-
-inline hashval_t
-wrapped_symbol_hasher::hash (const value_type *v)
-{
-  return htab_hash_string (v);
-}
-
-/*  Hash table equality helper function.  */
-
-inline bool
-wrapped_symbol_hasher::equal (const value_type *x, const compare_type *y)
-{
-  return !strcmp (x, y);
-}
 
 /* Search for a function named TARGET in the list of library wrappers
    we are using, returning a pointer to it if found or NULL if not.
@@ -750,7 +682,7 @@ static const char *
 i386_find_on_wrapper_list (const char *target)
 {
   static char first_time = 1;
-  static hash_table <wrapped_symbol_hasher> wrappers;
+  static hash_table<nofree_string_hash> *wrappers;
 
   if (first_time)
     {
@@ -763,7 +695,7 @@ i386_find_on_wrapper_list (const char *target)
       char *bufptr;
       /* Breaks up the char array into separated strings
          strings and enter them into the hash table.  */
-      wrappers.create (8);
+      wrappers = new hash_table<nofree_string_hash> (8);
       for (bufptr = wrapper_list_buffer; *bufptr; ++bufptr)
 	{
 	  char *found = NULL;
@@ -776,12 +708,12 @@ i386_find_on_wrapper_list (const char *target)
 	  if (*bufptr)
 	    *bufptr = 0;
 	  if (found)
-	    *wrappers.find_slot (found, INSERT) = found;
+	    *wrappers->find_slot (found, INSERT) = found;
 	}
       first_time = 0;
     }
 
-  return wrappers.find (target);
+  return wrappers->find (target);
 }
 
 #endif /* CXX_WRAP_SPEC_LIST */
@@ -1153,7 +1085,7 @@ seh_frame_related_expr (FILE *f, struct seh_frame_state *seh, rtx pat)
    required for unwind of this insn.  */
 
 void
-i386_pe_seh_unwind_emit (FILE *asm_out_file, rtx insn)
+i386_pe_seh_unwind_emit (FILE *asm_out_file, rtx_insn *insn)
 {
   rtx note, pat;
   bool handled_one = false;
@@ -1173,10 +1105,10 @@ i386_pe_seh_unwind_emit (FILE *asm_out_file, rtx insn)
 
   for (note = REG_NOTES (insn); note ; note = XEXP (note, 1))
     {
-      pat = XEXP (note, 0);
       switch (REG_NOTE_KIND (note))
 	{
 	case REG_FRAME_RELATED_EXPR:
+	  pat = XEXP (note, 0);
 	  goto found;
 
 	case REG_CFA_DEF_CFA:
@@ -1190,6 +1122,7 @@ i386_pe_seh_unwind_emit (FILE *asm_out_file, rtx insn)
 	  gcc_unreachable ();
 
 	case REG_CFA_ADJUST_CFA:
+	  pat = XEXP (note, 0);
 	  if (pat == NULL)
 	    {
 	      pat = PATTERN (insn);
@@ -1201,6 +1134,7 @@ i386_pe_seh_unwind_emit (FILE *asm_out_file, rtx insn)
 	  break;
 
 	case REG_CFA_OFFSET:
+	  pat = XEXP (note, 0);
 	  if (pat == NULL)
 	    pat = single_set (insn);
 	  seh_cfa_offset (asm_out_file, seh, pat);
@@ -1273,8 +1207,7 @@ i386_pe_start_function (FILE *f, const char *name, tree decl)
 }
 
 void
-i386_pe_end_function (FILE *f, const char *name ATTRIBUTE_UNUSED,
-		      tree decl ATTRIBUTE_UNUSED)
+i386_pe_end_function (FILE *f, const char *, tree)
 {
   i386_pe_seh_fini (f);
 }

@@ -1,6 +1,6 @@
 // std::__detail definitions -*- C++ -*-
 
-// Copyright (C) 2007-2013 Free Software Foundation, Inc.
+// Copyright (C) 2007-2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -29,6 +29,7 @@
 #include <initializer_list>
 #include <tuple>
 #include <ext/aligned_buffer.h>
+#include <ext/alloc_traits.h>
 #include <bits/hashtable_policy.h>
 
 namespace std _GLIBCXX_VISIBILITY(default)
@@ -55,8 +56,10 @@ namespace __detail
 	return __fast_bkt[__n];
       }
 
+    constexpr auto __n_primes
+      = sizeof(__prime_list) / sizeof(unsigned long) - 1;
     const unsigned long* __next_bkt =
-      std::lower_bound(__prime_list + 5, __prime_list + _S_n_primes, __n);
+      std::lower_bound(__prime_list + 5, __prime_list + __n_primes, __n);
     _M_next_resize =
       __builtin_ceil(*__next_bkt * (long double)_M_max_load_factor);
     return *__next_bkt;

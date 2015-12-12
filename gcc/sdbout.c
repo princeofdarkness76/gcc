@@ -1,5 +1,5 @@
 /* Output sdb-format symbol table information from GNU compiler.
-   Copyright (C) 1988-2013 Free Software Foundation, Inc.
+   Copyright (C) 1988-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -42,11 +42,12 @@ AT&T C compiler.  From the example below I would conclude the following:
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+#include "gsyms.h"
 #include "tm.h"
 #include "debug.h"
 #include "tree.h"
-#include "ggc.h"
-#include "vec.h"
+#include "varasm.h"
+#include "stor-layout.h"
 
 static GTY(()) tree anonymous_types;
 
@@ -65,17 +66,16 @@ static GTY(()) vec<tree, va_gc> *deferred_global_decls;
 static GTY(()) tree preinit_symbols;
 static GTY(()) bool sdbout_initialized;
 
-#ifdef SDB_DEBUGGING_INFO
-
 #include "rtl.h"
 #include "regs.h"
+#include "function.h"
+#include "emit-rtl.h"
 #include "flags.h"
 #include "insn-config.h"
 #include "reload.h"
 #include "output.h"
 #include "diagnostic-core.h"
 #include "tm_p.h"
-#include "gsyms.h"
 #include "langhooks.h"
 #include "target.h"
 
@@ -117,13 +117,14 @@ static void sdbout_begin_block		(unsigned int, unsigned int);
 static void sdbout_end_block		(unsigned int, unsigned int);
 static void sdbout_source_line		(unsigned int, const char *, int, bool);
 static void sdbout_end_epilogue		(unsigned int, const char *);
-static void sdbout_global_decl		(tree);
+static void sdbout_early_global_decl	(tree);
+static void sdbout_late_global_decl	(tree);
 static void sdbout_begin_prologue	(unsigned int, const char *);
 static void sdbout_end_prologue		(unsigned int, const char *);
 static void sdbout_begin_function	(tree);
 static void sdbout_end_function		(unsigned int);
 static void sdbout_toplevel_data	(tree);
-static void sdbout_label		(rtx);
+static void sdbout_label		(rtx_code_label *);
 static char *gen_fake_label		(void);
 static int plain_type			(tree);
 static int template_name_p		(tree);
@@ -140,7 +141,6 @@ static void sdbout_field_types		(tree);
 static void sdbout_one_type		(tree);
 static void sdbout_parms		(tree);
 static void sdbout_reg_parms		(tree);
-static void sdbout_global_decl		(tree);
 
 /* Random macros describing parts of SDB data.  */
 
@@ -155,7 +155,7 @@ static void sdbout_global_decl		(tree);
 #endif
 
 #ifndef PUT_SDB_SCL
-#define PUT_SDB_SCL(a) fprintf(asm_out_file, "\t.scl\t%d%s", (a), SDB_DELIM)
+#define PUT_SDB_SCL(a) fprintf (asm_out_file, "\t.scl\t%d%s", (a), SDB_DELIM)
 #endif
 
 #ifndef PUT_SDB_INT_VAL
@@ -182,15 +182,16 @@ do { fprintf (asm_out_file, "\t.def\t");	\
 #endif
 
 #ifndef PUT_SDB_PLAIN_DEF
-#define PUT_SDB_PLAIN_DEF(a) fprintf(asm_out_file,"\t.def\t.%s%s",a, SDB_DELIM)
+#define PUT_SDB_PLAIN_DEF(a) \
+  fprintf (asm_out_file, "\t.def\t.%s%s", a, SDB_DELIM)
 #endif
 
 #ifndef PUT_SDB_ENDEF
-#define PUT_SDB_ENDEF fputs("\t.endef\n", asm_out_file)
+#define PUT_SDB_ENDEF fputs ("\t.endef\n", asm_out_file)
 #endif
 
 #ifndef PUT_SDB_TYPE
-#define PUT_SDB_TYPE(a) fprintf(asm_out_file, "\t.type\t0%o%s", a, SDB_DELIM)
+#define PUT_SDB_TYPE(a) fprintf (asm_out_file, "\t.type\t0%o%s", a, SDB_DELIM)
 #endif
 
 #ifndef PUT_SDB_SIZE
@@ -198,19 +199,19 @@ do { fprintf (asm_out_file, "\t.def\t");	\
  do {									\
    fprintf (asm_out_file, "\t.size\t" HOST_WIDE_INT_PRINT_DEC "%s",	\
 	    (HOST_WIDE_INT) (a), SDB_DELIM);				\
- } while(0)
+ } while (0)
 #endif
 
 #ifndef PUT_SDB_START_DIM
-#define PUT_SDB_START_DIM fprintf(asm_out_file, "\t.dim\t")
+#define PUT_SDB_START_DIM fprintf (asm_out_file, "\t.dim\t")
 #endif
 
 #ifndef PUT_SDB_NEXT_DIM
-#define PUT_SDB_NEXT_DIM(a) fprintf(asm_out_file, "%d,", a)
+#define PUT_SDB_NEXT_DIM(a) fprintf (asm_out_file, "%d,", a)
 #endif
 
 #ifndef PUT_SDB_LAST_DIM
-#define PUT_SDB_LAST_DIM(a) fprintf(asm_out_file, "%d%s", a, SDB_DELIM)
+#define PUT_SDB_LAST_DIM(a) fprintf (asm_out_file, "%d%s", a, SDB_DELIM)
 #endif
 
 #ifndef PUT_SDB_TAG
@@ -276,6 +277,7 @@ const struct gcc_debug_hooks sdb_debug_hooks =
 {
   sdbout_init,			         /* init */
   sdbout_finish,		         /* finish */
+  debug_nothing_void,			 /* early_finish */
   debug_nothing_void,			 /* assembly_start */
   debug_nothing_int_charstar,	         /* define */
   debug_nothing_int_charstar,	         /* undef */
@@ -291,15 +293,17 @@ const struct gcc_debug_hooks sdb_debug_hooks =
   sdbout_end_epilogue,		         /* end_epilogue */
   sdbout_begin_function,	         /* begin_function */
   sdbout_end_function,		         /* end_function */
+  debug_nothing_tree,		         /* register_main_translation_unit */
   debug_nothing_tree,		         /* function_decl */
-  sdbout_global_decl,		         /* global_decl */
+  sdbout_early_global_decl,		 /* early_global_decl */
+  sdbout_late_global_decl,		 /* late_global_decl */
   sdbout_symbol,			 /* type_decl */
   debug_nothing_tree_tree_tree_bool,	 /* imported_module_or_decl */
   debug_nothing_tree,		         /* deferred_inline_function */
   debug_nothing_tree,		         /* outlining_inline_function */
   sdbout_label,			         /* label */
   debug_nothing_int,		         /* handle_pch */
-  debug_nothing_rtx,		         /* var_location */
+  debug_nothing_rtx_insn,	         /* var_location */
   debug_nothing_void,                    /* switch_text_section */
   debug_nothing_tree_tree,		 /* set_name */
   0,                                     /* start_end_main_source_file */
@@ -512,13 +516,9 @@ plain_type_1 (tree type, int level)
 	  return T_FLOAT;
 	if (precision == DOUBLE_TYPE_SIZE)
 	  return T_DOUBLE;
-#ifdef EXTENDED_SDB_BASIC_TYPES
-	if (precision == LONG_DOUBLE_TYPE_SIZE)
-	  return T_LNGDBL;
-#else
 	if (precision == LONG_DOUBLE_TYPE_SIZE)
 	  return T_DOUBLE;	/* better than nothing */
-#endif
+
 	return 0;
       }
 
@@ -534,10 +534,10 @@ plain_type_1 (tree type, int level)
 	    = (TYPE_DOMAIN (type)
 	       && TYPE_MIN_VALUE (TYPE_DOMAIN (type)) != 0
 	       && TYPE_MAX_VALUE (TYPE_DOMAIN (type)) != 0
-	       && host_integerp (TYPE_MAX_VALUE (TYPE_DOMAIN (type)), 0)
-	       && host_integerp (TYPE_MIN_VALUE (TYPE_DOMAIN (type)), 0)
-	       ? (tree_low_cst (TYPE_MAX_VALUE (TYPE_DOMAIN (type)), 0)
-		  - tree_low_cst (TYPE_MIN_VALUE (TYPE_DOMAIN (type)), 0) + 1)
+	       && tree_fits_shwi_p (TYPE_MAX_VALUE (TYPE_DOMAIN (type)))
+	       && tree_fits_shwi_p (TYPE_MIN_VALUE (TYPE_DOMAIN (type)))
+	       ? (tree_to_shwi (TYPE_MAX_VALUE (TYPE_DOMAIN (type)))
+		  - tree_to_shwi (TYPE_MIN_VALUE (TYPE_DOMAIN (type))) + 1)
 	       : 0);
 
 	return PUSH_DERIVED_LEVEL (DT_ARY, m);
@@ -736,13 +736,16 @@ sdbout_symbol (tree decl, int local)
       if (!DECL_RTL_SET_P (decl))
 	return;
 
-      SET_DECL_RTL (decl,
-		    eliminate_regs (DECL_RTL (decl), VOIDmode, NULL_RTX));
+      value = DECL_RTL (decl);
+
+      if (!is_global_var (decl))
+	value = eliminate_regs (value, VOIDmode, NULL_RTX);
+
+      SET_DECL_RTL (decl, value);
 #ifdef LEAF_REG_REMAP
       if (crtl->uses_only_leaf_regs)
-	leaf_renumber_regs_insn (DECL_RTL (decl));
+	leaf_renumber_regs_insn (value);
 #endif
-      value = DECL_RTL (decl);
 
       /* Don't mention a variable at all
 	 if it was completely optimized into nothingness.
@@ -993,8 +996,8 @@ sdbout_field_types (tree type)
     if (TREE_CODE (tail) == FIELD_DECL
 	&& DECL_NAME (tail)
 	&& DECL_SIZE (tail)
-	&& host_integerp (DECL_SIZE (tail), 1)
-	&& host_integerp (bit_position (tail), 0))
+	&& tree_fits_uhwi_p (DECL_SIZE (tail))
+	&& tree_fits_shwi_p (bit_position (tail)))
       {
 	if (POINTER_TYPE_P (TREE_TYPE (tail)))
 	  sdbout_one_type (TREE_TYPE (TREE_TYPE (tail)));
@@ -1014,7 +1017,7 @@ static void
 sdbout_one_type (tree type)
 {
   if (current_function_decl != NULL_TREE
-      && DECL_SECTION_NAME (current_function_decl) != NULL_TREE)
+      && DECL_SECTION_NAME (current_function_decl) != NULL)
     ; /* Don't change section amid function.  */
   else
     switch_to_section (current_function_section ());
@@ -1133,7 +1136,7 @@ sdbout_one_type (tree type)
 		  continue;
 
 		PUT_SDB_DEF (IDENTIFIER_POINTER (child_type_name));
-		PUT_SDB_INT_VAL (tree_low_cst (BINFO_OFFSET (child), 0));
+		PUT_SDB_INT_VAL (tree_to_shwi (BINFO_OFFSET (child)));
 		PUT_SDB_SCL (member_scl);
 		sdbout_type (BINFO_TYPE (child));
 		PUT_SDB_ENDEF;
@@ -1151,10 +1154,10 @@ sdbout_one_type (tree type)
 	        if (TREE_CODE (value) == CONST_DECL)
 	          value = DECL_INITIAL (value);
 
-	        if (host_integerp (value, 0))
+	        if (tree_fits_shwi_p (value))
 		  {
 		    PUT_SDB_DEF (IDENTIFIER_POINTER (TREE_PURPOSE (tem)));
-		    PUT_SDB_INT_VAL (tree_low_cst (value, 0));
+		    PUT_SDB_INT_VAL (tree_to_shwi (value));
 		    PUT_SDB_SCL (C_MOE);
 		    PUT_SDB_TYPE (T_MOE);
 		    PUT_SDB_ENDEF;
@@ -1172,8 +1175,8 @@ sdbout_one_type (tree type)
 	    if (TREE_CODE (tem) == FIELD_DECL
 		&& DECL_NAME (tem)
 		&& DECL_SIZE (tem)
-		&& host_integerp (DECL_SIZE (tem), 1)
-		&& host_integerp (bit_position (tem), 0))
+		&& tree_fits_uhwi_p (DECL_SIZE (tem))
+		&& tree_fits_shwi_p (bit_position (tem)))
 	      {
 		const char *name;
 
@@ -1184,7 +1187,7 @@ sdbout_one_type (tree type)
 		    PUT_SDB_INT_VAL (int_bit_position (tem));
 		    PUT_SDB_SCL (C_FIELD);
 		    sdbout_type (DECL_BIT_FIELD_TYPE (tem));
-		    PUT_SDB_SIZE (tree_low_cst (DECL_SIZE (tem), 1));
+		    PUT_SDB_SIZE (tree_to_uhwi (DECL_SIZE (tem)));
 		  }
 		else
 		  {
@@ -1226,7 +1229,10 @@ static void
 sdbout_parms (tree parms)
 {
   for (; parms; parms = TREE_CHAIN (parms))
-    if (DECL_NAME (parms))
+    if (DECL_NAME (parms)
+	&& TREE_TYPE (parms) != error_mark_node
+	&& DECL_RTL_SET_P (parms)
+	&& DECL_INCOMING_RTL (parms))
       {
 	int current_sym_value = 0;
 	const char *name = IDENTIFIER_POINTER (DECL_NAME (parms));
@@ -1358,7 +1364,10 @@ static void
 sdbout_reg_parms (tree parms)
 {
   for (; parms; parms = TREE_CHAIN (parms))
-    if (DECL_NAME (parms))
+    if (DECL_NAME (parms)
+        && TREE_TYPE (parms) != error_mark_node
+        && DECL_RTL_SET_P (parms)
+        && DECL_INCOMING_RTL (parms))
       {
 	const char *name = IDENTIFIER_POINTER (DECL_NAME (parms));
 
@@ -1409,11 +1418,20 @@ sdbout_reg_parms (tree parms)
       }
 }
 
-/* Output debug information for a global DECL.  Called from toplev.c
-   after compilation proper has finished.  */
+/* Output early debug information for a global DECL.  Called from
+   rest_of_decl_compilation during parsing.  */
 
 static void
-sdbout_global_decl (tree decl)
+sdbout_early_global_decl (tree decl ATTRIBUTE_UNUSED)
+{
+  /* NYI for non-dwarf.  */
+}
+
+/* Output late debug information for a global DECL after location
+   information is available.  */
+
+static void
+sdbout_late_global_decl (tree decl)
 {
   if (TREE_CODE (decl) == VAR_DECL
       && !DECL_EXTERNAL (decl)
@@ -1588,7 +1606,7 @@ sdbout_end_epilogue (unsigned int line ATTRIBUTE_UNUSED,
    is present.  */
 
 static void
-sdbout_label (rtx insn)
+sdbout_label (rtx_code_label *insn)
 {
   PUT_SDB_DEF (LABEL_NAME (insn));
   PUT_SDB_VAL (insn);
@@ -1629,7 +1647,5 @@ sdbout_init (const char *input_file_name ATTRIBUTE_UNUSED)
     sdbout_symbol (TREE_VALUE (t), 0);
   preinit_symbols = 0;
 }
-
-#endif /* SDB_DEBUGGING_INFO */
 
 #include "gt-sdbout.h"

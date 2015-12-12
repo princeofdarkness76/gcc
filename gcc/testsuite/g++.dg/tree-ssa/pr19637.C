@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -fdump-tree-dom1" } */
+/* { dg-options "-O2 -fno-ipa-icf -fdump-tree-dom1" } */
 
 #include <new>
 
@@ -30,4 +30,3 @@ int foo_void_offset(void)
 }
 
 /* { dg-final { scan-tree-dump-times "return 1;" 3 "dom1" } } */
-/* { dg-final { cleanup-tree-dump "dom1" } } */

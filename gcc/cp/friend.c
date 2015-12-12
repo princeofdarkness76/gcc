@@ -1,5 +1,5 @@
 /* Help friends in C++.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -20,10 +20,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "tree.h"
 #include "cp-tree.h"
-#include "flags.h"
 
 /* Friend data structures are described in cp-tree.h.  */
 
@@ -148,17 +145,16 @@ add_friend (tree type, tree decl, bool complain)
 	      if (decl == TREE_VALUE (friends))
 		{
 		  if (complain)
-		    warning (0, "%qD is already a friend of class %qT",
+		    warning (OPT_Wredundant_decls,
+			     "%qD is already a friend of class %qT",
 			     decl, type);
 		  return;
 		}
 	    }
 
-	  maybe_add_class_template_decl_list (type, decl, /*friend_p=*/1);
-
 	  TREE_VALUE (list) = tree_cons (NULL_TREE, decl,
 					 TREE_VALUE (list));
-	  return;
+	  break;
 	}
       list = TREE_CHAIN (list);
     }
@@ -170,9 +166,10 @@ add_friend (tree type, tree decl, bool complain)
 
   maybe_add_class_template_decl_list (type, decl, /*friend_p=*/1);
 
-  DECL_FRIENDLIST (typedecl)
-    = tree_cons (DECL_NAME (decl), build_tree_list (NULL_TREE, decl),
-		 DECL_FRIENDLIST (typedecl));
+  if (!list)
+    DECL_FRIENDLIST (typedecl)
+      = tree_cons (DECL_NAME (decl), build_tree_list (NULL_TREE, decl),
+		   DECL_FRIENDLIST (typedecl));
   if (!uses_template_parms (type))
     DECL_BEFRIENDING_CLASSES (decl)
       = tree_cons (NULL_TREE, type,
@@ -327,7 +324,8 @@ make_friend_class (tree type, tree friend_type, bool complain)
 		{
 		  error ("%qT is not a member class template of %qT",
 			 name, ctype);
-		  error ("%q+D declared here", decl);
+		  inform (DECL_SOURCE_LOCATION (decl),
+			  "%qD declared here", decl);
 		  return;
 		}
 	      if (!template_member_p && (TREE_CODE (decl) != TYPE_DECL
@@ -335,7 +333,8 @@ make_friend_class (tree type, tree friend_type, bool complain)
 		{
 		  error ("%qT is not a nested class of %qT",
 			 name, ctype);
-		  error ("%q+D declared here", decl);
+		  inform (DECL_SOURCE_LOCATION (decl),
+			  "%qD declared here", decl);
 		  return;
 		}
 
@@ -376,7 +375,8 @@ make_friend_class (tree type, tree friend_type, bool complain)
 	  if (friend_type == probe)
 	    {
 	      if (complain)
-		warning (0, "%qD is already a friend of %qT", probe, type);
+		warning (OPT_Wredundant_decls,
+			 "%qD is already a friend of %qT", probe, type);
 	      break;
 	    }
 	}
@@ -385,7 +385,8 @@ make_friend_class (tree type, tree friend_type, bool complain)
 	  if (same_type_p (probe, friend_type))
 	    {
 	      if (complain)
-		warning (0, "%qT is already a friend of %qT", probe, type);
+		warning (OPT_Wredundant_decls,
+			 "%qT is already a friend of %qT", probe, type);
 	      break;
 	    }
 	}
@@ -423,6 +424,10 @@ do_friend (tree ctype, tree declarator, tree decl,
 
   /* Every decl that gets here is a friend of something.  */
   DECL_FRIEND_P (decl) = 1;
+
+  if (DECL_OVERRIDE_P (decl) || DECL_FINAL_P (decl))
+    error ("friend declaration %qD may not have virt-specifiers",
+	   decl);
 
   /* Unfortunately, we have to handle attributes here.  Normally we would
      handle them in start_decl_1, but since this is a friend decl start_decl_1
@@ -501,7 +506,13 @@ do_friend (tree ctype, tree declarator, tree decl,
 				  ? current_template_parms
 				  : NULL_TREE);
 
-	  if (template_member_p && decl && TREE_CODE (decl) == FUNCTION_DECL)
+	  if ((template_member_p
+	       /* Always pull out the TEMPLATE_DECL if we have a friend
+		  template in a class template so that it gets tsubsted
+		  properly later on (59956).  tsubst_friend_function knows
+		  how to tell this apart from a member template.  */
+	       || (class_template_depth && friend_depth))
+	      && decl && TREE_CODE (decl) == FUNCTION_DECL)
 	    decl = DECL_TI_TEMPLATE (decl);
 
 	  if (decl)

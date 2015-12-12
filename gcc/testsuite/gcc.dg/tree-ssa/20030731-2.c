@@ -1,6 +1,8 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -fdump-tree-dce1" } */
 
+void foo (void);
+
 void
 bar (int i, int partial, int args_addr)
 {
@@ -14,4 +16,3 @@ bar (int i, int partial, int args_addr)
 /* There should be only one IF conditional since the first does nothing
    useful.  */
 /* { dg-final { scan-tree-dump-times "if " 1 "dce1"} } */
-/* { dg-final { cleanup-tree-dump "dce1" } } */

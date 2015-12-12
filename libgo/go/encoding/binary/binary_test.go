@@ -9,6 +9,7 @@ import (
 	"io"
 	"math"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -110,7 +111,7 @@ func checkResult(t *testing.T, dir string, order ByteOrder, err error, have, wan
 
 func testRead(t *testing.T, order ByteOrder, b []byte, s1 interface{}) {
 	var s2 Struct
-	err := Read(bytes.NewBuffer(b), order, &s2)
+	err := Read(bytes.NewReader(b), order, &s2)
 	checkResult(t, "Read", order, err, s2, s1)
 }
 
@@ -130,7 +131,7 @@ func TestBigEndianPtrWrite(t *testing.T) { testWrite(t, BigEndian, big, &s) }
 
 func TestReadSlice(t *testing.T) {
 	slice := make([]int32, 2)
-	err := Read(bytes.NewBuffer(src), BigEndian, slice)
+	err := Read(bytes.NewReader(src), BigEndian, slice)
 	checkResult(t, "ReadSlice", BigEndian, err, slice, res)
 }
 
@@ -138,6 +139,52 @@ func TestWriteSlice(t *testing.T) {
 	buf := new(bytes.Buffer)
 	err := Write(buf, BigEndian, res)
 	checkResult(t, "WriteSlice", BigEndian, err, buf.Bytes(), src)
+}
+
+// Addresses of arrays are easier to manipulate with reflection than are slices.
+var intArrays = []interface{}{
+	&[100]int8{},
+	&[100]int16{},
+	&[100]int32{},
+	&[100]int64{},
+	&[100]uint8{},
+	&[100]uint16{},
+	&[100]uint32{},
+	&[100]uint64{},
+}
+
+func TestSliceRoundTrip(t *testing.T) {
+	buf := new(bytes.Buffer)
+	for _, array := range intArrays {
+		src := reflect.ValueOf(array).Elem()
+		unsigned := false
+		switch src.Index(0).Kind() {
+		case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			unsigned = true
+		}
+		for i := 0; i < src.Len(); i++ {
+			if unsigned {
+				src.Index(i).SetUint(uint64(i * 0x07654321))
+			} else {
+				src.Index(i).SetInt(int64(i * 0x07654321))
+			}
+		}
+		buf.Reset()
+		srcSlice := src.Slice(0, src.Len())
+		err := Write(buf, BigEndian, srcSlice.Interface())
+		if err != nil {
+			t.Fatal(err)
+		}
+		dst := reflect.New(src.Type()).Elem()
+		dstSlice := dst.Slice(0, dst.Len())
+		err = Read(buf, BigEndian, dstSlice.Interface())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(src.Interface(), dst.Interface()) {
+			t.Fatal(src)
+		}
+	}
 }
 
 func TestWriteT(t *testing.T) {
@@ -149,8 +196,14 @@ func TestWriteT(t *testing.T) {
 
 	tv := reflect.Indirect(reflect.ValueOf(ts))
 	for i, n := 0, tv.NumField(); i < n; i++ {
+		typ := tv.Field(i).Type().String()
+		if typ == "[4]int" {
+			typ = "int" // the problem is int, not the [4]
+		}
 		if err := Write(buf, BigEndian, tv.Field(i).Interface()); err == nil {
 			t.Errorf("WriteT.%v: have err == nil, want non-nil", tv.Field(i).Type())
+		} else if !strings.Contains(err.Error(), typ) {
+			t.Errorf("WriteT: have err == %q, want it to mention %s", err, typ)
 		}
 	}
 }
@@ -212,6 +265,50 @@ func TestBlankFields(t *testing.T) {
 	}
 }
 
+// An attempt to read into a struct with an unexported field will
+// panic.  This is probably not the best choice, but at this point
+// anything else would be an API change.
+
+type Unexported struct {
+	a int32
+}
+
+func TestUnexportedRead(t *testing.T) {
+	var buf bytes.Buffer
+	u1 := Unexported{a: 1}
+	if err := Write(&buf, LittleEndian, &u1); err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("did not panic")
+		}
+	}()
+	var u2 Unexported
+	Read(&buf, LittleEndian, &u2)
+}
+
+func TestReadErrorMsg(t *testing.T) {
+	var buf bytes.Buffer
+	read := func(data interface{}) {
+		err := Read(&buf, LittleEndian, data)
+		want := "binary.Read: invalid type " + reflect.TypeOf(data).String()
+		if err == nil {
+			t.Errorf("%T: got no error; want %q", data, want)
+			return
+		}
+		if got := err.Error(); got != want {
+			t.Errorf("%T: got %q; want %q", data, got, want)
+		}
+	}
+	read(0)
+	s := new(struct{})
+	read(&s)
+	p := &s
+	read(&p)
+}
+
 type byteSliceReader struct {
 	remain []byte
 }
@@ -238,8 +335,7 @@ func BenchmarkReadStruct(b *testing.B) {
 	bsr := &byteSliceReader{}
 	var buf bytes.Buffer
 	Write(&buf, BigEndian, &s)
-	n := dataSize(reflect.ValueOf(s))
-	b.SetBytes(int64(n))
+	b.SetBytes(int64(dataSize(reflect.ValueOf(s))))
 	t := s
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -304,4 +400,17 @@ func BenchmarkWriteInts(b *testing.B) {
 	if !bytes.Equal(buf.Bytes(), big[:30]) {
 		b.Fatalf("first half doesn't match: %x %x", buf.Bytes(), big[:30])
 	}
+}
+
+func BenchmarkWriteSlice1000Int32s(b *testing.B) {
+	slice := make([]int32, 1000)
+	buf := new(bytes.Buffer)
+	var w io.Writer = buf
+	b.SetBytes(4 * 1000)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		buf.Reset()
+		Write(w, BigEndian, slice)
+	}
+	b.StopTimer()
 }

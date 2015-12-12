@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -628,7 +628,11 @@ package body Namet is
    -- Get_Last_Two_Chars --
    ------------------------
 
-   procedure Get_Last_Two_Chars (N : Name_Id; C1, C2 : out Character) is
+   procedure Get_Last_Two_Chars
+     (N  : Name_Id;
+      C1 : out Character;
+      C2 : out Character)
+   is
       NE  : Name_Entry renames Name_Entries.Table (N);
       NEL : constant Int := Int (NE.Name_Len);
 
@@ -705,6 +709,36 @@ package body Namet is
       end loop;
    end Get_Name_String_And_Append;
 
+   -----------------------------
+   -- Get_Name_Table_Boolean1 --
+   -----------------------------
+
+   function Get_Name_Table_Boolean1 (Id : Name_Id) return Boolean is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      return Name_Entries.Table (Id).Boolean1_Info;
+   end Get_Name_Table_Boolean1;
+
+   -----------------------------
+   -- Get_Name_Table_Boolean2 --
+   -----------------------------
+
+   function Get_Name_Table_Boolean2 (Id : Name_Id) return Boolean is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      return Name_Entries.Table (Id).Boolean2_Info;
+   end Get_Name_Table_Boolean2;
+
+   -----------------------------
+   -- Get_Name_Table_Boolean3 --
+   -----------------------------
+
+   function Get_Name_Table_Boolean3 (Id : Name_Id) return Boolean is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      return Name_Entries.Table (Id).Boolean3_Info;
+   end Get_Name_Table_Boolean3;
+
    -------------------------
    -- Get_Name_Table_Byte --
    -------------------------
@@ -716,14 +750,14 @@ package body Namet is
    end Get_Name_Table_Byte;
 
    -------------------------
-   -- Get_Name_Table_Info --
+   -- Get_Name_Table_Int --
    -------------------------
 
-   function Get_Name_Table_Info (Id : Name_Id) return Int is
+   function Get_Name_Table_Int (Id : Name_Id) return Int is
    begin
       pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
       return Name_Entries.Table (Id).Int_Info;
-   end Get_Name_Table_Info;
+   end Get_Name_Table_Int;
 
    -----------------------------------------
    -- Get_Unqualified_Decoded_Name_String --
@@ -803,8 +837,12 @@ package body Namet is
 
    function Is_Internal_Name (Id : Name_Id) return Boolean is
    begin
-      Get_Name_String (Id);
-      return Is_Internal_Name;
+      if Id in Error_Name_Or_No_Name then
+         return False;
+      else
+         Get_Name_String (Id);
+         return Is_Internal_Name;
+      end if;
    end Is_Internal_Name;
 
    ----------------------
@@ -814,18 +852,41 @@ package body Namet is
    --  Version taking its input from Name_Buffer
 
    function Is_Internal_Name return Boolean is
+      J : Natural;
+
    begin
+      --  AAny name starting with underscore is internal
+
       if Name_Buffer (1) = '_'
         or else Name_Buffer (Name_Len) = '_'
       then
          return True;
 
+      --  Allow quoted character
+
+      elsif Name_Buffer (1) = ''' then
+         return False;
+
+      --  All other cases, scan name
+
       else
          --  Test backwards, because we only want to test the last entity
          --  name if the name we have is qualified with other entities.
 
-         for J in reverse 1 .. Name_Len loop
-            if Is_OK_Internal_Letter (Name_Buffer (J)) then
+         J := Name_Len;
+         while J /= 0 loop
+
+            --  Skip stuff between brackets (A-F OK there)
+
+            if Name_Buffer (J) = ']' then
+               loop
+                  J := J - 1;
+                  exit when J = 1 or else Name_Buffer (J) = '[';
+               end loop;
+
+            --  Test for internal letter
+
+            elsif Is_OK_Internal_Letter (Name_Buffer (J)) then
                return True;
 
             --  Quit if we come to terminating double underscore (note that
@@ -839,6 +900,8 @@ package body Namet is
             then
                return False;
             end if;
+
+            J := J - 1;
          end loop;
       end if;
 
@@ -923,6 +986,9 @@ package body Namet is
           Name_Len              => Short (Name_Len),
           Byte_Info             => 0,
           Int_Info              => 0,
+          Boolean1_Info         => False,
+          Boolean2_Info         => False,
+          Boolean3_Info         => False,
           Name_Has_No_Encodings => False,
           Hash_Link             => No_Name));
 
@@ -1025,7 +1091,10 @@ package body Namet is
              Hash_Link             => No_Name,
              Name_Has_No_Encodings => False,
              Int_Info              => 0,
-             Byte_Info             => 0));
+             Byte_Info             => 0,
+             Boolean1_Info         => False,
+             Boolean2_Info         => False,
+             Boolean3_Info         => False));
 
          --  Set corresponding string entry in the Name_Chars table
 
@@ -1038,6 +1107,17 @@ package body Namet is
          return Name_Entries.Last;
       end if;
    end Name_Find;
+
+   -------------------
+   -- Name_Find_Str --
+   -------------------
+
+   function Name_Find_Str (S : String) return Name_Id is
+   begin
+      Name_Len := S'Length;
+      Name_Buffer (1 .. Name_Len) := S;
+      return Name_Find;
+   end Name_Find_Str;
 
    -------------
    -- Nam_In --
@@ -1133,6 +1213,137 @@ package body Namet is
              T = V7;
    end Nam_In;
 
+   function Nam_In
+     (T  : Name_Id;
+      V1 : Name_Id;
+      V2 : Name_Id;
+      V3 : Name_Id;
+      V4 : Name_Id;
+      V5 : Name_Id;
+      V6 : Name_Id;
+      V7 : Name_Id;
+      V8 : Name_Id) return Boolean
+   is
+   begin
+      return T = V1 or else
+             T = V2 or else
+             T = V3 or else
+             T = V4 or else
+             T = V5 or else
+             T = V6 or else
+             T = V7 or else
+             T = V8;
+   end Nam_In;
+
+   function Nam_In
+     (T  : Name_Id;
+      V1 : Name_Id;
+      V2 : Name_Id;
+      V3 : Name_Id;
+      V4 : Name_Id;
+      V5 : Name_Id;
+      V6 : Name_Id;
+      V7 : Name_Id;
+      V8 : Name_Id;
+      V9 : Name_Id) return Boolean
+   is
+   begin
+      return T = V1 or else
+             T = V2 or else
+             T = V3 or else
+             T = V4 or else
+             T = V5 or else
+             T = V6 or else
+             T = V7 or else
+             T = V8 or else
+             T = V9;
+   end Nam_In;
+
+   function Nam_In
+     (T   : Name_Id;
+      V1  : Name_Id;
+      V2  : Name_Id;
+      V3  : Name_Id;
+      V4  : Name_Id;
+      V5  : Name_Id;
+      V6  : Name_Id;
+      V7  : Name_Id;
+      V8  : Name_Id;
+      V9  : Name_Id;
+      V10 : Name_Id) return Boolean
+   is
+   begin
+      return T = V1 or else
+             T = V2 or else
+             T = V3 or else
+             T = V4 or else
+             T = V5 or else
+             T = V6 or else
+             T = V7 or else
+             T = V8 or else
+             T = V9 or else
+             T = V10;
+   end Nam_In;
+
+   function Nam_In
+     (T   : Name_Id;
+      V1  : Name_Id;
+      V2  : Name_Id;
+      V3  : Name_Id;
+      V4  : Name_Id;
+      V5  : Name_Id;
+      V6  : Name_Id;
+      V7  : Name_Id;
+      V8  : Name_Id;
+      V9  : Name_Id;
+      V10 : Name_Id;
+      V11 : Name_Id) return Boolean
+   is
+   begin
+      return T = V1  or else
+             T = V2  or else
+             T = V3  or else
+             T = V4  or else
+             T = V5  or else
+             T = V6  or else
+             T = V7  or else
+             T = V8  or else
+             T = V9  or else
+             T = V10 or else
+             T = V11;
+   end Nam_In;
+
+   -----------------
+   -- Name_Equals --
+   -----------------
+
+   function Name_Equals (N1 : Name_Id; N2 : Name_Id) return Boolean is
+   begin
+      if N1 = N2 then
+         return True;
+      end if;
+
+      declare
+         L1 : constant Int := Int (Name_Entries.Table (N1).Name_Len);
+         L2 : constant Int := Int (Name_Entries.Table (N2).Name_Len);
+
+      begin
+         if L1 /= L2 then
+            return False;
+         end if;
+
+         declare
+            use Name_Chars;
+            I1 : constant Int := Name_Entries.Table (N1).Name_Chars_Index;
+            I2 : constant Int := Name_Entries.Table (N2).Name_Chars_Index;
+
+         begin
+            return (Name_Chars.Table (1 + I1 .. I1 + L1) =
+                    Name_Chars.Table (1 + I2 .. I2 + L2));
+         end;
+      end;
+   end Name_Equals;
+
    ------------------
    -- Reinitialize --
    ------------------
@@ -1150,6 +1361,9 @@ package body Namet is
              Name_Len              => 1,
              Byte_Info             => 0,
              Int_Info              => 0,
+             Boolean1_Info         => False,
+             Boolean2_Info         => False,
+             Boolean3_Info         => False,
              Name_Has_No_Encodings => True,
              Hash_Link             => No_Name));
 
@@ -1187,6 +1401,36 @@ package body Namet is
       Store_Encoded_Character (C);
    end Set_Character_Literal_Name;
 
+   -----------------------------
+   -- Set_Name_Table_Boolean1 --
+   -----------------------------
+
+   procedure Set_Name_Table_Boolean1 (Id : Name_Id; Val : Boolean) is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      Name_Entries.Table (Id).Boolean1_Info := Val;
+   end Set_Name_Table_Boolean1;
+
+   -----------------------------
+   -- Set_Name_Table_Boolean2 --
+   -----------------------------
+
+   procedure Set_Name_Table_Boolean2 (Id : Name_Id; Val : Boolean) is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      Name_Entries.Table (Id).Boolean2_Info := Val;
+   end Set_Name_Table_Boolean2;
+
+   -----------------------------
+   -- Set_Name_Table_Boolean3 --
+   -----------------------------
+
+   procedure Set_Name_Table_Boolean3 (Id : Name_Id; Val : Boolean) is
+   begin
+      pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
+      Name_Entries.Table (Id).Boolean3_Info := Val;
+   end Set_Name_Table_Boolean3;
+
    -------------------------
    -- Set_Name_Table_Byte --
    -------------------------
@@ -1198,21 +1442,20 @@ package body Namet is
    end Set_Name_Table_Byte;
 
    -------------------------
-   -- Set_Name_Table_Info --
+   -- Set_Name_Table_Int --
    -------------------------
 
-   procedure Set_Name_Table_Info (Id : Name_Id; Val : Int) is
+   procedure Set_Name_Table_Int (Id : Name_Id; Val : Int) is
    begin
       pragma Assert (Id in Name_Entries.First .. Name_Entries.Last);
       Name_Entries.Table (Id).Int_Info := Val;
-   end Set_Name_Table_Info;
+   end Set_Name_Table_Int;
 
    -----------------------------
    -- Store_Encoded_Character --
    -----------------------------
 
    procedure Store_Encoded_Character (C : Char_Code) is
-
       procedure Set_Hex_Chars (C : Char_Code);
       --  Stores given value, which is in the range 0 .. 255, as two hex
       --  digits (using lower case a-f) in Name_Buffer, incrementing Name_Len.

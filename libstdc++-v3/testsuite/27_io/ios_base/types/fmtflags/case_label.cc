@@ -2,7 +2,7 @@
 // { dg-options "-Wall" { target *-*-* } }
 // -*- C++ -*-
  
-// Copyright (C) 2004-2013 Free Software Foundation, Inc.
+// Copyright (C) 2004-2015 Free Software Foundation, Inc.
  
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -69,6 +69,10 @@ case_labels(bitmask_type b)
     case std::ios_base::floatfield:
       break;
     case std::_S_ios_fmtflags_end:
+      break;
+    case std::_S_ios_fmtflags_min:
+      break;
+    case std::_S_ios_fmtflags_max:
       break;
     }
 }

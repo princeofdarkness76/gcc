@@ -18,8 +18,6 @@ __go_interface_empty_compare (struct __go_interface left,
 {
   const struct __go_type_descriptor *left_descriptor;
 
-  if (((uintptr_t) right.__type_descriptor & reflectFlags) != 0)
-    runtime_panicstring ("invalid interface value");
   if (left.__methods == NULL && right.__type_descriptor == NULL)
     return 0;
   if (left.__methods == NULL || right.__type_descriptor == NULL)
@@ -29,8 +27,8 @@ __go_interface_empty_compare (struct __go_interface left,
     return 1;
   if (__go_is_pointer_type (left_descriptor))
     return left.__object == right.__object ? 0 : 1;
-  if (!left_descriptor->__equalfn (left.__object, right.__object,
-				   left_descriptor->__size))
+  if (!__go_call_equalfn (left_descriptor->__equalfn, left.__object,
+			  right.__object, left_descriptor->__size))
     return 1;
   return 0;
 }

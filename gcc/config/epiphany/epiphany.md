@@ -1,5 +1,5 @@
 ;; Machine description of the Adaptiva epiphany cpu for GNU C compiler
-;; Copyright (C) 1994-2013 Free Software Foundation, Inc.
+;; Copyright (C) 1994-2015 Free Software Foundation, Inc.
 ;; Contributed by Embecosm on behalf of Adapteva, Inc.
 
 ;; This file is part of GCC.
@@ -587,7 +587,7 @@
 ; After mode-switching, floating point operations, fp_sfuncs and calls
 ; must exhibit the use of the control register, lest the setting of the
 ; control register could be deleted or moved.  OTOH a use of a hard register
-; greatly coundounds optimizers like the rtl loop optimizers or combine.
+; greatly counfounds optimizers like the rtl loop optimizers or combine.
 ; Therefore, we put an extra pass immediately after the mode switching pass
 ; that inserts the USEs of the control registers, and sets a flag in struct
 ; machine_function that float_operation can henceforth only match with that
@@ -976,13 +976,13 @@
       REAL_VALUE_TYPE offset;
       rtx limit;
       rtx tmp = gen_reg_rtx (SFmode);
-      rtx label = gen_label_rtx ();
+      rtx_code_label *label = gen_label_rtx ();
       rtx bit31;
       rtx cc1 = gen_rtx_REG (CC_FPmode, CCFP_REGNUM);
       rtx cmp = gen_rtx_LT (VOIDmode, cc1, CONST0_RTX (SFmode));
 
       real_2expN (&offset, 31, SFmode);
-      limit = CONST_DOUBLE_FROM_REAL_VALUE (offset, SFmode);
+      limit = const_double_from_real_value (offset, SFmode);
       limit = force_reg (SFmode, limit);
       emit_insn (gen_fix_truncsfsi2 (operands[0], operands[1]));
       emit_insn (gen_subsf3_f (tmp, operands[1], limit));
@@ -1057,6 +1057,28 @@
   [(parallel [(set (match_dup 0) (match_dup 4))
 	      (clobber (reg:CC CC_REGNUM))])]
 )
+
+(define_peephole2
+  [(match_parallel 3 "float_operation"
+     [(set (match_operand:SI 0 "gpr_operand" "")
+	   (mult:SI
+	      (match_operand:SI 1 "gpr_operand" "")
+	      (match_operand:SI 2 "gpr_operand" "")))
+      (clobber (reg:CC_FP CCFP_REGNUM))])]
+  "prev_active_insn (peep2_next_insn (0))
+   && get_attr_sched_use_fpu (prev_active_insn (peep2_next_insn (0)))
+   && peep2_regno_dead_p (1, CC_REGNUM)
+   && get_attr_sched_use_fpu (next_active_insn (peep2_next_insn (0)))
+   && find_reg_note (insn, REG_EQUAL, NULL_RTX) != NULL_RTX
+   && GET_CODE (XEXP (find_reg_note (insn, REG_EQUAL, NULL_RTX), 0)) == MULT
+   && CONST_INT_P (XEXP (XEXP (find_reg_note (insn, REG_EQUAL, NULL_RTX), 0),
+			 1))"
+  [(parallel [(set (match_dup 0) (ashift:SI (match_dup 1) (match_dup 4)))
+	      (clobber (reg:CC CC_REGNUM))])]
+{
+  operands[4]
+    = XEXP (XEXP (find_reg_note (curr_insn, REG_EQUAL, NULL_RTX), 0), 1);
+})
 
 (define_expand "mulsi3"
   [(parallel
@@ -1665,7 +1687,7 @@
         (compare:CC (match_operand:SI 1 "gpr_operand"  "r")
                     (match_operand:SI 2 "arith_int_operand" "L")))
    (set (match_operand:SI 0 "gpr_operand" "=r")
-        (plus:SI (match_dup 1) (match_operand:SI 3 "const_int_operand" "L")))]
+        (plus:SI (match_dup 1) (match_operand:SI 3 "const_int_operand" "CnL")))]
   "INTVAL (operands[2]) == -INTVAL (operands[3])"
   "sub %0,%1,%2"
   [(set_attr "type" "compare")])
@@ -1765,14 +1787,14 @@
 
 (define_peephole2
   [(parallel
-    [(set (match_operand:SI 0 "gpr_operand" "=r")
-	  (logical_op:SI (match_operand:SI 1 "gpr_operand"  "r")
-			 (match_operand:SI 2 "gpr_operand" "%r")))
+    [(set (match_operand:SI 0 "gpr_operand")
+	  (logical_op:SI (match_operand:SI 1 "gpr_operand")
+			 (match_operand:SI 2 "gpr_operand")))
      (clobber (reg:CC CC_REGNUM))])
    (parallel
     [(set (reg:CC CC_REGNUM)
 	  (compare:CC (and:SI (match_dup 0) (match_dup 0)) (const_int 0)))
-     (set (match_operand:SI 3 "gpr_operand" "=r")
+     (set (match_operand:SI 3 "gpr_operand")
 	  (and:SI (match_dup 0) (match_dup 0)))])]
   "peep2_reg_dead_p (2, operands[0])"
   [(parallel
@@ -1783,14 +1805,14 @@
 
 (define_peephole2
   [(parallel
-    [(set (match_operand:SI 0 "gpr_operand" "=r")
-	  (logical_op:SI (match_operand:SI 1 "gpr_operand"  "r")
-			 (match_operand:SI 2 "gpr_operand" "%r")))
+    [(set (match_operand:SI 0 "gpr_operand")
+	  (logical_op:SI (match_operand:SI 1 "gpr_operand")
+			 (match_operand:SI 2 "gpr_operand")))
      (clobber (reg:CC CC_REGNUM))])
    (parallel
     [(set (reg:CC CC_REGNUM)
 	  (compare:CC (and:SI (match_dup 0) (match_dup 0)) (const_int 0)))
-     (set (match_operand:SI 3 "gpr_operand" "=r")
+     (set (match_operand:SI 3 "gpr_operand")
 	  (and:SI (match_dup 0) (match_dup 0)))])]
   "peep2_reg_dead_p (2, operands[3])"
   [(parallel
@@ -1801,14 +1823,14 @@
 
 (define_peephole2
   [(parallel
-    [(set (match_operand:SI 0 "gpr_operand" "=r")
-	  (logical_op:SI (match_operand:SI 1 "gpr_operand"  "r")
-			 (match_operand:SI 2 "gpr_operand" "%r")))
+    [(set (match_operand:SI 0 "gpr_operand")
+	  (logical_op:SI (match_operand:SI 1 "gpr_operand")
+			 (match_operand:SI 2 "gpr_operand")))
      (clobber (reg:CC CC_REGNUM))])
    (parallel
     [(set (reg:CC CC_REGNUM)
 	  (compare:CC (match_dup 0) (const_int 0)))
-     (clobber (match_operand:SI 3 "gpr_operand" "=r"))])]
+     (clobber (match_operand:SI 3 "gpr_operand"))])]
   ""
   [(parallel
     [(set (reg:CC CC_REGNUM)
@@ -1848,7 +1870,7 @@
     {
       if (operands[3] != const0_rtx)
 	operands[2] = gen_rtx_MINUS (SImode, operands[2], operands[3]);
-      operands[2] = gen_rtx_SET (VOIDmode, operands[0], operands[2]);
+      operands[2] = gen_rtx_SET (operands[0], operands[2]);
       operands[3] = operands[0];
     }
   operands[4] = gen_rtx_fmt_ee (cmp_code, SImode,
@@ -1924,7 +1946,7 @@
 {
   rtx cmp_op0 = XEXP (operands[1], 0);
   rtx cmp_op1 = XEXP (operands[1], 1);
-  enum machine_mode cmp_in_mode;
+  machine_mode cmp_in_mode;
   enum rtx_code code = GET_CODE (operands[1]);
 
   cmp_in_mode = GET_MODE (cmp_op0);
@@ -1938,7 +1960,7 @@
       && !rtx_equal_p (operands[0], operands[3]))
     {
       rtx tmp = operands[2]; operands[2] = operands[3]; operands[3] = tmp;
-      code = (FLOAT_MODE_P (GET_MODE (cmp_op0))
+      code = (FLOAT_MODE_P (GET_MODE (cmp_op0)) && !flag_finite_math_only
 	      ? reverse_condition_maybe_unordered (code)
 	      : reverse_condition (code));
     }
@@ -2247,7 +2269,7 @@
 	(gen_rtx_PARALLEL
 	  (VOIDmode,
 	   gen_rtvec (2, gen_rtx_SET
-			   (VOIDmode, operands[0],
+			   (operands[0],
 			    gen_rtx_CALL (VOIDmode, operands[1], operands[2])),
 			 gen_rtx_CLOBBER (VOIDmode,
 					  gen_rtx_REG (SImode, GPR_LR)))));
@@ -2290,7 +2312,7 @@
 	(gen_rtx_PARALLEL
 	  (VOIDmode,
 	   gen_rtvec (2, gen_rtx_SET
-			   (VOIDmode, operands[0],
+			   (operands[0],
 			    gen_rtx_CALL (VOIDmode, operands[1], operands[2])),
 			 ret_rtx)));
       emit_insn (target_uninterruptible ? gen_gie (): gen_gid ());
@@ -2358,7 +2380,7 @@
 	(plus:SI (reg:SI GPR_SP) (match_operand:SI 0 "arith_operand" "rL")))
    (clobber (reg:CC CC_REGNUM))
    (clobber (reg:SI STATUS_REGNUM))
-   (clobber (match_operand:BLK 1 "memory_operand" "=m"))]
+   (clobber (match_operand:BLK 1 "memclob_operand" "=X"))]
   "reload_completed"
   "add sp,sp,%0")
 
@@ -2374,7 +2396,7 @@
 	(match_operand 1 "any_gpr_operand" "r"))
    (set (reg:SI GPR_SP)
 	(plus:SI (reg:SI GPR_SP) (match_operand:SI 2 "nonmemory_operand" "rn")))
-   (clobber (match_operand:BLK 3 "memory_operand" "=m"))]
+   (clobber (match_operand:BLK 3 "memclob_operand" "=X"))]
   "reload_completed"
 {
   return (GET_MODE_SIZE (GET_MODE (operands[0])) <= 4
@@ -2529,6 +2551,106 @@
 }
   [(set_attr "length" "8")
    (set_attr "type" "v2fp")])
+
+(define_expand "ashlv2si3"
+  [(parallel
+     [(set (match_operand:V2SI 0 "gpr_operand" "")
+	   (ashift:V2SI (match_operand:V2SI 1 "gpr_operand" "")
+			(match_operand:SI 2 "general_operand")))
+      (use (match_dup 3))
+      (clobber (reg:CC_FP CCFP_REGNUM))])]
+  ""
+{
+  if (const_int_operand (operands[2], VOIDmode))
+    operands[3]
+      = copy_to_mode_reg (SImode, GEN_INT (1 << INTVAL (operands[2])));
+  else
+    {
+      int o, i;
+      rtx xop[2], last_out = pc_rtx;
+
+      for (o = 0; o <= UNITS_PER_WORD; o += UNITS_PER_WORD)
+	{
+	  for (i = 0; i < 2; i++)
+	    {
+	      xop[i]
+		= (i == 2 ? operands[2]
+		   : simplify_gen_subreg (SImode, operands[i], V2SImode, o));
+	      gcc_assert (!reg_overlap_mentioned_p (last_out, xop[i])
+			  /* ??? reg_overlap_mentioned_p doesn't understand
+			     about multi-word SUBREGs.  */
+			  || (GET_CODE (last_out) == SUBREG
+			      && GET_CODE (xop[i]) == SUBREG
+			      && SUBREG_REG (last_out) == SUBREG_REG (xop[i])
+			      && ((SUBREG_BYTE (last_out) & -UNITS_PER_WORD)
+				  != (SUBREG_BYTE (xop[i]) & -UNITS_PER_WORD))));
+	    }
+	  emit_insn (gen_ashlsi3 (xop[0], xop[1], operands[2]));
+	  last_out = xop[0];
+	}
+      DONE;
+    }
+})
+
+(define_insn_and_split "*ashlv2si3_i"
+  [(match_parallel 3 "float_operation"
+     [(set (match_operand:V2SI 0 "gpr_operand" "=&r,*1*2")
+	   (ashift:V2SI (match_operand:V2SI 1 "gpr_operand" "r,r")
+			(match_operand 2 "const_int_operand" "n,n")))
+      (use (match_operand:SI 4 "gpr_operand" "r,r"))
+      (clobber (reg:CC_FP CCFP_REGNUM))])]
+  ""
+  "#"
+  "reload_completed"
+  [(parallel
+     [(set (match_dup 5) (mult:SI (match_dup 6) (match_dup 4)))
+	   (clobber (reg:CC_FP CCFP_REGNUM))
+	   (match_dup 9)
+	   (match_dup 10)])
+   (parallel
+     [(set (match_dup 7) (mult:SI (match_dup 8) (match_dup 4)))
+	   (clobber (reg:CC_FP CCFP_REGNUM))
+	   (match_dup 9)
+	   (match_dup 10)])]
+{
+  operands[5] = simplify_gen_subreg (SImode, operands[0], V2SImode, 0);
+  operands[6] = simplify_gen_subreg (SImode, operands[1], V2SImode, 0);
+  operands[7] = simplify_gen_subreg (SImode, operands[0],
+				     V2SImode, UNITS_PER_WORD);
+  operands[8] = simplify_gen_subreg (SImode, operands[1],
+				     V2SImode, UNITS_PER_WORD);
+  gcc_assert (!reg_overlap_mentioned_p (operands[5], operands[8]));
+  gcc_assert (!reg_overlap_mentioned_p (operands[5], operands[4]));
+  operands[9] = XVECEXP (operands[3], 0, XVECLEN (operands[3], 0) - 2);
+  operands[10] = XVECEXP (operands[3], 0, XVECLEN (operands[3], 0) - 1);
+  rtx insn
+    = (gen_rtx_PARALLEL
+	(VOIDmode,
+	 gen_rtvec
+	  (4,
+	   gen_rtx_SET (operands[5],
+			gen_rtx_MULT (SImode, operands[6], operands[4])),
+	   gen_rtx_CLOBBER (VOIDmode, gen_rtx_REG (CC_FPmode, CCFP_REGNUM)),
+	   operands[9], operands[10])));
+  insn = emit_insn (insn);
+  add_reg_note (insn, REG_EQUAL,
+		gen_rtx_ASHIFT (SImode, operands[6], operands[2]));
+  insn
+    = (gen_rtx_PARALLEL
+	(VOIDmode,
+	 gen_rtvec
+	  (4,
+	   gen_rtx_SET (operands[7],
+			gen_rtx_MULT (SImode, operands[8], operands[4])),
+	   gen_rtx_CLOBBER (VOIDmode, gen_rtx_REG (CC_FPmode, CCFP_REGNUM)),
+	   operands[9], operands[10])));
+  insn = emit_insn (insn);
+  add_reg_note (insn, REG_EQUAL,
+		gen_rtx_ASHIFT (SImode, operands[7], operands[2]));
+  DONE;
+}
+  [(set_attr "length" "8")
+   (set_attr "type" "fp_int")])
 
 (define_expand "mul<mode>3"
   [(parallel

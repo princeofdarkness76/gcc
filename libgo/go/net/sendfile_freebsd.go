@@ -23,7 +23,7 @@ const maxSendfileSize int = 4 << 20
 // if handled == false, sendFile performed no work.
 func sendFile(c *netFD, r io.Reader) (written int64, err error, handled bool) {
 	// FreeBSD uses 0 as the "until EOF" value. If you pass in more bytes than the
-	// file contains, it will loop back to the beginning ad nauseum until it's sent
+	// file contains, it will loop back to the beginning ad nauseam until it's sent
 	// exactly the number of bytes told to. As such, we need to know exactly how many
 	// bytes to send.
 	var remain int64 = 0
@@ -58,12 +58,10 @@ func sendFile(c *netFD, r io.Reader) (written int64, err error, handled bool) {
 		return 0, err, false
 	}
 
-	c.wio.Lock()
-	defer c.wio.Unlock()
-	if err := c.incref(false); err != nil {
+	if err := c.writeLock(); err != nil {
 		return 0, err, true
 	}
-	defer c.decref()
+	defer c.writeUnlock()
 
 	dst := c.sysfd
 	src := int(f.Fd())
@@ -83,7 +81,7 @@ func sendFile(c *netFD, r io.Reader) (written int64, err error, handled bool) {
 			break
 		}
 		if err1 == syscall.EAGAIN {
-			if err1 = c.pollServer.WaitWrite(c); err1 == nil {
+			if err1 = c.pd.WaitWrite(); err1 == nil {
 				continue
 			}
 		}
@@ -93,13 +91,16 @@ func sendFile(c *netFD, r io.Reader) (written int64, err error, handled bool) {
 		if err1 != nil {
 			// This includes syscall.ENOSYS (no kernel
 			// support) and syscall.EINVAL (fd types which
-			// don't implement sendfile together)
-			err = &OpError{"sendfile", c.net, c.raddr, err1}
+			// don't implement sendfile)
+			err = err1
 			break
 		}
 	}
 	if lr != nil {
 		lr.N = remain
+	}
+	if err != nil {
+		err = os.NewSyscallError("sendfile", err)
 	}
 	return written, err, written > 0
 }

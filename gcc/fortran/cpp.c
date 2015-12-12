@@ -1,4 +1,4 @@
-/* Copyright (C) 2008-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2008-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -19,18 +19,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "tree.h"
-#include "version.h"
-#include "flags.h"
-
-
-#include "options.h"
-#include "gfortran.h"
-#include "tm_p.h"		/* Target prototypes.  */
 #include "target.h"
-#include "toplev.h"
+#include "gfortran.h"
 #include "diagnostic.h"
+
+
+#include "toplev.h"
 
 #include "../../libcpp/internal.h"
 #include "cpp.h"
@@ -100,6 +94,7 @@ struct gfc_cpp_option_data
   const char *deps_filename_user;       /* -MF <arg> */
   int deps_missing_are_generated;       /* -MG */
   int deps_phony;                       /* -MP */
+  int warn_date_time;                   /* -Wdate-time */
 
   const char *multilib;                 /* -imultilib <dir>  */
   const char *prefix;                   /* -iprefix <dir>  */
@@ -137,7 +132,7 @@ static void scan_translation_unit_trad (cpp_reader *);
 
 /* Callback routines for the parser. Most of these are active only
    in specific modes.  */
-static void cb_file_change (cpp_reader *, const struct line_map *);
+static void cb_file_change (cpp_reader *, const line_map_ordinary *);
 static void cb_line_change (cpp_reader *, const cpp_token *, int);
 static void cb_define (cpp_reader *, source_location, cpp_hashnode *);
 static void cb_undef (cpp_reader *, source_location, cpp_hashnode *);
@@ -147,9 +142,9 @@ static void cb_include (cpp_reader *, source_location, const unsigned char *,
 static void cb_ident (cpp_reader *, source_location, const cpp_string *);
 static void cb_used_define (cpp_reader *, source_location, cpp_hashnode *);
 static void cb_used_undef (cpp_reader *, source_location, cpp_hashnode *);
-static bool cb_cpp_error (cpp_reader *, int, int, location_t, unsigned int,
+static bool cb_cpp_error (cpp_reader *, int, int, rich_location *,
 			  const char *, va_list *)
-     ATTRIBUTE_GCC_DIAG(6,0);
+     ATTRIBUTE_GCC_DIAG(5,0);
 void pp_dir_change (cpp_reader *, const char *);
 
 static int dump_macro (cpp_reader *, cpp_hashnode *, void *);
@@ -169,8 +164,11 @@ cpp_define_builtins (cpp_reader *pfile)
   cpp_define (pfile, "__GFORTRAN__=1");
   cpp_define (pfile, "_LANGUAGE_FORTRAN=1");
 
-  if (gfc_option.gfc_flag_openmp)
-    cpp_define (pfile, "_OPENMP=201107");
+  if (flag_openacc)
+    cpp_define (pfile, "_OPENACC=201306");
+
+  if (flag_openmp)
+    cpp_define (pfile, "_OPENMP=201307");
 
   /* The defines below are necessary for the TARGET_* macros.
 
@@ -262,6 +260,7 @@ gfc_cpp_init_options (unsigned int decoded_options_count,
   gfc_cpp_option.no_predefined = 0;
   gfc_cpp_option.standard_include_paths = 1;
   gfc_cpp_option.verbose = 0;
+  gfc_cpp_option.warn_date_time = 0;
   gfc_cpp_option.deps = 0;
   gfc_cpp_option.deps_skip_system = 0;
   gfc_cpp_option.deps_phony = 0;
@@ -359,6 +358,10 @@ gfc_cpp_handle_option (size_t scode, const char *arg, int value ATTRIBUTE_UNUSED
       gfc_cpp_option.verbose = value;
       break;
 
+    case OPT_Wdate_time:
+      gfc_cpp_option.warn_date_time = value;
+      break;
+
     case OPT_A:
     case OPT_D:
     case OPT_U:
@@ -444,7 +447,7 @@ gfc_cpp_post_options (void)
 	  || gfc_cpp_option.no_line_commands
 	  || gfc_cpp_option.dump_macros
 	  || gfc_cpp_option.dump_includes))
-    gfc_fatal_error("To enable preprocessing, use -cpp");
+    gfc_fatal_error ("To enable preprocessing, use %<-cpp%>");
 
   if (!gfc_cpp_enabled ())
     return;
@@ -464,11 +467,12 @@ gfc_cpp_post_options (void)
 
   cpp_option->cpp_pedantic = pedantic;
 
-  cpp_option->dollars_in_ident = gfc_option.flag_dollar_ok;
+  cpp_option->dollars_in_ident = flag_dollar_ok;
   cpp_option->discard_comments = gfc_cpp_option.discard_comments;
   cpp_option->discard_comments_in_macro_exp = gfc_cpp_option.discard_comments_in_macro_exp;
   cpp_option->print_include_names = gfc_cpp_option.print_include_names;
   cpp_option->preprocessed = gfc_option.flag_preprocessed;
+  cpp_option->warn_date_time = gfc_cpp_option.warn_date_time;
 
   if (gfc_cpp_makedep ())
     {
@@ -541,7 +545,7 @@ gfc_cpp_init_0 (void)
 
 	  print.outf = fopen (gfc_cpp_option.output_filename, "w");
 	  if (print.outf == NULL)
-	    gfc_fatal_error ("opening output file %s: %s",
+	    gfc_fatal_error ("opening output file %qs: %s",
 			     gfc_cpp_option.output_filename,
 			     xstrerror (errno));
 	}
@@ -552,7 +556,7 @@ gfc_cpp_init_0 (void)
     {
       print.outf = fopen (gfc_cpp_option.temporary_filename, "w");
       if (print.outf == NULL)
-	gfc_fatal_error ("opening output file %s: %s",
+	gfc_fatal_error ("opening output file %qs: %s",
 			 gfc_cpp_option.temporary_filename, xstrerror (errno));
     }
 
@@ -569,6 +573,7 @@ gfc_cpp_init (void)
   if (gfc_option.flag_preprocessed)
     return;
 
+  cpp_change_file (cpp_in, LC_RENAME, _("<built-in>"));
   if (!gfc_cpp_option.no_predefined)
     {
       /* Make sure all of the builtins about to be declared have
@@ -658,7 +663,7 @@ gfc_cpp_done (void)
 	      fclose (f);
 	    }
 	  else
-	    gfc_fatal_error ("opening output file %s: %s",
+	    gfc_fatal_error ("opening output file %qs: %s",
 			     gfc_cpp_option.deps_filename,
 			     xstrerror (errno));
 	}
@@ -787,7 +792,8 @@ scan_translation_unit_trad (cpp_reader *pfile)
 static void
 maybe_print_line (source_location src_loc)
 {
-  const struct line_map *map = linemap_lookup (line_table, src_loc);
+  const line_map_ordinary *map
+    = linemap_check_ordinary (linemap_lookup (line_table, src_loc));
   int src_line = SOURCE_LINE (map, src_loc);
 
   /* End the previous line of text.  */
@@ -854,7 +860,7 @@ print_line (source_location src_loc, const char *special_flags)
 }
 
 static void
-cb_file_change (cpp_reader * ARG_UNUSED (pfile), const struct line_map *map)
+cb_file_change (cpp_reader * ARG_UNUSED (pfile), const line_map_ordinary *map)
 {
   const char *flags = "";
 
@@ -876,7 +882,7 @@ cb_file_change (cpp_reader * ARG_UNUSED (pfile), const struct line_map *map)
 	  /* Bring current file to correct line when entering a new file.  */
 	  if (map->reason == LC_ENTER)
 	    {
-	      const struct line_map *from = INCLUDED_FROM (line_table, map);
+	      const line_map_ordinary *from = INCLUDED_FROM (line_table, map);
 	      maybe_print_line (LAST_SOURCE_LINE_LOCATION (from));
 	    }
 	  if (map->reason == LC_ENTER)
@@ -910,7 +916,8 @@ cb_line_change (cpp_reader *pfile, const cpp_token *token,
      ought to care.  Some things do care; the fault lies with them.  */
   if (!CPP_OPTION (pfile, traditional))
     {
-      const struct line_map *map = linemap_lookup (line_table, src_loc);
+      const line_map_ordinary *map
+	= linemap_check_ordinary (linemap_lookup (line_table, src_loc));
       int spaces = SOURCE_COLUMN (map, src_loc) - 2;
       print.printed = 1;
 
@@ -1012,13 +1019,12 @@ cb_used_define (cpp_reader *pfile, source_location line ATTRIBUTE_UNUSED,
 /* Callback from cpp_error for PFILE to print diagnostics from the
    preprocessor.  The diagnostic is of type LEVEL, with REASON set
    to the reason code if LEVEL is represents a warning, at location
-   LOCATION, with column number possibly overridden by COLUMN_OVERRIDE
-   if not zero; MSG is the translated message and AP the arguments.
+   RICHLOC; MSG is the translated message and AP the arguments.
    Returns true if a diagnostic was emitted, false otherwise.  */
 
 static bool
 cb_cpp_error (cpp_reader *pfile ATTRIBUTE_UNUSED, int level, int reason,
-	      location_t location, unsigned int column_override,
+	      rich_location *richloc,
 	      const char *msg, va_list *ap)
 {
   diagnostic_info diagnostic;
@@ -1053,9 +1059,7 @@ cb_cpp_error (cpp_reader *pfile ATTRIBUTE_UNUSED, int level, int reason,
       gcc_unreachable ();
     }
   diagnostic_set_info_translated (&diagnostic, msg, ap,
-				  location, dlevel);
-  if (column_override)
-    diagnostic_override_column (&diagnostic, column_override);
+				  richloc, dlevel);
   if (reason == CPP_W_WARNING_DIRECTIVE)
     diagnostic_override_option_index (&diagnostic, OPT_Wcpp);
   ret = report_diagnostic (&diagnostic);

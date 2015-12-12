@@ -1,5 +1,5 @@
 /* Target definitions for GCC for Intel 80386 running Interix
-   Parts Copyright (C) 1991-2013 Free Software Foundation, Inc.
+   Parts Copyright (C) 1991-2015 Free Software Foundation, Inc.
 
    Parts:
      by Douglas B. Rupp (drupp@cs.washington.edu).
@@ -140,8 +140,11 @@ do {									\
 /* Turn off long double being 96 bits.  */
 #undef LONG_DOUBLE_TYPE_SIZE
 #define LONG_DOUBLE_TYPE_SIZE 64
-#undef LIBGCC2_LONG_DOUBLE_TYPE_SIZE
-#define LIBGCC2_LONG_DOUBLE_TYPE_SIZE 64
+
+#define IX86_NO_LIBGCC_TFMODE
+
+#undef TARGET_LIBC_HAS_FUNCTION
+#define TARGET_LIBC_HAS_FUNCTION no_c99_libc_has_function
 
 /* The following are needed for us to be able to use winnt.c, but are not
    otherwise meaningful to Interix.  (The functions that use these are
@@ -149,8 +152,6 @@ do {									\
 #define TARGET_NOP_FUN_DLLIMPORT 1
 #define drectve_section()  /* nothing */
 
-
-#define EH_FRAME_IN_DATA_SECTION
 
 #define READONLY_DATA_SECTION_ASM_OP	"\t.section\t.rdata,\"r\""
 
@@ -192,7 +193,7 @@ do {									\
  */
 #define MULTIPLE_SYMBOL_SPACES	1
 
-extern void i386_pe_unique_section PARAMS ((tree, int));
+extern void i386_pe_unique_section (tree, int);
 #define TARGET_ASM_UNIQUE_SECTION i386_pe_unique_section
 
 /* Switch into a generic section.  */
@@ -323,7 +324,8 @@ while (0)
  : ((n) >= FIRST_STACK_REG && (n) <= LAST_STACK_REG) ? (int) (n)+8 \
  : (int) (-1))
 
-#define EH_FRAME_IN_DATA_SECTION
+#define EH_FRAME_THROUGH_COLLECT2
+#define EH_TABLES_CAN_BE_READ_ONLY 0
 
 /* the following are OSF linker (not gld) specific... we don't want them */
 #undef HAS_INIT_SECTION

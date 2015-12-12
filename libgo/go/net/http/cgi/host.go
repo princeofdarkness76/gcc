@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -128,9 +129,14 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		"PATH_INFO=" + pathInfo,
 		"SCRIPT_NAME=" + root,
 		"SCRIPT_FILENAME=" + h.Path,
-		"REMOTE_ADDR=" + req.RemoteAddr,
-		"REMOTE_HOST=" + req.RemoteAddr,
 		"SERVER_PORT=" + port,
+	}
+
+	if remoteIP, remotePort, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+		env = append(env, "REMOTE_ADDR="+remoteIP, "REMOTE_HOST="+remoteIP, "REMOTE_PORT="+remotePort)
+	} else {
+		// could not parse ip:port, let's use whole RemoteAddr and leave REMOTE_PORT undefined
+		env = append(env, "REMOTE_ADDR="+req.RemoteAddr, "REMOTE_HOST="+req.RemoteAddr)
 	}
 
 	if req.TLS != nil {
@@ -214,12 +220,17 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		internalError(err)
 		return
 	}
+	if hook := testHookStartProcess; hook != nil {
+		hook(cmd.Process)
+	}
 	defer cmd.Wait()
 	defer stdoutRead.Close()
 
 	linebody := bufio.NewReaderSize(stdoutRead, 1024)
 	headers := make(http.Header)
 	statusCode := 0
+	headerLines := 0
+	sawBlankLine := false
 	for {
 		line, isPrefix, err := linebody.ReadLine()
 		if isPrefix {
@@ -236,8 +247,10 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			return
 		}
 		if len(line) == 0 {
+			sawBlankLine = true
 			break
 		}
+		headerLines++
 		parts := strings.SplitN(string(line), ":", 2)
 		if len(parts) < 2 {
 			h.printf("cgi: bogus header line: %s", string(line))
@@ -263,6 +276,11 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			headers.Add(header, val)
 		}
 	}
+	if headerLines == 0 || !sawBlankLine {
+		rw.WriteHeader(http.StatusInternalServerError)
+		h.printf("cgi: no headers")
+		return
+	}
 
 	if loc := headers.Get("Location"); loc != "" {
 		if strings.HasPrefix(loc, "/") && h.PathLocationHandler != nil {
@@ -272,6 +290,12 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		if statusCode == 0 {
 			statusCode = http.StatusFound
 		}
+	}
+
+	if statusCode == 0 && headers.Get("Content-Type") == "" {
+		rw.WriteHeader(http.StatusInternalServerError)
+		h.printf("cgi: missing required Content-Type in headers")
+		return
 	}
 
 	if statusCode == 0 {
@@ -292,6 +316,13 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	_, err = io.Copy(rw, linebody)
 	if err != nil {
 		h.printf("cgi: copy error: %v", err)
+		// And kill the child CGI process so we don't hang on
+		// the deferred cmd.Wait above if the error was just
+		// the client (rw) going away. If it was a read error
+		// (because the child died itself), then the extra
+		// kill of an already-dead process is harmless (the PID
+		// won't be reused until the Wait above).
+		cmd.Process.Kill()
 	}
 }
 
@@ -348,3 +379,5 @@ func upperCaseAndUnderscore(r rune) rune {
 	// TODO: other transformations in spec or practice?
 	return r
 }
+
+var testHookStartProcess func(*os.Process) // nil except for some tests

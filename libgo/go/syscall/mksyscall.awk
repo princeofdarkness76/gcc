@@ -53,7 +53,7 @@ BEGIN {
     }
 
     # Sets a[1] = //sysnb, a[2] == function name.
-    split(line, a, "[ 	(]*")
+    split(line, a, "[ 	(]+")
     gofnname = a[2]
 
     off = match(line, "\\([^()]*\\)")
@@ -78,7 +78,7 @@ BEGIN {
 	next
     }
 
-    split(line, a, "[ 	(]*")
+    split(line, a, "[ 	(]+")
     cfnname = substr(a[1], 3, length(a[1]) - 2)
 
     off = match(line, "\\([^()]*\\)")
@@ -96,8 +96,11 @@ BEGIN {
     cfnresult = line
 
     printf("// Automatically generated wrapper for %s/%s\n", gofnname, cfnname)
-    printf("//extern %s\n", cfnname)
-    printf("func c_%s(%s) %s\n", cfnname, cfnparams, cfnresult)
+    if (!(cfnname in cfns)) {
+        cfns[cfnname] = 1
+        printf("//extern %s\n", cfnname)
+        printf("func c_%s(%s) %s\n", cfnname, cfnparams, cfnresult)
+    }
     printf("func %s(%s) %s%s%s%s{\n",
 	   gofnname, gofnparams, gofnresults == "" ? "" : "(", gofnresults,
 	   gofnresults == "" ? "" : ")", gofnresults == "" ? "" : " ")
@@ -196,6 +199,8 @@ BEGIN {
 	    args = sprintf("%s_p%d, %s(len(%s))", args, goarg, cparam[2], goname)
 	} else if (gotype == "uintptr" && ctype ~ /^\*/) {
 	    args = sprintf("%s(%s)(unsafe.Pointer(%s))", args, ctype, goname)
+	} else if (gotype == "unsafe.Pointer" && ctype ~ /^\*/) {
+	    args = sprintf("%s(%s)(%s)", args, ctype, goname)
 	} else {
 	    args = sprintf("%s%s(%s)", args, ctype, goname)
 	}

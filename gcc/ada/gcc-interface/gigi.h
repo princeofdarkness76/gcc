@@ -6,7 +6,7 @@
  *                                                                          *
  *                              C Header File                               *
  *                                                                          *
- *          Copyright (C) 1992-2013, Free Software Foundation, Inc.         *
+ *          Copyright (C) 1992-2015, Free Software Foundation, Inc.         *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -93,8 +93,8 @@ do {					\
     mark_visited (EXP);			\
 } while (0)
 
-/* Finalize the processing of From_With_Type incomplete types.  */
-extern void finalize_from_with_types (void);
+/* Finalize the processing of From_Limited_With incomplete types.  */
+extern void finalize_from_limited_with (void);
 
 /* Return the equivalent type to be used for GNAT_ENTITY, if it's a
    kind of type (such E_Task_Type) that has a different type which Gigi
@@ -143,7 +143,7 @@ extern tree make_packable_type (tree type, bool in_record);
 extern tree make_type_from_size (tree type, tree size_tree, bool for_biased);
 
 /* Ensure that TYPE has SIZE and ALIGN.  Make and return a new padded type
-   if needed.  We have already verified that SIZE and TYPE are large enough.
+   if needed.  We have already verified that SIZE and ALIGN are large enough.
    GNAT_ENTITY is used to name the resulting record and to issue a warning.
    IS_COMPONENT_TYPE is true if this is being done for the component type of
    an array.  IS_USER_TYPE is true if the original type needs to be completed.
@@ -153,6 +153,9 @@ extern tree maybe_pad_type (tree type, tree size, unsigned int align,
 			    Entity_Id gnat_entity, bool is_component_type,
 			    bool is_user_type, bool definition,
 			    bool set_rm_size);
+
+/* Return a copy of the padded TYPE but with reverse storage order.  */
+extern tree set_reverse_storage_order_on_pad_type (tree type);
 
 enum alias_set_op
 {
@@ -210,6 +213,12 @@ extern tree create_concat_name (Entity_Id gnat_entity, const char *suffix);
    the name followed by "___" and the specified suffix.  */
 extern tree concat_name (tree gnu_name, const char *suffix);
 
+/* Initialize data structures of the decl.c module.  */
+extern void init_gnat_decl (void);
+
+/* Destroy data structures of the decl.c module.  */
+extern void destroy_gnat_decl (void);
+
 /* Highest number in the front-end node table.  */
 extern int max_gnat_nodes;
 
@@ -220,9 +229,6 @@ extern Node_Id error_gnat_node;
    tree, and the only purpose of the call is to properly annotate
    types with representation information.  */
 extern bool type_annotate_only;
-
-/* Current file name without path.  */
-extern const char *ref_filename;
 
 /* This structure must be kept synchronized with Call_Back_End.  */
 struct File_Info_Type
@@ -238,10 +244,14 @@ extern "C" {
 
 /* This is the main program of the back-end.  It sets up all the table
    structures and then generates code.  */
-extern void gigi (Node_Id gnat_root, int max_gnat_node,
+extern void gigi (Node_Id gnat_root,
+	          int max_gnat_node,
                   int number_name ATTRIBUTE_UNUSED,
-                  struct Node *nodes_ptr, Node_Id *next_node_ptr,
-                  Node_Id *prev_node_ptr, struct Elist_Header *elists_ptr,
+		  struct Node *nodes_ptr,
+		  struct Flags *Flags_Ptr,
+		  Node_Id *next_node_ptr,
+		  Node_Id *prev_node_ptr,
+		  struct Elist_Header *elists_ptr,
                   struct Elmt_Item *elmts_ptr,
                   struct String_Entry *strings_ptr,
                   Char_Code *strings_chars_ptr,
@@ -278,9 +288,10 @@ extern int gnat_gimplify_expr (tree *expr_p, gimple_seq *pre_p,
 extern void process_type (Entity_Id gnat_entity);
 
 /* Convert SLOC into LOCUS.  Return true if SLOC corresponds to a source code
-   location and false if it doesn't.  In the former case, set the Gigi global
-   variable REF_FILENAME to the simple debug file name as given by sinput.  */
-extern bool Sloc_to_locus (Source_Ptr Sloc, location_t *locus);
+   location and false if it doesn't.  If CLEAR_COLUMN is true, set the column
+   information to 0.  */
+extern bool Sloc_to_locus (Source_Ptr Sloc, location_t *locus,
+			   bool clear_column = false);
 
 /* Post an error message.  MSG is the error message, properly annotated.
    NODE is the node at which to post the error and the node to use for the
@@ -325,6 +336,9 @@ extern int double_float_alignment;
    types whose size is greater or equal to 64 bits, or 0 if this alignment
    is not specifically capped.  */
 extern int double_scalar_alignment;
+
+/* True if floating-point arithmetics may use wider intermediate results.  */
+extern bool fp_arith_may_widen;
 
 /* Data structures used to represent attributes.  */
 
@@ -360,9 +374,6 @@ enum standard_datatypes
   /* The type of an exception.  */
   ADT_except_type,
 
-  /* Type declaration node  <==> typedef void *T */
-  ADT_ptr_void_type,
-
   /* Function type declaration -- void T() */
   ADT_void_ftype,
 
@@ -382,10 +393,8 @@ enum standard_datatypes
   ADT_sbitsize_unit_node,
 
   /* Function declaration nodes for run-time functions for allocating memory.
-     Ada allocators cause calls to these functions to be generated.  Malloc32
-     is used only on 64bit systems needing to allocate 32bit memory.  */
+     Ada allocators cause calls to this function to be generated.  */
   ADT_malloc_decl,
-  ADT_malloc32_decl,
 
   /* Likewise for freeing memory.  */
   ADT_free_decl,
@@ -399,24 +408,27 @@ enum standard_datatypes
   /* Identifier for the name of the Exception_Data type.  */
   ADT_exception_data_name_id,
 
-  /* Types and decls used by our temporary exception mechanism.  See
-     init_gigi_decls for details.  */
+  /* Types and decls used by the SJLJ exception mechanism.  */
   ADT_jmpbuf_type,
   ADT_jmpbuf_ptr_type,
   ADT_get_jmpbuf_decl,
   ADT_set_jmpbuf_decl,
   ADT_get_excptr_decl,
+  ADT_not_handled_by_others_decl,
   ADT_setjmp_decl,
-  ADT_longjmp_decl,
   ADT_update_setjmp_buf_decl,
   ADT_raise_nodefer_decl,
+
+  /* Types and decls used by the ZCX exception mechanism.  */
   ADT_reraise_zcx_decl,
+  ADT_set_exception_parameter_decl,
   ADT_begin_handler_decl,
   ADT_end_handler_decl,
   ADT_unhandled_except_decl,
   ADT_others_decl,
   ADT_all_others_decl,
   ADT_unhandled_others_decl,
+
   ADT_LAST};
 
 /* Define kind of exception information associated with raise statements.  */
@@ -438,7 +450,9 @@ enum inline_status_t
   /* No inlining is requested for the subprogram.  */
   is_disabled,
   /* Inlining is requested for the subprogram.  */
-  is_enabled
+  is_enabled,
+  /* Inlining is required for the subprogram.  */
+  is_required
 };
 
 extern GTY(()) tree gnat_std_decls[(int) ADT_LAST];
@@ -447,7 +461,6 @@ extern GTY(()) tree gnat_raise_decls_ext[(int) LAST_REASON_CODE + 1];
 
 #define longest_float_type_node gnat_std_decls[(int) ADT_longest_float_type]
 #define except_type_node gnat_std_decls[(int) ADT_except_type]
-#define ptr_void_type_node gnat_std_decls[(int) ADT_ptr_void_type]
 #define void_ftype gnat_std_decls[(int) ADT_void_ftype]
 #define ptr_void_ftype gnat_std_decls[(int) ADT_ptr_void_ftype]
 #define fdesc_type_node gnat_std_decls[(int) ADT_fdesc_type]
@@ -455,7 +468,6 @@ extern GTY(()) tree gnat_raise_decls_ext[(int) LAST_REASON_CODE + 1];
 #define sbitsize_one_node gnat_std_decls[(int) ADT_sbitsize_one_node]
 #define sbitsize_unit_node gnat_std_decls[(int) ADT_sbitsize_unit_node]
 #define malloc_decl gnat_std_decls[(int) ADT_malloc_decl]
-#define malloc32_decl gnat_std_decls[(int) ADT_malloc32_decl]
 #define free_decl gnat_std_decls[(int) ADT_free_decl]
 #define mulv64_decl gnat_std_decls[(int) ADT_mulv64_decl]
 #define parent_name_id gnat_std_decls[(int) ADT_parent_name_id]
@@ -465,11 +477,14 @@ extern GTY(()) tree gnat_raise_decls_ext[(int) LAST_REASON_CODE + 1];
 #define get_jmpbuf_decl gnat_std_decls[(int) ADT_get_jmpbuf_decl]
 #define set_jmpbuf_decl gnat_std_decls[(int) ADT_set_jmpbuf_decl]
 #define get_excptr_decl gnat_std_decls[(int) ADT_get_excptr_decl]
+#define not_handled_by_others_decl \
+	  gnat_std_decls[(int) ADT_not_handled_by_others_decl]
 #define setjmp_decl gnat_std_decls[(int) ADT_setjmp_decl]
-#define longjmp_decl gnat_std_decls[(int) ADT_longjmp_decl]
 #define update_setjmp_buf_decl gnat_std_decls[(int) ADT_update_setjmp_buf_decl]
 #define raise_nodefer_decl gnat_std_decls[(int) ADT_raise_nodefer_decl]
 #define reraise_zcx_decl gnat_std_decls[(int) ADT_reraise_zcx_decl]
+#define set_exception_parameter_decl \
+	  gnat_std_decls[(int) ADT_set_exception_parameter_decl]
 #define begin_handler_decl gnat_std_decls[(int) ADT_begin_handler_decl]
 #define others_decl gnat_std_decls[(int) ADT_others_decl]
 #define all_others_decl gnat_std_decls[(int) ADT_all_others_decl]
@@ -518,9 +533,9 @@ extern tree gnat_type_for_size (unsigned precision, int unsignedp);
 
 /* Return a data type that has machine mode MODE.  UNSIGNEDP selects
    an unsigned type; otherwise a signed type is returned.  */
-extern tree gnat_type_for_mode (enum machine_mode mode, int unsignedp);
+extern tree gnat_type_for_mode (machine_mode mode, int unsignedp);
 
-/* Emit debug info for all global variable declarations.  */
+/* Perform final processing on global declarations.  */
 extern void gnat_write_global_declarations (void);
 
 /* Return the unsigned version of a TYPE_NODE, a scalar type.  */
@@ -587,7 +602,7 @@ extern void build_dummy_unc_pointer_types (Entity_Id gnat_desig_type,
 					   tree gnu_desig_type);
 
 /* Record TYPE as a builtin type for Ada.  NAME is the name of the type.
-   ARTIFICIAL_P is true if it's a type that was generated by the compiler.  */
+   ARTIFICIAL_P is true if the type was generated by the compiler.  */
 extern void record_builtin_type (const char *name, tree type,
 				 bool artificial_p);
 
@@ -642,23 +657,22 @@ extern tree create_index_type (tree min, tree max, tree index,
    sizetype is used.  */
 extern tree create_range_type (tree type, tree min, tree max);
 
-/* Return a TYPE_DECL node suitable for the TYPE_STUB_DECL field of a type.
-   TYPE_NAME gives the name of the type and TYPE is a ..._TYPE node giving
-   its data type.  */
-extern tree create_type_stub_decl (tree type_name, tree type);
+/* Return a TYPE_DECL node suitable for the TYPE_STUB_DECL field of TYPE.
+   NAME gives the name of the type to be used in the declaration.  */
+extern tree create_type_stub_decl (tree name, tree type);
 
-/* Return a TYPE_DECL node.  TYPE_NAME gives the name of the type and TYPE
-   is a ..._TYPE node giving its data type.  ARTIFICIAL_P is true if this
-   is a declaration that was generated by the compiler.  DEBUG_INFO_P is
-   true if we need to write debug information about this type.  GNAT_NODE
-   is used for the position of the decl.  */
-extern tree create_type_decl (tree type_name, tree type, bool artificial_p,
+/* Return a TYPE_DECL node for TYPE.  NAME gives the name of the type to be
+   used in the declaration.  ARTIFICIAL_P is true if the declaration was
+   generated by the compiler.  DEBUG_INFO_P is true if we need to write
+   debug information about this type.  GNAT_NODE is used for the position
+   of the decl.  */
+extern tree create_type_decl (tree name, tree type, bool artificial_p,
 			      bool debug_info_p, Node_Id gnat_node);
 
 /* Return a VAR_DECL or CONST_DECL node.
 
-   VAR_NAME gives the name of the variable.  ASM_NAME is its assembler name
-   (if provided).  TYPE is its data type (a GCC ..._TYPE node).  VAR_INIT is
+   NAME gives the name of the variable.  ASM_NAME is its assembler name
+   (if provided).  TYPE is its data type (a GCC ..._TYPE node).  INIT is
    the GCC tree for an optional initial expression; NULL_TREE if none.
 
    CONST_FLAG is true if this variable is constant, in which case we might
@@ -674,73 +688,56 @@ extern tree create_type_decl (tree type_name, tree type, bool artificial_p,
    STATIC_FLAG is only relevant when not at top level.  In that case
    it indicates whether to always allocate storage to the variable.
 
+   ARTIFICIAL_P is true if the variable was generated by the compiler.
+
+   DEBUG_INFO_P is true if we need to write debug information for it.
+
    GNAT_NODE is used for the position of the decl.  */
-extern tree
-create_var_decl_1 (tree var_name, tree asm_name, tree type, tree var_init,
-		   bool const_flag, bool public_flag, bool extern_flag,
-		   bool static_flag, bool const_decl_allowed_p,
-		   struct attrib *attr_list, Node_Id gnat_node);
+extern tree create_var_decl (tree name, tree asm_name, tree type, tree init,
+			     bool const_flag, bool public_flag,
+			     bool extern_flag, bool static_flag,
+			     bool artificial_p, bool debug_info_p,
+			     struct attrib *attr_list, Node_Id gnat_node,
+			     bool const_decl_allowed_p = true);
 
-/* Wrapper around create_var_decl_1 for cases where we don't care whether
-   a VAR or a CONST decl node is created.  */
-#define create_var_decl(var_name, asm_name, type, var_init,	\
-			const_flag, public_flag, extern_flag,	\
-			static_flag, attr_list, gnat_node)	\
-  create_var_decl_1 (var_name, asm_name, type, var_init,	\
-		     const_flag, public_flag, extern_flag,	\
-		     static_flag, true, attr_list, gnat_node)
-
-/* Wrapper around create_var_decl_1 for cases where a VAR_DECL node is
-   required.  The primary intent is for DECL_CONST_CORRESPONDING_VARs, which
-   must be VAR_DECLs and on which we want TREE_READONLY set to have them
-   possibly assigned to a readonly data section.  */
-#define create_true_var_decl(var_name, asm_name, type, var_init,	\
-			     const_flag, public_flag, extern_flag,	\
-			     static_flag, attr_list, gnat_node)		\
-  create_var_decl_1 (var_name, asm_name, type, var_init,		\
-		     const_flag, public_flag, extern_flag,		\
-		     static_flag, false, attr_list, gnat_node)
-
-/* Record DECL as a global renaming pointer.  */
-extern void record_global_renaming_pointer (tree decl);
-
-/* Invalidate the global renaming pointers.  */
-extern void invalidate_global_renaming_pointers (void);
-
-/* Return a FIELD_DECL node.  FIELD_NAME is the field's name, FIELD_TYPE is
-   its type and RECORD_TYPE is the type of the enclosing record.  If SIZE is
-   nonzero, it is the specified size of the field.  If POS is nonzero, it is
-   the bit position.  PACKED is 1 if the enclosing record is packed, -1 if it
-   has Component_Alignment of Storage_Unit.  If ADDRESSABLE is nonzero, it
+/* Return a FIELD_DECL node.  NAME is the field's name, TYPE is its type and
+   RECORD_TYPE is the type of the enclosing record.  If SIZE is nonzero, it
+   is the specified size of the field.  If POS is nonzero, it is the bit
+   position.  PACKED is 1 if the enclosing record is packed, -1 if it has
+   Component_Alignment of Storage_Unit.  If ADDRESSABLE is nonzero, it
    means we are allowed to take the address of the field; if it is negative,
    we should not make a bitfield, which is used by make_aligning_type.  */
-extern tree create_field_decl (tree field_name, tree field_type,
-			       tree record_type, tree size, tree pos,
-			       int packed, int addressable);
+extern tree create_field_decl (tree name, tree type, tree record_type,
+			       tree size, tree pos, int packed,
+			       int addressable);
 
-/* Return a PARM_DECL node.  PARAM_NAME is the name of the parameter and
-   PARAM_TYPE is its type.  READONLY is true if the parameter is readonly
-   (either an In parameter or an address of a pass-by-ref parameter).  */
-extern tree create_param_decl (tree param_name, tree param_type,
-                               bool readonly);
+/* Return a PARM_DECL node.  NAME is the name of the parameter and TYPE is
+   its type.  READONLY is true if the parameter is readonly (either an In
+   parameter or an address of a pass-by-ref parameter).  */
+extern tree create_param_decl (tree name, tree type, bool readonly);
 
-/* Return a LABEL_DECL with LABEL_NAME.  GNAT_NODE is used for the position
-   of the decl.  */
-extern tree create_label_decl (tree label_name, Node_Id gnat_node);
+/* Return a LABEL_DECL with NAME.  GNAT_NODE is used for the position of
+   the decl.  */
+extern tree create_label_decl (tree name, Node_Id gnat_node);
 
-/* Return a FUNCTION_DECL node.  SUBPROG_NAME is the name of the subprogram,
-   ASM_NAME is its assembler name, SUBPROG_TYPE is its type (a FUNCTION_TYPE
-   node), PARAM_DECL_LIST is the list of the subprogram arguments (a list of
-   PARM_DECL nodes chained through the DECL_CHAIN field).
+/* Return a FUNCTION_DECL node.  NAME is the name of the subprogram, ASM_NAME
+   its assembler name, TYPE its type (a FUNCTION_TYPE node), PARAM_DECL_LIST
+   the list of its parameters (a list of PARM_DECL nodes chained through the
+   DECL_CHAIN field).
 
-   INLINE_STATUS, PUBLIC_FLAG, EXTERN_FLAG, ARTIFICIAL_FLAG and ATTR_LIST are
-   used to set the appropriate fields in the FUNCTION_DECL.  GNAT_NODE is
-   used for the position of the decl.  */
-extern tree create_subprog_decl (tree subprog_name, tree asm_name,
-				 tree subprog_type, tree param_decl_list,
+   INLINE_STATUS, PUBLIC_FLAG, EXTERN_FLAG and ATTR_LIST are used to set the
+   appropriate fields in the FUNCTION_DECL.
+
+   ARTIFICIAL_P is true if the subprogram was generated by the compiler.
+
+   DEBUG_INFO_P is true if we need to write debug information for it.
+
+   GNAT_NODE is used for the position of the decl.  */
+extern tree create_subprog_decl (tree name, tree asm_name, tree type,
+				 tree param_decl_list,
 				 enum inline_status_t inline_status,
 				 bool public_flag, bool extern_flag,
-				 bool artificial_flag,
+				 bool artificial_p, bool debug_info_p,
 				 struct attrib *attr_list, Node_Id gnat_node);
 
 /* Process the attributes in ATTR_LIST for NODE, which is either a DECL or
@@ -764,19 +761,6 @@ extern void rest_of_subprog_body_compilation (tree subprog_decl);
    EXPR is an expression that we can use to locate any PLACEHOLDER_EXPRs.
    Return a constructor for the template.  */
 extern tree build_template (tree template_type, tree array_type, tree expr);
-
-/* Build a 64bit VMS descriptor from a Mechanism_Type, which must specify
-   a descriptor type, and the GCC type of an object.  Each FIELD_DECL
-   in the type contains in its DECL_INITIAL the expression to use when
-   a constructor is made for the type.  GNAT_ENTITY is a gnat node used
-   to print out an error message if the mechanism cannot be applied to
-   an object of that type and also for the name.  */
-extern tree build_vms_descriptor (tree type, Mechanism_Type mech,
-                                  Entity_Id gnat_entity);
-
-/* Build a 32bit VMS descriptor from a Mechanism_Type. See above.  */
-extern tree build_vms_descriptor32 (tree type, Mechanism_Type mech,
-                                  Entity_Id gnat_entity);
 
 /* Build a type to be used to represent an aliased object whose nominal type
    is an unconstrained array.  This consists of a RECORD_TYPE containing a
@@ -856,11 +840,18 @@ extern unsigned int known_alignment (tree exp);
    of 2.  */
 extern bool value_factor_p (tree value, HOST_WIDE_INT factor);
 
-/* Build an atomic load for the underlying atomic object in SRC.  */
-extern tree build_atomic_load (tree src);
+/* Build an atomic load for the underlying atomic object in SRC.  SYNC is
+   true if the load requires synchronization.  */
+extern tree build_atomic_load (tree src, bool sync);
 
-/* Build an atomic store from SRC to the underlying atomic object in DEST.  */
-extern tree build_atomic_store (tree dest, tree src);
+/* Build an atomic store from SRC to the underlying atomic object in DEST.
+   SYNC is true if the store requires synchronization.  */
+extern tree build_atomic_store (tree dest, tree src, bool sync);
+
+/* Build a load-modify-store sequence from SRC to DEST.  GNAT_NODE is used for
+   the location of the sequence.  Note that, even if the load and the store are
+   both atomic, the sequence itself is not atomic.  */
+extern tree build_load_modify_store (tree dest, tree src, Node_Id gnat_node);
 
 /* Make a binary operation of kind OP_CODE.  RESULT_TYPE is the type
    desired for the result.  Usually the operation is to be performed
@@ -887,36 +878,31 @@ extern tree build_compound_expr (tree result_type, tree stmt_operand,
    this doesn't fold the call, hence it will always return a CALL_EXPR.  */
 extern tree build_call_n_expr (tree fndecl, int n, ...);
 
-/* Call a function that raises an exception and pass the line number and file
-   name, if requested.  MSG says which exception function to call.
-
-   GNAT_NODE is the gnat node conveying the source location for which the
-   error should be signaled, or Empty in which case the error is signaled on
-   the current ref_file_name/input_line.
-
-   KIND says which kind of exception this is for
-    (N_Raise_{Constraint,Storage,Program}_Error).  */
+/* Build a call to a function that raises an exception and passes file name
+   and line number, if requested.  MSG says which exception function to call.
+   GNAT_NODE is the node conveying the source location for which the error
+   should be signaled, or Empty in which case the error is signaled for the
+   current location.  KIND says which kind of exception node this is for,
+   among N_Raise_{Constraint,Storage,Program}_Error.  */
 extern tree build_call_raise (int msg, Node_Id gnat_node, char kind);
-
-/* Similar to build_call_raise, for an index or range check exception as
-   determined by MSG, with extra information generated of the form
-   "INDEX out of range FIRST..LAST".  */
-extern tree build_call_raise_range (int msg, Node_Id gnat_node,
-				    tree index, tree first, tree last);
 
 /* Similar to build_call_raise, with extra information about the column
    where the check failed.  */
 extern tree build_call_raise_column (int msg, Node_Id gnat_node);
 
+/* Similar to build_call_raise_column, for an index or range check exception ,
+   with extra information of the form "INDEX out of range FIRST..LAST".  */
+extern tree build_call_raise_range (int msg, Node_Id gnat_node,
+				    tree index, tree first, tree last);
+
 /* Return a CONSTRUCTOR of TYPE whose elements are V.  This is not the
    same as build_constructor in the language-independent tree.c.  */
 extern tree gnat_build_constructor (tree type, vec<constructor_elt, va_gc> *v);
 
-/* Return a COMPONENT_REF to access a field that is given by COMPONENT,
-   an IDENTIFIER_NODE giving the name of the field, FIELD, a FIELD_DECL,
-   for the field, or both.  Don't fold the result if NO_FOLD_P.  */
-extern tree build_component_ref (tree record_variable, tree component,
-                                 tree field, bool no_fold_p);
+/* Return a COMPONENT_REF to access FIELD in RECORD, or NULL_EXPR and generate
+   a Constraint_Error if the field is not found in the record.  Don't fold the
+   result if NO_FOLD is true.  */
+extern tree build_component_ref (tree record, tree field, bool no_fold);
 
 /* Build a GCC tree to call an allocation or deallocation function.
    If GNU_OBJ is nonzero, it is an object to deallocate.  Otherwise,
@@ -945,19 +931,6 @@ extern tree build_allocator (tree type, tree init, tree result_type,
                              Entity_Id gnat_proc, Entity_Id gnat_pool,
                              Node_Id gnat_node, bool);
 
-/* Fill in a VMS descriptor of GNU_TYPE for GNU_EXPR and return the result.
-   GNAT_ACTUAL is the actual parameter for which the descriptor is built.  */
-extern tree fill_vms_descriptor (tree gnu_type, tree gnu_expr,
-                                 Node_Id gnat_actual);
-
-/* Convert GNU_EXPR, a pointer to a VMS descriptor, to GNU_TYPE, a regular
-   pointer or fat pointer type.  GNU_EXPR_ALT_TYPE is the alternate (32-bit)
-   pointer type of GNU_EXPR.  GNAT_SUBPROG is the subprogram to which the
-   descriptor is passed.  */
-extern tree convert_vms_descriptor (tree gnu_type, tree gnu_expr,
-				    tree gnu_expr_alt_type,
-				    Entity_Id gnat_subprog);
-
 /* Indicate that we need to take the address of T and that it therefore
    should not be allocated in a register.  Returns true if successful.  */
 extern bool gnat_mark_addressable (tree t);
@@ -973,9 +946,21 @@ extern tree gnat_protect_expr (tree exp);
 
 /* This is equivalent to stabilize_reference in tree.c but we know how to
    handle our own nodes and we take extra arguments.  FORCE says whether to
-   force evaluation of everything.  We set SUCCESS to true unless we walk
-   through something we don't know how to stabilize.  */
-extern tree gnat_stabilize_reference (tree ref, bool force, bool *success);
+   force evaluation of everything in REF.  INIT is set to the first arm of
+   a COMPOUND_EXPR present in REF, if any.  */
+extern tree gnat_stabilize_reference (tree ref, bool force, tree *init);
+
+/* Rewrite reference REF and call FUNC on each expression within REF in the
+   process.  DATA is passed unmodified to FUNC.  INIT is set to the first
+   arm of a COMPOUND_EXPR present in REF, if any.  */
+typedef tree (*rewrite_fn) (tree, void *);
+extern tree gnat_rewrite_reference (tree ref, rewrite_fn func, void *data,
+				    tree *init);
+
+/* This is equivalent to get_inner_reference in expr.c but it returns the
+   ultimate containing object only if the reference (lvalue) is constant,
+   i.e. if it doesn't depend on the context in which it is evaluated.  */
+extern tree get_inner_constant_reference (tree exp);
 
 /* If EXPR is an expression that is invariant in the current function, in the
    sense that it can be evaluated anywhere in the function and any number of
@@ -1004,6 +989,23 @@ extern int fp_prec_to_size (int prec);
 /* Return the precision of the FP mode with size SIZE.  */
 extern int fp_size_to_prec (int size);
 
+/* Return whether GNAT_NODE is a defining identifier for a renaming that comes
+   from the parameter association for the instantiation of a generic.  We do
+   not want to emit source location for them: the code generated for their
+   initialization is likely to disturb debugging.  */
+extern bool renaming_from_generic_instantiation_p (Node_Id gnat_node);
+
+/* Try to process all nodes in the deferred context queue.  Keep in the queue
+   the ones that cannot be processed yet, remove the other ones.  If FORCE is
+   true, force the processing for all nodes, use the global context when nodes
+   don't have a GNU translation.  */
+extern void process_deferred_decl_context (bool force);
+
+/* Return the innermost scope, starting at GNAT_NODE, we are be interested in
+   the debug info, or Empty if there is no such scope.  If not NULL, set
+   IS_SUBPROGRAM to whether the returned entity is a subprogram.  */
+extern Entity_Id get_debug_scope (Node_Id gnat_node, bool *is_subprogram);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1018,18 +1020,15 @@ extern Pos get_target_short_size (void);
 extern Pos get_target_int_size (void);
 extern Pos get_target_long_size (void);
 extern Pos get_target_long_long_size (void);
-extern Pos get_target_float_size (void);
-extern Pos get_target_double_size (void);
-extern Pos get_target_long_double_size (void);
 extern Pos get_target_pointer_size (void);
 extern Pos get_target_maximum_default_alignment (void);
 extern Pos get_target_system_allocator_alignment (void);
 extern Pos get_target_maximum_allowed_alignment (void);
 extern Pos get_target_maximum_alignment (void);
-extern Nat get_float_words_be (void);
-extern Nat get_words_be (void);
-extern Nat get_bytes_be (void);
-extern Nat get_bits_be (void);
+extern Nat get_target_float_words_be (void);
+extern Nat get_target_words_be (void);
+extern Nat get_target_bytes_be (void);
+extern Nat get_target_bits_be (void);
 extern Nat get_target_strict_alignment (void);
 extern Nat get_target_double_float_alignment (void);
 extern Nat get_target_double_scalar_alignment (void);
@@ -1037,27 +1036,11 @@ extern Nat get_target_double_scalar_alignment (void);
 /* This function is called by the front-end to enumerate all the supported
    modes for the machine, as well as some predefined C types.  */
 extern void enumerate_modes (void (*f) (const char *, int, int, int, int, int,
-					int));
+					int, int));
 
 #ifdef __cplusplus
 }
 #endif
-
-/* Let code know whether we are targetting VMS without need of
-   intrusive preprocessor directives.  */
-#ifndef TARGET_ABI_OPEN_VMS
-#define TARGET_ABI_OPEN_VMS 0
-#endif
-
-/* VMS option set by default, when clear forces 32bit mallocs and 32bit
-   Descriptors.  Always used in combination with TARGET_ABI_OPEN_VMS
-   so no effect on non-VMS systems.  */
-#if TARGET_ABI_OPEN_VMS == 0
-#define flag_vms_malloc64 0
-#endif
-
-/* Convenient shortcuts.  */
-#define VECTOR_TYPE_P(TYPE) (TREE_CODE (TYPE) == VECTOR_TYPE)
 
 /* If EXP's type is a VECTOR_TYPE, return EXP converted to the associated
    TYPE_REPRESENTATIVE_ARRAY.  */
@@ -1073,8 +1056,51 @@ maybe_vector_array (tree exp)
   return exp;
 }
 
+/* Return the smallest power of 2 larger than X.  */
+
 static inline unsigned HOST_WIDE_INT
 ceil_pow2 (unsigned HOST_WIDE_INT x)
 {
   return (unsigned HOST_WIDE_INT) 1 << (floor_log2 (x - 1) + 1);
+}
+
+/* Return true if EXP, a CALL_EXPR, is an atomic load.  */
+
+static inline bool
+call_is_atomic_load (tree exp)
+{
+  tree fndecl = get_callee_fndecl (exp);
+
+  if (!(fndecl && DECL_BUILT_IN_CLASS (fndecl) == BUILT_IN_NORMAL))
+    return false;
+
+  enum built_in_function code = DECL_FUNCTION_CODE (fndecl);
+  return BUILT_IN_ATOMIC_LOAD_N <= code && code <= BUILT_IN_ATOMIC_LOAD_16;
+}
+
+/* Return true if TYPE is padding a self-referential type.  */
+
+static inline bool
+type_is_padding_self_referential (tree type)
+{
+  if (!TYPE_IS_PADDING_P (type))
+    return false;
+
+  return CONTAINS_PLACEHOLDER_P (DECL_SIZE (TYPE_FIELDS (type)));
+}
+
+/* Return true if a function returning TYPE doesn't return a fixed size.  */
+
+static inline bool
+return_type_with_variable_size_p (tree type)
+{
+  if (TREE_CODE (TYPE_SIZE (type)) != INTEGER_CST)
+    return true;
+
+  /* Return true for an unconstrained type with default discriminant, see
+     the E_Subprogram_Type case of gnat_to_gnu_entity.  */
+  if (type_is_padding_self_referential (type))
+    return true;
+
+  return false;
 }

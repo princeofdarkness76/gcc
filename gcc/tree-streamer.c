@@ -1,7 +1,7 @@
 /* Miscellaneous utilities for tree streaming.  Things that are used
    in both input and output are here.
 
-   Copyright (C) 2011-2013 Free Software Foundation, Inc.
+   Copyright (C) 2011-2015 Free Software Foundation, Inc.
    Contributed by Diego Novillo <dnovillo@google.com>
 
 This file is part of GCC.
@@ -23,8 +23,19 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "streamer-hooks.h"
+#include "backend.h"
+#include "tree.h"
+#include "gimple.h"
 #include "tree-streamer.h"
+#include "cgraph.h"
+
+/* Table indexed by machine_mode, used for 2 different purposes.
+   During streaming out we record there non-zero value for all modes
+   that were streamed out.
+   During streaming in, we translate the on the disk mode using this
+   table.  For normal LTO it is set to identity, for ACCEL_COMPILER
+   depending on the mode_table content.  */
+unsigned char streamer_mode_table[1 << 8];
 
 /* Check that all the TS_* structures handled by the streamer_write_* and
    streamer_read_* routines are exactly ALL the structures defined in
@@ -94,20 +105,19 @@ static void
 streamer_tree_cache_add_to_node_array (struct streamer_tree_cache_d *cache,
 				       unsigned ix, tree t, hashval_t hash)
 {
-  /* Make sure we're either replacing an old element or
-     appending consecutively.  */
-  gcc_assert (ix <= cache->nodes.length ());
-
-  if (ix == cache->nodes.length ())
+  /* We're either replacing an old element or appending consecutively.  */
+  if (cache->nodes.exists ())
     {
-      cache->nodes.safe_push (t);
-      if (cache->hashes.exists ())
-	cache->hashes.safe_push (hash);
+      if (cache->nodes.length () == ix)
+	cache->nodes.safe_push (t);
+      else
+	cache->nodes[ix] = t;
     }
-  else
+  if (cache->hashes.exists ())
     {
-      cache->nodes[ix] = t;
-      if (cache->hashes.exists ())
+      if (cache->hashes.length () == ix)
+	cache->hashes.safe_push (hash);
+      else
 	cache->hashes[ix] = hash;
     }
 }
@@ -128,28 +138,23 @@ streamer_tree_cache_insert_1 (struct streamer_tree_cache_d *cache,
 			      tree t, hashval_t hash, unsigned *ix_p,
 			      bool insert_at_next_slot_p)
 {
-  unsigned *slot;
-  unsigned ix;
   bool existed_p;
 
   gcc_assert (t);
 
-  slot = cache->node_map->insert (t, &existed_p);
+  unsigned int &ix = cache->node_map->get_or_insert (t, &existed_p);
   if (!existed_p)
     {
       /* Determine the next slot to use in the cache.  */
       if (insert_at_next_slot_p)
-	ix = cache->nodes.length ();
+	ix = cache->next_idx++;
       else
 	ix = *ix_p;
-       *slot = ix;
 
       streamer_tree_cache_add_to_node_array (cache, ix, t, hash);
     }
   else
     {
-      ix = *slot;
-
       if (!insert_at_next_slot_p && ix != *ix_p)
 	{
 	  /* If the caller wants to insert T at a specific slot
@@ -157,7 +162,6 @@ streamer_tree_cache_insert_1 (struct streamer_tree_cache_d *cache,
 	     the requested location slot.  */
 	  ix = *ix_p;
 	  streamer_tree_cache_add_to_node_array (cache, ix, t, hash);
-	  *slot = ix;
 	}
     }
 
@@ -204,7 +208,7 @@ void
 streamer_tree_cache_append (struct streamer_tree_cache_d *cache,
 			    tree t, hashval_t hash)
 {
-  unsigned ix = cache->nodes.length ();
+  unsigned ix = cache->next_idx++;
   if (!cache->node_map)
     streamer_tree_cache_add_to_node_array (cache, ix, t, hash);
   else
@@ -225,7 +229,7 @@ streamer_tree_cache_lookup (struct streamer_tree_cache_d *cache, tree t,
 
   gcc_assert (t);
 
-  slot = cache->node_map->contains (t);
+  slot = cache->node_map->get (t);
   if (slot == NULL)
     {
       retval = false;
@@ -311,7 +315,25 @@ preload_common_nodes (struct streamer_tree_cache_d *cache)
     /* Skip boolean type and constants, they are frontend dependent.  */
     if (i != TI_BOOLEAN_TYPE
 	&& i != TI_BOOLEAN_FALSE
-	&& i != TI_BOOLEAN_TRUE)
+	&& i != TI_BOOLEAN_TRUE
+	/* MAIN_IDENTIFIER is not always initialized by Fortran FE.  */
+	&& i != TI_MAIN_IDENTIFIER
+	/* PID_TYPE is initialized only by C family front-ends.  */
+	&& i != TI_PID_TYPE
+	/* Skip optimization and target option nodes; they depend on flags.  */
+	&& i != TI_OPTIMIZATION_DEFAULT
+	&& i != TI_OPTIMIZATION_CURRENT
+	&& i != TI_TARGET_OPTION_DEFAULT
+	&& i != TI_TARGET_OPTION_CURRENT
+	&& i != TI_CURRENT_TARGET_PRAGMA
+	&& i != TI_CURRENT_OPTIMIZE_PRAGMA
+	/* Skip va_list* related nodes if offloading.  For native LTO
+	   we want them to be merged for the stdarg pass, for offloading
+	   they might not be identical between host and offloading target.  */
+	&& (!lto_stream_offload_p
+	    || (i != TI_VA_LIST_TYPE
+		&& i != TI_VA_LIST_GPR_COUNTER_FIELD
+		&& i != TI_VA_LIST_FPR_COUNTER_FIELD)))
       record_common_node (cache, global_trees[i]);
 }
 
@@ -319,15 +341,17 @@ preload_common_nodes (struct streamer_tree_cache_d *cache)
 /* Create a cache of pickled nodes.  */
 
 struct streamer_tree_cache_d *
-streamer_tree_cache_create (bool with_hashes, bool with_map)
+streamer_tree_cache_create (bool with_hashes, bool with_map, bool with_vec)
 {
   struct streamer_tree_cache_d *cache;
 
   cache = XCNEW (struct streamer_tree_cache_d);
 
   if (with_map)
-    cache->node_map = new pointer_map<unsigned>;
-  cache->nodes.create (165);
+    cache->node_map = new hash_map<tree, unsigned> (251);
+  cache->next_idx = 0;
+  if (with_vec)
+    cache->nodes.create (165);
   if (with_hashes)
     cache->hashes.create (165);
 
@@ -348,8 +372,8 @@ streamer_tree_cache_delete (struct streamer_tree_cache_d *c)
   if (c == NULL)
     return;
 
-  if (c->node_map)
-    delete c->node_map;
+  delete c->node_map;
+  c->node_map = NULL;
   c->nodes.release ();
   c->hashes.release ();
   free (c);

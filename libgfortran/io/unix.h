@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2013 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2015 Free Software Foundation, Inc.
    Contributed by Janne Blomqvist
 
 This file is part of the GNU Fortran runtime library (libgfortran).
@@ -38,6 +38,7 @@ struct stream_vtable
   int (* const trunc) (struct stream *, gfc_offset);
   int (* const flush) (struct stream *);
   int (* const close) (struct stream *);
+  int (* const markeor) (struct stream *);
 };
 
 struct stream
@@ -94,6 +95,12 @@ sclose (stream * s)
   return s->vptr->close (s);
 }
 
+static inline int
+smarkeor (stream * s)
+{
+  return s->vptr->markeor (s);
+}
+
 
 extern int compare_files (stream *, stream *);
 internal_proto(compare_files);
@@ -134,9 +141,6 @@ internal_proto(compare_file_filename);
 extern gfc_unit *find_file (const char *file, gfc_charlen_type file_len);
 internal_proto(find_file);
 
-extern int delete_file (gfc_unit *);
-internal_proto(delete_file);
-
 extern int file_exists (const char *file, gfc_charlen_type file_len);
 internal_proto(file_exists);
 
@@ -167,9 +171,6 @@ internal_proto(inquire_readwrite);
 extern void flush_if_preconnected (stream *);
 internal_proto(flush_if_preconnected);
 
-extern int flush_if_unbuffered (stream*);
-internal_proto(flush_if_unbuffered);
-
 extern int stream_isatty (stream *);
 internal_proto(stream_isatty);
 
@@ -184,9 +185,5 @@ internal_proto(stream_isatty);
 
 extern int stream_ttyname (stream *, char *, size_t);
 internal_proto(stream_ttyname);
-
-extern int unpack_filename (char *, const char *, int);
-internal_proto(unpack_filename);
-
 
 #endif

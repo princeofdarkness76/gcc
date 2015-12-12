@@ -6,12 +6,14 @@ package png
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
 	"io"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -30,12 +32,21 @@ var filenames = []string{
 	"basn3p01",
 	"basn3p02",
 	"basn3p04",
+	"basn3p04-31i",
 	"basn3p08",
 	"basn3p08-trns",
 	"basn4a08",
 	"basn4a16",
 	"basn6a08",
 	"basn6a16",
+}
+
+var filenamesPaletted = []string{
+	"basn3p01",
+	"basn3p02",
+	"basn3p04",
+	"basn3p08",
+	"basn3p08-trns",
 }
 
 var filenamesShort = []string{
@@ -178,6 +189,13 @@ func sng(w io.WriteCloser, filename string, png image.Image) {
 					c = 0
 				}
 			}
+			if c != 0 {
+				for c != 8/bitdepth {
+					b = b << uint(bitdepth)
+					c++
+				}
+				fmt.Fprintf(w, "%02x", b)
+			}
 		}
 		io.WriteString(w, "\n")
 	}
@@ -208,7 +226,7 @@ func TestReader(t *testing.T) {
 		}
 
 		piper, pipew := io.Pipe()
-		pb := bufio.NewReader(piper)
+		pb := bufio.NewScanner(piper)
 		go sng(pipew, fn, img)
 		defer piper.Close()
 
@@ -219,7 +237,7 @@ func TestReader(t *testing.T) {
 			continue
 		}
 		defer sf.Close()
-		sb := bufio.NewReader(sf)
+		sb := bufio.NewScanner(sf)
 		if err != nil {
 			t.Error(fn, err)
 			continue
@@ -227,23 +245,27 @@ func TestReader(t *testing.T) {
 
 		// Compare the two, in SNG format, line by line.
 		for {
-			ps, perr := pb.ReadString('\n')
-			ss, serr := sb.ReadString('\n')
-			if perr == io.EOF && serr == io.EOF {
+			pdone := !pb.Scan()
+			sdone := !sb.Scan()
+			if pdone && sdone {
 				break
 			}
-			if perr != nil {
-				t.Error(fn, perr)
+			if pdone || sdone {
+				t.Errorf("%s: Different sizes", fn)
 				break
 			}
-			if serr != nil {
-				t.Error(fn, serr)
-				break
-			}
+			ps := pb.Text()
+			ss := sb.Text()
 			if ps != ss {
 				t.Errorf("%s: Mismatch\n%sversus\n%s\n", fn, ps, ss)
 				break
 			}
+		}
+		if pb.Err() != nil {
+			t.Error(fn, pb.Err())
+		}
+		if sb.Err() != nil {
+			t.Error(fn, sb.Err())
 		}
 	}
 }
@@ -270,6 +292,118 @@ func TestReaderError(t *testing.T) {
 		}
 		if img != nil {
 			t.Errorf("decoding %s: have image + error", tt.file)
+		}
+	}
+}
+
+func TestPalettedDecodeConfig(t *testing.T) {
+	for _, fn := range filenamesPaletted {
+		f, err := os.Open("testdata/pngsuite/" + fn + ".png")
+		if err != nil {
+			t.Errorf("%s: open failed: %v", fn, err)
+			continue
+		}
+		defer f.Close()
+		cfg, err := DecodeConfig(f)
+		if err != nil {
+			t.Errorf("%s: %v", fn, err)
+			continue
+		}
+		pal, ok := cfg.ColorModel.(color.Palette)
+		if !ok {
+			t.Errorf("%s: expected paletted color model", fn)
+			continue
+		}
+		if pal == nil {
+			t.Errorf("%s: palette not initialized", fn)
+			continue
+		}
+	}
+}
+
+func TestInterlaced(t *testing.T) {
+	a, err := readPNG("testdata/gray-gradient.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := readPNG("testdata/gray-gradient.interlaced.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(a, b) {
+		t.Fatalf("decodings differ:\nnon-interlaced:\n%#v\ninterlaced:\n%#v", a, b)
+	}
+}
+
+func TestIncompleteIDATOnRowBoundary(t *testing.T) {
+	// The following is an invalid 1x2 grayscale PNG image. The header is OK,
+	// but the zlib-compressed IDAT payload contains two bytes "\x02\x00",
+	// which is only one row of data (the leading "\x02" is a row filter).
+	const (
+		ihdr = "\x00\x00\x00\x0dIHDR\x00\x00\x00\x01\x00\x00\x00\x02\x08\x00\x00\x00\x00\xbc\xea\xe9\xfb"
+		idat = "\x00\x00\x00\x0eIDAT\x78\x9c\x62\x62\x00\x04\x00\x00\xff\xff\x00\x06\x00\x03\xfa\xd0\x59\xae"
+		iend = "\x00\x00\x00\x00IEND\xae\x42\x60\x82"
+	)
+	_, err := Decode(strings.NewReader(pngHeader + ihdr + idat + iend))
+	if err == nil {
+		t.Fatal("got nil error, want non-nil")
+	}
+}
+
+func TestMultipletRNSChunks(t *testing.T) {
+	/*
+		The following is a valid 1x1 paletted PNG image with a 1-element palette
+		containing color.NRGBA{0xff, 0x00, 0x00, 0x7f}:
+			0000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
+			0000010: 0000 0001 0000 0001 0803 0000 0028 cb34  .............(.4
+			0000020: bb00 0000 0350 4c54 45ff 0000 19e2 0937  .....PLTE......7
+			0000030: 0000 0001 7452 4e53 7f80 5cb4 cb00 0000  ....tRNS..\.....
+			0000040: 0e49 4441 5478 9c62 6200 0400 00ff ff00  .IDATx.bb.......
+			0000050: 0600 03fa d059 ae00 0000 0049 454e 44ae  .....Y.....IEND.
+			0000060: 4260 82                                  B`.
+		Dropping the tRNS chunk makes that color's alpha 0xff instead of 0x7f.
+	*/
+	const (
+		ihdr = "\x00\x00\x00\x0dIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x03\x00\x00\x00\x28\xcb\x34\xbb"
+		plte = "\x00\x00\x00\x03PLTE\xff\x00\x00\x19\xe2\x09\x37"
+		trns = "\x00\x00\x00\x01tRNS\x7f\x80\x5c\xb4\xcb"
+		idat = "\x00\x00\x00\x0eIDAT\x78\x9c\x62\x62\x00\x04\x00\x00\xff\xff\x00\x06\x00\x03\xfa\xd0\x59\xae"
+		iend = "\x00\x00\x00\x00IEND\xae\x42\x60\x82"
+	)
+	for i := 0; i < 4; i++ {
+		var b []byte
+		b = append(b, pngHeader...)
+		b = append(b, ihdr...)
+		b = append(b, plte...)
+		for j := 0; j < i; j++ {
+			b = append(b, trns...)
+		}
+		b = append(b, idat...)
+		b = append(b, iend...)
+
+		var want color.Color
+		m, err := Decode(bytes.NewReader(b))
+		switch i {
+		case 0:
+			if err != nil {
+				t.Errorf("%d tRNS chunks: %v", i, err)
+				continue
+			}
+			want = color.RGBA{0xff, 0x00, 0x00, 0xff}
+		case 1:
+			if err != nil {
+				t.Errorf("%d tRNS chunks: %v", i, err)
+				continue
+			}
+			want = color.NRGBA{0xff, 0x00, 0x00, 0x7f}
+		default:
+			if err == nil {
+				t.Errorf("%d tRNS chunks: got nil error, want non-nil", i)
+			}
+			continue
+		}
+		if got := m.At(0, 0); got != want {
+			t.Errorf("%d tRNS chunks: got %T %v, want %T %v", i, got, got, want, want)
 		}
 	}
 }
@@ -310,4 +444,8 @@ func BenchmarkDecodePaletted(b *testing.B) {
 
 func BenchmarkDecodeRGB(b *testing.B) {
 	benchmarkDecode(b, "testdata/benchRGB.png", 4)
+}
+
+func BenchmarkDecodeInterlacing(b *testing.B) {
+	benchmarkDecode(b, "testdata/benchRGB-interlace.png", 4)
 }

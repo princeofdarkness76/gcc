@@ -4,18 +4,31 @@
 
 // Package ecdsa implements the Elliptic Curve Digital Signature Algorithm, as
 // defined in FIPS 186-3.
+//
+// This implementation  derives the nonce from an AES-CTR CSPRNG keyed by
+// ChopMD(256, SHA2-512(priv.D || entropy || hash)). The CSPRNG key is IRO by
+// a result of Coron; the AES-CTR stream is IRO under standard assumptions.
 package ecdsa
 
 // References:
 //   [NSA]: Suite B implementer's guide to FIPS 186-3,
 //     http://www.nsa.gov/ia/_files/ecdsa.pdf
 //   [SECG]: SECG, SEC1
-//     http://www.secg.org/download/aid-780/sec1-v2.pdf
+//     http://www.secg.org/sec1-v2.pdf
 
 import (
+	"crypto"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/elliptic"
+	"crypto/sha512"
+	"encoding/asn1"
 	"io"
 	"math/big"
+)
+
+const (
+	aesIV = "IV for ECDSA CTR"
 )
 
 // PublicKey represents an ECDSA public key.
@@ -28,6 +41,28 @@ type PublicKey struct {
 type PrivateKey struct {
 	PublicKey
 	D *big.Int
+}
+
+type ecdsaSignature struct {
+	R, S *big.Int
+}
+
+// Public returns the public key corresponding to priv.
+func (priv *PrivateKey) Public() crypto.PublicKey {
+	return &priv.PublicKey
+}
+
+// Sign signs msg with priv, reading randomness from rand. This method is
+// intended to support keys where the private part is kept in, for example, a
+// hardware module. Common uses should use the Sign function in this package
+// directly.
+func (priv *PrivateKey) Sign(rand io.Reader, msg []byte, opts crypto.SignerOpts) ([]byte, error) {
+	r, s, err := Sign(rand, priv, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return asn1.Marshal(ecdsaSignature{r, s})
 }
 
 var one = new(big.Int).SetInt64(1)
@@ -49,7 +84,7 @@ func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) 
 	return
 }
 
-// GenerateKey generates a public&private key pair.
+// GenerateKey generates a public and private key pair.
 func GenerateKey(c elliptic.Curve, rand io.Reader) (priv *PrivateKey, err error) {
 	k, err := randFieldElement(c, rand)
 	if err != nil {
@@ -84,11 +119,53 @@ func hashToInt(hash []byte, c elliptic.Curve) *big.Int {
 	return ret
 }
 
+// fermatInverse calculates the inverse of k in GF(P) using Fermat's method.
+// This has better constant-time properties than Euclid's method (implemented
+// in math/big.Int.ModInverse) although math/big itself isn't strictly
+// constant-time so it's not perfect.
+func fermatInverse(k, N *big.Int) *big.Int {
+	two := big.NewInt(2)
+	nMinus2 := new(big.Int).Sub(N, two)
+	return new(big.Int).Exp(k, nMinus2, N)
+}
+
 // Sign signs an arbitrary length hash (which should be the result of hashing a
 // larger message) using the private key, priv. It returns the signature as a
 // pair of integers. The security of the private key depends on the entropy of
 // rand.
 func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error) {
+	// Get max(log2(q) / 2, 256) bits of entropy from rand.
+	entropylen := (priv.Curve.Params().BitSize + 7) / 16
+	if entropylen > 32 {
+		entropylen = 32
+	}
+	entropy := make([]byte, entropylen)
+	_, err = io.ReadFull(rand, entropy)
+	if err != nil {
+		return
+	}
+
+	// Initialize an SHA-512 hash context; digest ...
+	md := sha512.New()
+	md.Write(priv.D.Bytes()) // the private key,
+	md.Write(entropy)        // the entropy,
+	md.Write(hash)           // and the input hash;
+	key := md.Sum(nil)[:32]  // and compute ChopMD-256(SHA-512),
+	// which is an indifferentiable MAC.
+
+	// Create an AES-CTR instance to use as a CSPRNG.
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Create a CSPRNG that xors a stream of zeros with
+	// the output of the AES-CTR instance.
+	csprng := cipher.StreamReader{
+		R: zeroReader,
+		S: cipher.NewCTR(block, []byte(aesIV)),
+	}
+
 	// See [NSA] 3.4.1
 	c := priv.PublicKey.Curve
 	N := c.Params().N
@@ -96,13 +173,13 @@ func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err err
 	var k, kInv *big.Int
 	for {
 		for {
-			k, err = randFieldElement(c, rand)
+			k, err = randFieldElement(c, csprng)
 			if err != nil {
 				r = nil
 				return
 			}
 
-			kInv = new(big.Int).ModInverse(k, N)
+			kInv = fermatInverse(k, N)
 			r, _ = priv.Curve.ScalarBaseMult(k.Bytes())
 			r.Mod(r, N)
 			if r.Sign() != 0 {
@@ -123,8 +200,8 @@ func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err err
 	return
 }
 
-// Verify verifies the signature in r, s of hash using the public key, pub. It
-// returns true iff the signature is valid.
+// Verify verifies the signature in r, s of hash using the public key, pub. Its
+// return value records whether the signature is valid.
 func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool {
 	// See [NSA] 3.4.2
 	c := pub.Curve
@@ -153,3 +230,17 @@ func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool {
 	x.Mod(x, N)
 	return x.Cmp(r) == 0
 }
+
+type zr struct {
+	io.Reader
+}
+
+// Read replaces the contents of dst with zeros.
+func (z *zr) Read(dst []byte) (n int, err error) {
+	for i := range dst {
+		dst[i] = 0
+	}
+	return len(dst), nil
+}
+
+var zeroReader = &zr{}

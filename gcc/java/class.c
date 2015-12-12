@@ -1,5 +1,5 @@
 /* Functions related to building classes and their related objects.
-   Copyright (C) 1996-2013 Free Software Foundation, Inc.
+   Copyright (C) 1996-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -26,20 +26,20 @@ The Free Software Foundation is independent of Sun Microsystems, Inc.  */
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+#include "target.h"
+#include "function.h"
 #include "tree.h"
-#include "flags.h"
+#include "stringpool.h"
+#include "diagnostic-core.h"
+#include "fold-const.h"
+#include "stor-layout.h"
+#include "varasm.h"
 #include "java-tree.h"
 #include "jcf.h"
-#include "obstack.h"
-#include "diagnostic-core.h"
 #include "toplev.h"
 #include "output.h" /* for switch_to_section and get_section */
 #include "parse.h"
-#include "function.h"
-#include "ggc.h"
-#include "cgraph.h"
 #include "tree-iterator.h"
-#include "target.h"
 
 static tree make_method_value (tree);
 static tree build_java_method_type (tree, tree, int);
@@ -101,10 +101,6 @@ static GTY(()) vec<tree, va_gc> *registered_class;
 /* A tree that returns the address of the class$ of the class
    currently being compiled.  */
 static GTY(()) tree this_classdollar;
-
-/* A list of static class fields.  This is to emit proper debug
-   info for them.  */
-vec<tree, va_gc> *pending_static_fields;
 
 /* Return the node that most closely represents the class whose name
    is IDENT.  Start the search from NODE (followed by its siblings).
@@ -761,8 +757,7 @@ add_method_1 (tree this_class, int access_flags, tree name, tree function_type)
   fndecl = build_decl (input_location, FUNCTION_DECL, name, method_type);
   DECL_CONTEXT (fndecl) = this_class;
 
-  DECL_LANG_SPECIFIC (fndecl)
-    = ggc_alloc_cleared_lang_decl(sizeof (struct lang_decl));
+  DECL_LANG_SPECIFIC (fndecl) = ggc_cleared_alloc<struct lang_decl> ();
   DECL_LANG_SPECIFIC (fndecl)->desc = LANG_DECL_FUNC;
 
   /* Initialize the static initializer test table.  */
@@ -772,18 +767,13 @@ add_method_1 (tree this_class, int access_flags, tree name, tree function_type)
   /* Initialize the initialized (static) class table. */
   if (access_flags & ACC_STATIC)
     DECL_FUNCTION_INITIALIZED_CLASS_TABLE (fndecl) =
-      htab_create_ggc (50, htab_hash_pointer, htab_eq_pointer, NULL);
+      hash_table<ict_hasher>::create_ggc (50);
 
   DECL_CHAIN (fndecl) = TYPE_METHODS (this_class);
   TYPE_METHODS (this_class) = fndecl;
 
-  /* If pointers to member functions use the least significant bit to
-     indicate whether a function is virtual, ensure a pointer
-     to this function will have that bit clear.  */
-  if (TARGET_PTRMEMFUNC_VBIT_LOCATION == ptrmemfunc_vbit_in_pfn
-      && !(access_flags & ACC_STATIC)
-      && DECL_ALIGN (fndecl) < 2 * BITS_PER_UNIT)
-    DECL_ALIGN (fndecl) = 2 * BITS_PER_UNIT;
+  if (!(access_flags & ACC_STATIC))
+    DECL_ALIGN (fndecl) = MINIMUM_METHOD_BOUNDARY;
 
   /* Notice that this is a finalizer and update the class type
      accordingly. This is used to optimize instance allocation. */
@@ -830,7 +820,7 @@ add_method (tree this_class, int access_flags, tree name, tree method_sig)
     = (const unsigned char *) IDENTIFIER_POINTER (method_sig);
 
   if (sig[0] != '(')
-    fatal_error ("bad method signature");
+    fatal_error (input_location, "bad method signature");
 
   function_type = get_type_from_signature (method_sig);
   fndecl = add_method_1 (this_class, access_flags, name, function_type);
@@ -875,8 +865,6 @@ add_field (tree klass, tree name, tree field_type, int flags)
       /* Considered external unless we are compiling it into this
 	 object file.  */
       DECL_EXTERNAL (field) = (is_compiled_class (klass) != 2);
-      if (!DECL_EXTERNAL (field))
-	vec_safe_push (pending_static_fields, field);
     }
 
   return field;
@@ -917,7 +905,7 @@ hashUtf8String (const char *str, int len)
 {
   const unsigned char* ptr = (const unsigned char*) str;
   const unsigned char *limit = ptr + len;
-  int32 hash = 0;
+  uint32 hash = 0;
   for (; ptr < limit;)
     {
       int ch = UTF8_GET (ptr, limit);
@@ -989,7 +977,7 @@ build_utf8_ref (tree name)
 		       | SECTION_MERGE | (SECTION_ENTSIZE & decl_size));
 	  sprintf (buf, ".rodata.jutf8.%d", decl_size);
 	  switch_to_section (get_section (buf, flags, NULL));
-	  DECL_SECTION_NAME (decl) = build_string (strlen (buf), buf);
+	  set_decl_section_name (decl, buf);
 	}
     }
 
@@ -1045,7 +1033,7 @@ build_static_class_ref (tree type)
       DECL_CONTEXT (decl) = type;
 
       /* ??? We want to preserve the DECL_CONTEXT we set just above,
-	 that that means not calling pushdecl_top_level.  */
+	 that means not calling pushdecl_top_level.  */
       IDENTIFIER_GLOBAL_VALUE (decl_name) = decl;
     }
 
@@ -1065,14 +1053,13 @@ build_classdollar_field (tree type)
       decl 
 	= build_decl (input_location,
 		      VAR_DECL, decl_name, 
-		      (build_type_variant 
+		      (build_qualified_type
 		       (build_pointer_type 
-			(build_type_variant (class_type_node, 
-					     /* const */ 1, 0)),
-			/* const */ 1, 0)));
+			(build_qualified_type (class_type_node,
+					       TYPE_QUAL_CONST)),
+			TYPE_QUAL_CONST)));
       TREE_STATIC (decl) = 1;
       TREE_CONSTANT (decl) = 1;
-      TREE_READONLY (decl) = 1;
       TREE_PUBLIC (decl) = 1;
       java_hide_decl (decl);
       DECL_IGNORED_P (decl) = 1;
@@ -1576,14 +1563,14 @@ get_dispatch_vector (tree type)
       HOST_WIDE_INT i;
       tree method;
       tree super = CLASSTYPE_SUPER (type);
-      HOST_WIDE_INT nvirtuals = tree_low_cst (TYPE_NVIRTUALS (type), 0);
+      HOST_WIDE_INT nvirtuals = tree_to_shwi (TYPE_NVIRTUALS (type));
       vtable = make_tree_vec (nvirtuals);
       TYPE_VTABLE (type) = vtable;
       if (super != NULL_TREE)
 	{
 	  tree super_vtable = get_dispatch_vector (super);
 
-	  for (i = tree_low_cst (TYPE_NVIRTUALS (super), 0); --i >= 0; )
+	  for (i = tree_to_shwi (TYPE_NVIRTUALS (super)); --i >= 0; )
 	    TREE_VEC_ELT (vtable, i) = TREE_VEC_ELT (super_vtable, i);
 	}
 
@@ -1592,8 +1579,8 @@ get_dispatch_vector (tree type)
 	{
 	  tree method_index = get_method_index (method);
 	  if (method_index != NULL_TREE
-	      && host_integerp (method_index, 0))
-	    TREE_VEC_ELT (vtable, tree_low_cst (method_index, 0)) = method;
+	      && tree_fits_shwi_p (method_index))
+	    TREE_VEC_ELT (vtable, tree_to_shwi (method_index)) = method;
 	}
     }
 
@@ -2412,7 +2399,7 @@ maybe_layout_super_class (tree super_class, tree this_class ATTRIBUTE_UNUSED)
 }
 
 /* safe_layout_class just makes sure that we can load a class without
-   disrupting the current_class, input_file, input_line, etc, information
+   disrupting the current_class, input_location, etc, information
    about the class processed currently.  */
 
 void
@@ -2803,8 +2790,6 @@ emit_register_classes_in_jcr_section (void)
   cdecl = build_decl (UNKNOWN_LOCATION,
 		      VAR_DECL, get_identifier ("_Jv_JCR_SECTION_data"),
 		      class_array_type);
-  DECL_SECTION_NAME (cdecl) = build_string (strlen (JCR_SECTION_NAME),
-					    JCR_SECTION_NAME);
   DECL_ALIGN (cdecl) = POINTER_SIZE;
   DECL_USER_ALIGN (cdecl) = 1;
   DECL_INITIAL (cdecl) = build_constructor (class_array_type, init);
@@ -2815,6 +2800,7 @@ emit_register_classes_in_jcr_section (void)
   DECL_ARTIFICIAL (cdecl) = 1;
   DECL_IGNORED_P (cdecl) = 1;
   DECL_PRESERVE_P (cdecl) = 1;
+  set_decl_section_name (cdecl, JCR_SECTION_NAME);
   pushdecl_top_level (cdecl);
   relayout_decl (cdecl);
   rest_of_decl_compilation (cdecl, 1, 0);
@@ -3069,14 +3055,12 @@ build_assertion_table_entry (tree code, tree op1, tree op2)
 /* Add an entry to the type assertion table. Callback used during hashtable
    traversal.  */
 
-static int
-add_assertion_table_entry (void **htab_entry, void *ptr)
+int
+add_assertion_table_entry (type_assertion **slot, vec<constructor_elt, va_gc> **v)
 {
   tree entry;
   tree code_val, op1_utf8, op2_utf8;
-  vec<constructor_elt, va_gc> **v
-      = ((vec<constructor_elt, va_gc> **) ptr);
-  type_assertion *as = (type_assertion *) *htab_entry;
+  type_assertion *as = *slot;
 
   code_val = build_int_cst (NULL_TREE, as->assertion_code);
 
@@ -3102,11 +3086,12 @@ static tree
 emit_assertion_table (tree klass)
 {
   tree null_entry, ctor, table_decl;
-  htab_t assertions_htab = TYPE_ASSERTIONS (klass);
+  hash_table<type_assertion_hasher> *assertions_htab = TYPE_ASSERTIONS (klass);
   vec<constructor_elt, va_gc> *v = NULL;
 
   /* Iterate through the hash table.  */
-  htab_traverse (assertions_htab, add_assertion_table_entry, &v);
+  assertions_htab
+    ->traverse<vec<constructor_elt, va_gc> **, add_assertion_table_entry> (&v);
 
   /* Finish with a null entry.  */
   null_entry = build_assertion_table_entry (integer_zero_node,
@@ -3145,36 +3130,28 @@ init_class_processing (void)
   gcc_obstack_init (&temporary_obstack);
 }
 
-static hashval_t java_treetreehash_hash (const void *);
-static int java_treetreehash_compare (const void *, const void *);
-
 /* A hash table mapping trees to trees.  Used generally.  */
 
 #define JAVA_TREEHASHHASH_H(t) ((hashval_t)TYPE_UID (t))
 
-static hashval_t
-java_treetreehash_hash (const void *k_p)
+hashval_t
+treetreehasher::hash (treetreehash_entry *k)
 {
-  const struct treetreehash_entry *const k
-    = (const struct treetreehash_entry *) k_p;
   return JAVA_TREEHASHHASH_H (k->key);
 }
 
-static int
-java_treetreehash_compare (const void * k1_p, const void * k2_p)
+bool
+treetreehasher::equal (treetreehash_entry *k1, tree k2)
 {
-  const struct treetreehash_entry *const k1
-    = (const struct treetreehash_entry *) k1_p;
-  const_tree const k2 = (const_tree) k2_p;
   return (k1->key == k2);
 }
 
 tree 
-java_treetreehash_find (htab_t ht, tree t)
+java_treetreehash_find (hash_table<treetreehasher> *ht, tree t)
 {
   struct treetreehash_entry *e;
   hashval_t hv = JAVA_TREEHASHHASH_H (t);
-  e = (struct treetreehash_entry *) htab_find_with_hash (ht, t, hv);
+  e = ht->find_with_hash (t, hv);
   if (e == NULL)
     return NULL;
   else
@@ -3182,29 +3159,27 @@ java_treetreehash_find (htab_t ht, tree t)
 }
 
 tree *
-java_treetreehash_new (htab_t ht, tree t)
+java_treetreehash_new (hash_table<treetreehasher> *ht, tree t)
 {
-  void **e;
   struct treetreehash_entry *tthe;
   hashval_t hv = JAVA_TREEHASHHASH_H (t);
 
-  e = htab_find_slot_with_hash (ht, t, hv, INSERT);
+  treetreehash_entry **e = ht->find_slot_with_hash (t, hv, INSERT);
   if (*e == NULL)
     {
-      tthe = ggc_alloc_cleared_treetreehash_entry ();
+      tthe = ggc_cleared_alloc<treetreehash_entry> ();
       tthe->key = t;
       *e = tthe;
     }
   else
-    tthe = (struct treetreehash_entry *) *e;
+    tthe = *e;
   return &tthe->value;
 }
 
-htab_t
+hash_table<treetreehasher> *
 java_treetreehash_create (size_t size)
 {
-  return htab_create_ggc (size, java_treetreehash_hash,
-			  java_treetreehash_compare, NULL);
+  return hash_table<treetreehasher>::create_ggc (size);
 }
 
 /* Break down qualified IDENTIFIER into package and class-name components.
@@ -3264,19 +3239,6 @@ in_same_package (tree name1, tree name2)
   split_qualified_name (&pkg2, &tmp, name2);
 
   return (pkg1 == pkg2);
-}
-
-/* lang_hooks.decls.final_write_globals: perform final processing on
-   global variables.  */
-
-void
-java_write_globals (void)
-{
-  tree *vec = vec_safe_address (pending_static_fields);
-  int len = vec_safe_length (pending_static_fields);
-  write_global_declarations ();
-  emit_debug_global_declarations (vec, len);
-  vec_free (pending_static_fields);
 }
 
 #include "gt-java-class.h"

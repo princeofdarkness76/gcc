@@ -6,6 +6,8 @@ package reflect_test
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 )
 
@@ -49,4 +51,31 @@ func ExampleMakeFunc() {
 	// Output:
 	// 1 0
 	// 3.14 2.72
+}
+
+func ExampleStructTag() {
+	type S struct {
+		F string `species:"gopher" color:"blue"`
+	}
+
+	s := S{}
+	st := reflect.TypeOf(s)
+	field := st.Field(0)
+	fmt.Println(field.Tag.Get("color"), field.Tag.Get("species"))
+
+	// Output:
+	// blue gopher
+}
+
+func ExampleTypeOf() {
+	// As interface types are only used for static typing, a
+	// common idiom to find the reflection Type for an interface
+	// type Foo is to use a *Foo value.
+	writerType := reflect.TypeOf((*io.Writer)(nil)).Elem()
+
+	fileType := reflect.TypeOf((*os.File)(nil))
+	fmt.Println(fileType.Implements(writerType))
+
+	// Output:
+	// true
 }

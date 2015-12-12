@@ -28,6 +28,14 @@ case "${host}" in
     AC_DEFINE(HAVE_SQRTF)
     ;;
 
+  spu-*-elf*)
+    GLIBCXX_CHECK_COMPILER_FEATURES
+    GLIBCXX_CHECK_LINKER_FEATURES
+    GLIBCXX_CHECK_MATH_SUPPORT
+    GLIBCXX_CHECK_STDLIB_SUPPORT
+    AM_ICONV
+    ;;
+
   *-aix*)
     GLIBCXX_CHECK_LINKER_FEATURES
     GLIBCXX_CHECK_MATH_SUPPORT
@@ -148,6 +156,7 @@ case "${host}" in
     GLIBCXX_CHECK_STDLIB_SUPPORT
     AC_DEFINE(_GLIBCXX_USE_RANDOM_TR1)
     GCC_CHECK_TLS
+    AC_CHECK_FUNCS(__cxa_thread_atexit_impl)
     AM_ICONV
     ;;
   *-mingw32*)
@@ -197,24 +206,16 @@ case "${host}" in
     GLIBCXX_CHECK_STDLIB_SUPPORT
     ;;
   *-solaris*)
-    case "$target" in
-      *-solaris2.9 | *-solaris2.10)
-         GLIBCXX_CHECK_LINKER_FEATURES
-         AC_DEFINE(HAVE_MBSTATE_T)
-         AC_DEFINE(HAVE_FINITE)
-         AC_DEFINE(HAVE_FPCLASS)
-         # All of the dependencies for wide character support are here, so
-         # turn it on. 
-         AC_DEFINE(_GLIBCXX_USE_WCHAR_T) 
-        ;;
-    esac
-    case "$target" in
-      *-*-solaris2.10)
-      # These two C99 functions are present only in Solaris >= 10
-      AC_DEFINE(HAVE_STRTOF)
-      AC_DEFINE(HAVE_STRTOLD)
-     ;;
-    esac
+    GLIBCXX_CHECK_LINKER_FEATURES
+    AC_DEFINE(HAVE_MBSTATE_T)
+    AC_DEFINE(HAVE_FINITE)
+    AC_DEFINE(HAVE_FPCLASS)
+    # All of the dependencies for wide character support are here, so
+    # turn it on. 
+    AC_DEFINE(_GLIBCXX_USE_WCHAR_T) 
+    # These two C99 functions are present only in Solaris >= 10
+    AC_DEFINE(HAVE_STRTOF)
+    AC_DEFINE(HAVE_STRTOLD)
     AC_DEFINE(HAVE_ISNAN)
     AC_DEFINE(HAVE_ISNANF)
     AC_DEFINE(HAVE_MODFF)

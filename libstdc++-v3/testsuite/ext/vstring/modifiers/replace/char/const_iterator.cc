@@ -1,7 +1,7 @@
 // { dg-options "-std=gnu++11" }
 // { dg-do compile }
 
-// Copyright (C) 2013 Free Software Foundation, Inc.
+// Copyright (C) 2013-2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -27,4 +27,6 @@ void test01()
   vs1.replace(vs1.cbegin(), vs1.cend(), "1", 1);
   vs1.replace(vs1.cbegin(), vs1.cend(), "2");
   vs1.replace(vs1.cbegin(), vs1.cend(), 1, '3');
+  vs1.replace(vs1.cbegin(), vs1.cend(), vs1.begin(), vs1.end());
+  vs1.replace(vs1.cbegin(), vs1.cend(), {'4', '5'});
 }

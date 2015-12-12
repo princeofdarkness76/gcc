@@ -5,12 +5,15 @@
 package fmt
 
 import (
+	"math"
 	"strconv"
 	"unicode/utf8"
 )
 
 const (
-	nByte = 65 // %b of an int64, plus a sign.
+	// %b of an int64, plus a sign.
+	// Hex can add 0x and we handle it specially.
+	nByte = 65
 
 	ldigits = "0123456789abcdef"
 	udigits = "0123456789ABCDEF"
@@ -24,13 +27,30 @@ const (
 var padZeroBytes = make([]byte, nByte)
 var padSpaceBytes = make([]byte, nByte)
 
-var newline = []byte{'\n'}
-
 func init() {
 	for i := 0; i < nByte; i++ {
 		padZeroBytes[i] = '0'
 		padSpaceBytes[i] = ' '
 	}
+}
+
+// flags placed in a separate struct for easy clearing.
+type fmtFlags struct {
+	widPresent  bool
+	precPresent bool
+	minus       bool
+	plus        bool
+	sharp       bool
+	space       bool
+	unicode     bool
+	uniQuote    bool // Use 'x'= prefix for %U if printable.
+	zero        bool
+
+	// For the formats %+v %#v, we set the plusV/sharpV flags
+	// and clear the plus/sharp flags since %+v and %#v are in effect
+	// different, flagless formats set at the top level.
+	plusV  bool
+	sharpV bool
 }
 
 // A fmt is the raw formatter used by Printf etc.
@@ -41,30 +61,11 @@ type fmt struct {
 	// width, precision
 	wid  int
 	prec int
-	// flags
-	widPresent  bool
-	precPresent bool
-	minus       bool
-	plus        bool
-	sharp       bool
-	space       bool
-	unicode     bool
-	uniQuote    bool // Use 'x'= prefix for %U if printable.
-	zero        bool
+	fmtFlags
 }
 
 func (f *fmt) clearflags() {
-	f.wid = 0
-	f.widPresent = false
-	f.prec = 0
-	f.precPresent = false
-	f.minus = false
-	f.plus = false
-	f.sharp = false
-	f.space = false
-	f.unicode = false
-	f.uniQuote = false
-	f.zero = false
+	f.fmtFlags = fmtFlags{}
 }
 
 func (f *fmt) init(buf *buffer) {
@@ -113,7 +114,7 @@ func (f *fmt) pad(b []byte) {
 		f.buf.Write(b)
 		return
 	}
-	padding, left, right := f.computePadding(len(b))
+	padding, left, right := f.computePadding(utf8.RuneCount(b))
 	if left > 0 {
 		f.writePadding(left, padding)
 	}
@@ -161,10 +162,33 @@ func (f *fmt) integer(a int64, base uint64, signedness bool, digits string) {
 		return
 	}
 
-	var buf []byte = f.intbuf[0:]
 	negative := signedness == signed && a < 0
 	if negative {
 		a = -a
+	}
+
+	var buf []byte = f.intbuf[0:]
+	if f.widPresent || f.precPresent || f.plus || f.space {
+		width := f.wid + f.prec // Only one will be set, both are positive; this provides the maximum.
+		if base == 16 && f.sharp {
+			// Also adds "0x".
+			width += 2
+		}
+		if f.unicode {
+			// Also adds "U+".
+			width += 2
+			if f.uniQuote {
+				// Also adds " 'x'".
+				width += 1 + 1 + utf8.UTFMax + 1
+			}
+		}
+		if negative || f.plus || f.space {
+			width++
+		}
+		if width > nByte {
+			// We're going to need a bigger boat.
+			buf = make([]byte, width)
+		}
 	}
 
 	// two ways to ask for extra leading zero digits: %.3d or %03d.
@@ -184,16 +208,42 @@ func (f *fmt) integer(a int64, base uint64, signedness bool, digits string) {
 	// a is made into unsigned ua.  we could make things
 	// marginally faster by splitting the 32-bit case out into a separate
 	// block but it's not worth the duplication, so ua has 64 bits.
-	i := len(f.intbuf)
+	i := len(buf)
 	ua := uint64(a)
-	for ua >= base {
-		i--
-		buf[i] = digits[ua%base]
-		ua /= base
+	// use constants for the division and modulo for more efficient code.
+	// switch cases ordered by popularity.
+	switch base {
+	case 10:
+		for ua >= 10 {
+			i--
+			next := ua / 10
+			buf[i] = byte('0' + ua - next*10)
+			ua = next
+		}
+	case 16:
+		for ua >= 16 {
+			i--
+			buf[i] = digits[ua&0xF]
+			ua >>= 4
+		}
+	case 8:
+		for ua >= 8 {
+			i--
+			buf[i] = byte('0' + ua&7)
+			ua >>= 3
+		}
+	case 2:
+		for ua >= 2 {
+			i--
+			buf[i] = byte('0' + ua&1)
+			ua >>= 1
+		}
+	default:
+		panic("fmt: unknown base; can't happen")
 	}
 	i--
 	buf[i] = digits[ua]
-	for i > 0 && prec > nByte-i {
+	for i > 0 && prec > len(buf)-i {
 		i--
 		buf[i] = '0'
 	}
@@ -285,7 +335,7 @@ func (f *fmt) fmt_sbx(s string, b []byte, digits string) {
 		if i > 0 && f.space {
 			buf = append(buf, ' ')
 		}
-		if f.sharp {
+		if f.sharp && (f.space || i == 0) {
 			buf = append(buf, '0', x)
 		}
 		var c byte
@@ -301,11 +351,17 @@ func (f *fmt) fmt_sbx(s string, b []byte, digits string) {
 
 // fmt_sx formats a string as a hexadecimal encoding of its bytes.
 func (f *fmt) fmt_sx(s, digits string) {
+	if f.precPresent && f.prec < len(s) {
+		s = s[:f.prec]
+	}
 	f.fmt_sbx(s, nil, digits)
 }
 
 // fmt_bx formats a byte slice as a hexadecimal encoding of its bytes.
 func (f *fmt) fmt_bx(b []byte, digits string) {
+	if f.precPresent && f.prec < len(b) {
+		b = b[:f.prec]
+	}
 	f.fmt_sbx("", b, digits)
 }
 
@@ -348,27 +404,48 @@ func doPrec(f *fmt, def int) int {
 
 // formatFloat formats a float64; it is an efficient equivalent to  f.pad(strconv.FormatFloat()...).
 func (f *fmt) formatFloat(v float64, verb byte, prec, n int) {
-	// We leave one byte at the beginning of f.intbuf for a sign if needed,
-	// and make it a space, which we might be able to use.
-	f.intbuf[0] = ' '
-	slice := strconv.AppendFloat(f.intbuf[0:1], v, verb, prec, n)
-	// Add a plus sign or space to the floating-point string representation if missing and required.
-	// The formatted number starts at slice[1].
-	switch slice[1] {
-	case '-', '+':
-		// We're set; drop the leading space.
-		slice = slice[1:]
-	default:
-		// There's no sign, but we might need one.
-		if f.plus {
-			slice[0] = '+'
-		} else if f.space {
-			// space is already there
-		} else {
-			slice = slice[1:]
+	// Format number, reserving space for leading + sign if needed.
+	num := strconv.AppendFloat(f.intbuf[0:1], v, verb, prec, n)
+	if num[1] == '-' || num[1] == '+' {
+		num = num[1:]
+	} else {
+		num[0] = '+'
+	}
+	// Special handling for infinity, which doesn't look like a number so shouldn't be padded with zeros.
+	if math.IsInf(v, 0) {
+		if f.zero {
+			defer func() { f.zero = true }()
+			f.zero = false
 		}
 	}
-	f.pad(slice)
+	// num is now a signed version of the number.
+	// If we're zero padding, want the sign before the leading zeros.
+	// Achieve this by writing the sign out and then padding the unsigned number.
+	if f.zero && f.widPresent && f.wid > len(num) {
+		if f.space && v >= 0 {
+			f.buf.WriteByte(' ') // This is what C does: even with zero, f.space means space.
+			f.wid--
+		} else if f.plus || v < 0 {
+			f.buf.WriteByte(num[0])
+			f.wid--
+		}
+		f.pad(num[1:])
+		return
+	}
+	// f.space says to replace a leading + with a space.
+	if f.space && num[0] == '+' {
+		num[0] = ' '
+		f.pad(num)
+		return
+	}
+	// Now we know the sign is attached directly to the number, if present at all.
+	// We want a sign if asked for, if it's negative, or if it's infinity (+Inf vs. -Inf).
+	if f.plus || num[0] == '-' || math.IsInf(v, 0) {
+		f.pad(num)
+		return
+	}
+	// No sign to show and the number is positive; just print the unsigned number.
+	f.pad(num[1:])
 }
 
 // fmt_e64 formats a float64 in the form -1.23e+12.
@@ -413,56 +490,46 @@ func (f *fmt) fmt_fb32(v float32) { f.formatFloat(float64(v), 'b', 0, 32) }
 
 // fmt_c64 formats a complex64 according to the verb.
 func (f *fmt) fmt_c64(v complex64, verb rune) {
-	f.buf.WriteByte('(')
-	r := real(v)
-	oldPlus := f.plus
-	for i := 0; ; i++ {
-		switch verb {
-		case 'e':
-			f.fmt_e32(r)
-		case 'E':
-			f.fmt_E32(r)
-		case 'f':
-			f.fmt_f32(r)
-		case 'g':
-			f.fmt_g32(r)
-		case 'G':
-			f.fmt_G32(r)
-		}
-		if i != 0 {
-			break
-		}
-		f.plus = true
-		r = imag(v)
-	}
-	f.plus = oldPlus
-	f.buf.Write(irparenBytes)
+	f.fmt_complex(float64(real(v)), float64(imag(v)), 32, verb)
 }
 
 // fmt_c128 formats a complex128 according to the verb.
 func (f *fmt) fmt_c128(v complex128, verb rune) {
+	f.fmt_complex(real(v), imag(v), 64, verb)
+}
+
+// fmt_complex formats a complex number as (r+ji).
+func (f *fmt) fmt_complex(r, j float64, size int, verb rune) {
 	f.buf.WriteByte('(')
-	r := real(v)
 	oldPlus := f.plus
+	oldSpace := f.space
+	oldWid := f.wid
 	for i := 0; ; i++ {
 		switch verb {
+		case 'b':
+			f.formatFloat(r, 'b', 0, size)
 		case 'e':
-			f.fmt_e64(r)
+			f.formatFloat(r, 'e', doPrec(f, 6), size)
 		case 'E':
-			f.fmt_E64(r)
-		case 'f':
-			f.fmt_f64(r)
+			f.formatFloat(r, 'E', doPrec(f, 6), size)
+		case 'f', 'F':
+			f.formatFloat(r, 'f', doPrec(f, 6), size)
 		case 'g':
-			f.fmt_g64(r)
+			f.formatFloat(r, 'g', doPrec(f, -1), size)
 		case 'G':
-			f.fmt_G64(r)
+			f.formatFloat(r, 'G', doPrec(f, -1), size)
 		}
 		if i != 0 {
 			break
 		}
+		// Imaginary part always has a sign.
 		f.plus = true
-		r = imag(v)
+		f.space = false
+		f.wid = oldWid
+		r = j
 	}
+	f.space = oldSpace
 	f.plus = oldPlus
+	f.wid = oldWid
 	f.buf.Write(irparenBytes)
 }

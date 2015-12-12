@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2011-2012, Free Software Foundation, Inc.         --
+--          Copyright (C) 2011-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -281,7 +281,7 @@ package body System.Storage_Pools.Subpools is
          --     +- Header_And_Padding --+
 
          N_Ptr := Address_To_FM_Node_Ptr
-                    (N_Addr + Header_And_Padding - Header_Offset);
+                    (N_Addr + Header_And_Padding - Header_Size);
 
          --  Prepend the allocated object to the finalization master
 
@@ -414,7 +414,7 @@ package body System.Storage_Pools.Subpools is
 
          --  Convert the bits preceding the object into a list header
 
-         N_Ptr := Address_To_FM_Node_Ptr (Addr - Header_Offset);
+         N_Ptr := Address_To_FM_Node_Ptr (Addr - Header_Size);
 
          --  Detach the object from the related finalization master. This
          --  action does not need to know the prior context used during
@@ -456,11 +456,13 @@ package body System.Storage_Pools.Subpools is
    ------------------------------
 
    function Default_Subpool_For_Pool
-     (Pool : Root_Storage_Pool_With_Subpools) return not null Subpool_Handle
+     (Pool : in out Root_Storage_Pool_With_Subpools)
+      return not null Subpool_Handle
    is
+      pragma Unreferenced (Pool);
    begin
-      raise Program_Error;
-      return Pool.Subpools.Subpool;
+      return raise Program_Error with
+        "default Default_Subpool_For_Pool called; must be overridden";
    end Default_Subpool_For_Pool;
 
    ------------
@@ -539,7 +541,7 @@ package body System.Storage_Pools.Subpools is
          --  Perform the following actions:
 
          --    1) Finalize all objects chained on the subpool's master
-         --    2) Remove the the subpool from the owner's list of subpools
+         --    2) Remove the subpool from the owner's list of subpools
          --    3) Deallocate the doubly linked list node associated with the
          --       subpool.
          --    4) Call Deallocate_Subpool

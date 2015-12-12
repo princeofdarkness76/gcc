@@ -1,6 +1,6 @@
 // List implementation (out of line) -*- C++ -*-
 
-// Copyright (C) 2001-2013 Free Software Foundation, Inc.
+// Copyright (C) 2001-2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -63,18 +63,19 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   template<typename _Tp, typename _Alloc>
     void
     _List_base<_Tp, _Alloc>::
-    _M_clear()
+    _M_clear() _GLIBCXX_NOEXCEPT
     {
       typedef _List_node<_Tp>  _Node;
-      _Node* __cur = static_cast<_Node*>(_M_impl._M_node._M_next);
+      __detail::_List_node_base* __cur = _M_impl._M_node._M_next;
       while (__cur != &_M_impl._M_node)
 	{
-	  _Node* __tmp = __cur;
-	  __cur = static_cast<_Node*>(__cur->_M_next);
+	  _Node* __tmp = static_cast<_Node*>(__cur);
+	  __cur = __tmp->_M_next;
+	  _Tp* __val = __tmp->_M_valptr();
 #if __cplusplus >= 201103L
-	  _M_get_Node_allocator().destroy(__tmp);
+	  _Node_alloc_traits::destroy(_M_get_Node_allocator(), __val);
 #else
-	  _M_get_Tp_allocator().destroy(std::__addressof(__tmp->_M_data));
+	  _Tp_alloc_type(_M_get_Node_allocator()).destroy(__val);
 #endif
 	  _M_put_node(__tmp);
 	}
@@ -89,6 +90,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       {
 	_Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
 	__tmp->_M_hook(__position._M_const_cast()._M_node);
+	this->_M_inc_size(1);
 	return iterator(__tmp);
       }
 #endif
@@ -104,14 +106,49 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     {
       _Node* __tmp = _M_create_node(__x);
       __tmp->_M_hook(__position._M_const_cast()._M_node);
+      this->_M_inc_size(1);
       return iterator(__tmp);
     }
+
+#if __cplusplus >= 201103L
+  template<typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::iterator
+    list<_Tp, _Alloc>::
+    insert(const_iterator __position, size_type __n, const value_type& __x)
+    {
+      if (__n)
+	{
+	  list __tmp(__n, __x, get_allocator());
+	  iterator __it = __tmp.begin();
+	  splice(__position, __tmp);
+	  return __it;
+	}
+      return __position._M_const_cast();
+    }
+
+  template<typename _Tp, typename _Alloc>
+    template<typename _InputIterator, typename>
+      typename list<_Tp, _Alloc>::iterator
+      list<_Tp, _Alloc>::
+      insert(const_iterator __position, _InputIterator __first,
+	     _InputIterator __last)
+      {
+	list __tmp(__first, __last, get_allocator());
+	if (!__tmp.empty())
+	  {
+	    iterator __it = __tmp.begin();
+	    splice(__position, __tmp);
+	    return __it;
+	  }
+	return __position._M_const_cast();
+      }
+#endif
 
   template<typename _Tp, typename _Alloc>
     typename list<_Tp, _Alloc>::iterator
     list<_Tp, _Alloc>::
 #if __cplusplus >= 201103L
-    erase(const_iterator __position)
+    erase(const_iterator __position) noexcept
 #else
     erase(iterator __position)
 #endif
@@ -119,6 +156,52 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       iterator __ret = iterator(__position._M_node->_M_next);
       _M_erase(__position._M_const_cast());
       return __ret;
+    }
+
+  // Return a const_iterator indicating the position to start inserting or
+  // erasing elements (depending whether the list is growing or shrinking),
+  // and set __new_size to the number of new elements that must be appended.
+  // Equivalent to the following, but performed optimally:
+  // if (__new_size < size()) {
+  //   __new_size = 0;
+  //   return std::next(begin(), __new_size);
+  // } else {
+  //   __newsize -= size();
+  //   return end();
+  // }
+  template<typename _Tp, typename _Alloc>
+    typename list<_Tp, _Alloc>::const_iterator
+    list<_Tp, _Alloc>::
+    _M_resize_pos(size_type& __new_size) const
+    {
+      const_iterator __i;
+#if _GLIBCXX_USE_CXX11_ABI
+      const size_type __len = size();
+      if (__new_size < __len)
+	{
+	  if (__new_size <= __len / 2)
+	    {
+	      __i = begin();
+	      std::advance(__i, __new_size);
+	    }
+	  else
+	    {
+	      __i = end();
+	      ptrdiff_t __num_erase = __len - __new_size;
+	      std::advance(__i, -__num_erase);
+	    }
+	  __new_size = 0;
+	  return __i;
+	}
+      else
+	__i = end();
+#else
+      size_type __len = 0;
+      for (__i = begin(); __i != end() && __len < __new_size; ++__i, ++__len)
+        ;
+#endif
+      __new_size -= __len;
+      return __i;
     }
 
 #if __cplusplus >= 201103L
@@ -146,14 +229,11 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     list<_Tp, _Alloc>::
     resize(size_type __new_size)
     {
-      iterator __i = begin();
-      size_type __len = 0;
-      for (; __i != end() && __len < __new_size; ++__i, ++__len)
-        ;
-      if (__len == __new_size)
+      const_iterator __i = _M_resize_pos(__new_size);
+      if (__new_size)
+	_M_default_append(__new_size);
+      else
         erase(__i, end());
-      else                          // __i == end()
-	_M_default_append(__new_size - __len);
     }
 
   template<typename _Tp, typename _Alloc>
@@ -161,14 +241,11 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     list<_Tp, _Alloc>::
     resize(size_type __new_size, const value_type& __x)
     {
-      iterator __i = begin();
-      size_type __len = 0;
-      for (; __i != end() && __len < __new_size; ++__i, ++__len)
-        ;
-      if (__len == __new_size)
+      const_iterator __i = _M_resize_pos(__new_size);
+      if (__new_size)
+        insert(end(), __new_size, __x);
+      else
         erase(__i, end());
-      else                          // __i == end()
-        insert(end(), __new_size - __len, __x);
     }
 #else
   template<typename _Tp, typename _Alloc>
@@ -176,14 +253,11 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     list<_Tp, _Alloc>::
     resize(size_type __new_size, value_type __x)
     {
-      iterator __i = begin();
-      size_type __len = 0;
-      for (; __i != end() && __len < __new_size; ++__i, ++__len)
-        ;
-      if (__len == __new_size)
-        erase(__i, end());
-      else                          // __i == end()
-        insert(end(), __new_size - __len, __x);
+      const_iterator __i = _M_resize_pos(__new_size);
+      if (__new_size)
+        insert(end(), __new_size, __x);
+      else
+        erase(__i._M_const_cast(), end());
     }
 #endif
 
@@ -192,19 +266,23 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     list<_Tp, _Alloc>::
     operator=(const list& __x)
     {
-      if (this != &__x)
+      if (this != std::__addressof(__x))
 	{
-	  iterator __first1 = begin();
-	  iterator __last1 = end();
-	  const_iterator __first2 = __x.begin();
-	  const_iterator __last2 = __x.end();
-	  for (; __first1 != __last1 && __first2 != __last2;
-	       ++__first1, ++__first2)
-	    *__first1 = *__first2;
-	  if (__first2 == __last2)
-	    erase(__first1, __last1);
-	  else
-	    insert(__last1, __first2, __last2);
+#if __cplusplus >= 201103L
+	  if (_Node_alloc_traits::_S_propagate_on_copy_assign())
+	    {
+              auto& __this_alloc = this->_M_get_Node_allocator();
+              auto& __that_alloc = __x._M_get_Node_allocator();
+              if (!_Node_alloc_traits::_S_always_equal()
+	          && __this_alloc != __that_alloc)
+	        {
+		  // replacement allocator cannot free existing storage
+		  clear();
+		}
+	      std::__alloc_on_copy(__this_alloc, __that_alloc);
+            }
+#endif
+	  _M_assign_dispatch(__x.begin(), __x.end(), __false_type());
 	}
       return *this;
     }
@@ -300,7 +378,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     {
       // _GLIBCXX_RESOLVE_LIB_DEFECTS
       // 300. list::merge() specification incomplete
-      if (this != &__x)
+      if (this != std::__addressof(__x))
 	{
 	  _M_check_equal_allocators(__x); 
 
@@ -319,6 +397,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	      ++__first1;
 	  if (__first2 != __last2)
 	    _M_transfer(__last1, __first2, __last2);
+
+	  this->_M_inc_size(__x._M_get_size());
+	  __x._M_set_size(0);
 	}
     }
 
@@ -334,7 +415,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       {
 	// _GLIBCXX_RESOLVE_LIB_DEFECTS
 	// 300. list::merge() specification incomplete
-	if (this != &__x)
+	if (this != std::__addressof(__x))
 	  {
 	    _M_check_equal_allocators(__x);
 
@@ -353,6 +434,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		++__first1;
 	    if (__first2 != __last2)
 	      _M_transfer(__last1, __first2, __last2);
+
+	    this->_M_inc_size(__x._M_get_size());
+	    __x._M_set_size(0);
 	  }
       }
 
@@ -367,14 +451,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
       {
         list __carry;
         list __tmp[64];
-        list * __fill = &__tmp[0];
+        list * __fill = __tmp;
         list * __counter;
 
         do
 	  {
 	    __carry.splice(__carry.begin(), *this, begin());
 
-	    for(__counter = &__tmp[0];
+	    for(__counter = __tmp;
 		__counter != __fill && !__counter->empty();
 		++__counter)
 	      {
@@ -387,7 +471,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	  }
 	while ( !empty() );
 
-        for (__counter = &__tmp[1]; __counter != __fill; ++__counter)
+        for (__counter = __tmp + 1; __counter != __fill; ++__counter)
           __counter->merge(*(__counter - 1));
         swap( *(__fill - 1) );
       }
@@ -444,14 +528,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	  {
 	    list __carry;
 	    list __tmp[64];
-	    list * __fill = &__tmp[0];
+	    list * __fill = __tmp;
 	    list * __counter;
 
 	    do
 	      {
 		__carry.splice(__carry.begin(), *this, begin());
 
-		for(__counter = &__tmp[0];
+		for(__counter = __tmp;
 		    __counter != __fill && !__counter->empty();
 		    ++__counter)
 		  {
@@ -464,7 +548,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	      }
 	    while ( !empty() );
 
-	    for (__counter = &__tmp[1]; __counter != __fill; ++__counter)
+	    for (__counter = __tmp + 1; __counter != __fill; ++__counter)
 	      __counter->merge(*(__counter - 1), __comp);
 	    swap(*(__fill - 1));
 	  }

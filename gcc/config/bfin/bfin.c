@@ -1,5 +1,5 @@
 /* The Blackfin code generation auxiliary output file.
-   Copyright (C) 2005-2013 Free Software Foundation, Inc.
+   Copyright (C) 2005-2015 Free Software Foundation, Inc.
    Contributed by Analog Devices.
 
    This file is part of GCC.
@@ -21,41 +21,36 @@
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
+#include "backend.h"
+#include "target.h"
 #include "rtl.h"
+#include "tree.h"
+#include "cfghooks.h"
+#include "df.h"
+#include "tm_p.h"
+#include "optabs.h"
 #include "regs.h"
-#include "hard-reg-set.h"
-#include "insn-config.h"
-#include "insn-codes.h"
-#include "conditions.h"
-#include "insn-flags.h"
+#include "emit-rtl.h"
+#include "recog.h"
+#include "cgraph.h"
+#include "diagnostic-core.h"
 #include "output.h"
 #include "insn-attr.h"
-#include "tree.h"
-#include "flags.h"
-#include "except.h"
-#include "function.h"
-#include "input.h"
-#include "target.h"
-#include "target-def.h"
+#include "varasm.h"
+#include "calls.h"
+#include "explow.h"
 #include "expr.h"
-#include "diagnostic-core.h"
-#include "recog.h"
-#include "optabs.h"
-#include "ggc.h"
-#include "cgraph.h"
+#include "cfgrtl.h"
 #include "langhooks.h"
-#include "bfin-protos.h"
-#include "tm-preds.h"
 #include "tm-constrs.h"
 #include "gt-bfin.h"
-#include "basic-block.h"
-#include "timevar.h"
-#include "df.h"
 #include "sel-sched.h"
 #include "hw-doloop.h"
-#include "opts.h"
 #include "dumpfile.h"
+#include "builtins.h"
+
+/* This file should be included last.  */
+#include "target-def.h"
 
 /* A C structure for machine-specific, per-function data.
    This is added to the cfun structure.  */
@@ -102,7 +97,7 @@ output_file_start (void)
   FILE *file = asm_out_file;
   int i;
 
-  fprintf (file, ".file \"%s\";\n", input_filename);
+  fprintf (file, ".file \"%s\";\n", LOCATION_FILE (input_location));
   
   for (i = 0; arg_regs[i] >= 0; i++)
     ;
@@ -342,7 +337,7 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
 
   if (saveall || is_inthandler)
     {
-      rtx insn = emit_move_insn (predec, gen_rtx_REG (SImode, REG_ASTAT));
+      rtx_insn *insn = emit_move_insn (predec, gen_rtx_REG (SImode, REG_ASTAT));
 
       RTX_FRAME_RELATED_P (insn) = 1;
       for (dregno = REG_LT0; dregno <= REG_LB1; dregno++)
@@ -359,13 +354,13 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
 
   if (total_consec != 0)
     {
-      rtx insn;
+      rtx_insn *insn;
       rtx val = GEN_INT (-total_consec * 4);
       rtx pat = gen_rtx_PARALLEL (VOIDmode, rtvec_alloc (total_consec + 2));
 
       XVECEXP (pat, 0, 0) = gen_rtx_UNSPEC (VOIDmode, gen_rtvec (1, val),
 					    UNSPEC_PUSH_MULTIPLE);
-      XVECEXP (pat, 0, total_consec + 1) = gen_rtx_SET (VOIDmode, spreg,
+      XVECEXP (pat, 0, total_consec + 1) = gen_rtx_SET (spreg,
 							gen_rtx_PLUS (Pmode,
 								      spreg,
 								      val));
@@ -381,14 +376,12 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
 	  rtx subpat;
 	  if (d_to_save > 0)
 	    {
-	      subpat = gen_rtx_SET (VOIDmode, memref, gen_rtx_REG (word_mode,
-								   dregno++));
+	      subpat = gen_rtx_SET (memref, gen_rtx_REG (word_mode, dregno++));
 	      d_to_save--;
 	    }
 	  else
 	    {
-	      subpat = gen_rtx_SET (VOIDmode, memref, gen_rtx_REG (word_mode,
-								   pregno++));
+	      subpat = gen_rtx_SET (memref, gen_rtx_REG (word_mode, pregno++));
 	    }
 	  XVECEXP (pat, 0, i + 1) = subpat;
 	  RTX_FRAME_RELATED_P (subpat) = 1;
@@ -401,7 +394,8 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
     {
       if (must_save_p (is_inthandler, dregno))
 	{
-	  rtx insn = emit_move_insn (predec, gen_rtx_REG (word_mode, dregno));
+	  rtx_insn *insn =
+	    emit_move_insn (predec, gen_rtx_REG (word_mode, dregno));
 	  RTX_FRAME_RELATED_P (insn) = 1;
 	  ndregs--;
 	}
@@ -410,7 +404,8 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
     {
       if (must_save_p (is_inthandler, pregno))
 	{
-	  rtx insn = emit_move_insn (predec, gen_rtx_REG (word_mode, pregno));
+	  rtx_insn *insn =
+	    emit_move_insn (predec, gen_rtx_REG (word_mode, pregno));
 	  RTX_FRAME_RELATED_P (insn) = 1;
 	  npregs--;
 	}
@@ -421,7 +416,7 @@ expand_prologue_reg_save (rtx spreg, int saveall, bool is_inthandler)
 	    && (df_regs_ever_live_p (i)
 		|| (!leaf_function_p () && call_used_regs[i]))))
       {
-	rtx insn;
+	rtx_insn *insn;
 	if (i == REG_A0 || i == REG_A1)
 	  insn = emit_move_insn (gen_rtx_MEM (PDImode, predec1),
 				 gen_rtx_REG (PDImode, i));
@@ -448,7 +443,7 @@ expand_epilogue_reg_restore (rtx spreg, bool saveall, bool is_inthandler)
   int npregs_consec = saveall ? 6 : n_pregs_to_save (is_inthandler, true);
   int total_consec = ndregs_consec + npregs_consec;
   int i, regno;
-  rtx insn;
+  rtx_insn *insn;
 
   /* A slightly crude technique to stop flow from trying to delete "dead"
      insns.  */
@@ -493,9 +488,8 @@ expand_epilogue_reg_restore (rtx spreg, bool saveall, bool is_inthandler)
     {
       rtx pat = gen_rtx_PARALLEL (VOIDmode, rtvec_alloc (total_consec + 1));
       XVECEXP (pat, 0, 0)
-	= gen_rtx_SET (VOIDmode, spreg,
-		       gen_rtx_PLUS (Pmode, spreg,
-				     GEN_INT (total_consec * 4)));
+	= gen_rtx_SET (spreg, gen_rtx_PLUS (Pmode, spreg,
+					    GEN_INT (total_consec * 4)));
 
       if (npregs_consec > 0)
 	regno = REG_P5 + 1;
@@ -511,7 +505,7 @@ expand_epilogue_reg_restore (rtx spreg, bool saveall, bool is_inthandler)
 
 	  regno--;
 	  XVECEXP (pat, 0, i + 1)
-	    = gen_rtx_SET (VOIDmode, gen_rtx_REG (word_mode, regno), memref);
+	    = gen_rtx_SET (gen_rtx_REG (word_mode, regno), memref);
 
 	  if (npregs_consec > 0)
 	    {
@@ -560,7 +554,7 @@ expand_epilogue_reg_restore (rtx spreg, bool saveall, bool is_inthandler)
 
 static void
 setup_incoming_varargs (cumulative_args_t cum,
-			enum machine_mode mode ATTRIBUTE_UNUSED,
+			machine_mode mode ATTRIBUTE_UNUSED,
 			tree type ATTRIBUTE_UNUSED, int *pretend_size,
 			int no_rtl)
 {
@@ -702,7 +696,7 @@ bfin_initial_elimination_offset (int from, int to)
 static void
 frame_related_constant_load (rtx reg, HOST_WIDE_INT constant, bool related)
 {
-  rtx insn;
+  rtx_insn *insn;
   rtx cst = GEN_INT (constant);
 
   if (constant >= -32768 && constant < 65536)
@@ -739,7 +733,7 @@ add_to_reg (rtx reg, HOST_WIDE_INT value, int frame, int epilogue_p)
     {
       rtx tmpreg;
       rtx tmpreg2;
-      rtx insn;
+      rtx_insn *insn;
 
       tmpreg2 = NULL_RTX;
 
@@ -788,7 +782,7 @@ add_to_reg (rtx reg, HOST_WIDE_INT value, int frame, int epilogue_p)
     do
       {
 	int size = value;
-	rtx insn;
+	rtx_insn *insn;
 
 	if (size > 60)
 	  size = 60;
@@ -813,7 +807,7 @@ static void
 emit_link_insn (rtx spreg, HOST_WIDE_INT frame_size)
 {
   HOST_WIDE_INT link_size = frame_size;
-  rtx insn;
+  rtx_insn *insn;
   int i;
 
   if (link_size > 262140)
@@ -880,7 +874,7 @@ do_link (rtx spreg, HOST_WIDE_INT frame_size, bool all)
 	  rtx pat = gen_movsi (gen_rtx_MEM (Pmode,
 					    gen_rtx_PRE_DEC (Pmode, spreg)),
 			       bfin_rets_rtx);
-	  rtx insn = emit_insn (pat);
+	  rtx_insn *insn = emit_insn (pat);
 	  RTX_FRAME_RELATED_P (insn) = 1;
 	}
       if (must_save_fp_p ())
@@ -888,7 +882,7 @@ do_link (rtx spreg, HOST_WIDE_INT frame_size, bool all)
 	  rtx pat = gen_movsi (gen_rtx_MEM (Pmode,
 					    gen_rtx_PRE_DEC (Pmode, spreg)),
 			       gen_rtx_REG (Pmode, REG_FP));
-	  rtx insn = emit_insn (pat);
+	  rtx_insn *insn = emit_insn (pat);
 	  RTX_FRAME_RELATED_P (insn) = 1;
 	}
       add_to_reg (spreg, -frame_size, 1, 0);
@@ -936,7 +930,7 @@ expand_interrupt_handler_prologue (rtx spreg, e_funkind fkind, bool all)
   HOST_WIDE_INT frame_size = get_frame_size ();
   rtx predec1 = gen_rtx_PRE_DEC (SImode, spreg);
   rtx predec = gen_rtx_MEM (SImode, predec1);
-  rtx insn;
+  rtx_insn *insn;
   tree attrs = TYPE_ATTRIBUTES (TREE_TYPE (current_function_decl));
   tree kspisusp = lookup_attribute ("kspisusp", attrs);
 
@@ -1041,7 +1035,7 @@ bfin_load_pic_reg (rtx dest)
   struct cgraph_local_info *i = NULL;
   rtx addr;
  
-  i = cgraph_local_info (current_function_decl);
+  i = cgraph_node::local_info (current_function_decl);
  
   /* Functions local to the translation unit don't need to reload the
      pic reg, since the caller always passes a usable one.  */
@@ -1070,6 +1064,9 @@ bfin_expand_prologue (void)
   rtx pic_reg_loaded = NULL_RTX;
   tree attrs = TYPE_ATTRIBUTES (TREE_TYPE (current_function_decl));
   bool all = lookup_attribute ("saveall", attrs) != NULL_TREE;
+
+  if (flag_stack_usage_info)
+    current_function_static_stack_size = frame_size;
 
   if (fkind != SUBROUTINE)
     {
@@ -1234,7 +1231,7 @@ bfin_delegitimize_address (rtx orig_x)
    32-bit instruction.  */
 
 int
-effective_address_32bit_p (rtx op, enum machine_mode mode) 
+effective_address_32bit_p (rtx op, machine_mode mode) 
 {
   HOST_WIDE_INT offset;
 
@@ -1288,7 +1285,7 @@ bfin_dsp_memref_p (rtx x)
 
 static int
 bfin_address_cost (rtx addr ATTRIBUTE_UNUSED,
-		   enum machine_mode mode ATTRIBUTE_UNUSED,
+		   machine_mode mode ATTRIBUTE_UNUSED,
 		   addr_space_t as ATTRIBUTE_UNUSED,
 		   bool speed ATTRIBUTE_UNUSED)
 {
@@ -1303,21 +1300,21 @@ print_address_operand (FILE *file, rtx x)
   switch (GET_CODE (x))
     {
     case PLUS:
-      output_address (XEXP (x, 0));
+      output_address (VOIDmode, XEXP (x, 0));
       fprintf (file, "+");
-      output_address (XEXP (x, 1));
+      output_address (VOIDmode, XEXP (x, 1));
       break;
 
     case PRE_DEC:
       fprintf (file, "--");
-      output_address (XEXP (x, 0));    
+      output_address (VOIDmode, XEXP (x, 0));    
       break;
     case POST_INC:
-      output_address (XEXP (x, 0));
+      output_address (VOIDmode, XEXP (x, 0));
       fprintf (file, "++");
       break;
     case POST_DEC:
-      output_address (XEXP (x, 0));
+      output_address (VOIDmode, XEXP (x, 0));
       fprintf (file, "--");
       break;
 
@@ -1336,7 +1333,7 @@ print_address_operand (FILE *file, rtx x)
 void
 print_operand (FILE *file, rtx x, char code)
 {
-  enum machine_mode mode;
+  machine_mode mode;
 
   if (code == '!')
     {
@@ -1651,7 +1648,7 @@ init_cumulative_args (CUMULATIVE_ARGS *cum, tree fntype,
    (TYPE is null for libcalls where that information may not be available.)  */
 
 static void
-bfin_function_arg_advance (cumulative_args_t cum_v, enum machine_mode mode,
+bfin_function_arg_advance (cumulative_args_t cum_v, machine_mode mode,
 			   const_tree type, bool named ATTRIBUTE_UNUSED)
 {
   CUMULATIVE_ARGS *cum = get_cumulative_args (cum_v);
@@ -1691,7 +1688,7 @@ bfin_function_arg_advance (cumulative_args_t cum_v, enum machine_mode mode,
     (otherwise it is an extra parameter matching an ellipsis).  */
 
 static rtx
-bfin_function_arg (cumulative_args_t cum_v, enum machine_mode mode,
+bfin_function_arg (cumulative_args_t cum_v, machine_mode mode,
 		   const_tree type, bool named ATTRIBUTE_UNUSED)
 {
   CUMULATIVE_ARGS *cum = get_cumulative_args (cum_v);
@@ -1721,7 +1718,7 @@ bfin_function_arg (cumulative_args_t cum_v, enum machine_mode mode,
    stack.   */
 
 static int
-bfin_arg_partial_bytes (cumulative_args_t cum, enum machine_mode mode,
+bfin_arg_partial_bytes (cumulative_args_t cum, machine_mode mode,
 			tree type ATTRIBUTE_UNUSED,
 			bool named ATTRIBUTE_UNUSED)
 {
@@ -1743,7 +1740,7 @@ bfin_arg_partial_bytes (cumulative_args_t cum, enum machine_mode mode,
 
 static bool
 bfin_pass_by_reference (cumulative_args_t cum ATTRIBUTE_UNUSED,
-			enum machine_mode mode ATTRIBUTE_UNUSED,
+			machine_mode mode ATTRIBUTE_UNUSED,
 			const_tree type, bool named ATTRIBUTE_UNUSED)
 {
   return type && TREE_CODE (TYPE_SIZE (type)) != INTEGER_CST;
@@ -1835,8 +1832,8 @@ bfin_function_ok_for_sibcall (tree decl ATTRIBUTE_UNUSED,
     /* Not enough information.  */
     return false;
  
-  this_func = cgraph_local_info (current_function_decl);
-  called_func = cgraph_local_info (decl);
+  this_func = cgraph_node::local_info (current_function_decl);
+  called_func = cgraph_node::local_info (decl);
   if (!called_func)
     return false;
   return !called_func->local || this_func->local;
@@ -1908,7 +1905,7 @@ bfin_trampoline_init (rtx m_tramp, tree fndecl, rtx chain_value)
 /* Emit insns to move operands[1] into operands[0].  */
 
 void
-emit_pic_move (rtx *operands, enum machine_mode mode ATTRIBUTE_UNUSED)
+emit_pic_move (rtx *operands, machine_mode mode ATTRIBUTE_UNUSED)
 {
   rtx temp = reload_in_progress ? operands[0] : gen_reg_rtx (Pmode);
 
@@ -1926,7 +1923,7 @@ emit_pic_move (rtx *operands, enum machine_mode mode ATTRIBUTE_UNUSED)
    should generate an insn to move OPERANDS[1] to OPERANDS[0].  */
 
 bool
-expand_move (rtx *operands, enum machine_mode mode)
+expand_move (rtx *operands, machine_mode mode)
 {
   rtx op = operands[1];
   if ((TARGET_ID_SHARED_LIBRARY || TARGET_FDPIC)
@@ -2097,7 +2094,7 @@ bfin_expand_call (rtx retval, rtx fnaddr, rtx callarg1, rtx cookie, int sibcall)
   call = gen_rtx_CALL (VOIDmode, fnaddr, callarg1);
 
   if (retval)
-    call = gen_rtx_SET (VOIDmode, retval, call);
+    call = gen_rtx_SET (retval, call);
 
   pat = gen_rtx_PARALLEL (VOIDmode, rtvec_alloc (nelts));
   n = 0;
@@ -2117,7 +2114,7 @@ bfin_expand_call (rtx retval, rtx fnaddr, rtx callarg1, rtx cookie, int sibcall)
 /* Return 1 if hard register REGNO can hold a value of machine-mode MODE.  */
 
 int
-hard_regno_mode_ok (int regno, enum machine_mode mode)
+hard_regno_mode_ok (int regno, machine_mode mode)
 {
   /* Allow only dregs to store value of mode HI or QI */
   enum reg_class rclass = REGNO_REG_CLASS (regno);
@@ -2147,7 +2144,7 @@ hard_regno_mode_ok (int regno, enum machine_mode mode)
 /* Implements target hook vector_mode_supported_p.  */
 
 static bool
-bfin_vector_mode_supported_p (enum machine_mode mode)
+bfin_vector_mode_supported_p (machine_mode mode)
 {
   return mode == V2HImode;
 }
@@ -2155,7 +2152,7 @@ bfin_vector_mode_supported_p (enum machine_mode mode)
 /* Worker function for TARGET_REGISTER_MOVE_COST.  */
 
 static int
-bfin_register_move_cost (enum machine_mode mode,
+bfin_register_move_cost (machine_mode mode,
 			 reg_class_t class1, reg_class_t class2)
 {
   /* These need secondary reloads, so they're more expensive.  */
@@ -2186,7 +2183,7 @@ bfin_register_move_cost (enum machine_mode mode,
    program; it'll make the costs more accurate.  */
 
 static int
-bfin_memory_move_cost (enum machine_mode mode ATTRIBUTE_UNUSED,
+bfin_memory_move_cost (machine_mode mode ATTRIBUTE_UNUSED,
 		       reg_class_t rclass,
 		       bool in ATTRIBUTE_UNUSED)
 {
@@ -2205,7 +2202,7 @@ bfin_memory_move_cost (enum machine_mode mode ATTRIBUTE_UNUSED,
 
 static reg_class_t
 bfin_secondary_reload (bool in_p, rtx x, reg_class_t rclass_i,
-		       enum machine_mode mode, secondary_reload_info *sri)
+		       machine_mode mode, secondary_reload_info *sri)
 {
   /* If we have HImode or QImode, we can only use DREGS as secondary registers;
      in most other cases we can also use PREGS.  */
@@ -2314,7 +2311,7 @@ bfin_class_likely_spilled_p (reg_class_t rclass)
 static struct machine_function *
 bfin_init_machine_status (void)
 {
-  return ggc_alloc_cleared_machine_function ();
+  return ggc_cleared_alloc<machine_function> ();
 }
 
 /* Implement the TARGET_OPTION_OVERRIDE hook.  */
@@ -2412,7 +2409,7 @@ bfin_option_override (void)
    we still prefer to use shorter sequences.  */
 
 static int
-branch_dest (rtx branch)
+branch_dest (rtx_insn *branch)
 {
   rtx dest;
   int dest_uid;
@@ -2437,7 +2434,7 @@ cbranch_predicted_taken_p (rtx insn)
 
   if (x)
     {
-      int pred_val = INTVAL (XEXP (x, 0));
+      int pred_val = XINT (x, 0);
 
       return pred_val >= REG_BR_PROB_BASE / 2;
     }
@@ -2466,7 +2463,7 @@ static const char *ccbranch_templates[][3] = {
    anyway.  */
 
 void
-asm_conditional_branch (rtx insn, rtx *operands, int n_nops, int predict_taken)
+asm_conditional_branch (rtx_insn *insn, rtx *operands, int n_nops, int predict_taken)
 {
   int offset = branch_dest (insn) - INSN_ADDRESSES (INSN_UID (insn));
   /* Note : offset for instructions like if cc jmp; jump.[sl] offset
@@ -2489,7 +2486,7 @@ asm_conditional_branch (rtx insn, rtx *operands, int n_nops, int predict_taken)
    stored in bfin_compare_op0 and bfin_compare_op1 already.  */
 
 rtx
-bfin_gen_compare (rtx cmp, enum machine_mode mode ATTRIBUTE_UNUSED)
+bfin_gen_compare (rtx cmp, machine_mode mode ATTRIBUTE_UNUSED)
 {
   enum rtx_code code1, code2;
   rtx op0 = XEXP (cmp, 0), op1 = XEXP (cmp, 1);
@@ -2520,8 +2517,7 @@ bfin_gen_compare (rtx cmp, enum machine_mode mode ATTRIBUTE_UNUSED)
 	code2 = EQ;
 	break;
       }
-      emit_insn (gen_rtx_SET (VOIDmode, tem,
-			      gen_rtx_fmt_ee (code1, BImode, op0, op1)));
+      emit_insn (gen_rtx_SET (tem, gen_rtx_fmt_ee (code1, BImode, op0, op1)));
     }
 
   return gen_rtx_fmt_ee (code2, BImode, tem, CONST0_RTX (BImode));
@@ -2585,7 +2581,7 @@ split_load_immediate (rtx operands[])
       && (D_REGNO_P (regno)
 	  || (regno >= REG_P0 && regno <= REG_P7 && num_zero <= 2)))
     {
-      emit_insn (gen_movsi (operands[0], GEN_INT (shifted)));
+      emit_insn (gen_movsi (operands[0], gen_int_mode (shifted, SImode)));
       emit_insn (gen_ashlsi3 (operands[0], operands[0], GEN_INT (num_zero)));
       return 1;
     }
@@ -2599,13 +2595,15 @@ split_load_immediate (rtx operands[])
       if (log2constp (val & 0xFFFF0000))
 	{
 	  emit_insn (gen_movsi (operands[0], GEN_INT (val & 0xFFFF)));
-	  emit_insn (gen_iorsi3 (operands[0], operands[0], GEN_INT (val & 0xFFFF0000)));
+	  emit_insn (gen_iorsi3 (operands[0], operands[0],
+				 gen_int_mode (val & 0xFFFF0000, SImode)));
 	  return 1;
 	}
       else if (log2constp (val | 0xFFFF) && (val & 0x8000) != 0)
 	{
 	  emit_insn (gen_movsi (operands[0], GEN_INT (tmp)));
-	  emit_insn (gen_andsi3 (operands[0], operands[0], GEN_INT (val | 0xFFFF)));
+	  emit_insn (gen_andsi3 (operands[0], operands[0],
+				 gen_int_mode (val | 0xFFFF, SImode)));
 	}
     }
 
@@ -2614,7 +2612,9 @@ split_load_immediate (rtx operands[])
       if (tmp >= -64 && tmp <= 63)
 	{
 	  emit_insn (gen_movsi (operands[0], GEN_INT (tmp)));
-	  emit_insn (gen_movstricthi_high (operands[0], GEN_INT (val & -65536)));
+	  emit_insn (gen_movstricthi_high (operands[0],
+					   gen_int_mode (val & -65536,
+							 SImode)));
 	  return 1;
 	}
 
@@ -2642,7 +2642,7 @@ split_load_immediate (rtx operands[])
     {
       /* If optimizing for size, generate a sequence that has more instructions
 	 but is shorter.  */
-      emit_insn (gen_movsi (operands[0], GEN_INT (shifted_compl)));
+      emit_insn (gen_movsi (operands[0], gen_int_mode (shifted_compl, SImode)));
       emit_insn (gen_ashlsi3 (operands[0], operands[0],
 			      GEN_INT (num_compl_zero)));
       emit_insn (gen_one_cmplsi2 (operands[0], operands[0]));
@@ -2655,7 +2655,7 @@ split_load_immediate (rtx operands[])
    MODE.  Return false if not.  */
 
 static bool
-bfin_valid_add (enum machine_mode mode, HOST_WIDE_INT value)
+bfin_valid_add (machine_mode mode, HOST_WIDE_INT value)
 {
   unsigned HOST_WIDE_INT v = value > 0 ? value : -value;
   int sz = GET_MODE_SIZE (mode);
@@ -2668,7 +2668,7 @@ bfin_valid_add (enum machine_mode mode, HOST_WIDE_INT value)
 }
 
 static bool
-bfin_valid_reg_p (unsigned int regno, int strict, enum machine_mode mode,
+bfin_valid_reg_p (unsigned int regno, int strict, machine_mode mode,
 		  enum rtx_code outer_code)
 {
   if (strict)
@@ -2696,7 +2696,7 @@ bfin_valid_reg_p (unsigned int regno, int strict, enum machine_mode mode,
 */
 
 static bool
-bfin_legitimate_address_p (enum machine_mode mode, rtx x, bool strict)
+bfin_legitimate_address_p (machine_mode mode, rtx x, bool strict)
 {
   switch (GET_CODE (x)) {
   case REG:
@@ -2735,7 +2735,7 @@ bfin_legitimate_address_p (enum machine_mode mode, rtx x, bool strict)
    another way.  */
 
 static bool
-bfin_cannot_force_const_mem (enum machine_mode mode ATTRIBUTE_UNUSED,
+bfin_cannot_force_const_mem (machine_mode mode ATTRIBUTE_UNUSED,
 			     rtx x ATTRIBUTE_UNUSED)
 {
   /* We have only one class of non-legitimate constants, and our movsi
@@ -2751,7 +2751,7 @@ bfin_cannot_force_const_mem (enum machine_mode mode ATTRIBUTE_UNUSED,
    crossing section boundaries.  */
 
 static bool
-bfin_legitimate_constant_p (enum machine_mode mode ATTRIBUTE_UNUSED, rtx x)
+bfin_legitimate_constant_p (machine_mode mode ATTRIBUTE_UNUSED, rtx x)
 {
   rtx sym;
   HOST_WIDE_INT offset;
@@ -2779,10 +2779,10 @@ bfin_legitimate_constant_p (enum machine_mode mode ATTRIBUTE_UNUSED, rtx x)
 }
 
 static bool
-bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
-		bool speed)
+bfin_rtx_costs (rtx x, machine_mode mode, int outer_code_i, int opno,
+		int *total, bool speed)
 {
-  enum rtx_code code = (enum rtx_code) code_i;
+  enum rtx_code code = GET_CODE (x);
   enum rtx_code outer_code = (enum rtx_code) outer_code_i;
   int cost2 = COSTS_N_INSNS (1);
   rtx op0, op1;
@@ -2821,7 +2821,7 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
     case PLUS:
       op0 = XEXP (x, 0);
       op1 = XEXP (x, 1);
-      if (GET_MODE (x) == SImode)
+      if (mode == SImode)
 	{
 	  if (GET_CODE (op0) == MULT
 	      && GET_CODE (XEXP (op0, 1)) == CONST_INT)
@@ -2830,35 +2830,36 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
 	      if (val == 2 || val == 4)
 		{
 		  *total = cost2;
-		  *total += rtx_cost (XEXP (op0, 0), outer_code, opno, speed);
-		  *total += rtx_cost (op1, outer_code, opno, speed);
+		  *total += rtx_cost (XEXP (op0, 0), mode, outer_code,
+				      opno, speed);
+		  *total += rtx_cost (op1, mode, outer_code, opno, speed);
 		  return true;
 		}
 	    }
 	  *total = cost2;
 	  if (GET_CODE (op0) != REG
 	      && (GET_CODE (op0) != SUBREG || GET_CODE (SUBREG_REG (op0)) != REG))
-	    *total += set_src_cost (op0, speed);
+	    *total += set_src_cost (op0, mode, speed);
 #if 0 /* We'd like to do this for accuracy, but it biases the loop optimizer
 	 towards creating too many induction variables.  */
 	  if (!reg_or_7bit_operand (op1, SImode))
-	    *total += set_src_cost (op1, speed);
+	    *total += set_src_cost (op1, mode, speed);
 #endif
 	}
-      else if (GET_MODE (x) == DImode)
+      else if (mode == DImode)
 	{
 	  *total = 6 * cost2;
 	  if (GET_CODE (op1) != CONST_INT
 	      || !satisfies_constraint_Ks7 (op1))
-	    *total += rtx_cost (op1, PLUS, 1, speed);
+	    *total += rtx_cost (op1, mode, PLUS, 1, speed);
 	  if (GET_CODE (op0) != REG
 	      && (GET_CODE (op0) != SUBREG || GET_CODE (SUBREG_REG (op0)) != REG))
-	    *total += rtx_cost (op0, PLUS, 0, speed);
+	    *total += rtx_cost (op0, mode, PLUS, 0, speed);
 	}
       return true;
 
     case MINUS:
-      if (GET_MODE (x) == DImode)
+      if (mode == DImode)
 	*total = 6 * cost2;
       else
 	*total = cost2;
@@ -2867,7 +2868,7 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
     case ASHIFT: 
     case ASHIFTRT:
     case LSHIFTRT:
-      if (GET_MODE (x) == DImode)
+      if (mode == DImode)
 	*total = 6 * cost2;
       else
 	*total = cost2;
@@ -2876,7 +2877,7 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
       op1 = XEXP (x, 1);
       if (GET_CODE (op0) != REG
 	  && (GET_CODE (op0) != SUBREG || GET_CODE (SUBREG_REG (op0)) != REG))
-	*total += rtx_cost (op0, code, 0, speed);
+	*total += rtx_cost (op0, mode, code, 0, speed);
 
       return true;
 	  
@@ -2901,26 +2902,26 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
 
       if (GET_CODE (op0) != REG
 	  && (GET_CODE (op0) != SUBREG || GET_CODE (SUBREG_REG (op0)) != REG))
-	*total += rtx_cost (op0, code, 0, speed);
+	*total += rtx_cost (op0, mode, code, 0, speed);
 
-      if (GET_MODE (x) == DImode)
+      if (mode == DImode)
 	{
 	  *total = 2 * cost2;
 	  return true;
 	}
       *total = cost2;
-      if (GET_MODE (x) != SImode)
+      if (mode != SImode)
 	return true;
 
       if (code == AND)
 	{
 	  if (! rhs_andsi3_operand (XEXP (x, 1), SImode))
-	    *total += rtx_cost (XEXP (x, 1), code, 1, speed);
+	    *total += rtx_cost (XEXP (x, 1), mode, code, 1, speed);
 	}
       else
 	{
 	  if (! regorlog2_operand (XEXP (x, 1), SImode))
-	    *total += rtx_cost (XEXP (x, 1), code, 1, speed);
+	    *total += rtx_cost (XEXP (x, 1), mode, code, 1, speed);
 	}
 
       return true;
@@ -2960,10 +2961,10 @@ bfin_rtx_costs (rtx x, int code_i, int outer_code_i, int opno, int *total,
 
 	  if (GET_CODE (op0) != REG
 	      && (GET_CODE (op0) != SUBREG || GET_CODE (SUBREG_REG (op0)) != REG))
-	    *total += rtx_cost (op0, MULT, 0, speed);
+	    *total += rtx_cost (op0, mode, MULT, 0, speed);
 	  if (GET_CODE (op1) != REG
 	      && (GET_CODE (op1) != SUBREG || GET_CODE (SUBREG_REG (op1)) != REG))
-	    *total += rtx_cost (op1, MULT, 1, speed);
+	    *total += rtx_cost (op1, mode, MULT, 1, speed);
 	}
       return true;
 
@@ -2989,7 +2990,7 @@ static int first_preg_to_save, first_dreg_to_save;
 static int n_regs_to_save;
 
 int
-push_multiple_operation (rtx op, enum machine_mode mode ATTRIBUTE_UNUSED)
+analyze_push_multiple_operation (rtx op)
 {
   int lastdreg = 8, lastpreg = 6;
   int i, group;
@@ -3060,7 +3061,7 @@ push_multiple_operation (rtx op, enum machine_mode mode ATTRIBUTE_UNUSED)
 }
 
 int
-pop_multiple_operation (rtx op, enum machine_mode mode ATTRIBUTE_UNUSED)
+analyze_pop_multiple_operation (rtx op)
 {
   int lastdreg = 8, lastpreg = 6;
   int i, group;
@@ -3129,7 +3130,7 @@ output_push_multiple (rtx insn, rtx *operands)
   int ok;
   
   /* Validate the insn again, and compute first_[dp]reg_to_save. */
-  ok = push_multiple_operation (PATTERN (insn), VOIDmode);
+  ok = analyze_push_multiple_operation (PATTERN (insn));
   gcc_assert (ok);
   
   if (first_dreg_to_save == 8)
@@ -3153,7 +3154,7 @@ output_pop_multiple (rtx insn, rtx *operands)
   int ok;
   
   /* Validate the insn again, and compute first_[dp]reg_to_save. */
-  ok = pop_multiple_operation (PATTERN (insn), VOIDmode);
+  ok = analyze_pop_multiple_operation (PATTERN (insn));
   gcc_assert (ok);
 
   if (first_dreg_to_save == 8)
@@ -3170,7 +3171,7 @@ output_pop_multiple (rtx insn, rtx *operands)
 /* Adjust DST and SRC by OFFSET bytes, and generate one move in mode MODE.  */
 
 static void
-single_move_for_movmem (rtx dst, rtx src, enum machine_mode mode, HOST_WIDE_INT offset)
+single_move_for_movmem (rtx dst, rtx src, machine_mode mode, HOST_WIDE_INT offset)
 {
   rtx scratch = gen_reg_rtx (mode);
   rtx srcmem, dstmem;
@@ -3285,8 +3286,8 @@ bfin_local_alignment (tree type, unsigned align)
      memcpy can use 32 bit loads/stores.  */
   if (TYPE_SIZE (type)
       && TREE_CODE (TYPE_SIZE (type)) == INTEGER_CST
-      && (TREE_INT_CST_LOW (TYPE_SIZE (type)) > 8
-	  || TREE_INT_CST_HIGH (TYPE_SIZE (type))) && align < 32)
+      && wi::gtu_p (TYPE_SIZE (type), 8)
+      && align < 32)
     return 32;
   return align;
 }
@@ -3300,7 +3301,7 @@ bfin_issue_rate (void)
 }
 
 static int
-bfin_adjust_cost (rtx insn, rtx link, rtx dep_insn, int cost)
+bfin_adjust_cost (rtx_insn *insn, rtx link, rtx_insn *dep_insn, int cost)
 {
   enum attr_type dep_insn_type;
   int dep_insn_code_number;
@@ -3338,8 +3339,8 @@ bfin_adjust_cost (rtx insn, rtx link, rtx dep_insn, int cost)
 /* This function acts like NEXT_INSN, but is aware of three-insn bundles and
    skips all subsequent parallel instructions if INSN is the start of such
    a group.  */
-static rtx
-find_next_insn_start (rtx insn)
+static rtx_insn *
+find_next_insn_start (rtx_insn *insn)
 {
   if (GET_MODE (insn) == SImode)
     {
@@ -3352,8 +3353,8 @@ find_next_insn_start (rtx insn)
 /* This function acts like PREV_INSN, but is aware of three-insn bundles and
    skips all subsequent parallel instructions if INSN is the start of such
    a group.  */
-static rtx
-find_prev_insn_start (rtx insn)
+static rtx_insn *
+find_prev_insn_start (rtx_insn *insn)
 {
   insn = PREV_INSN (insn);
   gcc_assert (GET_MODE (insn) != SImode);
@@ -3365,6 +3366,21 @@ find_prev_insn_start (rtx insn)
   return insn;
 }
 
+/* Implement TARGET_CAN_USE_DOLOOP_P.  */
+
+static bool
+bfin_can_use_doloop_p (const widest_int &, const widest_int &iterations_max,
+		       unsigned int, bool)
+{
+  /* Due to limitations in the hardware (an initial loop count of 0
+     does not loop 2^32 times) we must avoid to generate a hardware
+     loops when we cannot rule out this case.  */
+  if (!flag_unsafe_loop_optimizations
+      && wi::geu_p (iterations_max, 0xFFFFFFFF))
+    return false;
+  return true;
+}
+
 /* Increment the counter for the number of loop instructions in the
    current function.  */
 
@@ -3386,7 +3402,7 @@ bfin_hardware_loop (void)
 /* Estimate the length of INSN conservatively.  */
 
 static int
-length_for_loop (rtx insn)
+length_for_loop (rtx_insn *insn)
 {
   int length = 0;
   if (JUMP_P (insn) && any_condjump_p (insn) && !optimize_size)
@@ -3414,11 +3430,12 @@ static bool
 hwloop_optimize (hwloop_info loop)
 {
   basic_block bb;
-  rtx insn, last_insn;
+  rtx_insn *insn, *last_insn;
   rtx loop_init, start_label, end_label;
   rtx iter_reg, scratchreg, scratch_init, scratch_init_insn;
   rtx lc_reg, lt_reg, lb_reg;
-  rtx seq, seq_end;
+  rtx seq_end;
+  rtx_insn *seq;
   int length;
   bool clobber0, clobber1;
 
@@ -3581,7 +3598,7 @@ hwloop_optimize (hwloop_info loop)
 
       if (single_pred_p (bb)
 	  && single_pred_edge (bb)->flags & EDGE_FALLTHRU
-	  && single_pred (bb) != ENTRY_BLOCK_PTR)
+	  && single_pred (bb) != ENTRY_BLOCK_PTR_FOR_FN (cfun))
 	{
 	  bb = single_pred (bb);
 	  last_insn = BB_END (bb);
@@ -3589,7 +3606,7 @@ hwloop_optimize (hwloop_info loop)
 	}
       else
 	{
-	  last_insn = NULL_RTX;
+	  last_insn = NULL;
 	  break;
 	}
     }
@@ -3737,7 +3754,9 @@ hwloop_optimize (hwloop_info loop)
 	}
       else
 	{
-	  emit_jump_insn (gen_jump (label));
+	  rtx_insn *ret = emit_jump_insn (gen_jump (label));
+	  JUMP_LABEL (ret) = label;
+	  LABEL_NUSES (label)++;
 	  seq_end = emit_barrier ();
 	}
     }
@@ -3747,14 +3766,25 @@ hwloop_optimize (hwloop_info loop)
 
   if (loop->incoming_src)
     {
-      rtx prev = BB_END (loop->incoming_src);
+      rtx_insn *prev = BB_END (loop->incoming_src);
       if (vec_safe_length (loop->incoming) > 1
 	  || !(loop->incoming->last ()->flags & EDGE_FALLTHRU))
 	{
 	  gcc_assert (JUMP_P (prev));
 	  prev = PREV_INSN (prev);
+	  emit_insn_after (seq, prev);
 	}
-      emit_insn_after (seq, prev);
+      else
+	{
+	  emit_insn_after (seq, prev);
+	  BB_END (loop->incoming_src) = prev;
+	  basic_block new_bb = create_basic_block (seq, seq_end,
+						   loop->head->prev_bb);
+	  edge e = loop->incoming->last ();
+	  gcc_assert (e->flags & EDGE_FALLTHRU);
+	  redirect_edge_succ (e, new_bb);
+	  make_edge (new_bb, loop->head, 0);
+	}
     }
   else
     {
@@ -3762,8 +3792,7 @@ hwloop_optimize (hwloop_info loop)
       edge e;
       edge_iterator ei;
 
-#ifdef ENABLE_CHECKING
-      if (loop->head != loop->incoming_dest)
+      if (flag_checking && loop->head != loop->incoming_dest)
 	{
 	  /* We aren't entering the loop at the top.  Since we've established
 	     that the loop is entered only at one point, this means there
@@ -3773,7 +3802,6 @@ hwloop_optimize (hwloop_info loop)
 	  FOR_EACH_EDGE (e, ei, loop->head->preds)
 	    gcc_assert (!(e->flags & EDGE_FALLTHRU));
 	}
-#endif
 
       emit_insn_before (seq, BB_HEAD (loop->head));
       seq = emit_label_before (gen_label_rtx (), seq);
@@ -3792,7 +3820,8 @@ hwloop_optimize (hwloop_info loop)
 
   delete_insn (loop->loop_end);
   /* Insert the loop end label before the last instruction of the loop.  */
-  emit_label_before (loop->end_label, loop->last_insn);
+  emit_label_before (as_a <rtx_code_label *> (loop->end_label),
+		     loop->last_insn);
 
   return true;
 }
@@ -3829,7 +3858,7 @@ hwloop_fail (hwloop_info loop)
   else
     {
       splitting_loops = 1;  
-      try_split (PATTERN (insn), insn, 1);
+      try_split (PATTERN (insn), safe_as_a <rtx_insn *> (insn), 1);
       splitting_loops = 0;
     }
 }
@@ -3839,7 +3868,7 @@ hwloop_fail (hwloop_info loop)
    loop counter.  Otherwise, return NULL_RTX.  */
 
 static rtx
-hwloop_pattern_reg (rtx insn)
+hwloop_pattern_reg (rtx_insn *insn)
 {
   rtx reg;
 
@@ -3872,7 +3901,7 @@ bfin_reorg_loops (void)
 /* Possibly generate a SEQUENCE out of three insns found in SLOT.
    Returns true if we modified the insn chain, false otherwise.  */
 static bool
-gen_one_bundle (rtx slot[3])
+gen_one_bundle (rtx_insn *slot[3])
 {
   gcc_assert (slot[1] != NULL_RTX);
 
@@ -3884,7 +3913,7 @@ gen_one_bundle (rtx slot[3])
   /* Verify that we really can do the multi-issue.  */
   if (slot[0])
     {
-      rtx t = NEXT_INSN (slot[0]);
+      rtx_insn *t = NEXT_INSN (slot[0]);
       while (t != slot[1])
 	{
 	  if (! NOTE_P (t) || NOTE_KIND (t) != NOTE_INSN_DELETED)
@@ -3894,7 +3923,7 @@ gen_one_bundle (rtx slot[3])
     }
   if (slot[2])
     {
-      rtx t = NEXT_INSN (slot[1]);
+      rtx_insn *t = NEXT_INSN (slot[1]);
       while (t != slot[2])
 	{
 	  if (! NOTE_P (t) || NOTE_KIND (t) != NOTE_INSN_DELETED)
@@ -3938,13 +3967,13 @@ static void
 bfin_gen_bundles (void)
 {
   basic_block bb;
-  FOR_EACH_BB (bb)
+  FOR_EACH_BB_FN (bb, cfun)
     {
-      rtx insn, next;
-      rtx slot[3];
+      rtx_insn *insn, *next;
+      rtx_insn *slot[3];
       int n_filled = 0;
 
-      slot[0] = slot[1] = slot[2] = NULL_RTX;
+      slot[0] = slot[1] = slot[2] = NULL;
       for (insn = BB_HEAD (bb);; insn = next)
 	{
 	  int at_end;
@@ -4000,7 +4029,7 @@ bfin_gen_bundles (void)
 		    }
 		}
 	      n_filled = 0;
-	      slot[0] = slot[1] = slot[2] = NULL_RTX;
+	      slot[0] = slot[1] = slot[2] = NULL;
 	    }
 	  if (delete_this != NULL_RTX)
 	    delete_insn (delete_this);
@@ -4017,10 +4046,10 @@ static void
 reorder_var_tracking_notes (void)
 {
   basic_block bb;
-  FOR_EACH_BB (bb)
+  FOR_EACH_BB_FN (bb, cfun)
     {
-      rtx insn, next;
-      rtx queue = NULL_RTX;
+      rtx_insn *insn, *next;
+      rtx_insn *queue = NULL;
       bool in_bundle = false;
 
       for (insn = BB_HEAD (bb); insn != BB_END (bb); insn = next)
@@ -4034,11 +4063,11 @@ reorder_var_tracking_notes (void)
 		{
 		  while (queue)
 		    {
-		      rtx next_queue = PREV_INSN (queue);
-		      PREV_INSN (NEXT_INSN (insn)) = queue;
-		      NEXT_INSN (queue) = NEXT_INSN (insn);
-		      NEXT_INSN (insn) = queue;
-		      PREV_INSN (queue) = insn;
+		      rtx_insn *next_queue = PREV_INSN (queue);
+		      SET_PREV_INSN (NEXT_INSN (insn)) = queue;
+		      SET_NEXT_INSN (queue) = NEXT_INSN (insn);
+		      SET_NEXT_INSN (insn) = queue;
+		      SET_PREV_INSN (queue) = insn;
 		      queue = next_queue;
 		    }
 		  in_bundle = false;
@@ -4050,11 +4079,11 @@ reorder_var_tracking_notes (void)
 	    {
 	      if (in_bundle)
 		{
-		  rtx prev = PREV_INSN (insn);
-		  PREV_INSN (next) = prev;
-		  NEXT_INSN (prev) = next;
+		  rtx_insn *prev = PREV_INSN (insn);
+		  SET_PREV_INSN (next) = prev;
+		  SET_NEXT_INSN (prev) = next;
 
-		  PREV_INSN (insn) = queue;
+		  SET_PREV_INSN (insn) = queue;
 		  queue = insn;
 		}
 	    }
@@ -4068,7 +4097,7 @@ reorder_var_tracking_notes (void)
 static void
 workaround_rts_anomaly (void)
 {
-  rtx insn, first_insn = NULL_RTX;
+  rtx_insn *insn, *first_insn = NULL;
   int cycles = 4;
 
   if (! ENABLE_WA_RETS)
@@ -4117,8 +4146,8 @@ workaround_rts_anomaly (void)
 
 	  if (GET_CODE (pat) == PARALLEL)
 	    {
-	      if (push_multiple_operation (pat, VOIDmode)
-		  || pop_multiple_operation (pat, VOIDmode))
+	      if (analyze_push_multiple_operation (pat)
+		  || analyze_pop_multiple_operation (pat))
 		this_cycles = n_regs_to_save;
 	    }
 	  else
@@ -4150,16 +4179,16 @@ workaround_rts_anomaly (void)
    SEQUENCEs.  */
 
 static enum attr_type
-type_for_anomaly (rtx insn)
+type_for_anomaly (rtx_insn *insn)
 {
   rtx pat = PATTERN (insn);
-  if (GET_CODE (pat) == SEQUENCE)
+  if (rtx_sequence *seq = dyn_cast <rtx_sequence *> (pat))
     {
       enum attr_type t;
-      t = get_attr_type (XVECEXP (pat, 0, 1));
+      t = get_attr_type (seq->insn (1));
       if (t == TYPE_MCLD)
 	return t;
-      t = get_attr_type (XVECEXP (pat, 0, 2));
+      t = get_attr_type (seq->insn (2));
       if (t == TYPE_MCLD)
 	return t;
       return TYPE_MCST;
@@ -4191,7 +4220,7 @@ harmless_null_pointer_p (rtx mem, int np_reg)
 /* Return nonzero if INSN contains any loads that may trap.  */
 
 static bool
-trapping_loads_p (rtx insn, int np_reg, bool after_np_branch)
+trapping_loads_p (rtx_insn *insn, int np_reg, bool after_np_branch)
 {
   rtx mem = SET_SRC (single_set (insn));
 
@@ -4203,23 +4232,23 @@ trapping_loads_p (rtx insn, int np_reg, bool after_np_branch)
 
 /* Return INSN if it is of TYPE_MCLD.  Alternatively, if INSN is the start of
    a three-insn bundle, see if one of them is a load and return that if so.
-   Return NULL_RTX if the insn does not contain loads.  */
-static rtx
-find_load (rtx insn)
+   Return NULL if the insn does not contain loads.  */
+static rtx_insn *
+find_load (rtx_insn *insn)
 {
   if (!NONDEBUG_INSN_P (insn))
-    return NULL_RTX;
+    return NULL;
   if (get_attr_type (insn) == TYPE_MCLD)
     return insn;
   if (GET_MODE (insn) != SImode)
-    return NULL_RTX;
+    return NULL;
   do {
     insn = NEXT_INSN (insn);
     if ((GET_MODE (insn) == SImode || GET_MODE (insn) == QImode)
 	&& get_attr_type (insn) == TYPE_MCLD)
       return insn;
   } while (GET_MODE (insn) != QImode);
-  return NULL_RTX;
+  return NULL;
 }
 
 /* Determine whether PAT is an indirect call pattern.  */
@@ -4260,8 +4289,8 @@ note_np_check_stores (rtx x, const_rtx pat ATTRIBUTE_UNUSED,
 static void
 workaround_speculation (void)
 {
-  rtx insn, next;
-  rtx last_condjump = NULL_RTX;
+  rtx_insn *insn, *next;
+  rtx_insn *last_condjump = NULL;
   int cycles_since_jump = INT_MAX;
   int delay_added = 0;
 
@@ -4333,7 +4362,7 @@ workaround_speculation (void)
 	}
       else if (NONDEBUG_INSN_P (insn))
 	{
-	  rtx load_insn = find_load (insn);
+	  rtx_insn *load_insn = find_load (insn);
 	  enum attr_type type = type_for_anomaly (insn);
 
 	  if (cycles_since_jump < INT_MAX)
@@ -4424,9 +4453,9 @@ workaround_speculation (void)
 	  && (INSN_CODE (insn) == CODE_FOR_cbranch_predicted_taken
 	      || cbranch_predicted_taken_p (insn)))
 	{
-	  rtx target = JUMP_LABEL (insn);
+	  rtx_insn *target = JUMP_LABEL_AS_INSN (insn);
 	  rtx label = target;
-	  rtx next_tgt;
+	  rtx_insn *next_tgt;
 
 	  cycles_since_jump = 0;
 	  for (; target && cycles_since_jump < 3; target = next_tgt)
@@ -4449,7 +4478,7 @@ workaround_speculation (void)
 
 	      if (NONDEBUG_INSN_P (target))
 		{
-		  rtx load_insn = find_load (target);
+		  rtx_insn *load_insn = find_load (target);
 		  enum attr_type type = type_for_anomaly (target);
 		  int delay_needed = 0;
 		  if (cycles_since_jump < INT_MAX)
@@ -4465,7 +4494,7 @@ workaround_speculation (void)
 
 		  if (delay_needed > cycles_since_jump)
 		    {
-		      rtx prev = prev_real_insn (label);
+		      rtx_insn *prev = prev_real_insn (label);
 		      delay_needed -= cycles_since_jump;
 		      if (dump_file)
 			fprintf (dump_file, "Adding %d nops after %d\n",
@@ -4503,7 +4532,7 @@ workaround_speculation (void)
 static void
 add_sched_insns_for_speculation (void)
 {
-  rtx insn;
+  rtx_insn *insn;
 
   if (! ENABLE_WA_SPECULATIVE_LOADS && ! ENABLE_WA_SPECULATIVE_SYNCS
       && ! ENABLE_WA_INDIRECT_CALLS)
@@ -4531,7 +4560,7 @@ add_sched_insns_for_speculation (void)
 	  if (any_condjump_p (insn)
 	      && !cbranch_predicted_taken_p (insn))
 	    {
-	      rtx n = next_real_insn (insn);
+	      rtx_insn *n = next_real_insn (insn);
 	      emit_insn_before (gen_stall (GEN_INT (3)), n);
 	    }
 	}
@@ -4546,7 +4575,7 @@ add_sched_insns_for_speculation (void)
 	  && (cbranch_predicted_taken_p (insn)))
 	{
 	  rtx target = JUMP_LABEL (insn);
-	  rtx next = next_real_insn (target);
+	  rtx_insn *next = next_real_insn (target);
 
 	  if (GET_CODE (PATTERN (next)) == UNSPEC_VOLATILE
 	      && get_attr_type (next) == TYPE_STALL)
@@ -4737,8 +4766,8 @@ bfin_handle_l1_text_attribute (tree *node, tree name, tree ARG_UNUSED (args),
 
   /* The decl may have already been given a section attribute
      from a previous declaration. Ensure they match.  */
-  else if (DECL_SECTION_NAME (decl) != NULL_TREE
-	   && strcmp (TREE_STRING_POINTER (DECL_SECTION_NAME (decl)),
+  else if (DECL_SECTION_NAME (decl) != NULL
+	   && strcmp (DECL_SECTION_NAME (decl),
 		      ".l1.text") != 0)
     {
       error ("section of %q+D conflicts with previous declaration",
@@ -4746,7 +4775,7 @@ bfin_handle_l1_text_attribute (tree *node, tree name, tree ARG_UNUSED (args),
       *no_add_attrs = true;
     }
   else
-    DECL_SECTION_NAME (decl) = build_string (9, ".l1.text");
+    set_decl_section_name (decl, ".l1.text");
 
   return NULL_TREE;
 }
@@ -4788,8 +4817,8 @@ bfin_handle_l1_data_attribute (tree *node, tree name, tree ARG_UNUSED (args),
 
       /* The decl may have already been given a section attribute
 	 from a previous declaration. Ensure they match.  */
-      if (DECL_SECTION_NAME (decl) != NULL_TREE
-	  && strcmp (TREE_STRING_POINTER (DECL_SECTION_NAME (decl)),
+      if (DECL_SECTION_NAME (decl) != NULL
+	  && strcmp (DECL_SECTION_NAME (decl),
 		     section_name) != 0)
 	{
 	  error ("section of %q+D conflicts with previous declaration",
@@ -4797,8 +4826,7 @@ bfin_handle_l1_data_attribute (tree *node, tree name, tree ARG_UNUSED (args),
 	  *no_add_attrs = true;
 	}
       else
-	DECL_SECTION_NAME (decl)
-	  = build_string (strlen (section_name) + 1, section_name);
+	set_decl_section_name (decl, section_name);
     }
 
  return NULL_TREE;
@@ -4815,8 +4843,8 @@ bfin_handle_l2_attribute (tree *node, tree ARG_UNUSED (name),
 
   if (TREE_CODE (decl) == FUNCTION_DECL)
     {
-      if (DECL_SECTION_NAME (decl) != NULL_TREE
-	  && strcmp (TREE_STRING_POINTER (DECL_SECTION_NAME (decl)),
+      if (DECL_SECTION_NAME (decl) != NULL
+	  && strcmp (DECL_SECTION_NAME (decl),
 		     ".l2.text") != 0)
 	{
 	  error ("section of %q+D conflicts with previous declaration",
@@ -4824,12 +4852,12 @@ bfin_handle_l2_attribute (tree *node, tree ARG_UNUSED (name),
 	  *no_add_attrs = true;
 	}
       else
-	DECL_SECTION_NAME (decl) = build_string (9, ".l2.text");
+	set_decl_section_name (decl, ".l2.text");
     }
   else if (TREE_CODE (decl) == VAR_DECL)
     {
-      if (DECL_SECTION_NAME (decl) != NULL_TREE
-	  && strcmp (TREE_STRING_POINTER (DECL_SECTION_NAME (decl)),
+      if (DECL_SECTION_NAME (decl) != NULL
+	  && strcmp (DECL_SECTION_NAME (decl),
 		     ".l2.data") != 0)
 	{
 	  error ("section of %q+D conflicts with previous declaration",
@@ -4837,7 +4865,7 @@ bfin_handle_l2_attribute (tree *node, tree ARG_UNUSED (name),
 	  *no_add_attrs = true;
 	}
       else
-	DECL_SECTION_NAME (decl) = build_string (9, ".l2.data");
+	set_decl_section_name (decl, ".l2.data");
     }
 
   return NULL_TREE;
@@ -5307,7 +5335,7 @@ static const struct builtin_description bdesc_1arg[] =
    where we expect a vector.  To avoid crashing, use one of the vector
    clear instructions.  */
 static rtx
-safe_vector_operand (rtx x, enum machine_mode mode)
+safe_vector_operand (rtx x, machine_mode mode)
 {
   if (x != const0_rtx)
     return x;
@@ -5329,11 +5357,11 @@ bfin_expand_binop_builtin (enum insn_code icode, tree exp, rtx target,
   tree arg1 = CALL_EXPR_ARG (exp, 1);
   rtx op0 = expand_normal (arg0);
   rtx op1 = expand_normal (arg1);
-  enum machine_mode op0mode = GET_MODE (op0);
-  enum machine_mode op1mode = GET_MODE (op1);
-  enum machine_mode tmode = insn_data[icode].operand[0].mode;
-  enum machine_mode mode0 = insn_data[icode].operand[1].mode;
-  enum machine_mode mode1 = insn_data[icode].operand[2].mode;
+  machine_mode op0mode = GET_MODE (op0);
+  machine_mode op1mode = GET_MODE (op1);
+  machine_mode tmode = insn_data[icode].operand[0].mode;
+  machine_mode mode0 = insn_data[icode].operand[1].mode;
+  machine_mode mode1 = insn_data[icode].operand[2].mode;
 
   if (VECTOR_MODE_P (mode0))
     op0 = safe_vector_operand (op0, mode0);
@@ -5385,9 +5413,9 @@ bfin_expand_unop_builtin (enum insn_code icode, tree exp,
   rtx pat;
   tree arg0 = CALL_EXPR_ARG (exp, 0);
   rtx op0 = expand_normal (arg0);
-  enum machine_mode op0mode = GET_MODE (op0);
-  enum machine_mode tmode = insn_data[icode].operand[0].mode;
-  enum machine_mode mode0 = insn_data[icode].operand[1].mode;
+  machine_mode op0mode = GET_MODE (op0);
+  machine_mode tmode = insn_data[icode].operand[0].mode;
+  machine_mode mode0 = insn_data[icode].operand[1].mode;
 
   if (! target
       || GET_MODE (target) != tmode
@@ -5423,7 +5451,7 @@ bfin_expand_unop_builtin (enum insn_code icode, tree exp,
 static rtx
 bfin_expand_builtin (tree exp, rtx target ATTRIBUTE_UNUSED,
 		     rtx subtarget ATTRIBUTE_UNUSED,
-		     enum machine_mode mode ATTRIBUTE_UNUSED,
+		     machine_mode mode ATTRIBUTE_UNUSED,
 		     int ignore ATTRIBUTE_UNUSED)
 {
   size_t i;
@@ -5433,7 +5461,7 @@ bfin_expand_builtin (tree exp, rtx target ATTRIBUTE_UNUSED,
   unsigned int fcode = DECL_FUNCTION_CODE (fndecl);
   tree arg0, arg1, arg2;
   rtx op0, op1, op2, accvec, pat, tmp1, tmp2, a0reg, a1reg;
-  enum machine_mode tmode, mode0;
+  machine_mode tmode, mode0;
 
   switch (fcode)
     {
@@ -5808,5 +5836,8 @@ bfin_conditional_register_usage (void)
    change order of insns.  It also needs a valid CFG.  */
 #undef TARGET_DELAY_VARTRACK
 #define TARGET_DELAY_VARTRACK true
+
+#undef TARGET_CAN_USE_DOLOOP_P
+#define TARGET_CAN_USE_DOLOOP_P bfin_can_use_doloop_p
 
 struct gcc_target targetm = TARGET_INITIALIZER;

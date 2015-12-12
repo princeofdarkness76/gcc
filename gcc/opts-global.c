@@ -1,6 +1,6 @@
 /* Command line option handling.  Code involving global state that
    should not be shared with the driver.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -21,21 +21,21 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
+#include "backend.h"
+#include "rtl.h"
+#include "tree.h"
+#include "tree-pass.h"
 #include "diagnostic.h"
 #include "opts.h"
 #include "flags.h"
-#include "ggc.h"
-#include "tree.h" /* Required by langhooks.h.  */
 #include "langhooks.h"
-#include "tm.h" /* Required by rtl.h.  */
-#include "rtl.h"
 #include "dbgcnt.h"
 #include "debug.h"
-#include "lto-streamer.h"
 #include "output.h"
 #include "plugin.h"
 #include "toplev.h"
-#include "tree-pass.h"
+#include "context.h"
+#include "asan.h"
 
 typedef const char *const_char_p; /* For DEF_VEC_P.  */
 
@@ -47,7 +47,7 @@ unsigned num_in_fnames;
 
 /* Return a malloced slash-separated list of languages in MASK.  */
 
-static char *
+char *
 write_langs (unsigned int mask)
 {
   unsigned int n = 0, len = 0;
@@ -113,7 +113,7 @@ complain_wrong_lang (const struct cl_decoded_option *decoded,
    we only complain about unknown -Wno-* options if they may have
    prevented a diagnostic. Otherwise, we just ignore them.  Note that
    if we do complain, it is only as a warning, not an error; passing
-   the compiler an unrecognised -Wno-* option should never change
+   the compiler an unrecognized -Wno-* option should never change
    whether the compilation succeeds or fails.  */
 
 static void
@@ -133,7 +133,7 @@ print_ignored_options (void)
 
       opt = ignored_options.pop ();
       warning_at (UNKNOWN_LOCATION, 0,
-		  "unrecognized command line option \"%s\"", opt);
+		  "unrecognized command line option %qs", opt);
     }
 }
 
@@ -230,40 +230,6 @@ read_cmdline_options (struct gcc_options *opts, struct gcc_options *opts_set,
     }
 }
 
-/* Handle -ftree-vectorizer-verbose=ARG by remapping it to -fopt-info.
-   It remaps the old verbosity values as following:
-
-   REPORT_NONE ==> No dump is output
-   REPORT_VECTORIZED_LOCATIONS ==> "-optimized"
-   REPORT_UNVECTORIZED_LOCATIONS ==> "-missed"
-
-   Any higher verbosity levels get mapped to "-all" flags.  */
-
-static void
-dump_remap_tree_vectorizer_verbose (const char *arg)
-{
-  int value = atoi (arg);
-  const char *remapped_opt_info = NULL;
-
-  switch (value)
-    {
-    case 0:
-      break;
-    case 1:
-      remapped_opt_info = "optimized";
-      break;
-    case 2:
-      remapped_opt_info = "missed";
-      break;
-    default:
-      remapped_opt_info = "all";
-      break;
-    }
-
-  if (remapped_opt_info)
-    opt_info_switch_p (remapped_opt_info);
-}
-
 /* Language mask determined at initialization.  */
 static unsigned int initial_lang_mask;
 
@@ -276,6 +242,11 @@ init_options_once (void)
   initial_lang_mask = lang_hooks.option_lang_mask ();
 
   lang_hooks.initialize_diagnostics (global_dc);
+  /* ??? Ideally, we should do this earlier and the FEs will override
+     it if desired (none do it so far).  However, the way the FEs
+     construct their pretty-printers means that all previous settings
+     are overriden.  */
+  diagnostic_color_init (global_dc);
 }
 
 /* Decode command-line options to an array, like
@@ -385,7 +356,7 @@ handle_common_deferred_options (void)
 	  break;
 
 	case OPT_fdump_:
-	  if (!dump_switch_p (opt->arg))
+	  if (!g->get_dumps ()->dump_switch_p (opt->arg))
 	    error ("unrecognized command line option %<-fdump-%s%>", opt->arg);
 	  break;
 
@@ -454,9 +425,17 @@ handle_common_deferred_options (void)
 	  stack_limit_rtx = gen_rtx_SYMBOL_REF (Pmode, ggc_strdup (opt->arg));
 	  break;
 
-        case OPT_ftree_vectorizer_verbose_:
-	  dump_remap_tree_vectorizer_verbose (opt->arg);
-          break;
+	case OPT_fasan_shadow_offset_:
+	  if (!(flag_sanitize & SANITIZE_KERNEL_ADDRESS))
+	    error ("-fasan-shadow-offset should only be used "
+		   "with -fsanitize=kernel-address");
+	  if (!set_asan_shadow_offset (opt->arg))
+	     error ("unrecognized shadow offset %qs", opt->arg);
+	  break;
+
+	case OPT_fsanitize_sections_:
+	  set_sanitized_sections (opt->arg);
+	  break;
 
 	default:
 	  gcc_unreachable ();

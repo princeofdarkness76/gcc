@@ -1,5 +1,5 @@
 /* Prints out tree in human readable form - GCC
-   Copyright (C) 1990-2013 Free Software Foundation, Inc.
+   Copyright (C) 1990-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -23,14 +23,16 @@ along with GCC; see the file COPYING3.  If not see
 #include "coretypes.h"
 #include "tm.h"
 #include "tree.h"
-#include "ggc.h"
+#include "cgraph.h"
+#include "diagnostic.h"
+#include "varasm.h"
+#include "print-rtl.h"
+#include "stor-layout.h"
 #include "langhooks.h"
 #include "tree-iterator.h"
-#include "diagnostic.h"
 #include "gimple-pretty-print.h" /* FIXME */
-#include "tree-flow.h"
+#include "tree-cfg.h"
 #include "tree-dump.h"
-#include "dumpfile.h"
 
 /* Define the hash table of nodes already seen.
    Such nodes are not repeated; brief cross-references are used.  */
@@ -71,7 +73,7 @@ print_node_brief (FILE *file, const char *prefix, const_tree node, int indent)
      name if any.  */
   if (indent > 0)
     fprintf (file, " ");
-  fprintf (file, "%s <%s", prefix, tree_code_name[(int) TREE_CODE (node)]);
+  fprintf (file, "%s <%s", prefix, get_tree_code_name (TREE_CODE (node)));
   dump_addr (file, " ", node);
 
   if (tclass == tcc_declaration)
@@ -121,16 +123,7 @@ print_node_brief (FILE *file, const char *prefix, const_tree node, int indent)
 	fprintf (file, " overflow");
 
       fprintf (file, " ");
-      if (TREE_INT_CST_HIGH (node) == 0)
-	fprintf (file, HOST_WIDE_INT_PRINT_UNSIGNED, TREE_INT_CST_LOW (node));
-      else if (TREE_INT_CST_HIGH (node) == -1
-	       && TREE_INT_CST_LOW (node) != 0)
-	fprintf (file, "-" HOST_WIDE_INT_PRINT_UNSIGNED,
-		 -TREE_INT_CST_LOW (node));
-      else
-	fprintf (file, HOST_WIDE_INT_PRINT_DOUBLE_HEX,
-		 (unsigned HOST_WIDE_INT) TREE_INT_CST_HIGH (node),
-		 (unsigned HOST_WIDE_INT) TREE_INT_CST_LOW (node));
+      print_dec (node, file, TYPE_SIGN (TREE_TYPE (node)));
     }
   if (TREE_CODE (node) == REAL_CST)
     {
@@ -187,7 +180,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 {
   int hash;
   struct bucket *b;
-  enum machine_mode mode;
+  machine_mode mode;
   enum tree_code_class tclass;
   int len;
   int i;
@@ -247,7 +240,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
   indent_to (file, indent);
 
   /* Print the slot this node is in, and its code, and address.  */
-  fprintf (file, "%s <%s", prefix, tree_code_name[(int) code]);
+  fprintf (file, "%s <%s", prefix, get_tree_code_name (code));
   dump_addr (file, " ", node);
 
   /* Print the name, if any.  */
@@ -304,6 +297,8 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 
   if (TYPE_P (node) ? TYPE_READONLY (node) : TREE_READONLY (node))
     fputs (" readonly", file);
+  if (TYPE_P (node) && TYPE_ATOMIC (node))
+    fputs (" atomic", file);
   if (!TYPE_P (node) && TREE_CONSTANT (node))
     fputs (" constant", file);
   else if (TYPE_P (node) && TYPE_SIZES_GIMPLIFIED (node))
@@ -335,7 +330,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
   if (TREE_VISITED (node))
     fputs (" visited", file);
 
-  if (code != TREE_VEC && code != SSA_NAME)
+  if (code != TREE_VEC && code != INTEGER_CST && code != SSA_NAME)
     {
       if (TREE_LANG_FLAG_0 (node))
 	fputs (" tree_0", file);
@@ -364,7 +359,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 	    fputs (" unsigned", file);
 	  if (DECL_IGNORED_P (node))
 	    fputs (" ignored", file);
-	  if (DECL_ABSTRACT (node))
+	  if (DECL_ABSTRACT_P (node))
 	    fputs (" abstract", file);
 	  if (DECL_EXTERNAL (node))
 	    fputs (" external", file);
@@ -409,8 +404,6 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
       if (code == FIELD_DECL && DECL_NONADDRESSABLE_P (node))
 	fputs (" nonaddressable", file);
 
-      if (code == LABEL_DECL && DECL_ERROR_ISSUED (node))
-	fputs (" error-issued", file);
       if (code == LABEL_DECL && EH_LANDING_PAD_NR (node))
 	fprintf (file, " landing-pad:%d", EH_LANDING_PAD_NR (node));
 
@@ -422,24 +415,8 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 	fputs (" common", file);
       if (code == VAR_DECL && DECL_THREAD_LOCAL_P (node))
 	{
-	  enum tls_model kind = DECL_TLS_MODEL (node);
-	  switch (kind)
-	    {
-	      case TLS_MODEL_GLOBAL_DYNAMIC:
-		fputs (" tls-global-dynamic", file);
-		break;
-	      case TLS_MODEL_LOCAL_DYNAMIC:
-		fputs (" tls-local-dynamic", file);
-		break;
-	      case TLS_MODEL_INITIAL_EXEC:
-		fputs (" tls-initial-exec", file);
-		break;
-	      case TLS_MODEL_LOCAL_EXEC:
-		fputs (" tls-local-exec", file);
-		break;
-	      default:
-		gcc_unreachable ();
-	    }
+	  fputs (" ", file);
+	  fputs (tls_model_names[DECL_TLS_MODEL (node)], file);
 	}
 
       if (CODE_CONTAINS_STRUCT (code, TS_DECL_COMMON))
@@ -534,7 +511,6 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 	}
       if (CODE_CONTAINS_STRUCT (code, TS_DECL_NON_COMMON))
 	{
-	  print_node (file, "arguments", DECL_ARGUMENT_FLD (node), indent + 4);
 	  print_node (file, "result", DECL_RESULT_FLD (node), indent + 4);
 	}
 
@@ -560,6 +536,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
       else if (code == FUNCTION_DECL
 	       && DECL_STRUCT_FUNCTION (node) != 0)
 	{
+	  print_node (file, "arguments", DECL_ARGUMENTS (node), indent + 4);
 	  indent_to (file, indent + 4);
 	  dump_addr (file, "struct-function ", DECL_STRUCT_FUNCTION (node));
 	}
@@ -579,18 +556,21 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
       if (TYPE_UNSIGNED (node))
 	fputs (" unsigned", file);
 
-      /* The no-force-blk flag is used for different things in
-	 different types.  */
-      if ((code == RECORD_TYPE
-	   || code == UNION_TYPE
-	   || code == QUAL_UNION_TYPE)
-	  && TYPE_NO_FORCE_BLK (node))
+      if (TYPE_NO_FORCE_BLK (node))
 	fputs (" no-force-blk", file);
 
       if (TYPE_STRING_FLAG (node))
 	fputs (" string-flag", file);
+
       if (TYPE_NEEDS_CONSTRUCTING (node))
 	fputs (" needs-constructing", file);
+
+      if ((code == RECORD_TYPE
+	   || code == UNION_TYPE
+	   || code == QUAL_UNION_TYPE
+	   || code == ARRAY_TYPE)
+	  && TYPE_REVERSE_STORAGE_ORDER (node))
+	fputs (" reverse-storage-order", file);
 
       /* The transparent-union flag is used for different things in
 	 different nodes.  */
@@ -743,17 +723,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 	    fprintf (file, " overflow");
 
 	  fprintf (file, " ");
-	  if (TREE_INT_CST_HIGH (node) == 0)
-	    fprintf (file, HOST_WIDE_INT_PRINT_UNSIGNED,
-		     TREE_INT_CST_LOW (node));
-	  else if (TREE_INT_CST_HIGH (node) == -1
-		   && TREE_INT_CST_LOW (node) != 0)
-	    fprintf (file, "-" HOST_WIDE_INT_PRINT_UNSIGNED,
-		     -TREE_INT_CST_LOW (node));
-	  else
-	    fprintf (file, HOST_WIDE_INT_PRINT_DOUBLE_HEX,
-		     (unsigned HOST_WIDE_INT) TREE_INT_CST_HIGH (node),
-		     (unsigned HOST_WIDE_INT) TREE_INT_CST_LOW (node));
+	  print_dec (node, file, TYPE_SIGN (TREE_TYPE (node)));
 	  break;
 
 	case REAL_CST:
@@ -820,7 +790,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 		if (ch >= ' ' && ch < 127)
 		  putc (ch, file);
 		else
-		  fprintf(file, "\\%03o", ch & 0xFF);
+		  fprintf (file, "\\%03o", ch & 0xFF);
 	      }
 	    fputc ('\"', file);
 	  }
@@ -838,6 +808,7 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 
 	case TREE_VEC:
 	  len = TREE_VEC_LENGTH (node);
+	  fprintf (file, " length %d", len);
 	  for (i = 0; i < len; i++)
 	    if (TREE_VEC_ELT (node, i))
 	      {
@@ -942,6 +913,17 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
 			    indent + 4);
 	  break;
 
+	case TREE_BINFO:
+	  fprintf (file, " bases %d",
+		   vec_safe_length (BINFO_BASE_BINFOS (node)));
+	  print_node_brief (file, "offset", BINFO_OFFSET (node), indent + 4);
+	  print_node_brief (file, "virtuals", BINFO_VIRTUALS (node),
+			    indent + 4);
+	  print_node_brief (file, "inheritance chain",
+			    BINFO_INHERITANCE_CHAIN (node),
+			    indent + 4);
+	  break;
+
 	default:
 	  if (EXCEPTIONAL_CLASS_P (node))
 	    lang_hooks.print_xnode (file, node, indent);
@@ -956,33 +938,30 @@ print_node (FILE *file, const char *prefix, tree node, int indent)
       expanded_location xloc = expand_location (EXPR_LOCATION (node));
       indent_to (file, indent+4);
       fprintf (file, "%s:%d:%d", xloc.file, xloc.line, xloc.column);
+
+      /* Print the range, if any */
+      source_range r = EXPR_LOCATION_RANGE (node);
+      if (r.m_start)
+	{
+	  xloc = expand_location (r.m_start);
+	  fprintf (file, " start: %s:%d:%d", xloc.file, xloc.line, xloc.column);
+	}
+      else
+	{
+	  fprintf (file, " start: unknown");
+	}
+      if (r.m_finish)
+	{
+	  xloc = expand_location (r.m_finish);
+	  fprintf (file, " finish: %s:%d:%d", xloc.file, xloc.line, xloc.column);
+	}
+      else
+	{
+	  fprintf (file, " finish: unknown");
+	}
     }
 
   fprintf (file, ">");
-}
-
-/* Print the tree vector VEC in full on file FILE, preceded by PREFIX,
-   starting in column INDENT.  */
-
-void
-print_vec_tree (FILE *file, const char *prefix, vec<tree, va_gc> *vec, int indent)
-{
-  tree elt;
-  unsigned ix;
-
-  /* Indent to the specified column, since this is the long form.  */
-  indent_to (file, indent);
-
-  /* Print the slot this node is in, and its code, and address.  */
-  fprintf (file, "%s <VEC", prefix);
-  dump_addr (file, " ", vec->address ());
-
-  FOR_EACH_VEC_ELT (*vec, ix, elt)
-    {
-      char temp[10];
-      sprintf (temp, "elt %d", ix);
-      print_node (file, temp, elt, indent + 4);
-    }
 }
 
 
@@ -1097,26 +1076,37 @@ debug_body (const tree_node *ptr)
    down to a depth of six.  */
 
 DEBUG_FUNCTION void
-debug_vec_tree (vec<tree, va_gc> *vec)
+debug_raw (vec<tree, va_gc> &ref)
 {
   tree elt;
   unsigned ix;
 
   /* Print the slot this node is in, and its code, and address.  */
   fprintf (stderr, "<VEC");
-  dump_addr (stderr, " ", vec->address ());
+  dump_addr (stderr, " ", ref.address ());
 
-  FOR_EACH_VEC_ELT (*vec, ix, elt)
+  FOR_EACH_VEC_ELT (ref, ix, elt)
     {
       fprintf (stderr, "elt %d ", ix);
-      debug (elt);
+      debug_raw (elt);
     }
 }
 
 DEBUG_FUNCTION void
 debug (vec<tree, va_gc> &ref)
 {
-  debug_vec_tree (&ref);
+  tree elt;
+  unsigned ix;
+
+  /* Print the slot this node is in, and its code, and address.  */
+  fprintf (stderr, "<VEC");
+  dump_addr (stderr, " ", ref.address ());
+
+  FOR_EACH_VEC_ELT (ref, ix, elt)
+    {
+      fprintf (stderr, "elt %d ", ix);
+      debug (elt);
+    }
 }
 
 DEBUG_FUNCTION void
@@ -1126,4 +1116,19 @@ debug (vec<tree, va_gc> *ptr)
     debug (*ptr);
   else
     fprintf (stderr, "<nil>\n");
+}
+
+DEBUG_FUNCTION void
+debug_raw (vec<tree, va_gc> *ptr)
+{
+  if (ptr)
+    debug_raw (*ptr);
+  else
+    fprintf (stderr, "<nil>\n");
+}
+
+DEBUG_FUNCTION void
+debug_vec_tree (vec<tree, va_gc> *vec)
+{
+  debug_raw (vec);
 }

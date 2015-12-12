@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin freebsd netbsd openbsd
+// +build darwin dragonfly freebsd netbsd openbsd
 
 package syscall
 
@@ -15,10 +15,17 @@ type SysProcAttr struct {
 	Credential *Credential // Credential.
 	Ptrace     bool        // Enable tracing.
 	Setsid     bool        // Create session.
-	Setpgid    bool        // Set process group ID to new pid (SYSV setpgrp)
-	Setctty    bool        // Set controlling terminal to fd 0
+	Setpgid    bool        // Set process group ID to Pgid, or, if Pgid == 0, to new pid.
+	Setctty    bool        // Set controlling terminal to fd Ctty
 	Noctty     bool        // Detach fd 0 from controlling terminal
+	Ctty       int         // Controlling TTY fd
+	Foreground bool        // Place child's process group in foreground. (Implies Setpgid. Uses Ctty as fd of controlling TTY)
+	Pgid       int         // Child's process group ID if Setpgid.
 }
+
+// Implemented in runtime package.
+func runtime_BeforeFork()
+func runtime_AfterFork()
 
 // Fork, dup fd onto 0..len(fd), and exec(argv0, argvv, envv) in child.
 // If a dup or exec fails, write the errno error to pipe.
@@ -26,6 +33,7 @@ type SysProcAttr struct {
 // In the child, this function must not acquire any locks, because
 // they might have been locked at the time of the fork.  This means
 // no rescheduling, no malloc calls, and no new stack segments.
+// For the same reason compiler does not race instrument it.
 // The calls to RawSyscall are okay because they are assembly
 // functions that do not grow the stack.
 func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *ProcAttr, sys *SysProcAttr, pipe int) (pid int, err Errno) {
@@ -38,20 +46,31 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		i      int
 	)
 
+	// guard against side effects of shuffling fds below.
+	// Make sure that nextfd is beyond any currently open files so
+	// that we can't run the risk of overwriting any of them.
 	fd := make([]int, len(attr.Files))
+	nextfd = len(attr.Files)
 	for i, ufd := range attr.Files {
+		if nextfd < int(ufd) {
+			nextfd = int(ufd)
+		}
 		fd[i] = int(ufd)
 	}
+	nextfd++
 
 	// About to call fork.
 	// No more allocation or calls of non-assembly functions.
+	runtime_BeforeFork()
 	r1, err1 = raw_fork()
 	if err1 != 0 {
+		runtime_AfterFork()
 		return 0, err1
 	}
 
 	if r1 != 0 {
 		// parent; return PID
+		runtime_AfterFork()
 		return int(r1), 0
 	}
 
@@ -74,8 +93,22 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 	}
 
 	// Set process group
-	if sys.Setpgid {
-		err1 = raw_setpgid(0, 0)
+	if sys.Setpgid || sys.Foreground {
+		// Place child in process group.
+		err1 = raw_setpgid(0, sys.Pgid)
+		if err1 != 0 {
+			goto childerror
+		}
+	}
+
+	if sys.Foreground {
+		pgrp := Pid_t(sys.Pgid)
+		if pgrp == 0 {
+			pgrp = raw_getpid()
+		}
+
+		// Place process group in foreground.
+		_, err1 = raw_ioctl_ptr(sys.Ctty, TIOCSPGRP, unsafe.Pointer(&pgrp))
 		if err1 != 0 {
 			goto childerror
 		}
@@ -136,7 +169,6 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 
 	// Pass 1: look for fd[i] < i and move those up above len(fd)
 	// so that pass 2 won't stomp on an fd it needs later.
-	nextfd = int(len(fd))
 	if pipe < nextfd {
 		err1 = raw_dup2(pipe, nextfd)
 		if err1 != 0 {
@@ -200,9 +232,9 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 		}
 	}
 
-	// Make fd 0 the tty
+	// Set the controlling TTY to Ctty
 	if sys.Setctty {
-		_, err1 = raw_ioctl(0, TIOCSCTTY, 0)
+		_, err1 = raw_ioctl(sys.Ctty, TIOCSCTTY, 0)
 		if err1 != 0 {
 			goto childerror
 		}
@@ -217,11 +249,6 @@ childerror:
 	for {
 		raw_exit(253)
 	}
-
-	// Calling panic is not actually safe,
-	// but the for loop above won't break
-	// and this shuts up the compiler.
-	panic("unreached")
 }
 
 // Try to open a pipe with O_CLOEXEC set on both file descriptors.

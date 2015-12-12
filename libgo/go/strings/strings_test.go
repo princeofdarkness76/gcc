@@ -120,6 +120,23 @@ func TestLastIndex(t *testing.T)    { runIndexTests(t, LastIndex, "LastIndex", l
 func TestIndexAny(t *testing.T)     { runIndexTests(t, IndexAny, "IndexAny", indexAnyTests) }
 func TestLastIndexAny(t *testing.T) { runIndexTests(t, LastIndexAny, "LastIndexAny", lastIndexAnyTests) }
 
+func TestLastIndexByte(t *testing.T) {
+	testCases := []IndexTest{
+		{"", "q", -1},
+		{"abcdef", "q", -1},
+		{"abcdefabcdef", "a", len("abcdef")},      // something in the middle
+		{"abcdefabcdef", "f", len("abcdefabcde")}, // last byte
+		{"zabcdefabcdef", "z", 0},                 // first byte
+		{"a☺b☻c☹d", "b", len("a☺")},               // non-ascii
+	}
+	for _, test := range testCases {
+		actual := LastIndexByte(test.s, test.sep[0])
+		if actual != test.out {
+			t.Errorf("LastIndexByte(%q,%c) = %v; want %v", test.s, test.sep[0], actual, test.out)
+		}
+	}
+}
+
 var indexRuneTests = []struct {
 	s    string
 	rune rune
@@ -165,6 +182,24 @@ func BenchmarkIndex(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		Index(benchmarkString, "v")
+	}
+}
+
+func BenchmarkLastIndex(b *testing.B) {
+	if got := Index(benchmarkString, "v"); got != 17 {
+		b.Fatalf("wrong index: expected 17, got=%d", got)
+	}
+	for i := 0; i < b.N; i++ {
+		LastIndex(benchmarkString, "v")
+	}
+}
+
+func BenchmarkIndexByte(b *testing.B) {
+	if got := IndexByte(benchmarkString, 'v'); got != 17 {
+		b.Fatalf("wrong index: expected 17, got=%d", got)
+	}
+	for i := 0; i < b.N; i++ {
+		IndexByte(benchmarkString, 'v')
 	}
 }
 
@@ -496,8 +531,8 @@ func TestSpecialCase(t *testing.T) {
 func TestTrimSpace(t *testing.T) { runStringTests(t, TrimSpace, "TrimSpace", trimSpaceTests) }
 
 var trimTests = []struct {
-	f               string
-	in, cutset, out string
+	f            string
+	in, arg, out string
 }{
 	{"Trim", "abba", "a", "bb"},
 	{"Trim", "abba", "ab", ""},
@@ -520,6 +555,10 @@ var trimTests = []struct {
 	{"TrimRight", "", "123", ""},
 	{"TrimRight", "", "", ""},
 	{"TrimRight", "☺\xc0", "☺", "☺\xc0"},
+	{"TrimPrefix", "aabb", "a", "abb"},
+	{"TrimPrefix", "aabb", "b", "aabb"},
+	{"TrimSuffix", "aabb", "a", "aabb"},
+	{"TrimSuffix", "aabb", "b", "aab"},
 }
 
 func TestTrim(t *testing.T) {
@@ -533,12 +572,45 @@ func TestTrim(t *testing.T) {
 			f = TrimLeft
 		case "TrimRight":
 			f = TrimRight
+		case "TrimPrefix":
+			f = TrimPrefix
+		case "TrimSuffix":
+			f = TrimSuffix
 		default:
 			t.Errorf("Undefined trim function %s", name)
 		}
-		actual := f(tc.in, tc.cutset)
+		actual := f(tc.in, tc.arg)
 		if actual != tc.out {
-			t.Errorf("%s(%q, %q) = %q; want %q", name, tc.in, tc.cutset, actual, tc.out)
+			t.Errorf("%s(%q, %q) = %q; want %q", name, tc.in, tc.arg, actual, tc.out)
+		}
+	}
+}
+
+func BenchmarkTrim(b *testing.B) {
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		for _, tc := range trimTests {
+			name := tc.f
+			var f func(string, string) string
+			switch name {
+			case "Trim":
+				f = Trim
+			case "TrimLeft":
+				f = TrimLeft
+			case "TrimRight":
+				f = TrimRight
+			case "TrimPrefix":
+				f = TrimPrefix
+			case "TrimSuffix":
+				f = TrimSuffix
+			default:
+				b.Errorf("Undefined trim function %s", name)
+			}
+			actual := f(tc.in, tc.arg)
+			if actual != tc.out {
+				b.Errorf("%s(%q, %q) = %q; want %q", name, tc.in, tc.arg, actual, tc.out)
+			}
 		}
 	}
 }
@@ -635,7 +707,7 @@ func equal(m string, s1, s2 string, t *testing.T) bool {
 	e1 := Split(s1, "")
 	e2 := Split(s2, "")
 	for i, c1 := range e1 {
-		if i > len(e2) {
+		if i >= len(e2) {
 			break
 		}
 		r1, _ := utf8.DecodeRuneInString(c1)
@@ -841,6 +913,32 @@ func TestReadRune(t *testing.T) {
 	}
 }
 
+var UnreadRuneErrorTests = []struct {
+	name string
+	f    func(*Reader)
+}{
+	{"Read", func(r *Reader) { r.Read([]byte{0}) }},
+	{"ReadByte", func(r *Reader) { r.ReadByte() }},
+	{"UnreadRune", func(r *Reader) { r.UnreadRune() }},
+	{"Seek", func(r *Reader) { r.Seek(0, 1) }},
+	{"WriteTo", func(r *Reader) { r.WriteTo(&bytes.Buffer{}) }},
+}
+
+func TestUnreadRuneError(t *testing.T) {
+	for _, tt := range UnreadRuneErrorTests {
+		reader := NewReader("0123456789")
+		if _, _, err := reader.ReadRune(); err != nil {
+			// should not happen
+			t.Fatal(err)
+		}
+		tt.f(reader)
+		err := reader.UnreadRune()
+		if err == nil {
+			t.Errorf("Unreading after %s: expected error", tt.name)
+		}
+	}
+}
+
 var ReplaceTests = []struct {
 	in       string
 	old, new string
@@ -886,6 +984,8 @@ var TitleTests = []struct {
 	{"123a456", "123a456"},
 	{"double-blind", "Double-Blind"},
 	{"ÿøû", "Ÿøû"},
+	{"with_underscore", "With_underscore"},
+	{"unicode \xe2\x80\xa8 line separator", "Unicode \xe2\x80\xa8 Line Separator"},
 }
 
 func TestTitle(t *testing.T) {
@@ -959,7 +1059,7 @@ var ContainsRuneTests = []struct {
 func TestContainsRune(t *testing.T) {
 	for _, ct := range ContainsRuneTests {
 		if ContainsRune(ct.str, ct.r) != ct.expected {
-			t.Errorf("ContainsRune(%s, %s) = %v, want %v",
+			t.Errorf("ContainsRune(%q, %q) = %v, want %v",
 				ct.str, ct.r, !ct.expected, ct.expected)
 		}
 	}
@@ -990,6 +1090,102 @@ func TestEqualFold(t *testing.T) {
 		if out := EqualFold(tt.t, tt.s); out != tt.out {
 			t.Errorf("EqualFold(%#q, %#q) = %v, want %v", tt.t, tt.s, out, tt.out)
 		}
+	}
+}
+
+var CountTests = []struct {
+	s, sep string
+	num    int
+}{
+	{"", "", 1},
+	{"", "notempty", 0},
+	{"notempty", "", 9},
+	{"smaller", "not smaller", 0},
+	{"12345678987654321", "6", 2},
+	{"611161116", "6", 3},
+	{"notequal", "NotEqual", 0},
+	{"equal", "equal", 1},
+	{"abc1231231123q", "123", 3},
+	{"11111", "11", 2},
+}
+
+func TestCount(t *testing.T) {
+	for _, tt := range CountTests {
+		if num := Count(tt.s, tt.sep); num != tt.num {
+			t.Errorf("Count(\"%s\", \"%s\") = %d, want %d", tt.s, tt.sep, num, tt.num)
+		}
+	}
+}
+
+func makeBenchInputHard() string {
+	tokens := [...]string{
+		"<a>", "<p>", "<b>", "<strong>",
+		"</a>", "</p>", "</b>", "</strong>",
+		"hello", "world",
+	}
+	x := make([]byte, 0, 1<<20)
+	for {
+		i := rand.Intn(len(tokens))
+		if len(x)+len(tokens[i]) >= 1<<20 {
+			break
+		}
+		x = append(x, tokens[i]...)
+	}
+	return string(x)
+}
+
+var benchInputHard = makeBenchInputHard()
+
+func benchmarkIndexHard(b *testing.B, sep string) {
+	for i := 0; i < b.N; i++ {
+		Index(benchInputHard, sep)
+	}
+}
+
+func benchmarkLastIndexHard(b *testing.B, sep string) {
+	for i := 0; i < b.N; i++ {
+		LastIndex(benchInputHard, sep)
+	}
+}
+
+func benchmarkCountHard(b *testing.B, sep string) {
+	for i := 0; i < b.N; i++ {
+		Count(benchInputHard, sep)
+	}
+}
+
+func BenchmarkIndexHard1(b *testing.B) { benchmarkIndexHard(b, "<>") }
+func BenchmarkIndexHard2(b *testing.B) { benchmarkIndexHard(b, "</pre>") }
+func BenchmarkIndexHard3(b *testing.B) { benchmarkIndexHard(b, "<b>hello world</b>") }
+
+func BenchmarkLastIndexHard1(b *testing.B) { benchmarkLastIndexHard(b, "<>") }
+func BenchmarkLastIndexHard2(b *testing.B) { benchmarkLastIndexHard(b, "</pre>") }
+func BenchmarkLastIndexHard3(b *testing.B) { benchmarkLastIndexHard(b, "<b>hello world</b>") }
+
+func BenchmarkCountHard1(b *testing.B) { benchmarkCountHard(b, "<>") }
+func BenchmarkCountHard2(b *testing.B) { benchmarkCountHard(b, "</pre>") }
+func BenchmarkCountHard3(b *testing.B) { benchmarkCountHard(b, "<b>hello world</b>") }
+
+var benchInputTorture = Repeat("ABC", 1<<10) + "123" + Repeat("ABC", 1<<10)
+var benchNeedleTorture = Repeat("ABC", 1<<10+1)
+
+func BenchmarkIndexTorture(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Index(benchInputTorture, benchNeedleTorture)
+	}
+}
+
+func BenchmarkCountTorture(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Count(benchInputTorture, benchNeedleTorture)
+	}
+}
+
+func BenchmarkCountTortureOverlapping(b *testing.B) {
+	A := Repeat("ABC", 1<<20)
+	B := Repeat("ABC", 1<<10)
+	for i := 0; i < b.N; i++ {
+		Count(A, B)
 	}
 }
 
@@ -1026,5 +1222,29 @@ func BenchmarkFieldsFunc(b *testing.B) {
 	b.SetBytes(int64(len(fieldsInput)))
 	for i := 0; i < b.N; i++ {
 		FieldsFunc(fieldsInput, unicode.IsSpace)
+	}
+}
+
+func BenchmarkSplit1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Split(benchInputHard, "")
+	}
+}
+
+func BenchmarkSplit2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Split(benchInputHard, "/")
+	}
+}
+
+func BenchmarkSplit3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Split(benchInputHard, "hello")
+	}
+}
+
+func BenchmarkRepeat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Repeat("-", 80)
 	}
 }

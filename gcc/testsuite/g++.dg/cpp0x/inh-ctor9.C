@@ -1,4 +1,4 @@
-// { dg-options "-std=c++11" }
+// { dg-do compile { target c++11 } }
 
 class A
 {
@@ -9,7 +9,7 @@ protected:
 
 struct B: A
 {
-  using A::A;			// { dg-error "protected" }
+  using A::A;			// { dg-message "protected" }
 };
 
 B b(42);			// { dg-error "this context" }

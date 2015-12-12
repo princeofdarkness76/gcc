@@ -1,5 +1,5 @@
 /* Language-dependent hooks for C++.
-   Copyright (C) 2001-2013 Free Software Foundation, Inc.
+   Copyright (C) 2001-2015 Free Software Foundation, Inc.
    Contributed by Alexandre Oliva  <aoliva@redhat.com>
 
 This file is part of GCC.
@@ -21,17 +21,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
-#include "tree.h"
 #include "cp-tree.h"
-#include "c-family/c-common.h"
+#include "stor-layout.h"
 #include "langhooks.h"
 #include "langhooks-def.h"
-#include "debug.h"
 #include "cp-objcp-common.h"
-#include "hashtab.h"
-#include "target.h"
-#include "parser.h"
 
 enum c_language_kind c_language = clk_cxx;
 static void cp_init_ts (void);
@@ -40,6 +34,7 @@ static enum classify_record cp_classify_record (tree type);
 static tree cp_eh_personality (void);
 static tree get_template_innermost_arguments_folded (const_tree);
 static tree get_template_argument_pack_elems_folded (const_tree);
+static tree cxx_enum_underlying_base_type (const_tree);
 
 /* Lang hooks common to C++ and ObjC++ are declared in cp/cp-objcp-common.h;
    consequently, there should be very few hooks below.  */
@@ -81,6 +76,8 @@ static tree get_template_argument_pack_elems_folded (const_tree);
 #define LANG_HOOKS_EH_PERSONALITY cp_eh_personality
 #undef LANG_HOOKS_EH_RUNTIME_TYPE
 #define LANG_HOOKS_EH_RUNTIME_TYPE build_eh_type_type
+#undef LANG_HOOKS_ENUM_UNDERLYING_BASE_TYPE
+#define LANG_HOOKS_ENUM_UNDERLYING_BASE_TYPE cxx_enum_underlying_base_type
 
 /* Each front end provides its own lang hook initializer.  */
 struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
@@ -114,7 +111,7 @@ cxx_dwarf_name (tree t, int verbosity)
   gcc_assert (DECL_P (t));
 
   if (DECL_NAME (t)
-      && (ANON_AGGRNAME_P (DECL_NAME (t)) || LAMBDA_TYPE_P (t)))
+      && (anon_aggrname_p (DECL_NAME (t)) || LAMBDA_TYPE_P (t)))
     return NULL;
   if (verbosity >= 2)
     return decl_as_dwarf_string (t,
@@ -217,6 +214,22 @@ static tree
 get_template_argument_pack_elems_folded (const_tree t)
 {
   return fold_cplus_constants (get_template_argument_pack_elems (t));
+}
+
+/* The C++ version of the enum_underlying_base_type langhook.
+   See also cp/semantics.c (finish_underlying_type).  */
+
+static
+tree cxx_enum_underlying_base_type (const_tree type)
+{
+  tree underlying_type = ENUM_UNDERLYING_TYPE (type);
+
+  if (! ENUM_FIXED_UNDERLYING_TYPE_P (type))
+    underlying_type
+      = c_common_type_for_mode (TYPE_MODE (underlying_type),
+                                TYPE_UNSIGNED (underlying_type));
+
+  return underlying_type;
 }
 
 #include "gt-cp-cp-lang.h"

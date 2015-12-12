@@ -1,3 +1,41 @@
+2015-06-30  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* configure: Regenerated.
+
+2015-05-13  Michael Haubenwallner  <michael.haubenwallner@ssi-schaefer.com>
+
+	* aclocal.m4: Regenerated with automake-1.11.6.
+
+2015-01-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Update copyright years.
+
+2014-11-11  David Malcolm  <dmalcolm@redhat.com>
+
+	* ChangeLog.jit: New.
+
+2014-01-23  Marek Polacek  <polacek@redhat.com>
+
+	PR c/59871
+	* decNumberLocal.h (UBFROMUS, UBFROMUI): Remove last argument.
+
+2014-01-02  Richard Sandiford  <rdsandiford@googlemail.com>
+
+	Update copyright years
+
+2013-10-15  David Malcolm  <dmalcolm@redhat.com>
+
+	* Makefile.in (PICFLAG): New.
+	(ALL_CFLAGS): Add PICFLAG.
+	* configure.ac: Add --enable-host-shared, setting up new
+	PICFLAG variable.
+	* configure: Regenerate.
+
+2013-07-09  Simon Baldwin  <simonb@google.com>
+
+	* configure.ac: Add AC_CONFIG_AUX_DIR.
+	* configure: Regenerated.
+		
 2013-03-27  Kai Tietz  <ktietz@redhat.com>
 
 	* configure: Regenerated.

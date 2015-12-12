@@ -122,6 +122,9 @@ func Walk(v Visitor, node Node) {
 		if n.High != nil {
 			Walk(v, n.High)
 		}
+		if n.Max != nil {
+			Walk(v, n.Max)
+		}
 
 	case *TypeAssertExpr:
 		Walk(v, n.X)
@@ -272,7 +275,9 @@ func Walk(v Visitor, node Node) {
 		Walk(v, n.Body)
 
 	case *RangeStmt:
-		Walk(v, n.Key)
+		if n.Key != nil {
+			Walk(v, n.Key)
+		}
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
@@ -356,8 +361,7 @@ func Walk(v Visitor, node Node) {
 		}
 
 	default:
-		fmt.Printf("ast.Walk: unexpected node type %T", n)
-		panic("ast.Walk")
+		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))
 	}
 
 	v.Visit(nil)
@@ -374,7 +378,8 @@ func (f inspector) Visit(node Node) Visitor {
 
 // Inspect traverses an AST in depth-first order: It starts by calling
 // f(node); node must not be nil. If f returns true, Inspect invokes f
-// for all the non-nil children of node, recursively.
+// recursively for each of the non-nil children of node, followed by a
+// call of f(nil).
 //
 func Inspect(node Node, f func(Node) bool) {
 	Walk(inspector(f), node)

@@ -19,6 +19,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime"
+	"mime/quotedprintable"
 	"net/textproto"
 )
 
@@ -28,7 +29,12 @@ var emptyParams = make(map[string]string)
 type Part struct {
 	// The headers of the body, if any, with the keys canonicalized
 	// in the same fashion that the Go http.Request headers are.
-	// i.e. "foo-bar" changes case to "Foo-Bar"
+	// For example, "foo-bar" changes case to "Foo-Bar"
+	//
+	// As a special case, if the "Content-Transfer-Encoding" header
+	// has a value of "quoted-printable", that header is instead
+	// hidden from this map and the body is transparently decoded
+	// during Read calls.
 	Header textproto.MIMEHeader
 
 	buffer    *bytes.Buffer
@@ -76,13 +82,16 @@ func (p *Part) parseContentDisposition() {
 	}
 }
 
-// NewReader creates a new multipart Reader reading from reader using the
+// NewReader creates a new multipart Reader reading from r using the
 // given MIME boundary.
-func NewReader(reader io.Reader, boundary string) *Reader {
+//
+// The boundary is usually obtained from the "boundary" parameter of
+// the message's "Content-Type" header. Use mime.ParseMediaType to
+// parse such headers.
+func NewReader(r io.Reader, boundary string) *Reader {
 	b := []byte("\r\n--" + boundary + "--")
 	return &Reader{
-		bufReader: bufio.NewReader(reader),
-
+		bufReader:        bufio.NewReader(r),
 		nl:               b[:2],
 		nlDashBoundary:   b[:len(b)-2],
 		dashBoundaryDash: b[2:],
@@ -103,7 +112,7 @@ func newPart(mr *Reader) (*Part, error) {
 	const cte = "Content-Transfer-Encoding"
 	if bp.Header.Get(cte) == "quoted-printable" {
 		bp.Header.Del(cte)
-		bp.r = newQuotedPrintableReader(bp.r)
+		bp.r = quotedprintable.NewReader(bp.r)
 	}
 	return bp, nil
 }
@@ -156,16 +165,18 @@ func (pr partReader) Read(d []byte) (n int, err error) {
 	if peek == nil {
 		panic("nil peek buf")
 	}
-
 	// Search the peek buffer for "\r\n--boundary". If found,
 	// consume everything up to the boundary. If not, consume only
 	// as much of the peek buffer as cannot hold the boundary
 	// string.
 	nCopy := 0
 	foundBoundary := false
-	if idx := bytes.Index(peek, p.mr.nlDashBoundary); idx != -1 {
+	if idx, isEnd := p.mr.peekBufferSeparatorIndex(peek); idx != -1 {
 		nCopy = idx
-		foundBoundary = true
+		foundBoundary = isEnd
+		if !isEnd && nCopy == 0 {
+			nCopy = 1 // make some progress.
+		}
 	} else if safeCount := len(peek) - len(p.mr.nlDashBoundary); safeCount > 0 {
 		nCopy = safeCount
 	} else if unexpectedEOF {
@@ -265,11 +276,10 @@ func (r *Reader) NextPart() (*Part, error) {
 
 		return nil, fmt.Errorf("multipart: unexpected line in Next(): %q", line)
 	}
-	panic("unreachable")
 }
 
-// isFinalBoundary returns whether line is the final boundary line
-// indiciating that all parts are over.
+// isFinalBoundary reports whether line is the final boundary line
+// indicating that all parts are over.
 // It matches `^--boundary--[ \t]*(\r\n)?$`
 func (mr *Reader) isFinalBoundary(line []byte) bool {
 	if !bytes.HasPrefix(line, mr.dashBoundaryDash) {
@@ -303,8 +313,8 @@ func (mr *Reader) isBoundaryDelimiterLine(line []byte) (ret bool) {
 	return bytes.Equal(rest, mr.nl)
 }
 
-// peekBufferIsEmptyPart returns whether the provided peek-ahead
-// buffer represents an empty part.  This is only called if we've not
+// peekBufferIsEmptyPart reports whether the provided peek-ahead
+// buffer represents an empty part. It is called only if we've not
 // already read any bytes in this part and checks for the case of MIME
 // software not writing the \r\n on empty parts. Some does, some
 // doesn't.
@@ -328,6 +338,33 @@ func (mr *Reader) peekBufferIsEmptyPart(peek []byte) bool {
 	rest := peek[len(mr.dashBoundary):]
 	rest = skipLWSPChar(rest)
 	return bytes.HasPrefix(rest, mr.nl)
+}
+
+// peekBufferSeparatorIndex returns the index of mr.nlDashBoundary in
+// peek and whether it is a real boundary (and not a prefix of an
+// unrelated separator). To be the end, the peek buffer must contain a
+// newline after the boundary.
+func (mr *Reader) peekBufferSeparatorIndex(peek []byte) (idx int, isEnd bool) {
+	idx = bytes.Index(peek, mr.nlDashBoundary)
+	if idx == -1 {
+		return
+	}
+	peek = peek[idx+len(mr.nlDashBoundary):]
+	if len(peek) > 1 && peek[0] == '-' && peek[1] == '-' {
+		return idx, true
+	}
+	peek = skipLWSPChar(peek)
+	// Don't have a complete line after the peek.
+	if bytes.IndexByte(peek, '\n') == -1 {
+		return -1, false
+	}
+	if len(peek) > 0 && peek[0] == '\n' {
+		return idx, true
+	}
+	if len(peek) > 1 && peek[0] == '\r' && peek[1] == '\n' {
+		return idx, true
+	}
+	return idx, false
 }
 
 // skipLWSPChar returns b with leading spaces and tabs removed.

@@ -73,4 +73,11 @@ void foo()
   /* { dg-error "expected" "expected" { target *-*-* } 71 } */
   for (int i=0; i < 1000; ++i)
     a[i] = b[j];
+<<<<<<< HEAD
+=======
+
+#pragma simd linear(j : k)
+  for (int i=0; i < 1234; ++i)
+    a[i] = b[j];
+>>>>>>> gcc-mirror/master
 }

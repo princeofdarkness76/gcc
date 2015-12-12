@@ -87,6 +87,15 @@ field"`,
 		},
 	},
 	{
+		Name:               "BlankLineFieldCount",
+		Input:              "a,b,c\n\nd,e,f\n\n",
+		UseFieldsPerRecord: true,
+		Output: [][]string{
+			{"a", "b", "c"},
+			{"d", "e", "f"},
+		},
+	},
+	{
 		Name:             "TrimSpace",
 		Input:            " a,  b,   c\n",
 		TrimLeadingSpace: true,
@@ -171,32 +180,32 @@ field"`,
 		Output: [][]string{{"a", "b", "c"}, {"d", "e"}},
 	},
 	{
-		Name:  "BadTrailingCommaEOF",
-		Input: "a,b,c,",
-		Error: "extra delimiter at end of line", Line: 1, Column: 5,
+		Name:   "TrailingCommaEOF",
+		Input:  "a,b,c,",
+		Output: [][]string{{"a", "b", "c", ""}},
 	},
 	{
-		Name:  "BadTrailingCommaEOL",
-		Input: "a,b,c,\n",
-		Error: "extra delimiter at end of line", Line: 1, Column: 5,
+		Name:   "TrailingCommaEOL",
+		Input:  "a,b,c,\n",
+		Output: [][]string{{"a", "b", "c", ""}},
 	},
 	{
-		Name:             "BadTrailingCommaSpaceEOF",
+		Name:             "TrailingCommaSpaceEOF",
 		TrimLeadingSpace: true,
 		Input:            "a,b,c, ",
-		Error:            "extra delimiter at end of line", Line: 1, Column: 5,
+		Output:           [][]string{{"a", "b", "c", ""}},
 	},
 	{
-		Name:             "BadTrailingCommaSpaceEOL",
+		Name:             "TrailingCommaSpaceEOL",
 		TrimLeadingSpace: true,
 		Input:            "a,b,c, \n",
-		Error:            "extra delimiter at end of line", Line: 1, Column: 5,
+		Output:           [][]string{{"a", "b", "c", ""}},
 	},
 	{
-		Name:             "BadTrailingCommaLine3",
+		Name:             "TrailingCommaLine3",
 		TrimLeadingSpace: true,
 		Input:            "a,b,c\nd,e,f\ng,hi,",
-		Error:            "extra delimiter at end of line", Line: 3, Column: 4,
+		Output:           [][]string{{"a", "b", "c"}, {"d", "e", "f"}, {"g", "hi", ""}},
 	},
 	{
 		Name:   "NotTrailingComma3",
@@ -231,7 +240,7 @@ x,,,
 		},
 	},
 	{
-		Name:             "Issue 2366",
+		Name:             "TrailingCommaIneffective1",
 		TrailingComma:    true,
 		TrimLeadingSpace: true,
 		Input:            "a,b,\nc,d,e",
@@ -241,11 +250,14 @@ x,,,
 		},
 	},
 	{
-		Name:             "Issue 2366a",
+		Name:             "TrailingCommaIneffective2",
 		TrailingComma:    false,
 		TrimLeadingSpace: true,
 		Input:            "a,b,\nc,d,e",
-		Error:            "extra delimiter at end of line",
+		Output: [][]string{
+			{"a", "b", ""},
+			{"c", "d", "e"},
+		},
 	},
 }
 
@@ -276,6 +288,28 @@ func TestRead(t *testing.T) {
 			t.Errorf("%s: unexpected error %v", tt.Name, err)
 		} else if !reflect.DeepEqual(out, tt.Output) {
 			t.Errorf("%s: out=%q want %q", tt.Name, out, tt.Output)
+		}
+	}
+}
+
+func BenchmarkRead(b *testing.B) {
+	data := `x,y,z,w
+x,y,z,
+x,y,,
+x,,,
+,,,
+"x","y","z","w"
+"x","y","z",""
+"x","y","",""
+"x","","",""
+"","","",""
+`
+
+	for i := 0; i < b.N; i++ {
+		_, err := NewReader(strings.NewReader(data)).ReadAll()
+
+		if err != nil {
+			b.Fatalf("could not read data: %s", err)
 		}
 	}
 }

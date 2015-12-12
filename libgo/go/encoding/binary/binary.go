@@ -2,17 +2,23 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package binary implements translation between numbers and byte sequences
-// and encoding and decoding of varints.
+// Package binary implements simple translation between numbers and byte
+// sequences and encoding and decoding of varints.
 //
 // Numbers are translated by reading and writing fixed-size values.
 // A fixed-size value is either a fixed-size arithmetic
 // type (int8, uint8, int16, float32, complex64, ...)
 // or an array or struct containing only fixed-size values.
 //
-// Varints are a method of encoding integers using one or more bytes;
-// numbers with smaller absolute value take a smaller number of bytes.
-// For a specification, see http://code.google.com/apis/protocolbuffers/docs/encoding.html.
+// The varint functions encode and decode single integer values using
+// a variable-length encoding; smaller values require fewer bytes.
+// For a specification, see
+// https://developers.google.com/protocol-buffers/docs/encoding.
+//
+// This package favors simplicity over efficiency. Clients that require
+// high-performance serialization, especially for large data structures,
+// should look at more advanced solutions such as the encoding/gob
+// package or protocol buffers.
 package binary
 
 import (
@@ -128,48 +134,83 @@ func (bigEndian) GoString() string { return "binary.BigEndian" }
 // When reading into structs, the field data for fields with
 // blank (_) field names is skipped; i.e., blank field names
 // may be used for padding.
+// When reading into a struct, all non-blank fields must be exported.
 func Read(r io.Reader, order ByteOrder, data interface{}) error {
-	// Fast path for basic types.
-	if n := intDestSize(data); n != 0 {
+	// Fast path for basic types and slices.
+	if n := intDataSize(data); n != 0 {
 		var b [8]byte
-		bs := b[:n]
+		var bs []byte
+		if n > len(b) {
+			bs = make([]byte, n)
+		} else {
+			bs = b[:n]
+		}
 		if _, err := io.ReadFull(r, bs); err != nil {
 			return err
 		}
-		switch v := data.(type) {
+		switch data := data.(type) {
 		case *int8:
-			*v = int8(b[0])
+			*data = int8(b[0])
 		case *uint8:
-			*v = b[0]
+			*data = b[0]
 		case *int16:
-			*v = int16(order.Uint16(bs))
+			*data = int16(order.Uint16(bs))
 		case *uint16:
-			*v = order.Uint16(bs)
+			*data = order.Uint16(bs)
 		case *int32:
-			*v = int32(order.Uint32(bs))
+			*data = int32(order.Uint32(bs))
 		case *uint32:
-			*v = order.Uint32(bs)
+			*data = order.Uint32(bs)
 		case *int64:
-			*v = int64(order.Uint64(bs))
+			*data = int64(order.Uint64(bs))
 		case *uint64:
-			*v = order.Uint64(bs)
+			*data = order.Uint64(bs)
+		case []int8:
+			for i, x := range bs { // Easier to loop over the input for 8-bit values.
+				data[i] = int8(x)
+			}
+		case []uint8:
+			copy(data, bs)
+		case []int16:
+			for i := range data {
+				data[i] = int16(order.Uint16(bs[2*i:]))
+			}
+		case []uint16:
+			for i := range data {
+				data[i] = order.Uint16(bs[2*i:])
+			}
+		case []int32:
+			for i := range data {
+				data[i] = int32(order.Uint32(bs[4*i:]))
+			}
+		case []uint32:
+			for i := range data {
+				data[i] = order.Uint32(bs[4*i:])
+			}
+		case []int64:
+			for i := range data {
+				data[i] = int64(order.Uint64(bs[8*i:]))
+			}
+		case []uint64:
+			for i := range data {
+				data[i] = order.Uint64(bs[8*i:])
+			}
 		}
 		return nil
 	}
 
 	// Fallback to reflect-based decoding.
-	var v reflect.Value
-	switch d := reflect.ValueOf(data); d.Kind() {
+	v := reflect.ValueOf(data)
+	size := -1
+	switch v.Kind() {
 	case reflect.Ptr:
-		v = d.Elem()
+		v = v.Elem()
+		size = dataSize(v)
 	case reflect.Slice:
-		v = d
-	default:
-		return errors.New("binary.Read: invalid type " + d.Type().String())
+		size = dataSize(v)
 	}
-	size := dataSize(v)
 	if size < 0 {
-		return errors.New("binary.Read: invalid type " + v.Type().String())
+		return errors.New("binary.Read: invalid type " + reflect.TypeOf(data).String())
 	}
 	d := &decoder{order: order, buf: make([]byte, size)}
 	if _, err := io.ReadFull(r, d.buf); err != nil {
@@ -187,60 +228,79 @@ func Read(r io.Reader, order ByteOrder, data interface{}) error {
 // When writing structs, zero values are written for fields
 // with blank (_) field names.
 func Write(w io.Writer, order ByteOrder, data interface{}) error {
-	// Fast path for basic types.
-	var b [8]byte
-	var bs []byte
-	switch v := data.(type) {
-	case *int8:
-		bs = b[:1]
-		b[0] = byte(*v)
-	case int8:
-		bs = b[:1]
-		b[0] = byte(v)
-	case *uint8:
-		bs = b[:1]
-		b[0] = *v
-	case uint8:
-		bs = b[:1]
-		b[0] = byte(v)
-	case *int16:
-		bs = b[:2]
-		order.PutUint16(bs, uint16(*v))
-	case int16:
-		bs = b[:2]
-		order.PutUint16(bs, uint16(v))
-	case *uint16:
-		bs = b[:2]
-		order.PutUint16(bs, *v)
-	case uint16:
-		bs = b[:2]
-		order.PutUint16(bs, v)
-	case *int32:
-		bs = b[:4]
-		order.PutUint32(bs, uint32(*v))
-	case int32:
-		bs = b[:4]
-		order.PutUint32(bs, uint32(v))
-	case *uint32:
-		bs = b[:4]
-		order.PutUint32(bs, *v)
-	case uint32:
-		bs = b[:4]
-		order.PutUint32(bs, v)
-	case *int64:
-		bs = b[:8]
-		order.PutUint64(bs, uint64(*v))
-	case int64:
-		bs = b[:8]
-		order.PutUint64(bs, uint64(v))
-	case *uint64:
-		bs = b[:8]
-		order.PutUint64(bs, *v)
-	case uint64:
-		bs = b[:8]
-		order.PutUint64(bs, v)
-	}
-	if bs != nil {
+	// Fast path for basic types and slices.
+	if n := intDataSize(data); n != 0 {
+		var b [8]byte
+		var bs []byte
+		if n > len(b) {
+			bs = make([]byte, n)
+		} else {
+			bs = b[:n]
+		}
+		switch v := data.(type) {
+		case *int8:
+			b[0] = byte(*v)
+		case int8:
+			b[0] = byte(v)
+		case []int8:
+			for i, x := range v {
+				bs[i] = byte(x)
+			}
+		case *uint8:
+			b[0] = *v
+		case uint8:
+			b[0] = byte(v)
+		case []uint8:
+			bs = v
+		case *int16:
+			order.PutUint16(bs, uint16(*v))
+		case int16:
+			order.PutUint16(bs, uint16(v))
+		case []int16:
+			for i, x := range v {
+				order.PutUint16(bs[2*i:], uint16(x))
+			}
+		case *uint16:
+			order.PutUint16(bs, *v)
+		case uint16:
+			order.PutUint16(bs, v)
+		case []uint16:
+			for i, x := range v {
+				order.PutUint16(bs[2*i:], x)
+			}
+		case *int32:
+			order.PutUint32(bs, uint32(*v))
+		case int32:
+			order.PutUint32(bs, uint32(v))
+		case []int32:
+			for i, x := range v {
+				order.PutUint32(bs[4*i:], uint32(x))
+			}
+		case *uint32:
+			order.PutUint32(bs, *v)
+		case uint32:
+			order.PutUint32(bs, v)
+		case []uint32:
+			for i, x := range v {
+				order.PutUint32(bs[4*i:], x)
+			}
+		case *int64:
+			order.PutUint64(bs, uint64(*v))
+		case int64:
+			order.PutUint64(bs, uint64(v))
+		case []int64:
+			for i, x := range v {
+				order.PutUint64(bs[8*i:], uint64(x))
+			}
+		case *uint64:
+			order.PutUint64(bs, *v)
+		case uint64:
+			order.PutUint64(bs, v)
+		case []uint64:
+			for i, x := range v {
+				order.PutUint64(bs[8*i:], x)
+			}
+		}
 		_, err := w.Write(bs)
 		return err
 	}
@@ -249,7 +309,7 @@ func Write(w io.Writer, order ByteOrder, data interface{}) error {
 	v := reflect.Indirect(reflect.ValueOf(data))
 	size := dataSize(v)
 	if size < 0 {
-		return errors.New("binary.Write: invalid type " + v.Type().String())
+		return errors.New("binary.Write: invalid type " + reflect.TypeOf(data).String())
 	}
 	buf := make([]byte, size)
 	e := &encoder{order: order, buf: buf}
@@ -260,6 +320,7 @@ func Write(w io.Writer, order ByteOrder, data interface{}) error {
 
 // Size returns how many bytes Write would generate to encode the value v, which
 // must be a fixed-size value or a slice of fixed-size values, or a pointer to such data.
+// If v is neither of these, Size returns -1.
 func Size(v interface{}) int {
 	return dataSize(reflect.Indirect(reflect.ValueOf(v)))
 }
@@ -267,26 +328,24 @@ func Size(v interface{}) int {
 // dataSize returns the number of bytes the actual data represented by v occupies in memory.
 // For compound structures, it sums the sizes of the elements. Thus, for instance, for a slice
 // it returns the length of the slice times the element size and does not count the memory
-// occupied by the header.
+// occupied by the header. If the type of v is not acceptable, dataSize returns -1.
 func dataSize(v reflect.Value) int {
 	if v.Kind() == reflect.Slice {
-		elem := sizeof(v.Type().Elem())
-		if elem < 0 {
-			return -1
+		if s := sizeof(v.Type().Elem()); s >= 0 {
+			return s * v.Len()
 		}
-		return v.Len() * elem
+		return -1
 	}
 	return sizeof(v.Type())
 }
 
+// sizeof returns the size >= 0 of variables for the given type or -1 if the type is not acceptable.
 func sizeof(t reflect.Type) int {
 	switch t.Kind() {
 	case reflect.Array:
-		n := sizeof(t.Elem())
-		if n < 0 {
-			return -1
+		if s := sizeof(t.Elem()); s >= 0 {
+			return s * t.Len()
 		}
-		return t.Len() * n
 
 	case reflect.Struct:
 		sum := 0
@@ -304,6 +363,7 @@ func sizeof(t reflect.Type) int {
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
 		return int(t.Size())
 	}
+
 	return -1
 }
 
@@ -525,18 +585,34 @@ func (e *encoder) skip(v reflect.Value) {
 	e.buf = e.buf[n:]
 }
 
-// intDestSize returns the size of the integer that ptrType points to,
-// or 0 if the type is not supported.
-func intDestSize(ptrType interface{}) int {
-	switch ptrType.(type) {
-	case *int8, *uint8:
+// intDataSize returns the size of the data required to represent the data when encoded.
+// It returns zero if the type cannot be implemented by the fast path in Read or Write.
+func intDataSize(data interface{}) int {
+	switch data := data.(type) {
+	case int8, uint8, *int8, *uint8:
 		return 1
-	case *int16, *uint16:
+	case []int8:
+		return len(data)
+	case []uint8:
+		return len(data)
+	case int16, uint16, *int16, *uint16:
 		return 2
-	case *int32, *uint32:
+	case []int16:
+		return 2 * len(data)
+	case []uint16:
+		return 2 * len(data)
+	case int32, uint32, *int32, *uint32:
 		return 4
-	case *int64, *uint64:
+	case []int32:
+		return 4 * len(data)
+	case []uint32:
+		return 4 * len(data)
+	case int64, uint64, *int64, *uint64:
 		return 8
+	case []int64:
+		return 8 * len(data)
+	case []uint64:
+		return 8 * len(data)
 	}
 	return 0
 }

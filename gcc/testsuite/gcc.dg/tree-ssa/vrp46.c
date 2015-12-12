@@ -1,6 +1,9 @@
 /* { dg-do compile } */
 /* { dg-options "-O2 -fdump-tree-vrp1" } */
 
+int func_81 (int);
+int func_98 (int);
+
 void
 func_18 ( int t )
 {
@@ -25,4 +28,3 @@ func_18 ( int t )
 /* There should be a single if left.  */
 
 /* { dg-final { scan-tree-dump-times "if" 1 "vrp1" } } */
-/* { dg-final { cleanup-tree-dump "vrp1" } } */

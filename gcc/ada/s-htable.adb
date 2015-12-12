@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---                    Copyright (C) 1995-2012, AdaCore                      --
+--                    Copyright (C) 1995-2015, AdaCore                      --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-pragma Compiler_Unit;
+pragma Compiler_Unit_Warning;
 
 with Ada.Unchecked_Deallocation;
 with System.String_Hash;
@@ -149,7 +149,7 @@ package body System.HTable is
 
          else
             loop
-               Next_Elmt :=  Next (Elmt);
+               Next_Elmt := Next (Elmt);
 
                if Next_Elmt = Null_Ptr then
                   return;

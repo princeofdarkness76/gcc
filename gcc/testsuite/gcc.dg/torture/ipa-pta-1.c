@@ -1,5 +1,5 @@
 /* { dg-do compile { target { nonpic } } } */
-/* { dg-options "-fipa-pta -fdump-ipa-pta" } */
+/* { dg-options "-fipa-pta -fdump-ipa-pta -fno-ipa-icf" } */
 /* { dg-skip-if "" { *-*-* } { "-O0" "-fno-fat-lto-objects" } { "" } } */
 
 struct X { char x; char y; };
@@ -43,4 +43,3 @@ void test4 (int a4, char b, char c, char d, char e, char f, char g, char h)
 }
 
 /* { dg-final { scan-ipa-dump "bar.arg0 = { test4.arg0 test3.arg0 test2.arg0 test1.arg0 }" "pta" } } */
-/* { dg-final { cleanup-ipa-dump "pta" } } */

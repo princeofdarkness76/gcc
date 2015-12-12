@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* { dg-options "-std=gnu99 -fopenmp" } */
+=======
+/* { dg-additional-options "-std=gnu99" } */
+>>>>>>> gcc-mirror/master
 
 extern void abort (void);
 
@@ -21,11 +25,20 @@ extern void abort (void);
 #undef F
 #undef G
 
+<<<<<<< HEAD
+=======
+#undef SC
+#define SC static
+>>>>>>> gcc-mirror/master
 #define F for simd
 #define G f_simd
 #include "for-1.h"
 #undef F
 #undef G
+<<<<<<< HEAD
+=======
+#undef SC
+>>>>>>> gcc-mirror/master
 
 int
 main ()

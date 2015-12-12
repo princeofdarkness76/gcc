@@ -4,9 +4,9 @@
 --                                                                          --
 --                             B I N D U S G                                --
 --                                                                          --
---                                B o d y                                   --
+--                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1992-2012, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -108,7 +108,10 @@ package body Bindusg is
 
       --  Line for -E switch
 
-      Write_Line ("  -E        Store tracebacks in exception occurrences");
+      Write_Line ("  -Ea       Store tracebacks in exception occurrences");
+      Write_Line ("  -Es       Store tracebacks in exception occurrences,");
+      Write_Line ("            and enable symbolic tracebacks");
+      Write_Line ("  -E        Same as -Ea");
 
       --  The -f switch is voluntarily omitted, because it is obsolete
 
@@ -119,11 +122,6 @@ package body Bindusg is
       --  Line for -h switch
 
       Write_Line ("  -h        Output this usage (help) information");
-
-      --  Line for -H switch
-
-      Write_Line ("  -Hnn      Use nn bit heap where nn is 32 or 64 " &
-                  "(VMS Only)");
 
       --  Lines for -I switch
 
@@ -233,6 +231,10 @@ package body Bindusg is
       Write_Line ("  -v        Verbose mode. Error messages, " &
                   "header, summary output to stdout");
 
+      --  Line for -V switch
+
+      Write_Line ("  -Vkey=val Record bind-time variable key " &
+                  "with value val");
       --  Line for -w switch
 
       Write_Line ("  -wx       Warning mode. (x=s/e for " &

@@ -6,7 +6,7 @@
  *                                                                          *
  *                              C Header File                               *
  *                                                                          *
- *            Copyright (C) 1992-2012, Free Software Foundation, Inc.       *
+ *            Copyright (C) 1992-2015, Free Software Foundation, Inc.       *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -88,6 +88,9 @@ Get_Decoded_Name_String (Name_Id Id)
   return Name_Buffer;
 }
 
+#define Name_Equals namet__name_equals
+extern Boolean Name_Equals (Name_Id, Name_Id);
+
 /* Like Get_Decoded_Name_String, but the result has all qualification and
    package body entity suffixes stripped, and also all letters are upper
    cased.  This is used for building the enumeration literal table. */
@@ -108,9 +111,6 @@ extern char *Spec_Context_List, *Body_Context_List;
 #define Spec_Filename exp_dbug__spec_filename
 #define Body_Filename exp_dbug__body_filename
 extern char *Spec_Filename, *Body_Filename;
-
-#define Is_Non_Ada_Error exp_ch11__is_non_ada_error
-extern Boolean Is_Non_Ada_Error (Entity_Id);
 
 /* Here are some functions in sinput.adb we call from trans.c.  */
 

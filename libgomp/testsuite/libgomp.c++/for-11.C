@@ -75,10 +75,14 @@ int
 main ()
 {
   int err = 0;
+<<<<<<< HEAD
 // FIXME: distribute construct must be closely nested
 // in teams region, but we don't handle target expansions
 // yet.  Enable when it works.
 // #pragma omp target teams reduction(|:err)
+=======
+  #pragma omp target teams reduction(|:err)
+>>>>>>> gcc-mirror/master
     {
       err |= test_d_normal ();
       err |= test_d_ds128_normal ();

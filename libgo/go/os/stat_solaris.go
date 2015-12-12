@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-func sameFile(sys1, sys2 interface{}) bool {
-	stat1 := sys1.(*syscall.Stat_t)
-	stat2 := sys2.(*syscall.Stat_t)
+func sameFile(fs1, fs2 *fileStat) bool {
+	stat1 := fs1.sys.(*syscall.Stat_t)
+	stat2 := fs2.sys.(*syscall.Stat_t)
 	return stat1.Dev == stat2.Dev && stat1.Ino == stat2.Ino
 }
 
@@ -24,8 +24,10 @@ func fileInfoFromStat(st *syscall.Stat_t, name string) FileInfo {
 	}
 	fs.mode = FileMode(st.Mode & 0777)
 	switch st.Mode & syscall.S_IFMT {
-	case syscall.S_IFBLK, syscall.S_IFCHR:
+	case syscall.S_IFBLK:
 		fs.mode |= ModeDevice
+	case syscall.S_IFCHR:
+		fs.mode |= ModeDevice | ModeCharDevice
 	case syscall.S_IFDIR:
 		fs.mode |= ModeDir
 	case syscall.S_IFIFO:
@@ -42,6 +44,9 @@ func fileInfoFromStat(st *syscall.Stat_t, name string) FileInfo {
 	}
 	if st.Mode&syscall.S_ISUID != 0 {
 		fs.mode |= ModeSetuid
+	}
+	if st.Mode&syscall.S_ISVTX != 0 {
+		fs.mode |= ModeSticky
 	}
 	return fs
 }

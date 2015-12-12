@@ -1,5 +1,5 @@
 /* Handle the constant pool of the Java(TM) Virtual Machine.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -24,12 +24,13 @@ The Free Software Foundation is independent of Sun Microsystems, Inc.  */
 #include "system.h"
 #include "coretypes.h"
 #include "tm.h"
-#include "jcf.h"
 #include "tree.h"
+#include "stringpool.h"
+#include "jcf.h"
+#include "fold-const.h"
+#include "stor-layout.h"
 #include "java-tree.h"
-#include "diagnostic-core.h"
 #include "toplev.h"
-#include "ggc.h"
 
 static void set_constant_entry (CPool *, int, int, jword);
 static int find_tree_constant (CPool *, int, tree);
@@ -44,11 +45,8 @@ set_constant_entry (CPool *cpool, int index, int tag, jword value)
   if (cpool->data == NULL)
     {
       cpool->capacity = 100;
-      cpool->tags = (uint8 *) ggc_alloc_cleared_atomic (sizeof (uint8)
-						* cpool->capacity);
-      cpool->data = ggc_alloc_cleared_vec_cpool_entry (sizeof
-						       (union cpool_entry),
-						       cpool->capacity);
+      cpool->tags = ggc_cleared_vec_alloc<uint8> (cpool->capacity);
+      cpool->data = ggc_cleared_vec_alloc<cpool_entry> (cpool->capacity);
       cpool->count = 1;
     }
   if (index >= cpool->capacity)
@@ -336,7 +334,7 @@ cpool_for_class (tree klass)
 
   if (cpool == NULL)
     {
-      cpool = ggc_alloc_cleared_CPool ();
+      cpool = ggc_cleared_alloc<CPool> ();
       TYPE_CPOOL (klass) = cpool;
     }
   return cpool;

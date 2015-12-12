@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 2004-2013, Free Software Foundation, Inc.         --
+--          Copyright (C) 2004-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -27,8 +27,9 @@
 -- This unit was originally developed by Matthew J Heaney.                  --
 ------------------------------------------------------------------------------
 
---  The references below to "CLR" refer to the following book, from which
---  several of the algorithms here were adapted:
+--  The references in this file to "CLR" refer to the following book, from
+--  which several of the algorithms here were adapted:
+
 --     Introduction to Algorithms
 --     by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest
 --     Publisher: The MIT Press (June 18, 1990)
@@ -37,6 +38,10 @@
 with System;  use type System.Address;
 
 package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
+
+   pragma Warnings (Off, "variable ""Busy*"" is not referenced");
+   pragma Warnings (Off, "variable ""Lock*"" is not referenced");
+   --  See comment in Ada.Containers.Helpers
 
    -----------------------
    -- Local Subprograms --
@@ -54,17 +59,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
 
    procedure Clear_Tree (Tree : in out Tree_Type'Class) is
    begin
-      if Tree.Busy > 0 then
-         raise Program_Error with
-           "attempt to tamper with cursors (container is busy)";
-      end if;
-
-      --  The lock status (which monitors "element tampering") always implies
-      --  that the busy status (which monitors "cursor tampering") is set too;
-      --  this is a representation invariant. Thus if the busy bit is not set,
-      --  then the lock bit must not be set either.
-
-      pragma Assert (Tree.Lock = 0);
+      TC_Check (Tree.TC);
 
       Tree.First  := 0;
       Tree.Last   := 0;
@@ -89,11 +84,9 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
 
    begin
       X := Node;
-      while X /= Tree.Root
-        and then Color (N (X)) = Black
-      loop
+      while X /= Tree.Root and then Color (N (X)) = Black loop
          if X = Left (N (Parent (N (X)))) then
-            W :=  Right (N (Parent (N (X))));
+            W := Right (N (Parent (N (X))));
 
             if Color (N (W)) = Red then
                Set_Color (N (W), Black);
@@ -103,7 +96,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
             end if;
 
             if (Left (N (W))  = 0 or else Color (N (Left (N (W)))) = Black)
-              and then
+                  and then
                (Right (N (W)) = 0 or else Color (N (Right (N (W)))) = Black)
             then
                Set_Color (N (W), Red);
@@ -137,7 +130,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
          else
             pragma Assert (X = Right (N (Parent (N (X)))));
 
-            W :=  Left (N (Parent (N (X))));
+            W := Left (N (Parent (N (X))));
 
             if Color (N (W)) = Red then
                Set_Color (N (W), Black);
@@ -147,7 +140,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
             end if;
 
             if (Left (N (W))  = 0 or else Color (N (Left (N (W)))) = Black)
-                 and then
+                  and then
                (Right (N (W)) = 0 or else Color (N (Right (N (W)))) = Black)
             then
                Set_Color (N (W), Red);
@@ -196,14 +189,16 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
       X, Y : Count_Type;
 
       Z : constant Count_Type := Node;
-      pragma Assert (Z /= 0);
 
       N : Nodes_Type renames Tree.Nodes;
 
    begin
-      if Tree.Busy > 0 then
-         raise Program_Error with
-           "attempt to tamper with cursors (container is busy)";
+      TC_Check (Tree.TC);
+
+      --  If node is not present, return (exception will be raised in caller)
+
+      if Z = 0 then
+         return;
       end if;
 
       pragma Assert (Tree.Length > 0);
@@ -213,8 +208,8 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
       pragma Assert (Parent (N (Tree.Root)) = 0);
 
       pragma Assert ((Tree.Length > 1)
-                        or else (Tree.First = Tree.Last
-                                   and then Tree.First = Tree.Root));
+                       or else (Tree.First = Tree.Last
+                                 and then Tree.First = Tree.Root));
 
       pragma Assert ((Left (N (Node)) = 0)
                         or else (Parent (N (Left (N (Node)))) = Node));
@@ -606,16 +601,14 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
    -------------------
 
    function Generic_Equal (Left, Right : Tree_Type'Class) return Boolean is
-      BL : Natural renames Left'Unrestricted_Access.Busy;
-      LL : Natural renames Left'Unrestricted_Access.Lock;
+      --  Per AI05-0022, the container implementation is required to detect
+      --  element tampering by a generic actual subprogram.
 
-      BR : Natural renames Right'Unrestricted_Access.Busy;
-      LR : Natural renames Right'Unrestricted_Access.Lock;
+      Lock_Left : With_Lock (Left.TC'Unrestricted_Access);
+      Lock_Right : With_Lock (Right.TC'Unrestricted_Access);
 
       L_Node : Count_Type;
       R_Node : Count_Type;
-
-      Result : Boolean;
 
    begin
       if Left'Address = Right'Address then
@@ -633,45 +626,18 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
          return True;
       end if;
 
-      --  Per AI05-0022, the container implementation is required to detect
-      --  element tampering by a generic actual subprogram.
-
-      BL := BL + 1;
-      LL := LL + 1;
-
-      BR := BR + 1;
-      LR := LR + 1;
-
       L_Node := Left.First;
       R_Node := Right.First;
-      Result := True;
       while L_Node /= 0 loop
          if not Is_Equal (Left.Nodes (L_Node), Right.Nodes (R_Node)) then
-            Result := False;
-            exit;
+            return False;
          end if;
 
          L_Node := Next (Left, L_Node);
          R_Node := Next (Right, R_Node);
       end loop;
 
-      BL := BL - 1;
-      LL := LL - 1;
-
-      BR := BR - 1;
-      LR := LR - 1;
-
-      return Result;
-
-   exception
-      when others =>
-         BL := BL - 1;
-         LL := LL - 1;
-
-         BR := BR - 1;
-         LR := LR - 1;
-
-         raise;
+      return True;
    end Generic_Equal;
 
    -----------------------
@@ -719,7 +685,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
       Clear_Tree (Tree);
       Count_Type'Base'Read (Stream, Len);
 
-      if Len < 0 then
+      if Checks and then Len < 0 then
          raise Program_Error with "bad container length (corrupt stream)";
       end if;
 
@@ -727,7 +693,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
          return;
       end if;
 
-      if Len > Tree.Capacity then
+      if Checks and then Len > Tree.Capacity then
          raise Constraint_Error with "length exceeds capacity";
       end if;
 
@@ -821,6 +787,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
    -----------------
 
    procedure Left_Rotate (Tree : in out Tree_Type'Class; X : Count_Type) is
+
       --  CLR p. 266
 
       N : Nodes_Type renames Tree.Nodes;
@@ -924,9 +891,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
          Y : Count_Type := Parent (Tree.Nodes (Node));
 
       begin
-         while Y /= 0
-           and then X = Right (Tree.Nodes (Y))
-         loop
+         while Y /= 0 and then X = Right (Tree.Nodes (Y)) loop
             X := Y;
             Y := Parent (Tree.Nodes (Y));
          end loop;
@@ -957,9 +922,7 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
          Y : Count_Type := Parent (Tree.Nodes (Node));
 
       begin
-         while Y /= 0
-           and then X = Left (Tree.Nodes (Y))
-         loop
+         while Y /= 0 and then X = Left (Tree.Nodes (Y)) loop
             X := Y;
             Y := Parent (Tree.Nodes (Y));
          end loop;
@@ -1130,28 +1093,20 @@ package body Ada.Containers.Red_Black_Trees.Generic_Bounded_Operations is
       end if;
 
       if Tree.Length = 2 then
-         if Tree.First /= Tree.Root
-           and then Tree.Last /= Tree.Root
-         then
+         if Tree.First /= Tree.Root and then Tree.Last /= Tree.Root then
             return False;
          end if;
 
-         if Tree.First /= Index
-           and then Tree.Last /= Index
-         then
+         if Tree.First /= Index and then Tree.Last /= Index then
             return False;
          end if;
       end if;
 
-      if Left (Node) /= 0
-        and then Parent (Nodes (Left (Node))) /= Index
-      then
+      if Left (Node) /= 0 and then Parent (Nodes (Left (Node))) /= Index then
          return False;
       end if;
 
-      if Right (Node) /= 0
-        and then Parent (Nodes (Right (Node))) /= Index
-      then
+      if Right (Node) /= 0 and then Parent (Nodes (Right (Node))) /= Index then
          return False;
       end if;
 

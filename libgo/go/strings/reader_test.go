@@ -8,8 +8,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -26,9 +28,9 @@ func TestReader(t *testing.T) {
 		{seek: os.SEEK_SET, off: 0, n: 20, want: "0123456789"},
 		{seek: os.SEEK_SET, off: 1, n: 1, want: "1"},
 		{seek: os.SEEK_CUR, off: 1, wantpos: 3, n: 2, want: "34"},
-		{seek: os.SEEK_SET, off: -1, seekerr: "strings: negative position"},
-		{seek: os.SEEK_SET, off: 1<<31 - 1},
-		{seek: os.SEEK_CUR, off: 1, seekerr: "strings: position out of range"},
+		{seek: os.SEEK_SET, off: -1, seekerr: "strings.Reader.Seek: negative position"},
+		{seek: os.SEEK_SET, off: 1 << 33, wantpos: 1 << 33},
+		{seek: os.SEEK_CUR, off: 1, wantpos: 1<<33 + 1},
 		{seek: os.SEEK_SET, n: 5, want: "01234"},
 		{seek: os.SEEK_CUR, n: 5, want: "56789"},
 		{seek: os.SEEK_END, off: -1, n: 1, wantpos: 9, want: "9"},
@@ -60,6 +62,16 @@ func TestReader(t *testing.T) {
 	}
 }
 
+func TestReadAfterBigSeek(t *testing.T) {
+	r := strings.NewReader("0123456789")
+	if _, err := r.Seek(1<<31+5, os.SEEK_SET); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := r.Read(make([]byte, 10)); n != 0 || err != io.EOF {
+		t.Errorf("Read = %d, %v; want 0, EOF", n, err)
+	}
+}
+
 func TestReaderAt(t *testing.T) {
 	r := strings.NewReader("0123456789")
 	tests := []struct {
@@ -73,7 +85,7 @@ func TestReaderAt(t *testing.T) {
 		{1, 9, "123456789", nil},
 		{11, 10, "", io.EOF},
 		{0, 0, "", nil},
-		{-1, 0, "", "strings: invalid offset"},
+		{-1, 0, "", "strings.Reader.ReadAt: negative offset"},
 	}
 	for i, tt := range tests {
 		b := make([]byte, tt.n)
@@ -86,6 +98,43 @@ func TestReaderAt(t *testing.T) {
 			t.Errorf("%d. got error = %v; want %v", i, err, tt.wanterr)
 		}
 	}
+}
+
+func TestReaderAtConcurrent(t *testing.T) {
+	// Test for the race detector, to verify ReadAt doesn't mutate
+	// any state.
+	r := strings.NewReader("0123456789")
+	var wg sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			var buf [1]byte
+			r.ReadAt(buf[:], int64(i))
+		}(i)
+	}
+	wg.Wait()
+}
+
+func TestEmptyReaderConcurrent(t *testing.T) {
+	// Test for the race detector, to verify a Read that doesn't yield any bytes
+	// is okay to use from multiple goroutines. This was our historic behavior.
+	// See golang.org/issue/7856
+	r := strings.NewReader("")
+	var wg sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			var buf [1]byte
+			r.Read(buf[:])
+		}()
+		go func() {
+			defer wg.Done()
+			r.Read(nil)
+		}()
+	}
+	wg.Wait()
 }
 
 func TestWriteTo(t *testing.T) {
@@ -107,5 +156,17 @@ func TestWriteTo(t *testing.T) {
 		if r.Len() != 0 {
 			t.Errorf("reader contains %v bytes; want 0", r.Len())
 		}
+	}
+}
+
+// tests that Len is affected by reads, but Size is not.
+func TestReaderLenSize(t *testing.T) {
+	r := strings.NewReader("abc")
+	io.CopyN(ioutil.Discard, r, 1)
+	if r.Len() != 2 {
+		t.Errorf("Len = %d; want 2", r.Len())
+	}
+	if r.Size() != 3 {
+		t.Errorf("Size = %d; want 3", r.Size())
 	}
 }

@@ -30,25 +30,22 @@
 
 extern char **environ;
 
-extern void runtime_main (void);
-static void mainstart (void *);
-
 /* The main function.  */
 
 int
 main (int argc, char **argv)
 {
+  runtime_isarchive = false;
+
+  if (runtime_isstarted)
+    return 0;
+  runtime_isstarted = true;
+
   runtime_check ();
   runtime_args (argc, (byte **) argv);
   runtime_osinit ();
   runtime_schedinit ();
-  __go_go (mainstart, NULL);
+  __go_go (runtime_main, NULL);
   runtime_mstart (runtime_m ());
   abort ();
-}
-
-static void
-mainstart (void *arg __attribute__ ((unused)))
-{
-  runtime_main ();
 }

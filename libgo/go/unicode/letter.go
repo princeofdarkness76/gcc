@@ -6,6 +6,9 @@
 // Unicode code points.
 package unicode
 
+// Tables are regenerated each time we update the Unicode version.
+//go:generate go run maketables.go -tables=all -output tables.go
+
 const (
 	MaxRune         = '\U0010FFFF' // Maximum valid Unicode code point.
 	ReplacementChar = '\uFFFD'     // Represents invalid code points.
@@ -74,7 +77,7 @@ const (
 
 type d [MaxCase]rune // to make the CaseRanges text shorter
 
-// If the Delta field of a CaseRange is UpperLower or LowerUpper, it means
+// If the Delta field of a CaseRange is UpperLower, it means
 // this CaseRange represents a sequence of the form (say)
 // Upper Lower Upper Lower.
 const (
@@ -151,7 +154,7 @@ func is32(ranges []Range32, r uint32) bool {
 	return false
 }
 
-// Is tests whether rune is in the specified table of ranges.
+// Is reports whether the rune is in the specified table of ranges.
 func Is(rangeTab *RangeTable, r rune) bool {
 	r16 := rangeTab.R16
 	if len(r16) > 0 && r <= rune(r16[len(r16)-1].Hi) {
@@ -316,7 +319,7 @@ type foldPair struct {
 // SimpleFold iterates over Unicode code points equivalent under
 // the Unicode-defined simple case folding.  Among the code points
 // equivalent to rune (including rune itself), SimpleFold returns the
-// smallest rune >= r if one exists, or else the smallest rune >= 0.
+// smallest rune > r if one exists, or else the smallest rune >= 0.
 //
 // For example:
 //	SimpleFold('A') = 'a'

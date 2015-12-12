@@ -28,6 +28,7 @@ const rwmutexMaxReaders = 1 << 30
 // RLock locks rw for reading.
 func (rw *RWMutex) RLock() {
 	if raceenabled {
+		_ = rw.w.state
 		raceDisable()
 	}
 	if atomic.AddInt32(&rw.readerCount, 1) < 0 {
@@ -46,10 +47,15 @@ func (rw *RWMutex) RLock() {
 // on entry to RUnlock.
 func (rw *RWMutex) RUnlock() {
 	if raceenabled {
+		_ = rw.w.state
 		raceReleaseMerge(unsafe.Pointer(&rw.writerSem))
 		raceDisable()
 	}
-	if atomic.AddInt32(&rw.readerCount, -1) < 0 {
+	if r := atomic.AddInt32(&rw.readerCount, -1); r < 0 {
+		if r+1 == 0 || r+1 == -rwmutexMaxReaders {
+			raceEnable()
+			panic("sync: RUnlock of unlocked RWMutex")
+		}
 		// A writer is pending.
 		if atomic.AddInt32(&rw.readerWait, -1) == 0 {
 			// The last reader unblocks the writer.
@@ -69,6 +75,7 @@ func (rw *RWMutex) RUnlock() {
 // the lock.
 func (rw *RWMutex) Lock() {
 	if raceenabled {
+		_ = rw.w.state
 		raceDisable()
 	}
 	// First, resolve competition with other writers.
@@ -94,6 +101,7 @@ func (rw *RWMutex) Lock() {
 // arrange for another goroutine to RUnlock (Unlock) it.
 func (rw *RWMutex) Unlock() {
 	if raceenabled {
+		_ = rw.w.state
 		raceRelease(unsafe.Pointer(&rw.readerSem))
 		raceRelease(unsafe.Pointer(&rw.writerSem))
 		raceDisable()
@@ -101,6 +109,10 @@ func (rw *RWMutex) Unlock() {
 
 	// Announce to readers there is no active writer.
 	r := atomic.AddInt32(&rw.readerCount, rwmutexMaxReaders)
+	if r >= rwmutexMaxReaders {
+		raceEnable()
+		panic("sync: Unlock of unlocked RWMutex")
+	}
 	// Unblock blocked readers, if any.
 	for i := 0; i < int(r); i++ {
 		runtime_Semrelease(&rw.readerSem)

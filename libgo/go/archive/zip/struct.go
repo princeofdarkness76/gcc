@@ -21,6 +21,7 @@ package zip
 
 import (
 	"os"
+	"path"
 	"time"
 )
 
@@ -64,8 +65,15 @@ const (
 	zip64ExtraId = 0x0001 // zip64 Extended Information Extra Field
 )
 
+// FileHeader describes a file within a zip file.
+// See the zip spec for details.
 type FileHeader struct {
-	Name               string
+	// Name is the name of the file.
+	// It must be a relative path: it must not start with a drive
+	// letter (e.g. C:) or leading slash, and only forward slashes
+	// are allowed.
+	Name string
+
 	CreatorVersion     uint16
 	ReaderVersion      uint16
 	Flags              uint16
@@ -73,8 +81,8 @@ type FileHeader struct {
 	ModifiedTime       uint16 // MS-DOS time
 	ModifiedDate       uint16 // MS-DOS date
 	CRC32              uint32
-	CompressedSize     uint32 // deprecated; use CompressedSize64
-	UncompressedSize   uint32 // deprecated; use UncompressedSize64
+	CompressedSize     uint32 // Deprecated: Use CompressedSize64 instead.
+	UncompressedSize   uint32 // Deprecated: Use UncompressedSize64 instead.
 	CompressedSize64   uint64
 	UncompressedSize64 uint64
 	Extra              []byte
@@ -92,7 +100,7 @@ type headerFileInfo struct {
 	fh *FileHeader
 }
 
-func (fi headerFileInfo) Name() string { return fi.fh.Name }
+func (fi headerFileInfo) Name() string { return path.Base(fi.fh.Name) }
 func (fi headerFileInfo) Size() int64 {
 	if fi.fh.UncompressedSize64 > 0 {
 		return int64(fi.fh.UncompressedSize64)
@@ -106,6 +114,9 @@ func (fi headerFileInfo) Sys() interface{}   { return fi.fh }
 
 // FileInfoHeader creates a partially-populated FileHeader from an
 // os.FileInfo.
+// Because os.FileInfo's Name method returns only the base name of
+// the file it describes, it may be necessary to modify the Name field
+// of the returned header to provide the full path name of the file.
 func FileInfoHeader(fi os.FileInfo) (*FileHeader, error) {
 	size := fi.Size()
 	fh := &FileHeader{
@@ -163,13 +174,13 @@ func timeToMsDosTime(t time.Time) (fDate uint16, fTime uint16) {
 	return
 }
 
-// ModTime returns the modification time.
+// ModTime returns the modification time in UTC.
 // The resolution is 2s.
 func (h *FileHeader) ModTime() time.Time {
 	return msDosTimeToTime(h.ModifiedDate, h.ModifiedTime)
 }
 
-// SetModTime sets the ModifiedTime and ModifiedDate fields to the given time.
+// SetModTime sets the ModifiedTime and ModifiedDate fields to the given time in UTC.
 // The resolution is 2s.
 func (h *FileHeader) SetModTime(t time.Time) {
 	h.ModifiedDate, h.ModifiedTime = timeToMsDosTime(t)
@@ -222,7 +233,7 @@ func (h *FileHeader) SetMode(mode os.FileMode) {
 	}
 }
 
-// isZip64 returns true if the file size exceeds the 32 bit limit
+// isZip64 reports whether the file size exceeds the 32 bit limit
 func (fh *FileHeader) isZip64() bool {
 	return fh.CompressedSize64 > uint32max || fh.UncompressedSize64 > uint32max
 }

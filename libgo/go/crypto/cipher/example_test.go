@@ -233,14 +233,14 @@ func ExampleStreamReader() {
 	}
 	defer outFile.Close()
 
-	reader := &cipher.StreamReader{stream, inFile}
+	reader := &cipher.StreamReader{S: stream, R: inFile}
 	// Copy the input file to the output file, decrypting as we go.
 	if _, err := io.Copy(outFile, reader); err != nil {
 		panic(err)
 	}
 
 	// Note that this example is simplistic in that it omits any
-	// authentication of the encrypted data. It you were actually to use
+	// authentication of the encrypted data. If you were actually to use
 	// StreamReader in this manner, an attacker could flip arbitrary bits in
 	// the output.
 }
@@ -270,14 +270,14 @@ func ExampleStreamWriter() {
 	}
 	defer outFile.Close()
 
-	writer := &cipher.StreamWriter{stream, outFile, nil}
+	writer := &cipher.StreamWriter{S: stream, W: outFile}
 	// Copy the input file to the output file, encrypting as we go.
 	if _, err := io.Copy(writer, inFile); err != nil {
 		panic(err)
 	}
 
 	// Note that this example is simplistic in that it omits any
-	// authentication of the encrypted data. It you were actually to use
+	// authentication of the encrypted data. If you were actually to use
 	// StreamReader in this manner, an attacker could flip arbitrary bits in
 	// the decrypted result.
 }

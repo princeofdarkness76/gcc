@@ -9,7 +9,7 @@ package syscall
 import "unsafe"
 
 //sys	Openat(dirfd int, path string, flags int, mode uint32) (fd int, err error)
-//openat(dirfd _C_int, path *byte, flags _C_int, mode Mode_t) _C_int
+//__go_openat(dirfd _C_int, path *byte, flags _C_int, mode Mode_t) _C_int
 
 //sys	futimesat(dirfd int, path *byte, times *[2]Timeval) (err error)
 //futimesat(dirfd _C_int, path *byte, times *[2]Timeval) _C_int
@@ -190,6 +190,9 @@ func Accept4(fd int, flags int) (nfd int, sa Sockaddr, err error) {
 //sys	Adjtimex(buf *Timex) (state int, err error)
 //adjtimex(buf *Timex) _C_int
 
+//sysnb	Dup3(oldfd int, newfd int, flags int) (err error)
+//dup3(oldfd _C_int, newfd _C_int, flags _C_int) _C_int
+
 //sys	Faccessat(dirfd int, path string, mode uint32, flags int) (err error)
 //faccessat(dirfd _C_int, pathname *byte, mode _C_int, flags _C_int) _C_int
 
@@ -220,7 +223,6 @@ func Getdents(fd int, buf []byte) (n int, err error) {
 	} else {
 		p = (*byte)(unsafe.Pointer(&_zero))
 	}
-	Entersyscall()
 	s := SYS_GETDENTS64
 	if s == 0 {
 		s = SYS_GETDENTS
@@ -230,7 +232,6 @@ func Getdents(fd int, buf []byte) (n int, err error) {
 	if n < 0 {
 		err = errno
 	}
-	Exitsyscall()
 	return
 }
 
@@ -268,6 +269,9 @@ func ParseDirent(buf []byte, max int, names []string) (consumed int, count int, 
 	return origlen - len(buf), count, names
 }
 
+//sys	Getxattr(path string, attr string, dest []byte) (sz int, err error)
+//getxattr(path *byte, attr *byte, buf *byte, count Size_t) Ssize_t
+
 //sys	InotifyAddWatch(fd int, pathname string, mask uint32) (watchdesc int, err error)
 //inotify_add_watch(fd _C_int, pathname *byte, mask uint32) _C_int
 
@@ -282,6 +286,9 @@ func ParseDirent(buf []byte, max int, names []string) (consumed int, count int, 
 
 //sys	Klogctl(typ int, buf []byte) (n int, err error)
 //klogctl(typ _C_int, bufp *byte, len _C_int) _C_int
+
+//sys	Listxattr(path string, dest []byte) (sz int, err error)
+//listxattr(path *byte, list *byte, size Size_t) Ssize_t
 
 //sys	Mkdirat(dirfd int, path string, mode uint32) (err error)
 //mkdirat(dirfd _C_int, path *byte, mode Mode_t) _C_int
@@ -305,6 +312,9 @@ func Pipe2(p []int, flags int) (err error) {
 //sys	PivotRoot(newroot string, putold string) (err error)
 //pivot_root(newroot *byte, putold *byte) _C_int
 
+//sys	Removexattr(path string, attr string) (err error)
+//removexattr(path *byte, name *byte) _C_int
+
 //sys	Renameat(olddirfd int, oldpath string, newdirfd int, newpath string) (err error)
 //renameat(olddirfd _C_int, oldpath *byte, newdirfd _C_int, newpath *byte) _C_int
 
@@ -317,6 +327,7 @@ func Sendfile(outfd int, infd int, offset *int64, count int) (written int, err e
 	var soff Offset_t
 	var psoff *Offset_t
 	if offset != nil {
+		soff = Offset_t(*offset)
 		psoff = &soff
 	}
 	written, err = sendfile(outfd, infd, psoff, count)
@@ -337,6 +348,9 @@ func Sendfile(outfd int, infd int, offset *int64, count int) (written int, err e
 
 //sysnb	Setresuid(ruid int, eguid int, suid int) (err error)
 //setresuid(ruid Uid_t, euid Uid_t, suid Uid_t) _C_int
+
+//sys	Setxattr(path string, attr string, data []byte, flags int) (err error)
+//setxattr(path *byte, name *byte, value *byte, size Size_t, flags _C_int) _C_int
 
 //sys	splice(rfd int, roff *_loff_t, wfd int, woff *_loff_t, len int, flags int) (n int64, err error)
 //splice(rfd _C_int, roff *_loff_t, wfd _C_int, woff *_loff_t, len Size_t, flags _C_uint) Ssize_t
@@ -395,6 +409,3 @@ func Unlinkat(dirfd int, path string) (err error) {
 
 //sys	Unshare(flags int) (err error)
 //unshare(flags _C_int) _C_int
-
-//sys	Ustat(dev int, ubuf *Ustat_t) (err error)
-//ustat(dev _dev_t, ubuf *Ustat_t) _C_int

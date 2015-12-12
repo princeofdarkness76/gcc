@@ -87,13 +87,38 @@ type huffmanBitWriter struct {
 func newHuffmanBitWriter(w io.Writer) *huffmanBitWriter {
 	return &huffmanBitWriter{
 		w:               w,
-		literalFreq:     make([]int32, maxLit),
+		literalFreq:     make([]int32, maxNumLit),
 		offsetFreq:      make([]int32, offsetCodeCount),
-		codegen:         make([]uint8, maxLit+offsetCodeCount+1),
+		codegen:         make([]uint8, maxNumLit+offsetCodeCount+1),
 		codegenFreq:     make([]int32, codegenCodeCount),
-		literalEncoding: newHuffmanEncoder(maxLit),
+		literalEncoding: newHuffmanEncoder(maxNumLit),
 		offsetEncoding:  newHuffmanEncoder(offsetCodeCount),
 		codegenEncoding: newHuffmanEncoder(codegenCodeCount),
+	}
+}
+
+func (w *huffmanBitWriter) reset(writer io.Writer) {
+	w.w = writer
+	w.bits, w.nbits, w.nbytes, w.err = 0, 0, 0, nil
+	w.bytes = [64]byte{}
+	for i := range w.codegen {
+		w.codegen[i] = 0
+	}
+	for _, s := range [...][]int32{w.literalFreq, w.offsetFreq, w.codegenFreq} {
+		for i := range s {
+			s[i] = 0
+		}
+	}
+	for _, enc := range [...]*huffmanEncoder{
+		w.literalEncoding,
+		w.offsetEncoding,
+		w.codegenEncoding} {
+		for i := range enc.code {
+			enc.code[i] = 0
+		}
+		for i := range enc.codeBits {
+			enc.codeBits[i] = 0
+		}
 	}
 }
 

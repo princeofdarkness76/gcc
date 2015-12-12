@@ -1,5 +1,5 @@
 /* { dg-do compile } */
-/* { dg-options "-O2 -ftree-parallelize-loops=4 -fdump-tree-parloops-details -fdump-tree-optimized" } */
+/* { dg-options "-O2 -ftree-parallelize-loops=4 -fdump-tree-parloops-details -fdump-tree-optimized -fno-partial-inlining" } */
 
 #include <stdio.h>
 #define MB 100
@@ -12,7 +12,9 @@ void MRTRBR(int MA_1, int NA_1, int MB_1)
   int i,j, t,k;
 
   /* At the moment we are not able to hoist the loop headers out of the loop
-     nest.  */
+     nest. 
+     Partial inlining needs to be disabled so we do not optimize this out
+     of the function body.  */
   if (MA_1 < 4 || NA_1 < 4 || MB_1 < 4)
     return;
 
@@ -50,5 +52,3 @@ void main ()
 
 /* { dg-final { scan-tree-dump-times "SUCCESS: may be parallelized" 0 "parloops" } } */
 /* { dg-final { scan-tree-dump-times "loopfn" 0 "optimized" } } */
-/* { dg-final { cleanup-tree-dump "parloops" } } */
-/* { dg-final { cleanup-tree-dump "optimized" } } */

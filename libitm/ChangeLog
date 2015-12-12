@@ -1,3 +1,283 @@
+2015-11-22  Torvald Riegel  <triegel@redhat.com>
+
+	* libitm_i.h (gtm_alloc_action): Remove union.
+	* testsuite/libitm.c/alloc-1.c: New.
+
+2015-11-19  Torvald Riegel  <triegel@redhat.com>
+
+	* testsuite/libitm.c++/eh-5.C: New.
+	* libitm.h (_ITM_cxa_free_exception): New.
+	* libitm.map (_ITM_cxa_free_exception): Add it.
+	* libitm.texi: Update ABI docs.
+	* libitm_i.h (gtm_transaction_cp::cxa_unthrown): Remove.
+	(gtm_transaction_cp::cxa_uncaught_count): Add.
+	(gtm_thread::cxa_unthrown): Remove.
+	(gtm_thread::cxa_uncaught_count_ptr): Add.
+	(gtm_thread::cxa_uncaught_count): Add.
+	(gtm_thread::drop_references_allocations): Rename to...
+	(gtm_thread::discard_allocation): ... this and adapt.
+	(gtm_thread::init_cpp_exceptions): New.
+	* beginend.cc (gtm_thread::gtm_thread): Adapt EH handling.
+	(gtm_thread::begin_transaction): Likewise.
+	(gtm_transaction_cp::save): Likewise.
+	(gtm_thread::trycommit): Likewise.
+	* eh_cpp.cc: Add overview comments.
+	(__cxa_eh_globals, __cxa_get_globals, __cxa_free_exception): Declare.
+	(free_any_exception, _ITM_cxa_free_exception): New.
+	(gtm_thread::init_cpp_exceptions): Define.
+	(_ITM_cxa_allocate_exception, _ITM_cxa_throw): Adapt.
+	(_ITM_cxa_begin_catch, _ITM_cxa_end_catch): Likewise.
+	(gtm_thread::revert_cpp_exceptions): Likewise.
+
+2015-11-09  Torvald Riegel  <triegel@redhat.com>
+
+	* alloc_cpp.cc (_ZdlPvX, _ZdlPvXRKSt9nothrow_t, _ZGTtdlPvX,
+	_ZGTtdlPvXRKSt9nothrow_t, delsz_opnt): New.
+	* libitm.map: Add _ZGTtdlPvX and _ZGTtdlPvXRKSt9nothrow_t.
+	* libitm_i.h (gtm_alloc_action): Add free_fn_sz and sz.  Add comments.
+	(gtm_thread::forget_allocations): New overload with size_t argument.
+	* alloc.c (gtm_thread::forget_allocation): Define new overload and
+	adapt existing one.
+	(gtm_thread::record_allocation): Adapt.
+	(gtm_thread::commit_allocations_1): Adapt.
+	(gtm_thread::commit_allocations_2): Adapt.
+	* testsuite/libitm.c++/newdelete.C: New.
+
+2015-10-27  Daniel Jacobowitz  <dan@codesourcery.com>
+	    Joseph Myers  <joseph@codesourcery.com>
+	    Mark Shinwell  <shinwell@codesourcery.com>
+	    Andrew Stubbs  <ams@codesourcery.com>
+	    Rich Felker <dalias@libc.org>
+
+	* config/sh/sjlj.S (_ITM_beginTransaction): Bypass PLT calling
+	GTM_begin_transaction for compatibility with FDPIC.
+
+2015-10-09  David Malcolm  <dmalcolm@redhat.com>
+
+	* testsuite/lib/libitm.exp: Load multiline.exp before prune.exp,
+	using load_gcc_lib.
+
+2015-08-20  Gleb Fotengauer-Malinovskiy  <glebfm@altlinux.org>  (tiny change)
+
+	PR libitm/61164
+	* local_atomic (__always_inline): Rename to...
+	(__libitm_always_inline): ... this.
+
+2015-07-03  Carlos Sánchez de La Lama  <csanchezdll@gmail.com>
+
+	PR target/52482
+	* config/powerpc/sjlj.S: Port to Xcode 2.5.
+
+2015-05-27  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/linux/x86/futex_bits.h (sys_futex0) [__x86_64__]: Change
+	operands "op" and "val" to int.
+
+2015-05-27  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/linux/sh/futex_bits.h (sys_futex0) Change operands
+	"op" and "val" to int.
+
+2015-05-27  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/linux/alpha/futex_bits.h (sys_futex0) Change operands
+	"op" and "val" to int.
+
+2015-05-27  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/linux/futex.cc (gtm_futex_wait, gtm_futex_wake):
+	Declare as static int.
+	(FUTEX_PRIVATE_FLAG): Remove L suffix.
+	* config/linux/futex_bits.h (sys_futex0) Change operand "op" to int.
+
+2015-05-27  Uros Bizjak  <ubizjak@gmail.com>
+
+	* config/linux/x86/futex_bits.h (sys_futex0) [__PIC__]: Remove
+	sys_futex0 function.
+
+2015-05-13  Michael Haubenwallner  <michael.haubenwallner@ssi-schaefer.com>
+
+	* Makefile.in: Regenerated with automake-1.11.6.
+	* aclocal.m4: Likewise.
+	* configure: Likewise.
+	* testsuite/Makefile.in: Likewise.
+
+2015-04-22  Gregor Richards  <gregor.richards@uwaterloo.ca>
+
+	* config/arm/hwcap.cc: Use fcntl.h instead of sys/fcntl.h.
+	* config/linux/x86/tls.h: Only use __GLIBC_PREREQ if defined.
+
+2015-01-15  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR libitm/64360
+	* libitm.c/stackundo.c (test2): Make it static.
+	(test1): Likewise.
+
+2015-01-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Update copyright years.
+
+2015-01-05  Jakub Jelinek  <jakub@redhat.com>
+
+	* libitm.texi: Bump @copying's copyright year.
+
+2014-12-12  Kyrylo Tkachov  <kyrylo.tkachov@arm.com>
+
+	* testsuite/lib/libitm.exp: Load target-utils.exp.
+	Move load of target-supports.exp earlier.
+
+2014-12-03  Uros Bizjak  <ubizjak@gmail.com>
+
+	* configure.tgt (x86_64): Tune -m32 multilib to generic.
+
+2014-11-21  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR bootstrap/63784
+	* configure: Regenerated.
+
+2014-11-11  Francois-Xavier Coudert  <fxcoudert@gcc.gnu.org>
+
+	PR target/63610
+	* configure: Regenerate.
+
+2014-10-06  Marek Polacek  <polacek@redhat.com>
+
+	* testsuite/libitm.c/memcpy-1.c: Declare getpagesize.
+	* testsuite/libitm.c/memset-1.c: Likewise.
+
+2014-07-24  Richard Henderson  <rth@redhat.com>
+
+	* config/aarch64/sjlj.S (_ITM_beginTransaction): Use post-inc
+	addressing mode in epilogue.
+
+2014-05-28  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* acinclude.m4 (LIBITM_CHECK_LINKER_HWCAP): Check for
+	-mclear-hwcap instead.
+	* configure: Regenerate.
+	* clearcap.map: Remove.
+
+2014-05-21  John Marino  <gnugcc@marino.st>
+
+	* configure.tgt (*-*-dragonfly*): New target.
+
+2014-05-19  Richard Henderson  <rth@redhat.com>
+
+	* config/aarch64/sjlj.S: New file.
+	* config/aarch64/target.h: New file.
+	* configure.tgt: Enable aarch64.
+
+2014-04-09  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* config/generic/asmcfi.h: Also check for
+	__GCC_HAVE_DWARF2_CFI_ASM.
+
+2013-04-02  Richard Henderson  <rth@redhat.com>
+
+	* config/alpha/target.h (PAGE_SIZE, FIXED_PAGE_SIZE): Remove.
+	* config/arm/target.h, config/sh/target.h: Likewise.
+	* config/sparc/target.h, config/x86/target.h: Likewise.
+
+2014-03-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/linux/futex_bits.h: Include errno.h.
+	(sys_futex0): If syscall returns -1, return -errno rather than
+	-1.
+
+2014-03-26  Joseph Myers  <joseph@codesourcery.com>
+
+	* libitm.texi (Index): Rename to Library Index.
+
+2014-01-13  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR libitm/53113
+	* Makefile.am (x86_sse.lo): Append -msse to CXXFLAGS.
+	(x86_avx.lo): Append -mavx to CXXFLAGS.
+	* Makefile.in: Regenerate.
+
+2014-01-02  Richard Sandiford  <rdsandiford@googlemail.com>
+
+	Update copyright years
+
+2014-01-02  Tobias Burnus  <burnus@net-b.de>
+
+	* libitm.texi: Bump @copying's copyright year.
+
+2013-11-14  Ulrich Weigand  <Ulrich.Weigand@de.ibm.com>
+
+	* config/powerpc/sjlj.S [__powerpc64__ && _CALL_ELF == 2]:
+	(FUNC): Define ELFv2 variant.
+	(END): Likewise.
+	(HIDDEN): Likewise.
+	(CALL): Likewise.
+	(BASE): Likewise.
+	(LR_SAVE): Likewise.
+
+2013-09-20  Alan Modra  <amodra@gmail.com>
+
+	* configure: Regenerate.
+
+2013-08-30  Torvald Riegel  <triegel@redhat.com>
+
+	* config/posix/rwlock.cc: Fix initialization order.
+
+2013-08-30  Torvald Riegel  <triegel@redhat.com>
+
+	* libitm_i.h (gtm_thread): Assign an asm name to serial_lock.
+	(htm_fastpath): Assign an asm name.
+	* libitm.h (_ITM_codeProperties): Add non-ABI flags used by custom
+	HTM fast paths.
+	(_ITM_actions): Likewise.
+	* config/x86/target.h (HTM_CUSTOM_FASTPATH): Enable custom fastpath on
+	x86_64.
+	* config/x86/sjlj.S (_ITM_beginTransaction): Add custom HTM fast path.
+	* config/posix/rwlock.h (gtm_rwlock): Update comments.  Move summary
+	field to the start of the structure.
+	* config/linux/rwlock.h (gtm_rwlock): Update comments.
+	* beginend.cc (gtm_thread::begin_transaction): Add retry policy
+	handling for custom HTM fast paths.
+
+2013-08-14  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+	Revert:
+	2013-08-02  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* configure.tgt: Add -msoft-float to XCFLAGS.
+
+2013-08-02  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* configure.tgt: Add -msoft-float to XCFLAGS.
+
+2013-07-29  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* config/s390/target.h (htm_begin, htm_commit, htm_abort)
+	(htm_transaction_active): Enable zEC12 instructions in the
+	assembler.
+	* configure.tgt: Remove -Wa,-march=zEC12 from XCFLAGS.
+
+2013-07-17  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
+
+	* acinclude.m4: Add htm asm check for s390.
+	* configure.tgt: Add -mhtm and -Wa,-march=zEC12 to the options.
+	* configure: Regenerate.
+	* config/s390/target.h: Remove __HTM__ check.
+	(htm_available): Call getauxval to get hwcaps and check whether
+	HTM is available or not.
+
+2013-07-15  Peter Bergner  <bergner@vnet.ibm.com>
+
+	* acinclude.m4 (LIBITM_CHECK_AS_HTM): New.
+	* configure.ac: Use it.
+	(AC_CHECK_HEADERS): Check for sys/auxv.h.
+	(AC_CHECK_FUNCS): Check for getauxval.
+	* config.h.in, configure: Rebuild.
+	* configure.tgt (target_cpu): Add -mhtm to XCFLAGS.
+	* config/powerpc/target.h: Include sys/auxv.h and htmintrin.h.
+	(USE_HTM_FASTPATH): Define.
+	(_TBEGIN_STARTED, _TBEGIN_INDETERMINATE, _TBEGIN_PERSISTENT,
+	_HTM_RETRIES) New macros.
+	(htm_abort, htm_abort_should_retry, htm_available, htm_begin, htm_init,
+	htm_begin_success, htm_commit, htm_transaction_active): New functions.
+
 2013-06-27  Andreas Krebbel  <Andreas.Krebbel@de.ibm.com>
 
 	* config/s390/target.h: Include htmintrin.h.

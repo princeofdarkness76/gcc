@@ -1,6 +1,6 @@
 // class template regex -*- C++ -*-
 
-// Copyright (C) 2010-2013 Free Software Foundation, Inc.
+// Copyright (C) 2010-2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -45,7 +45,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * @name 5.3 Error Types
    */
   //@{
- 
+
   enum error_type
     {
       _S_error_collate,
@@ -61,7 +61,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _S_error_badrepeat,
       _S_error_complexity,
       _S_error_stack,
-      _S_error_last
     };
 
   /** The expression contained an invalid collating element name. */
@@ -156,12 +155,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     regex_constants::error_type
     code() const
     { return _M_code; }
+
+  private:
+    regex_error(regex_constants::error_type __ecode, const char* __what)
+    : std::runtime_error(__what), _M_code(__ecode)
+    { }
+
+    friend void __throw_regex_error(regex_constants::error_type, const char*);
   };
 
   //@} // group regex
 
   void
   __throw_regex_error(regex_constants::error_type __ecode);
+
+  inline void
+  __throw_regex_error(regex_constants::error_type __ecode, const char* __what)
+  { _GLIBCXX_THROW_OR_ABORT(regex_error(__ecode, __what)); }
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace std

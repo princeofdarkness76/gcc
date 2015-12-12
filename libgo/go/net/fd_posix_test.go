@@ -2,56 +2,56 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin freebsd linux netbsd openbsd windows
+// +build darwin dragonfly freebsd linux nacl netbsd openbsd solaris windows
 
 package net
 
 import (
+	"io"
+	"syscall"
 	"testing"
-	"time"
 )
 
-var deadlineSetTimeTests = []struct {
-	input    time.Time
-	expected int64
+var eofErrorTests = []struct {
+	n        int
+	err      error
+	fd       *netFD
+	expected error
 }{
-	{time.Time{}, 0},
-	{time.Date(2009, 11, 10, 23, 00, 00, 00, time.UTC), 1257894000000000000}, // 2009-11-10 23:00:00 +0000 UTC
+	{100, nil, &netFD{sotype: syscall.SOCK_STREAM}, nil},
+	{100, io.EOF, &netFD{sotype: syscall.SOCK_STREAM}, io.EOF},
+	{100, errClosing, &netFD{sotype: syscall.SOCK_STREAM}, errClosing},
+	{0, nil, &netFD{sotype: syscall.SOCK_STREAM}, io.EOF},
+	{0, io.EOF, &netFD{sotype: syscall.SOCK_STREAM}, io.EOF},
+	{0, errClosing, &netFD{sotype: syscall.SOCK_STREAM}, errClosing},
+
+	{100, nil, &netFD{sotype: syscall.SOCK_DGRAM}, nil},
+	{100, io.EOF, &netFD{sotype: syscall.SOCK_DGRAM}, io.EOF},
+	{100, errClosing, &netFD{sotype: syscall.SOCK_DGRAM}, errClosing},
+	{0, nil, &netFD{sotype: syscall.SOCK_DGRAM}, nil},
+	{0, io.EOF, &netFD{sotype: syscall.SOCK_DGRAM}, io.EOF},
+	{0, errClosing, &netFD{sotype: syscall.SOCK_DGRAM}, errClosing},
+
+	{100, nil, &netFD{sotype: syscall.SOCK_SEQPACKET}, nil},
+	{100, io.EOF, &netFD{sotype: syscall.SOCK_SEQPACKET}, io.EOF},
+	{100, errClosing, &netFD{sotype: syscall.SOCK_SEQPACKET}, errClosing},
+	{0, nil, &netFD{sotype: syscall.SOCK_SEQPACKET}, io.EOF},
+	{0, io.EOF, &netFD{sotype: syscall.SOCK_SEQPACKET}, io.EOF},
+	{0, errClosing, &netFD{sotype: syscall.SOCK_SEQPACKET}, errClosing},
+
+	{100, nil, &netFD{sotype: syscall.SOCK_RAW}, nil},
+	{100, io.EOF, &netFD{sotype: syscall.SOCK_RAW}, io.EOF},
+	{100, errClosing, &netFD{sotype: syscall.SOCK_RAW}, errClosing},
+	{0, nil, &netFD{sotype: syscall.SOCK_RAW}, nil},
+	{0, io.EOF, &netFD{sotype: syscall.SOCK_RAW}, io.EOF},
+	{0, errClosing, &netFD{sotype: syscall.SOCK_RAW}, errClosing},
 }
 
-func TestDeadlineSetTime(t *testing.T) {
-	for _, tt := range deadlineSetTimeTests {
-		var d deadline
-		d.setTime(tt.input)
-		actual := d.value()
-		expected := int64(0)
-		if !tt.input.IsZero() {
-			expected = tt.input.UnixNano()
-		}
-		if actual != expected {
-			t.Errorf("set/value failed: expected %v, actual %v", expected, actual)
-		}
-	}
-}
-
-var deadlineExpiredTests = []struct {
-	deadline time.Time
-	expired  bool
-}{
-	// note, times are relative to the start of the test run, not
-	// the start of TestDeadlineExpired
-	{time.Now().Add(5 * time.Minute), false},
-	{time.Now().Add(-5 * time.Minute), true},
-	{time.Time{}, false}, // no deadline set
-}
-
-func TestDeadlineExpired(t *testing.T) {
-	for _, tt := range deadlineExpiredTests {
-		var d deadline
-		d.set(tt.deadline.UnixNano())
-		expired := d.expired()
-		if expired != tt.expired {
-			t.Errorf("expire failed: expected %v, actual %v", tt.expired, expired)
+func TestEOFError(t *testing.T) {
+	for _, tt := range eofErrorTests {
+		actual := tt.fd.eofError(tt.n, tt.err)
+		if actual != tt.expected {
+			t.Errorf("eofError(%v, %v, %v): expected %v, actual %v", tt.n, tt.err, tt.fd.sotype, tt.expected, actual)
 		}
 	}
 }

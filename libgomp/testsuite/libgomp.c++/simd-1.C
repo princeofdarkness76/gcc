@@ -1,5 +1,8 @@
 // { dg-do run }
+<<<<<<< HEAD
 // { dg-options "-O2" }
+=======
+>>>>>>> gcc-mirror/master
 // { dg-additional-options "-msse2" { target sse2_runtime } }
 // { dg-additional-options "-mavx" { target avx_runtime } }
 

@@ -6,7 +6,7 @@
  *                                                                          *
  *                          C Implementation File                           *
  *                                                                          *
- *                     Copyright (C) 2008-2012, AdaCore                     *
+ *                     Copyright (C) 2008-2015, AdaCore                     *
  *                                                                          *
  * GNAT is free software;  you can  redistribute it  and/or modify it under *
  * terms of the  GNU General Public License as published  by the Free Soft- *
@@ -31,27 +31,111 @@
 
 /* First all usupported platforms. Add stubs for exported routines. */
 
-#if defined (VMS) || defined (__vxworks) || defined (__Lynx__) || \
-    defined (__ANDROID__)
+#if defined (VMS) || defined (__vxworks) || defined (__Lynx__) \
+  || defined (__ANDROID__) || defined (__PikeOS__)
 
-void * __gnat_new_tty (void) { return (void*)0; }
-char * __gnat_tty_name (void* t) { return (char*)0; }
-int    __gnat_interrupt_pid (int pid) { return -1; }
-int    __gnat_interrupt_process (void* desc) { return -1; }
-int    __gnat_setup_communication (void** desc) { return -1; }
-void   __gnat_setup_parent_communication
-         (void* d, int* i, int* o, int*e, int*p) { return -1; }
-int    __gnat_setup_child_communication
-         (void* d, char **n, int u) { return -1; }
-int    __gnat_terminate_process (void *desc) { return -1; }
-int    __gnat_tty_fd (void* t) { return -1; }
-int    __gnat_tty_supported (void) { return 0; }
-int    __gnat_tty_waitpid (void *desc) { return 1; }
-void   __gnat_close_tty (void* t) {}
-void   __gnat_free_process (void** process) {}
-void   __gnat_reset_tty (void* t) {}
-void   __gnat_send_header (void* d, char h[5], int s, int *r) {}
-void   __gnat_setup_winsize (void *desc, int rows, int columns) {}
+#define ATTRIBUTE_UNUSED __attribute__((unused))
+
+void *
+__gnat_new_tty (void)
+{
+  return (void*)0;
+}
+
+char *
+__gnat_tty_name (void* t ATTRIBUTE_UNUSED)
+{
+  return (char*)0;
+}
+
+int
+__gnat_interrupt_pid (int pid ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+int
+__gnat_interrupt_process (void* desc ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+int
+__gnat_setup_communication (void** desc ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+void
+__gnat_setup_parent_communication (void *d ATTRIBUTE_UNUSED,
+				   int *i ATTRIBUTE_UNUSED,
+				   int *o ATTRIBUTE_UNUSED,
+				   int *e ATTRIBUTE_UNUSED,
+				   int *p ATTRIBUTE_UNUSED)
+{
+}
+
+int
+__gnat_setup_child_communication (void *d ATTRIBUTE_UNUSED,
+				  char **n ATTRIBUTE_UNUSED,
+				  int u ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+int
+__gnat_terminate_process (void *desc ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+int
+__gnat_tty_fd (void* t ATTRIBUTE_UNUSED)
+{
+  return -1;
+}
+
+int
+__gnat_tty_supported (void)
+{
+  return 0;
+}
+
+int
+__gnat_tty_waitpid (void *desc ATTRIBUTE_UNUSED)
+{
+  return 1;
+}
+
+void
+__gnat_close_tty (void* t ATTRIBUTE_UNUSED)
+{
+}
+
+void
+__gnat_free_process (void** process ATTRIBUTE_UNUSED)
+{
+}
+
+void
+__gnat_reset_tty (void* t ATTRIBUTE_UNUSED)
+{
+}
+
+void
+__gnat_send_header (void* d ATTRIBUTE_UNUSED,
+		    char h[5] ATTRIBUTE_UNUSED,
+		    int s ATTRIBUTE_UNUSED,
+		    int *r ATTRIBUTE_UNUSED)
+{
+}
+
+void
+__gnat_setup_winsize (void *desc ATTRIBUTE_UNUSED,
+		      int rows ATTRIBUTE_UNUSED,
+		      int columns ATTRIBUTE_UNUSED)
+{
+}
 
 /* For Windows platforms. */
 
@@ -295,7 +379,7 @@ nt_spawnve (char *exe, char **argv, char *env, struct TTY_Process *process)
 
      Note that using backslash to escape embedded quotes requires
      additional special handling if an embedded quote is already
-     preceeded by backslash, or if an arg requiring quoting ends with
+     preceded by backslash, or if an arg requiring quoting ends with
      backslash.  In such cases, the run of escape characters needs to be
      doubled.  For consistency, we apply this special handling as long
      as the escape character is not quote.
@@ -975,7 +1059,7 @@ __gnat_setup_winsize (void *desc, int rows, int columns)
  || defined (__OpenBSD__) \
  || defined (__NetBSD__)  \
  || defined (__DragonFly__)
-#   define FREEBSD
+#   define BSD
 #endif
 
 /* Include every system header we need */
@@ -986,8 +1070,8 @@ __gnat_setup_winsize (void *desc, int rows, int columns)
 
 /* On some system termio is either absent or including it will disable termios
    (HP-UX) */
-#if ! defined (__hpux__) && ! defined (FREEBSD) && \
-    ! defined (__APPLE__) && ! defined(__rtems__)
+#if !defined (__hpux__) && !defined (BSD) && !defined (__APPLE__) \
+  && !defined (__rtems__)
 #   include <termio.h>
 #endif
 
@@ -999,10 +1083,10 @@ __gnat_setup_winsize (void *desc, int rows, int columns)
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#if defined (sun)
+#if defined (__sun__)
 #   include <sys/stropts.h>
 #endif
-#if defined (FREEBSD) || defined (sun)
+#if defined (BSD) || defined (__sun__)
 #   include <sys/signal.h>
 #endif
 #if defined (__hpux__)
@@ -1014,7 +1098,7 @@ __gnat_setup_winsize (void *desc, int rows, int columns)
 
 /* On HP-UX and Sun system, there is a bzero function but with a different
    signature. Use memset instead */
-#if defined (__hpux__) || defined (sun) || defined (_AIX)
+#if defined (__hpux__) || defined (__sun__) || defined (_AIX)
 #   define bzero(s,n) memset (s,0,n)
 #endif
 
@@ -1032,11 +1116,11 @@ __gnat_setup_winsize (void *desc, int rows, int columns)
 */
 
 /* Configurable part */
-#if defined (__APPLE__) || defined (FREEBSD)
+#if defined (__APPLE__) || defined (BSD)
 #define USE_OPENPTY
-#elif defined (linux)
+#elif defined (__linux__)
 #define USE_GETPT
-#elif defined (sun)
+#elif defined (__sun__)
 #define USE_CLONE_DEVICE "/dev/ptmx"
 #elif defined (_AIX)
 #define USE_CLONE_DEVICE "/dev/ptc"
@@ -1179,7 +1263,7 @@ child_setup_tty (int fd)
   int    status;
 
   /* ensure that s is filled with 0 */
-  bzero (&s, sizeof (&s));
+  bzero (&s, sizeof (s));
 
   /* Get the current terminal settings */
   status = tcgetattr (fd, &s);
@@ -1322,7 +1406,7 @@ __gnat_setup_child_communication
     desc->slave_fd = open (desc->slave_name, O_RDWR, 0);
 #endif
 
-#if defined (sun) || defined (__hpux__)
+#if defined (__sun__) || defined (__hpux__)
   /* On systems such as Solaris we are using stream. We need to push the right
      "modules" in order to get the expected terminal behaviors. Otherwise
      functionalities such as termios are not available.  */
@@ -1332,7 +1416,7 @@ __gnat_setup_child_communication
 #endif
 
 #ifdef TIOCSCTTY
-  /* make the tty the controling terminal */
+  /* make the tty the controlling terminal */
   status = ioctl (desc->slave_fd, TIOCSCTTY, 0);
 #endif
 
@@ -1420,7 +1504,7 @@ int __gnat_terminate_process (pty_desc *desc)
   return kill (desc->child_pid, SIGKILL);
 }
 
-/* __gnat_tty_waitpid - wait for the child proces to die
+/* __gnat_tty_waitpid - wait for the child process to die
  *
  * PARAMETERS
  *   desc pty_desc structure

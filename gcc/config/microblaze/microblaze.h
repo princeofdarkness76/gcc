@@ -1,5 +1,5 @@
 /* Definitions of target machine for GNU compiler for Xilinx MicroBlaze.
-   Copyright (C) 2009-2013 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    Contributed by Michael Eager <eager@eagercon.com>.
 
@@ -193,7 +193,6 @@ extern enum pipeline_type microblaze_pipe;
 #define BITS_BIG_ENDIAN 0
 #define BYTES_BIG_ENDIAN (TARGET_LITTLE_ENDIAN == 0)
 #define WORDS_BIG_ENDIAN (BYTES_BIG_ENDIAN)
-#define BITS_PER_UNIT           8
 #define BITS_PER_WORD           32
 #define UNITS_PER_WORD          4
 #define MIN_UNITS_PER_WORD      4
@@ -213,6 +212,12 @@ extern enum pipeline_type microblaze_pipe;
 #define STRICT_ALIGNMENT        1
 #define PCC_BITFIELD_TYPE_MATTERS 1
 
+#undef SIZE_TYPE
+#define SIZE_TYPE "unsigned int"
+
+#undef PTRDIFF_TYPE
+#define PTRDIFF_TYPE "int"
+
 #define CONSTANT_ALIGNMENT(EXP, ALIGN)					\
   ((TREE_CODE (EXP) == STRING_CST  || TREE_CODE (EXP) == CONSTRUCTOR)	\
    && (ALIGN) < BITS_PER_WORD						\
@@ -230,7 +235,7 @@ extern enum pipeline_type microblaze_pipe;
        && TYPE_MODE (TREE_TYPE (TYPE)) == QImode)			\
      && (ALIGN) < BITS_PER_WORD) ? BITS_PER_WORD : (ALIGN))
 
-#define WORD_REGISTER_OPERATIONS
+#define WORD_REGISTER_OPERATIONS 1
 
 #define LOAD_EXTEND_OP(MODE)  ZERO_EXTEND
 
@@ -258,7 +263,6 @@ extern enum pipeline_type microblaze_pipe;
   1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
   1, 1, 1, 1								\
 }
-
 #define GP_REG_FIRST    0
 #define GP_REG_LAST     31
 #define GP_REG_NUM      (GP_REG_LAST - GP_REG_FIRST + 1)
@@ -407,12 +411,9 @@ extern enum reg_class microblaze_regno_to_class[];
 	  || GET_MODE (X) == VOIDmode)					\
 	 ? (GR_REGS) : (CLASS))))
 
-#define SECONDARY_MEMORY_NEEDED(CLASS1, CLASS2, MODE)			\
-  (GET_MODE_CLASS (MODE) == MODE_INT)
-
 /* Stack layout; function entry, exit and calling.  */
 
-#define STACK_GROWS_DOWNWARD
+#define STACK_GROWS_DOWNWARD 1
 
 /* Changed the starting frame offset to including the new link stuff */
 #define STARTING_FRAME_OFFSET						\
@@ -656,7 +657,7 @@ do {									\
     }                                                                   \
   fprintf (FILE, "%s", COMMON_ASM_OP);                                  \
   assemble_name ((FILE), (NAME));					\
-  fprintf ((FILE), ","HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
+  fprintf ((FILE), "," HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
            (SIZE), (ALIGN) / BITS_PER_UNIT);                            \
   ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "object");			\
 } while (0)
@@ -676,7 +677,7 @@ do {									\
     }                                                                   \
   fprintf (FILE, "%s", LCOMMON_ASM_OP);                                 \
   assemble_name ((FILE), (NAME));					\
-  fprintf ((FILE), ","HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
+  fprintf ((FILE), "," HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
            (SIZE), (ALIGN) / BITS_PER_UNIT);                            \
   ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "object");			\
 } while (0)
@@ -689,6 +690,12 @@ do {									\
 #define ASM_DECLARE_FUNCTION_NAME(STREAM,NAME,DECL)                     \
 {                                                                       \
 }
+
+#undef TARGET_ASM_CONSTRUCTOR
+#define TARGET_ASM_CONSTRUCTOR microblaze_elf_asm_constructor
+
+#undef TARGET_ASM_DESTRUCTOR
+#define TARGET_ASM_DESTRUCTOR microblaze_elf_asm_destructor
 
 #define ASM_GENERATE_INTERNAL_LABEL(LABEL,PREFIX,NUM)			\
   sprintf ((LABEL), "*%s%s%ld", (LOCAL_LABEL_PREFIX), (PREFIX), (long)(NUM))
@@ -761,6 +768,10 @@ extern int fast_interrupt;
 extern int save_volatiles;
 
 #define INTERRUPT_HANDLER_NAME "_interrupt_handler"
+/* The function name for the function tagged with attribute break_handler
+   has been set in the RTL as _break_handler. This function name is used
+   in the generation of directives .ent .end and .global. */
+#define BREAK_HANDLER_NAME "_break_handler"
 #define FAST_INTERRUPT_NAME "_fast_interrupt"
 
 /* The following #defines are used in the headers files. Always retain these.  */
@@ -891,6 +902,10 @@ do {									 \
 "%{!nostdlib: \
 %{pg:-start-group -lxilprofile -lgloss -lxil -lc -lm -end-group } \
 %{!pg:-start-group -lgloss -lxil -lc -lm -end-group }} "
+
+/* microblaze-unknown-elf target has no support of C99 runtime */
+#undef TARGET_LIBC_HAS_FUNCTION
+#define TARGET_LIBC_HAS_FUNCTION no_c99_libc_has_function
 
 #undef  ENDFILE_SPEC
 #define ENDFILE_SPEC "crtend.o%s crtn.o%s"

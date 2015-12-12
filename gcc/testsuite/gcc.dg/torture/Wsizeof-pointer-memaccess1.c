@@ -1,9 +1,10 @@
 /* Test -Wsizeof-pointer-memaccess warnings.  */
 /* { dg-do compile } */
-/* { dg-options "-Wall" } */
+/* { dg-options "-Wall -Wno-sizeof-array-argument" } */
 /* Test just twice, once with -O0 non-fortified, once with -O2 fortified.  */
 /* { dg-skip-if "" { *-*-* }  { "*" } { "-O0" "-O2" } } */
 /* { dg-skip-if "" { *-*-* }  { "-flto" } { "" } } */
+/* { dg-require-effective-target alloca } */
 
 typedef __SIZE_TYPE__ size_t;
 extern void *memset (void *, int, size_t);

@@ -7,18 +7,49 @@
 package net
 
 import (
-	"errors"
 	"os"
+	"syscall"
 )
 
-// /sys/include/ape/sys/socket.h:/SOMAXCONN
-var listenerBacklog = 5
+func probe(filename, query string) bool {
+	var file *file
+	var err error
+	if file, err = open(filename); err != nil {
+		return false
+	}
+
+	r := false
+	for line, ok := file.readLine(); ok && !r; line, ok = file.readLine() {
+		f := getFields(line)
+		if len(f) < 3 {
+			continue
+		}
+		for i := 0; i < len(f); i++ {
+			if query == f[i] {
+				r = true
+				break
+			}
+		}
+	}
+	file.close()
+	return r
+}
+
+func probeIPv4Stack() bool {
+	return probe(netdir+"/iproute", "4i")
+}
 
 // probeIPv6Stack returns two boolean values.  If the first boolean
 // value is true, kernel supports basic IPv6 functionality.  If the
 // second boolean value is true, kernel supports IPv6 IPv4-mapping.
 func probeIPv6Stack() (supportsIPv6, supportsIPv4map bool) {
-	return false, false
+	// Plan 9 uses IPv6 natively, see ip(3).
+	r := probe(netdir+"/iproute", "6i")
+	v := false
+	if r {
+		v = probe(netdir+"/iproute", "4i")
+	}
+	return r, v
 }
 
 // parsePlan9Addr parses address of the form [ip!]port (e.g. 127.0.0.1!80).
@@ -28,15 +59,15 @@ func parsePlan9Addr(s string) (ip IP, iport int, err error) {
 	if i >= 0 {
 		addr = ParseIP(s[:i])
 		if addr == nil {
-			return nil, 0, errors.New("net: parsing IP failed")
+			return nil, 0, &ParseError{Type: "IP address", Text: s}
 		}
 	}
 	p, _, ok := dtoi(s[i+1:], 0)
 	if !ok {
-		return nil, 0, errors.New("net: parsing port failed")
+		return nil, 0, &ParseError{Type: "port", Text: s}
 	}
 	if p < 0 || p > 0xFFFF {
-		return nil, 0, &AddrError{"invalid port", string(p)}
+		return nil, 0, &AddrError{Err: "invalid port", Addr: string(p)}
 	}
 	return addr, p, nil
 }
@@ -63,7 +94,7 @@ func readPlan9Addr(proto, filename string) (addr Addr, err error) {
 	case "udp":
 		addr = &UDPAddr{IP: ip, Port: port}
 	default:
-		return nil, errors.New("unknown protocol " + proto)
+		return nil, UnknownNetworkError(proto)
 	}
 	return addr, nil
 }
@@ -104,72 +135,111 @@ func startPlan9(net string, addr Addr) (ctl *os.File, dest, proto, name string, 
 	return f, dest, proto, string(buf[:n]), nil
 }
 
-func dialPlan9(net string, laddr, raddr Addr) (*netFD, error) {
+func netErr(e error) {
+	oe, ok := e.(*OpError)
+	if !ok {
+		return
+	}
+	nonNilInterface := func(a Addr) bool {
+		switch a := a.(type) {
+		case *TCPAddr:
+			return a == nil
+		case *UDPAddr:
+			return a == nil
+		case *IPAddr:
+			return a == nil
+		default:
+			return false
+		}
+	}
+	if nonNilInterface(oe.Source) {
+		oe.Source = nil
+	}
+	if nonNilInterface(oe.Addr) {
+		oe.Addr = nil
+	}
+	if pe, ok := oe.Err.(*os.PathError); ok {
+		if _, ok = pe.Err.(syscall.ErrorString); ok {
+			oe.Err = pe.Err
+		}
+	}
+}
+
+func dialPlan9(net string, laddr, raddr Addr) (fd *netFD, err error) {
+	defer func() { netErr(err) }()
 	f, dest, proto, name, err := startPlan9(net, raddr)
 	if err != nil {
-		return nil, err
+		return nil, &OpError{Op: "dial", Net: net, Source: laddr, Addr: raddr, Err: err}
 	}
 	_, err = f.WriteString("connect " + dest)
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "dial", Net: f.Name(), Source: laddr, Addr: raddr, Err: err}
 	}
-	laddr, err = readPlan9Addr(proto, "/net/"+proto+"/"+name+"/local")
+	data, err := os.OpenFile(netdir+"/"+proto+"/"+name+"/data", os.O_RDWR, 0)
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "dial", Net: net, Source: laddr, Addr: raddr, Err: err}
 	}
-	raddr, err = readPlan9Addr(proto, "/net/"+proto+"/"+name+"/remote")
+	laddr, err = readPlan9Addr(proto, netdir+"/"+proto+"/"+name+"/local")
 	if err != nil {
+		data.Close()
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "dial", Net: proto, Source: laddr, Addr: raddr, Err: err}
 	}
-	return newFD(proto, name, f, laddr, raddr), nil
+	return newFD(proto, name, f, data, laddr, raddr)
 }
 
-func listenPlan9(net string, laddr Addr) (*netFD, error) {
+func listenPlan9(net string, laddr Addr) (fd *netFD, err error) {
+	defer func() { netErr(err) }()
 	f, dest, proto, name, err := startPlan9(net, laddr)
 	if err != nil {
-		return nil, err
+		return nil, &OpError{Op: "listen", Net: net, Source: nil, Addr: laddr, Err: err}
 	}
 	_, err = f.WriteString("announce " + dest)
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "announce", Net: proto, Source: nil, Addr: laddr, Err: err}
 	}
-	laddr, err = readPlan9Addr(proto, "/net/"+proto+"/"+name+"/local")
+	laddr, err = readPlan9Addr(proto, netdir+"/"+proto+"/"+name+"/local")
 	if err != nil {
 		f.Close()
+		return nil, &OpError{Op: "listen", Net: net, Source: nil, Addr: laddr, Err: err}
+	}
+	return newFD(proto, name, f, nil, laddr, nil)
+}
+
+func (fd *netFD) netFD() (*netFD, error) {
+	return newFD(fd.net, fd.n, fd.ctl, fd.data, fd.laddr, fd.raddr)
+}
+
+func (fd *netFD) acceptPlan9() (nfd *netFD, err error) {
+	defer func() { netErr(err) }()
+	if err := fd.readLock(); err != nil {
 		return nil, err
 	}
-	return &netFD{proto: proto, name: name, dir: "/net/" + proto + "/" + name, ctl: f, laddr: laddr}, nil
-}
-
-func (l *netFD) netFD() *netFD {
-	return newFD(l.proto, l.name, l.ctl, l.laddr, nil)
-}
-
-func (l *netFD) acceptPlan9() (*netFD, error) {
-	f, err := os.Open(l.dir + "/listen")
+	defer fd.readUnlock()
+	f, err := os.Open(fd.dir + "/listen")
 	if err != nil {
-		return nil, err
+		return nil, &OpError{Op: "accept", Net: fd.dir + "/listen", Source: nil, Addr: fd.laddr, Err: err}
 	}
 	var buf [16]byte
 	n, err := f.Read(buf[:])
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "accept", Net: fd.dir + "/listen", Source: nil, Addr: fd.laddr, Err: err}
 	}
 	name := string(buf[:n])
-	laddr, err := readPlan9Addr(l.proto, l.dir+"/local")
+	data, err := os.OpenFile(netdir+"/"+fd.net+"/"+name+"/data", os.O_RDWR, 0)
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "accept", Net: fd.net, Source: nil, Addr: fd.laddr, Err: err}
 	}
-	raddr, err := readPlan9Addr(l.proto, l.dir+"/remote")
+	raddr, err := readPlan9Addr(fd.net, netdir+"/"+fd.net+"/"+name+"/remote")
 	if err != nil {
+		data.Close()
 		f.Close()
-		return nil, err
+		return nil, &OpError{Op: "accept", Net: fd.net, Source: nil, Addr: fd.laddr, Err: err}
 	}
-	return newFD(l.proto, name, f, laddr, raddr), nil
+	return newFD(fd.net, name, f, data, fd.laddr, raddr)
 }

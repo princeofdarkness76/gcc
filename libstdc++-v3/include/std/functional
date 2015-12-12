@@ -1,6 +1,6 @@
 // <functional> -*- C++ -*-
 
-// Copyright (C) 2001-2013 Free Software Foundation, Inc.
+// Copyright (C) 2001-2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -67,24 +67,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     _Mem_fn<_Tp _Class::*>
     mem_fn(_Tp _Class::*) noexcept;
 
-_GLIBCXX_HAS_NESTED_TYPE(result_type)
-
   /// If we have found a result_type, extract it.
-  template<bool _Has_result_type, typename _Functor>
+  template<typename _Functor, typename = __void_t<>>
     struct _Maybe_get_result_type
     { };
 
   template<typename _Functor>
-    struct _Maybe_get_result_type<true, _Functor>
+    struct _Maybe_get_result_type<_Functor,
+				  __void_t<typename _Functor::result_type>>
     { typedef typename _Functor::result_type result_type; };
 
   /**
    *  Base class for any function object that has a weak result type, as
-   *  defined in 3.3/3 of TR1.
+   *  defined in 20.8.2 [func.require] of C++11.
   */
   template<typename _Functor>
     struct _Weak_result_type_impl
-    : _Maybe_get_result_type<__has_result_type<_Functor>::value, _Functor>
+    : _Maybe_get_result_type<_Functor>
     { };
 
   /// Retrieve the result type for a function type.
@@ -185,48 +184,77 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     : _Weak_result_type_impl<typename remove_cv<_Functor>::type>
     { };
 
-  /**
-   * Invoke a function object, which may be either a member pointer or a
-   * function object. The first parameter will tell which.
-   */
-  template<typename _Functor, typename... _Args>
-    inline
-    typename enable_if<
-	     (!is_member_pointer<_Functor>::value
-	      && !is_function<_Functor>::value
-	      && !is_function<typename remove_pointer<_Functor>::type>::value),
-	     typename result_of<_Functor&(_Args&&...)>::type
-	   >::type
-    __invoke(_Functor& __f, _Args&&... __args)
+  template<typename _Res, typename _Fn, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_other, _Fn&& __f, _Args&&... __args)
+    noexcept(noexcept(std::forward<_Fn>(__f)(std::forward<_Args>(__args)...)))
+    { return std::forward<_Fn>(__f)(std::forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memfun_ref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept((forward<_Tp>(__t).*__f)(forward<_Args>(__args)...)))
+    { return (forward<_Tp>(__t).*__f)(forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memfun_ref, _MemFun&& __f,
+		  reference_wrapper<_Tp> __t, _Args&&... __args)
+    noexcept(noexcept((__t.get().*__f)(forward<_Args>(__args)...)))
+    { return (__t.get().*__f)(forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memfun_deref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept(((*forward<_Tp>(__t)).*__f)(forward<_Args>(__args)...)))
+    { return ((*forward<_Tp>(__t)).*__f)(forward<_Args>(__args)...); }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memobj_ref, _MemFun&& __f, _Tp&& __t)
+    noexcept(noexcept(forward<_Tp>(__t).*__f))
+    { return forward<_Tp>(__t).*__f; }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memobj_ref, _MemFun&& __f,
+		  reference_wrapper<_Tp> __t)
+    noexcept(noexcept(__t.get().*__f))
+    { return __t.get().*__f; }
+
+  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+    inline _Res
+    __invoke_impl(__invoke_memobj_deref, _MemFun&& __f, _Tp&& __t,
+		  _Args&&... __args)
+    noexcept(noexcept((*forward<_Tp>(__t)).*__f))
+    { return (*forward<_Tp>(__t)).*__f; }
+
+  /// Invoke a callable object.
+  template<typename _Callable, typename... _Args>
+    inline typename result_of<_Callable&&(_Args&&...)>::type
+    __invoke(_Callable&& __fn, _Args&&... __args)
     {
-      return __f(std::forward<_Args>(__args)...);
+      using __result_of = result_of<_Callable&&(_Args&&...)>;
+      using __type = typename __result_of::type;
+      using __tag = typename __result_of::__invoke_type;
+      return std::__invoke_impl<__type>(__tag{}, std::forward<_Callable>(__fn),
+					std::forward<_Args>(__args)...);
     }
 
-  template<typename _Functor, typename... _Args>
-    inline
-    typename enable_if<
-             (is_member_pointer<_Functor>::value
-              && !is_function<_Functor>::value
-              && !is_function<typename remove_pointer<_Functor>::type>::value),
-             typename result_of<_Functor(_Args&&...)>::type
-           >::type
-    __invoke(_Functor& __f, _Args&&... __args)
-    {
-      return std::mem_fn(__f)(std::forward<_Args>(__args)...);
-    }
+#if __cplusplus > 201402L
+# define __cpp_lib_invoke 201411
 
-  // To pick up function references (that will become function pointers)
-  template<typename _Functor, typename... _Args>
-    inline
-    typename enable_if<
-	     (is_pointer<_Functor>::value
-	      && is_function<typename remove_pointer<_Functor>::type>::value),
-	     typename result_of<_Functor(_Args&&...)>::type
-	   >::type
-    __invoke(_Functor __f, _Args&&... __args)
+  /// Invoke a callable object.
+  template<typename _Callable, typename... _Args>
+    inline result_of_t<_Callable&&(_Args&&...)>
+    invoke(_Callable&& __fn, _Args&&... __args)
     {
-      return __f(std::forward<_Args>(__args)...);
+      return std::__invoke(std::forward<_Callable>(__fn),
+			   std::forward<_Args>(__args)...);
     }
+#endif
 
   /**
    *  Knowing which of unary_function and binary_function _Tp derives
@@ -410,16 +438,10 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
       reference_wrapper(_Tp&&) = delete;
 
-      reference_wrapper(const reference_wrapper<_Tp>& __inref) noexcept
-      : _M_data(__inref._M_data)
-      { }
+      reference_wrapper(const reference_wrapper&) = default;
 
       reference_wrapper&
-      operator=(const reference_wrapper<_Tp>& __inref) noexcept
-      {
-	_M_data = __inref._M_data;
-	return *this;
-      }
+      operator=(const reference_wrapper&) = default;
 
       operator _Tp&() const noexcept
       { return this->get(); }
@@ -432,7 +454,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	typename result_of<_Tp&(_Args&&...)>::type
 	operator()(_Args&&... __args) const
 	{
-	  return __invoke(get(), std::forward<_Args>(__args)...);
+	  return std::__invoke(get(), std::forward<_Args>(__args)...);
 	}
     };
 
@@ -504,417 +526,104 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     struct _Maybe_unary_or_binary_function<_Res, _T1, _T2>
     : std::binary_function<_T1, _T2, _Res> { };
 
-  /// Implementation of @c mem_fn for member function pointers.
+  template<typename _Signature>
+    struct _Mem_fn_traits;
+
   template<typename _Res, typename _Class, typename... _ArgTypes>
-    class _Mem_fn<_Res (_Class::*)(_ArgTypes...)>
-    : public _Maybe_unary_or_binary_function<_Res, _Class*, _ArgTypes...>
+    struct _Mem_fn_traits_base
     {
-      typedef _Res (_Class::*_Functor)(_ArgTypes...);
+      using __result_type = _Res;
+      using __maybe_type
+	= _Maybe_unary_or_binary_function<_Res, _Class*, _ArgTypes...>;
+      using __arity = integral_constant<size_t, sizeof...(_ArgTypes)>;
+    };
 
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __object, const volatile _Class *,
-		_Args&&... __args) const
-	{
-	  return (std::forward<_Tp>(__object).*__pmf)
-	    (std::forward<_Args>(__args)...);
-	}
+#define _GLIBCXX_MEM_FN_TRAITS2(_CV, _REF, _LVAL, _RVAL)		\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = false_type;					\
+    };									\
+  template<typename _Res, typename _Class, typename... _ArgTypes>	\
+    struct _Mem_fn_traits<_Res (_Class::*)(_ArgTypes... ...) _CV _REF>	\
+    : _Mem_fn_traits_base<_Res, _CV _Class, _ArgTypes...>		\
+    {									\
+      using __vararg = true_type;					\
+    };
 
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __ptr, const volatile void *, _Args&&... __args) const
-	{ return ((*__ptr).*__pmf)(std::forward<_Args>(__args)...); }
+#define _GLIBCXX_MEM_FN_TRAITS(_REF, _LVAL, _RVAL)		\
+  _GLIBCXX_MEM_FN_TRAITS2(		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const		, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(volatile	, _REF, _LVAL, _RVAL)	\
+  _GLIBCXX_MEM_FN_TRAITS2(const volatile, _REF, _LVAL, _RVAL)
 
-      // Require each _Args to be convertible to corresponding _ArgTypes
-      template<typename... _Args>
-	using _RequireValidArgs
-	  = _Require<_AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+_GLIBCXX_MEM_FN_TRAITS( , true_type, true_type)
+_GLIBCXX_MEM_FN_TRAITS(&, true_type, false_type)
+_GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
 
-      // Require each _Args to be convertible to corresponding _ArgTypes
-      // and require _Tp is not _Class, _Class& or _Class*
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs2
-	  = _Require<_NotSame<_Class, _Tp>, _NotSame<_Class*, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+#undef _GLIBCXX_MEM_FN_TRAITS
+#undef _GLIBCXX_MEM_FN_TRAITS2
 
-      // Require each _Args to be convertible to corresponding _ArgTypes
-      // and require _Tp is _Class or derived from _Class
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs3
-	  = _Require<is_base_of<_Class, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+  template<typename _MemFunPtr,
+	   bool __is_mem_fn = is_member_function_pointer<_MemFunPtr>::value>
+    class _Mem_fn_base
+    : public _Mem_fn_traits<_MemFunPtr>::__maybe_type
+    {
+      using _Traits = _Mem_fn_traits<_MemFunPtr>;
+
+      using _Arity = typename _Traits::__arity;
+      using _Varargs = typename _Traits::__vararg;
+
+      template<typename _Func, typename... _BoundArgs>
+	friend struct _Bind_check_arity;
+
+      _MemFunPtr _M_pmf;
 
     public:
-      typedef _Res result_type;
 
-      explicit _Mem_fn(_Functor __pmf) : __pmf(__pmf) { }
+      using result_type = typename _Traits::__result_type;
 
-      // Handle objects
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(_Class& __object, _Args&&... __args) const
-	{ return (__object.*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(_Class&& __object, _Args&&... __args) const
-	{
-	  return (std::move(__object).*__pmf)(std::forward<_Args>(__args)...);
-	}
-
-      // Handle pointers
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(_Class* __object, _Args&&... __args) const
-	{ return (__object->*__pmf)(std::forward<_Args>(__args)...); }
-
-      // Handle smart pointers, references and pointers to derived
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs2<_Tp, _Args...>>
-	_Res
-	operator()(_Tp&& __object, _Args&&... __args) const
-	{
-	  return _M_call(std::forward<_Tp>(__object), &__object,
-	      std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs3<_Tp, _Args...>>
-	_Res
-	operator()(reference_wrapper<_Tp> __ref, _Args&&... __args) const
-	{ return operator()(__ref.get(), std::forward<_Args>(__args)...); }
-
-    private:
-      _Functor __pmf;
-    };
-
-  /// Implementation of @c mem_fn for const member function pointers.
-  template<typename _Res, typename _Class, typename... _ArgTypes>
-    class _Mem_fn<_Res (_Class::*)(_ArgTypes...) const>
-    : public _Maybe_unary_or_binary_function<_Res, const _Class*,
-					     _ArgTypes...>
-    {
-      typedef _Res (_Class::*_Functor)(_ArgTypes...) const;
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __object, const volatile _Class *,
-		_Args&&... __args) const
-	{
-	  return (std::forward<_Tp>(__object).*__pmf)
-	    (std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __ptr, const volatile void *, _Args&&... __args) const
-	{ return ((*__ptr).*__pmf)(std::forward<_Args>(__args)...); }
+      explicit constexpr
+      _Mem_fn_base(_MemFunPtr __pmf) noexcept : _M_pmf(__pmf) { }
 
       template<typename... _Args>
-	using _RequireValidArgs
-	  = _Require<_AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+	auto
+	operator()(_Args&&... __args) const
+	noexcept(noexcept(std::__invoke(_M_pmf, forward<_Args>(__args)...)))
+	-> decltype(std::__invoke(_M_pmf, forward<_Args>(__args)...))
+	{ return std::__invoke(_M_pmf, std::forward<_Args>(__args)...); }
+    };
 
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs2
-	  = _Require<_NotSame<_Class, _Tp>, _NotSame<const _Class*, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+  // Partial specialization for member object pointers.
+  template<typename _MemObjPtr>
+    class _Mem_fn_base<_MemObjPtr, false>
+    {
+      using _Arity = integral_constant<size_t, 0>;
+      using _Varargs = false_type;
 
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs3
-	  = _Require<is_base_of<_Class, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
+      template<typename _Func, typename... _BoundArgs>
+	friend struct _Bind_check_arity;
+
+      _MemObjPtr _M_pm;
 
     public:
-      typedef _Res result_type;
+      explicit constexpr
+      _Mem_fn_base(_MemObjPtr __pm) noexcept : _M_pm(__pm) { }
 
-      explicit _Mem_fn(_Functor __pmf) : __pmf(__pmf) { }
-
-      // Handle objects
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const _Class& __object, _Args&&... __args) const
-	{ return (__object.*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const _Class&& __object, _Args&&... __args) const
-	{
-	  return (std::move(__object).*__pmf)(std::forward<_Args>(__args)...);
-	}
-
-      // Handle pointers
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const _Class* __object, _Args&&... __args) const
-	{ return (__object->*__pmf)(std::forward<_Args>(__args)...); }
-
-      // Handle smart pointers, references and pointers to derived
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs2<_Tp, _Args...>>
-	_Res operator()(_Tp&& __object, _Args&&... __args) const
-	{
-	  return _M_call(std::forward<_Tp>(__object), &__object,
-	      std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs3<_Tp, _Args...>>
-	_Res
-	operator()(reference_wrapper<_Tp> __ref, _Args&&... __args) const
-	{ return operator()(__ref.get(), std::forward<_Args>(__args)...); }
-
-    private:
-      _Functor __pmf;
-    };
-
-  /// Implementation of @c mem_fn for volatile member function pointers.
-  template<typename _Res, typename _Class, typename... _ArgTypes>
-    class _Mem_fn<_Res (_Class::*)(_ArgTypes...) volatile>
-    : public _Maybe_unary_or_binary_function<_Res, volatile _Class*,
-					     _ArgTypes...>
-    {
-      typedef _Res (_Class::*_Functor)(_ArgTypes...) volatile;
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __object, const volatile _Class *,
-		_Args&&... __args) const
-	{
-	  return (std::forward<_Tp>(__object).*__pmf)
-	    (std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __ptr, const volatile void *, _Args&&... __args) const
-	{ return ((*__ptr).*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args>
-	using _RequireValidArgs
-	  = _Require<_AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs2
-	  = _Require<_NotSame<_Class, _Tp>, _NotSame<volatile _Class*, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs3
-	  = _Require<is_base_of<_Class, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-    public:
-      typedef _Res result_type;
-
-      explicit _Mem_fn(_Functor __pmf) : __pmf(__pmf) { }
-
-      // Handle objects
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(volatile _Class& __object, _Args&&... __args) const
-	{ return (__object.*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(volatile _Class&& __object, _Args&&... __args) const
-	{
-	  return (std::move(__object).*__pmf)(std::forward<_Args>(__args)...);
-	}
-
-      // Handle pointers
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(volatile _Class* __object, _Args&&... __args) const
-	{ return (__object->*__pmf)(std::forward<_Args>(__args)...); }
-
-      // Handle smart pointers, references and pointers to derived
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs2<_Tp, _Args...>>
-	_Res
-	operator()(_Tp&& __object, _Args&&... __args) const
-	{
-	  return _M_call(std::forward<_Tp>(__object), &__object,
-	      std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs3<_Tp, _Args...>>
-	_Res
-	operator()(reference_wrapper<_Tp> __ref, _Args&&... __args) const
-	{ return operator()(__ref.get(), std::forward<_Args>(__args)...); }
-
-    private:
-      _Functor __pmf;
-    };
-
-  /// Implementation of @c mem_fn for const volatile member function pointers.
-  template<typename _Res, typename _Class, typename... _ArgTypes>
-    class _Mem_fn<_Res (_Class::*)(_ArgTypes...) const volatile>
-    : public _Maybe_unary_or_binary_function<_Res, const volatile _Class*,
-					     _ArgTypes...>
-    {
-      typedef _Res (_Class::*_Functor)(_ArgTypes...) const volatile;
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __object, const volatile _Class *,
-		_Args&&... __args) const
-	{
-	  return (std::forward<_Tp>(__object).*__pmf)
-	    (std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args>
-	_Res
-	_M_call(_Tp&& __ptr, const volatile void *, _Args&&... __args) const
-	{ return ((*__ptr).*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args>
-	using _RequireValidArgs
-	  = _Require<_AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs2
-	  = _Require<_NotSame<_Class, _Tp>,
-		     _NotSame<const volatile _Class*, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-      template<typename _Tp, typename... _Args>
-	using _RequireValidArgs3
-	  = _Require<is_base_of<_Class, _Tp>,
-		     _AllConvertible<_Pack<_Args...>, _Pack<_ArgTypes...>>>;
-
-    public:
-      typedef _Res result_type;
-
-      explicit _Mem_fn(_Functor __pmf) : __pmf(__pmf) { }
-
-      // Handle objects
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const volatile _Class& __object, _Args&&... __args) const
-	{ return (__object.*__pmf)(std::forward<_Args>(__args)...); }
-
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const volatile _Class&& __object, _Args&&... __args) const
-	{
-	  return (std::move(__object).*__pmf)(std::forward<_Args>(__args)...);
-	}
-
-      // Handle pointers
-      template<typename... _Args, typename _Req = _RequireValidArgs<_Args...>>
-	_Res
-	operator()(const volatile _Class* __object, _Args&&... __args) const
-	{ return (__object->*__pmf)(std::forward<_Args>(__args)...); }
-
-      // Handle smart pointers, references and pointers to derived
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs2<_Tp, _Args...>>
-	_Res operator()(_Tp&& __object, _Args&&... __args) const
-	{
-	  return _M_call(std::forward<_Tp>(__object), &__object,
-	      std::forward<_Args>(__args)...);
-	}
-
-      template<typename _Tp, typename... _Args,
-	       typename _Req = _RequireValidArgs3<_Tp, _Args...>>
-	_Res
-	operator()(reference_wrapper<_Tp> __ref, _Args&&... __args) const
-	{ return operator()(__ref.get(), std::forward<_Args>(__args)...); }
-
-    private:
-      _Functor __pmf;
-    };
-
-
-  template<typename _Tp, bool>
-    struct _Mem_fn_const_or_non
-    {
-      typedef const _Tp& type;
-    };
-
-  template<typename _Tp>
-    struct _Mem_fn_const_or_non<_Tp, false>
-    {
-      typedef _Tp& type;
+      template<typename _Tp>
+	auto
+	operator()(_Tp&& __obj) const
+	noexcept(noexcept(std::__invoke(_M_pm, forward<_Tp>(__obj))))
+	-> decltype(std::__invoke(_M_pm, std::forward<_Tp>(__obj)))
+	{ return std::__invoke(_M_pm, std::forward<_Tp>(__obj)); }
     };
 
   template<typename _Res, typename _Class>
-    class _Mem_fn<_Res _Class::*>
+    struct _Mem_fn<_Res _Class::*>
+    : _Mem_fn_base<_Res _Class::*>
     {
-      using __pm_type = _Res _Class::*;
-
-      // This bit of genius is due to Peter Dimov, improved slightly by
-      // Douglas Gregor.
-      // Made less elegant to support perfect forwarding and noexcept.
-      template<typename _Tp>
-	auto
-	_M_call(_Tp&& __object, const _Class *) const noexcept
-	-> decltype(std::forward<_Tp>(__object).*std::declval<__pm_type&>())
-	{ return std::forward<_Tp>(__object).*__pm; }
-
-      template<typename _Tp, typename _Up>
-	auto
-	_M_call(_Tp&& __object, _Up * const *) const noexcept
-	-> decltype((*std::forward<_Tp>(__object)).*std::declval<__pm_type&>())
-	{ return (*std::forward<_Tp>(__object)).*__pm; }
-
-      template<typename _Tp>
-	auto
-	_M_call(_Tp&& __ptr, const volatile void*) const
-	noexcept(noexcept((*__ptr).*std::declval<__pm_type&>()))
-	-> decltype((*__ptr).*std::declval<__pm_type&>())
-	{ return (*__ptr).*__pm; }
-
-    public:
-      explicit
-      _Mem_fn(_Res _Class::*__pm) noexcept : __pm(__pm) { }
-
-      // Handle objects
-      _Res&
-      operator()(_Class& __object) const noexcept
-      { return __object.*__pm; }
-
-      const _Res&
-      operator()(const _Class& __object) const noexcept
-      { return __object.*__pm; }
-
-      _Res&&
-      operator()(_Class&& __object) const noexcept
-      { return std::forward<_Class>(__object).*__pm; }
-
-      const _Res&&
-      operator()(const _Class&& __object) const noexcept
-      { return std::forward<const _Class>(__object).*__pm; }
-
-      // Handle pointers
-      _Res&
-      operator()(_Class* __object) const noexcept
-      { return __object->*__pm; }
-
-      const _Res&
-      operator()(const _Class* __object) const noexcept
-      { return __object->*__pm; }
-
-      // Handle smart pointers and derived
-      template<typename _Tp, typename _Req = _Require<_NotSame<_Class*, _Tp>>>
-	auto
-	operator()(_Tp&& __unknown) const
-	noexcept(noexcept(std::declval<_Mem_fn*>()->_M_call
-			  (std::forward<_Tp>(__unknown), &__unknown)))
-	-> decltype(this->_M_call(std::forward<_Tp>(__unknown), &__unknown))
-	{ return _M_call(std::forward<_Tp>(__unknown), &__unknown); }
-
-      template<typename _Tp, typename _Req = _Require<is_base_of<_Class, _Tp>>>
-	auto
-	operator()(reference_wrapper<_Tp> __ref) const
-	noexcept(noexcept(std::declval<_Mem_fn&>()(__ref.get())))
-	-> decltype((*this)(__ref.get()))
-	{ return (*this)(__ref.get()); }
-
-    private:
-      _Res _Class::*__pm;
+      using _Mem_fn_base<_Res _Class::*>::_Mem_fn_base;
     };
 
   // _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -1120,7 +829,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	       const _Index_tuple<_Indexes...>&) const volatile
 	-> decltype(__arg(declval<_Args>()...))
 	{
-	  return __arg(std::forward<_Args>(get<_Indexes>(__tuple))...);
+	  return __arg(std::forward<_Args>(std::get<_Indexes>(__tuple))...);
 	}
     };
 
@@ -1184,26 +893,26 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
   /**
    *  Maps member pointers into instances of _Mem_fn but leaves all
-   *  other function objects untouched. Used by tr1::bind(). The
-   *  primary template handles the non--member-pointer case.
+   *  other function objects untouched. Used by std::bind(). The
+   *  primary template handles the non-member-pointer case.
    */
   template<typename _Tp>
     struct _Maybe_wrap_member_pointer
     {
       typedef _Tp type;
 
-      static const _Tp&
+      static constexpr const _Tp&
       __do_wrap(const _Tp& __x)
       { return __x; }
 
-      static _Tp&&
+      static constexpr _Tp&&
       __do_wrap(_Tp&& __x)
       { return static_cast<_Tp&&>(__x); }
     };
 
   /**
    *  Maps member pointers into instances of _Mem_fn but leaves all
-   *  other function objects untouched. Used by tr1::bind(). This
+   *  other function objects untouched. Used by std::bind(). This
    *  partial specialization handles the member pointer case.
    */
   template<typename _Tp, typename _Class>
@@ -1211,7 +920,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     {
       typedef _Mem_fn<_Tp _Class::*> type;
 
-      static type
+      static constexpr type
       __do_wrap(_Tp _Class::* __pm)
       { return type(__pm); }
     };
@@ -1230,14 +939,14 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
   template<std::size_t _Ind, typename... _Tp>
     inline auto
     __volget(volatile tuple<_Tp...>& __tuple)
-    -> typename tuple_element<_Ind, tuple<_Tp...>>::type volatile&
+    -> __tuple_element_t<_Ind, tuple<_Tp...>> volatile&
     { return std::get<_Ind>(const_cast<tuple<_Tp...>&>(__tuple)); }
 
   // std::get<I> for const-volatile-qualified tuples
   template<std::size_t _Ind, typename... _Tp>
     inline auto
     __volget(const volatile tuple<_Tp...>& __tuple)
-    -> typename tuple_element<_Ind, tuple<_Tp...>>::type const volatile&
+    -> __tuple_element_t<_Ind, tuple<_Tp...>> const volatile&
     { return std::get<_Ind>(const_cast<const tuple<_Tp...>&>(__tuple)); }
 
   /// Type of the function object returned from bind().
@@ -1261,7 +970,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	__call(tuple<_Args...>&& __args, _Index_tuple<_Indexes...>)
 	{
 	  return _M_f(_Mu<_Bound_args>()
-		      (get<_Indexes>(_M_bound_args), __args)...);
+		      (std::get<_Indexes>(_M_bound_args), __args)...);
 	}
 
       // Call as const
@@ -1270,7 +979,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	__call_c(tuple<_Args...>&& __args, _Index_tuple<_Indexes...>) const
 	{
 	  return _M_f(_Mu<_Bound_args>()
-		      (get<_Indexes>(_M_bound_args), __args)...);
+		      (std::get<_Indexes>(_M_bound_args), __args)...);
 	}
 
       // Call as volatile
@@ -1393,7 +1102,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	    typename __disable_if_void<_Res>::type = 0)
 	{
 	  return _M_f(_Mu<_Bound_args>()
-		      (get<_Indexes>(_M_bound_args), __args)...);
+		      (std::get<_Indexes>(_M_bound_args), __args)...);
 	}
 
       // Call unqualified, return void
@@ -1403,7 +1112,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	    typename __enable_if_void<_Res>::type = 0)
 	{
 	  _M_f(_Mu<_Bound_args>()
-	       (get<_Indexes>(_M_bound_args), __args)...);
+	       (std::get<_Indexes>(_M_bound_args), __args)...);
 	}
 
       // Call as const
@@ -1413,7 +1122,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	    typename __disable_if_void<_Res>::type = 0) const
 	{
 	  return _M_f(_Mu<_Bound_args>()
-		      (get<_Indexes>(_M_bound_args), __args)...);
+		      (std::get<_Indexes>(_M_bound_args), __args)...);
 	}
 
       // Call as const, return void
@@ -1423,7 +1132,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	    typename __enable_if_void<_Res>::type = 0) const
 	{
 	  _M_f(_Mu<_Bound_args>()
-	       (get<_Indexes>(_M_bound_args),  __args)...);
+	       (std::get<_Indexes>(_M_bound_args),  __args)...);
 	}
 
       // Call as volatile
@@ -1591,6 +1300,34 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     struct is_bind_expression<const volatile _Bind_result<_Result, _Signature>>
     : public true_type { };
 
+  template<typename _Func, typename... _BoundArgs>
+    struct _Bind_check_arity { };
+
+  template<typename _Ret, typename... _Args, typename... _BoundArgs>
+    struct _Bind_check_arity<_Ret (*)(_Args...), _BoundArgs...>
+    {
+      static_assert(sizeof...(_BoundArgs) == sizeof...(_Args),
+                   "Wrong number of arguments for function");
+    };
+
+  template<typename _Ret, typename... _Args, typename... _BoundArgs>
+    struct _Bind_check_arity<_Ret (*)(_Args......), _BoundArgs...>
+    {
+      static_assert(sizeof...(_BoundArgs) >= sizeof...(_Args),
+                   "Wrong number of arguments for function");
+    };
+
+  template<typename _Tp, typename _Class, typename... _BoundArgs>
+    struct _Bind_check_arity<_Tp _Class::*, _BoundArgs...>
+    {
+      using _Arity = typename _Mem_fn<_Tp _Class::*>::_Arity;
+      using _Varargs = typename _Mem_fn<_Tp _Class::*>::_Varargs;
+      static_assert(_Varargs::value
+		    ? sizeof...(_BoundArgs) >= _Arity::value + 1
+		    : sizeof...(_BoundArgs) == _Arity::value + 1,
+		    "Wrong number of arguments for pointer-to-member");
+    };
+
   // Trait type used to remove std::bind() from overload set via SFINAE
   // when first argument has integer type, so that std::bind() will
   // not be a better match than ::bind() from the BSD Sockets API.
@@ -1599,6 +1336,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
   template<bool _SocketLike, typename _Func, typename... _BoundArgs>
     struct _Bind_helper
+    : _Bind_check_arity<typename decay<_Func>::type, _BoundArgs...>
     {
       typedef _Maybe_wrap_member_pointer<typename decay<_Func>::type>
 	__maybe_type;
@@ -1631,6 +1369,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
   template<typename _Result, typename _Func, typename... _BoundArgs>
     struct _Bindres_helper
+    : _Bind_check_arity<typename decay<_Func>::type, _BoundArgs...>
     {
       typedef _Maybe_wrap_member_pointer<typename decay<_Func>::type>
 	__maybe_type;
@@ -1664,18 +1403,10 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     {
       typedef typename result_of<_Callable(_Args...)>::type result_type;
 
-      template<typename... _Args2, typename = typename
-               enable_if< sizeof...(_Args) == sizeof...(_Args2)>::type>
+      template<typename _Tp, typename... _Up>
         explicit
-        _Bind_simple(const _Callable& __callable, _Args2&&... __args)
-        : _M_bound(__callable, std::forward<_Args2>(__args)...)
-        { }
-
-      template<typename... _Args2, typename = typename
-               enable_if< sizeof...(_Args) == sizeof...(_Args2)>::type>
-        explicit
-        _Bind_simple(_Callable&& __callable, _Args2&&... __args)
-        : _M_bound(std::move(__callable), std::forward<_Args2>(__args)...)
+        _Bind_simple(_Tp&& __f, _Up&&... __args)
+        : _M_bound(std::forward<_Tp>(__f), std::forward<_Up>(__args)...)
         { }
 
       _Bind_simple(const _Bind_simple&) = default;
@@ -1689,7 +1420,6 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
       }
 
     private:
-
       template<std::size_t... _Indices>
         typename result_of<_Callable(_Args...)>::type
         _M_invoke(_Index_tuple<_Indices...>)
@@ -1705,6 +1435,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
   template<typename _Func, typename... _BoundArgs>
     struct _Bind_simple_helper
+    : _Bind_check_arity<typename decay<_Func>::type, _BoundArgs...>
     {
       typedef _Maybe_wrap_member_pointer<typename decay<_Func>::type>
         __maybe_type;
@@ -1743,12 +1474,12 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
   /**
    *  Trait identifying "location-invariant" types, meaning that the
    *  address of the object (or any of its members) will not escape.
-   *  Also implies a trivial copy constructor and assignment operator.
+   *  Trivially copyable types are location-invariant and users can
+   *  specialize this trait for other types.
    */
   template<typename _Tp>
     struct __is_location_invariant
-    : integral_constant<bool, (is_pointer<_Tp>::value
-			       || is_member_pointer<_Tp>::value)>
+    : is_trivially_copyable<_Tp>::type
     { };
 
   class _Undefined_class;
@@ -1901,7 +1632,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	{
 	  switch (__op)
 	    {
-#ifdef __GXX_RTTI
+#if __cpp_rtti
 	    case __get_type_info:
 	      __dest._M_access<const type_info*>() = &typeid(_Functor);
 	      break;
@@ -1932,7 +1663,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
 	template<typename _Tp>
 	  static bool
-	  _M_not_empty_function(const _Tp*& __fp)
+	  _M_not_empty_function(_Tp* const& __fp)
 	  { return __fp; }
 
 	template<typename _Class, typename _Tp>
@@ -1967,7 +1698,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	{
 	  switch (__op)
 	    {
-#ifdef __GXX_RTTI
+#if __cpp_rtti
 	    case __get_type_info:
 	      __dest._M_access<const type_info*>() = &typeid(_Functor);
 	      break;
@@ -1990,7 +1721,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	}
       };
 
-    _Function_base() : _M_manager(0) { }
+    _Function_base() : _M_manager(nullptr) { }
 
     ~_Function_base()
     {
@@ -2019,7 +1750,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
     public:
       static _Res
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	return (*_Base::_M_get_pointer(__functor))(
 	    std::forward<_ArgTypes>(__args)...);
@@ -2034,7 +1765,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
      public:
       static void
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	(*_Base::_M_get_pointer(__functor))(
 	    std::forward<_ArgTypes>(__args)...);
@@ -2049,7 +1780,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
      public:
       static _Res
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	return __callable_functor(**_Base::_M_get_pointer(__functor))(
 	      std::forward<_ArgTypes>(__args)...);
@@ -2064,7 +1795,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
      public:
       static void
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	__callable_functor(**_Base::_M_get_pointer(__functor))(
 	    std::forward<_ArgTypes>(__args)...);
@@ -2081,7 +1812,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 
      public:
       static _Res
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	return std::mem_fn(_Base::_M_get_pointer(__functor)->__value)(
 	    std::forward<_ArgTypes>(__args)...);
@@ -2104,7 +1835,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
       {
 	switch (__op)
 	  {
-#ifdef __GXX_RTTI
+#if __cpp_rtti
 	  case __get_type_info:
 	    __dest._M_access<const type_info*>() = &typeid(_Functor);
 	    break;
@@ -2121,12 +1852,16 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
       }
 
       static void
-      _M_invoke(const _Any_data& __functor, _ArgTypes... __args)
+      _M_invoke(const _Any_data& __functor, _ArgTypes&&... __args)
       {
 	std::mem_fn(_Base::_M_get_pointer(__functor)->__value)(
 	    std::forward<_ArgTypes>(__args)...);
       }
     };
+
+  template<typename _From, typename _To>
+    using __check_func_return_type
+      = __or_<is_void<_To>, is_same<_From, _To>, is_convertible<_From, _To>>;
 
   /**
    *  @brief Primary class template for std::function.
@@ -2145,16 +1880,15 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 	using _Invoke = decltype(__callable_functor(std::declval<_Functor&>())
 				 (std::declval<_ArgTypes>()...) );
 
-      template<typename _CallRes, typename _Res1>
-	struct _CheckResult
-	: is_convertible<_CallRes, _Res1> { };
-
-      template<typename _CallRes>
-	struct _CheckResult<_CallRes, void>
-	: true_type { };
+      // Used so the return type convertibility checks aren't done when
+      // performing overload resolution for copy construction/assignment.
+      template<typename _Tp>
+	using _NotSelf = __not_<is_same<_Tp, function>>;
 
       template<typename _Functor>
-	using _Callable = _CheckResult<_Invoke<_Functor>, _Res>;
+	using _Callable
+	  = __and_<_NotSelf<_Functor>,
+		   __check_func_return_type<_Invoke<_Functor>, _Res>>;
 
       template<typename _Cond, typename _Tp>
 	using _Requires = typename enable_if<_Cond::value, _Tp>::type;
@@ -2267,13 +2001,13 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
        *  The target of @c *this is deallocated, leaving it empty.
        */
       function&
-      operator=(nullptr_t)
+      operator=(nullptr_t) noexcept
       {
 	if (_M_manager)
 	  {
 	    _M_manager(_M_functor, _M_functor, __destroy_functor);
-	    _M_manager = 0;
-	    _M_invoker = 0;
+	    _M_manager = nullptr;
+	    _M_invoker = nullptr;
 	  }
 	return *this;
       }
@@ -2295,7 +2029,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
        *  reference_wrapper<F>, this function will not throw.
        */
       template<typename _Functor>
-	_Requires<_Callable<_Functor>, function&>
+	_Requires<_Callable<typename decay<_Functor>::type>, function&>
 	operator=(_Functor&& __f)
 	{
 	  function(std::forward<_Functor>(__f)).swap(*this);
@@ -2363,7 +2097,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
        */
       _Res operator()(_ArgTypes... __args) const;
 
-#ifdef __GXX_RTTI
+#if __cpp_rtti
       // [3.7.2.5] function target access
       /**
        *  @brief Determine the type of the target of this function object
@@ -2392,7 +2126,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
 #endif
 
     private:
-      typedef _Res (*_Invoker_type)(const _Any_data&, _ArgTypes...);
+      using _Invoker_type = _Res (*)(const _Any_data&, _ArgTypes&&...);
       _Invoker_type _M_invoker;
   };
 
@@ -2404,9 +2138,9 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
     {
       if (static_cast<bool>(__x))
 	{
+	  __x._M_manager(_M_functor, __x._M_functor, __clone_functor);
 	  _M_invoker = __x._M_invoker;
 	  _M_manager = __x._M_manager;
-	  __x._M_manager(_M_functor, __x._M_functor, __clone_functor);
 	}
     }
 
@@ -2436,7 +2170,7 @@ _GLIBCXX_HAS_NESTED_TYPE(result_type)
       return _M_invoker(_M_functor, std::forward<_ArgTypes>(__args)...);
     }
 
-#ifdef __GXX_RTTI
+#if __cpp_rtti
   template<typename _Res, typename... _ArgTypes>
     const type_info&
     function<_Res(_ArgTypes...)>::

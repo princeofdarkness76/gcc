@@ -1,5 +1,7 @@
 /* { dg-do assemble } */
 /* { dg-skip-if "" { powerpc-ibm-aix* } { "*" } { "" } } */
+/* { dg-skip-if "no TFmode" { powerpc-*-eabi* } { "*" } { "" } } */
+/* { dg-require-effective-target longdouble128 } */
 /* { dg-options "-O2 -fno-align-functions -mtraceback=no -save-temps" } */
 
 typedef float TFmode __attribute__ ((mode (TF)));
@@ -47,4 +49,3 @@ TFmode r19 (void *x) { return *(TFmode *) (x + 32749); }
 TFmode r20 (void *x) { return *(TFmode *) (x + 32748); }
 
 /* { dg-final { object-size text == 544 } } */
-/* { dg-final { cleanup-saved-temps "tfmode_off" } } */

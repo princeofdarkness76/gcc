@@ -1,5 +1,5 @@
 /* Definitions of target machine for GNU compiler.  VAX version.
-   Copyright (C) 1987-2013 Free Software Foundation, Inc.
+   Copyright (C) 1987-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -238,7 +238,7 @@ enum reg_class { NO_REGS, ALL_REGS, LIM_REG_CLASSES };
 
 /* Define this if pushing a word on the stack
    makes the stack pointer a smaller address.  */
-#define STACK_GROWS_DOWNWARD
+#define STACK_GROWS_DOWNWARD 1
 
 /* Define this to nonzero if the nominal address of the stack frame
    is at the high-address end of the local variables;
@@ -295,7 +295,7 @@ enum reg_class { NO_REGS, ALL_REGS, LIM_REG_CLASSES };
 /* 1 if N is a possible register number for function argument passing.
    On the VAX, no registers are used in this way.  */
 
-#define FUNCTION_ARG_REGNO_P(N) 0
+#define FUNCTION_ARG_REGNO_P(N) ((void) (N), 0)
 
 /* Define a data type for recording info about an argument list
    during the scan of that argument list.  This data type should

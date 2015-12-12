@@ -14,8 +14,6 @@ import (
 	"testing"
 )
 
-var fset = token.NewFileSet()
-
 var validFiles = []string{
 	"parser.go",
 	"parser_test.go",
@@ -25,7 +23,7 @@ var validFiles = []string{
 
 func TestParse(t *testing.T) {
 	for _, filename := range validFiles {
-		_, err := ParseFile(fset, filename, nil, DeclarationErrors)
+		_, err := ParseFile(token.NewFileSet(), filename, nil, DeclarationErrors)
 		if err != nil {
 			t.Fatalf("ParseFile(%s): %v", filename, err)
 		}
@@ -34,30 +32,32 @@ func TestParse(t *testing.T) {
 
 func nameFilter(filename string) bool {
 	switch filename {
-	case "parser.go":
-	case "interface.go":
-	case "parser_test.go":
-	default:
-		return false
+	case "parser.go", "interface.go", "parser_test.go":
+		return true
+	case "parser.go.orig":
+		return true // permit but should be ignored by ParseDir
 	}
-	return true
+	return false
 }
 
 func dirFilter(f os.FileInfo) bool { return nameFilter(f.Name()) }
 
 func TestParseDir(t *testing.T) {
 	path := "."
-	pkgs, err := ParseDir(fset, path, dirFilter, 0)
+	pkgs, err := ParseDir(token.NewFileSet(), path, dirFilter, 0)
 	if err != nil {
 		t.Fatalf("ParseDir(%s): %v", path, err)
 	}
-	if len(pkgs) != 1 {
-		t.Errorf("incorrect number of packages: %d", len(pkgs))
+	if n := len(pkgs); n != 1 {
+		t.Errorf("got %d packages; want 1", n)
 	}
 	pkg := pkgs["parser"]
 	if pkg == nil {
 		t.Errorf(`package "parser" not found`)
 		return
+	}
+	if n := len(pkg.Files); n != 3 {
+		t.Errorf("got %d package files; want 3", n)
 	}
 	for filename := range pkg.Files {
 		if !nameFilter(filename) {
@@ -68,32 +68,68 @@ func TestParseDir(t *testing.T) {
 
 func TestParseExpr(t *testing.T) {
 	// just kicking the tires:
-	// a valid expression
+	// a valid arithmetic expression
 	src := "a + b"
 	x, err := ParseExpr(src)
 	if err != nil {
-		t.Fatalf("ParseExpr(%s): %v", src, err)
+		t.Errorf("ParseExpr(%q): %v", src, err)
 	}
 	// sanity check
 	if _, ok := x.(*ast.BinaryExpr); !ok {
-		t.Errorf("ParseExpr(%s): got %T, expected *ast.BinaryExpr", src, x)
+		t.Errorf("ParseExpr(%q): got %T, want *ast.BinaryExpr", src, x)
+	}
+
+	// a valid type expression
+	src = "struct{x *int}"
+	x, err = ParseExpr(src)
+	if err != nil {
+		t.Errorf("ParseExpr(%q): %v", src, err)
+	}
+	// sanity check
+	if _, ok := x.(*ast.StructType); !ok {
+		t.Errorf("ParseExpr(%q): got %T, want *ast.StructType", src, x)
 	}
 
 	// an invalid expression
 	src = "a + *"
-	_, err = ParseExpr(src)
-	if err == nil {
-		t.Fatalf("ParseExpr(%s): %v", src, err)
+	if _, err := ParseExpr(src); err == nil {
+		t.Errorf("ParseExpr(%q): got no error", src)
 	}
 
-	// it must not crash
+	// a valid expression followed by extra tokens is invalid
+	src = "a[i] := x"
+	if _, err := ParseExpr(src); err == nil {
+		t.Errorf("ParseExpr(%q): got no error", src)
+	}
+
+	// a semicolon is not permitted unless automatically inserted
+	src = "a + b\n"
+	if _, err := ParseExpr(src); err != nil {
+		t.Errorf("ParseExpr(%q): got error %s", src, err)
+	}
+	src = "a + b;"
+	if _, err := ParseExpr(src); err == nil {
+		t.Errorf("ParseExpr(%q): got no error", src)
+	}
+
+	// various other stuff following a valid expression
+	const validExpr = "a + b"
+	const anything = "dh3*#D)#_"
+	for _, c := range "!)]};," {
+		src := validExpr + string(c) + anything
+		if _, err := ParseExpr(src); err == nil {
+			t.Errorf("ParseExpr(%q): got no error", src)
+		}
+	}
+
+	// ParseExpr must not crash
 	for _, src := range valids {
 		ParseExpr(src)
 	}
 }
 
 func TestColonEqualsScope(t *testing.T) {
-	f, err := ParseFile(fset, "", `package p; func f() { x, y, z := x, y, z }`, 0)
+	f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { x, y, z := x, y, z }`, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +151,7 @@ func TestColonEqualsScope(t *testing.T) {
 }
 
 func TestVarScope(t *testing.T) {
-	f, err := ParseFile(fset, "", `package p; func f() { var x, y, z = x, y, z }`, 0)
+	f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { var x, y, z = x, y, z }`, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +181,7 @@ var x int
 func f() { L: }
 `
 
-	f, err := ParseFile(fset, "", src, 0)
+	f, err := ParseFile(token.NewFileSet(), "", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +219,7 @@ func f() { L: }
 }
 
 func TestUnresolved(t *testing.T) {
-	f, err := ParseFile(fset, "", `
+	f, err := ParseFile(token.NewFileSet(), "", `
 package p
 //
 func f1a(int)
@@ -278,7 +314,7 @@ var imports = map[string]bool{
 func TestImports(t *testing.T) {
 	for path, isValid := range imports {
 		src := fmt.Sprintf("package p; import %s", path)
-		_, err := ParseFile(fset, "", src, 0)
+		_, err := ParseFile(token.NewFileSet(), "", src, 0)
 		switch {
 		case err != nil && isValid:
 			t.Errorf("ParseFile(%s): got %v; expected no error", src, err)
@@ -289,7 +325,7 @@ func TestImports(t *testing.T) {
 }
 
 func TestCommentGroups(t *testing.T) {
-	f, err := ParseFile(fset, "", `
+	f, err := ParseFile(token.NewFileSet(), "", `
 package p /* 1a */ /* 1b */      /* 1c */ // 1d
 /* 2a
 */
@@ -383,7 +419,7 @@ func checkFieldComments(t *testing.T, file *ast.File, fieldname, lead, line stri
 }
 
 func TestLeadAndLineComments(t *testing.T) {
-	f, err := ParseFile(fset, "", `
+	f, err := ParseFile(token.NewFileSet(), "", `
 package p
 type T struct {
 	/* F1 lead comment */
@@ -407,5 +443,91 @@ type T struct {
 	checkFieldComments(t, f, "T.F2", "// F2 lead// comment", "// F2 line comment")
 	if getField(f, "T.f3") != nil {
 		t.Error("not expected to find T.f3")
+	}
+}
+
+// TestIssue9979 verifies that empty statements are contained within their enclosing blocks.
+func TestIssue9979(t *testing.T) {
+	for _, src := range []string{
+		"package p; func f() {;}",
+		"package p; func f() {L:}",
+		"package p; func f() {L:;}",
+		"package p; func f() {L:\n}",
+		"package p; func f() {L:\n;}",
+		"package p; func f() { ; }",
+		"package p; func f() { L: }",
+		"package p; func f() { L: ; }",
+		"package p; func f() { L: \n}",
+		"package p; func f() { L: \n; }",
+	} {
+		fset := token.NewFileSet()
+		f, err := ParseFile(fset, "", src, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var pos, end token.Pos
+		ast.Inspect(f, func(x ast.Node) bool {
+			switch s := x.(type) {
+			case *ast.BlockStmt:
+				pos, end = s.Pos()+1, s.End()-1 // exclude "{", "}"
+			case *ast.LabeledStmt:
+				pos, end = s.Pos()+2, s.End() // exclude "L:"
+			case *ast.EmptyStmt:
+				// check containment
+				if s.Pos() < pos || s.End() > end {
+					t.Errorf("%s: %T[%d, %d] not inside [%d, %d]", src, s, s.Pos(), s.End(), pos, end)
+				}
+				// check semicolon
+				offs := fset.Position(s.Pos()).Offset
+				if ch := src[offs]; ch != ';' != s.Implicit {
+					want := "want ';'"
+					if s.Implicit {
+						want = "but ';' is implicit"
+					}
+					t.Errorf("%s: found %q at offset %d; %s", src, ch, offs, want)
+				}
+			}
+			return true
+		})
+	}
+}
+
+// TestIncompleteSelection ensures that an incomplete selector
+// expression is parsed as a (blank) *ast.SelectorExpr, not a
+// *ast.BadExpr.
+func TestIncompleteSelection(t *testing.T) {
+	for _, src := range []string{
+		"package p; var _ = fmt.",             // at EOF
+		"package p; var _ = fmt.\ntype X int", // not at EOF
+	} {
+		fset := token.NewFileSet()
+		f, err := ParseFile(fset, "", src, 0)
+		if err == nil {
+			t.Errorf("ParseFile(%s) succeeded unexpectedly", src)
+			continue
+		}
+
+		const wantErr = "expected selector or type assertion"
+		if !strings.Contains(err.Error(), wantErr) {
+			t.Errorf("ParseFile returned wrong error %q, want %q", err, wantErr)
+		}
+
+		var sel *ast.SelectorExpr
+		ast.Inspect(f, func(n ast.Node) bool {
+			if n, ok := n.(*ast.SelectorExpr); ok {
+				sel = n
+			}
+			return true
+		})
+		if sel == nil {
+			t.Error("found no *ast.SelectorExpr")
+			continue
+		}
+		const wantSel = "&{fmt _}"
+		if fmt.Sprint(sel) != wantSel {
+			t.Errorf("found selector %s, want %s", sel, wantSel)
+			continue
+		}
 	}
 }

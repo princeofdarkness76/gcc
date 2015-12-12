@@ -1,5 +1,5 @@
 /* Tree-dumping functionality for intermediate representation.
-   Copyright (C) 1999-2013 Free Software Foundation, Inc.
+   Copyright (C) 1999-2015 Free Software Foundation, Inc.
    Written by Mark Mitchell <mark@codesourcery.com>
 
 This file is part of GCC.
@@ -21,14 +21,12 @@ along with GCC; see the file COPYING3.  If not see
 #include "config.h"
 #include "system.h"
 #include "coretypes.h"
-#include "tm.h"
 #include "tree.h"
-#include "splay-tree.h"
-#include "filenames.h"
+#include "tree-pretty-print.h"
 #include "tree-dump.h"
 #include "langhooks.h"
 #include "tree-iterator.h"
-#include "tree-pretty-print.h"
+#include "tree-cfg.h"
 
 static unsigned int queue (dump_info_p, const_tree, int);
 static void dump_index (dump_info_p, unsigned int);
@@ -277,7 +275,7 @@ dequeue_and_dump (dump_info_p di)
   if (dni->binfo_p)
     code_name = "binfo";
   else
-    code_name = tree_code_name[(int) TREE_CODE (t)];
+    code_name = get_tree_code_name (TREE_CODE (t));
   fprintf (di->stream, "%-16s ", code_name);
   di->column = 25;
 
@@ -560,9 +558,8 @@ dequeue_and_dump (dump_info_p di)
       break;
 
     case INTEGER_CST:
-      if (TREE_INT_CST_HIGH (t))
-	dump_int (di, "high", TREE_INT_CST_HIGH (t));
-      dump_int (di, "low", TREE_INT_CST_LOW (t));
+      fprintf (di->stream, "int: ");
+      print_decs (t, di->stream);
       break;
 
     case STRING_CST:

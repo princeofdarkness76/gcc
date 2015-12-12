@@ -1,5 +1,5 @@
 /* Data structures and function exported by the C++ Parser.
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2015 Free Software Foundation, Inc.
 
    This file is part of GCC.
 
@@ -39,7 +39,7 @@ struct GTY(()) tree_check {
 
 /* A C++ token.  */
 
-typedef struct GTY (()) cp_token {
+struct GTY (()) cp_token {
   /* The kind of token.  */
   ENUM_BITFIELD (cpp_ttype) type : 8;
   /* If this token is a keyword, this value indicates which keyword.
@@ -48,13 +48,13 @@ typedef struct GTY (()) cp_token {
   /* Token flags.  */
   unsigned char flags;
   /* Identifier for the pragma.  */
-  ENUM_BITFIELD (pragma_kind) pragma_kind : 6;
+  ENUM_BITFIELD (pragma_kind) pragma_kind : 8;
   /* True if this token is from a context where it is implicitly extern "C" */
   BOOL_BITFIELD implicit_extern_c : 1;
-  /* True for a CPP_NAME token that is not a keyword (i.e., for which
-     KEYWORD is RID_MAX) iff this name was looked up and found to be
-     ambiguous.  An error has already been reported.  */
-  BOOL_BITFIELD ambiguous_p : 1;
+  /* True if an error has already been reported for this token, such as a
+     CPP_NAME token that is not a keyword (i.e., for which KEYWORD is
+     RID_MAX) iff this name was looked up and found to be ambiguous.  */
+  BOOL_BITFIELD error_reported : 1;
   /* True for a token that has been purged.  If a token is purged,
      it is no longer a valid token and it should be considered
      deleted.  */
@@ -68,7 +68,7 @@ typedef struct GTY (()) cp_token {
     /* Use for all other tokens.  */
     tree GTY((tag ("0"))) value;
   } GTY((desc ("(%1.type == CPP_TEMPLATE_ID) || (%1.type == CPP_NESTED_NAME_SPECIFIER)"))) u;
-} cp_token;
+};
 
 
 /* We use a stack of token pointer for saving token sets.  */
@@ -79,7 +79,7 @@ typedef struct cp_token *cp_token_position;
    it to the parser.  Tokens are never added to the cp_lexer after
    it is created.  */
 
-typedef struct GTY (()) cp_lexer {
+struct GTY (()) cp_lexer {
   /* The memory allocated for the buffer.  NULL if this lexer does not
      own the token buffer.  */
   vec<cp_token, va_gc> *buffer;
@@ -107,7 +107,7 @@ typedef struct GTY (()) cp_lexer {
   /* True if we're in the context of parsing a pragma, and should not
      increment past the end-of-line marker.  */
   bool in_pragma;
-} cp_lexer;
+};
 
 
 /* cp_token_cache is a range of tokens.  There is no need to represent
@@ -116,17 +116,17 @@ typedef struct GTY (()) cp_lexer {
    a cp_token_cache, since everything in here is referenced through
    a lexer.  */
 
-typedef struct GTY(()) cp_token_cache {
+struct GTY(()) cp_token_cache {
   /* The beginning of the token range.  */
   cp_token * GTY((skip)) first;
 
   /* Points immediately after the last token in the range.  */
   cp_token * GTY ((skip)) last;
-} cp_token_cache;
+};
 
 typedef cp_token_cache *cp_token_cache_ptr;
 
-struct cp_token_ident_d
+struct cp_token_ident
 {
   unsigned int ident_len;
   const char *ident_str;
@@ -136,22 +136,20 @@ struct cp_token_ident_d
   const char *after_str;
 };
 
-typedef struct cp_token_ident_d cp_token_ident;
-
 /* An entry in a queue of function arguments that require post-processing.  */
 
-typedef struct GTY(()) cp_default_arg_entry_d {
+struct GTY(()) cp_default_arg_entry {
   /* The current_class_type when we parsed this arg.  */
   tree class_type;
 
   /* The function decl itself.  */
   tree decl;
-} cp_default_arg_entry;
+};
 
 
-/* An entry in a stack for member functions of local classes.  */
+/* An entry in a stack for member functions defined within their classes.  */
 
-typedef struct GTY(()) cp_unparsed_functions_entry_d {
+struct GTY(()) cp_unparsed_functions_entry {
   /* Functions with default arguments that require post-processing.
      Functions appear in this list in declaration order.  */
   vec<cp_default_arg_entry, va_gc> *funs_with_default_args;
@@ -163,12 +161,16 @@ typedef struct GTY(()) cp_unparsed_functions_entry_d {
   /* Non-static data members with initializers that require post-processing.
      FIELD_DECLs appear in this list in declaration order.  */
   vec<tree, va_gc> *nsdmis;
-} cp_unparsed_functions_entry;
+
+  /* Nested classes go in this vector, so that we can do some final
+     processing after parsing any NSDMIs.  */
+  vec<tree, va_gc> *classes;
+};
 
 
 /* The status of a tentative parse.  */
 
-typedef enum cp_parser_status_kind
+enum cp_parser_status_kind
 {
   /* No errors have occurred.  */
   CP_PARSER_STATUS_KIND_NO_ERROR,
@@ -177,11 +179,11 @@ typedef enum cp_parser_status_kind
   /* We are committed to this tentative parse, whether or not an error
      has occurred.  */
   CP_PARSER_STATUS_KIND_COMMITTED
-} cp_parser_status_kind;
+};
 
 
 /* Context that is saved and restored when parsing tentatively.  */
-typedef struct GTY (()) cp_parser_context {
+struct GTY (()) cp_parser_context {
   /* If this is a tentative parsing context, the status of the
      tentative parse.  */
   enum cp_parser_status_kind status;
@@ -193,12 +195,21 @@ typedef struct GTY (()) cp_parser_context {
 
   /* The next parsing context in the stack.  */
   struct cp_parser_context *next;
-} cp_parser_context;
+};
+
+
+/* Control structure for #pragma omp declare simd parsing.  */
+struct cp_omp_declare_simd_data {
+  bool error_seen; /* Set if error has been reported.  */
+  bool fndecl_seen; /* Set if one fn decl/definition has been seen already.  */
+  vec<cp_token_cache_ptr> tokens;
+  tree clauses;
+};
 
 
 /* The cp_parser structure represents the C++ parser.  */
 
-typedef struct GTY(()) cp_parser {
+struct GTY(()) cp_parser {
   /* The lexer from which we are obtaining tokens.  */
   cp_lexer *lexer;
 
@@ -292,7 +303,12 @@ typedef struct GTY(()) cp_parser {
 #define IN_OMP_BLOCK		4
 #define IN_OMP_FOR		8
 #define IN_IF_STMT             16
+<<<<<<< HEAD
 #define IN_CILK_P_SIMD_FOR     32
+=======
+#define IN_CILK_SIMD_FOR       32
+#define IN_CILK_SPAWN          64
+>>>>>>> gcc-mirror/master
   unsigned char in_statement;
 
   /* TRUE if we are presently parsing the body of a switch statement.
@@ -325,6 +341,12 @@ typedef struct GTY(()) cp_parser {
   /* TRUE if we can auto-correct a colon to a scope operator.  */
   bool colon_corrects_to_scope_p;
 
+  /* TRUE if : doesn't start a class definition.  Should be only used
+     together with type_definition_forbidden_message non-NULL, in
+     contexts where new types may not be defined, and the type list
+     is terminated by colon.  */
+  bool colon_doesnt_start_class_def_p;
+
   /* If non-NULL, then we are parsing a construct where new type
      definitions are not permitted.  The string stored here will be
      issued as an error message if a type is defined.  */
@@ -343,6 +365,7 @@ typedef struct GTY(()) cp_parser {
      current declaration.  */
   unsigned num_template_parameter_lists;
 
+<<<<<<< HEAD
   /* When parsing #pragma omp declare simd, this is a vector of
      the clauses, each tree is either NULL_TREE, or OMP_CLAUSE
      with optional chain of other clauses.  If error regarding
@@ -352,6 +375,56 @@ typedef struct GTY(()) cp_parser {
      first element is set to integer_zero_node.  */
   vec<tree, va_gc> *omp_declare_simd_clauses;
 } cp_parser;
+=======
+  /* When parsing #pragma omp declare simd, this is a pointer to a
+     data structure with everything needed for parsing the clauses.  */
+  cp_omp_declare_simd_data * GTY((skip)) omp_declare_simd;
+
+  /* When parsing the vector attribute in Cilk Plus SIMD-enabled function,
+     this is a pointer to data structure with everything needed for parsing
+     the clauses.  The cp_omp_declare_simd_data struct will hold all the
+     necessary information, so creating another struct for this is not
+     necessary.  */
+  cp_omp_declare_simd_data * GTY((skip)) cilk_simd_fn_info;
+
+  /* Parsing information for #pragma acc routine.  */
+  cp_omp_declare_simd_data * GTY((skip)) oacc_routine;
+  
+  /* Nonzero if parsing a parameter list where 'auto' should trigger an implicit
+     template parameter.  */
+  bool auto_is_implicit_function_template_parm_p;
+
+  /* TRUE if the function being declared was made a template due to its
+     parameter list containing generic type specifiers (`auto' or concept
+     identifiers) rather than an explicit template parameter list.  */
+  bool fully_implicit_function_template_p;
+
+  /* Tracks the function's template parameter list when declaring a function
+     using generic type parameters.  This is either a new chain in the case of a
+     fully implicit function template or an extension of the function's existing
+     template parameter list.  This is tracked to optimize calls subsequent
+     calls to synthesize_implicit_template_parm during
+     cp_parser_parameter_declaration.  */
+  tree implicit_template_parms;
+
+  /* The scope into which an implicit template parameter list has been
+     introduced or an existing template parameter list is being extended with
+     implicit template parameters.  In most cases this is the sk_function_parms
+     scope containing the use of a generic type.  In the case of an out-of-line
+     member definition using a generic type, it is the sk_class scope.  */
+  cp_binding_level* implicit_template_scope;
+
+  /* True if parsing a result type in a compound requirement. This permits
+     constrained-type-specifiers inside what would normally be a trailing
+     return type. */
+  bool in_result_type_constraint_p;
+
+  /* True if a constrained-type-specifier is not allowed in this
+     context e.g., because they could never be deduced.  */
+  int prevent_constrained_type_specifiers;
+
+};
+>>>>>>> gcc-mirror/master
 
 /* In parser.c  */
 extern void debug (cp_token &ref);

@@ -2,7 +2,11 @@
 /* { dg-options "-fopenmp" } */
 /* { dg-additional-options "-std=c99" { target c } } */
 
+<<<<<<< HEAD
 struct S *p;	/* { dg-error "forward declaration" "" { target c++ } } */
+=======
+struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
+>>>>>>> gcc-mirror/master
 float f;
 int j;
 

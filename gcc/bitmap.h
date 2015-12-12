@@ -1,5 +1,5 @@
 /* Functions to support general ended bitmaps.
-   Copyright (C) 1997-2013 Free Software Foundation, Inc.
+   Copyright (C) 1997-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -24,7 +24,7 @@ along with GCC; see the file COPYING3.  If not see
 
    This sparse set representation is suitable for sparse sets with an
    unknown (a priori) universe.  The set is represented as a double-linked
-   list of container nodes (struct bitmap_element_def).  Each node consists
+   list of container nodes (struct bitmap_element).  Each node consists
    of an index for the first member that could be held in the container,
    a small array of integers that represent the members in the container,
    and pointers to the next and previous element in the linked list.  The
@@ -86,7 +86,7 @@ along with GCC; see the file COPYING3.  If not see
      * set_disjuction		: bitmap_xor_comp / bitmap_xor_comp_into
      * set_compare		: bitmap_equal_p
 
-   Some operations on 3 sets that occur frequently in in data flow problems
+   Some operations on 3 sets that occur frequently in data flow problems
    are also implemented:
 
      * A | (B & C)		: bitmap_ior_and_into
@@ -127,9 +127,64 @@ along with GCC; see the file COPYING3.  If not see
    bad for persistent sets, so persistent sets should be allocated on an
    obstack whenever possible.  */
 
-#include "hashtab.h"
-#include "statistics.h"
 #include "obstack.h"
+
+/* Bitmap memory usage.  */
+struct bitmap_usage: public mem_usage
+{
+  /* Default contructor.  */
+  bitmap_usage (): m_nsearches (0), m_search_iter (0) {}
+  /* Constructor.  */
+  bitmap_usage (size_t allocated, size_t times, size_t peak,
+	     uint64_t nsearches, uint64_t search_iter)
+    : mem_usage (allocated, times, peak),
+    m_nsearches (nsearches), m_search_iter (search_iter) {}
+
+  /* Sum the usage with SECOND usage.  */
+  bitmap_usage
+  operator+ (const bitmap_usage &second)
+  {
+    return bitmap_usage (m_allocated + second.m_allocated,
+			     m_times + second.m_times,
+			     m_peak + second.m_peak,
+			     m_nsearches + second.m_nsearches,
+			     m_search_iter + second.m_search_iter);
+  }
+
+  /* Dump usage coupled to LOC location, where TOTAL is sum of all rows.  */
+  inline void
+  dump (mem_location *loc, mem_usage &total) const
+  {
+    char *location_string = loc->to_string ();
+
+    fprintf (stderr, "%-48s %10li:%5.1f%%%10li%10li:%5.1f%%%12li%12li%10s\n",
+	     location_string,
+	     (long)m_allocated, get_percent (m_allocated, total.m_allocated),
+	     (long)m_peak, (long)m_times,
+	     get_percent (m_times, total.m_times),
+	     (long)m_nsearches, (long)m_search_iter,
+	     loc->m_ggc ? "ggc" : "heap");
+
+    free (location_string);
+  }
+
+  /* Dump header with NAME.  */
+  static inline void
+  dump_header (const char *name)
+  {
+    fprintf (stderr, "%-48s %11s%16s%17s%12s%12s%10s\n", name, "Leak", "Peak",
+	     "Times", "N searches", "Search iter", "Type");
+    print_dash_line ();
+  }
+
+  /* Number search operations.  */
+  uint64_t m_nsearches;
+  /* Number of search iterations.  */
+  uint64_t m_search_iter;
+};
+
+/* Bitmap memory description.  */
+extern mem_alloc_description<bitmap_usage> bitmap_mem_desc;
 
 /* Fundamental storage type for bitmap.  */
 
@@ -149,11 +204,11 @@ typedef unsigned long BITMAP_WORD;
 #define BITMAP_ELEMENT_ALL_BITS (BITMAP_ELEMENT_WORDS * BITMAP_WORD_BITS)
 
 /* Obstack for allocating bitmaps and elements from.  */
-typedef struct GTY (()) bitmap_obstack {
-  struct bitmap_element_def *elements;
-  struct bitmap_head_def *heads;
+struct GTY (()) bitmap_obstack {
+  struct bitmap_element *elements;
+  struct bitmap_head *heads;
   struct obstack GTY ((skip)) obstack;
-} bitmap_obstack;
+};
 
 /* Bitmap set element.  We use a linked list to hold only the bits that
    are set.  This allows for use to grow the bitset dynamically without
@@ -167,17 +222,17 @@ typedef struct GTY (()) bitmap_obstack {
    bitmap_elt_clear_from to be implemented in unit time rather than
    linear in the number of elements to be freed.  */
 
-typedef struct GTY((chain_next ("%h.next"), chain_prev ("%h.prev"))) bitmap_element_def {
-  struct bitmap_element_def *next;	/* Next element.  */
-  struct bitmap_element_def *prev;	/* Previous element.  */
+struct GTY((chain_next ("%h.next"), chain_prev ("%h.prev"))) bitmap_element {
+  struct bitmap_element *next;	/* Next element.  */
+  struct bitmap_element *prev;	/* Previous element.  */
   unsigned int indx;			/* regno/BITMAP_ELEMENT_ALL_BITS.  */
   BITMAP_WORD bits[BITMAP_ELEMENT_WORDS]; /* Bits that are set.  */
-} bitmap_element;
+};
 
 /* Head of bitmap linked list.  The 'current' member points to something
    already pointed to by the chain started by first, so GTY((skip)) it.  */
 
-typedef struct GTY(()) bitmap_head_def {
+struct GTY(()) bitmap_head {
   unsigned int indx;			/* Index of last element looked at.  */
   unsigned int descriptor_id;		/* Unique identifier for the allocation
 					   site of this bitmap, for detailed
@@ -186,7 +241,7 @@ typedef struct GTY(()) bitmap_head_def {
   bitmap_element * GTY((skip(""))) current; /* Last element looked at.  */
   bitmap_obstack *obstack;		/* Obstack to allocate elements from.
 					   If NULL, then use GGC allocation.  */
-} bitmap_head;
+};
 
 /* Global data */
 extern bitmap_element bitmap_zero_bits;	/* Zero bitmap element */
@@ -293,14 +348,14 @@ inline void dump_bitmap (FILE *file, const_bitmap map)
 {
   bitmap_print (file, map, "", "\n");
 }
-extern void debug (const bitmap_head_def &ref);
-extern void debug (const bitmap_head_def *ptr);
+extern void debug (const bitmap_head &ref);
+extern void debug (const bitmap_head *ptr);
 
 extern unsigned bitmap_first_set_bit (const_bitmap);
 extern unsigned bitmap_last_set_bit (const_bitmap);
 
 /* Compute bitmap hash (for purposes of hashing etc.)  */
-extern hashval_t bitmap_hash(const_bitmap);
+extern hashval_t bitmap_hash (const_bitmap);
 
 /* Allocate a bitmap from a bit obstack.  */
 #define BITMAP_ALLOC(OBSTACK) bitmap_obstack_alloc (OBSTACK)
@@ -314,7 +369,7 @@ extern hashval_t bitmap_hash(const_bitmap);
 
 /* Iterator for bitmaps.  */
 
-typedef struct
+struct bitmap_iterator
 {
   /* Pointer to the current bitmap element.  */
   bitmap_element *elt1;
@@ -329,7 +384,7 @@ typedef struct
      it is shifted right, so that the actual bit is always the least
      significant bit of ACTUAL.  */
   BITMAP_WORD bits;
-} bitmap_iterator;
+};
 
 /* Initialize a single bitmap iterator.  START_BIT is the first bit to
    iterate from.  */

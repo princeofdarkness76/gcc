@@ -5,6 +5,7 @@
 package template
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"reflect"
@@ -107,8 +108,15 @@ func errRecover(errp *error) {
 
 // ExecuteTemplate applies the template associated with t that has the given name
 // to the specified data object and writes the output to wr.
+// If an error occurs executing the template or writing its output,
+// execution stops, but partial results may already have been written to
+// the output writer.
+// A template may be executed safely in parallel.
 func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
-	tmpl := t.tmpl[name]
+	var tmpl *Template
+	if t.common != nil {
+		tmpl = t.tmpl[name]
+	}
 	if tmpl == nil {
 		return fmt.Errorf("template: no template %q associated with template %q", name, t.name)
 	}
@@ -117,6 +125,10 @@ func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) 
 
 // Execute applies a parsed template to the specified data object,
 // and writes the output to wr.
+// If an error occurs executing the template or writing its output,
+// execution stops, but partial results may already have been written to
+// the output writer.
+// A template may be executed safely in parallel.
 func (t *Template) Execute(wr io.Writer, data interface{}) (err error) {
 	defer errRecover(&err)
 	value := reflect.ValueOf(data)
@@ -126,10 +138,35 @@ func (t *Template) Execute(wr io.Writer, data interface{}) (err error) {
 		vars: []variable{{"$", value}},
 	}
 	if t.Tree == nil || t.Root == nil {
-		state.errorf("%q is an incomplete or empty template", t.name)
+		state.errorf("%q is an incomplete or empty template%s", t.Name(), t.DefinedTemplates())
 	}
 	state.walk(value, t.Root)
 	return
+}
+
+// DefinedTemplates returns a string listing the defined templates,
+// prefixed by the string "defined templates are: ". If there are none,
+// it returns the empty string. For generating an error message here
+// and in html/template.
+func (t *Template) DefinedTemplates() string {
+	if t.common == nil {
+		return ""
+	}
+	var b bytes.Buffer
+	for name, tmpl := range t.tmpl {
+		if tmpl.Tree == nil || tmpl.Root == nil {
+			continue
+		}
+		if b.Len() > 0 {
+			b.WriteString(", ")
+		}
+		fmt.Fprintf(&b, "%q", name)
+	}
+	var s string
+	if b.Len() > 0 {
+		s = "; defined templates are: " + b.String()
+	}
+	return s
 }
 
 // Walk functions step through the major pieces of the template structure,
@@ -185,7 +222,7 @@ func (s *state) walkIfOrWith(typ parse.NodeType, dot reflect.Value, pipe *parse.
 	}
 }
 
-// isTrue returns whether the value is 'true', in the sense of not the zero of its type,
+// isTrue reports whether the value is 'true', in the sense of not the zero of its type,
 // and whether the value has a meaningful truth value.
 func isTrue(val reflect.Value) (truth, ok bool) {
 	if !val.IsValid() {
@@ -369,7 +406,7 @@ func (s *state) idealConstant(constant *parse.NumberNode) reflect.Value {
 	switch {
 	case constant.IsComplex:
 		return reflect.ValueOf(constant.Complex128) // incontrovertible.
-	case constant.IsFloat && strings.IndexAny(constant.Text, ".eE") >= 0:
+	case constant.IsFloat && !isHexConstant(constant.Text) && strings.IndexAny(constant.Text, ".eE") >= 0:
 		return reflect.ValueOf(constant.Float64)
 	case constant.IsInt:
 		n := int(constant.Int64)
@@ -383,6 +420,10 @@ func (s *state) idealConstant(constant *parse.NumberNode) reflect.Value {
 	return zero
 }
 
+func isHexConstant(s string) bool {
+	return len(s) > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')
+}
+
 func (s *state) evalFieldNode(dot reflect.Value, field *parse.FieldNode, args []parse.Node, final reflect.Value) reflect.Value {
 	s.at(field)
 	return s.evalFieldChain(dot, dot, field, field.Ident, args, final)
@@ -390,11 +431,14 @@ func (s *state) evalFieldNode(dot reflect.Value, field *parse.FieldNode, args []
 
 func (s *state) evalChainNode(dot reflect.Value, chain *parse.ChainNode, args []parse.Node, final reflect.Value) reflect.Value {
 	s.at(chain)
-	// (pipe).Field1.Field2 has pipe as .Node, fields as .Field. Eval the pipeline, then the fields.
-	pipe := s.evalArg(dot, nil, chain.Node)
 	if len(chain.Field) == 0 {
 		s.errorf("internal error: no fields in evalChainNode")
 	}
+	if chain.Node.Type() == parse.NodeNil {
+		s.errorf("indirection through explicit nil in %s", chain)
+	}
+	// (pipe).Field1.Field2 has pipe as .Node, fields as .Field. Eval the pipeline, then the fields.
+	pipe := s.evalArg(dot, nil, chain.Node)
 	return s.evalFieldChain(dot, pipe, chain, chain.Field, args, final)
 }
 
@@ -477,7 +521,18 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 			if hasArgs {
 				s.errorf("%s is not a method but has arguments", fieldName)
 			}
-			return receiver.MapIndex(nameVal)
+			result := receiver.MapIndex(nameVal)
+			if !result.IsValid() {
+				switch s.tmpl.option.missingKey {
+				case mapInvalid:
+					// Just use the invalid value.
+				case mapZeroValue:
+					result = reflect.Zero(receiver.Type().Elem())
+				case mapError:
+					s.errorf("map has no entry for key %q", fieldName)
+				}
+			}
+			return result
 		}
 	}
 	s.errorf("can't evaluate field %s in type %s", fieldName, typ)
@@ -518,7 +573,7 @@ func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, a
 	argv := make([]reflect.Value, numIn)
 	// Args must be evaluated. Fixed args first.
 	i := 0
-	for ; i < numFixed; i++ {
+	for ; i < numFixed && i < len(args); i++ {
 		argv[i] = s.evalArg(dot, typ.In(i), args[i])
 	}
 	// Now the ... args.
@@ -532,7 +587,15 @@ func (s *state) evalCall(dot, fun reflect.Value, node parse.Node, name string, a
 	if final.IsValid() {
 		t := typ.In(typ.NumIn() - 1)
 		if typ.IsVariadic() {
-			t = t.Elem()
+			if numIn-1 < numFixed {
+				// The added final argument corresponds to a fixed parameter of the function.
+				// Validate against the type of the actual parameter.
+				t = typ.In(numIn - 1)
+			} else {
+				// The added final argument corresponds to the variadic part.
+				// Validate against the type of the elements of the variadic slice.
+				t = t.Elem()
+			}
 		}
 		argv[i] = s.validateType(final, t)
 	}
@@ -578,6 +641,9 @@ func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Valu
 		switch {
 		case value.Kind() == reflect.Ptr && value.Type().Elem().AssignableTo(typ):
 			value = value.Elem()
+			if !value.IsValid() {
+				s.errorf("dereference of nil pointer of type %s", typ)
+			}
 		case reflect.PtrTo(value.Type()).AssignableTo(typ) && value.CanAddr():
 			value = value.Addr()
 		default:
@@ -603,6 +669,10 @@ func (s *state) evalArg(dot reflect.Value, typ reflect.Type, n parse.Node) refle
 		return s.validateType(s.evalVariableNode(dot, arg, nil, zero), typ)
 	case *parse.PipeNode:
 		return s.validateType(s.evalPipeline(dot, arg), typ)
+	case *parse.IdentifierNode:
+		return s.validateType(s.evalFunction(dot, arg, arg, nil, zero), typ)
+	case *parse.ChainNode:
+		return s.validateType(s.evalChainNode(dot, arg, nil, zero), typ)
 	}
 	switch typ.Kind() {
 	case reflect.Bool:
@@ -737,12 +807,21 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 // the template.
 func (s *state) printValue(n parse.Node, v reflect.Value) {
 	s.at(n)
+	iface, ok := printableValue(v)
+	if !ok {
+		s.errorf("can't print %s of type %s", n, v.Type())
+	}
+	fmt.Fprint(s.wr, iface)
+}
+
+// printableValue returns the, possibly indirected, interface value inside v that
+// is best for a call to formatted printer.
+func printableValue(v reflect.Value) (interface{}, bool) {
 	if v.Kind() == reflect.Ptr {
 		v, _ = indirect(v) // fmt.Fprint handles nil.
 	}
 	if !v.IsValid() {
-		fmt.Fprint(s.wr, "<no value>")
-		return
+		return "<no value>", true
 	}
 
 	if !v.Type().Implements(errorType) && !v.Type().Implements(fmtStringerType) {
@@ -751,11 +830,11 @@ func (s *state) printValue(n parse.Node, v reflect.Value) {
 		} else {
 			switch v.Kind() {
 			case reflect.Chan, reflect.Func:
-				s.errorf("can't print %s of type %s", n, v.Type())
+				return nil, false
 			}
 		}
 	}
-	fmt.Fprint(s.wr, v.Interface())
+	return v.Interface(), true
 }
 
 // Types to help sort the keys in a map for reproducible output.

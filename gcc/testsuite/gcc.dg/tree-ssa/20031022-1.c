@@ -10,6 +10,8 @@ typedef struct basic_block_def
   edge pred;
 } *basic_block;
 extern struct basic_block_def entry_exit_blocks[2];
+void commit_edge_insertions (void);
+void foo (edge);
 void
 blah (int arf)
 {
@@ -25,4 +27,3 @@ blah (int arf)
 
 /* There should be one load from entry_exit_blocks[1].pred.  */
 /* { dg-final { scan-tree-dump-times "entry_exit_blocks.1..pred" 1 "dom1"} } */
-/* { dg-final { cleanup-tree-dump "dom1" } } */

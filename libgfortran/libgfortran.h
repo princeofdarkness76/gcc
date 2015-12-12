@@ -1,5 +1,5 @@
 /* Common declarations for all of libgfortran.
-   Copyright (C) 2002-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015 Free Software Foundation, Inc.
    Contributed by Paul Brook <paul@nowt.org>, and
    Andy Vaught <andy@xena.eas.asu.edu>
 
@@ -97,14 +97,18 @@ typedef off_t gfc_offset;
 #define NULL (void *) 0
 #endif
 
-#ifndef __GNUC__
-#define __attribute__(x)
-#define likely(x)       (x)
-#define unlikely(x)     (x)
-#else
+
+/* The following macros can be used to annotate conditions which are likely or
+   unlikely to be true.  Avoid using them when a condition is only slightly
+   more likely/less unlikely than average to avoid the performance penalties of
+   branch misprediction. In addition, as __builtin_expect overrides the compiler
+   heuristic, do not use in conditions where one of the branches ends with a
+   call to a function with __attribute__((noreturn)): the compiler internal
+   heuristic will mark this branch as much less likely as unlikely() would
+   do.  */
+
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
-#endif
 
 
 /* Make sure we have ptrdiff_t. */
@@ -224,11 +228,6 @@ extern int __mingw_snprintf (char *, size_t, const char *, ...)
 #define isnormal(x) __builtin_isnormal(x)
 #undef signbit
 #define signbit(x) __builtin_signbit(x)
-
-/* TODO: find the C99 version of these an move into above ifdef.  */
-#define REALPART(z) (__real__(z))
-#define IMAGPART(z) (__imag__(z))
-#define COMPLEX_ASSIGN(z_, r_, i_) {__real__(z_) = (r_); __imag__(z_) = (i_);}
 
 #include "kinds.h"
 
@@ -405,8 +404,7 @@ typedef GFC_ARRAY_DESCRIPTOR (GFC_MAX_DIMENSIONS, GFC_LOGICAL_16) gfc_array_l16;
 
 /* Macros to get both the size and the type with a single masking operation  */
 
-#define GFC_DTYPE_SIZE_MASK \
-  ((~((index_type) 0) >> GFC_DTYPE_SIZE_SHIFT) << GFC_DTYPE_SIZE_SHIFT)
+#define GFC_DTYPE_SIZE_MASK (-((index_type) 1 << GFC_DTYPE_SIZE_SHIFT))
 #define GFC_DTYPE_TYPE_SIZE_MASK (GFC_DTYPE_SIZE_MASK | GFC_DTYPE_TYPE_MASK)
 
 #define GFC_DTYPE_TYPE_SIZE(desc) ((desc)->dtype & GFC_DTYPE_TYPE_SIZE_MASK)
@@ -574,10 +572,6 @@ iexport_data_proto(line);
 extern char *filename;
 iexport_data_proto(filename);
 
-/* Avoid conflicting prototypes of alloca() in system headers by using 
-   GCC's builtin alloca().  */
-#define gfc_alloca(x)  __builtin_alloca(x)
-
 
 /* The default value of record length for preconnected units is defined
    here. This value can be overriden by an environment variable.
@@ -655,16 +649,11 @@ internal_proto(get_args);
 extern void store_exe_path (const char *);
 export_proto(store_exe_path);
 
-extern char * full_exe_path (void);
-internal_proto(full_exe_path);
-
-extern void find_addr2line (void);
-internal_proto(find_addr2line);
-
 /* backtrace.c */
 
-extern void backtrace (void);
-iexport_proto(backtrace);
+extern void show_backtrace (bool);
+internal_proto(show_backtrace);
+
 
 /* error.c */
 
@@ -683,8 +672,11 @@ iexport_proto(backtrace);
 #define GFC_OTOA_BUF_SIZE (GFC_LARGEST_BUF * 3 + 1)
 #define GFC_BTOA_BUF_SIZE (GFC_LARGEST_BUF * 8 + 1)
 
-extern void sys_abort (void) __attribute__ ((noreturn));
+extern _Noreturn void sys_abort (void);
 internal_proto(sys_abort);
+
+extern _Noreturn void exit_error (int);
+internal_proto(exit_error);
 
 extern ssize_t estr_write (const char *);
 internal_proto(estr_write);
@@ -699,26 +691,25 @@ internal_proto(st_printf);
 extern const char *gfc_xtoa (GFC_UINTEGER_LARGEST, char *, size_t);
 internal_proto(gfc_xtoa);
 
-extern void os_error (const char *) __attribute__ ((noreturn));
+extern _Noreturn void os_error (const char *);
 iexport_proto(os_error);
 
 extern void show_locus (st_parameter_common *);
 internal_proto(show_locus);
 
-extern void runtime_error (const char *, ...)
-     __attribute__ ((noreturn, format (gfc_printf, 1, 2)));
+extern _Noreturn void runtime_error (const char *, ...)
+     __attribute__ ((format (gfc_printf, 1, 2)));
 iexport_proto(runtime_error);
 
-extern void runtime_error_at (const char *, const char *, ...)
-     __attribute__ ((noreturn, format (gfc_printf, 2, 3)));
+extern _Noreturn void runtime_error_at (const char *, const char *, ...)
+     __attribute__ ((format (gfc_printf, 2, 3)));
 iexport_proto(runtime_error_at);
 
 extern void runtime_warning_at (const char *, const char *, ...)
      __attribute__ ((format (gfc_printf, 2, 3)));
 iexport_proto(runtime_warning_at);
 
-extern void internal_error (st_parameter_common *, const char *)
-  __attribute__ ((noreturn));
+extern _Noreturn void internal_error (st_parameter_common *, const char *);
 internal_proto(internal_error);
 
 extern const char *translate_error (int);
@@ -743,28 +734,67 @@ internal_proto(gf_strerror);
 
 extern void set_fpu (void);
 internal_proto(set_fpu);
+
+extern int get_fpu_trap_exceptions (void);
+internal_proto(get_fpu_trap_exceptions);
+
+extern void set_fpu_trap_exceptions (int, int);
+internal_proto(set_fpu_trap_exceptions);
+
+extern int support_fpu_trap (int);
+internal_proto(support_fpu_trap);
+
 extern int get_fpu_except_flags (void);
 internal_proto(get_fpu_except_flags);
+
+extern void set_fpu_except_flags (int, int);
+internal_proto(set_fpu_except_flags);
+
+extern int support_fpu_flag (int);
+internal_proto(support_fpu_flag);
+
+extern void set_fpu_rounding_mode (int);
+internal_proto(set_fpu_rounding_mode);
+
+extern int get_fpu_rounding_mode (void);
+internal_proto(get_fpu_rounding_mode);
+
+extern int support_fpu_rounding_mode (int);
+internal_proto(support_fpu_rounding_mode);
+
+extern void get_fpu_state (void *);
+internal_proto(get_fpu_state);
+
+extern void set_fpu_state (void *);
+internal_proto(set_fpu_state);
+
+extern int get_fpu_underflow_mode (void);
+internal_proto(get_fpu_underflow_mode);
+
+extern void set_fpu_underflow_mode (int);
+internal_proto(set_fpu_underflow_mode);
+
+extern int support_fpu_underflow_control (int);
+internal_proto(support_fpu_underflow_control);
 
 /* memory.c */
 
 extern void *xmalloc (size_t) __attribute__ ((malloc));
 internal_proto(xmalloc);
 
+extern void *xmallocarray (size_t, size_t) __attribute__ ((malloc));
+internal_proto(xmallocarray);
+
 extern void *xcalloc (size_t, size_t) __attribute__ ((malloc));
 internal_proto(xcalloc);
 
+extern void *xrealloc (void *, size_t);
+internal_proto(xrealloc);
 
 /* environ.c */
 
-extern int check_buffered (int);
-internal_proto(check_buffered);
-
 extern void init_variables (void);
 internal_proto(init_variables);
-
-extern void show_variables (void);
-internal_proto(show_variables);
 
 unit_convert get_unformatted_convert (int);
 internal_proto(get_unformatted_convert);
@@ -805,6 +835,15 @@ extern gfc_charlen_type string_len_trim_char4 (gfc_charlen_type,
 					       const gfc_char4_t *);
 export_proto(string_len_trim_char4);
 
+extern char *fc_strdup(const char *, gfc_charlen_type);
+internal_proto(fc_strdup);
+
+extern char *fc_strdup_notrim(const char *, gfc_charlen_type);
+internal_proto(fc_strdup_notrim);
+
+extern const char *gfc_itoa(GFC_INTEGER_LARGEST, char *, size_t);
+internal_proto(gfc_itoa);
+
 /* io/intrinsics.c */
 
 extern void flush_all_units (void);
@@ -826,8 +865,7 @@ internal_proto(filename_from_unit);
 
 /* stop.c */
 
-extern void stop_string (const char *, GFC_INTEGER_4)
-  __attribute__ ((noreturn));
+extern _Noreturn void stop_string (const char *, GFC_INTEGER_4);
 export_proto(stop_string);
 
 /* reshape_packed.c */

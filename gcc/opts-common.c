@@ -1,5 +1,5 @@
 /* Command line option handling.
-   Copyright (C) 2006-2013 Free Software Foundation, Inc.
+   Copyright (C) 2006-2015 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -22,7 +22,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "intl.h"
 #include "coretypes.h"
 #include "opts.h"
-#include "flags.h"
+#include "options.h"
 #include "diagnostic.h"
 
 static void prune_options (struct cl_decoded_option **, unsigned int *);
@@ -147,7 +147,7 @@ find_opt (const char *input, unsigned int lang_mask)
   return match_wrong_lang;
 }
 
-/* If ARG is a non-negative integer made up solely of digits, return its
+/* If ARG is a non-negative decimal or hexadecimal integer, return its
    value, otherwise return -1.  */
 
 int
@@ -160,6 +160,17 @@ integral_argument (const char *arg)
 
   if (*p == '\0')
     return atoi (arg);
+
+  /* It wasn't a decimal number - try hexadecimal.  */
+  if (arg[0] == '0' && (arg[1] == 'x' || arg[1] == 'X'))
+    {
+      p = arg + 2;
+      while (*p && ISXDIGIT (*p))
+	p++;
+
+      if (p != arg + 2 && *p == '\0')
+	return strtol (arg, NULL, 16);
+    }
 
   return -1;
 }
@@ -814,6 +825,7 @@ prune_options (struct cl_decoded_option **decoded_options,
     = XNEWVEC (struct cl_decoded_option, old_decoded_options_count);
   unsigned int i;
   const struct cl_option *option;
+  unsigned int fdiagnostics_color_idx = 0;
 
   /* Remove arguments which are negated by others after them.  */
   new_decoded_options_count = 0;
@@ -832,6 +844,11 @@ prune_options (struct cl_decoded_option **decoded_options,
 	case OPT_SPECIAL_program_name:
 	case OPT_SPECIAL_input_file:
 	  goto keep;
+
+	/* Do not save OPT_fdiagnostics_color_, just remember the last one.  */
+	case OPT_fdiagnostics_color_:
+	  fdiagnostics_color_idx = i;
+	  continue;
 
 	default:
 	  gcc_assert (opt_idx < cl_options_count);
@@ -866,6 +883,17 @@ keep:
 	    }
 	  break;
 	}
+    }
+
+  if (fdiagnostics_color_idx > 1)
+    {
+      /* We put the last -fdiagnostics-color= at the first position
+	 after argv[0] so it can take effect immediately.  */
+      memmove (new_decoded_options + 2, new_decoded_options + 1,
+	       sizeof (struct cl_decoded_option) 
+	       * (new_decoded_options_count - 1));
+      new_decoded_options[1] = old_decoded_options[fdiagnostics_color_idx];
+      new_decoded_options_count++;
     }
 
   free (old_decoded_options);
@@ -1068,6 +1096,8 @@ read_cmdline_option (struct gcc_options *opts,
       p = s;
       for (i = 0; e->values[i].arg != NULL; i++)
 	{
+	  if (!enum_arg_ok_for_language (&e->values[i], lang_mask))
+	    continue;
 	  size_t arglen = strlen (e->values[i].arg);
 	  memcpy (p, e->values[i].arg, arglen);
 	  p[arglen] = ' ';
@@ -1107,6 +1137,9 @@ set_option (struct gcc_options *opts, struct gcc_options *opts_set,
 
   if (!flag_var)
     return;
+
+  if ((diagnostic_t) kind != DK_UNSPECIFIED && dc != NULL)
+    diagnostic_classify_diagnostic (dc, opt_index, (diagnostic_t) kind, loc);
 
   if (opts_set != NULL)
     set_flag_var = option_flag_var (opt_index, opts_set);
@@ -1187,10 +1220,6 @@ set_option (struct gcc_options *opts, struct gcc_options *opts_set,
 	}
 	break;
     }
-
-  if ((diagnostic_t) kind != DK_UNSPECIFIED
-      && dc != NULL)
-    diagnostic_classify_diagnostic (dc, opt_index, (diagnostic_t) kind, loc);
 }
 
 /* Return the address of the flag variable for option OPT_INDEX in

@@ -119,7 +119,7 @@ If {{.}} is the innocuous word, `left`, then it can appear more widely,
 Non-string values can be used in JavaScript contexts.
 If {{.}} is
 
-  []struct{A,B string}{ "foo", "bar" }
+  struct{A,B string}{ "foo", "bar" }
 
 in the escaped template
 
@@ -151,7 +151,7 @@ The template
 
 can be invoked with
 
-  tmpl.Execute(out, HTML(`<b>World</b>`))
+  tmpl.Execute(out, template.HTML(`<b>World</b>`))
 
 to produce
 

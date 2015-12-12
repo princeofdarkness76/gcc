@@ -5,6 +5,8 @@
 package filepath_test
 
 import (
+	"io/ioutil"
+	"os"
 	. "path/filepath"
 	"runtime"
 	"strings"
@@ -66,6 +68,11 @@ var matchTests = []MatchTest{
 	{"[-x]", "a", false, ErrBadPattern},
 	{"\\", "a", false, ErrBadPattern},
 	{"[a-b-c]", "a", false, ErrBadPattern},
+	{"[", "a", false, ErrBadPattern},
+	{"[^", "a", false, ErrBadPattern},
+	{"[^bc", "a", false, ErrBadPattern},
+	{"a[", "a", false, nil},
+	{"a[", "ab", false, ErrBadPattern},
 	{"*x", "xxx", true, nil},
 }
 
@@ -148,5 +155,58 @@ func TestGlobError(t *testing.T) {
 	_, err := Glob("[7]")
 	if err != nil {
 		t.Error("expected error for bad pattern; got none")
+	}
+}
+
+var globSymlinkTests = []struct {
+	path, dest string
+	brokenLink bool
+}{
+	{"test1", "link1", false},
+	{"test2", "link2", true},
+}
+
+func TestGlobSymlink(t *testing.T) {
+	switch runtime.GOOS {
+	case "nacl", "plan9":
+		t.Skipf("skipping on %s", runtime.GOOS)
+	case "windows":
+		if !supportsSymlinks {
+			t.Skipf("skipping on %s", runtime.GOOS)
+		}
+
+	}
+
+	tmpDir, err := ioutil.TempDir("", "globsymlink")
+	if err != nil {
+		t.Fatal("creating temp dir:", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	for _, tt := range globSymlinkTests {
+		path := Join(tmpDir, tt.path)
+		dest := Join(tmpDir, tt.dest)
+		f, err := os.Create(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		err = os.Symlink(path, dest)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tt.brokenLink {
+			// Break the symlink.
+			os.Remove(path)
+		}
+		matches, err := Glob(dest)
+		if err != nil {
+			t.Errorf("GlobSymlink error for %q: %s", dest, err)
+		}
+		if !contains(matches, dest) {
+			t.Errorf("Glob(%#q) = %#v want %v", dest, matches, dest)
+		}
 	}
 }

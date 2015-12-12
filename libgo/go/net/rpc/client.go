@@ -39,14 +39,16 @@ type Call struct {
 // with a single Client, and a Client may be used by
 // multiple goroutines simultaneously.
 type Client struct {
-	mutex    sync.Mutex // protects pending, seq, request
-	sending  sync.Mutex
+	codec ClientCodec
+
+	reqMutex sync.Mutex // protects following
 	request  Request
+
+	mutex    sync.Mutex // protects following
 	seq      uint64
-	codec    ClientCodec
 	pending  map[uint64]*Call
-	closing  bool
-	shutdown bool
+	closing  bool // user has called Close
+	shutdown bool // server has told us to stop
 }
 
 // A ClientCodec implements writing of RPC requests and
@@ -58,6 +60,7 @@ type Client struct {
 // argument to force the body of the response to be read and then
 // discarded.
 type ClientCodec interface {
+	// WriteRequest must be safe for concurrent use by multiple goroutines.
 	WriteRequest(*Request, interface{}) error
 	ReadResponseHeader(*Response) error
 	ReadResponseBody(interface{}) error
@@ -66,12 +69,12 @@ type ClientCodec interface {
 }
 
 func (client *Client) send(call *Call) {
-	client.sending.Lock()
-	defer client.sending.Unlock()
+	client.reqMutex.Lock()
+	defer client.reqMutex.Unlock()
 
 	// Register this call.
 	client.mutex.Lock()
-	if client.shutdown {
+	if client.shutdown || client.closing {
 		call.Error = ErrShutdown
 		client.mutex.Unlock()
 		call.done()
@@ -105,9 +108,6 @@ func (client *Client) input() {
 		response = Response{}
 		err = client.codec.ReadResponseHeader(&response)
 		if err != nil {
-			if err == io.EOF && !client.closing {
-				err = io.ErrUnexpectedEOF
-			}
 			break
 		}
 		seq := response.Seq
@@ -146,17 +146,24 @@ func (client *Client) input() {
 		}
 	}
 	// Terminate pending calls.
-	client.sending.Lock()
+	client.reqMutex.Lock()
 	client.mutex.Lock()
 	client.shutdown = true
 	closing := client.closing
+	if err == io.EOF {
+		if closing {
+			err = ErrShutdown
+		} else {
+			err = io.ErrUnexpectedEOF
+		}
+	}
 	for _, call := range client.pending {
 		call.Error = err
 		call.done()
 	}
 	client.mutex.Unlock()
-	client.sending.Unlock()
-	if err != io.EOF && !closing {
+	client.reqMutex.Unlock()
+	if debugLog && err != io.EOF && !closing {
 		log.Println("rpc: client protocol error:", err)
 	}
 }
@@ -168,7 +175,9 @@ func (call *Call) done() {
 	default:
 		// We don't want to block here.  It is the caller's responsibility to make
 		// sure the channel has enough buffer space. See comment in Go().
-		log.Println("rpc: discarding Call reply due to insufficient Done chan capacity")
+		if debugLog {
+			log.Println("rpc: discarding Call reply due to insufficient Done chan capacity")
+		}
 	}
 }
 
@@ -267,7 +276,7 @@ func Dial(network, address string) (*Client, error) {
 
 func (client *Client) Close() error {
 	client.mutex.Lock()
-	if client.shutdown || client.closing {
+	if client.closing {
 		client.mutex.Unlock()
 		return ErrShutdown
 	}

@@ -1,4 +1,4 @@
-#  Copyright (C) 2003-2013 Free Software Foundation, Inc.
+#  Copyright (C) 2003-2015 Free Software Foundation, Inc.
 #  Contributed by Kelley Cook, June 2004.
 #  Original code from Neil Booth, May 2003.
 #
@@ -30,7 +30,21 @@
 # Dump that array of options into a C file.
 END {
 
-# Record first EnabledBy and LangEnabledBy uses.
+
+# Combine the flags of identical switches.  Switches
+# appear many times if they are handled by many front
+# ends, for example.
+for (i = 0; i < n_opts; i++) {
+    merged_flags[i] = flags[i]
+}
+for (i = 0; i < n_opts; i++) {
+    while(i + 1 != n_opts && opts[i] == opts[i + 1] ) {
+	merged_flags[i + 1] = merged_flags[i] " " merged_flags[i + 1];
+	i++;
+    }
+}
+
+# Record EnabledBy and LangEnabledBy uses.
 n_enabledby = 0;
 for (i = 0; i < n_langs; i++) {
     n_enabledby_lang[i] = 0;
@@ -38,18 +52,30 @@ for (i = 0; i < n_langs; i++) {
 for (i = 0; i < n_opts; i++) {
     enabledby_arg = opt_args("EnabledBy", flags[i]);
     if (enabledby_arg != "") {
-        n_enabledby_names = split(enabledby_arg, enabledby_names, " && ");
-        if (n_enabledby_names > 2) {
-            print "#error EnabledBy (Wfoo && Wbar && Wbaz) not currently supported"
+        logical_and = index(enabledby_arg, " && ");
+        if (logical_and != 0) {
+            # EnabledBy(arg1 && arg2)
+            split_sep = " && ";
+        } else {
+            # EnabledBy(arg) or EnabledBy(arg1 || arg2 || arg3)
+            split_sep = " \\|\\| ";
+        }
+        n_enabledby_names = split(enabledby_arg, enabledby_names, split_sep);
+        if (logical_and != 0 && n_enabledby_names > 2) {
+            print "#error " opts[i] " EnabledBy(Wfoo && Wbar && Wbaz) currently not supported"
         }
         for (j = 1; j <= n_enabledby_names; j++) {
             enabledby_name = enabledby_names[j];
             enabledby_index = opt_numbers[enabledby_name];
             if (enabledby_index == "") {
-                print "#error Enabledby: " enabledby_name 
-            } else {
-                condition = "";
-                if (n_enabledby_names == 2) {
+                print "#error " opts[i] " Enabledby(" enabledby_name "), unknown option '" enabledby_name "'"
+            } else if (!flag_set_p("Common", merged_flags[enabledby_index])) {
+		print "#error " opts[i] " Enabledby(" enabledby_name "), '" \
+		    enabledby_name "' must have flag 'Common'"		\
+		    " to use Enabledby(), otherwise use LangEnabledBy()"
+	    } else {
+		condition = "";
+                if (logical_and != 0) {
                     opt_var_name_1 = search_var_name(enabledby_names[1], opt_numbers, opts, flags, n_opts);
                     opt_var_name_2 = search_var_name(enabledby_names[2], opt_numbers, opts, flags, n_opts);
                     if (opt_var_name_1 == "") {
@@ -406,11 +432,13 @@ for (i = 0; i < n_enabledby; i++) {
         if (opt_var_name != "") {
             condition = "!opts_set->x_" opt_var_name
             if (thisenableif[j] != "") {
-                condition = condition " && (" thisenableif[j] ")"
+                value = "(" thisenableif[j] ")"
+            } else {
+                value = "value"
             }
             print "      if (" condition ")"
             print "        handle_generated_option (opts, opts_set,"
-            print "                                 " opt_enum(thisenable[j]) ", NULL, value,"
+            print "                                 " opt_enum(thisenable[j]) ", NULL, " value ","
             print "                                 lang_mask, kind, loc, handlers, dc);"
         } else {
             print "#error " thisenable[j] " does not have a Var() flag"
@@ -478,4 +506,64 @@ for (i = 0; i < n_langs; i++) {
     print "}               "
 }
 
+#Handle CPP()
+print "\n"
+print "#include " quote "cpplib.h" quote;
+print "void"
+print "cpp_handle_option_auto (const struct gcc_options * opts,                   "
+print "                        size_t scode, struct cpp_options * cpp_opts)"    
+print "{                                                                     "
+print "  enum opt_code code = (enum opt_code) scode;                         "
+print "                                                                      "
+print "  switch (code)                                                       "
+print "    {                                                                 "
+for (i = 0; i < n_opts; i++) {
+    # With identical flags, pick only the last one.  The
+    # earlier loop ensured that it has all flags merged,
+    # and a nonempty help text if one of the texts was nonempty.
+    while( i + 1 != n_opts && opts[i] == opts[i + 1] ) {
+        i++;
+    }
+
+    cpp_option = nth_arg(0, opt_args("CPP", flags[i]));
+    if (cpp_option != "") {
+        opt_var_name = var_name(flags[i]);
+        init = opt_args("Init", flags[i])
+        if (opt_var_name != "" && init != "") {
+            print "    case " opt_enum(opts[i]) ":"
+            print "      cpp_opts->" cpp_option " = opts->x_" opt_var_name ";"
+            print "      break;"
+        } else if (opt_var_name == "" && init == "") {
+            print "#error CPP() requires setting Init() and Var() for " opts[i]
+        } else if (opt_var_name != "") {
+            print "#error CPP() requires setting Init() for " opts[i]
+        } else {
+            print "#error CPP() requires setting Var() for " opts[i]
+        }
+    }
 }
+print "    default:    "
+print "      break;    "
+print "    }           "
+print "}\n"
+print "void"
+print "init_global_opts_from_cpp(struct gcc_options * opts,                   "
+print "                         const struct cpp_options * cpp_opts)"    
+print "{                                                                     "
+for (i = 0; i < n_opts; i++) {
+    # With identical flags, pick only the last one.  The
+    # earlier loop ensured that it has all flags merged,
+    # and a nonempty help text if one of the texts was nonempty.
+    while( i + 1 != n_opts && opts[i] == opts[i + 1] ) {
+        i++;
+    }
+    cpp_option = nth_arg(0, opt_args("CPP", flags[i]));
+    opt_var_name = var_name(flags[i]);
+    if (cpp_option != "" && opt_var_name != "") {
+        print "  opts->x_" opt_var_name " = cpp_opts->" cpp_option ";"
+    }
+}
+print "}               "
+
+}
+

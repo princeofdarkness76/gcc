@@ -1,5 +1,5 @@
 /* Target definitions for GNU compiler for PowerPC running System V.4
-   Copyright (C) 1995-2013 Free Software Foundation, Inc.
+   Copyright (C) 1995-2015 Free Software Foundation, Inc.
    Contributed by Cygnus Support.
 
    This file is part of GCC.
@@ -45,7 +45,7 @@
 				      & (OPTION_MASK_RELOCATABLE	\
 					 | OPTION_MASK_MINIMAL_TOC))	\
 				     && flag_pic > 1)			\
-				 || DEFAULT_ABI == ABI_AIX)
+				 || DEFAULT_ABI != ABI_V4)
 
 #define	TARGET_BITFIELD_TYPE	(! TARGET_NO_BITFIELD_TYPE)
 #define	TARGET_BIG_ENDIAN	(! TARGET_LITTLE_ENDIAN)
@@ -147,7 +147,7 @@ do {									\
 	     rs6000_sdata_name);					\
     }									\
 									\
-  else if (flag_pic && DEFAULT_ABI != ABI_AIX				\
+  else if (flag_pic && DEFAULT_ABI == ABI_V4				\
 	   && (rs6000_sdata == SDATA_EABI				\
 	       || rs6000_sdata == SDATA_SYSV))				\
     {									\
@@ -173,14 +173,14 @@ do {									\
       error ("-mrelocatable and -mno-minimal-toc are incompatible");	\
     }									\
 									\
-  if (TARGET_RELOCATABLE && rs6000_current_abi == ABI_AIX)		\
+  if (TARGET_RELOCATABLE && rs6000_current_abi != ABI_V4)		\
     {									\
       rs6000_isa_flags &= ~OPTION_MASK_RELOCATABLE;			\
       error ("-mrelocatable and -mcall-%s are incompatible",		\
 	     rs6000_abi_name);						\
     }									\
 									\
-  if (!TARGET_64BIT && flag_pic > 1 && rs6000_current_abi == ABI_AIX)	\
+  if (!TARGET_64BIT && flag_pic > 1 && rs6000_current_abi != ABI_V4)	\
     {									\
       flag_pic = 0;							\
       error ("-fPIC and -mcall-%s are incompatible",			\
@@ -193,7 +193,7 @@ do {									\
     }									\
 									\
   /* Treat -fPIC the same as -mrelocatable.  */				\
-  if (flag_pic > 1 && DEFAULT_ABI != ABI_AIX)				\
+  if (flag_pic > 1 && DEFAULT_ABI == ABI_V4)				\
     {									\
       rs6000_isa_flags |= OPTION_MASK_RELOCATABLE | OPTION_MASK_MINIMAL_TOC; \
       TARGET_NO_FP_IN_TOC = 1;						\
@@ -292,7 +292,7 @@ do {									\
 /* An expression for the alignment of a structure field FIELD if the
    alignment computed in the usual way is COMPUTED.  */
 #define ADJUST_FIELD_ALIGN(FIELD, COMPUTED)				      \
-	((TARGET_ALTIVEC && TREE_CODE (TREE_TYPE (FIELD)) == VECTOR_TYPE)     \
+	(rs6000_special_adjust_field_align_p ((FIELD), (COMPUTED))	      \
 	 ? 128 : COMPUTED)
 
 #undef  BIGGEST_FIELD_ALIGNMENT
@@ -317,7 +317,7 @@ do {									\
 
 /* Put PC relative got entries in .got2.  */
 #define	MINIMAL_TOC_SECTION_ASM_OP \
-  (TARGET_RELOCATABLE || (flag_pic && DEFAULT_ABI != ABI_AIX)		\
+  (TARGET_RELOCATABLE || (flag_pic && DEFAULT_ABI == ABI_V4)		\
    ? "\t.section\t\".got2\",\"aw\"" : "\t.section\t\".got1\",\"aw\"")
 
 #define	SDATA_SECTION_ASM_OP "\t.section\t\".sdata\",\"aw\""
@@ -408,7 +408,7 @@ do {									\
     {									\
       fprintf (FILE, "%s", LCOMM_ASM_OP);				\
       assemble_name ((FILE), (NAME));					\
-      fprintf ((FILE), ","HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
+      fprintf ((FILE), "," HOST_WIDE_INT_PRINT_UNSIGNED",%u\n",		\
 	       (SIZE), (ALIGN) / BITS_PER_UNIT);			\
     }									\
   ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "object");			\
@@ -457,7 +457,7 @@ do {									\
 do {									\
   if (DEFAULT_ABI == ABI_V4)						\
     asm_fprintf (FILE,							\
-		 "\tlwz %s,12(%s)\n\taddic %s,%s,16\n",	\
+		 "\tlwz %s,12(%s)\n\taddi %s,%s,16\n",	\
 		 reg_names[REGNO], reg_names[1], reg_names[1],		\
 		 reg_names[1]);						\
 } while (0)
@@ -522,8 +522,6 @@ extern int fixuplabelno;
 #define ENDIAN_SELECT(BIG_OPT, LITTLE_OPT, DEFAULT_OPT)	\
 "%{mlittle|mlittle-endian:"	LITTLE_OPT ";"	\
   "mbig|mbig-endian:"		BIG_OPT    ";"	\
-  "mcall-aixdesc|mcall-freebsd|mcall-netbsd|"	\
-  "mcall-openbsd|mcall-linux:"	BIG_OPT    ";"	\
   "mcall-i960-old:"		LITTLE_OPT ";"	\
   ":"				DEFAULT_OPT "}"
 
@@ -532,29 +530,20 @@ extern int fixuplabelno;
 #undef	ASM_SPEC
 #define	ASM_SPEC "%(asm_cpu) \
 %{,assembler|,assembler-with-cpp: %{mregnames} %{mno-regnames}} \
-%{mrelocatable} %{mrelocatable-lib} %{fpic|fpie|fPIC|fPIE:-K PIC} \
+%{mrelocatable} %{mrelocatable-lib} %{" FPIE_OR_FPIC_SPEC ":-K PIC} \
 %{memb|msdata=eabi: -memb}" \
 ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
-
-#define	CC1_ENDIAN_BIG_SPEC ""
-
-#define	CC1_ENDIAN_LITTLE_SPEC "\
-%{!mstrict-align: %{!mno-strict-align: \
-    %{!mcall-i960-old: \
-	-mstrict-align \
-    } \
-}}"
-
-#define	CC1_ENDIAN_DEFAULT_SPEC "%(cc1_endian_big)"
 
 #ifndef CC1_SECURE_PLT_DEFAULT_SPEC
 #define CC1_SECURE_PLT_DEFAULT_SPEC ""
 #endif
+#ifndef LINK_SECURE_PLT_DEFAULT_SPEC
+#define LINK_SECURE_PLT_DEFAULT_SPEC ""
+#endif
 
-/* Pass -G xxx to the compiler and set correct endian mode.  */
+/* Pass -G xxx to the compiler.  */
+#undef CC1_SPEC
 #define	CC1_SPEC "%{G*} %(cc1_cpu)" \
-  ENDIAN_SELECT(" %(cc1_endian_big)", " %(cc1_endian_little)",	\
-		" %(cc1_endian_default)")			\
 "%{meabi: %{!mcall-*: -mcall-sysv }} \
 %{!meabi: %{!mno-eabi: \
     %{mrelocatable: -meabi } \
@@ -581,6 +570,7 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
                : %(link_start_default)     }"
 
 #define LINK_START_DEFAULT_SPEC ""
+#define LINK_SECURE_PLT_SPEC LINK_SECURE_PLT_DEFAULT_SPEC
 
 #undef	LINK_SPEC
 #define	LINK_SPEC "\
@@ -588,7 +578,7 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
 %{R*} \
 %(link_shlib) \
 %{!T*: %(link_start) } \
-%(link_target) \
+%{!static: %{!mbss-plt: %(link_secure_plt)}} \
 %(link_os)"
 
 /* Shared libraries are not default.  */
@@ -597,10 +587,6 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
 %{static: } \
 %{shared:-G -dy -z text } \
 %{symbolic:-Bsymbolic -G -dy -z text }"
-
-/* Override the default target of the linker.  */
-#define	LINK_TARGET_SPEC \
-  ENDIAN_SELECT("", " --oformat elf32-powerpcle", "")
 
 /* Any specific OS flags.  */
 #define LINK_OS_SPEC "\
@@ -776,17 +762,27 @@ ENDIAN_SELECT(" -mbig", " -mlittle", DEFAULT_ASM_ENDIAN)
 
 #define LINK_START_LINUX_SPEC ""
 
+#define MUSL_DYNAMIC_LINKER_E ENDIAN_SELECT("","le","")
+
 #define GLIBC_DYNAMIC_LINKER "/lib/ld.so.1"
 #define UCLIBC_DYNAMIC_LINKER "/lib/ld-uClibc.so.0"
+#define MUSL_DYNAMIC_LINKER \
+  "/lib/ld-musl-powerpc" MUSL_DYNAMIC_LINKER_E "%{msoft-float:-sf}.so.1"
 #if DEFAULT_LIBC == LIBC_UCLIBC
-#define CHOOSE_DYNAMIC_LINKER(G, U) "%{mglibc:" G ";:" U "}"
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{mglibc:" G ";:%{mmusl:" M ";:" U "}}"
+#elif DEFAULT_LIBC == LIBC_MUSL
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{mglibc:" G ";:%{muclibc:" U ";:" M "}}"
 #elif !defined (DEFAULT_LIBC) || DEFAULT_LIBC == LIBC_GLIBC
-#define CHOOSE_DYNAMIC_LINKER(G, U) "%{muclibc:" U ";:" G "}"
+#define CHOOSE_DYNAMIC_LINKER(G, U, M) \
+  "%{muclibc:" U ";:%{mmusl:" M ";:" G "}}"
 #else
 #error "Unsupported DEFAULT_LIBC"
 #endif
 #define GNU_USER_DYNAMIC_LINKER \
-  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER, UCLIBC_DYNAMIC_LINKER)
+  CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER, UCLIBC_DYNAMIC_LINKER, \
+			 MUSL_DYNAMIC_LINKER)
 
 #define LINK_OS_LINUX_SPEC "-m elf32ppclinux %{!shared: %{!static: \
   %{rdynamic:-export-dynamic} \
@@ -887,7 +883,6 @@ ncrtn.o%s"
   { "endfile_openbsd",		ENDFILE_OPENBSD_SPEC },			\
   { "endfile_default",		ENDFILE_DEFAULT_SPEC },			\
   { "link_shlib",		LINK_SHLIB_SPEC },			\
-  { "link_target",		LINK_TARGET_SPEC },			\
   { "link_start",		LINK_START_SPEC },			\
   { "link_start_ads",		LINK_START_ADS_SPEC },			\
   { "link_start_yellowknife",	LINK_START_YELLOWKNIFE_SPEC },		\
@@ -908,10 +903,8 @@ ncrtn.o%s"
   { "link_os_netbsd",		LINK_OS_NETBSD_SPEC },			\
   { "link_os_openbsd",		LINK_OS_OPENBSD_SPEC },			\
   { "link_os_default",		LINK_OS_DEFAULT_SPEC },			\
-  { "cc1_endian_big",		CC1_ENDIAN_BIG_SPEC },			\
-  { "cc1_endian_little",	CC1_ENDIAN_LITTLE_SPEC },		\
-  { "cc1_endian_default",	CC1_ENDIAN_DEFAULT_SPEC },		\
   { "cc1_secure_plt_default",	CC1_SECURE_PLT_DEFAULT_SPEC },		\
+  { "link_secure_plt",		LINK_SECURE_PLT_SPEC },			\
   { "cpp_os_ads",		CPP_OS_ADS_SPEC },			\
   { "cpp_os_yellowknife",	CPP_OS_YELLOWKNIFE_SPEC },		\
   { "cpp_os_mvme",		CPP_OS_MVME_SPEC },			\
@@ -966,4 +959,73 @@ ncrtn.o%s"
 /* This target uses the sysv4.opt file.  */
 #define TARGET_USES_SYSV4_OPT 1
 
-#undef DBX_REGISTER_NUMBER
+/* Include order changes for musl, same as in generic linux.h.  */
+#if DEFAULT_LIBC == LIBC_MUSL
+#define INCLUDE_DEFAULTS_MUSL_GPP			\
+    { GPLUSPLUS_INCLUDE_DIR, "G++", 1, 1,		\
+      GPLUSPLUS_INCLUDE_DIR_ADD_SYSROOT, 0 },		\
+    { GPLUSPLUS_TOOL_INCLUDE_DIR, "G++", 1, 1,		\
+      GPLUSPLUS_INCLUDE_DIR_ADD_SYSROOT, 1 },		\
+    { GPLUSPLUS_BACKWARD_INCLUDE_DIR, "G++", 1, 1,	\
+      GPLUSPLUS_INCLUDE_DIR_ADD_SYSROOT, 0 },
+
+#ifdef LOCAL_INCLUDE_DIR
+#define INCLUDE_DEFAULTS_MUSL_LOCAL			\
+    { LOCAL_INCLUDE_DIR, 0, 0, 1, 1, 2 },		\
+    { LOCAL_INCLUDE_DIR, 0, 0, 1, 1, 0 },
+#else
+#define INCLUDE_DEFAULTS_MUSL_LOCAL
+#endif
+
+#ifdef PREFIX_INCLUDE_DIR
+#define INCLUDE_DEFAULTS_MUSL_PREFIX			\
+    { PREFIX_INCLUDE_DIR, 0, 0, 1, 0, 0},
+#else
+#define INCLUDE_DEFAULTS_MUSL_PREFIX
+#endif
+
+#ifdef CROSS_INCLUDE_DIR
+#define INCLUDE_DEFAULTS_MUSL_CROSS			\
+    { CROSS_INCLUDE_DIR, "GCC", 0, 0, 0, 0},
+#else
+#define INCLUDE_DEFAULTS_MUSL_CROSS
+#endif
+
+#ifdef TOOL_INCLUDE_DIR
+#define INCLUDE_DEFAULTS_MUSL_TOOL			\
+    { TOOL_INCLUDE_DIR, "BINUTILS", 0, 1, 0, 0},
+#else
+#define INCLUDE_DEFAULTS_MUSL_TOOL
+#endif
+
+#ifdef NATIVE_SYSTEM_HEADER_DIR
+#define INCLUDE_DEFAULTS_MUSL_NATIVE			\
+    { NATIVE_SYSTEM_HEADER_DIR, 0, 0, 0, 1, 2 },	\
+    { NATIVE_SYSTEM_HEADER_DIR, 0, 0, 0, 1, 0 },
+#else
+#define INCLUDE_DEFAULTS_MUSL_NATIVE
+#endif
+
+#if defined (CROSS_DIRECTORY_STRUCTURE) && !defined (TARGET_SYSTEM_ROOT)
+# undef INCLUDE_DEFAULTS_MUSL_LOCAL
+# define INCLUDE_DEFAULTS_MUSL_LOCAL
+# undef INCLUDE_DEFAULTS_MUSL_NATIVE
+# define INCLUDE_DEFAULTS_MUSL_NATIVE
+#else
+# undef INCLUDE_DEFAULTS_MUSL_CROSS
+# define INCLUDE_DEFAULTS_MUSL_CROSS
+#endif
+
+#undef INCLUDE_DEFAULTS
+#define INCLUDE_DEFAULTS				\
+  {							\
+    INCLUDE_DEFAULTS_MUSL_GPP				\
+    INCLUDE_DEFAULTS_MUSL_LOCAL				\
+    INCLUDE_DEFAULTS_MUSL_PREFIX			\
+    INCLUDE_DEFAULTS_MUSL_CROSS				\
+    INCLUDE_DEFAULTS_MUSL_TOOL				\
+    INCLUDE_DEFAULTS_MUSL_NATIVE			\
+    { GCC_INCLUDE_DIR, "GCC", 0, 1, 0, 0 },		\
+    { 0, 0, 0, 0, 0, 0 }				\
+  }
+#endif

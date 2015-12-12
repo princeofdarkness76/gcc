@@ -6,13 +6,12 @@ package zip
 
 import (
 	"bufio"
-	"compress/flate"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"hash"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -79,6 +78,9 @@ func (z *Reader) init(r io.ReaderAt, size int64) error {
 	if err != nil {
 		return err
 	}
+	if end.directoryRecords > uint64(size)/fileHeaderLen {
+		return fmt.Errorf("archive/zip: TOC declares impossible %d files in %d byte zip", end.directoryRecords, size)
+	}
 	z.r = r
 	z.File = make([]*File, 0, end.directoryRecords)
 	z.Comment = end.comment
@@ -116,6 +118,19 @@ func (rc *ReadCloser) Close() error {
 	return rc.f.Close()
 }
 
+// DataOffset returns the offset of the file's possibly-compressed
+// data, relative to the beginning of the zip file.
+//
+// Most callers should instead use Open, which transparently
+// decompresses data and verifies checksums.
+func (f *File) DataOffset() (offset int64, err error) {
+	bodyOffset, err := f.findBodyOffset()
+	if err != nil {
+		return
+	}
+	return f.headerOffset + bodyOffset, nil
+}
+
 // Open returns a ReadCloser that provides access to the File's contents.
 // Multiple files may be read concurrently.
 func (f *File) Open() (rc io.ReadCloser, err error) {
@@ -125,29 +140,32 @@ func (f *File) Open() (rc io.ReadCloser, err error) {
 	}
 	size := int64(f.CompressedSize64)
 	r := io.NewSectionReader(f.zipr, f.headerOffset+bodyOffset, size)
-	switch f.Method {
-	case Store: // (no compression)
-		rc = ioutil.NopCloser(r)
-	case Deflate:
-		rc = flate.NewReader(r)
-	default:
+	dcomp := decompressor(f.Method)
+	if dcomp == nil {
 		err = ErrAlgorithm
 		return
 	}
+	rc = dcomp(r)
 	var desr io.Reader
 	if f.hasDataDescriptor() {
 		desr = io.NewSectionReader(f.zipr, f.headerOffset+bodyOffset+size, dataDescriptorLen)
 	}
-	rc = &checksumReader{rc, crc32.NewIEEE(), f, desr, nil}
+	rc = &checksumReader{
+		rc:   rc,
+		hash: crc32.NewIEEE(),
+		f:    f,
+		desr: desr,
+	}
 	return
 }
 
 type checksumReader struct {
-	rc   io.ReadCloser
-	hash hash.Hash32
-	f    *File
-	desr io.Reader // if non-nil, where to read the data descriptor
-	err  error     // sticky error
+	rc    io.ReadCloser
+	hash  hash.Hash32
+	nread uint64 // number of bytes read so far
+	f     *File
+	desr  io.Reader // if non-nil, where to read the data descriptor
+	err   error     // sticky error
 }
 
 func (r *checksumReader) Read(b []byte) (n int, err error) {
@@ -156,13 +174,21 @@ func (r *checksumReader) Read(b []byte) (n int, err error) {
 	}
 	n, err = r.rc.Read(b)
 	r.hash.Write(b[:n])
+	r.nread += uint64(n)
 	if err == nil {
 		return
 	}
 	if err == io.EOF {
+		if r.nread != r.f.UncompressedSize64 {
+			return 0, io.ErrUnexpectedEOF
+		}
 		if r.desr != nil {
 			if err1 := readDataDescriptor(r.desr, r.f); err1 != nil {
-				err = err1
+				if err1 == io.EOF {
+					err = io.ErrUnexpectedEOF
+				} else {
+					err = err1
+				}
 			} else if r.hash.Sum32() != r.f.CRC32 {
 				err = ErrChecksum
 			}
@@ -184,9 +210,8 @@ func (r *checksumReader) Close() error { return r.rc.Close() }
 // findBodyOffset does the minimum work to verify the file has a header
 // and returns the file body offset.
 func (f *File) findBodyOffset() (int64, error) {
-	r := io.NewSectionReader(f.zipr, f.headerOffset, f.zipsize-f.headerOffset)
 	var buf [fileHeaderLen]byte
-	if _, err := io.ReadFull(r, buf[:]); err != nil {
+	if _, err := f.zipr.ReadAt(buf[:], f.headerOffset); err != nil {
 		return 0, err
 	}
 	b := readBuf(buf[:])
@@ -246,7 +271,7 @@ func readDirectoryHeader(f *File, r io.Reader) error {
 			}
 			if tag == zip64ExtraId {
 				// update directory values from the zip64 extra block
-				eb := readBuf(b)
+				eb := readBuf(b[:size])
 				if len(eb) >= 8 {
 					f.UncompressedSize64 = eb.uint64()
 				}
@@ -260,8 +285,13 @@ func readDirectoryHeader(f *File, r io.Reader) error {
 			b = b[size:]
 		}
 		// Should have consumed the whole header.
-		if len(b) != 0 {
-			return ErrFormat
+		// But popular zip & JAR creation tools are broken and
+		// may pad extra zeros at the end, so accept those
+		// too. See golang.org/issue/8186.
+		for _, v := range b {
+			if v != 0 {
+				return ErrFormat
+			}
 		}
 	}
 	return nil
@@ -353,6 +383,11 @@ func readDirectoryEnd(r io.ReaderAt, size int64) (dir *directoryEnd, err error) 
 	if err != nil {
 		return nil, err
 	}
+
+	// Make sure directoryOffset points to somewhere in our file.
+	if o := int64(d.directoryOffset); o < 0 || o >= size {
+		return nil, ErrFormat
+	}
 	return d, nil
 }
 
@@ -407,7 +442,7 @@ func findSignatureInBlock(b []byte) int {
 		if b[i] == 'P' && b[i+1] == 'K' && b[i+2] == 0x05 && b[i+3] == 0x06 {
 			// n is length of comment
 			n := int(b[i+directoryEndLen-2]) | int(b[i+directoryEndLen-1])<<8
-			if n+directoryEndLen+i == len(b) {
+			if n+directoryEndLen+i <= len(b) {
 				return i
 			}
 		}

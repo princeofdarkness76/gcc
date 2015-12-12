@@ -1,14 +1,39 @@
 /* config.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if this compiler should be built as the offload target compiler. */
+#ifndef USED_FOR_TARGET
+#undef ACCEL_COMPILER
+#endif
+
+
 /* Define if building universal (internal helper macro) */
 #ifndef USED_FOR_TARGET
 #undef AC_APPLE_UNIVERSAL_BUILD
 #endif
 
 
+/* Define to the assembler option to enable compressed debug sections. */
+#ifndef USED_FOR_TARGET
+#undef AS_COMPRESS_DEBUG_OPTION
+#endif
+
+
+/* Define to the assembler option to disable compressed debug sections. */
+#ifndef USED_FOR_TARGET
+#undef AS_NO_COMPRESS_DEBUG_OPTION
+#endif
+
+
 /* Define as the number of bits in a byte, if `limits.h' doesn't. */
 #ifndef USED_FOR_TARGET
 #undef CHAR_BIT
+#endif
+
+
+/* Define to 1 if you want more run-time sanity checks. This one gets a grab
+   bag of miscellaneous but relatively cheap checks. */
+#ifndef USED_FOR_TARGET
+#undef CHECKING_P
 #endif
 
 
@@ -39,16 +64,15 @@
 #endif
 
 
-/* Define if you want assertions enabled. This is a cheap check. */
+/* The default for -fdiagnostics-color option */
 #ifndef USED_FOR_TARGET
-#undef ENABLE_ASSERT_CHECKING
+#undef DIAGNOSTICS_COLOR_DEFAULT
 #endif
 
 
-/* Define if you want more run-time sanity checks. This one gets a grab bag of
-   miscellaneous but relatively cheap checks. */
+/* Define if you want assertions enabled. This is a cheap check. */
 #ifndef USED_FOR_TARGET
-#undef ENABLE_CHECKING
+#undef ENABLE_ASSERT_CHECKING
 #endif
 
 
@@ -62,6 +86,19 @@
 /* Define to 1 to enable decimal float extension to C. */
 #ifndef USED_FOR_TARGET
 #undef ENABLE_DECIMAL_FLOAT
+#endif
+
+
+/* Define if your target supports default PIE and it is enabled. */
+#ifndef USED_FOR_TARGET
+#undef ENABLE_DEFAULT_PIE
+#endif
+
+
+/* Define if your target supports default stack protector and it is enabled.
+   */
+#ifndef USED_FOR_TARGET
+#undef ENABLE_DEFAULT_SSP
 #endif
 
 
@@ -132,6 +169,12 @@
 #endif
 
 
+/* Define this to enable support for offloading. */
+#ifndef USED_FOR_TARGET
+#undef ENABLE_OFFLOADING
+#endif
+
+
 /* Define to enable plugin support. */
 #ifndef USED_FOR_TARGET
 #undef ENABLE_PLUGIN
@@ -158,8 +201,7 @@
 
 /* Define if you want all operations on trees (the basic data structure of the
    front ends) to be checked for dynamic type safety at runtime. This is
-   moderately expensive. The tree browser debugging routines will also be
-   enabled by this option. */
+   moderately expensive. */
 #ifndef USED_FOR_TARGET
 #undef ENABLE_TREE_CHECKING
 #endif
@@ -169,6 +211,12 @@
    This is cheap. */
 #ifndef USED_FOR_TARGET
 #undef ENABLE_TYPES_CHECKING
+#endif
+
+
+/* Define to get calls to the valgrind runtime enabled. */
+#ifndef USED_FOR_TARGET
+#undef ENABLE_VALGRIND_ANNOTATIONS
 #endif
 
 
@@ -211,9 +259,28 @@
 #endif
 
 
+/* Define if your avr assembler supports --mlink-relax option. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_AVR_MLINK_RELAX_OPTION
+#endif
+
+
+/* Define if your avr assembler supports -mrmw option. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_AVR_MRMW_OPTION
+#endif
+
+
 /* Define if your assembler supports cmpb. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_CMPB
+#endif
+
+
+/* Define to the level of your assembler's compressed debug section support.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_COMPRESS_DEBUG
 #endif
 
 
@@ -232,6 +299,12 @@
 /* Define if your assembler supports DFP instructions. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_DFP
+#endif
+
+
+/* Define if your assembler supports .module. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_DOT_MODULE
 #endif
 
 
@@ -369,9 +442,21 @@
 #endif
 
 
-/* Define if your assembler and linker support @tlsldmplt. */
+/* Define to 1 if your assembler and linker support @tlsldm. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_IX86_TLSLDM
+#endif
+
+
+/* Define to 1 if your assembler and linker support @tlsldmplt. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_IX86_TLSLDMPLT
+#endif
+
+
+/* Define if your assembler supports the 'ud2' mnemonic. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_IX86_UD2
 #endif
 
 
@@ -384,6 +469,12 @@
 /* Define if your assembler supports .sleb128 and .uleb128. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_LEB128
+#endif
+
+
+/* Define if your assembler supports LEON instructions. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_LEON
 #endif
 
 
@@ -405,6 +496,12 @@
 #endif
 
 
+/* Define if your assembler supports the -mabi option. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_MABI_OPTION
+#endif
+
+
 /* Define if your assembler supports mfcr field. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_MFCRF
@@ -414,6 +511,12 @@
 /* Define if your assembler supports mffgpr and mftgpr. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_MFPGPR
+#endif
+
+
+/* Define if the assembler understands -mnan=. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_NAN
 #endif
 
 
@@ -453,6 +556,12 @@
 #endif
 
 
+/* Define if your assembler supports POWER9 instructions. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_POWER9
+#endif
+
+
 /* Define if your assembler supports .ref */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_REF
@@ -477,6 +586,12 @@
 #endif
 
 
+/* Define if your assembler supports relocs needed by -fpic. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_SMALL_PIC_RELOCS
+#endif
+
+
 /* Define if your assembler supports SPARC4 instructions. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_SPARC4
@@ -486,12 +601,6 @@
 /* Define if your assembler and linker support GOTDATA_OP relocs. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_SPARC_GOTDATA_OP
-#endif
-
-
-/* Define to 1 if your assembler supports #nobits, 0 otherwise. */
-#ifndef USED_FOR_TARGET
-#undef HAVE_AS_SPARC_NOBITS
 #endif
 
 
@@ -524,12 +633,6 @@
 /* Define if your assembler supports VSX instructions. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_VSX
-#endif
-
-
-/* Define to 1 if you have the `atoll' function. */
-#ifndef USED_FOR_TARGET
-#undef HAVE_ATOLL
 #endif
 
 
@@ -589,8 +692,15 @@
 #endif
 
 
-/* Define to 1 if we found a declaration for 'basename', otherwise define to
-   0. */
+/* Define to 1 if we found a declaration for 'atoll', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_ATOLL
+#endif
+
+
+/* Define to 1 if you have the declaration of `basename(const char*)', and to
+   0 if you don't. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_DECL_BASENAME
 #endif
@@ -824,6 +934,13 @@
 #endif
 
 
+/* Define to 1 if we found a declaration for 'setenv', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_SETENV
+#endif
+
+
 /* Define to 1 if we found a declaration for 'setrlimit', otherwise define to
    0. */
 #ifndef USED_FOR_TARGET
@@ -852,6 +969,13 @@
 #endif
 
 
+/* Define to 1 if we found a declaration for 'strnlen', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_STRNLEN
+#endif
+
+
 /* Define to 1 if we found a declaration for 'strsignal', otherwise define to
    0. */
 #ifndef USED_FOR_TARGET
@@ -859,10 +983,38 @@
 #endif
 
 
-/* Define to 1 if we found a declaration for 'strstr', otherwise define to 0.
-   */
+/* Define to 1 if you have the declaration of `strstr(const char*,const
+   char*)', and to 0 if you don't. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_DECL_STRSTR
+#endif
+
+
+/* Define to 1 if we found a declaration for 'strtol', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_STRTOL
+#endif
+
+
+/* Define to 1 if we found a declaration for 'strtoll', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_STRTOLL
+#endif
+
+
+/* Define to 1 if we found a declaration for 'strtoul', otherwise define to 0.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_STRTOUL
+#endif
+
+
+/* Define to 1 if we found a declaration for 'strtoull', otherwise define to
+   0. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_STRTOULL
 #endif
 
 
@@ -877,6 +1029,13 @@
    */
 #ifndef USED_FOR_TARGET
 #undef HAVE_DECL_TIMES
+#endif
+
+
+/* Define to 1 if we found a declaration for 'unsetenv', otherwise define to
+   0. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_DECL_UNSETENV
 #endif
 
 
@@ -981,6 +1140,12 @@
 /* Define to 1 if you have the `fread_unlocked' function. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_FREAD_UNLOCKED
+#endif
+
+
+/* Define to 1 if you have the <ftw.h> header file. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_FTW_H
 #endif
 
 
@@ -1145,6 +1310,13 @@
 #endif
 
 
+/* Define if the gold linker supports split stack and is available as a
+   non-default */
+#ifndef USED_FOR_TARGET
+#undef HAVE_GOLD_NON_DEFAULT_SPLIT_STACK
+#endif
+
+
 /* Define if you have the iconv() function. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_ICONV
@@ -1157,7 +1329,8 @@
 #endif
 
 
-/* Define .init_array/.fini_array sections are available and working. */
+/* Define 0/1 if .init_array/.fini_array sections are available and working.
+   */
 #ifndef USED_FOR_TARGET
 #undef HAVE_INITFINI_ARRAY_SUPPORT
 #endif
@@ -1178,6 +1351,24 @@
 /* Define if you have a working <inttypes.h> header file. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_INTTYPES_H
+#endif
+
+
+/* Define if isl_ctx_get_max_operations exists. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_ISL_CTX_MAX_OPERATIONS
+#endif
+
+
+/* Define if isl_options_set_schedule_serialize_sccs exists. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
+#endif
+
+
+/* Define if isl_schedule_constraints_compute_schedule exists. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE
 #endif
 
 
@@ -1218,9 +1409,28 @@
 #endif
 
 
+/* Define if your linker supports -z bndplt */
+#ifndef USED_FOR_TARGET
+#undef HAVE_LD_BNDPLT_SUPPORT
+#endif
+
+
 /* Define if your linker supports --build-id. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_LD_BUILDID
+#endif
+
+
+/* Define if the linker supports clearing hardware capabilities via mapfile.
+   */
+#ifndef USED_FOR_TARGET
+#undef HAVE_LD_CLEARCAP
+#endif
+
+
+/* Define to the level of your linker's compressed debug section support. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_LD_COMPRESS_DEBUG
 #endif
 
 
@@ -1272,9 +1482,15 @@
 #endif
 
 
-/* Define if your linker supports -pie option. */
+/* Define if your linker supports PIE option. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_LD_PIE
+#endif
+
+
+/* Define 0/1 if your linker supports -pie option with copy reloc. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_LD_PIE_COPYRELOC
 #endif
 
 
@@ -1393,6 +1609,12 @@
 #endif
 
 
+/* Define to 1 if you have the `popen' function. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_POPEN
+#endif
+
+
 /* Define to 1 if you have the `putchar_unlocked' function. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_PUTCHAR_UNLOCKED
@@ -1414,6 +1636,12 @@
 /* Define to 1 if you have the `setrlimit' function. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_SETRLIMIT
+#endif
+
+
+/* Define if the system-provided CRTs are present on Solaris. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_SOLARIS_CRTS
 #endif
 
 
@@ -1619,15 +1847,15 @@
 #endif
 
 
-/* Define to 1 if the system has the type `__int64'. */
+/* Define if your assembler supports .dwsect 0xB0000 */
 #ifndef USED_FOR_TARGET
-#undef HAVE___INT64
+#undef HAVE_XCOFF_DWARF_EXTRAS
 #endif
 
 
-/* Define if cloog is in use. */
+/* Define if isl is in use. */
 #ifndef USED_FOR_TARGET
-#undef HAVE_cloog
+#undef HAVE_isl
 #endif
 
 
@@ -1643,9 +1871,21 @@
 #endif
 
 
+/* Define if int64_t uses long as underlying type. */
+#ifndef USED_FOR_TARGET
+#undef INT64_T_IS_LONG
+#endif
+
+
 /* Define to the linker option to ignore unused dependencies. */
 #ifndef USED_FOR_TARGET
 #undef LD_AS_NEEDED_OPTION
+#endif
+
+
+/* Define to the linker option to enable compressed debug sections. */
+#ifndef USED_FOR_TARGET
+#undef LD_COMPRESS_DEBUG_OPTION
 #endif
 
 
@@ -1664,12 +1904,6 @@
 /* Define to the linker option to disable use of shared objects. */
 #ifndef USED_FOR_TARGET
 #undef LD_STATIC_OPTION
-#endif
-
-
-/* Define to the library containing __tls_get_addr/___tls_get_addr. */
-#ifndef USED_FOR_TARGET
-#undef LIB_TLS_SPEC
 #endif
 
 
@@ -1699,15 +1933,9 @@
 #endif
 
 
-/* Define to 1 if HOST_WIDE_INT must be 64 bits wide (see hwint.h). */
+/* Define to offload targets, separated by commas. */
 #ifndef USED_FOR_TARGET
-#undef NEED_64BIT_HOST_WIDE_INT
-#endif
-
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#ifndef USED_FOR_TARGET
-#undef NO_MINUS_C_MINUS_O
+#undef OFFLOAD_TARGETS
 #endif
 
 
@@ -1753,6 +1981,12 @@
 #endif
 
 
+/* Define to .TOC. alignment forced by your linker. */
+#ifndef USED_FOR_TARGET
+#undef POWERPC64_TOC_POINTER_ALIGNMENT
+#endif
+
+
 /* Define to PREFIX/include if cpp should also search that directory. */
 #ifndef USED_FOR_TARGET
 #undef PREFIX_INCLUDE_DIR
@@ -1789,12 +2023,6 @@
 #endif
 
 
-/* The size of `__int64', as computed by sizeof. */
-#ifndef USED_FOR_TARGET
-#undef SIZEOF___INT64
-#endif
-
-
 /* Define to 1 if you have the ANSI C header files. */
 #ifndef USED_FOR_TARGET
 #undef STDC_HEADERS
@@ -1815,6 +2043,18 @@
 
 /* Define if your target C library provides the `dl_iterate_phdr' function. */
 #undef TARGET_DL_ITERATE_PHDR
+
+/* GNU C Library major version number used on the target, or 0. */
+#ifndef USED_FOR_TARGET
+#undef TARGET_GLIBC_MAJOR
+#endif
+
+
+/* GNU C Library minor version number used on the target, or 0. */
+#ifndef USED_FOR_TARGET
+#undef TARGET_GLIBC_MINOR
+#endif
+
 
 /* Define if your target C library provides stack protector support */
 #ifndef USED_FOR_TARGET
@@ -1848,8 +2088,8 @@
 #endif
 
 
-/* Define to 1 if the 'long long' (or '__int64') is wider than 'long' but
-   still efficiently supported by the host hardware. */
+/* Define to 1 if the 'long long' type is wider than 'long' but still
+   efficiently supported by the host hardware. */
 #ifndef USED_FOR_TARGET
 #undef USE_LONG_LONG_FOR_WIDEST_FAST_INT
 #endif

@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  B o d y                                 --
 --                                                                          --
---          Copyright (C) 1992-2012, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -1029,7 +1029,6 @@ package body System.Task_Primitives.Operations is
 
    procedure Initialize (Environment_Task : Task_Id) is
       Discard : BOOL;
-      pragma Unreferenced (Discard);
 
    begin
       Environment_Task_Id := Environment_Task;
@@ -1069,16 +1068,22 @@ package body System.Task_Primitives.Operations is
    -- Monotonic_Clock --
    ---------------------
 
-   function Monotonic_Clock return Duration
-     renames System.OS_Primitives.Monotonic_Clock;
+   function Monotonic_Clock return Duration is
+      function Internal_Clock return Duration;
+      pragma Import (Ada, Internal_Clock, "__gnat_monotonic_clock");
+   begin
+      return Internal_Clock;
+   end Monotonic_Clock;
 
    -------------------
    -- RT_Resolution --
    -------------------
 
    function RT_Resolution return Duration is
+      Ticks_Per_Second : aliased LARGE_INTEGER;
    begin
-      return 0.000_001; --  1 micro-second
+      QueryPerformanceFrequency (Ticks_Per_Second'Access);
+      return Duration (1.0 / Ticks_Per_Second);
    end RT_Resolution;
 
    ----------------

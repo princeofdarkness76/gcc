@@ -1,7 +1,7 @@
 /* Gengtype persistent state serialization & de-serialization.
    Useful for gengtype in plugin mode.
 
-   Copyright (C) 2010-2013 Free Software Foundation, Inc.
+   Copyright (C) 2010-2015 Free Software Foundation, Inc.
 
    This file is part of GCC.
 
@@ -23,15 +23,14 @@
    and Basile Starynkevitch <basile@starynkevitch.net>
 */
 
-#ifdef GENERATOR_FILE
-#include "bconfig.h"
-#else
+#ifdef HOST_GENERATOR_FILE
 #include "config.h"
+#define GENERATOR_FILE 1
+#else
+#include "bconfig.h"
 #endif
 #include "system.h"
 #include "errors.h"	/* For fatal.  */
-#include "double-int.h"
-#include "hashtab.h"
 #include "version.h"	/* For version_string & pkgversion_string.  */
 #include "obstack.h"
 #include "gengtype.h"
@@ -54,8 +53,6 @@ type_lineloc (const_type_p ty)
     case TYPE_USER_STRUCT:
     case TYPE_UNDEFINED:
       return CONST_CAST (struct fileloc*, &ty->u.s.line);
-    case TYPE_PARAM_STRUCT:
-      return CONST_CAST (struct fileloc*, &ty->u.param_struct.line);
     case TYPE_SCALAR:
     case TYPE_STRING:
     case TYPE_POINTER:
@@ -142,7 +139,7 @@ static long state_bol = 0;	/* offset of beginning of line */
 class s_expr_writer
 {
 public:
-  s_expr_writer();
+  s_expr_writer ();
 
   void write_new_line ();
   void write_any_indent (int leading_spaces);
@@ -151,15 +148,15 @@ public:
   void end_s_expr ();
 
 private:
-  int indent_amount_;
-  int had_recent_newline_;
+  int m_indent_amount;
+  int m_had_recent_newline;
 }; // class s_expr_writer
 
 /* A class for writing out "gtype.state".  */
 class state_writer : public s_expr_writer
 {
 public:
-  state_writer();
+  state_writer ();
 
 private:
   void write_state_fileloc (struct fileloc *floc);
@@ -180,7 +177,6 @@ private:
   void write_state_user_struct_type (type_p current);
   void write_state_union_type (type_p current);
   void write_state_lang_struct_type (type_p current);
-  void write_state_param_struct_type (type_p current);
   void write_state_pointer_type (type_p current);
   void write_state_array_type (type_p current);
   void write_state_gc_used (enum gc_used_enum gus);
@@ -190,7 +186,6 @@ private:
   int write_state_pair_list (pair_p list);
   void write_state_typedefs (void);
   void write_state_structures (void);
-  void write_state_param_structs (void);
   void write_state_variables (void);
   void write_state_srcdir (void);
   void write_state_files_list (void);
@@ -200,14 +195,14 @@ private:
 
 private:
   /* Counter of written types.  */
-  int state_written_type_count;
+  int m_state_written_type_count;
 }; // class state_writer
 
 
 /* class s_expr_writer's trivial constructor.  */
-s_expr_writer::s_expr_writer()
-  : indent_amount_(0),
-    had_recent_newline_(0)
+s_expr_writer::s_expr_writer ()
+  : m_indent_amount (0),
+    m_had_recent_newline (0)
 {
 }
 
@@ -216,10 +211,10 @@ void
 s_expr_writer::write_new_line (void)
 {
   /* Don't add a newline if we've just had one.  */
-  if (!had_recent_newline_)
+  if (!m_had_recent_newline)
     {
       fprintf (state_file, "\n");
-      had_recent_newline_ = 1;
+      m_had_recent_newline = 1;
     }
 }
 
@@ -236,15 +231,15 @@ void
 s_expr_writer::write_any_indent (int leading_spaces)
 {
   int i;
-  int amount = indent_amount_ - leading_spaces;
-  if (had_recent_newline_)
+  int amount = m_indent_amount - leading_spaces;
+  if (m_had_recent_newline)
     for (i = 0; i < amount; i++)
       fprintf (state_file, " ");
-  had_recent_newline_ = 0;
+  m_had_recent_newline = 0;
 }
 
 /* Write the beginning of a new s-expresion e.g. "(!foo "
-   The writer automatically adds whitespace to show the hierachical
+   The writer automatically adds whitespace to show the hierarchical
    structure of the expressions, so each one starts on a new line,
    and any within it will be at an increased indentation level.  */
 void
@@ -253,7 +248,7 @@ s_expr_writer::begin_s_expr (const char *tag)
   write_new_line ();
   write_any_indent (0);
   fprintf (state_file, "(!%s ", tag);
-  indent_amount_++;
+  m_indent_amount++;
 }
 
 /* Write out the end of an s-expression: any necssessary indentation,
@@ -261,7 +256,7 @@ s_expr_writer::begin_s_expr (const char *tag)
 void
 s_expr_writer::end_s_expr (void)
 {
-  indent_amount_--;
+  m_indent_amount--;
   write_any_indent (0);
   fprintf (state_file, ")");
   write_new_line ();
@@ -269,9 +264,9 @@ s_expr_writer::end_s_expr (void)
 
 
 /* class state_writer's trivial constructor.  */
-state_writer::state_writer()
-  : s_expr_writer(),
-    state_written_type_count(0)
+state_writer::state_writer ()
+  : s_expr_writer (),
+    m_state_written_type_count (0)
 {
 }
 
@@ -283,7 +278,7 @@ state_writer::state_writer()
 
 
 /* Fatal message while reading state.  */
-static inline void 
+static void 
 fatal_reading_state (struct state_token_st* tok, const char*msg)
 {
   if (tok)
@@ -309,7 +304,7 @@ fatal_reading_state (struct state_token_st* tok, const char*msg)
     else						\
       fatal ("%s:%d: Invalid state file; " Fmt,		\
 	     state_path, state_line, __VA_ARGS__);	\
-  } while(0)
+  } while (0)
 
 
 /* Find or allocate an identifier in our name hash table.  */
@@ -635,7 +630,6 @@ state_token_is_name (struct state_token_st *p, const char *name)
  * We want to serialize :
  *          - typedefs list
  *          - structures list
- *          - param_structs list
  *          - variables list
  *
  * So, we have one routine for each kind of data.  The main writing
@@ -957,6 +951,7 @@ state_writer::write_state_struct_type (type_p current)
 {
   write_state_struct_union_type (current, "struct");
   write_state_type (current->u.s.lang_struct);
+  write_state_type (current->u.s.base_class);
 }
 
 /* Write a GTY user-defined struct type.  */
@@ -1020,29 +1015,6 @@ state_writer::write_state_lang_struct_type (type_p current)
   for (hty = current->u.s.lang_struct; hty != NULL; hty = hty->next)
     write_state_type (hty);
   end_s_expr ();
-}
-
-/* Write a parametrized structure GTY type.  */
-void
-state_writer::write_state_param_struct_type (type_p current)
-{
-  int i;
-
-  write_any_indent (0);
-  fprintf (state_file, "param_struct ");
-  write_state_common_type_content (current);
-  write_state_type (current->u.param_struct.stru);
-  for (i = 0; i < NUM_PARAM; i++)
-    {
-      if (current->u.param_struct.param[i] != NULL)
-	write_state_type (current->u.param_struct.param[i]);
-      else
-	{
-	  write_any_indent (0);
-	  fprintf (state_file, "nil ");
-	}
-    }
-  write_state_fileloc (&current->u.param_struct.line);
 }
 
 /* Write a pointer type.  */
@@ -1136,10 +1108,10 @@ state_writer::write_state_type (type_p current)
     }
   else
     {
-      state_written_type_count++;
-      DBGPRINTF ("writing type #%d @%p old number %d", state_written_type_count,
+      m_state_written_type_count++;
+      DBGPRINTF ("writing type #%d @%p old number %d", m_state_written_type_count,
 		 (void *) current, current->state_number);
-      current->state_number = state_written_type_count;
+      current->state_number = m_state_written_type_count;
       switch (current->kind)
 	{
 	case TYPE_NONE:
@@ -1164,9 +1136,6 @@ state_writer::write_state_type (type_p current)
 	  break;
 	case TYPE_LANG_STRUCT:
 	  write_state_lang_struct_type (current);
-	  break;
-	case TYPE_PARAM_STRUCT:
-	  write_state_param_struct_type (current);
 	  break;
 	case TYPE_SCALAR:
 	  write_state_scalar_type (current);
@@ -1224,10 +1193,9 @@ state_writer::write_state_pair_list (pair_p list)
 
 }
 
-/* When writing imported linked lists, like typedefs, structures,
-   param_structs, ... we count their length first and write it.  These
-   eases the reading, and enables an extra verification on the number
-   of actually read items.  */
+/* When writing imported linked lists, like typedefs, structures, ... we count
+   their length first and write it.  This eases the reading, and enables an
+   extra verification on the number of actually read items.  */
 
 /* Write our typedefs.  */
 void
@@ -1267,25 +1235,6 @@ state_writer::write_state_structures (void)
   end_s_expr ();
   if (verbosity_level >= 2)
     printf ("%s wrote %d structures in state\n", progname, nbstruct);
-}
-
-/* Write our param_struct-s.  */
-void
-state_writer::write_state_param_structs (void)
-{
-  int nbparamstruct = 0;
-  type_p current;
-
-  for (current = param_structs; current != NULL; current = current->next)
-    nbparamstruct++;
-
-  begin_s_expr ("param_structs");
-  fprintf (state_file, "%d", nbparamstruct);
-
-  for (current = param_structs; current != NULL; current = current->next)
-    write_state_type (current);
-
-  end_s_expr ();
 }
 
 /* Write our variables.  */
@@ -1424,7 +1373,6 @@ write_state (const char *state_path)
   sw.write_state_files_list ();
   sw.write_state_structures ();
   sw.write_state_typedefs ();
-  sw.write_state_param_structs ();
   sw.write_state_variables ();
   write_state_trailer ();
   statelen = ftell (state_file);
@@ -1441,7 +1389,7 @@ write_state (const char *state_path)
 
   if (verbosity_level >= 1)
     printf ("%s wrote state file %s of %ld bytes with %d GTY-ed types\n",
-	    progname, state_path, statelen, sw.state_written_type_count);
+	    progname, state_path, statelen, sw.m_state_written_type_count);
 
 }
 
@@ -1613,6 +1561,9 @@ read_state_struct_type (type_p type)
       read_state_options (&(type->u.s.opt));
       read_state_lang_bitmap (&(type->u.s.bitmap));
       read_state_type (&(type->u.s.lang_struct));
+      read_state_type (&(type->u.s.base_class));
+      if (type->u.s.base_class)
+	add_subclass (type->u.s.base_class, type);
     }
   else
     {
@@ -1806,34 +1757,6 @@ read_state_lang_struct_type (type_p type)
 }
 
 
-/* Read a param_struct type for GTY parametrized structures.  */
-static void
-read_state_param_struct_type (type_p type)
-{
-  int i;
-  struct state_token_st *t0;
-
-  type->kind = TYPE_PARAM_STRUCT;
-  read_state_common_type_content (type);
-  DBGPRINTF ("read param_struct type @%p #%d",
-	     (void *) type, type->state_number);
-  read_state_type (&(type->u.param_struct.stru));
-
-  for (i = 0; i < NUM_PARAM; i++)
-    {
-      t0 = peek_state_token (0);
-      if (state_token_is_name (t0, "nil"))
-	{
-	  type->u.param_struct.param[i] = NULL;
-	  next_state_tokens (1);
-	}
-      else
-	read_state_type (&(type->u.param_struct.param[i]));
-    }
-  read_state_fileloc (&(type->u.param_struct.line));
-}
-
-
 /* Read the gc used information.  */
 static void
 read_state_gc_used (enum gc_used_enum *pgus)
@@ -1934,12 +1857,6 @@ read_state_type (type_p *current)
 	      *current = XCNEW (struct type);
 	      next_state_tokens (1);
 	      read_state_lang_struct_type (*current);
-	    }
-	  else if (state_token_is_name (t0, "param_struct"))
-	    {
-	      *current = XCNEW (struct type);
-	      next_state_tokens (1);
-	      read_state_param_struct_type (*current);
 	    }
 	  else if (state_token_is_name (t0, "pointer"))
 	    {
@@ -2436,58 +2353,6 @@ read_state_structures (type_p *structures)
 }
 
 
-/* Read the param_struct-s.  */
-static void
-read_state_param_structs (type_p *param_structs)
-{
-  int nbparamstructs = 0;
-  int countparamstructs = 0;
-  type_p head = NULL;
-  type_p previous = NULL;
-  type_p tmp;
-  struct state_token_st *t0 = peek_state_token (0);
-  struct state_token_st *t1 = peek_state_token (1);
-  struct state_token_st *t2 = peek_state_token (2);
-
-  if (state_token_kind (t0) == STOK_LEFTPAR
-      && state_token_is_name (t1, "!param_structs")
-      && state_token_kind (t2) == STOK_INTEGER)
-    {
-      nbparamstructs = t2->stok_un.stok_num;
-      next_state_tokens (3);
-      t0 = t1 = t2 = NULL;
-      t0 = peek_state_token (0);
-      while (state_token_kind (t0) != STOK_RIGHTPAR)
-	{
-	  tmp = NULL;
-	  read_state_type (&tmp);
-	  if (head == NULL)
-	    {
-	      head = tmp;
-	      previous = head;
-	    }
-	  else
-	    {
-	      previous->next = tmp;
-	      previous = tmp;
-	    }
-	  t0 = peek_state_token (0);
-	  countparamstructs++;
-	}
-      next_state_tokens (1);
-    }
-  else
-    fatal_reading_state (t0, "Bad param_structs syntax");
-  t0 = peek_state_token (0);
-  if (countparamstructs != nbparamstructs)
-    fatal_reading_state_printf
-      (t0,
-       "invalid number of param_structs expected %d got %d",
-       nbparamstructs, countparamstructs);
-  *param_structs = head;
-}
-
-
 /* Read the variables.  */
 static void
 read_state_variables (pair_p *variables)
@@ -2647,7 +2512,7 @@ read_state_files_list (void)
 				 "expecting file in !fileslist of state file");
 	};
       t0 = peek_state_token (0);
-      if (!state_token_kind (t0) == STOK_RIGHTPAR)
+      if (state_token_kind (t0) != STOK_RIGHTPAR)
 	fatal_reading_state (t0, "missing ) for !fileslist in state file");
       next_state_tokens (1);
     }
@@ -2734,7 +2599,6 @@ read_state (const char *path)
       (NULL_STATE_TOKEN, "input error while reading state [%s]",
        xstrerror (errno));
   read_state_typedefs (&typedefs);
-  read_state_param_structs (&param_structs);
   read_state_variables (&variables);
   read_state_trailer ();
 

@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---          Copyright (C) 1998-2010, Free Software Foundation, Inc.         --
+--          Copyright (C) 1998-2015, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -201,7 +201,7 @@ package body System.Shared_Storage is
 
       --  Release least recently used entry if we have to
 
-      if Shared_Var_Files_Open =  Max_Shared_Var_Files then
+      if Shared_Var_Files_Open = Max_Shared_Var_Files then
          Freed := LRU_Head;
 
          if Freed.Next /= null then
@@ -541,7 +541,7 @@ package body System.Shared_Storage is
 
                   when others =>
                      raise Program_Error with
-                        "Cannot create shared variable file for """ & S & '"';
+                        "cannot create shared variable file for """ & S & '"';
                end;
          end;
 
