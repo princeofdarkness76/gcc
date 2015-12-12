@@ -137,12 +137,17 @@ runtime_netpoll(bool block)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	allocatedfds = false;
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	allocatedfds = false;
+
+>>>>>>> gcc-mirror/trunk
  retry:
 	runtime_lock(&selectlock);
 
@@ -156,6 +161,7 @@ runtime_netpoll(bool block)
 	if(inuse) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		prfds = runtime_SysAlloc(4 * sizeof fds, &mstats.other_sys);
@@ -165,6 +171,8 @@ runtime_netpoll(bool block)
 		allocatedfds = true;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 		if(!allocatedfds) {
 			prfds = runtime_SysAlloc(4 * sizeof fds, &mstats.other_sys);
 			pwfds = prfds + 1;
@@ -172,9 +180,12 @@ runtime_netpoll(bool block)
 			ptfds = pefds + 1;
 			allocatedfds = true;
 		}
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	} else {
 		prfds = &grfds;
 		pwfds = &gwfds;
@@ -242,6 +253,7 @@ runtime_netpoll(bool block)
 		}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		if(i == rdwake) {
 =======
 		if(i == rdwake && mode != 0) {
@@ -249,6 +261,9 @@ runtime_netpoll(bool block)
 =======
 		if(i == rdwake) {
 >>>>>>> master
+=======
+		if(i == rdwake && mode != 0) {
+>>>>>>> gcc-mirror/trunk
 			while(read(rdwake, &b, sizeof b) > 0)
 				;
 			continue;

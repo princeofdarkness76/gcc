@@ -4,17 +4,21 @@
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
 =======
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 float32x2x3_t
 f_vld3_lane_f32 (float32_t * p, float32x2x3_t v)
 {
   float32x2x3_t res;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 2 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
@@ -30,6 +34,11 @@ f_vld3_lane_f32 (float32_t * p, float32x2x3_t v)
   res = vld3_lane_f32 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
 >>>>>>> master
+=======
+  /* { dg-error "lane 2 out of range 0 - 1" "" { target *-*-* } 0 } */
+  res = vld3_lane_f32 (p, v, 2);
+  /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/trunk
   res = vld3_lane_f32 (p, v, -1);
   return res;
 }

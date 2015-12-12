@@ -8,12 +8,17 @@ AC_CONFIG_SRCDIR([vtv_rts.h])
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AM_ENABLE_MULTILIB(, ..)
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+AM_ENABLE_MULTILIB(, ..)
+
+>>>>>>> gcc-mirror/trunk
 # -------
 # Options
 # -------
@@ -37,12 +42,17 @@ GCC_LIBSTDCXX_RAW_CXX_FLAGS
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_USE_SYSTEM_EXTENSIONS
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+AC_USE_SYSTEM_EXTENSIONS
+
+>>>>>>> gcc-mirror/trunk
 # Use same top-level configure hooks in libgcc/libstdc++/libvtv.
 AC_MSG_CHECKING([for --enable-vtable-verify])
 AC_ARG_ENABLE(vtable-verify,
@@ -61,7 +71,10 @@ AC_MSG_CHECKING([for host support for vtable verification])
 . ${srcdir}/configure.tgt
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 case ${host} in
   *-*-solaris2*)
     # libvtv requires init priority support, which depends on the linker
@@ -77,9 +90,12 @@ case ${host} in
     # configure.tgt restricting to libvtv to Solaris 11+.
     ;;
 esac
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 AC_MSG_RESULT($VTV_SUPPORTED)
 
 # Decide if it's usable.
@@ -95,12 +111,15 @@ AM_CONDITIONAL(ENABLE_VTABLE_VERIFY, test $use_vtable_verify = yes)
 AM_INIT_AUTOMAKE(foreign no-dist)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 AM_ENABLE_MULTILIB(, ..)
 =======
 >>>>>>> gcc-mirror/master
 =======
 AM_ENABLE_MULTILIB(, ..)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 AM_MAINTAINER_MODE
 
 LIBVTV_CONFIGURE
@@ -143,12 +162,17 @@ AC_CHECK_FUNCS([secure_getenv])
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_CHECK_FUNCS([getexecname __fortify_fail])
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+AC_CHECK_FUNCS([getexecname __fortify_fail])
+
+>>>>>>> gcc-mirror/trunk
 # Check for programs.
 m4_rename([_AC_ARG_VAR_PRECIOUS],[real_PRECIOUS])
 m4_define([_AC_ARG_VAR_PRECIOUS],[])
@@ -221,6 +245,7 @@ AM_CONDITIONAL(VTV_CYGMIN, test $vtv_cygmin = yes)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_CHECK_FUNCS([_obstack_begin])
 AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
@@ -228,4 +253,9 @@ AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+AC_CHECK_FUNCS([_obstack_begin])
+AM_CONDITIONAL(VTV_NO_OBSTACK, test $ac_cv_func__obstack_begin = no)
+
+>>>>>>> gcc-mirror/trunk
 AC_OUTPUT

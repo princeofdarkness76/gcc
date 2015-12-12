@@ -537,11 +537,15 @@ lang_env_dependencies = { module=libjava; cxx=true; };
 lang_env_dependencies = { module=libitm; cxx=true; };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 lang_env_dependencies = { module=libffi; cxx=true; };
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+lang_env_dependencies = { module=libffi; cxx=true; };
+>>>>>>> gcc-mirror/trunk
 lang_env_dependencies = { module=libcilkrts; cxx=true; };
 lang_env_dependencies = { module=liboffloadmic; cxx=true; };
 lang_env_dependencies = { module=newlib; no_c=true; };

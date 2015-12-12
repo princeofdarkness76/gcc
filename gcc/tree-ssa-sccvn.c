@@ -752,19 +752,25 @@ copy_reference_ops_from_ref (tree ref, vec<vn_reference_op_s> *result)
 	  temp.op0 = TREE_OPERAND (ref, 1);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (tree_fits_shwi_p (TREE_OPERAND (ref, 1)))
 	    temp.off = tree_to_shwi (TREE_OPERAND (ref, 1));
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	    {
 	      offset_int off = mem_ref_offset (ref);
 	      if (wi::fits_shwi_p (off))
 		temp.off = off.to_shwi ();
 	    }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  if (tree_fits_shwi_p (TREE_OPERAND (ref, 1)))
 	    temp.off = tree_to_shwi (TREE_OPERAND (ref, 1));
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  temp.clique = MR_DEPENDENCE_CLIQUE (ref);
 	  temp.base = MR_DEPENDENCE_BASE (ref);
 	  temp.reverse = REF_REVERSE_STORAGE_ORDER (ref);
@@ -1382,6 +1388,7 @@ fully_constant_vn_reference_p (vn_reference_t ref)
 	      unsigned char buf[MAX_BITSIZE_MODE_ANY_MODE / BITS_PER_UNIT];
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      if (native_encode_expr (ctor, buf, size, off) > 0)
 		return native_interpret_expr (ref->type, buf, size);
 =======
@@ -1393,6 +1400,11 @@ fully_constant_vn_reference_p (vn_reference_t ref)
 	      if (native_encode_expr (ctor, buf, size, off) > 0)
 		return native_interpret_expr (ref->type, buf, size);
 >>>>>>> master
+=======
+	      int len = native_encode_expr (ctor, buf, size, off);
+	      if (len > 0)
+		return native_interpret_expr (ref->type, buf, len);
+>>>>>>> gcc-mirror/trunk
 	    }
 	}
     }
@@ -2815,6 +2827,9 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 	  break;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
 	case 2:
 	  {
@@ -2878,6 +2893,7 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
 	}
     }
 
+<<<<<<< HEAD
 =======
 
 	case 2:
@@ -3008,6 +3024,8 @@ vn_phi_eq (const_vn_phi_t const vp1, const_vn_phi_t const vp2)
     }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* If the PHI nodes do not have compatible types
      they are not the same.  */
   if (!types_compatible_p (vp1->type, vp2->type))
@@ -3659,6 +3677,7 @@ visit_use (tree use)
       if (code == SSA_NAME
 	  && TREE_CODE (lhs) == SSA_NAME)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	{
 	  changed = visit_copy (lhs, rhs1);
 	  goto done;
@@ -3675,6 +3694,15 @@ visit_use (tree use)
       if (simplified)
 	{
 >>>>>>> master
+=======
+	{
+	  changed = visit_copy (lhs, rhs1);
+	  goto done;
+	}
+      simplified = try_to_simplify (ass);
+      if (simplified)
+	{
+>>>>>>> gcc-mirror/trunk
 	  if (dump_file && (dump_flags & TDF_DETAILS))
 	    {
 	      fprintf (dump_file, "RHS ");
@@ -3684,6 +3712,9 @@ visit_use (tree use)
 	      fprintf (dump_file, "\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 	    }
 	}
       /* Setting value numbers to constants will occasionally
@@ -3750,6 +3781,7 @@ visit_use (tree use)
 		}
 	    }
 	}
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> master
@@ -3823,6 +3855,8 @@ visit_use (tree use)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       else
 	changed = defs_to_varying (ass);
     }
@@ -4447,6 +4481,7 @@ public:
   sccvn_dom_walker ()
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     : dom_walker (CDI_DOMINATORS), fail (false), cond_stack (vNULL) {}
@@ -4455,13 +4490,18 @@ public:
   virtual void before_dom_children (basic_block);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     : dom_walker (CDI_DOMINATORS, true), fail (false), cond_stack (vNULL) {}
   ~sccvn_dom_walker ();
 
   virtual edge before_dom_children (basic_block);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   virtual void after_dom_children (basic_block);
 
   void record_cond (basic_block,
@@ -4566,6 +4606,7 @@ sccvn_dom_walker::after_dom_children (basic_block bb)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -4573,12 +4614,16 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 sccvn_dom_walker::before_dom_children (basic_block bb)
 {
   edge e;
   edge_iterator ei;
 
   if (fail)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -4623,6 +4668,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+    return NULL;
+>>>>>>> gcc-mirror/trunk
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Visiting BB %d\n", bb->index);
@@ -4685,6 +4733,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 	  fail = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  return;
 =======
 	  return NULL;
@@ -4692,6 +4741,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
 	  return;
 >>>>>>> master
+=======
+	  return NULL;
+>>>>>>> gcc-mirror/trunk
 	}
     }
   for (gimple_stmt_iterator gsi = gsi_start_bb (bb);
@@ -4706,6 +4758,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 	    fail = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    return;
 =======
 	    return NULL;
@@ -4713,6 +4766,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
 	    return;
 >>>>>>> master
+=======
+	    return NULL;
+>>>>>>> gcc-mirror/trunk
 	  }
     }
 
@@ -4721,6 +4777,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
   if (!stmt)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return;
 =======
     return NULL;
@@ -4728,6 +4785,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
     return;
 >>>>>>> master
+=======
+    return NULL;
+>>>>>>> gcc-mirror/trunk
 
   enum gimple_code code = gimple_code (stmt);
   if (code != GIMPLE_COND
@@ -4735,6 +4795,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
       && code != GIMPLE_GOTO)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return;
 =======
     return NULL;
@@ -4742,6 +4803,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
 =======
     return;
 >>>>>>> master
+=======
+    return NULL;
+>>>>>>> gcc-mirror/trunk
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     {
@@ -4786,6 +4850,7 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
   if (!val)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     return;
@@ -4795,19 +4860,25 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
     return;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     return NULL;
 
   edge taken = find_taken_edge (bb, vn_valueize (val));
   if (!taken)
     return NULL;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (dump_file && (dump_flags & TDF_DETAILS))
     fprintf (dump_file, "Marking all edges out of BB %d but (%d -> %d) as "
 	     "not executable\n", bb->index, bb->index, taken->dest->index);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   FOR_EACH_EDGE (e, ei, bb->succs)
@@ -4821,6 +4892,9 @@ sccvn_dom_walker::before_dom_children (basic_block bb)
     if (e != taken)
       e->flags &= ~EDGE_EXECUTABLE;
 >>>>>>> master
+=======
+  return taken;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Do SCCVN.  Returns true if it finished, false if we bailed out
@@ -4862,6 +4936,7 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* Mark all edges as possibly executable.  */
@@ -4880,10 +4955,19 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
   walker.walk (ENTRY_BLOCK_PTR_FOR_FN (cfun));
   if (walker.fail)
     {
+=======
+  /* Walk all blocks in dominator order, value-numbering stmts
+     SSA defs and decide whether outgoing edges are not executable.  */
+  sccvn_dom_walker walker;
+  walker.walk (ENTRY_BLOCK_PTR_FOR_FN (cfun));
+  if (walker.fail)
+    {
+>>>>>>> gcc-mirror/trunk
       free_scc_vn ();
       return false;
     }
 
+<<<<<<< HEAD
 =======
 =======
     }
@@ -4903,6 +4987,8 @@ run_scc_vn (vn_lookup_kind default_vn_walk_kind_)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Initialize the value ids and prune out remaining VN_TOPs
      from dead code.  */
   for (i = 1; i < num_ssa_names; ++i)

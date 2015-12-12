@@ -246,6 +246,7 @@ struct iv_cand
   struct iv *orig_iv;	/* The original iv if this cand is added from biv with
 			   smaller type.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 };
 
 /* Hashtable entry for common candidate derived from iv uses.  */
@@ -277,25 +278,40 @@ struct iv_common_cand_hasher : delete_ptr_hash <iv_common_cand>
 =======
 };
 
+=======
+};
+
+>>>>>>> gcc-mirror/trunk
 /* Hashtable entry for common candidate derived from iv uses.  */
 struct iv_common_cand
 {
   tree base;
   tree step;
   /* IV uses from which this common candidate is derived.  */
+<<<<<<< HEAD
   vec<iv_use *> uses;
+=======
+  auto_vec<iv_use *> uses;
+>>>>>>> gcc-mirror/trunk
   hashval_t hash;
 };
 
 /* Hashtable helpers.  */
 
+<<<<<<< HEAD
 struct iv_common_cand_hasher : free_ptr_hash <iv_common_cand>
+=======
+struct iv_common_cand_hasher : delete_ptr_hash <iv_common_cand>
+>>>>>>> gcc-mirror/trunk
 {
   static inline hashval_t hash (const iv_common_cand *);
   static inline bool equal (const iv_common_cand *, const iv_common_cand *);
 };
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Hash function for possible common candidates.  */
 
 inline hashval_t
@@ -1178,6 +1194,7 @@ find_bivs (struct ivopts_data *data)
 
       if (virtual_operand_p (PHI_RESULT (phi)))
 <<<<<<< HEAD
+<<<<<<< HEAD
 	continue;
 
       if (!simple_iv (loop, loop, PHI_RESULT (phi), &iv, true))
@@ -1196,6 +1213,16 @@ find_bivs (struct ivopts_data *data)
 	continue;
 
 >>>>>>> master
+=======
+	continue;
+
+      if (!simple_iv (loop, loop, PHI_RESULT (phi), &iv, true))
+	continue;
+
+      if (integer_zerop (iv.step))
+	continue;
+
+>>>>>>> gcc-mirror/trunk
       step = iv.step;
       base = PHI_ARG_DEF_FROM_EDGE (phi, loop_preheader_edge (loop));
       /* Stop expanding iv base at the first ssa var referred by iv step.
@@ -1726,16 +1753,22 @@ find_deriving_biv_for_expr (struct ivopts_data *data, tree expr)
   if (expr == NULL_TREE)
     return NULL;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (is_gimple_min_invariant (expr))
     return NULL;
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (is_gimple_min_invariant (expr))
     return NULL;
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   code = TREE_CODE (expr);
   if (IS_EXPR_CODE_CLASS (TREE_CODE_CLASS (code)))
     {
@@ -3178,6 +3211,7 @@ record_common_cand (struct ivopts_data *data, tree base,
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       *slot = XNEW (struct iv_common_cand);
 =======
       *slot = new iv_common_cand ();
@@ -3185,6 +3219,9 @@ record_common_cand (struct ivopts_data *data, tree base,
 =======
       *slot = XNEW (struct iv_common_cand);
 >>>>>>> master
+=======
+      *slot = new iv_common_cand ();
+>>>>>>> gcc-mirror/trunk
       (*slot)->base = base;
       (*slot)->step = step;
       (*slot)->uses.create (8);

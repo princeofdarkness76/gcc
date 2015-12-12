@@ -32,6 +32,7 @@ int xxx (void)
    with k = 0 may be invalid.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 2 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -39,3 +40,6 @@ int xxx (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Moving statement" 2 "lim2" } } */
+>>>>>>> gcc-mirror/trunk

@@ -192,7 +192,10 @@ void test_fixit_replace (void)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Test of "%q+D" format code.  */
 
@@ -205,6 +208,9 @@ int test_percent_q_plus_d (void)
    { dg-end-multiline-output "" } */
   return local;
 }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

@@ -1,6 +1,7 @@
 /* { dg-do compile } */ 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -w -fdump-tree-dom1-details" } */
 =======
 /* { dg-options "-O2 -w -fdump-tree-dom2-details" } */
@@ -8,6 +9,9 @@
 =======
 /* { dg-options "-O2 -w -fdump-tree-dom1-details" } */
 >>>>>>> master
+=======
+/* { dg-options "-O2 -w -fdump-tree-dom2-details" } */
+>>>>>>> gcc-mirror/trunk
 
 typedef struct rtx_def *rtx;
 struct rtx_def
@@ -31,6 +35,7 @@ try_combine (rtx i1, rtx newpat)
    dumps, one in the code itself.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom1"} } */
 =======
 /* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom2"} } */
@@ -38,10 +43,14 @@ try_combine (rtx i1, rtx newpat)
 =======
 /* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom1"} } */
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "if .i1_" 3 "dom2"} } */
+>>>>>>> gcc-mirror/trunk
 
 /* There should be no actual jump threads realized by DOM.  The
    legitimize jump threads are handled in VRP and those discovered
    by DOM are subsumed by collapsing a conditional.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "Threaded" "dom1"} } */
@@ -51,3 +60,6 @@ try_combine (rtx i1, rtx newpat)
 =======
 /* { dg-final { scan-tree-dump-not "Threaded" "dom1"} } */
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-not "Threaded" "dom2"} } */
+>>>>>>> gcc-mirror/trunk

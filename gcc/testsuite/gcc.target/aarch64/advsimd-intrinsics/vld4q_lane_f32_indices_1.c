@@ -4,17 +4,21 @@
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
 =======
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 float32x4x4_t
 f_vld4q_lane_f32 (float32_t * p, float32x4x4_t v)
 {
   float32x4x4_t res;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 4 out of range 0 - 3" "" { xfail arm*-*-* } 0 } */
@@ -30,6 +34,11 @@ f_vld4q_lane_f32 (float32_t * p, float32x4x4_t v)
   res = vld4q_lane_f32 (p, v, 4);
   /* { dg-error "lane -1 out of range 0 - 3" "" { xfail arm*-*-* } 0 } */
 >>>>>>> master
+=======
+  /* { dg-error "lane 4 out of range 0 - 3" "" { target *-*-* } 0 } */
+  res = vld4q_lane_f32 (p, v, 4);
+  /* { dg-error "lane -1 out of range 0 - 3" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/trunk
   res = vld4q_lane_f32 (p, v, -1);
   return res;
 }

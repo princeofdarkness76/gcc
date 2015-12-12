@@ -1101,6 +1101,7 @@ replace_phi_args_in (gphi *phi, ssa_prop_get_value_fn get_value)
   return replaced;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 }
@@ -1490,6 +1491,8 @@ substitute_and_fold (ssa_prop_get_value_fn get_value_fn,
 
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 
@@ -1688,7 +1691,10 @@ substitute_and_fold_dom_walker::before_dom_children (basic_block bb)
 }
 
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Perform final substitution and folding of propagated values.
 
@@ -1893,6 +1899,7 @@ replace_exp_1 (use_operand_p op_p, tree val,
 		  && TREE_CODE (op) == SSA_NAME
 		  && TREE_CODE (val) == SSA_NAME
 		  && !may_propagate_copy (op, val)));
+<<<<<<< HEAD
     }
 
 =======
@@ -2080,6 +2087,16 @@ replace_exp_1 (use_operand_p op_p, tree val,
     SET_USE (op_p, unshare_expr (val));
 }
 
+=======
+    }
+
+  if (TREE_CODE (val) == SSA_NAME)
+    SET_USE (op_p, val);
+  else
+    SET_USE (op_p, unshare_expr (val));
+}
+
+>>>>>>> gcc-mirror/trunk
 
 /* Propagate the value VAL (assumed to be a constant or another SSA_NAME)
    into the operand pointed to by OP_P.

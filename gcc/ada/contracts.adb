@@ -60,6 +60,7 @@ package body Contracts is
    --  is reached. Freeze_Id is the entity of some related context which caused
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    --  freezing upto node Freeze_Nod.
 =======
    --  freezing up to node Freeze_Nod.
@@ -67,6 +68,9 @@ package body Contracts is
 =======
    --  freezing upto node Freeze_Nod.
 >>>>>>> master
+=======
+   --  freezing up to node Freeze_Nod.
+>>>>>>> gcc-mirror/trunk
 
    procedure Expand_Subprogram_Contract (Body_Id : Entity_Id);
    --  Expand the contracts of a subprogram body and its correspoding spec (if
@@ -1130,6 +1134,7 @@ package body Contracts is
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  Analyze the contracts of all eligible construct upto the body which
 =======
       --  Analyze the contracts of all eligible construct up to the body which
@@ -1137,6 +1142,9 @@ package body Contracts is
 =======
       --  Analyze the contracts of all eligible construct upto the body which
 >>>>>>> master
+=======
+      --  Analyze the contracts of all eligible construct up to the body which
+>>>>>>> gcc-mirror/trunk
       --  caused the "freezing".
 
       if Is_List_Member (Body_Decl) then

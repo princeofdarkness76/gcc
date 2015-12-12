@@ -32,6 +32,7 @@ class dom_walker
 public:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   dom_walker (cdi_direction direction) : m_dom_direction (direction) {}
@@ -57,15 +58,34 @@ public:
 
   /* Function to call before the recursive walk of the dominator children.
 
+=======
+  /* Use SKIP_UNREACHBLE_BLOCKS = true when your client can discover
+     that some edges are not executable.
+
+     If a client can discover that a COND, SWITCH or GOTO has a static
+     target in the before_dom_children callback, the taken edge should
+     be returned.  The generic walker will clear EDGE_EXECUTABLE on all
+     edges it can determine are not executable.  */
+  dom_walker (cdi_direction direction, bool skip_unreachable_blocks = false);
+
+  /* Walk the dominator tree.  */
+  void walk (basic_block);
+
+  /* Function to call before the recursive walk of the dominator children.
+
+>>>>>>> gcc-mirror/trunk
      Return value is the always taken edge if the block has multiple outgoing
      edges, NULL otherwise.  When skipping unreachable blocks, the walker
      uses the taken edge information to clear EDGE_EXECUTABLE on the other
      edges, exposing unreachable blocks.  A NULL return value means all
      outgoing edges should still be considered executable.  */
   virtual edge before_dom_children (basic_block) { return NULL; }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Function to call after the recursive walk of the dominator children.  */
   virtual void after_dom_children (basic_block) {}
@@ -78,7 +98,10 @@ private:
   const ENUM_BITFIELD (cdi_direction) m_dom_direction : 2;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   bool m_skip_unreachable_blocks;
   basic_block m_unreachable_dom;
 
@@ -91,9 +114,12 @@ private:
      callback.  */
   void propagate_unreachable_to_edges (basic_block, FILE *, int);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 };
 
 #endif

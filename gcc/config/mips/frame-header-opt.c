@@ -81,6 +81,7 @@ public:
          not available and nothing will be done anyway.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return TARGET_OLDABI && flag_frame_header_optimization;
 =======
       return TARGET_OLDABI && flag_frame_header_optimization && optimize > 0;
@@ -88,6 +89,9 @@ public:
 =======
       return TARGET_OLDABI && flag_frame_header_optimization;
 >>>>>>> master
+=======
+      return TARGET_OLDABI && flag_frame_header_optimization && optimize > 0;
+>>>>>>> gcc-mirror/trunk
     }
 
   virtual unsigned int execute (function *) { return frame_header_opt (); }
@@ -135,7 +139,10 @@ is_leaf_function (function *fn)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Return true if this function has inline assembly code or if we cannot
    be certain that it does not.  False if we know that there is no inline
    assembly.  */
@@ -159,9 +166,12 @@ has_inlined_assembly (function *fn)
   return false;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Return true if this function will use the stack space allocated by its
    caller or if we cannot determine for certain that it does not.  */
 
@@ -175,6 +185,7 @@ needs_frame_header_p (function *fn)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (fn->stdarg || !is_leaf_function (fn))
 =======
   if (fn->stdarg)
@@ -182,6 +193,9 @@ needs_frame_header_p (function *fn)
 =======
   if (fn->stdarg || !is_leaf_function (fn))
 >>>>>>> master
+=======
+  if (fn->stdarg)
+>>>>>>> gcc-mirror/trunk
     return true;
 
   for (t = DECL_ARGUMENTS (fn->decl); t; t = TREE_CHAIN (t))
@@ -189,8 +203,11 @@ needs_frame_header_p (function *fn)
       if (!use_register_for_decl (t))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  return true;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	return true;
 
       /* Some 64-bit types may get copied to general registers using the frame
@@ -198,15 +215,19 @@ needs_frame_header_p (function *fn)
          overly restrictive but it is guaranteed to be safe. */
       if (DECL_MODE (t) != SImode)
 	return true;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  return true;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   return false;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 /* Returns TRUE if the argument stack space allocated by function FN is used.
@@ -219,6 +240,10 @@ needs_frame_header_p (function *fn)
 /* Returns TRUE if the argument stack space allocated by function FN is used.
    Returns FALSE if the space is needed or if the need for the space cannot
 >>>>>>> master
+=======
+/* Return true if the argument stack space allocated by function FN is used.
+   Return false if the space is needed or if the need for the space cannot
+>>>>>>> gcc-mirror/trunk
    be determined.  */
 
 static bool
@@ -248,12 +273,17 @@ callees_functions_use_frame_header (function *fn)
 		      || DECL_WEAK (called_fn_tree) 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		      || has_inlined_assembly (called_fn)
 		      || !is_leaf_function (called_fn)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+		      || has_inlined_assembly (called_fn)
+		      || !is_leaf_function (called_fn)
+>>>>>>> gcc-mirror/trunk
 		      || !called_fn->machine->does_not_use_frame_header)
 		    return true;
 	        }
@@ -267,7 +297,10 @@ callees_functions_use_frame_header (function *fn)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Set the callers_may_not_allocate_frame flag for any function which
    function FN calls because FN may not allocate a frame header.  */
 
@@ -303,9 +336,12 @@ set_callers_may_not_allocate_frame (function *fn)
   return;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Scan each function to determine those that need its frame headers.  Perform
    a second scan to determine if the allocation can be skipped because none of
    their callees require the frame header.  */
@@ -329,10 +365,13 @@ frame_header_opt ()
       if (fn != NULL)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         fn->machine->optimize_call_stack
 	  = !callees_functions_use_frame_header (fn);
     }
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	fn->machine->optimize_call_stack
 	  = !callees_functions_use_frame_header (fn) && !is_leaf_function (fn);
     }
@@ -344,11 +383,14 @@ frame_header_opt ()
 	set_callers_may_not_allocate_frame (fn);
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
         fn->machine->optimize_call_stack
 	  = !callees_functions_use_frame_header (fn);
     }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return 0;
 }

@@ -5728,6 +5728,7 @@ build_new_op_1 (location_t loc, enum tree_code code, int flags, tree arg1,
 	warn_logical_operator (loc, code, boolean_type_node,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			       code_orig_arg1, fold (arg1),
 			       code_orig_arg2, fold (arg2));
 =======
@@ -5738,6 +5739,10 @@ build_new_op_1 (location_t loc, enum tree_code code, int flags, tree arg1,
 			       code_orig_arg1, fold (arg1),
 			       code_orig_arg2, fold (arg2));
 >>>>>>> master
+=======
+			       code_orig_arg1, arg1,
+			       code_orig_arg2, arg2);
+>>>>>>> gcc-mirror/trunk
       /* Fall through.  */
     case GT_EXPR:
     case LT_EXPR:
@@ -5750,6 +5755,7 @@ build_new_op_1 (location_t loc, enum tree_code code, int flags, tree arg1,
 	      ^ (code_orig_arg2 == BOOLEAN_TYPE)))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	maybe_warn_bool_compare (loc, code, fold (arg1),
 				 fold (arg2));
 =======
@@ -5759,6 +5765,9 @@ build_new_op_1 (location_t loc, enum tree_code code, int flags, tree arg1,
 	maybe_warn_bool_compare (loc, code, fold (arg1),
 				 fold (arg2));
 >>>>>>> master
+=======
+	maybe_warn_bool_compare (loc, code, arg1, arg2);
+>>>>>>> gcc-mirror/trunk
       if (complain & tf_warning && warn_tautological_compare)
 	warn_tautological_cmp (loc, code, arg1, arg2);
       /* Fall through.  */

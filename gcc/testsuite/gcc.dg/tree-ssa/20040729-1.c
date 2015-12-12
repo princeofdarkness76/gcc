@@ -17,6 +17,7 @@ foo ()
    operands.  But 'p' itself is not volatile and taking the address of
    a volatile does not constitute a volatile operand.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "&x" 0 "dce2"} } */
 <<<<<<< HEAD
 =======
@@ -24,3 +25,6 @@ foo ()
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "&x" 0 "dce3"} } */
+>>>>>>> gcc-mirror/trunk

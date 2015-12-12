@@ -649,6 +649,7 @@ expand_an_in_modify_expr (location_t location, tree lhs,
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree rhs_len = ((rhs_list_size > 0 && rhs_rank > 0) ?
     rhs_an_info[0][0].length : NULL_TREE);
   tree lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
@@ -662,6 +663,11 @@ expand_an_in_modify_expr (location_t location, tree lhs,
     rhs_an_info[0][0].length : NULL_TREE);
   tree lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
 >>>>>>> master
+=======
+  rhs_len = ((rhs_list_size > 0 && rhs_rank > 0) ?
+    rhs_an_info[0][0].length : NULL_TREE);
+  lhs_len = ((lhs_list_size > 0 && lhs_rank > 0) ?
+>>>>>>> gcc-mirror/trunk
     lhs_an_info[0][0].length : NULL_TREE);
   if (lhs_list_size > 0 && rhs_list_size > 0 && lhs_rank > 0 && rhs_rank > 0
       && TREE_CODE (lhs_len) == INTEGER_CST && rhs_len
@@ -672,6 +678,7 @@ expand_an_in_modify_expr (location_t location, tree lhs,
       pop_stmt_list (an_init); 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return error_mark_node;
 =======
       goto error;
@@ -679,6 +686,9 @@ expand_an_in_modify_expr (location_t location, tree lhs,
 =======
       return error_mark_node;
 >>>>>>> master
+=======
+      goto error;
+>>>>>>> gcc-mirror/trunk
     }
    for (ii = 0; ii < lhs_rank; ii++) 
      {

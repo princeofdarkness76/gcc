@@ -105,6 +105,7 @@ int main (int argc, const char* argv[])
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "vectorized 1 loops" 0 "vect"  } } */
 /* { dg-final { scan-tree-dump "permutation requires at least three vectors" "vect" { target vect_perm } } } */
 /* { dg-final { scan-tree-dump-times "vectorizing stmts using SLP" 0 "vect"  } } */
@@ -114,3 +115,8 @@ int main (int argc, const char* argv[])
 /* { dg-final { scan-tree-dump-times "gaps requires scalar epilogue loop" 0 "vect" } } */
 /* { dg-final { scan-tree-dump-times "vectorizing stmts using SLP" 2 "vect" { target vect_perm } } } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-final { scan-tree-dump-times "vectorized 1 loops" 1 "vect"  } } */
+/* { dg-final { scan-tree-dump-times "gaps requires scalar epilogue loop" 0 "vect" } } */
+/* { dg-final { scan-tree-dump-times "vectorizing stmts using SLP" 2 "vect" { target vect_perm } } } */
+>>>>>>> gcc-mirror/trunk

@@ -1,15 +1,21 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-02  Ian Lance Taylor  <iant@google.com>
 
 	PR go/66147
 	* Makefile.am (GOCOMPILER): In NATIVE case, add
 	$(XGCC_FLAGS_FOR_TARGET).
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-10-31  Ian Lance Taylor  <iant@google.com>
 
 	* Makefile.am (go_cmd_go_files): Update to Go 1.5.1 library by

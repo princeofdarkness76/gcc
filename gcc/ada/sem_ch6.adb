@@ -2982,6 +2982,7 @@ package body Sem_Ch6 is
       --  enclosing package body and all other contracts encountered in the
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  same declarative part upto and excluding the subprogram body:
 =======
       --  same declarative part up to and excluding the subprogram body:
@@ -2989,6 +2990,9 @@ package body Sem_Ch6 is
 =======
       --  same declarative part upto and excluding the subprogram body:
 >>>>>>> master
+=======
+      --  same declarative part up to and excluding the subprogram body:
+>>>>>>> gcc-mirror/trunk
 
       --    package body Nearest_Enclosing_Package
       --      with Refined_State => (State => Constit)
@@ -4086,10 +4090,17 @@ package body Sem_Ch6 is
         and then Null_Present (Specification (N))
       then
          Check_SPARK_05_Restriction ("null procedure is not allowed", N);
+<<<<<<< HEAD
 
          --  Null procedures are allowed in protected types, following the
          --  recent AI12-0147.
 
+=======
+
+         --  Null procedures are allowed in protected types, following the
+         --  recent AI12-0147.
+
+>>>>>>> gcc-mirror/trunk
          if Is_Protected_Type (Current_Scope)
            and then Ada_Version < Ada_2012
          then
@@ -4506,6 +4517,7 @@ package body Sem_Ch6 is
             end if;
 
             Error_Msg_Sloc := Sloc (Old_Id);
+<<<<<<< HEAD
 
             case Ctype is
                when Type_Conformant =>
@@ -4583,6 +4595,85 @@ package body Sem_Ch6 is
          --  arguments and result, because we are only checking the conformance
          --  of the remaining parameters.
 
+=======
+
+            case Ctype is
+               when Type_Conformant =>
+                  Error_Msg_N -- CODEFIX
+                    ("not type conformant with declaration#!", Enode);
+
+               when Mode_Conformant =>
+                  if Nkind (Parent (Old_Id)) = N_Full_Type_Declaration then
+                     Error_Msg_N
+                       ("not mode conformant with operation inherited#!",
+                         Enode);
+                  else
+                     Error_Msg_N
+                       ("not mode conformant with declaration#!", Enode);
+                  end if;
+
+               when Subtype_Conformant =>
+                  if Nkind (Parent (Old_Id)) = N_Full_Type_Declaration then
+                     Error_Msg_N
+                       ("not subtype conformant with operation inherited#!",
+                         Enode);
+                  else
+                     Error_Msg_N
+                       ("not subtype conformant with declaration#!", Enode);
+                  end if;
+
+               when Fully_Conformant =>
+                  if Nkind (Parent (Old_Id)) = N_Full_Type_Declaration then
+                     Error_Msg_N -- CODEFIX
+                       ("not fully conformant with operation inherited#!",
+                         Enode);
+                  else
+                     Error_Msg_N -- CODEFIX
+                       ("not fully conformant with declaration#!", Enode);
+                  end if;
+            end case;
+
+            Error_Msg_NE (Msg, Enode, N);
+         end if;
+      end Conformance_Error;
+
+      --  Local Variables
+
+      Old_Type           : constant Entity_Id := Etype (Old_Id);
+      New_Type           : constant Entity_Id := Etype (New_Id);
+      Old_Formal         : Entity_Id;
+      New_Formal         : Entity_Id;
+      Access_Types_Match : Boolean;
+      Old_Formal_Base    : Entity_Id;
+      New_Formal_Base    : Entity_Id;
+
+   --  Start of processing for Check_Conformance
+
+   begin
+      Conforms := True;
+
+      --  We need a special case for operators, since they don't appear
+      --  explicitly.
+
+      if Ctype = Type_Conformant then
+         if Ekind (New_Id) = E_Operator
+           and then Operator_Matches_Spec (New_Id, Old_Id)
+         then
+            return;
+         end if;
+      end if;
+
+      --  If both are functions/operators, check return types conform
+
+      if Old_Type /= Standard_Void_Type
+           and then
+         New_Type /= Standard_Void_Type
+      then
+         --  If we are checking interface conformance we omit controlling
+         --  arguments and result, because we are only checking the conformance
+         --  of the remaining parameters.
+
+>>>>>>> gcc-mirror/trunk
          if Has_Controlling_Result (Old_Id)
            and then Has_Controlling_Result (New_Id)
            and then Skip_Controlling_Formals
@@ -4703,6 +4794,7 @@ package body Sem_Ch6 is
 
          --  Ada 2012: Mode conformance also requires that formal parameters
          --  be both aliased, or neither.
+<<<<<<< HEAD
 
          if Ctype >= Mode_Conformant and then Ada_Version >= Ada_2012 then
             if Is_Aliased (Old_Formal) /= Is_Aliased (New_Formal) then
@@ -4821,6 +4913,126 @@ package body Sem_Ch6 is
          --  usual overloading rules for dispatching operations apply, and
          --  we check base types (not the actual subtypes).
 
+=======
+
+         if Ctype >= Mode_Conformant and then Ada_Version >= Ada_2012 then
+            if Is_Aliased (Old_Formal) /= Is_Aliased (New_Formal) then
+               Conformance_Error
+                 ("\aliased parameter mismatch!", New_Formal);
+            end if;
+         end if;
+
+         if Ctype = Fully_Conformant then
+
+            --  Names must match. Error message is more accurate if we do
+            --  this before checking that the types of the formals match.
+
+            if Chars (Old_Formal) /= Chars (New_Formal) then
+               Conformance_Error ("\name& does not match!", New_Formal);
+
+               --  Set error posted flag on new formal as well to stop
+               --  junk cascaded messages in some cases.
+
+               Set_Error_Posted (New_Formal);
+               return;
+            end if;
+
+            --  Null exclusion must match
+
+            if Null_Exclusion_Present (Parent (Old_Formal))
+                 /=
+               Null_Exclusion_Present (Parent (New_Formal))
+            then
+               --  Only give error if both come from source. This should be
+               --  investigated some time, since it should not be needed ???
+
+               if Comes_From_Source (Old_Formal)
+                    and then
+                  Comes_From_Source (New_Formal)
+               then
+                  Conformance_Error
+                    ("\null exclusion for& does not match", New_Formal);
+
+                  --  Mark error posted on the new formal to avoid duplicated
+                  --  complaint about types not matching.
+
+                  Set_Error_Posted (New_Formal);
+               end if;
+            end if;
+         end if;
+
+         --  Ada 2005 (AI-423): Possible access [sub]type and itype match. This
+         --  case occurs whenever a subprogram is being renamed and one of its
+         --  parameters imposes a null exclusion. For example:
+
+         --     type T is null record;
+         --     type Acc_T is access T;
+         --     subtype Acc_T_Sub is Acc_T;
+
+         --     procedure P     (Obj : not null Acc_T_Sub);  --  itype
+         --     procedure Ren_P (Obj :          Acc_T_Sub)   --  subtype
+         --       renames P;
+
+         Old_Formal_Base := Etype (Old_Formal);
+         New_Formal_Base := Etype (New_Formal);
+
+         if Get_Inst then
+            Old_Formal_Base := Get_Instance_Of (Old_Formal_Base);
+            New_Formal_Base := Get_Instance_Of (New_Formal_Base);
+         end if;
+
+         Access_Types_Match := Ada_Version >= Ada_2005
+
+           --  Ensure that this rule is only applied when New_Id is a
+           --  renaming of Old_Id.
+
+           and then Nkind (Parent (Parent (New_Id))) =
+                      N_Subprogram_Renaming_Declaration
+           and then Nkind (Name (Parent (Parent (New_Id)))) in N_Has_Entity
+           and then Present (Entity (Name (Parent (Parent (New_Id)))))
+           and then Entity (Name (Parent (Parent (New_Id)))) = Old_Id
+
+           --  Now handle the allowed access-type case
+
+           and then Is_Access_Type (Old_Formal_Base)
+           and then Is_Access_Type (New_Formal_Base)
+
+           --  The type kinds must match. The only exception occurs with
+           --  multiple generics of the form:
+
+           --   generic                    generic
+           --     type F is private;         type A is private;
+           --     type F_Ptr is access F;    type A_Ptr is access A;
+           --     with proc F_P (X : F_Ptr); with proc A_P (X : A_Ptr);
+           --   package F_Pack is ...      package A_Pack is
+           --                                package F_Inst is
+           --                                  new F_Pack (A, A_Ptr, A_P);
+
+           --  When checking for conformance between the parameters of A_P
+           --  and F_P, the type kinds of F_Ptr and A_Ptr will not match
+           --  because the compiler has transformed A_Ptr into a subtype of
+           --  F_Ptr. We catch this case in the code below.
+
+           and then (Ekind (Old_Formal_Base) = Ekind (New_Formal_Base)
+                      or else
+                        (Is_Generic_Type (Old_Formal_Base)
+                          and then Is_Generic_Type (New_Formal_Base)
+                          and then Is_Internal (New_Formal_Base)
+                          and then Etype (Etype (New_Formal_Base)) =
+                                                          Old_Formal_Base))
+               and then Directly_Designated_Type (Old_Formal_Base) =
+                                    Directly_Designated_Type (New_Formal_Base)
+           and then ((Is_Itype (Old_Formal_Base)
+                       and then Can_Never_Be_Null (Old_Formal_Base))
+                     or else
+                      (Is_Itype (New_Formal_Base)
+                        and then Can_Never_Be_Null (New_Formal_Base)));
+
+         --  Types must always match. In the visible part of an instance,
+         --  usual overloading rules for dispatching operations apply, and
+         --  we check base types (not the actual subtypes).
+
+>>>>>>> gcc-mirror/trunk
          if In_Instance_Visible_Part
            and then Is_Dispatching_Operation (New_Id)
          then
@@ -5058,6 +5270,7 @@ package body Sem_Ch6 is
          end if;
 
          --  This label is required when skipping controlling formals
+<<<<<<< HEAD
 
          <<Skip_Controlling_Formal>>
 
@@ -5088,6 +5301,38 @@ package body Sem_Ch6 is
       --  the search, Search_From is utilized to designate a specific point in
       --  the list rather than iterating over the whole list once more.
 
+=======
+
+         <<Skip_Controlling_Formal>>
+
+         Next_Formal (Old_Formal);
+         Next_Formal (New_Formal);
+      end loop;
+
+      if Present (Old_Formal) then
+         Conformance_Error ("\too few parameters!");
+         return;
+
+      elsif Present (New_Formal) then
+         Conformance_Error ("\too many parameters!", New_Formal);
+         return;
+      end if;
+   end Check_Conformance;
+
+   -----------------------
+   -- Check_Conventions --
+   -----------------------
+
+   procedure Check_Conventions (Typ : Entity_Id) is
+      Ifaces_List : Elist_Id;
+
+      procedure Check_Convention (Op : Entity_Id);
+      --  Verify that the convention of inherited dispatching operation Op is
+      --  consistent among all subprograms it overrides. In order to minimize
+      --  the search, Search_From is utilized to designate a specific point in
+      --  the list rather than iterating over the whole list once more.
+
+>>>>>>> gcc-mirror/trunk
       ----------------------
       -- Check_Convention --
       ----------------------
@@ -5150,6 +5395,7 @@ package body Sem_Ch6 is
             Next_Elmt (Iface_Elmt);
          end loop;
       end Check_Convention;
+<<<<<<< HEAD
 
       --  Local variables
 
@@ -5313,6 +5559,171 @@ package body Sem_Ch6 is
             New_Discr_Type :=
               Access_Definition (N, Discriminant_Type (New_Discr));
 
+=======
+
+      --  Local variables
+
+      Prim_Op      : Entity_Id;
+      Prim_Op_Elmt : Elmt_Id;
+
+   --  Start of processing for Check_Conventions
+
+   begin
+      if not Has_Interfaces (Typ) then
+         return;
+      end if;
+
+      Collect_Interfaces (Typ, Ifaces_List);
+
+      --  The algorithm checks every overriding dispatching operation against
+      --  all the corresponding overridden dispatching operations, detecting
+      --  differences in conventions.
+
+      Prim_Op_Elmt := First_Elmt (Primitive_Operations (Typ));
+      while Present (Prim_Op_Elmt) loop
+         Prim_Op := Node (Prim_Op_Elmt);
+
+         --  A small optimization: skip the predefined dispatching operations
+         --  since they always have the same convention.
+
+         if not Is_Predefined_Dispatching_Operation (Prim_Op) then
+            Check_Convention (Prim_Op);
+         end if;
+
+         Next_Elmt (Prim_Op_Elmt);
+      end loop;
+   end Check_Conventions;
+
+   ------------------------------
+   -- Check_Delayed_Subprogram --
+   ------------------------------
+
+   procedure Check_Delayed_Subprogram (Designator : Entity_Id) is
+      F : Entity_Id;
+
+      procedure Possible_Freeze (T : Entity_Id);
+      --  T is the type of either a formal parameter or of the return type.
+      --  If T is not yet frozen and needs a delayed freeze, then the
+      --  subprogram itself must be delayed. If T is the limited view of an
+      --  incomplete type the subprogram must be frozen as well, because
+      --  T may depend on local types that have not been frozen yet.
+
+      ---------------------
+      -- Possible_Freeze --
+      ---------------------
+
+      procedure Possible_Freeze (T : Entity_Id) is
+      begin
+         if Has_Delayed_Freeze (T) and then not Is_Frozen (T) then
+            Set_Has_Delayed_Freeze (Designator);
+
+         elsif Is_Access_Type (T)
+           and then Has_Delayed_Freeze (Designated_Type (T))
+           and then not Is_Frozen (Designated_Type (T))
+         then
+            Set_Has_Delayed_Freeze (Designator);
+
+         elsif Ekind (T) = E_Incomplete_Type
+           and then From_Limited_With (T)
+         then
+            Set_Has_Delayed_Freeze (Designator);
+
+         --  AI05-0151: In Ada 2012, Incomplete types can appear in the profile
+         --  of a subprogram or entry declaration.
+
+         elsif Ekind (T) = E_Incomplete_Type
+           and then Ada_Version >= Ada_2012
+         then
+            Set_Has_Delayed_Freeze (Designator);
+         end if;
+
+      end Possible_Freeze;
+
+   --  Start of processing for Check_Delayed_Subprogram
+
+   begin
+      --  All subprograms, including abstract subprograms, may need a freeze
+      --  node if some formal type or the return type needs one.
+
+      Possible_Freeze (Etype (Designator));
+      Possible_Freeze (Base_Type (Etype (Designator))); -- needed ???
+
+      --  Need delayed freeze if any of the formal types themselves need
+      --  a delayed freeze and are not yet frozen.
+
+      F := First_Formal (Designator);
+      while Present (F) loop
+         Possible_Freeze (Etype (F));
+         Possible_Freeze (Base_Type (Etype (F))); -- needed ???
+         Next_Formal (F);
+      end loop;
+
+      --  Mark functions that return by reference. Note that it cannot be
+      --  done for delayed_freeze subprograms because the underlying
+      --  returned type may not be known yet (for private types)
+
+      if not Has_Delayed_Freeze (Designator) and then Expander_Active then
+         declare
+            Typ  : constant Entity_Id := Etype (Designator);
+            Utyp : constant Entity_Id := Underlying_Type (Typ);
+         begin
+            if Is_Limited_View (Typ) then
+               Set_Returns_By_Ref (Designator);
+            elsif Present (Utyp) and then CW_Or_Has_Controlled_Part (Utyp) then
+               Set_Returns_By_Ref (Designator);
+            end if;
+         end;
+      end if;
+   end Check_Delayed_Subprogram;
+
+   ------------------------------------
+   -- Check_Discriminant_Conformance --
+   ------------------------------------
+
+   procedure Check_Discriminant_Conformance
+     (N        : Node_Id;
+      Prev     : Entity_Id;
+      Prev_Loc : Node_Id)
+   is
+      Old_Discr      : Entity_Id := First_Discriminant (Prev);
+      New_Discr      : Node_Id   := First (Discriminant_Specifications (N));
+      New_Discr_Id   : Entity_Id;
+      New_Discr_Type : Entity_Id;
+
+      procedure Conformance_Error (Msg : String; N : Node_Id);
+      --  Post error message for conformance error on given node. Two messages
+      --  are output. The first points to the previous declaration with a
+      --  general "no conformance" message. The second is the detailed reason,
+      --  supplied as Msg. The parameter N provide information for a possible
+      --  & insertion in the message.
+
+      -----------------------
+      -- Conformance_Error --
+      -----------------------
+
+      procedure Conformance_Error (Msg : String; N : Node_Id) is
+      begin
+         Error_Msg_Sloc := Sloc (Prev_Loc);
+         Error_Msg_N -- CODEFIX
+           ("not fully conformant with declaration#!", N);
+         Error_Msg_NE (Msg, N, N);
+      end Conformance_Error;
+
+   --  Start of processing for Check_Discriminant_Conformance
+
+   begin
+      while Present (Old_Discr) and then Present (New_Discr) loop
+         New_Discr_Id := Defining_Identifier (New_Discr);
+
+         --  The subtype mark of the discriminant on the full type has not
+         --  been analyzed so we do it here. For an access discriminant a new
+         --  type is created.
+
+         if Nkind (Discriminant_Type (New_Discr)) = N_Access_Definition then
+            New_Discr_Type :=
+              Access_Definition (N, Discriminant_Type (New_Discr));
+
+>>>>>>> gcc-mirror/trunk
          else
             Analyze (Discriminant_Type (New_Discr));
             New_Discr_Type := Etype (Discriminant_Type (New_Discr));
@@ -5629,6 +6040,7 @@ package body Sem_Ch6 is
                Form1 := Next_Formal (Form1);
                Form2 := Next_Formal (Form2);
             end if;
+<<<<<<< HEAD
 
             while Present (Form1) loop
                if not Is_Controlling_Formal (Form1)
@@ -5860,6 +6272,239 @@ package body Sem_Ch6 is
          function Assert_False return Boolean is
             Orig : constant Node_Id := Original_Node (Last_Stm);
 
+=======
+
+            while Present (Form1) loop
+               if not Is_Controlling_Formal (Form1)
+                 and then Present (Next_Formal (Form2))
+                 and then Chars (Form1) = Chars (Next_Formal (Form2))
+               then
+                  Error_Msg_Node_2 := Alias (Overridden_Subp);
+                  Error_Msg_Sloc := Sloc (Error_Msg_Node_2);
+                  Error_Msg_NE
+                    ("& does not match corresponding formal of&#",
+                     Form1, Form1);
+                  exit;
+               end if;
+
+               Next_Formal (Form1);
+               Next_Formal (Form2);
+            end loop;
+         end;
+      end if;
+
+      --  If there is an overridden subprogram, then check that there is no
+      --  "not overriding" indicator, and mark the subprogram as overriding.
+      --  This is not done if the overridden subprogram is marked as hidden,
+      --  which can occur for the case of inherited controlled operations
+      --  (see Derive_Subprogram), unless the inherited subprogram's parent
+      --  subprogram is not itself hidden. (Note: This condition could probably
+      --  be simplified, leaving out the testing for the specific controlled
+      --  cases, but it seems safer and clearer this way, and echoes similar
+      --  special-case tests of this kind in other places.)
+
+      if Present (Overridden_Subp)
+        and then (not Is_Hidden (Overridden_Subp)
+                   or else
+                     (Nam_In (Chars (Overridden_Subp), Name_Initialize,
+                                                       Name_Adjust,
+                                                       Name_Finalize)
+                      and then Present (Alias (Overridden_Subp))
+                      and then not Is_Hidden (Alias (Overridden_Subp))))
+      then
+         if Must_Not_Override (Spec) then
+            Error_Msg_Sloc := Sloc (Overridden_Subp);
+
+            if Ekind (Subp) = E_Entry then
+               Error_Msg_NE
+                 ("entry & overrides inherited operation #", Spec, Subp);
+            else
+               Error_Msg_NE
+                 ("subprogram & overrides inherited operation #", Spec, Subp);
+            end if;
+
+         --  Special-case to fix a GNAT oddity: Limited_Controlled is declared
+         --  as an extension of Root_Controlled, and thus has a useless Adjust
+         --  operation. This operation should not be inherited by other limited
+         --  controlled types. An explicit Adjust for them is not overriding.
+
+         elsif Must_Override (Spec)
+           and then Chars (Overridden_Subp) = Name_Adjust
+           and then Is_Limited_Type (Etype (First_Formal (Subp)))
+           and then Present (Alias (Overridden_Subp))
+           and then
+             Is_Predefined_File_Name
+               (Unit_File_Name (Get_Source_Unit (Alias (Overridden_Subp))))
+         then
+            Error_Msg_NE ("subprogram & is not overriding", Spec, Subp);
+
+         elsif Is_Subprogram (Subp) then
+            if Is_Init_Proc (Subp) then
+               null;
+
+            elsif No (Overridden_Operation (Subp)) then
+
+               --  For entities generated by Derive_Subprograms the overridden
+               --  operation is the inherited primitive (which is available
+               --  through the attribute alias)
+
+               if (Is_Dispatching_Operation (Subp)
+                    or else Is_Dispatching_Operation (Overridden_Subp))
+                 and then not Comes_From_Source (Overridden_Subp)
+                 and then Find_Dispatching_Type (Overridden_Subp) =
+                          Find_Dispatching_Type (Subp)
+                 and then Present (Alias (Overridden_Subp))
+                 and then Comes_From_Source (Alias (Overridden_Subp))
+               then
+                  Set_Overridden_Operation    (Subp, Alias (Overridden_Subp));
+                  Inherit_Subprogram_Contract (Subp, Alias (Overridden_Subp));
+
+               else
+                  Set_Overridden_Operation    (Subp, Overridden_Subp);
+                  Inherit_Subprogram_Contract (Subp, Overridden_Subp);
+               end if;
+            end if;
+         end if;
+
+         --  If primitive flag is set or this is a protected operation, then
+         --  the operation is overriding at the point of its declaration, so
+         --  warn if necessary. Otherwise it may have been declared before the
+         --  operation it overrides and no check is required.
+
+         if Style_Check
+           and then not Must_Override (Spec)
+           and then (Is_Primitive
+                      or else Ekind (Scope (Subp)) = E_Protected_Type)
+         then
+            Style.Missing_Overriding (Decl, Subp);
+         end if;
+
+      --  If Subp is an operator, it may override a predefined operation, if
+      --  it is defined in the same scope as the type to which it applies.
+      --  In that case Overridden_Subp is empty because of our implicit
+      --  representation for predefined operators. We have to check whether the
+      --  signature of Subp matches that of a predefined operator. Note that
+      --  first argument provides the name of the operator, and the second
+      --  argument the signature that may match that of a standard operation.
+      --  If the indicator is overriding, then the operator must match a
+      --  predefined signature, because we know already that there is no
+      --  explicit overridden operation.
+
+      elsif Nkind (Subp) = N_Defining_Operator_Symbol then
+         if Must_Not_Override (Spec) then
+
+            --  If this is not a primitive or a protected subprogram, then
+            --  "not overriding" is illegal.
+
+            if not Is_Primitive
+              and then Ekind (Scope (Subp)) /= E_Protected_Type
+            then
+               Error_Msg_N ("overriding indicator only allowed "
+                            & "if subprogram is primitive", Subp);
+
+            elsif Can_Override_Operator (Subp) then
+               Error_Msg_NE
+                 ("subprogram& overrides predefined operator ", Spec, Subp);
+            end if;
+
+         elsif Must_Override (Spec) then
+            if No (Overridden_Operation (Subp))
+              and then not Can_Override_Operator (Subp)
+            then
+               Error_Msg_NE ("subprogram & is not overriding", Spec, Subp);
+            end if;
+
+         elsif not Error_Posted (Subp)
+           and then Style_Check
+           and then Can_Override_Operator (Subp)
+           and then
+             not Is_Predefined_File_Name
+                   (Unit_File_Name (Get_Source_Unit (Subp)))
+         then
+            --  If style checks are enabled, indicate that the indicator is
+            --  missing. However, at the point of declaration, the type of
+            --  which this is a primitive operation may be private, in which
+            --  case the indicator would be premature.
+
+            if Has_Private_Declaration (Etype (Subp))
+              or else Has_Private_Declaration (Etype (First_Formal (Subp)))
+            then
+               null;
+            else
+               Style.Missing_Overriding (Decl, Subp);
+            end if;
+         end if;
+
+      elsif Must_Override (Spec) then
+         if Ekind (Subp) = E_Entry then
+            Error_Msg_NE ("entry & is not overriding", Spec, Subp);
+         else
+            Error_Msg_NE ("subprogram & is not overriding", Spec, Subp);
+         end if;
+
+      --  If the operation is marked "not overriding" and it's not primitive
+      --  then an error is issued, unless this is an operation of a task or
+      --  protected type (RM05-8.3.1(3/2-4/2)). Error cases where "overriding"
+      --  has been specified have already been checked above.
+
+      elsif Must_Not_Override (Spec)
+        and then not Is_Primitive
+        and then Ekind (Subp) /= E_Entry
+        and then Ekind (Scope (Subp)) /= E_Protected_Type
+      then
+         Error_Msg_N
+           ("overriding indicator only allowed if subprogram is primitive",
+            Subp);
+         return;
+      end if;
+   end Check_Overriding_Indicator;
+
+   -------------------
+   -- Check_Returns --
+   -------------------
+
+   --  Note: this procedure needs to know far too much about how the expander
+   --  messes with exceptions. The use of the flag Exception_Junk and the
+   --  incorporation of knowledge of Exp_Ch11.Expand_Local_Exception_Handlers
+   --  works, but is not very clean. It would be better if the expansion
+   --  routines would leave Original_Node working nicely, and we could use
+   --  Original_Node here to ignore all the peculiar expander messing ???
+
+   procedure Check_Returns
+     (HSS  : Node_Id;
+      Mode : Character;
+      Err  : out Boolean;
+      Proc : Entity_Id := Empty)
+   is
+      Handler : Node_Id;
+
+      procedure Check_Statement_Sequence (L : List_Id);
+      --  Internal recursive procedure to check a list of statements for proper
+      --  termination by a return statement (or a transfer of control or a
+      --  compound statement that is itself internally properly terminated).
+
+      ------------------------------
+      -- Check_Statement_Sequence --
+      ------------------------------
+
+      procedure Check_Statement_Sequence (L : List_Id) is
+         Last_Stm : Node_Id;
+         Stm      : Node_Id;
+         Kind     : Node_Kind;
+
+         function Assert_False return Boolean;
+         --  Returns True if Last_Stm is a pragma Assert (False) that has been
+         --  rewritten as a null statement when assertions are off. The assert
+         --  is not active, but it is still enough to kill the warning.
+
+         ------------------
+         -- Assert_False --
+         ------------------
+
+         function Assert_False return Boolean is
+            Orig : constant Node_Id := Original_Node (Last_Stm);
+
+>>>>>>> gcc-mirror/trunk
          begin
             if Nkind (Orig) = N_Pragma
               and then Pragma_Name (Orig) = Name_Assert
@@ -6071,6 +6716,7 @@ package body Sem_Ch6 is
             return;
 
          --  Block statement, check its handled sequence of statements
+<<<<<<< HEAD
 
          elsif Kind = N_Block_Statement then
             declare
@@ -6218,6 +6864,155 @@ package body Sem_Ch6 is
                      & "will raise Program_Error??", Last_Stm);
                end if;
 
+=======
+
+         elsif Kind = N_Block_Statement then
+            declare
+               Err1 : Boolean;
+
+            begin
+               Check_Returns
+                 (Handled_Statement_Sequence (Last_Stm), Mode, Err1);
+
+               if Err1 then
+                  Err := True;
+               end if;
+
+               return;
+            end;
+
+         --  Loop statement. If there is an iteration scheme, we can definitely
+         --  fall out of the loop. Similarly if there is an exit statement, we
+         --  can fall out. In either case we need a following return.
+
+         elsif Kind = N_Loop_Statement then
+            if Present (Iteration_Scheme (Last_Stm))
+              or else Has_Exit (Entity (Identifier (Last_Stm)))
+            then
+               null;
+
+            --  A loop with no exit statement or iteration scheme is either
+            --  an infinite loop, or it has some other exit (raise/return).
+            --  In either case, no warning is required.
+
+            else
+               return;
+            end if;
+
+         --  Timed entry call, check entry call and delay alternatives
+
+         --  Note: in expanded code, the timed entry call has been converted
+         --  to a set of expanded statements on which the check will work
+         --  correctly in any case.
+
+         elsif Kind = N_Timed_Entry_Call then
+            declare
+               ECA : constant Node_Id := Entry_Call_Alternative (Last_Stm);
+               DCA : constant Node_Id := Delay_Alternative      (Last_Stm);
+
+            begin
+               --  If statement sequence of entry call alternative is missing,
+               --  then we can definitely fall through, and we post the error
+               --  message on the entry call alternative itself.
+
+               if No (Statements (ECA)) then
+                  Last_Stm := ECA;
+
+               --  If statement sequence of delay alternative is missing, then
+               --  we can definitely fall through, and we post the error
+               --  message on the delay alternative itself.
+
+               --  Note: if both ECA and DCA are missing the return, then we
+               --  post only one message, should be enough to fix the bugs.
+               --  If not we will get a message next time on the DCA when the
+               --  ECA is fixed.
+
+               elsif No (Statements (DCA)) then
+                  Last_Stm := DCA;
+
+               --  Else check both statement sequences
+
+               else
+                  Check_Statement_Sequence (Statements (ECA));
+                  Check_Statement_Sequence (Statements (DCA));
+                  return;
+               end if;
+            end;
+
+         --  Conditional entry call, check entry call and else part
+
+         --  Note: in expanded code, the conditional entry call has been
+         --  converted to a set of expanded statements on which the check
+         --  will work correctly in any case.
+
+         elsif Kind = N_Conditional_Entry_Call then
+            declare
+               ECA : constant Node_Id := Entry_Call_Alternative (Last_Stm);
+
+            begin
+               --  If statement sequence of entry call alternative is missing,
+               --  then we can definitely fall through, and we post the error
+               --  message on the entry call alternative itself.
+
+               if No (Statements (ECA)) then
+                  Last_Stm := ECA;
+
+               --  Else check statement sequence and else part
+
+               else
+                  Check_Statement_Sequence (Statements (ECA));
+                  Check_Statement_Sequence (Else_Statements (Last_Stm));
+                  return;
+               end if;
+            end;
+         end if;
+
+         --  If we fall through, issue appropriate message
+
+         if Mode = 'F' then
+
+            --  Kill warning if last statement is a raise exception call,
+            --  or a pragma Assert (False). Note that with assertions enabled,
+            --  such a pragma has been converted into a raise exception call
+            --  already, so the Assert_False is for the assertions off case.
+
+            if not Raise_Exception_Call and then not Assert_False then
+
+               --  In GNATprove mode, it is an error to have a missing return
+
+               Error_Msg_Warn := SPARK_Mode /= On;
+
+               --  Issue error message or warning
+
+               Error_Msg_N
+                 ("RETURN statement missing following this statement<<!",
+                  Last_Stm);
+               Error_Msg_N
+                 ("\Program_Error ]<<!", Last_Stm);
+            end if;
+
+            --  Note: we set Err even though we have not issued a warning
+            --  because we still have a case of a missing return. This is
+            --  an extremely marginal case, probably will never be noticed
+            --  but we might as well get it right.
+
+            Err := True;
+
+         --  Otherwise we have the case of a procedure marked No_Return
+
+         else
+            if not Raise_Exception_Call then
+               if GNATprove_Mode then
+                  Error_Msg_N
+                    ("implied return after this statement "
+                     & "would have raised Program_Error", Last_Stm);
+               else
+                  Error_Msg_N
+                    ("implied return after this statement "
+                     & "will raise Program_Error??", Last_Stm);
+               end if;
+
+>>>>>>> gcc-mirror/trunk
                Error_Msg_Warn := SPARK_Mode /= On;
                Error_Msg_NE
                  ("\procedure & is marked as No_Return<<!", Last_Stm, Proc);
@@ -6308,6 +7103,7 @@ package body Sem_Ch6 is
       end Subprogram_Name_Greater;
 
    --  Start of processing for Check_Subprogram_Order
+<<<<<<< HEAD
 
    begin
       --  Check body in alpha order if this is option
@@ -6479,6 +7275,179 @@ package body Sem_Ch6 is
          end if;
       end Base_Types_Match;
 
+=======
+
+   begin
+      --  Check body in alpha order if this is option
+
+      if Style_Check
+        and then Style_Check_Order_Subprograms
+        and then Nkind (N) = N_Subprogram_Body
+        and then Comes_From_Source (N)
+        and then In_Extended_Main_Source_Unit (N)
+      then
+         declare
+            LSN : String_Ptr
+                    renames Scope_Stack.Table
+                              (Scope_Stack.Last).Last_Subprogram_Name;
+
+            Body_Id : constant Entity_Id :=
+                        Defining_Entity (Specification (N));
+
+         begin
+            Get_Decoded_Name_String (Chars (Body_Id));
+
+            if LSN /= null then
+               if Subprogram_Name_Greater
+                    (LSN.all, Name_Buffer (1 .. Name_Len))
+               then
+                  Style.Subprogram_Not_In_Alpha_Order (Body_Id);
+               end if;
+
+               Free (LSN);
+            end if;
+
+            LSN := new String'(Name_Buffer (1 .. Name_Len));
+         end;
+      end if;
+   end Check_Subprogram_Order;
+
+   ------------------------------
+   -- Check_Subtype_Conformant --
+   ------------------------------
+
+   procedure Check_Subtype_Conformant
+     (New_Id                   : Entity_Id;
+      Old_Id                   : Entity_Id;
+      Err_Loc                  : Node_Id := Empty;
+      Skip_Controlling_Formals : Boolean := False;
+      Get_Inst                 : Boolean := False)
+   is
+      Result : Boolean;
+      pragma Warnings (Off, Result);
+   begin
+      Check_Conformance
+        (New_Id, Old_Id, Subtype_Conformant, True, Result, Err_Loc,
+         Skip_Controlling_Formals => Skip_Controlling_Formals,
+         Get_Inst                 => Get_Inst);
+   end Check_Subtype_Conformant;
+
+   ---------------------------
+   -- Check_Type_Conformant --
+   ---------------------------
+
+   procedure Check_Type_Conformant
+     (New_Id  : Entity_Id;
+      Old_Id  : Entity_Id;
+      Err_Loc : Node_Id := Empty)
+   is
+      Result : Boolean;
+      pragma Warnings (Off, Result);
+   begin
+      Check_Conformance
+        (New_Id, Old_Id, Type_Conformant, True, Result, Err_Loc);
+   end Check_Type_Conformant;
+
+   ---------------------------
+   -- Can_Override_Operator --
+   ---------------------------
+
+   function Can_Override_Operator (Subp : Entity_Id) return Boolean is
+      Typ : Entity_Id;
+
+   begin
+      if Nkind (Subp) /= N_Defining_Operator_Symbol then
+         return False;
+
+      else
+         Typ := Base_Type (Etype (First_Formal (Subp)));
+
+         --  Check explicitly that the operation is a primitive of the type
+
+         return Operator_Matches_Spec (Subp, Subp)
+           and then not Is_Generic_Type (Typ)
+           and then Scope (Subp) = Scope (Typ)
+           and then not Is_Class_Wide_Type (Typ);
+      end if;
+   end Can_Override_Operator;
+
+   ----------------------
+   -- Conforming_Types --
+   ----------------------
+
+   function Conforming_Types
+     (T1       : Entity_Id;
+      T2       : Entity_Id;
+      Ctype    : Conformance_Type;
+      Get_Inst : Boolean := False) return Boolean
+   is
+      Type_1 : Entity_Id := T1;
+      Type_2 : Entity_Id := T2;
+      Are_Anonymous_Access_To_Subprogram_Types : Boolean := False;
+
+      function Base_Types_Match (T1, T2 : Entity_Id) return Boolean;
+      --  If neither T1 nor T2 are generic actual types, or if they are in
+      --  different scopes (e.g. parent and child instances), then verify that
+      --  the base types are equal. Otherwise T1 and T2 must be on the same
+      --  subtype chain. The whole purpose of this procedure is to prevent
+      --  spurious ambiguities in an instantiation that may arise if two
+      --  distinct generic types are instantiated with the same actual.
+
+      function Find_Designated_Type (T : Entity_Id) return Entity_Id;
+      --  An access parameter can designate an incomplete type. If the
+      --  incomplete type is the limited view of a type from a limited_
+      --  with_clause, check whether the non-limited view is available. If
+      --  it is a (non-limited) incomplete type, get the full view.
+
+      function Matches_Limited_With_View (T1, T2 : Entity_Id) return Boolean;
+      --  Returns True if and only if either T1 denotes a limited view of T2
+      --  or T2 denotes a limited view of T1. This can arise when the limited
+      --  with view of a type is used in a subprogram declaration and the
+      --  subprogram body is in the scope of a regular with clause for the
+      --  same unit. In such a case, the two type entities can be considered
+      --  identical for purposes of conformance checking.
+
+      ----------------------
+      -- Base_Types_Match --
+      ----------------------
+
+      function Base_Types_Match (T1, T2 : Entity_Id) return Boolean is
+         BT1 : constant Entity_Id := Base_Type (T1);
+         BT2 : constant Entity_Id := Base_Type (T2);
+
+      begin
+         if T1 = T2 then
+            return True;
+
+         elsif BT1 = BT2 then
+
+            --  The following is too permissive. A more precise test should
+            --  check that the generic actual is an ancestor subtype of the
+            --  other ???.
+
+            --  See code in Find_Corresponding_Spec that applies an additional
+            --  filter to handle accidental amiguities in instances.
+
+            return not Is_Generic_Actual_Type (T1)
+              or else not Is_Generic_Actual_Type (T2)
+              or else Scope (T1) /= Scope (T2);
+
+         --  If T2 is a generic actual type it is declared as the subtype of
+         --  the actual. If that actual is itself a subtype we need to use its
+         --  own base type to check for compatibility.
+
+         elsif Ekind (BT2) = Ekind (T2) and then BT1 = Base_Type (BT2) then
+            return True;
+
+         elsif Ekind (BT1) = Ekind (T1) and then BT2 = Base_Type (BT1) then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Base_Types_Match;
+
+>>>>>>> gcc-mirror/trunk
       --------------------------
       -- Find_Designated_Type --
       --------------------------
@@ -6498,6 +7467,7 @@ package body Sem_Ch6 is
 
             --  If limited view of a type, get non-limited view if available,
             --  and check again for a regular incomplete type.
+<<<<<<< HEAD
 
             elsif Present (Non_Limited_View (Desig)) then
                Desig := Get_Full_View (Non_Limited_View (Desig));
@@ -6701,6 +7671,297 @@ package body Sem_Ch6 is
                 and then (Ctype = Type_Conformant
                            or else
                              Subtypes_Statically_Match (Desig_1, Desig_2));
+=======
+
+            elsif Present (Non_Limited_View (Desig)) then
+               Desig := Get_Full_View (Non_Limited_View (Desig));
+            end if;
+         end if;
+
+         return Desig;
+      end Find_Designated_Type;
+
+      -------------------------------
+      -- Matches_Limited_With_View --
+      -------------------------------
+
+      function Matches_Limited_With_View (T1, T2 : Entity_Id) return Boolean is
+      begin
+         --  In some cases a type imported through a limited_with clause, and
+         --  its nonlimited view are both visible, for example in an anonymous
+         --  access-to-class-wide type in a formal, or when building the body
+         --  for a subprogram renaming after the subprogram has been frozen.
+         --  In these cases Both entities designate the same type. In addition,
+         --  if one of them is an actual in an instance, it may be a subtype of
+         --  the non-limited view of the other.
+
+         if From_Limited_With (T1)
+           and then (T2 = Available_View (T1)
+                      or else Is_Subtype_Of (T2, Available_View (T1)))
+         then
+            return True;
+
+         elsif From_Limited_With (T2)
+           and then (T1 = Available_View (T2)
+                      or else Is_Subtype_Of (T1, Available_View (T2)))
+         then
+            return True;
+
+         elsif From_Limited_With (T1)
+           and then From_Limited_With (T2)
+           and then Available_View (T1) = Available_View (T2)
+         then
+            return True;
+
+         else
+            return False;
+         end if;
+      end Matches_Limited_With_View;
+
+   --  Start of processing for Conforming_Types
+
+   begin
+      --  The context is an instance association for a formal access-to-
+      --  subprogram type; the formal parameter types require mapping because
+      --  they may denote other formal parameters of the generic unit.
+
+      if Get_Inst then
+         Type_1 := Get_Instance_Of (T1);
+         Type_2 := Get_Instance_Of (T2);
+      end if;
+
+      --  If one of the types is a view of the other introduced by a limited
+      --  with clause, treat these as conforming for all purposes.
+
+      if Matches_Limited_With_View (T1, T2) then
+         return True;
+
+      elsif Base_Types_Match (Type_1, Type_2) then
+         return Ctype <= Mode_Conformant
+           or else Subtypes_Statically_Match (Type_1, Type_2);
+
+      elsif Is_Incomplete_Or_Private_Type (Type_1)
+        and then Present (Full_View (Type_1))
+        and then Base_Types_Match (Full_View (Type_1), Type_2)
+      then
+         return Ctype <= Mode_Conformant
+           or else Subtypes_Statically_Match (Full_View (Type_1), Type_2);
+
+      elsif Ekind (Type_2) = E_Incomplete_Type
+        and then Present (Full_View (Type_2))
+        and then Base_Types_Match (Type_1, Full_View (Type_2))
+      then
+         return Ctype <= Mode_Conformant
+           or else Subtypes_Statically_Match (Type_1, Full_View (Type_2));
+
+      elsif Is_Private_Type (Type_2)
+        and then In_Instance
+        and then Present (Full_View (Type_2))
+        and then Base_Types_Match (Type_1, Full_View (Type_2))
+      then
+         return Ctype <= Mode_Conformant
+           or else Subtypes_Statically_Match (Type_1, Full_View (Type_2));
+
+      --  In Ada 2012, incomplete types (including limited views) can appear
+      --  as actuals in instantiations.
+
+      elsif Is_Incomplete_Type (Type_1)
+        and then Is_Incomplete_Type (Type_2)
+        and then (Used_As_Generic_Actual (Type_1)
+                   or else Used_As_Generic_Actual (Type_2))
+      then
+         return True;
+      end if;
+
+      --  Ada 2005 (AI-254): Anonymous access-to-subprogram types must be
+      --  treated recursively because they carry a signature. As far as
+      --  conformance is concerned, convention plays no role, and either
+      --  or both could be access to protected subprograms.
+
+      Are_Anonymous_Access_To_Subprogram_Types :=
+        Ekind_In (Type_1, E_Anonymous_Access_Subprogram_Type,
+                          E_Anonymous_Access_Protected_Subprogram_Type)
+          and then
+        Ekind_In (Type_2, E_Anonymous_Access_Subprogram_Type,
+                          E_Anonymous_Access_Protected_Subprogram_Type);
+
+      --  Test anonymous access type case. For this case, static subtype
+      --  matching is required for mode conformance (RM 6.3.1(15)). We check
+      --  the base types because we may have built internal subtype entities
+      --  to handle null-excluding types (see Process_Formals).
+
+      if (Ekind (Base_Type (Type_1)) = E_Anonymous_Access_Type
+            and then
+          Ekind (Base_Type (Type_2)) = E_Anonymous_Access_Type)
+
+        -- Ada 2005 (AI-254)
+
+        or else Are_Anonymous_Access_To_Subprogram_Types
+      then
+         declare
+            Desig_1 : Entity_Id;
+            Desig_2 : Entity_Id;
+
+         begin
+            --  In Ada 2005, access constant indicators must match for
+            --  subtype conformance.
+
+            if Ada_Version >= Ada_2005
+              and then Ctype >= Subtype_Conformant
+              and then
+                Is_Access_Constant (Type_1) /= Is_Access_Constant (Type_2)
+            then
+               return False;
+            end if;
+
+            Desig_1 := Find_Designated_Type (Type_1);
+            Desig_2 := Find_Designated_Type (Type_2);
+
+            --  If the context is an instance association for a formal
+            --  access-to-subprogram type; formal access parameter designated
+            --  types require mapping because they may denote other formal
+            --  parameters of the generic unit.
+
+            if Get_Inst then
+               Desig_1 := Get_Instance_Of (Desig_1);
+               Desig_2 := Get_Instance_Of (Desig_2);
+>>>>>>> gcc-mirror/trunk
+            end if;
+
+<<<<<<< HEAD
+      --  Otherwise definitely no match
+
+      else
+         if ((Ekind (Type_1) = E_Anonymous_Access_Type
+               and then Is_Access_Type (Type_2))
+            or else (Ekind (Type_2) = E_Anonymous_Access_Type
+                      and then Is_Access_Type (Type_1)))
+           and then
+             Conforming_Types
+               (Designated_Type (Type_1), Designated_Type (Type_2), Ctype)
+         then
+            May_Hide_Profile := True;
+         end if;
+
+         return False;
+      end if;
+   end Conforming_Types;
+
+   --------------------------
+   -- Create_Extra_Formals --
+   --------------------------
+
+   procedure Create_Extra_Formals (E : Entity_Id) is
+      Formal      : Entity_Id;
+      First_Extra : Entity_Id := Empty;
+      Last_Extra  : Entity_Id;
+      Formal_Type : Entity_Id;
+      P_Formal    : Entity_Id := Empty;
+
+      function Add_Extra_Formal
+        (Assoc_Entity : Entity_Id;
+         Typ          : Entity_Id;
+         Scope        : Entity_Id;
+         Suffix       : String) return Entity_Id;
+      --  Add an extra formal to the current list of formals and extra formals.
+      --  The extra formal is added to the end of the list of extra formals,
+      --  and also returned as the result. These formals are always of mode IN.
+      --  The new formal has the type Typ, is declared in Scope, and its name
+      --  is given by a concatenation of the name of Assoc_Entity and Suffix.
+      --  The following suffixes are currently used. They should not be changed
+      --  without coordinating with CodePeer, which makes use of these to
+      --  provide better messages.
+
+      --  O denotes the Constrained bit.
+      --  L denotes the accessibility level.
+      --  BIP_xxx denotes an extra formal for a build-in-place function. See
+      --  the full list in exp_ch6.BIP_Formal_Kind.
+
+      ----------------------
+      -- Add_Extra_Formal --
+      ----------------------
+
+      function Add_Extra_Formal
+        (Assoc_Entity : Entity_Id;
+         Typ          : Entity_Id;
+         Scope        : Entity_Id;
+         Suffix       : String) return Entity_Id
+      is
+         EF : constant Entity_Id :=
+                Make_Defining_Identifier (Sloc (Assoc_Entity),
+                  Chars  => New_External_Name (Chars (Assoc_Entity),
+                                               Suffix => Suffix));
+
+      begin
+         --  A little optimization. Never generate an extra formal for the
+         --  _init operand of an initialization procedure, since it could
+         --  never be used.
+
+         if Chars (Formal) = Name_uInit then
+            return Empty;
+         end if;
+
+         Set_Ekind           (EF, E_In_Parameter);
+         Set_Actual_Subtype  (EF, Typ);
+         Set_Etype           (EF, Typ);
+         Set_Scope           (EF, Scope);
+         Set_Mechanism       (EF, Default_Mechanism);
+         Set_Formal_Validity (EF);
+
+         if No (First_Extra) then
+            First_Extra := EF;
+            Set_Extra_Formals (Scope, First_Extra);
+         end if;
+
+=======
+            --  It is possible for a Class_Wide_Type to be introduced for an
+            --  incomplete type, in which case there is a separate class_ wide
+            --  type for the full view. The types conform if their Etypes
+            --  conform, i.e. one may be the full view of the other. This can
+            --  only happen in the context of an access parameter, other uses
+            --  of an incomplete Class_Wide_Type are illegal.
+
+            if Is_Class_Wide_Type (Desig_1)
+                 and then
+               Is_Class_Wide_Type (Desig_2)
+            then
+               return
+                 Conforming_Types
+                   (Etype (Base_Type (Desig_1)),
+                    Etype (Base_Type (Desig_2)), Ctype);
+
+            elsif Are_Anonymous_Access_To_Subprogram_Types then
+               if Ada_Version < Ada_2005 then
+                  return Ctype = Type_Conformant
+                    or else
+                      Subtypes_Statically_Match (Desig_1, Desig_2);
+
+               --  We must check the conformance of the signatures themselves
+
+               else
+                  declare
+                     Conformant : Boolean;
+                  begin
+                     Check_Conformance
+                       (Desig_1, Desig_2, Ctype, False, Conformant);
+                     return Conformant;
+                  end;
+               end if;
+
+            --  A limited view of an actual matches the corresponding
+            --  incomplete formal.
+
+            elsif Ekind (Desig_2) = E_Incomplete_Subtype
+              and then From_Limited_With (Desig_2)
+              and then Used_As_Generic_Actual (Etype (Desig_2))
+            then
+               return True;
+
+            else
+               return Base_Type (Desig_1) = Base_Type (Desig_2)
+                and then (Ctype = Type_Conformant
+                           or else
+                             Subtypes_Statically_Match (Desig_1, Desig_2));
             end if;
          end;
 
@@ -6788,6 +8049,7 @@ package body Sem_Ch6 is
             Set_Extra_Formals (Scope, First_Extra);
          end if;
 
+>>>>>>> gcc-mirror/trunk
          if Present (Last_Extra) then
             Set_Extra_Formal (Last_Extra, EF);
          end if;
@@ -6868,6 +8130,7 @@ package body Sem_Ch6 is
 
             if Is_Unchecked_Union (Base_Type (Formal_Type)) then
                goto Skip_Extra_Formal_Generation;
+<<<<<<< HEAD
             end if;
 
             if not Has_Discriminants (Formal_Type)
@@ -6877,6 +8140,17 @@ package body Sem_Ch6 is
                Formal_Type := Underlying_Type (Formal_Type);
             end if;
 
+=======
+            end if;
+
+            if not Has_Discriminants (Formal_Type)
+              and then Ekind (Formal_Type) in Private_Kind
+              and then Present (Underlying_Type (Formal_Type))
+            then
+               Formal_Type := Underlying_Type (Formal_Type);
+            end if;
+
+>>>>>>> gcc-mirror/trunk
             --  Suppress the extra formal if formal's subtype is constrained or
             --  indefinite, or we're compiling for Ada 2012 and the underlying
             --  type is tagged and limited. In Ada 2012, a limited tagged type
@@ -6922,6 +8196,7 @@ package body Sem_Ch6 is
          --  this could cause trouble when clients are compiled with a
          --  different suppression setting. The explicit checks at the
          --  package level are safe from this point of view.
+<<<<<<< HEAD
 
          if (Ekind (Base_Type (Etype (Formal))) = E_Anonymous_Access_Type
               or else (Is_Controlling_Formal (Formal)
@@ -6969,6 +8244,55 @@ package body Sem_Ch6 is
             Full_Subt   : constant Entity_Id := Available_View (Result_Subt);
             Formal_Typ  : Entity_Id;
 
+=======
+
+         if (Ekind (Base_Type (Etype (Formal))) = E_Anonymous_Access_Type
+              or else (Is_Controlling_Formal (Formal)
+                        and then Is_Access_Type (Base_Type (Etype (Formal)))))
+           and then not
+             (Explicit_Suppress (E, Accessibility_Check)
+               or else
+              Explicit_Suppress (Scope (E), Accessibility_Check))
+           and then
+             (No (P_Formal)
+               or else Present (Extra_Accessibility (P_Formal)))
+         then
+            Set_Extra_Accessibility
+              (Formal, Add_Extra_Formal (Formal, Standard_Natural, E, "L"));
+         end if;
+
+         --  This label is required when skipping extra formal generation for
+         --  Unchecked_Union parameters.
+
+         <<Skip_Extra_Formal_Generation>>
+
+         if Present (P_Formal) then
+            Next_Formal (P_Formal);
+         end if;
+
+         Next_Formal (Formal);
+      end loop;
+
+      <<Test_For_Func_Result_Extras>>
+
+      --  Ada 2012 (AI05-234): "the accessibility level of the result of a
+      --  function call is ... determined by the point of call ...".
+
+      if Needs_Result_Accessibility_Level (E) then
+         Set_Extra_Accessibility_Of_Result
+           (E, Add_Extra_Formal (E, Standard_Natural, E, "L"));
+      end if;
+
+      --  Ada 2005 (AI-318-02): In the case of build-in-place functions, add
+      --  appropriate extra formals. See type Exp_Ch6.BIP_Formal_Kind.
+
+      if Ada_Version >= Ada_2005 and then Is_Build_In_Place_Function (E) then
+         declare
+            Result_Subt : constant Entity_Id := Etype (E);
+            Full_Subt   : constant Entity_Id := Available_View (Result_Subt);
+            Formal_Typ  : Entity_Id;
+
+>>>>>>> gcc-mirror/trunk
             Discard : Entity_Id;
             pragma Warnings (Off, Discard);
 

@@ -47,6 +47,7 @@ along with GCC; see the file COPYING3.  If not see
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 =======
 #include "graphite.h"
@@ -54,6 +55,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
 #include "graphite-poly.h"
 >>>>>>> master
+=======
+#include "graphite.h"
+>>>>>>> gcc-mirror/trunk
 
 
 /* Add the constraints from the set S to the domain of MAP.  */
@@ -334,6 +338,7 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
   isl_union_map *empty = isl_union_map_empty (space);
   isl_union_map *original = scop_get_original_schedule (scop, pbbs);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   isl_union_map_compute_flow (isl_union_map_copy (reads),
@@ -422,6 +427,56 @@ compute_deps (scop_p scop, vec<poly_bb_p> pbbs,
 }
 
 >>>>>>> master
+=======
+
+  if (dump_file)
+    {
+      fprintf (dump_file, "\n--- Documentation for datarefs dump: ---\n");
+      fprintf (dump_file, "Statements on the iteration domain are mapped to"
+	       " array references.\n");
+      fprintf (dump_file, "  To read the following data references:\n\n");
+      fprintf (dump_file, "  S_5[i0] -> [106] : i0 >= 0 and i0 <= 3\n");
+      fprintf (dump_file, "  S_8[i0] -> [1, i0] : i0 >= 0 and i0 <= 3\n\n");
+
+      fprintf (dump_file, "  S_5[i0] is the dynamic instance of statement"
+	       " bb_5 in a loop that accesses all iterations 0 <= i0 <= 3.\n");
+      fprintf (dump_file, "  [1, i0] is a 'memref' with alias set 1"
+	       " and first subscript access i0.\n");
+      fprintf (dump_file, "  [106] is a 'scalar reference' which is the sum of"
+	       " SSA_NAME_VERSION 6"
+	       " and --param graphite-max-arrays-per-scop=100\n");
+      fprintf (dump_file, "-----------------------\n\n");
+
+      fprintf (dump_file, "data references (\n");
+      fprintf (dump_file, "  reads: ");
+      print_isl_union_map (dump_file, reads);
+      fprintf (dump_file, "  must_writes: ");
+      print_isl_union_map (dump_file, must_writes);
+      fprintf (dump_file, "  may_writes: ");
+      print_isl_union_map (dump_file, may_writes);
+      fprintf (dump_file, "  all_writes: ");
+      print_isl_union_map (dump_file, all_writes);
+      fprintf (dump_file, ")\n");
+    }
+
+  isl_union_map_compute_flow (isl_union_map_copy (reads),
+			      isl_union_map_copy (must_writes),
+			      isl_union_map_copy (may_writes),
+			      isl_union_map_copy (original),
+			      must_raw, may_raw, must_raw_no_source,
+			      may_raw_no_source);
+  isl_union_map_compute_flow (isl_union_map_copy (all_writes),
+			      reads, empty,
+			      isl_union_map_copy (original),
+			      must_war, may_war, must_war_no_source,
+			      may_war_no_source);
+  isl_union_map_compute_flow (all_writes, must_writes, may_writes,
+			      original,
+			      must_waw, may_waw, must_waw_no_source,
+			      may_waw_no_source);
+}
+
+>>>>>>> gcc-mirror/trunk
 isl_union_map *
 scop_get_dependences (scop_p scop)
 {

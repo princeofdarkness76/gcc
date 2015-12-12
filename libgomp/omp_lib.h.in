@@ -49,12 +49,15 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       parameter (openmp_version = 201107)
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       integer omp_lock_hint_kind
       parameter (omp_lock_hint_kind = 4)
       integer (omp_lock_hint_kind) omp_lock_hint_none
@@ -70,11 +73,14 @@
       parameter (openmp_version = 201307)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
       external omp_init_lock, omp_init_nest_lock
       external omp_init_lock_with_hint
@@ -121,11 +127,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       integer(4) omp_get_num_places
       external omp_get_num_places
       integer(4) omp_get_place_num_procs
@@ -139,11 +148,14 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       external omp_set_default_device, omp_get_default_device
       external omp_get_num_devices, omp_get_num_teams
       external omp_get_team_num
@@ -155,11 +167,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       external omp_get_initial_device
       integer(4) omp_get_initial_device
 
@@ -167,8 +182,11 @@
       integer(4) omp_get_max_task_priority
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

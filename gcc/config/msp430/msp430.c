@@ -92,6 +92,7 @@ msp430_init_machine_status (void)
 /* This is a copy of the same data structure found in gas/config/tc-msp430.c
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    Also another (sort-of) copy can be found in gcc/config/msp430/t-msp430.
 =======
    Also another (sort-of) copy can be found in gcc/config/msp430/devices-msp430.c
@@ -99,6 +100,9 @@ msp430_init_machine_status (void)
 =======
    Also another (sort-of) copy can be found in gcc/config/msp430/t-msp430.
 >>>>>>> master
+=======
+   Also another (sort-of) copy can be found in gcc/config/msp430/devices-msp430.c
+>>>>>>> gcc-mirror/trunk
    Keep these three structures in sync.
    The data in this structure has been extracted from the devices.csv file
    released by TI, updated as of 8 October 2015.  */
@@ -727,7 +731,10 @@ msp430_mcu_name (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 static const char *
 hwmult_name (unsigned int val)
 {
@@ -742,9 +749,12 @@ hwmult_name (unsigned int val)
     }
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 static void
 msp430_option_override (void)
 {
@@ -754,17 +764,23 @@ msp430_option_override (void)
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       /* gcc/common/config/msp430-common.c will have
 	 already canonicalised the string in target_cpu.  */
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      /* gcc/common/config/msp430-common.c will have
+	 already canonicalised the string in target_cpu.  */
+>>>>>>> gcc-mirror/trunk
       if (strcasecmp (target_cpu, "msp430x") == 0)
 	msp430x = true;
       else /* target_cpu == "msp430" - already handled by the front end.  */
 	msp430x = false;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -797,6 +813,8 @@ msp430_option_override (void)
 
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (target_mcu)
     {
@@ -874,9 +892,12 @@ msp430_option_override (void)
   if (target_cpu == NULL && target_mcu == NULL && msp430_hwmult_type == F5SERIES)
     msp430x = true;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (TARGET_LARGE && !msp430x)
     error ("-mlarge requires a 430X-compatible -mmcu=");
 
@@ -1079,6 +1100,7 @@ msp430_unwind_word_mode (void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return TARGET_LARGE ? PSImode : HImode;
 =======
   /* This needs to match msp430_init_dwarf_reg_sizes_extra (below).  */
@@ -1087,6 +1109,10 @@ msp430_unwind_word_mode (void)
 =======
   return TARGET_LARGE ? PSImode : HImode;
 >>>>>>> master
+=======
+  /* This needs to match msp430_init_dwarf_reg_sizes_extra (below).  */
+  return msp430x ? PSImode : HImode;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Determine if one named address space is a subset of another.  */
@@ -2063,6 +2089,7 @@ const struct attribute_spec msp430_attribute_table[] =
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { NULL,             0, 0, false, false, false, NULL,        false }
 =======
   { NULL,             0, 0, false, false, false, NULL, false }
@@ -2070,6 +2097,9 @@ const struct attribute_spec msp430_attribute_table[] =
 =======
   { NULL,             0, 0, false, false, false, NULL,        false }
 >>>>>>> master
+=======
+  { NULL,             0, 0, false, false, false, NULL, false }
+>>>>>>> gcc-mirror/trunk
 };
 
 #undef  TARGET_ASM_FUNCTION_PROLOGUE
@@ -2936,11 +2966,15 @@ msp430_init_dwarf_reg_sizes_extra (tree address)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* This needs to match msp430_unwind_word_mode (above).  */
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  /* This needs to match msp430_unwind_word_mode (above).  */
+>>>>>>> gcc-mirror/trunk
   if (!msp430x)
     return;
 
@@ -3237,6 +3271,7 @@ static const struct
   { "__udivhi3", "__mspabi_divu" },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "__udivsi3", "__mspabi_divlu" },
   { "__udivdi3", "__mspabi_divllu" },
 =======
@@ -3247,6 +3282,10 @@ static const struct
   { "__udivsi3", "__mspabi_divlu" },
   { "__udivdi3", "__mspabi_divllu" },
 >>>>>>> master
+=======
+  { "__udivsi3", "__mspabi_divul" },
+  { "__udivdi3", "__mspabi_divull" },
+>>>>>>> gcc-mirror/trunk
   { "__modhi3", "__mspabi_remi" },
   { "__modsi3", "__mspabi_remli" },
   { "__moddi3", "__mspabi_remlli" },
@@ -3344,22 +3383,28 @@ msp430_no_hwmult (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (target_mcu == NULL || msp430_hwmult_type != AUTO)
     return false;
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (msp430_hwmult_type != AUTO)
     return false;
 
   if (target_mcu == NULL)
     return true;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   if (target_mcu == NULL || msp430_hwmult_type != AUTO)
     return false;
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (target_mcu == cached_match)
     return cached_result;
 

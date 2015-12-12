@@ -43,6 +43,7 @@ void test3(struct a *A)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Executing store motion of" 3 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -50,3 +51,6 @@ void test3(struct a *A)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Executing store motion of" 3 "lim2" } } */
+>>>>>>> gcc-mirror/trunk

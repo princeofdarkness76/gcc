@@ -4400,7 +4400,10 @@ _Z1fPDxFvvES0_
 f(void (*)() transaction_safe, void (*)() transaction_safe)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #
 # These two are from gcc PR61321, and gcc PR61233 / gdb PR16957
 #
@@ -4424,6 +4427,9 @@ void baz<int>(A<sizeof (foo((int)(), (floatcomplex )00000000_00000000))>*)
 --format=gnu-v3
 _Z3fooI1FEN1XIXszdtcl1PclcvT__EEE5arrayEE4TypeEv
 X<sizeof ((P(((F)())())).array)>::Type foo<F>()
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

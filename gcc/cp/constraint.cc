@@ -1355,6 +1355,7 @@ finish_template_introduction (tree tmpl_decl, tree intro_list)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Make a "constrained auto" type-specifier. This is an
@@ -1388,6 +1389,8 @@ make_constrained_auto (tree con, tree args)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Given the predicate constraint T from a constrained-type-specifier, extract
    its TMPL and ARGS.  FIXME why do we need two different forms of
    constrained-type-specifier?  */
@@ -1908,6 +1911,7 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   tree constr = PLACEHOLDER_TYPE_CONSTRAINTS (placeholder);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
@@ -1917,6 +1921,8 @@ satisfy_argument_deduction_constraint (tree t, tree args,
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   tree type_canonical = TYPE_CANONICAL (placeholder);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder)
     = tsubst_constraint (constr, args, complain|tf_partial, in_decl);
@@ -1925,9 +1931,12 @@ satisfy_argument_deduction_constraint (tree t, tree args,
                                  complain, adc_requirement);
   PLACEHOLDER_TYPE_CONSTRAINTS (placeholder) = constr;
   TYPE_CANONICAL (placeholder) = type_canonical;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (type == error_mark_node)
     return boolean_false_node;
 
@@ -2368,7 +2377,10 @@ subsumes_constraints (tree a, tree b)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Returns true when the the constraints in A subsume those in B, but
    the constraints in B do not subsume the constraints in A.  */
 
@@ -2378,9 +2390,12 @@ strictly_subsumes (tree a, tree b)
   return subsumes (a, b) && !subsumes (b, a);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Determines which of the declarations, A or B, is more constrained.
    That is, which declaration's constraints subsume but are not subsumed
    by the other's?

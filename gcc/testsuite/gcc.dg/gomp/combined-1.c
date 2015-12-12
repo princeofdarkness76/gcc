@@ -24,6 +24,7 @@ int foo (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { cleanup-tree-dump "optimized" } } */
 =======
 >>>>>>> gcc-mirror/master
@@ -31,3 +32,5 @@ int foo (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

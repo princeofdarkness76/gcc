@@ -1207,12 +1207,15 @@ split_function (basic_block return_bb, struct split_point *split_point,
   tree retval = NULL, real_retval = NULL, retbnd = NULL;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   bool split_part_return_p = false;
 =======
 >>>>>>> gcc-mirror/master
 =======
   bool split_part_return_p = false;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   bool with_bounds = chkp_function_instrumented_p (current_function_decl);
   gimple *last_stmt = NULL;
   unsigned int i;

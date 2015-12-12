@@ -177,6 +177,7 @@ add_symbol_to_partition_1 (ltrans_partition part, symtab_node *node)
   /* Add all aliases associated with the symbol.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -187,6 +188,9 @@ add_symbol_to_partition_1 (ltrans_partition part, symtab_node *node)
 <<<<<<< HEAD
 =======
 
+=======
+
+>>>>>>> gcc-mirror/trunk
   FOR_EACH_ALIAS (node, ref)
     if (!ref->referring->transparent_alias)
       add_symbol_to_partition_1 (part, ref->referring);
@@ -203,9 +207,12 @@ add_symbol_to_partition_1 (ltrans_partition part, symtab_node *node)
 	  }
       }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Ensure that SAME_COMDAT_GROUP lists all allways added in a group.  */
   if (node->same_comdat_group)
     for (node1 = node->same_comdat_group;
@@ -226,17 +233,23 @@ static symtab_node *
 contained_in_symbol (symtab_node *node)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Weakrefs are never contained in anything.  */
   if (node->weakref)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* There is no need to consider transparent aliases to be part of the
      definition: they are only useful insite the partition they are output
      and thus we will always see an explicit reference to it.  */
   if (node->transparent_alias)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     return node;
   if (cgraph_node *cnode = dyn_cast <cgraph_node *> (node))
     {
@@ -414,6 +427,7 @@ varpool_node_cmp (const void *pa, const void *pb)
   const symtab_node *b = *static_cast<const symtab_node * const *> (pb);
   return b->order - a->order;
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 /* Add all symtab nodes from NEXT_NODE to PARTITION in order.  */
@@ -448,6 +462,24 @@ add_sorted_nodes (vec<symtab_node *> &next_nodes, ltrans_partition partition)
 }
 
 >>>>>>> master
+=======
+}
+
+/* Add all symtab nodes from NEXT_NODE to PARTITION in order.  */
+
+static void
+add_sorted_nodes (vec<symtab_node *> &next_nodes, ltrans_partition partition)
+{
+  unsigned i;
+  symtab_node *node;
+
+  next_nodes.qsort (varpool_node_cmp);
+  FOR_EACH_VEC_ELT (next_nodes, i, node)
+    if (!symbol_partitioned_p (node))
+      add_symbol_to_partition (partition, node);
+}
+
+>>>>>>> gcc-mirror/trunk
 
 /* Group cgraph nodes into equally-sized partitions.
 
@@ -862,6 +894,7 @@ must_not_rename (symtab_node *node, const char *name)
   if (node->unique_name)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {
       if (symtab->dump_file)
 	fprintf (symtab->dump_file,
@@ -1073,6 +1106,77 @@ validize_symbol_for_target (symtab_node *node)
 				 (DECL_ASSEMBLER_NAME (decl)));
     }
 >>>>>>> master
+=======
+    {
+      if (symtab->dump_file)
+	fprintf (symtab->dump_file,
+		 "Not privatizing symbol name: %s. Has unique name.\n",
+		 name);
+      return true;
+    }
+  return false;
+}
+
+/* If we are an offload compiler, we may have to rewrite symbols to be
+   valid on this target.  Return either PTR or a modified version of it.  */
+
+static const char *
+maybe_rewrite_identifier (const char *ptr)
+{
+#if defined ACCEL_COMPILER && (defined NO_DOT_IN_LABEL || defined NO_DOLLAR_IN_LABEL)
+#ifndef NO_DOT_IN_LABEL
+  char valid = '.';
+  const char reject[] = "$";
+#elif !defined NO_DOLLAR_IN_LABEL
+  char valid = '$';
+  const char reject[] = ".";
+#else
+  char valid = '_';
+  const char reject[] = ".$";
+#endif
+
+  char *copy = NULL;
+  const char *match = ptr;
+  for (;;)
+    {
+      size_t off = strcspn (match, reject);
+      if (match[off] == '\0')
+	break;
+      if (copy == NULL)
+	{
+	  copy = xstrdup (ptr);
+	  match = copy;
+	}
+      copy[off] = valid;
+    }
+  return match;
+#else
+  return ptr;
+#endif
+}
+
+/* Ensure that the symbol in NODE is valid for the target, and if not,
+   rewrite it.  */
+
+static void
+validize_symbol_for_target (symtab_node *node)
+{
+  tree decl = node->decl;
+  const char *name = IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl));
+
+  if (must_not_rename (node, name))
+    return;
+
+  const char *name2 = maybe_rewrite_identifier (name);
+  if (name2 != name)
+    {
+      symtab->change_decl_assembler_name (decl, get_identifier (name2));
+      if (node->lto_file_data)
+	lto_record_renamed_decl (node->lto_file_data, name,
+				 IDENTIFIER_POINTER
+				 (DECL_ASSEMBLER_NAME (decl)));
+    }
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Helper for privatize_symbol_name.  Mangle NODE symbol name
@@ -1168,7 +1272,10 @@ promote_symbol (symtab_node *node)
   DECL_VISIBILITY_SPECIFIED (node->decl) = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   ipa_ref *ref;
 
   /* Promoting a symbol also promotes all trasparent aliases with exception
@@ -1186,9 +1293,12 @@ promote_symbol (symtab_node *node)
       gcc_assert (!alias->weakref || TREE_PUBLIC (alias->decl));
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (symtab->dump_file)
     fprintf (symtab->dump_file,
 	    "Promoting as hidden: %s\n", node->name ());
@@ -1229,6 +1339,7 @@ rename_statics (lto_symtab_encoder_t encoder, symtab_node *node)
   /* See if this is static symbol. */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if ((node->externally_visible
 =======
   if (((node->externally_visible && !node->weakref)
@@ -1236,6 +1347,9 @@ rename_statics (lto_symtab_encoder_t encoder, symtab_node *node)
 =======
   if ((node->externally_visible
 >>>>>>> master
+=======
+  if (((node->externally_visible && !node->weakref)
+>>>>>>> gcc-mirror/trunk
       /* FIXME: externally_visible is somewhat illogically not set for
 	 external symbols (i.e. those not defined).  Remove this test
 	 once this is fixed.  */
@@ -1268,8 +1382,11 @@ rename_statics (lto_symtab_encoder_t encoder, symtab_node *node)
   for (s = symtab_node::get_for_asmname (name); s;)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (!s->externally_visible
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     if ((!s->externally_visible || s->weakref)
 	/* Transparent aliases having same name as target are renamed at a
 	   time their target gets new name.  Transparent aliases that use
@@ -1279,10 +1396,13 @@ rename_statics (lto_symtab_encoder_t encoder, symtab_node *node)
 		 (IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (s->decl)),
 		  IDENTIFIER_POINTER
 		    (DECL_ASSEMBLER_NAME (s->get_alias_target()->decl))))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     if (!s->externally_visible
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	&& ((s->real_symbol_p ()
              && !DECL_EXTERNAL (node->decl)
 	     && !TREE_PUBLIC (node->decl))

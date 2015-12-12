@@ -1409,6 +1409,7 @@ predict_extra_loop_exits (edge exit_edge)
   if (!last)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     return;
@@ -1417,13 +1418,18 @@ predict_extra_loop_exits (edge exit_edge)
     return;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     return;
   cmp_stmt = dyn_cast <gcond *> (last);
   if (!cmp_stmt)
     return;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   cmp_rhs = gimple_cond_rhs (cmp_stmt);
   cmp_lhs = gimple_cond_lhs (cmp_stmt);

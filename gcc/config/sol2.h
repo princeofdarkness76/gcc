@@ -152,11 +152,17 @@ along with GCC; see the file COPYING3.  If not see
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 #undef STARTFILE_ARCH_SPEC
 #define STARTFILE_ARCH_SPEC "%{ansi:values-Xc.o%s} \
 			    %{!ansi:values-Xa.o%s}"
+=======
+/* Enable constructor priorities if the configured linker supports it.  */
+#undef SUPPORTS_INIT_PRIORITY
+#define SUPPORTS_INIT_PRIORITY HAVE_INITFINI_ARRAY_SUPPORT
+>>>>>>> gcc-mirror/trunk
 
 <<<<<<< HEAD
 =======
@@ -168,9 +174,12 @@ along with GCC; see the file COPYING3.  If not see
 #define STARTFILE_ARCH_SPEC "%{ansi:values-Xc.o%s} \
 			    %{!ansi:values-Xa.o%s}"
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #if defined(HAVE_LD_PIE) && defined(HAVE_SOLARIS_CRTS)
 #define STARTFILE_CRTBEGIN_SPEC "%{shared:crtbeginS.o%s} \
 				 %{" PIE_SPEC ":crtbeginS.o%s} \
@@ -180,7 +189,10 @@ along with GCC; see the file COPYING3.  If not see
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 #if SUPPORTS_INIT_PRIORITY
 #define STARTFILE_VTV_SPEC \
@@ -197,9 +209,12 @@ along with GCC; see the file COPYING3.  If not see
   "%{fvtable-verify:%e-fvtable-verify is not supported in this configuration}"
 #define ENDFILE_VTV_SPEC ""
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* We don't use the standard svr4 STARTFILE_SPEC because it's wrong for us.  */
 #undef STARTFILE_SPEC
@@ -213,6 +228,7 @@ along with GCC; see the file COPYING3.  If not see
 			      :crtp.o%s}}} \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
 =======
 			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
@@ -221,6 +237,10 @@ along with GCC; see the file COPYING3.  If not see
 =======
 			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
 >>>>>>> master
+=======
+			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
+			%(startfile_vtv)"
+>>>>>>> gcc-mirror/trunk
 #else
 #define STARTFILE_SPEC "%{!shared:%{!symbolic: \
 			  %{p:mcrt1.o%s; \
@@ -228,6 +248,7 @@ along with GCC; see the file COPYING3.  If not see
                               :crt1.o%s}}} \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
 =======
 			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
@@ -236,6 +257,10 @@ along with GCC; see the file COPYING3.  If not see
 =======
 			crti.o%s %(startfile_arch) %(startfile_crtbegin)"
 >>>>>>> master
+=======
+			crti.o%s %(startfile_arch) %(startfile_crtbegin) \
+			%(startfile_vtv)"
+>>>>>>> gcc-mirror/trunk
 #endif
 
 #if defined(HAVE_LD_PIE) && defined(HAVE_SOLARIS_CRTS)
@@ -251,6 +276,7 @@ along with GCC; see the file COPYING3.  If not see
   "%{Ofast|ffast-math|funsafe-math-optimizations:crtfastmath.o%s} \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    %(endfile_arch) %(endfile_crtend) crtn.o%s"
 =======
    %(endfile_arch) %(endfile_vtv) %(endfile_crtend) crtn.o%s"
@@ -258,6 +284,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
    %(endfile_arch) %(endfile_crtend) crtn.o%s"
 >>>>>>> master
+=======
+   %(endfile_arch) %(endfile_vtv) %(endfile_crtend) crtn.o%s"
+>>>>>>> gcc-mirror/trunk
 
 #undef LINK_ARCH32_SPEC_BASE
 #define LINK_ARCH32_SPEC_BASE \
@@ -334,16 +363,21 @@ along with GCC; see the file COPYING3.  If not see
   { "startfile_crtbegin",	STARTFILE_CRTBEGIN_SPEC },	\
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   { "startfile_vtv",		STARTFILE_VTV_SPEC },		\
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  { "startfile_vtv",		STARTFILE_VTV_SPEC },		\
+>>>>>>> gcc-mirror/trunk
   { "link_arch32",       	LINK_ARCH32_SPEC },		\
   { "link_arch64",       	LINK_ARCH64_SPEC },		\
   { "link_arch_default", 	LINK_ARCH_DEFAULT_SPEC },	\
   { "link_arch",	 	LINK_ARCH_SPEC },		\
   { "endfile_arch",	 	ENDFILE_ARCH_SPEC },		\
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   { "endfile_crtend",		ENDFILE_CRTEND_SPEC },	\
@@ -354,6 +388,10 @@ along with GCC; see the file COPYING3.  If not see
 =======
   { "endfile_crtend",		ENDFILE_CRTEND_SPEC },	\
 >>>>>>> master
+=======
+  { "endfile_crtend",		ENDFILE_CRTEND_SPEC },		\
+  { "endfile_vtv",		ENDFILE_VTV_SPEC },		\
+>>>>>>> gcc-mirror/trunk
   SUBTARGET_CPU_EXTRA_SPECS
 
 /* C++11 programs need -lrt for nanosleep.  */
@@ -481,6 +519,7 @@ along with GCC; see the file COPYING3.  If not see
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* Enable constructor priorities if the configured linker supports it.  */
@@ -489,6 +528,8 @@ along with GCC; see the file COPYING3.  If not see
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Solaris has an implementation of __enable_execute_stack.  */
 #define HAVE_ENABLE_EXECUTE_STACK
 

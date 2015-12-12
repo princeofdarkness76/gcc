@@ -95,12 +95,17 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <clzerointrin.h>
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include <clzerointrin.h>
+
+>>>>>>> gcc-mirror/trunk
 #endif /* __iamcu__ */
 
 #endif /* _X86INTRIN_H_INCLUDED */

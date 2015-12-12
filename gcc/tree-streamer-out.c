@@ -314,6 +314,7 @@ pack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
      no streaming.  */
   bp_pack_value (bp, TYPE_NEEDS_CONSTRUCTING (expr), 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (RECORD_OR_UNION_TYPE_P (expr))
     {
       bp_pack_value (bp, TYPE_TRANSPARENT_AGGR (expr), 1);
@@ -323,6 +324,8 @@ pack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
     bp_pack_value (bp, TYPE_NONALIASED_COMPONENT (expr), 1);
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   bp_pack_value (bp, TYPE_PACKED (expr), 1);
   bp_pack_value (bp, TYPE_RESTRICT (expr), 1);
   bp_pack_value (bp, TYPE_USER_ALIGN (expr), 1);

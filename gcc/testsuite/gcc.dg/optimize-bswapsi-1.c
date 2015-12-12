@@ -4,6 +4,7 @@
 /* { dg-options "-O2 -fdump-tree-bswap" } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-additional-options "-march=z900" { target s390-*-* } } */
 =======
 /* { dg-additional-options "-march=z900" { target s390*-*-* } } */
@@ -11,6 +12,9 @@
 =======
 /* { dg-additional-options "-march=z900" { target s390-*-* } } */
 >>>>>>> master
+=======
+/* { dg-additional-options "-march=z900" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/trunk
 
 #include <stdint.h>
 

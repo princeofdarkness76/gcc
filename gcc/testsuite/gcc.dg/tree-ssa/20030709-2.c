@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O -fdump-tree-dce2" } */
 =======
 /* { dg-options "-O -fdump-tree-dce3" } */
@@ -8,6 +9,9 @@
 =======
 /* { dg-options "-O -fdump-tree-dce2" } */
 >>>>>>> master
+=======
+/* { dg-options "-O -fdump-tree-dce3" } */
+>>>>>>> gcc-mirror/trunk
   
 struct rtx_def;
 typedef struct rtx_def *rtx;
@@ -52,6 +56,7 @@ get_alias_set (t)
    more than, then the dominator optimizations failed.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* { dg-final { scan-tree-dump-times "->decl\\.rtl" 1 "dce2"} } */
@@ -77,4 +82,15 @@ get_alias_set (t)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "->decl\\.rtl" 1 "dce3"} } */
+  
+/* There should be no loads of .rtmem since the complex return statement
+   is just "return 0".  */
+/* { dg-final { scan-tree-dump-times ".rtmem" 0 "dce3"} } */
+  
+/* There should be one IF statement (the complex return statement should
+   collapse down to a simple return 0 without any conditionals).  */
+/* { dg-final { scan-tree-dump-times "if " 1 "dce3"} } */
+>>>>>>> gcc-mirror/trunk
 

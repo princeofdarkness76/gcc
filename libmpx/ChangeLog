@@ -1,6 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-11  Tsvetkova Alexandra  <aleksandra.tsvetkova@intel.com>
 
 	* mpxrt/Makefile.am (libmpx_la_LDFLAGS): Add -version-info
@@ -28,9 +31,12 @@
 	(move_bounds): New function.
 	(__mpx_wrapper_memmove): Use move_bounds to copy bounds.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-10-15  Ilya Enkovich  <enkovich.gnu@gmail.com>
 
 	PR other/66887

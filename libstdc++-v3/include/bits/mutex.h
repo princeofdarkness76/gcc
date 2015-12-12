@@ -84,6 +84,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /// mutex
 =======
   /// The standard mutex type.
@@ -91,6 +92,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 =======
   /// mutex
 >>>>>>> master
+=======
+  /// The standard mutex type.
+>>>>>>> gcc-mirror/trunk
   class mutex : private __mutex_base
   {
   public:
@@ -148,6 +152,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   constexpr defer_lock_t	defer_lock { };
@@ -159,6 +164,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // the destructor call in accordance with RAII style.
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /// Tag used to prevent a scoped lock from acquiring ownership of a mutex.
   constexpr defer_lock_t	defer_lock { };
 
@@ -173,9 +180,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * A lock_guard controls mutex ownership within a scope, releasing
    * ownership in the destructor.
    */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   template<typename _Mutex>
     class lock_guard
     {
@@ -200,8 +210,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /// unique_lock
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /** @brief A movable scoped lock type.
    *
    * A unique_lock controls mutex ownership within a scope. Ownership of the
@@ -209,10 +222,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * to another unique_lock by move construction or move assignment. If a
    * mutex lock is owned when the destructor runs ownership will be released.
    */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   /// unique_lock
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   template<typename _Mutex>
     class unique_lock
     {

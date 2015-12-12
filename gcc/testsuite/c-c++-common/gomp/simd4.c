@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct S *p;	/* { dg-error "forward declaration" "" { target c++ } } */
 =======
 struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
@@ -15,6 +16,9 @@ struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
 =======
 struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
 >>>>>>> master
+=======
+struct S *p;	/* { dg-message "forward declaration" "" { target c++ } } */
+>>>>>>> gcc-mirror/trunk
 float f;
 int j;
 

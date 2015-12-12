@@ -35,11 +35,15 @@ enum pragma_kind {
   PRAGMA_OACC_EXIT_DATA,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   PRAGMA_OACC_HOST_DATA,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  PRAGMA_OACC_HOST_DATA,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OACC_KERNELS,
   PRAGMA_OACC_LOOP,
   PRAGMA_OACC_PARALLEL,
@@ -53,6 +57,7 @@ enum pragma_kind {
   PRAGMA_OMP_CANCELLATION_POINT,
   PRAGMA_OMP_CRITICAL,
   PRAGMA_OMP_DECLARE_REDUCTION,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -71,6 +76,9 @@ enum pragma_kind {
 =======
   PRAGMA_OMP_DISTRIBUTE,
 >>>>>>> master
+=======
+  PRAGMA_OMP_DISTRIBUTE,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_END_DECLARE_TARGET,
   PRAGMA_OMP_FLUSH,
   PRAGMA_OMP_FOR,
@@ -78,6 +86,7 @@ enum pragma_kind {
   PRAGMA_OMP_MASTER,
   PRAGMA_OMP_ORDERED,
   PRAGMA_OMP_PARALLEL,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -90,11 +99,14 @@ enum pragma_kind {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_SECTION,
   PRAGMA_OMP_SECTIONS,
   PRAGMA_OMP_SIMD,
   PRAGMA_OMP_SINGLE,
   PRAGMA_OMP_TARGET,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -121,10 +133,16 @@ enum pragma_kind {
   PRAGMA_OMP_TASKGROUP,
   PRAGMA_OMP_TASKLOOP,
 >>>>>>> master
+=======
+  PRAGMA_OMP_TASK,
+  PRAGMA_OMP_TASKGROUP,
+  PRAGMA_OMP_TASKLOOP,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_TASKWAIT,
   PRAGMA_OMP_TASKYIELD,
   PRAGMA_OMP_THREADPRIVATE,
   PRAGMA_OMP_TEAMS,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -139,6 +157,8 @@ enum pragma_kind {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Top level clause to handle all Cilk Plus pragma simd clauses.  */
   PRAGMA_CILK_SIMD,
@@ -147,11 +167,14 @@ enum pragma_kind {
   PRAGMA_CILK_GRAINSIZE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   PRAGMA_GCC_PCH_PREPROCESS,
   PRAGMA_IVDEP,
@@ -160,6 +183,7 @@ enum pragma_kind {
 };
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -173,6 +197,9 @@ enum pragma_kind {
 =======
 /* All clauses defined by OpenACC 2.0, and OpenMP 2.5, 3.0, 3.1, 4.0 and 4.5.
 >>>>>>> master
+=======
+/* All clauses defined by OpenACC 2.0, and OpenMP 2.5, 3.0, 3.1, 4.0 and 4.5.
+>>>>>>> gcc-mirror/trunk
    Used internally by both C and C++ parsers.  */
 enum pragma_omp_clause {
   PRAGMA_OMP_CLAUSE_NONE = 0,
@@ -185,6 +212,7 @@ enum pragma_omp_clause {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   PRAGMA_OMP_CLAUSE_DEFAULTMAP,
 >>>>>>> gcc-mirror/master
@@ -194,6 +222,9 @@ enum pragma_omp_clause {
 =======
   PRAGMA_OMP_CLAUSE_DEFAULTMAP,
 >>>>>>> master
+=======
+  PRAGMA_OMP_CLAUSE_DEFAULTMAP,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_CLAUSE_DEPEND,
   PRAGMA_OMP_CLAUSE_DEVICE,
   PRAGMA_OMP_CLAUSE_DIST_SCHEDULE,
@@ -204,6 +235,7 @@ enum pragma_omp_clause {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   PRAGMA_OMP_CLAUSE_IF,
   PRAGMA_OMP_CLAUSE_INBRANCH,
   PRAGMA_OMP_CLAUSE_LASTPRIVATE,
@@ -232,6 +264,8 @@ enum pragma_omp_clause {
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_CLAUSE_GRAINSIZE,
   PRAGMA_OMP_CLAUSE_HINT,
   PRAGMA_OMP_CLAUSE_IF,
@@ -246,9 +280,12 @@ enum pragma_omp_clause {
   PRAGMA_OMP_CLAUSE_NOTINBRANCH,
   PRAGMA_OMP_CLAUSE_NOWAIT,
   PRAGMA_OMP_CLAUSE_NUM_TASKS,
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_CLAUSE_NUM_TEAMS,
   PRAGMA_OMP_CLAUSE_NUM_THREADS,
   PRAGMA_OMP_CLAUSE_ORDERED,
@@ -256,6 +293,7 @@ enum pragma_omp_clause {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   PRAGMA_OMP_CLAUSE_PRIORITY,
 >>>>>>> gcc-mirror/master
@@ -265,6 +303,9 @@ enum pragma_omp_clause {
 =======
   PRAGMA_OMP_CLAUSE_PRIORITY,
 >>>>>>> master
+=======
+  PRAGMA_OMP_CLAUSE_PRIORITY,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_CLAUSE_PRIVATE,
   PRAGMA_OMP_CLAUSE_PROC_BIND,
   PRAGMA_OMP_CLAUSE_REDUCTION,
@@ -272,6 +313,7 @@ enum pragma_omp_clause {
   PRAGMA_OMP_CLAUSE_SCHEDULE,
   PRAGMA_OMP_CLAUSE_SECTIONS,
   PRAGMA_OMP_CLAUSE_SHARED,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -287,6 +329,8 @@ enum pragma_omp_clause {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OMP_CLAUSE_SIMD,
   PRAGMA_OMP_CLAUSE_SIMDLEN,
   PRAGMA_OMP_CLAUSE_TASKGROUP,
@@ -333,11 +377,15 @@ enum pragma_omp_clause {
   PRAGMA_OACC_CLAUSE_TILE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   PRAGMA_OACC_CLAUSE_USE_DEVICE,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  PRAGMA_OACC_CLAUSE_USE_DEVICE,
+>>>>>>> gcc-mirror/trunk
   PRAGMA_OACC_CLAUSE_VECTOR,
   PRAGMA_OACC_CLAUSE_VECTOR_LENGTH,
   PRAGMA_OACC_CLAUSE_WAIT,
@@ -352,6 +400,7 @@ enum pragma_omp_clause {
   PRAGMA_OACC_CLAUSE_REDUCTION = PRAGMA_OMP_CLAUSE_REDUCTION,
   PRAGMA_OACC_CLAUSE_LINK = PRAGMA_OMP_CLAUSE_LINK
 };
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -370,6 +419,8 @@ typedef enum pragma_cilk_clause {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 extern struct cpp_reader* parse_in;
 

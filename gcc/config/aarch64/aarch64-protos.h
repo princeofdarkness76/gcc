@@ -271,6 +271,7 @@ int aarch64_branch_cost (bool, bool);
 enum aarch64_symbol_type aarch64_classify_symbolic_expression (rtx);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 bool aarch64_cannot_change_mode_class (machine_mode,
 				       machine_mode,
@@ -278,6 +279,11 @@ bool aarch64_cannot_change_mode_class (machine_mode,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+bool aarch64_cannot_change_mode_class (machine_mode,
+				       machine_mode,
+				       enum reg_class);
+>>>>>>> gcc-mirror/trunk
 bool aarch64_const_vec_all_same_int_p (rtx, HOST_WIDE_INT);
 bool aarch64_constant_address_p (rtx);
 bool aarch64_expand_movmem (rtx *);
@@ -351,11 +357,15 @@ void aarch64_elf_asm_named_section (const char *, unsigned, tree);
 const char * aarch64_gen_far_branch (rtx *, int, const char *, const char *);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 const char * aarch64_output_probe_stack_range (rtx, rtx);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+const char * aarch64_output_probe_stack_range (rtx, rtx);
+>>>>>>> gcc-mirror/trunk
 void aarch64_err_no_fpadvsimd (machine_mode, const char *);
 void aarch64_expand_epilogue (bool);
 void aarch64_expand_mov_immediate (rtx, rtx);
@@ -425,6 +435,7 @@ tree aarch64_builtin_decl (unsigned, bool ATTRIBUTE_UNUSED);
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 tree aarch64_builtin_rsqrt (unsigned int, bool);
 =======
 tree aarch64_builtin_rsqrt (unsigned int);
@@ -432,6 +443,9 @@ tree aarch64_builtin_rsqrt (unsigned int);
 =======
 tree aarch64_builtin_rsqrt (unsigned int, bool);
 >>>>>>> master
+=======
+tree aarch64_builtin_rsqrt (unsigned int);
+>>>>>>> gcc-mirror/trunk
 
 tree aarch64_builtin_vectorized_function (unsigned int, tree, tree);
 

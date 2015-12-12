@@ -38,11 +38,15 @@ tree reference_alias_ptr_type (tree);
 bool alias_ptr_types_compatible_p (tree, tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 int compare_base_decls (tree, tree);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+int compare_base_decls (tree, tree);
+>>>>>>> gcc-mirror/trunk
 
 /* This alias set can be used to force a memory to conflict with all
    other memories, creating a barrier across which no memory reference

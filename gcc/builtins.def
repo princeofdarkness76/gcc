@@ -212,6 +212,7 @@ along with GCC; see the file COPYING3.  If not see
 	      (flag_sanitize & (SANITIZE_ADDRESS | SANITIZE_THREAD \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				| SANITIZE_UNDEFINED | SANITIZE_NONDEFAULT)))
 =======
 				| SANITIZE_UNDEFINED | SANITIZE_NONDEFAULT) \
@@ -220,6 +221,10 @@ along with GCC; see the file COPYING3.  If not see
 =======
 				| SANITIZE_UNDEFINED | SANITIZE_NONDEFAULT)))
 >>>>>>> master
+=======
+				| SANITIZE_UNDEFINED | SANITIZE_NONDEFAULT) \
+	       || flag_sanitize_coverage))
+>>>>>>> gcc-mirror/trunk
 
 #undef DEF_CILKPLUS_BUILTIN
 #define DEF_CILKPLUS_BUILTIN(ENUM, NAME, TYPE, ATTRS)  \

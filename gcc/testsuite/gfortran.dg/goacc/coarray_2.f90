@@ -4,12 +4,15 @@
 ! PR fortran/63861
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
 =======
 >>>>>>> gcc-mirror/master
 =======
 ! { dg-xfail-if "<http://gcc.gnu.org/PR63861>" { *-*-* } }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 module test
 contains
@@ -28,6 +31,7 @@ contains
     !$acc end host_data
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -35,6 +39,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a)
 >>>>>>> master
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/trunk
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -88,6 +95,7 @@ contains
     !$acc end host_data
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -95,6 +103,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a)
 >>>>>>> master
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/trunk
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -118,6 +129,7 @@ contains
     !$acc end parallel
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     !$acc parallel loop reduction(+:a)
 =======
     !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
@@ -125,6 +137,9 @@ contains
 =======
     !$acc parallel loop reduction(+:a)
 >>>>>>> master
+=======
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/trunk
     do i = 1,5
     enddo
     !$acc end parallel loop
@@ -139,9 +154,12 @@ contains
 end module test
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 =======
 >>>>>>> gcc-mirror/master
 =======
 ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

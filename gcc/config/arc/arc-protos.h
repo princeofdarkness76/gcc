@@ -43,14 +43,20 @@ extern bool prepare_move_operands (rtx *operands, machine_mode mode);
 extern void emit_shift (enum rtx_code, rtx, rtx, rtx);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 extern void arc_expand_atomic_op (enum rtx_code, rtx, rtx, rtx, rtx, rtx);
 extern void arc_split_compare_and_swap (rtx *);
 extern void arc_expand_compare_and_swap (rtx *);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #endif /* RTX_CODE */
 
 #ifdef TREE_CODE

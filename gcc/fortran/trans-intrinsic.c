@@ -1213,7 +1213,10 @@ gfc_conv_intrinsic_caf_get (gfc_se *se, gfc_expr *expr, tree lhs, tree lhs_kind,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* It guarantees memory consistency within the same segment */
   tmp = gfc_build_string_const (strlen ("memory")+1, "memory"),
   tmp = build5_loc (input_location, ASM_EXPR, void_type_node,
@@ -1222,9 +1225,12 @@ gfc_conv_intrinsic_caf_get (gfc_se *se, gfc_expr *expr, tree lhs, tree lhs_kind,
   ASM_VOLATILE_P (tmp) = 1;
   gfc_add_expr_to_block (&se->pre, tmp);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   tmp = build_call_expr_loc (input_location, gfor_fndecl_caf_get, 9,
 			     token, offset, image_index, argse.expr, vec,
 			     dst_var, kind, lhs_kind, may_require_tmp);
@@ -1391,7 +1397,10 @@ conv_caf_send (gfc_code *code) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* It guarantees memory consistency within the same segment */
       tmp = gfc_build_string_const (strlen ("memory")+1, "memory"),
 	tmp = build5_loc (input_location, ASM_EXPR, void_type_node,
@@ -1400,9 +1409,12 @@ conv_caf_send (gfc_code *code) {
       ASM_VOLATILE_P (tmp) = 1;
       gfc_add_expr_to_block (&block, tmp);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       caf_decl = gfc_get_tree_for_caf_expr (rhs_expr);
       if (TREE_CODE (TREE_TYPE (caf_decl)) == REFERENCE_TYPE)
 	caf_decl = build_fold_indirect_ref_loc (input_location, caf_decl);
@@ -1420,7 +1432,10 @@ conv_caf_send (gfc_code *code) {
   gfc_add_block_to_block (&block, &rhs_se.post);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* It guarantees memory consistency within the same segment */
   tmp = gfc_build_string_const (strlen ("memory")+1, "memory"),
@@ -1430,9 +1445,12 @@ conv_caf_send (gfc_code *code) {
   ASM_VOLATILE_P (tmp) = 1;
   gfc_add_expr_to_block (&block, tmp);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return gfc_finish_block (&block);
 }
 
@@ -8739,6 +8757,7 @@ conv_co_collective (gfc_code *code)
   gfc_init_block (&post_block);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -9072,6 +9091,171 @@ conv_co_collective (gfc_code *code)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+  if (code->resolved_isym->id == GFC_ISYM_CO_REDUCE)
+    {
+      opr_expr = code->ext.actual->next->expr;
+      image_idx_expr = code->ext.actual->next->next->expr;
+      stat_expr = code->ext.actual->next->next->next->expr;
+      errmsg_expr = code->ext.actual->next->next->next->next->expr;
+    }
+  else
+    {
+      opr_expr = NULL;
+      image_idx_expr = code->ext.actual->next->expr;
+      stat_expr = code->ext.actual->next->next->expr;
+      errmsg_expr = code->ext.actual->next->next->next->expr;
+    }
+
+  /* stat.  */
+  if (stat_expr)
+    {
+      gfc_init_se (&argse, NULL);
+      gfc_conv_expr (&argse, stat_expr);
+      gfc_add_block_to_block (&block, &argse.pre);
+      gfc_add_block_to_block (&post_block, &argse.post);
+      stat = argse.expr;
+      if (flag_coarray != GFC_FCOARRAY_SINGLE)
+	stat = gfc_build_addr_expr (NULL_TREE, stat);
+    }
+  else if (flag_coarray == GFC_FCOARRAY_SINGLE)
+    stat = NULL_TREE;
+  else
+    stat = null_pointer_node;
+
+  /* Early exit for GFC_FCOARRAY_SINGLE.  */
+  if (flag_coarray == GFC_FCOARRAY_SINGLE)
+    {
+      if (stat != NULL_TREE)
+	gfc_add_modify (&block, stat,
+			fold_convert (TREE_TYPE (stat), integer_zero_node));
+      return gfc_finish_block (&block);
+    }
+
+  /* Handle the array.  */
+  gfc_init_se (&argse, NULL);
+  if (code->ext.actual->expr->rank == 0)
+    {
+      symbol_attribute attr;
+      gfc_clear_attr (&attr);
+      gfc_init_se (&argse, NULL);
+      gfc_conv_expr (&argse, code->ext.actual->expr);
+      gfc_add_block_to_block (&block, &argse.pre);
+      gfc_add_block_to_block (&post_block, &argse.post);
+      array = gfc_conv_scalar_to_descriptor (&argse, argse.expr, attr);
+      array = gfc_build_addr_expr (NULL_TREE, array);
+    }
+  else
+    {
+      argse.want_pointer = 1;
+      gfc_conv_expr_descriptor (&argse, code->ext.actual->expr);
+      array = argse.expr;
+    }
+  gfc_add_block_to_block (&block, &argse.pre);
+  gfc_add_block_to_block (&post_block, &argse.post);
+
+  if (code->ext.actual->expr->ts.type == BT_CHARACTER)
+    strlen = argse.string_length;
+  else
+    strlen = integer_zero_node;
+
+  /* image_index.  */
+  if (image_idx_expr)
+    {
+      gfc_init_se (&argse, NULL);
+      gfc_conv_expr (&argse, image_idx_expr);
+      gfc_add_block_to_block (&block, &argse.pre);
+      gfc_add_block_to_block (&post_block, &argse.post);
+      image_index = fold_convert (integer_type_node, argse.expr);
+    }
+  else
+    image_index = integer_zero_node;
+
+  /* errmsg.  */
+  if (errmsg_expr)
+    {
+      gfc_init_se (&argse, NULL);
+      gfc_conv_expr (&argse, errmsg_expr);
+      gfc_add_block_to_block (&block, &argse.pre);
+      gfc_add_block_to_block (&post_block, &argse.post);
+      errmsg = argse.expr;
+      errmsg_len = fold_convert (integer_type_node, argse.string_length);
+    }
+  else
+    {
+      errmsg = null_pointer_node;
+      errmsg_len = integer_zero_node;
+    }
+
+  /* Generate the function call.  */
+  switch (code->resolved_isym->id)
+    {
+    case GFC_ISYM_CO_BROADCAST:
+      fndecl = gfor_fndecl_co_broadcast;
+      break;
+    case GFC_ISYM_CO_MAX:
+      fndecl = gfor_fndecl_co_max;
+      break;
+    case GFC_ISYM_CO_MIN:
+      fndecl = gfor_fndecl_co_min;
+      break;
+    case GFC_ISYM_CO_REDUCE:
+      fndecl = gfor_fndecl_co_reduce;
+      break;
+    case GFC_ISYM_CO_SUM:
+      fndecl = gfor_fndecl_co_sum;
+      break;
+    default:
+      gcc_unreachable ();
+    }
+
+  if (code->resolved_isym->id == GFC_ISYM_CO_SUM
+      || code->resolved_isym->id == GFC_ISYM_CO_BROADCAST)
+    fndecl = build_call_expr_loc (input_location, fndecl, 5, array,
+				  image_index, stat, errmsg, errmsg_len);
+  else if (code->resolved_isym->id != GFC_ISYM_CO_REDUCE)
+    fndecl = build_call_expr_loc (input_location, fndecl, 6, array, image_index,
+				  stat, errmsg, strlen, errmsg_len);
+  else
+    {
+      tree opr, opr_flags;
+
+      // FIXME: Handle TS29113's bind(C) strings with descriptor.
+      int opr_flag_int;
+      if (gfc_is_proc_ptr_comp (opr_expr))
+	{
+	  gfc_symbol *sym = gfc_get_proc_ptr_comp (opr_expr)->ts.interface;
+	  opr_flag_int = sym->attr.dimension
+			 || (sym->ts.type == BT_CHARACTER
+			     && !sym->attr.is_bind_c)
+			 ? GFC_CAF_BYREF : 0;
+	  opr_flag_int |= opr_expr->ts.type == BT_CHARACTER
+			  && !sym->attr.is_bind_c
+			  ? GFC_CAF_HIDDENLEN : 0;
+	  opr_flag_int |= sym->formal->sym->attr.value ? GFC_CAF_ARG_VALUE : 0;
+	}
+      else
+	{
+	  opr_flag_int = gfc_return_by_reference (opr_expr->symtree->n.sym)
+			 ? GFC_CAF_BYREF : 0;
+	  opr_flag_int |= opr_expr->ts.type == BT_CHARACTER
+			  && !opr_expr->symtree->n.sym->attr.is_bind_c
+			  ? GFC_CAF_HIDDENLEN : 0;
+	  opr_flag_int |= opr_expr->symtree->n.sym->formal->sym->attr.value
+			  ? GFC_CAF_ARG_VALUE : 0;
+	}
+      opr_flags = build_int_cst (integer_type_node, opr_flag_int);
+      gfc_conv_expr (&argse, opr_expr);
+      opr = argse.expr;
+      fndecl = build_call_expr_loc (input_location, fndecl, 8, array, opr, opr_flags,
+				    image_index, stat, errmsg, strlen, errmsg_len);
+    }
+
+  gfc_add_expr_to_block (&block, fndecl);
+  gfc_add_block_to_block (&block, &post_block);
+
+>>>>>>> gcc-mirror/trunk
   return gfc_finish_block (&block);
 }
 
@@ -9287,6 +9471,7 @@ conv_intrinsic_atomic_ref (gfc_code *code)
   gfc_expr *atom_expr = code->ext.actual->next->expr;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -9425,6 +9610,48 @@ conv_intrinsic_atomic_ref (gfc_code *code)
   else if (flag_coarray == GFC_FCOARRAY_LIB)
     stat = null_pointer_node;
 
+=======
+
+  if (atom_expr->expr_type == EXPR_FUNCTION
+      && atom_expr->value.function.isym
+      && atom_expr->value.function.isym->id == GFC_ISYM_CAF_GET)
+    atom_expr = atom_expr->value.function.actual->expr;
+
+  gfc_start_block (&block);
+  gfc_init_block (&post_block);
+  gfc_init_se (&argse, NULL);
+  argse.want_pointer = 1;
+  gfc_conv_expr (&argse, atom_expr);
+  gfc_add_block_to_block (&block, &argse.pre);
+  gfc_add_block_to_block (&post_block, &argse.post);
+  atom = argse.expr;
+
+  gfc_init_se (&argse, NULL);
+  if (flag_coarray == GFC_FCOARRAY_LIB
+      && code->ext.actual->expr->ts.kind == atom_expr->ts.kind)
+    argse.want_pointer = 1;
+  gfc_conv_expr (&argse, code->ext.actual->expr);
+  gfc_add_block_to_block (&block, &argse.pre);
+  gfc_add_block_to_block (&post_block, &argse.post);
+  value = argse.expr;
+
+  /* STAT=  */
+  if (code->ext.actual->next->next->expr != NULL)
+    {
+      gcc_assert (code->ext.actual->next->next->expr->expr_type
+		  == EXPR_VARIABLE);
+      gfc_init_se (&argse, NULL);
+      if (flag_coarray == GFC_FCOARRAY_LIB)
+	argse.want_pointer = 1;
+      gfc_conv_expr_val (&argse, code->ext.actual->next->next->expr);
+      gfc_add_block_to_block (&block, &argse.pre);
+      gfc_add_block_to_block (&post_block, &argse.post);
+      stat = argse.expr;
+    }
+  else if (flag_coarray == GFC_FCOARRAY_LIB)
+    stat = null_pointer_node;
+
+>>>>>>> gcc-mirror/trunk
   if (flag_coarray == GFC_FCOARRAY_LIB)
     {
       tree image_index, caf_decl, offset, token;
@@ -9479,6 +9706,7 @@ conv_intrinsic_atomic_ref (gfc_code *code)
   return gfc_finish_block (&block);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
@@ -9521,6 +9749,8 @@ conv_intrinsic_atomic_ref (gfc_code *code)
 }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 static tree
 conv_intrinsic_atomic_cas (gfc_code *code)

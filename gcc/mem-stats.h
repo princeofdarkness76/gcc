@@ -5,6 +5,7 @@
 template<typename Key, typename Value,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 typename Traits = simple_hashmap_traits<default_hash_traits<Key> > >
 =======
 	 typename Traits = simple_hashmap_traits<default_hash_traits<Key>,
@@ -13,6 +14,10 @@ template<typename Key, typename Value,
 =======
 	 typename Traits = simple_hashmap_traits<default_hash_traits<Key> > >
 >>>>>>> master
+=======
+	 typename Traits = simple_hashmap_traits<default_hash_traits<Key>,
+						 Value> >
+>>>>>>> gcc-mirror/trunk
 class hash_map;
 
 #define LOCATION_LINE_EXTRA_SPACE 30

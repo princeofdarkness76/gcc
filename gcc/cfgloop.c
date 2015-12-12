@@ -940,12 +940,15 @@ get_loop_body_in_bfs_order (const struct loop *loop)
 	    }
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       gcc_assert (i > vc);
 
       bb = blocks[vc++];
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   BITMAP_FREE (visited);

@@ -17,6 +17,7 @@ foo (double a, int x)
 // The expression 1.0 / 0.0 should not be treated as a loop invariant
 // if it may throw an exception.
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-final { scan-tree-dump-times "invariant up to" 0 "lim1" } }
 <<<<<<< HEAD
 =======
@@ -24,3 +25,6 @@ foo (double a, int x)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+// { dg-final { scan-tree-dump-times "invariant up to" 0 "lim2" } }
+>>>>>>> gcc-mirror/trunk

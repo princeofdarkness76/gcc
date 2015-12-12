@@ -28,6 +28,7 @@ int foo(Object&o)
 /* Remaining should be two loads.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times " = \[^\n\]*;" 2 "dce2" } } */
 <<<<<<< HEAD
 =======
@@ -35,3 +36,6 @@ int foo(Object&o)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times " = \[^\n\]*;" 2 "dce3" } } */
+>>>>>>> gcc-mirror/trunk

@@ -512,12 +512,18 @@ DEF_SANITIZER_BUILTIN(BUILT_IN_UBSAN_HANDLE_DYNAMIC_TYPE_CACHE_MISS_ABORT,
 		      ATTR_COLD_NOTHROW_LEAF_LIST)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Sanitizer coverage */
 DEF_SANITIZER_BUILTIN(BUILT_IN_SANITIZER_COV_TRACE_PC,
 		      "__sanitizer_cov_trace_pc",
 		      BT_FN_VOID, ATTR_NOTHROW_LEAF_LIST)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

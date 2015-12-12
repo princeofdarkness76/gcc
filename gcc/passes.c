@@ -1229,6 +1229,9 @@ is_pass_explicitly_enabled_or_disabled (opt_pass *pass,
 
    Passes are constructed with static_pass_number preinitialized to 0
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
    This field is used in two different ways: initially as instance numbers
    of their kind, and then as ids within the entire pass manager.
@@ -1237,6 +1240,7 @@ is_pass_explicitly_enabled_or_disabled (opt_pass *pass,
 
    * In add_pass_instance(), as called by next_pass_1 in
      NEXT_PASS in init_optimization_passes
+<<<<<<< HEAD
 
    * When the initial instance of a pass within a pass manager is seen,
      it is flagged, and its static_pass_number is set to -1
@@ -1255,6 +1259,12 @@ is_pass_explicitly_enabled_or_disabled (opt_pass *pass,
      it is flagged, and its static_pass_number is set to -1
 
 >>>>>>> master
+=======
+
+   * When the initial instance of a pass within a pass manager is seen,
+     it is flagged, and its static_pass_number is set to -1
+
+>>>>>>> gcc-mirror/trunk
    * On subsequent times that it is seen, the static pass number
      is decremented each time, so that if there are e.g. 4 dups,
      they have static_pass_number -4, 2, 3, 4 respectively (note
@@ -2404,6 +2414,7 @@ execute_one_pass (opt_pass *pass)
       gcc_assert (!cfun);
       cgraph_node::get (fn)->release_body ();
     }
+<<<<<<< HEAD
 
   if (todo_after & TODO_discard_function)
     {
@@ -2438,6 +2449,8 @@ execute_one_pass (opt_pass *pass)
       gcc_assert (!cfun);
       cgraph_node::get (fn)->release_body ();
     }
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Signal this is a suitable GC collection point.  */
   if (!((todo_after | pass->todo_flags_finish) & TODO_do_not_ggc_collect))

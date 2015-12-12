@@ -615,6 +615,7 @@ ipcp_cloning_candidate_p (struct cgraph_node *node)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
   if (node->optimize_for_size_p ())
@@ -622,6 +623,9 @@ ipcp_cloning_candidate_p (struct cgraph_node *node)
 =======
   if (!optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 >>>>>>> master
+=======
+  if (node->optimize_for_size_p ())
+>>>>>>> gcc-mirror/trunk
     {
       if (dump_file)
         fprintf (dump_file, "Not considering %s for cloning; "
@@ -1245,6 +1249,7 @@ static bool
 values_equal_for_ipcp_p (ipa_polymorphic_call_context x,
 			 ipa_polymorphic_call_context y)
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   return x.equal_to (y);
 }
@@ -1262,6 +1267,8 @@ ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
 				 int src_idx, HOST_WIDE_INT offset)
 {
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 {
   return x.equal_to (y);
 }
@@ -1278,7 +1285,10 @@ void
 ipcp_value<valtype>::add_source (cgraph_edge *cs, ipcp_value *src_val,
 				 int src_idx, HOST_WIDE_INT offset)
 {
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   ipcp_value_source<valtype> *src;
 
   src = new (ipcp_sources_pool.allocate ()) ipcp_value_source<valtype>;
@@ -1310,6 +1320,7 @@ allocate_and_init_ipcp_value (tree source)
 
 static ipcp_value<ipa_polymorphic_call_context> *
 allocate_and_init_ipcp_value (ipa_polymorphic_call_context source)
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
   ipcp_value<ipa_polymorphic_call_context> *val;
@@ -1359,6 +1370,31 @@ ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
   ipcp_value<valtype> *val;
 
 >>>>>>> master
+=======
+{
+  ipcp_value<ipa_polymorphic_call_context> *val;
+
+  // TODO
+  val = ipcp_poly_ctx_values_pool.allocate ();
+  memset (val, 0, sizeof (*val));
+  val->value = source;
+  return val;
+}
+
+/* Try to add NEWVAL to LAT, potentially creating a new ipcp_value for it.  CS,
+   SRC_VAL SRC_INDEX and OFFSET are meant for add_source and have the same
+   meaning.  OFFSET -1 means the source is scalar and not a part of an
+   aggregate.  */
+
+template <typename valtype>
+bool
+ipcp_lattice<valtype>::add_value (valtype newval, cgraph_edge *cs,
+				  ipcp_value<valtype> *src_val,
+				  int src_idx, HOST_WIDE_INT offset)
+{
+  ipcp_value<valtype> *val;
+
+>>>>>>> gcc-mirror/trunk
   if (bottom)
     return false;
 
@@ -2257,10 +2293,17 @@ devirtualization_time_bonus (struct cgraph_node *node,
       res += 1;
       callee = cgraph_node::get (target);
       if (!callee || !callee->definition)
+<<<<<<< HEAD
 	continue;
       callee = callee->function_symbol (&avail);
       if (avail < AVAIL_AVAILABLE)
 	continue;
+=======
+	continue;
+      callee = callee->function_symbol (&avail);
+      if (avail < AVAIL_AVAILABLE)
+	continue;
+>>>>>>> gcc-mirror/trunk
       isummary = inline_summaries->get (callee);
       if (!isummary->inlinable)
 	continue;
@@ -2322,6 +2365,7 @@ good_cloning_opportunity_p (struct cgraph_node *node, int time_benefit,
       || !opt_for_fn (node->decl, flag_ipa_cp_clone)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || !optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 =======
       || node->optimize_for_size_p ())
@@ -2329,6 +2373,9 @@ good_cloning_opportunity_p (struct cgraph_node *node, int time_benefit,
 =======
       || !optimize_function_for_speed_p (DECL_STRUCT_FUNCTION (node->decl)))
 >>>>>>> master
+=======
+      || node->optimize_for_size_p ())
+>>>>>>> gcc-mirror/trunk
     return false;
 
   gcc_assert (size_cost > 0);
@@ -2450,6 +2497,7 @@ gather_context_independent_values (struct ipa_node_params *info,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       ipcp_lattice<ipa_polymorphic_call_context> *ctxlat = &plats->ctxlat;
@@ -2460,6 +2508,8 @@ gather_context_independent_values (struct ipa_node_params *info,
 	}
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (!ipa_is_param_used (info, i))
 	continue;
 
@@ -2468,9 +2518,12 @@ gather_context_independent_values (struct ipa_node_params *info,
 	 if it permits devirtualization.  */
       if (ctxlat->is_single_const ())
 	(*known_contexts)[i] = ctxlat->values->value;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
       if (known_aggs)
 	{
@@ -2587,6 +2640,7 @@ estimate_local_effects (struct cgraph_node *node)
 					 known_aggs_ptrs, &size, &time, &hints);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       time -= devirtualization_time_bonus (node, known_csts, known_contexts,
@@ -2594,6 +2648,9 @@ estimate_local_effects (struct cgraph_node *node)
 =======
       time -= devirt_bonus;
 >>>>>>> gcc-mirror/master
+=======
+      time -= devirt_bonus;
+>>>>>>> gcc-mirror/trunk
       time -= hint_time_bonus (hints);
       time -= removable_params_cost;
       size -= stats.n_calls * removable_params_cost;
@@ -2603,6 +2660,7 @@ estimate_local_effects (struct cgraph_node *node)
 		 "time_benefit: %i\n", size, base_time - time);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (size <= 0
 	  || node->will_be_removed_from_program_if_no_direct_calls_p ())
 <<<<<<< HEAD
@@ -2611,6 +2669,9 @@ estimate_local_effects (struct cgraph_node *node)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if (size <= 0 || node->local.local)
+>>>>>>> gcc-mirror/trunk
 	{
 	  info->do_clone_for_all_contexts = true;
 	  base_time = time;
@@ -4519,6 +4580,7 @@ identify_dead_nodes (struct cgraph_node *node)
   for (v = node; v ; v = ((struct ipa_dfs_info *) v->aux)->next_cycle)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (v->will_be_removed_from_program_if_no_direct_calls_p ()
 =======
     if (v->local.local
@@ -4526,6 +4588,9 @@ identify_dead_nodes (struct cgraph_node *node)
 =======
     if (v->will_be_removed_from_program_if_no_direct_calls_p ()
 >>>>>>> master
+=======
+    if (v->local.local
+>>>>>>> gcc-mirror/trunk
 	&& !v->call_for_symbol_thunks_and_aliases
 	     (has_undead_caller_from_outside_scc_p, NULL, true))
       IPA_NODE_REF (v)->node_dead = 1;

@@ -1098,16 +1098,22 @@ run_gcc (unsigned argc, char *argv[])
       for (i = 1; i < argc; ++i)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (strncmp (argv[i], "-fresolution=", sizeof ("-fresolution=") - 1))
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	if (strncmp (argv[i], "-fresolution=",
 		     sizeof ("-fresolution=") - 1) != 0
 	    && strncmp (argv[i], "-flinker-output=",
 			sizeof ("-flinker-output=") - 1) != 0)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	if (strncmp (argv[i], "-fresolution=", sizeof ("-fresolution=") - 1))
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  {
 	    char *out_file;
 	    /* Can be ".o" or ".so".  */

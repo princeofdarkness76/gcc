@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma simd		/* { dg-error "must be inside a function" } */
 
 void foo()
@@ -13,6 +14,8 @@ void foo()
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 int *a, *c;
 
 void foo()
@@ -25,9 +28,12 @@ void foo()
     *a = '5';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }

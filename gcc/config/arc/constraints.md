@@ -423,13 +423,19 @@
        (match_test "UNSIGNED_INT6 (ival - 1)")))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 ;; Memory constraint used for atomic ops.
 (define_memory_constraint "ATO"
   "A memory with only a base register"
   (match_operand 0 "mem_noofs_operand"))
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

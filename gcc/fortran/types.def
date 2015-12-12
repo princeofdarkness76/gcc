@@ -32,6 +32,7 @@ along with GCC; see the file COPYING3.  If not see
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    DEF_FUNCTION_TYPE_3 (ENUM, RETURN, ARG1, ARG2, ARG3)
    DEF_FUNCTION_TYPE_4 (ENUM, RETURN, ARG1, ARG2, ARG3, ARG4)
    DEF_FUNCTION_TYPE_5 (ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5)
@@ -48,6 +49,9 @@ along with GCC; see the file COPYING3.  If not see
 =======
    [...]
 >>>>>>> master
+=======
+   [...]
+>>>>>>> gcc-mirror/trunk
 
      These macros describe function types.  ENUM is as above.  The
      RETURN type is one of the enumerals already defined.  ARG1, ARG2,
@@ -175,11 +179,14 @@ DEF_FUNCTION_TYPE_4 (BT_FN_VOID_SIZE_CONST_VPTR_PTR_INT, BT_VOID, BT_SIZE,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 DEF_FUNCTION_TYPE_4 (BT_FN_BOOL_UINT_LONGPTR_LONGPTR_LONGPTR,
 		     BT_BOOL, BT_UINT, BT_PTR_LONG, BT_PTR_LONG, BT_PTR_LONG)
 DEF_FUNCTION_TYPE_4 (BT_FN_BOOL_UINT_ULLPTR_ULLPTR_ULLPTR,
@@ -187,11 +194,14 @@ DEF_FUNCTION_TYPE_4 (BT_FN_BOOL_UINT_ULLPTR_ULLPTR_ULLPTR,
 		     BT_PTR_ULONGLONG)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 DEF_FUNCTION_TYPE_5 (BT_FN_VOID_OMPFN_PTR_UINT_UINT_UINT,
 		     BT_VOID, BT_PTR_FN_VOID_PTR, BT_PTR, BT_UINT, BT_UINT,
@@ -240,6 +250,7 @@ DEF_FUNCTION_TYPE_7 (BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_UINT,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 DEF_FUNCTION_TYPE_7 (BT_FN_VOID_OMPFN_PTR_OMPCPYFN_LONG_LONG_BOOL_UINT,
 		     BT_VOID, BT_PTR_FN_VOID_PTR, BT_PTR,
 		     BT_PTR_FN_VOID_PTR_PTR, BT_LONG, BT_LONG,
@@ -250,6 +261,8 @@ DEF_FUNCTION_TYPE_7 (BT_FN_VOID_OMPFN_PTR_OMPCPYFN_LONG_LONG_BOOL_UINT,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 DEF_FUNCTION_TYPE_7 (BT_FN_BOOL_BOOL_ULL_ULL_ULL_ULL_ULLPTR_ULLPTR,
 		     BT_BOOL, BT_BOOL, BT_ULONGLONG, BT_ULONGLONG,
 		     BT_ULONGLONG, BT_ULONGLONG,
@@ -282,6 +295,7 @@ DEF_FUNCTION_TYPE_11 (BT_FN_VOID_OMPFN_PTR_OMPCPYFN_LONG_LONG_UINT_LONG_INT_ULL_
 		      BT_ULONGLONG, BT_ULONGLONG, BT_ULONGLONG)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 DEF_FUNCTION_TYPE_8 (BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
 		     BT_VOID, BT_PTR_FN_VOID_PTR, BT_PTR, BT_UINT,
@@ -290,6 +304,8 @@ DEF_FUNCTION_TYPE_8 (BT_FN_VOID_OMPFN_PTR_UINT_LONG_LONG_LONG_LONG_UINT,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 DEF_FUNCTION_TYPE_VAR_0 (BT_FN_VOID_VAR, BT_VOID)
 

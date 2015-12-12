@@ -377,6 +377,7 @@ gigi (Node_Id gnat_root,
   gcc_assert (t == boolean_false_node);
   t = create_var_decl (get_entity_name (gnat_literal), NULL_TREE,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       boolean_type_node, t, true, false, false, false,
 <<<<<<< HEAD
 =======
@@ -384,6 +385,9 @@ gigi (Node_Id gnat_root,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+		       boolean_type_node, t, true, false, false, false, false,
+>>>>>>> gcc-mirror/trunk
 		       true, false, NULL, gnat_literal);
   save_gnu_tree (gnat_literal, t, false);
   gnat_literal = Next_Literal (gnat_literal);
@@ -391,6 +395,7 @@ gigi (Node_Id gnat_root,
   gcc_assert (t == boolean_true_node);
   t = create_var_decl (get_entity_name (gnat_literal), NULL_TREE,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       boolean_type_node, t, true, false, false, false,
 <<<<<<< HEAD
 =======
@@ -398,6 +403,9 @@ gigi (Node_Id gnat_root,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+		       boolean_type_node, t, true, false, false, false, false,
+>>>>>>> gcc-mirror/trunk
 		       true, false, NULL, gnat_literal);
   save_gnu_tree (gnat_literal, t, false);
 
@@ -414,6 +422,7 @@ gigi (Node_Id gnat_root,
 			   ftype,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 			   NULL_TREE, is_disabled, true, true, true, false,
@@ -422,6 +431,10 @@ gigi (Node_Id gnat_root,
 			   NULL_TREE, is_disabled, false, true, true, false,
 			   true, false, NULL, Empty);
 >>>>>>> gcc-mirror/master
+=======
+			   NULL_TREE, is_disabled, false, true, true, false,
+			   true, false, NULL, Empty);
+>>>>>>> gcc-mirror/trunk
   DECL_IS_MALLOC (malloc_decl) = 1;
 
   /* free is a function declaration tree for a function to free memory.  */
@@ -432,6 +445,7 @@ gigi (Node_Id gnat_root,
 						     NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   NULL_TREE, is_disabled, true, true, true, false,
 			   NULL, Empty);
 =======
@@ -442,6 +456,10 @@ gigi (Node_Id gnat_root,
 			   NULL_TREE, is_disabled, true, true, true, false,
 			   NULL, Empty);
 >>>>>>> master
+=======
+			   NULL_TREE, is_disabled, false, true, true, false,
+			   true, false, NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   /* This is used for 64-bit multiplication with overflow checking.  */
   int64_type = gnat_type_for_size (64, 0);
@@ -451,6 +469,7 @@ gigi (Node_Id gnat_root,
 						     int64_type, NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   NULL_TREE, is_disabled, true, true, true, false,
 			   NULL, Empty);
 =======
@@ -461,6 +480,10 @@ gigi (Node_Id gnat_root,
 			   NULL_TREE, is_disabled, true, true, true, false,
 			   NULL, Empty);
 >>>>>>> master
+=======
+			   NULL_TREE, is_disabled, false, true, true, false,
+			   true, false, NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   /* Name of the _Parent field in tagged record types.  */
   parent_name_id = get_identifier (Get_Name_String (Name_uParent));
@@ -485,6 +508,7 @@ gigi (Node_Id gnat_root,
        NULL_TREE, build_function_type_list (jmpbuf_ptr_type, NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 =======
        NULL_TREE, is_disabled, false, true, true, false, true, false,
@@ -493,6 +517,10 @@ gigi (Node_Id gnat_root,
 =======
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   set_jmpbuf_decl
     = create_subprog_decl
@@ -501,6 +529,7 @@ gigi (Node_Id gnat_root,
 					    NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 =======
        NULL_TREE, is_disabled, false, true, true, false, true, false,
@@ -509,6 +538,10 @@ gigi (Node_Id gnat_root,
 =======
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   get_excptr_decl
     = create_subprog_decl
@@ -517,6 +550,7 @@ gigi (Node_Id gnat_root,
 				 NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 =======
        NULL_TREE, is_disabled, false, true, true, false, true, false,
@@ -525,6 +559,10 @@ gigi (Node_Id gnat_root,
 =======
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   not_handled_by_others_decl = get_identifier ("not_handled_by_others");
   for (t = TYPE_FIELDS (except_type_node); t; t = DECL_CHAIN (t))
@@ -544,6 +582,7 @@ gigi (Node_Id gnat_root,
 				 NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 =======
        NULL_TREE, is_disabled, false, true, true, false, true, false,
@@ -552,6 +591,10 @@ gigi (Node_Id gnat_root,
 =======
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+>>>>>>> gcc-mirror/trunk
   DECL_BUILT_IN_CLASS (setjmp_decl) = BUILT_IN_NORMAL;
   DECL_FUNCTION_CODE (setjmp_decl) = BUILT_IN_SETJMP;
 
@@ -561,6 +604,7 @@ gigi (Node_Id gnat_root,
     = create_subprog_decl
       (get_identifier ("__builtin_update_setjmp_buf"), NULL_TREE,
        build_function_type_list (void_type_node, jmpbuf_ptr_type, NULL_TREE),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -580,12 +624,21 @@ gigi (Node_Id gnat_root,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+  DECL_BUILT_IN_CLASS (update_setjmp_buf_decl) = BUILT_IN_NORMAL;
+  DECL_FUNCTION_CODE (update_setjmp_buf_decl) = BUILT_IN_UPDATE_SETJMP_BUF;
+
+  /* Indicate that it never returns.  */
+>>>>>>> gcc-mirror/trunk
   raise_nodefer_decl
     = create_subprog_decl
       (get_identifier ("__gnat_raise_nodefer_with_msg"), NULL_TREE,
        build_function_type_list (void_type_node,
 				 build_pointer_type (except_type_node),
 				 NULL_TREE),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -611,6 +664,8 @@ gigi (Node_Id gnat_root,
     = build_qualified_type (TREE_TYPE (reraise_zcx_decl), TYPE_QUAL_VOLATILE);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
        NULL_TREE, is_disabled, false, true, true, true, true, false,
        NULL, Empty);
 
@@ -620,15 +675,19 @@ gigi (Node_Id gnat_root,
 			   ftype, NULL_TREE,
 			   is_disabled, false, true, true, true, true, false,
 			   NULL, Empty);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   set_exception_parameter_decl
     = create_subprog_decl
       (get_identifier ("__gnat_set_exception_parameter"), NULL_TREE,
        build_function_type_list (void_type_node, ptr_type_node, ptr_type_node,
 				 NULL_TREE),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
@@ -639,6 +698,10 @@ gigi (Node_Id gnat_root,
 =======
        NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
 >>>>>>> master
+=======
+       NULL_TREE, is_disabled, false, true, true, false, true, false,
+       NULL, Empty);
+>>>>>>> gcc-mirror/trunk
 
   /* Hooks to call when entering/leaving an exception handler.  */
   ftype = build_function_type_list (void_type_node, ptr_type_node, NULL_TREE);
@@ -648,6 +711,7 @@ gigi (Node_Id gnat_root,
 			   ftype, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   is_disabled, true, true, true, false,
 =======
 			   is_disabled, false, true, true, false, true, false,
@@ -655,6 +719,9 @@ gigi (Node_Id gnat_root,
 =======
 			   is_disabled, true, true, true, false,
 >>>>>>> master
+=======
+			   is_disabled, false, true, true, false, true, false,
+>>>>>>> gcc-mirror/trunk
 			   NULL, Empty);
 
   end_handler_decl
@@ -662,6 +729,7 @@ gigi (Node_Id gnat_root,
 			   ftype, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   is_disabled, true, true, true, false,
 =======
 			   is_disabled, false, true, true, false, true, false,
@@ -669,6 +737,9 @@ gigi (Node_Id gnat_root,
 =======
 			   is_disabled, true, true, true, false,
 >>>>>>> master
+=======
+			   is_disabled, false, true, true, false, true, false,
+>>>>>>> gcc-mirror/trunk
 			   NULL, Empty);
 
   unhandled_except_decl
@@ -676,6 +747,7 @@ gigi (Node_Id gnat_root,
 			   NULL_TREE, ftype, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   is_disabled, true, true, true, false,
 =======
 			   is_disabled, false, true, true, false, true, false,
@@ -683,6 +755,9 @@ gigi (Node_Id gnat_root,
 =======
 			   is_disabled, true, true, true, false,
 >>>>>>> master
+=======
+			   is_disabled, false, true, true, false, true, false,
+>>>>>>> gcc-mirror/trunk
 			   NULL, Empty);
 
   /* Dummy objects to materialize "others" and "all others" in the exception
@@ -694,6 +769,7 @@ gigi (Node_Id gnat_root,
 		       unsigned_char_type_node, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       true, false, true, false, true, false,
 =======
 		       true, false, true, false, false, true, false,
@@ -701,6 +777,9 @@ gigi (Node_Id gnat_root,
 =======
 		       true, false, true, false, true, false,
 >>>>>>> master
+=======
+		       true, false, true, false, false, true, false,
+>>>>>>> gcc-mirror/trunk
 		       NULL, Empty);
 
   all_others_decl
@@ -709,6 +788,7 @@ gigi (Node_Id gnat_root,
 		       unsigned_char_type_node, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       true, false, true, false, true, false,
 =======
 		       true, false, true, false, false, true, false,
@@ -716,6 +796,9 @@ gigi (Node_Id gnat_root,
 =======
 		       true, false, true, false, true, false,
 >>>>>>> master
+=======
+		       true, false, true, false, false, true, false,
+>>>>>>> gcc-mirror/trunk
 		       NULL, Empty);
 
   unhandled_others_decl
@@ -724,6 +807,7 @@ gigi (Node_Id gnat_root,
 		       unsigned_char_type_node, NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       true, false, true, false, true, false,
 =======
 		       true, false, true, false, false, true, false,
@@ -731,6 +815,9 @@ gigi (Node_Id gnat_root,
 =======
 		       true, false, true, false, true, false,
 >>>>>>> master
+=======
+		       true, false, true, false, false, true, false,
+>>>>>>> gcc-mirror/trunk
 		       NULL, Empty);
 
   /* If in no exception handlers mode, all raise statements are redirected to
@@ -747,6 +834,7 @@ gigi (Node_Id gnat_root,
 				     integer_type_node, NULL_TREE),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	   NULL_TREE, is_disabled, true, true, true, false, NULL, Empty);
@@ -758,6 +846,10 @@ gigi (Node_Id gnat_root,
 	   NULL_TREE, is_disabled, false, true, true, true, true, false,
 	   NULL, Empty);
 >>>>>>> gcc-mirror/master
+=======
+	   NULL_TREE, is_disabled, false, true, true, true, true, false,
+	   NULL, Empty);
+>>>>>>> gcc-mirror/trunk
       for (i = 0; i < (int) ARRAY_SIZE (gnat_raise_decls); i++)
 	gnat_raise_decls[i] = decl;
     }
@@ -809,16 +901,22 @@ gigi (Node_Id gnat_root,
     = get_unpadded_type (Base_Type (standard_long_long_float));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   main_identifier_node = get_identifier ("main");
 
   /* If we are using the GCC exception mechanism, let GCC know.  */
   if (Back_End_Exceptions ())
     gnat_init_gcc_eh ();
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Initialize the GCC support for FP operations.  */
   gnat_init_gcc_fp ();
@@ -838,6 +936,7 @@ gigi (Node_Id gnat_root,
     targetm.asm_out.output_ident
       (TREE_STRING_POINTER (gnat_to_gnu (Ident_String (Main_Unit))));
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   /* If we are using the GCC exception mechanism, let GCC know.  */
   if (Back_End_Exceptions ())
@@ -862,6 +961,8 @@ gigi (Node_Id gnat_root,
   optimization_default_node = build_optimization_node (&global_options);
   optimization_current_node = optimization_default_node;
 
+=======
+>>>>>>> gcc-mirror/trunk
   /* Force -fno-strict-aliasing if the configuration pragma was seen.  */
   if (No_Strict_Aliasing_CP)
     flag_strict_aliasing = 0;
@@ -951,6 +1052,7 @@ build_raise_check (int check, enum exception_info_kind kind)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   result
     = create_subprog_decl (get_identifier (Name_Buffer),
 			   NULL_TREE, ftype, NULL_TREE,
@@ -959,6 +1061,8 @@ build_raise_check (int check, enum exception_info_kind kind)
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Indicate that it never returns.  */
   result
     = create_subprog_decl (get_identifier (Name_Buffer), NULL_TREE,
@@ -1665,11 +1769,15 @@ Pragma_to_gnu (Node_Id gnat_node)
 	const unsigned int lang_mask = CL_Ada | CL_COMMON;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	const char *arg = NULL;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	const char *arg = NULL;
+>>>>>>> gcc-mirror/trunk
 	if (Present (gnat_expr))
 	  {
 	    tree gnu_expr = gnat_to_gnu (gnat_expr);
@@ -1683,6 +1791,7 @@ Pragma_to_gnu (Node_Id gnat_node)
 		post_error ("?unknown -W switch", gnat_node);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		break;
@@ -1706,6 +1815,15 @@ Pragma_to_gnu (Node_Id gnat_node)
 		break;
 	      }
 >>>>>>> master
+=======
+		break;
+	      }
+	    else if (!(cl_options[option_index].flags & CL_WARNING))
+	      {
+		post_error ("?-W switch does not control warning", gnat_node);
+		break;
+	      }
+>>>>>>> gcc-mirror/trunk
 	    else if (!(cl_options[option_index].flags & lang_mask))
 	      {
 		post_error ("?-W switch not valid for Ada", gnat_node);
@@ -1719,6 +1837,7 @@ Pragma_to_gnu (Node_Id gnat_node)
 
 	set_default_handlers (&handlers);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	control_warning_option (option_index, (int) kind, imply, location,
 <<<<<<< HEAD
 =======
@@ -1726,6 +1845,9 @@ Pragma_to_gnu (Node_Id gnat_node)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	control_warning_option (option_index, (int) kind, arg, imply, location,
+>>>>>>> gcc-mirror/trunk
 				lang_mask, &handlers, &global_options,
 				&global_options_set, global_dc);
       }
@@ -2881,6 +3003,7 @@ Case_Statement_to_gnu (Node_Id gnat_node)
 /* Return true if we are in the body of a loop.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 static inline bool
 inside_loop_p (void)
@@ -2924,6 +3047,23 @@ inside_loop_p (void)
 static struct loop_info_d *
 find_loop_for (tree expr, tree *disp = NULL, bool *neg_p = NULL)
 {
+=======
+
+static inline bool
+inside_loop_p (void)
+{
+  return !vec_safe_is_empty (gnu_loop_stack);
+}
+
+/* Find out whether EXPR is a simple additive expression based on the iteration
+   variable of some enclosing loop in the current function.  If so, return the
+   loop and set *DISP to the displacement and *NEG_P to true if this is for a
+   subtraction; otherwise, return NULL.  */
+
+static struct loop_info_d *
+find_loop_for (tree expr, tree *disp = NULL, bool *neg_p = NULL)
+{
+>>>>>>> gcc-mirror/trunk
   tree var, add, cst;
   bool minus_p;
   struct loop_info_d *iter = NULL;
@@ -2931,7 +3071,10 @@ find_loop_for (tree expr, tree *disp = NULL, bool *neg_p = NULL)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (is_simple_additive_expression (expr, &add, &cst, &minus_p))
     {
       var = add;
@@ -3430,6 +3573,7 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 	    {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      tree low_ok
@@ -3447,6 +3591,8 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 		  : boolean_true_node;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	      tree low_ok, high_ok;
 
 	      if (rci->low_bound)
@@ -3476,9 +3622,12 @@ Loop_Statement_to_gnu (Node_Id gnat_node)
 		}
 	      else
 		high_ok = boolean_true_node;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 	      tree range_ok
 		= build_binary_op (TRUTH_ANDIF_EXPR, boolean_type_node,
@@ -4132,6 +4281,7 @@ Subprogram_Body_to_gnu (Node_Id gnat_node)
 	  gnu_return_var
 	    = create_var_decl (get_identifier ("RETVAL"), NULL_TREE,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			       gnu_return_type, NULL_TREE, false, false,
 			       false, false, true, false,
 			       NULL, gnat_subprog_id);
@@ -4143,6 +4293,11 @@ Subprogram_Body_to_gnu (Node_Id gnat_node)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+			       gnu_return_type, NULL_TREE,
+			       false, false, false, false, false,
+			       true, false, NULL, gnat_subprog_id);
+>>>>>>> gcc-mirror/trunk
 	  TREE_VALUE (gnu_return_var_elmt) = gnu_return_var;
 	}
 
@@ -4430,6 +4585,7 @@ gnat_strip_type_conversion (Node_Id gnat_node)
 {
   Node_Kind kind = Nkind (gnat_node);
 
+<<<<<<< HEAD
   if (kind == N_Type_Conversion || kind == N_Unchecked_Type_Conversion)
     gnat_node = Expression (gnat_node);
 
@@ -4469,6 +4625,131 @@ outer_atomic_access_required_p (Node_Id gnat_node)
 	}
     }
 
+=======
+  /* If this is an inlined external function that has been marked uninlinable,
+     drop the body and stop there.  Otherwise compile the body.  */
+  if (DECL_EXTERNAL (gnu_subprog_decl) && DECL_UNINLINABLE (gnu_subprog_decl))
+    DECL_SAVED_TREE (gnu_subprog_decl) = NULL_TREE;
+  else
+    rest_of_subprog_body_compilation (gnu_subprog_decl);
+}
+
+/* Return true if GNAT_NODE references an Atomic entity.  */
+
+static bool
+node_is_atomic (Node_Id gnat_node)
+{
+  Entity_Id gnat_entity;
+
+  switch (Nkind (gnat_node))
+    {
+    case N_Identifier:
+    case N_Expanded_Name:
+      gnat_entity = Entity (gnat_node);
+      if (Ekind (gnat_entity) != E_Variable)
+	break;
+      return Is_Atomic (gnat_entity) || Is_Atomic (Etype (gnat_entity));
+
+    case N_Selected_Component:
+      gnat_entity = Entity (Selector_Name (gnat_node));
+      return Is_Atomic (gnat_entity) || Is_Atomic (Etype (gnat_entity));
+
+    case N_Indexed_Component:
+      if (Has_Atomic_Components (Etype (Prefix (gnat_node))))
+	return true;
+
+      /* ... fall through ... */
+
+    case N_Explicit_Dereference:
+      return Is_Atomic (Etype (gnat_node));
+
+    default:
+      break;
+    }
+
+  return false;
+}
+
+/* Return true if GNAT_NODE references a Volatile_Full_Access entity.  */
+
+static bool
+node_has_volatile_full_access (Node_Id gnat_node)
+{
+  Entity_Id gnat_entity;
+
+  switch (Nkind (gnat_node))
+    {
+    case N_Identifier:
+    case N_Expanded_Name:
+      gnat_entity = Entity (gnat_node);
+      if (Ekind (gnat_entity) != E_Variable)
+	break;
+      return Is_Volatile_Full_Access (gnat_entity)
+	     || Is_Volatile_Full_Access (Etype (gnat_entity));
+
+    case N_Selected_Component:
+      gnat_entity = Entity (Selector_Name (gnat_node));
+      return Is_Volatile_Full_Access (gnat_entity)
+	     || Is_Volatile_Full_Access (Etype (gnat_entity));
+
+    case N_Indexed_Component:
+    case N_Explicit_Dereference:
+      return Is_Volatile_Full_Access (Etype (gnat_node));
+
+    default:
+      break;
+    }
+
+  return false;
+}
+
+/* Strip any type conversion on GNAT_NODE and return the result.  */
+
+static Node_Id
+gnat_strip_type_conversion (Node_Id gnat_node)
+{
+  Node_Kind kind = Nkind (gnat_node);
+
+  if (kind == N_Type_Conversion || kind == N_Unchecked_Type_Conversion)
+    gnat_node = Expression (gnat_node);
+
+  return gnat_node;
+}
+
+/* Return true if GNAT_NODE requires outer atomic access, i.e. atomic access
+   of an object of which GNAT_NODE is a component.  */
+
+static bool
+outer_atomic_access_required_p (Node_Id gnat_node)
+{
+  gnat_node = gnat_strip_type_conversion (gnat_node);
+
+  while (true)
+    {
+      switch (Nkind (gnat_node))
+	{
+	case N_Identifier:
+	case N_Expanded_Name:
+	  if (No (Renamed_Object (Entity (gnat_node))))
+	    return false;
+	  gnat_node
+	    = gnat_strip_type_conversion (Renamed_Object (Entity (gnat_node)));
+	  break;
+
+	case N_Indexed_Component:
+	case N_Selected_Component:
+	case N_Slice:
+	  gnat_node = gnat_strip_type_conversion (Prefix (gnat_node));
+	  if (node_has_volatile_full_access (gnat_node))
+	    return true;
+	  break;
+
+	default:
+	  return false;
+	}
+    }
+
+>>>>>>> gcc-mirror/trunk
   gcc_unreachable ();
 }
 
@@ -4544,19 +4825,25 @@ static tree
 create_temporary (const char *prefix, tree type)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree gnu_temp = create_var_decl (create_tmp_var_name (prefix), NULL_TREE,
 				   type, NULL_TREE, false, false, false, false,
 				   true, false, NULL, Empty);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   tree gnu_temp
     = create_var_decl (create_tmp_var_name (prefix), NULL_TREE,
 		      type, NULL_TREE,
 		      false, false, false, false, false,
 		      true, false, NULL, Empty);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return gnu_temp;
 }
 
@@ -4738,6 +5025,7 @@ Call_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p, tree gnu_target,
 	 to force side-effects before the call.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (Ekind (gnat_formal) != E_In_Parameter
 	  && !is_by_ref_formal_parm
 	  && TREE_CODE (gnu_name) != NULL_EXPR)
@@ -4749,6 +5037,9 @@ Call_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p, tree gnu_target,
 	  && !is_by_ref_formal_parm
 	  && TREE_CODE (gnu_name) != NULL_EXPR)
 >>>>>>> master
+=======
+      if (Ekind (gnat_formal) != E_In_Parameter && !is_by_ref_formal_parm)
+>>>>>>> gcc-mirror/trunk
 	{
 	  tree init = NULL_TREE;
 	  gnu_name = gnat_stabilize_reference (gnu_name, true, &init);
@@ -5344,6 +5635,7 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 			   build_call_n_expr (get_jmpbuf_decl, 0),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   false, false, false, false, true, false,
 =======
 			   false, false, false, false, false, true, false,
@@ -5351,6 +5643,9 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 =======
 			   false, false, false, false, true, false,
 >>>>>>> master
+=======
+			   false, false, false, false, false, true, false,
+>>>>>>> gcc-mirror/trunk
 			   NULL, gnat_node);
 
       /* The __builtin_setjmp receivers will immediately reinstall it.  Now
@@ -5364,6 +5659,7 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 			   NULL_TREE,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   false, false, false, false, true, false,
 =======
 			   false, false, false, false, false, true, false,
@@ -5371,6 +5667,9 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 =======
 			   false, false, false, false, true, false,
 >>>>>>> master
+=======
+			   false, false, false, false, false, true, false,
+>>>>>>> gcc-mirror/trunk
 			   NULL, gnat_node);
 
       set_block_jmpbuf_decl (gnu_jmpbuf_decl);
@@ -5436,6 +5735,7 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 				      build_call_n_expr (get_excptr_decl, 0),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 				      false, false, false, false, true, false,
@@ -5444,6 +5744,10 @@ Handled_Sequence_Of_Statements_to_gnu (Node_Id gnat_node)
 				      false, false, false, false, false,
 				      true, false, NULL, gnat_node));
 >>>>>>> gcc-mirror/master
+=======
+				      false, false, false, false, false,
+				      true, false, NULL, gnat_node));
+>>>>>>> gcc-mirror/trunk
 
       /* Generate code for each handler. The N_Exception_Handler case does the
 	 real work and returns a COND_EXPR for each handler, which we chain
@@ -5694,6 +5998,7 @@ Exception_Handler_to_gnu_gcc (Node_Id gnat_node)
 		       ptr_type_node, gnu_current_exc_ptr,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       false, false, false, false, true, true,
 =======
 		       false, false, false, false, false, true, true,
@@ -5701,6 +6006,9 @@ Exception_Handler_to_gnu_gcc (Node_Id gnat_node)
 =======
 		       false, false, false, false, true, true,
 >>>>>>> master
+=======
+		       false, false, false, false, false, true, true,
+>>>>>>> gcc-mirror/trunk
 		       NULL, gnat_node);
 
   add_stmt_with_node (build_call_n_expr (begin_handler_decl, 1,
@@ -5749,6 +6057,7 @@ Compilation_Unit_to_gnu (Node_Id gnat_node)
       (create_concat_name (gnat_unit_entity, body_p ? "elabb" : "elabs"),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        NULL_TREE, void_ftype, NULL_TREE, is_disabled, true, false, true, true,
 =======
        NULL_TREE, void_ftype, NULL_TREE,
@@ -5757,6 +6066,10 @@ Compilation_Unit_to_gnu (Node_Id gnat_node)
 =======
        NULL_TREE, void_ftype, NULL_TREE, is_disabled, true, false, true, true,
 >>>>>>> master
+=======
+       NULL_TREE, void_ftype, NULL_TREE,
+       is_disabled, false, true, false, false, true, true,
+>>>>>>> gcc-mirror/trunk
        NULL, gnat_unit);
   struct elab_info *info;
 
@@ -5907,6 +6220,7 @@ Raise_Error_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p)
 	{
 	  Node_Id gnat_range, gnat_index, gnat_type;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  tree gnu_index, gnu_low_bound, gnu_high_bound;
 <<<<<<< HEAD
 =======
@@ -5915,6 +6229,10 @@ Raise_Error_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	  tree gnu_index, gnu_low_bound, gnu_high_bound, disp;
+	  bool neg_p;
+>>>>>>> gcc-mirror/trunk
 	  struct loop_info_d *loop;
 
 	  switch (Nkind (Right_Opnd (gnat_cond)))
@@ -5983,6 +6301,7 @@ Raise_Error_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p)
 		  || (gnu_high_bound = gnat_invariant_expr (gnu_high_bound)))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      && (loop = find_loop_for (gnu_index)))
 =======
 	      && (loop = find_loop_for (gnu_index, &disp, &neg_p)))
@@ -5990,6 +6309,9 @@ Raise_Error_to_gnu (Node_Id gnat_node, tree *gnu_result_type_p)
 =======
 	      && (loop = find_loop_for (gnu_index)))
 >>>>>>> master
+=======
+	      && (loop = find_loop_for (gnu_index, &disp, &neg_p)))
+>>>>>>> gcc-mirror/trunk
 	    {
 	      struct range_check_info_d *rci = ggc_alloc<range_check_info_d> ();
 	      rci->low_bound = gnu_low_bound;
@@ -6445,6 +6767,9 @@ gnat_to_gnu (Node_Id gnat_node)
       gnu_result = alloc_stmt_list ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
       /* Don't do anything if this renaming is handled by the front end or if
 	 we are just annotating types and this object has a composite or task
@@ -6477,6 +6802,7 @@ gnat_to_gnu (Node_Id gnat_node)
 	  if (TREE_SIDE_EFFECTS (gnu_temp))
 	    gnu_result = build_unary_op (ADDR_EXPR, NULL_TREE, gnu_temp);
 	}
+<<<<<<< HEAD
       break;
 
     case N_Subprogram_Renaming_Declaration:
@@ -6581,6 +6907,8 @@ gnat_to_gnu (Node_Id gnat_node)
 	  if (TREE_SIDE_EFFECTS (gnu_temp))
 	    gnu_result = build_unary_op (ADDR_EXPR, NULL_TREE, gnu_temp);
 	}
+=======
+>>>>>>> gcc-mirror/trunk
       break;
 >>>>>>> gcc-mirror/master
 
@@ -6613,6 +6941,34 @@ gnat_to_gnu (Node_Id gnat_node)
       }
 =======
 >>>>>>> master
+
+    case N_Subprogram_Renaming_Declaration:
+      {
+	const Node_Id gnat_renaming = Defining_Entity (gnat_node);
+	const Node_Id gnat_renamed = Renamed_Entity (gnat_renaming);
+
+	gnu_result = alloc_stmt_list ();
+
+	/* Materializing renamed subprograms will only benefit the debugging
+	   information as they aren't referenced in the generated code.  So
+	   skip them when they aren't needed.  Avoid doing this if:
+
+	     - there is a freeze node: in this case the renamed entity is not
+	       elaborated yet,
+	     - the renamed subprogram is intrinsic: it will not be available in
+	       the debugging information (note that both or only one of the
+	       renaming and the renamed subprograms can be intrinsic).  */
+	if (!type_annotate_only
+	    && Needs_Debug_Info (gnat_renaming)
+	    && No (Freeze_Node (gnat_renaming))
+	    && Present (gnat_renamed)
+	    && (Ekind (gnat_renamed) == E_Function
+		|| Ekind (gnat_renamed) == E_Procedure)
+	    && !Is_Intrinsic_Subprogram (gnat_renaming)
+	    && !Is_Intrinsic_Subprogram (gnat_renamed))
+	  gnat_to_gnu_entity (gnat_renaming, gnat_to_gnu (gnat_renamed), 1);
+	break;
+      }
 
     case N_Implicit_Label_Declaration:
       gnat_to_gnu_entity (Defining_Entity (gnat_node), NULL_TREE, 1);
@@ -6740,6 +7096,7 @@ gnat_to_gnu (Node_Id gnat_node)
 		&& !array_at_struct_end_p (gnu_result)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		&& (loop = find_loop_for (skip_simple_arithmetic (gnu_expr)))
 =======
 		&& (loop = find_loop_for (gnu_expr))
@@ -6747,6 +7104,9 @@ gnat_to_gnu (Node_Id gnat_node)
 =======
 		&& (loop = find_loop_for (skip_simple_arithmetic (gnu_expr)))
 >>>>>>> master
+=======
+		&& (loop = find_loop_for (gnu_expr))
+>>>>>>> gcc-mirror/trunk
 		&& !loop->artificial
 		&& !loop->has_checks
 		&& tree_int_cst_equal (TYPE_MIN_VALUE (TYPE_DOMAIN (gnu_type)),
@@ -6919,6 +7279,7 @@ gnat_to_gnu (Node_Id gnat_node)
 				 NULL_TREE, void_ftype, NULL_TREE, is_disabled,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				 true, true, true, true, NULL, gnat_node);
 =======
 				 false, true, true, false, true, true,
@@ -6927,6 +7288,10 @@ gnat_to_gnu (Node_Id gnat_node)
 =======
 				 true, true, true, true, NULL, gnat_node);
 >>>>>>> master
+=======
+				 false, true, true, false, true, true,
+				 NULL, gnat_node);
+>>>>>>> gcc-mirror/trunk
 
 	gnu_result = Attribute_to_gnu (gnat_node, &gnu_result_type, attr);
       }
@@ -7897,6 +8262,7 @@ gnat_to_gnu (Node_Id gnat_node)
 				  ptr_type_node, gnu_incoming_exc_ptr,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				  false, false, false, false, true, true,
 				  NULL, gnat_node);
 =======
@@ -7907,6 +8273,10 @@ gnat_to_gnu (Node_Id gnat_node)
 				  false, false, false, false, true, true,
 				  NULL, gnat_node);
 >>>>>>> master
+=======
+				  false, false, false, false, false,
+				  true, true, NULL, gnat_node);
+>>>>>>> gcc-mirror/trunk
 
       add_stmt (build_binary_op (MODIFY_EXPR, NULL_TREE, gnu_incoming_exc_ptr,
 				 convert (ptr_type_node, integer_zero_node)));

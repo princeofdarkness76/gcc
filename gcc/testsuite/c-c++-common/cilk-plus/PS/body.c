@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-require-effective-target fopenmp } */
 >>>>>>> gcc-mirror/master
@@ -12,6 +13,9 @@
 =======
 /* { dg-require-effective-target fopenmp } */
 >>>>>>> master
+=======
+/* { dg-require-effective-target fopenmp } */
+>>>>>>> gcc-mirror/trunk
 
 int *a, *b, c;
 void *jmpbuf[10];
@@ -27,6 +31,7 @@ void foo()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__builtin_setjmp (jmpbuf); /* { dg-error "calls to setjmp are not allowed" } */
 =======
 	__builtin_setjmp (jmpbuf); /* { dg-error "setjmp" } */
@@ -37,6 +42,9 @@ void foo()
 =======
 	__builtin_setjmp (jmpbuf); /* { dg-error "setjmp" } */
 >>>>>>> master
+=======
+	__builtin_setjmp (jmpbuf); /* { dg-error "setjmp" } */
+>>>>>>> gcc-mirror/trunk
       a[i] = b[i];
     }
 
@@ -44,6 +52,7 @@ void foo()
   for (int i=0; i < 1000; ++i)
     {
       if (c==5)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -57,11 +66,15 @@ void foo()
 =======
 	break; /* { dg-error "break statement " } */
 >>>>>>> master
+=======
+	break; /* { dg-error "break statement " } */
+>>>>>>> gcc-mirror/trunk
     }
 
 #pragma simd
   for (int i=0; i < 1000; ++i)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -75,6 +88,9 @@ void foo()
 =======
 #pragma omp for /* { dg-error "OpenMP constructs other than" } */
 >>>>>>> master
+=======
+#pragma omp for /* { dg-error "OpenMP constructs other than" } */
+>>>>>>> gcc-mirror/trunk
       for (j=0; j < 1000; ++j)
 	a[i] = b[i];
     }

@@ -15,6 +15,7 @@ threading(int a,int b)
 }
 /* We should thread the jump twice and elliminate it.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Threaded" 2 "dom1"} } */
 <<<<<<< HEAD
 =======
@@ -22,3 +23,6 @@ threading(int a,int b)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Threaded" 2 "dom2"} } */
+>>>>>>> gcc-mirror/trunk

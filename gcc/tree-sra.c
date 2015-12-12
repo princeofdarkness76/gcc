@@ -676,6 +676,7 @@ sra_deinitialize (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /* TODO: hash_map does not support traits that can release
@@ -689,6 +690,8 @@ sra_deinitialize (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   delete base_access_vec;
 }
 
@@ -1048,6 +1051,7 @@ completely_scalarize (tree base, tree decl_type, HOST_WIDE_INT offset, tree ref)
     default:
       gcc_unreachable ();
     }
+<<<<<<< HEAD
 }
 
 /* Create total_scalarization accesses for a member of type TYPE, which must
@@ -1079,6 +1083,39 @@ scalarize_elem (tree base, HOST_WIDE_INT pos, HOST_WIDE_INT size, bool reverse,
 static void
 create_total_scalarization_access (tree var)
 {
+=======
+}
+
+/* Create total_scalarization accesses for a member of type TYPE, which must
+   satisfy either is_gimple_reg_type or scalarizable_type_p.  BASE must be the
+   top-most VAR_DECL representing the variable; within that, POS and SIZE locate
+   the member, REVERSE gives its torage order. and REF must be the reference
+   expression for it.  */
+
+static void
+scalarize_elem (tree base, HOST_WIDE_INT pos, HOST_WIDE_INT size, bool reverse,
+		tree ref, tree type)
+{
+  if (is_gimple_reg_type (type))
+  {
+    struct access *access = create_access_1 (base, pos, size);
+    access->expr = ref;
+    access->type = type;
+    access->grp_total_scalarization = 1;
+    access->reverse = reverse;
+    /* Accesses for intraprocedural SRA can have their stmt NULL.  */
+  }
+  else
+    completely_scalarize (base, type, pos, ref);
+}
+
+/* Create a total_scalarization access for VAR as a whole.  VAR must be of a
+   RECORD_TYPE or ARRAY_TYPE conforming to scalarizable_type_p.  */
+
+static void
+create_total_scalarization_access (tree var)
+{
+>>>>>>> gcc-mirror/trunk
   HOST_WIDE_INT size = tree_to_uhwi (DECL_SIZE (var));
   struct access *access;
 
@@ -1089,6 +1126,7 @@ create_total_scalarization_access (tree var)
 }
 
 /* Return true if REF has an VIEW_CONVERT_EXPR somewhere in it.  */
+<<<<<<< HEAD
 
 static inline bool
 contains_view_convert_expr_p (const_tree ref)
@@ -1100,6 +1138,19 @@ contains_view_convert_expr_p (const_tree ref)
       ref = TREE_OPERAND (ref, 0);
     }
 
+=======
+
+static inline bool
+contains_view_convert_expr_p (const_tree ref)
+{
+  while (handled_component_p (ref))
+    {
+      if (TREE_CODE (ref) == VIEW_CONVERT_EXPR)
+	return true;
+      ref = TREE_OPERAND (ref, 0);
+    }
+
+>>>>>>> gcc-mirror/trunk
   return false;
 }
 
@@ -2609,6 +2660,9 @@ analyze_all_variable_accesses (void)
 			: PARAM_SRA_MAX_SCALARIZATION_SIZE_SIZE;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* If the user didn't set PARAM_SRA_MAX_SCALARIZATION_SIZE_<...>,
      fall back to a target default.  */
@@ -2617,6 +2671,7 @@ analyze_all_variable_accesses (void)
       ? PARAM_VALUE (param)
       : get_move_ratio (optimize_speed_p) * UNITS_PER_WORD;
 
+<<<<<<< HEAD
 =======
 
 =======
@@ -2633,6 +2688,8 @@ analyze_all_variable_accesses (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   max_scalarization_size *= BITS_PER_UNIT;
 
   EXECUTE_IF_SET_IN_BITMAP (candidate_bitmap, 0, i, bi)
@@ -3727,6 +3784,9 @@ const pass_data pass_data_sra_early =
 
 class pass_sra_early : public gimple_opt_pass
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 {
 public:
   pass_sra_early (gcc::context *ctxt)
@@ -3744,6 +3804,7 @@ public:
 gimple_opt_pass *
 make_pass_sra_early (gcc::context *ctxt)
 {
+<<<<<<< HEAD
 =======
 {
 public:
@@ -3763,6 +3824,8 @@ gimple_opt_pass *
 make_pass_sra_early (gcc::context *ctxt)
 {
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return new pass_sra_early (ctxt);
 }
 
@@ -5000,6 +5063,7 @@ sra_ipa_reset_debug_stmts (ipa_parm_adjustment_vec adjustments)
 /* Return false if all callers have at least as many actual arguments as there
    are formal parameters in the current function and that their types
    match.  */
+<<<<<<< HEAD
 
 static bool
 some_callers_have_mismatched_arguments_p (struct cgraph_node *node,
@@ -5021,6 +5085,29 @@ some_callers_have_no_vuse_p (struct cgraph_node *node,
 {
   struct cgraph_edge *cs;
   for (cs = node->callers; cs; cs = cs->next_caller)
+=======
+
+static bool
+some_callers_have_mismatched_arguments_p (struct cgraph_node *node,
+					  void *data ATTRIBUTE_UNUSED)
+{
+  struct cgraph_edge *cs;
+  for (cs = node->callers; cs; cs = cs->next_caller)
+    if (!cs->call_stmt || !callsite_arguments_match_p (cs->call_stmt))
+      return true;
+
+  return false;
+}
+
+/* Return false if all callers have vuse attached to a call statement.  */
+
+static bool
+some_callers_have_no_vuse_p (struct cgraph_node *node,
+			     void *data ATTRIBUTE_UNUSED)
+{
+  struct cgraph_edge *cs;
+  for (cs = node->callers; cs; cs = cs->next_caller)
+>>>>>>> gcc-mirror/trunk
     if (!cs->call_stmt || !gimple_vuse (cs->call_stmt))
       return true;
 

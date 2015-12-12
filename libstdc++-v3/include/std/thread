@@ -218,10 +218,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
   private:
     void
     _M_start_thread(__shared_base_type, void (*)());
+<<<<<<< HEAD
 
 =======
 =======
@@ -235,6 +239,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+>>>>>>> gcc-mirror/trunk
     void
     _M_start_thread(__shared_base_type);
 #endif

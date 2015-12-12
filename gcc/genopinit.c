@@ -36,6 +36,7 @@ static const char * const rtx_upname[] = {
 #undef DEF_RTL_EXPR
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* The entries in optabs.def are categorized:
      C: A "conversion" optab, which uses two modes; has libcall data.
@@ -246,10 +247,15 @@ match_pattern (pattern *p, const char *name, const char *pat)
 /* Vector in which to collect insns that match.  */
 static vec<optab_pattern> patterns;
 >>>>>>> gcc-mirror/master
+=======
+/* Vector in which to collect insns that match.  */
+static vec<optab_pattern> patterns;
+>>>>>>> gcc-mirror/trunk
 
 static void
 gen_insn (md_rtx_info *info)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -282,6 +288,11 @@ gen_insn (md_rtx_info *info)
   if (find_optab (&p, XSTR (info->def, 0)))
     patterns.safe_push (p);
 >>>>>>> gcc-mirror/master
+=======
+  optab_pattern p;
+  if (find_optab (&p, XSTR (info->def, 0)))
+    patterns.safe_push (p);
+>>>>>>> gcc-mirror/trunk
 }
 
 static int

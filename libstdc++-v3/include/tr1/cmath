@@ -902,11 +902,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifndef __CORRECT_ISO_CPP11_MATH_H_PROTO
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#ifndef __CORRECT_ISO_CPP11_MATH_H_PROTO
+>>>>>>> gcc-mirror/trunk
   inline float
   remainder(float __x, float __y)
   { return __builtin_remainderf(__x, __y); }
@@ -1059,6 +1063,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // NB: C++0x and TR1 != C++03.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 
@@ -1076,6 +1081,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 <<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
   // The std::tr1::pow(double, double) overload cannot be provided
   // here, because it would clash with ::pow(double,double) declared
@@ -1090,9 +1097,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // http://gcc.gnu.org/ml/gcc-patches/2012-09/msg01278.html
 
 #ifndef __CORRECT_ISO_CPP11_MATH_H_PROTO
+<<<<<<< HEAD
 =======
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   inline float
   pow(float __x, float __y)
   { return std::pow(__x, __y); }

@@ -5,12 +5,18 @@ LIBMPX_1.0
 };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 LIBMPX_2.0
 {
   global:
     get_bd;
 } LIBMPX_1.0;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

@@ -5533,6 +5533,7 @@ grokdeclarator (const struct c_declarator *declarator,
      actually applying it to an element of that array.  */
   if (atomicp && TREE_CODE (type) == ARRAY_TYPE)
     error_at (loc, "%<_Atomic%>-qualified array type");
+<<<<<<< HEAD
 
   /* Applying the _Atomic qualifier to an array type (through the use
      of typedefs or typeof) must be detected here.  If the qualifier
@@ -5547,6 +5548,8 @@ grokdeclarator (const struct c_declarator *declarator,
      actually applying it to an element of that array.  */
   if (atomicp && TREE_CODE (type) == ARRAY_TYPE)
     error_at (loc, "%<_Atomic%>-qualified array type");
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Warn about storage classes that are invalid for certain
      kinds of declarations (parameters, typenames, etc.).  */
@@ -6533,6 +6536,7 @@ grokdeclarator (const struct c_declarator *declarator,
 	  }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	type = c_build_qualified_type (type, type_quals);
@@ -6540,6 +6544,10 @@ grokdeclarator (const struct c_declarator *declarator,
 	type = c_build_qualified_type (type, type_quals, orig_qual_type,
 				       orig_qual_indirect);
 >>>>>>> gcc-mirror/master
+=======
+	type = c_build_qualified_type (type, type_quals, orig_qual_type,
+				       orig_qual_indirect);
+>>>>>>> gcc-mirror/trunk
 	decl = build_decl (declarator->id_loc,
 			   FIELD_DECL, declarator->u.id, type);
 	DECL_NONADDRESSABLE_P (decl) = bitfield;
@@ -7038,6 +7046,7 @@ get_parm_info (bool ellipsis, tree expr)
 		/* The %s will be one of 'struct', 'union', or 'enum'.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
@@ -7045,6 +7054,9 @@ get_parm_info (bool ellipsis, tree expr)
 =======
 		warning_at (input_location, 0,
 >>>>>>> master
+=======
+		warning_at (b->locus, 0,
+>>>>>>> gcc-mirror/trunk
 			    "%<%s %E%> declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword, b->id);
@@ -7052,6 +7064,7 @@ get_parm_info (bool ellipsis, tree expr)
 		/* The %s will be one of 'struct', 'union', or 'enum'.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		warning_at (input_location, 0,
 =======
 		warning_at (b->locus, 0,
@@ -7059,6 +7072,9 @@ get_parm_info (bool ellipsis, tree expr)
 =======
 		warning_at (input_location, 0,
 >>>>>>> master
+=======
+		warning_at (b->locus, 0,
+>>>>>>> gcc-mirror/trunk
 			    "anonymous %s declared inside parameter list"
 			    " will not be visible outside of this definition or"
 			    " declaration", keyword);

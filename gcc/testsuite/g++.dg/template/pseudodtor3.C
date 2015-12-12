@@ -13,6 +13,7 @@ template <typename T> struct B
   T &foo ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   B () { foo.~T (); }	// { dg-error "10:invalid use of member" }
 =======
   B () { foo.~T (); }	// { dg-error "15:invalid use of member" }
@@ -20,6 +21,9 @@ template <typename T> struct B
 =======
   B () { foo.~T (); }	// { dg-error "10:invalid use of member" }
 >>>>>>> master
+=======
+  B () { foo.~T (); }	// { dg-error "15:invalid use of member" }
+>>>>>>> gcc-mirror/trunk
 };
 
 B<int> b;
@@ -29,6 +33,7 @@ template <typename T, typename S> struct C
   T t;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   C () { t.~S (); }	// { dg-error "10:is not of type" }
 =======
   C () { t.~S (); }	// { dg-error "13:is not of type" }
@@ -36,6 +41,9 @@ template <typename T, typename S> struct C
 =======
   C () { t.~S (); }	// { dg-error "10:is not of type" }
 >>>>>>> master
+=======
+  C () { t.~S (); }	// { dg-error "13:is not of type" }
+>>>>>>> gcc-mirror/trunk
 };
 
 C<int, long int> c;

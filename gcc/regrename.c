@@ -1362,6 +1362,7 @@ scan_rtx_address (rtx_insn *insn, rtx *loc, enum reg_class cl,
 	 something special, like a stack push.  Kill this chain.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (!AUTO_INC_DEC)
       action = mark_all_read;
 =======
@@ -1372,6 +1373,10 @@ scan_rtx_address (rtx_insn *insn, rtx *loc, enum reg_class cl,
     if (!AUTO_INC_DEC)
       action = mark_all_read;
 >>>>>>> master
+=======
+      if (!AUTO_INC_DEC)
+	action = mark_all_read;
+>>>>>>> gcc-mirror/trunk
 
       break;
 

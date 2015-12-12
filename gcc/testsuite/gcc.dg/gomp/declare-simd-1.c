@@ -16,11 +16,14 @@ int f2 (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-final { scan-assembler-times "_ZGVbM8uva32l4_f2:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVbN8uva32l4_f2:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVcM8uva32l4_f2:" 1 { target { i?86-*-* x86_64-*-* } } } } */
@@ -30,11 +33,14 @@ int f2 (int a, int *b, int c)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #pragma omp declare simd uniform (a) aligned (b : 8 * sizeof (long long)) linear (c : 4) simdlen (8)
 __extension__
 long long f3 (long long a, long long *b, long long c);
@@ -65,11 +71,14 @@ f7 (int x)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-final { scan-assembler-times "_ZGVbM16v_f7:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVbN16v_f7:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVcM16v_f7:" 1 { target { i?86-*-* x86_64-*-* } } } } */
@@ -79,11 +88,14 @@ f7 (int x)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 int
 f9 (int x)
 {
@@ -109,11 +121,14 @@ f13 (int c; int *b; int a; int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-final { scan-assembler-times "_ZGVbM8uva32l4_f13:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVbN8uva32l4_f13:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVcM8uva32l4_f13:" 1 { target { i?86-*-* x86_64-*-* } } } } */
@@ -123,11 +138,14 @@ f13 (int c; int *b; int a; int a, int *b, int c)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #pragma omp declare simd uniform (a) aligned (b : 8 * sizeof (int)) linear (c : 4) simdlen (8)
 int
 f14 (a, b, c)
@@ -140,11 +158,14 @@ f14 (a, b, c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-final { scan-assembler-times "_ZGVbM8uva32l4_f14:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVbN8uva32l4_f14:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVcM8uva32l4_f14:" 1 { target { i?86-*-* x86_64-*-* } } } } */
@@ -154,11 +175,14 @@ f14 (a, b, c)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #pragma omp declare simd uniform (a) aligned (b : 8 * sizeof (int)) linear (c : 4) simdlen (8)
 int
 f15 (int a, int *b, int c)
@@ -169,6 +193,7 @@ f15 (int a, int *b, int c)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #pragma omp declare simd uniform (d) aligned (e : 8 * sizeof (int)) linear (f : 4) simdlen (8)
 int f15 (int d, int *e, int f);
 =======
@@ -176,6 +201,8 @@ int f15 (int d, int *e, int f);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-final { scan-assembler-times "_ZGVbM8uva32l4_f15:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVbN8uva32l4_f15:" 1 { target { i?86-*-* x86_64-*-* } } } } */
 /* { dg-final { scan-assembler-times "_ZGVcM8uva32l4_f15:" 1 { target { i?86-*-* x86_64-*-* } } } } */
@@ -231,8 +258,11 @@ f18 (j, i)
 /* { dg-final { scan-assembler-times "_ZGVdN4l12va4_f18:" 1 { target { { i?86-*-* x86_64-*-* } && ilp32 } } } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

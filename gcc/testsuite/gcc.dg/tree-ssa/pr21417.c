@@ -51,6 +51,7 @@ L23:
    iteration.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom2" } } */
 =======
 /* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom3" } } */
@@ -58,4 +59,7 @@ L23:
 =======
 /* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom2" } } */
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "FSM jump thread" 1 "dom3" } } */
+>>>>>>> gcc-mirror/trunk
 

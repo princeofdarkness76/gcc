@@ -1021,6 +1021,7 @@ parse_affinity (bool ignore)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 static void
 handle_omp_display_env (bool proc_bind, unsigned long stacksize,
@@ -1030,6 +1031,8 @@ handle_omp_display_env (bool proc_bind, unsigned long stacksize,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 static void
 parse_acc_device_type (void)
 {
@@ -1045,11 +1048,14 @@ static void
 handle_omp_display_env (unsigned long stacksize, int wait_policy)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 {
   const char *env;
   bool display = false;
@@ -1067,6 +1073,7 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       display = true;
 >>>>>>> gcc-mirror/master
@@ -1076,6 +1083,9 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 =======
       display = true;
 >>>>>>> master
+=======
+      display = true;
+>>>>>>> gcc-mirror/trunk
       env += 4;
     }
   else if (strncasecmp (env, "false", 5) == 0)
@@ -1104,6 +1114,7 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   fputs ("  _OPENMP = '201107'\n", stderr);
 =======
   fputs ("  _OPENMP = '201511'\n", stderr);
@@ -1114,6 +1125,9 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 =======
   fputs ("  _OPENMP = '201511'\n", stderr);
 >>>>>>> master
+=======
+  fputs ("  _OPENMP = '201511'\n", stderr);
+>>>>>>> gcc-mirror/trunk
   fprintf (stderr, "  OMP_DYNAMIC = '%s'\n",
 	   gomp_global_icv.dyn_var ? "TRUE" : "FALSE");
   fprintf (stderr, "  OMP_NESTED = '%s'\n",
@@ -1148,6 +1162,7 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   fprintf (stderr, "  OMP_PROC_BIND = '%s'\n",
 	   proc_bind ? "TRUE" : "FALSE");
 =======
@@ -1155,6 +1170,8 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   fputs ("  OMP_PROC_BIND = '", stderr);
   switch (gomp_global_icv.bind_var)
     {
@@ -1199,16 +1216,20 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   fprintf (stderr, "  OMP_STACKSIZE = '%lu'\n", stacksize);
 
   /* GOMP's default value is actually neither active nor passive.  */
   fprintf (stderr, "  OMP_WAIT_POLICY = '%s'\n",
 	   wait_policy > 0 ? "ACTIVE" : "PASSIVE");
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1237,6 +1258,8 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   fprintf (stderr, "  OMP_THREAD_LIMIT = '%u'\n",
 	   gomp_global_icv.thread_limit_var);
   fprintf (stderr, "  OMP_MAX_ACTIVE_LEVELS = '%lu'\n",
@@ -1254,11 +1277,14 @@ handle_omp_display_env (unsigned long stacksize, int wait_policy)
       fputs ("  GOMP_CPU_AFFINITY = ''\n", stderr);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       fprintf (stderr, "  GOMP_STACKSIZE = '%lu'\n", stacksize);
 #ifdef HAVE_INTTYPES_H
       fprintf (stderr, "  GOMP_SPINCOUNT = '%"PRIu64"'\n",
@@ -1388,12 +1414,15 @@ initialize_env (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   handle_omp_display_env (bind_var, stacksize, wait_policy);
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   handle_omp_display_env (stacksize, wait_policy);
 
   /* OpenACC.  */
@@ -1406,11 +1435,14 @@ initialize_env (void)
   goacc_runtime_initialize ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 
@@ -1517,12 +1549,15 @@ omp_get_cancellation (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return 0;
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return gomp_cancel_var;
 }
 
@@ -1532,16 +1567,20 @@ omp_get_max_task_priority (void)
   return gomp_max_task_priority_var;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 omp_proc_bind_t
 omp_get_proc_bind (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1558,11 +1597,16 @@ omp_get_proc_bind (void)
   struct gomp_task_icv *icv = gomp_icv (false);
   return icv->bind_var;
 >>>>>>> master
+=======
+  struct gomp_task_icv *icv = gomp_icv (false);
+  return icv->bind_var;
+>>>>>>> gcc-mirror/trunk
 }
 
 void
 omp_set_default_device (int device_num)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1579,6 +1623,10 @@ omp_set_default_device (int device_num)
   struct gomp_task_icv *icv = gomp_icv (true);
   icv->default_device_var = device_num >= 0 ? device_num : 0;
 >>>>>>> master
+=======
+  struct gomp_task_icv *icv = gomp_icv (true);
+  icv->default_device_var = device_num >= 0 ? device_num : 0;
+>>>>>>> gcc-mirror/trunk
 }
 
 int
@@ -1587,6 +1635,7 @@ omp_get_default_device (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return 0;
 =======
   struct gomp_task_icv *icv = gomp_icv (false);
@@ -1600,6 +1649,10 @@ omp_get_default_device (void)
   struct gomp_task_icv *icv = gomp_icv (false);
   return icv->default_device_var;
 >>>>>>> master
+=======
+  struct gomp_task_icv *icv = gomp_icv (false);
+  return icv->default_device_var;
+>>>>>>> gcc-mirror/trunk
 }
 
 int
@@ -1608,6 +1661,7 @@ omp_get_num_devices (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return 0;
 =======
   return gomp_get_num_devices ();
@@ -1618,11 +1672,15 @@ omp_get_num_devices (void)
 =======
   return gomp_get_num_devices ();
 >>>>>>> master
+=======
+  return gomp_get_num_devices ();
+>>>>>>> gcc-mirror/trunk
 }
 
 int
 omp_get_num_teams (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1635,6 +1693,9 @@ omp_get_num_teams (void)
 =======
   /* Hardcoded to 1 on host, MIC, HSAIL?  Maybe variable on PTX.  */
 >>>>>>> master
+=======
+  /* Hardcoded to 1 on host, MIC, HSAIL?  Maybe variable on PTX.  */
+>>>>>>> gcc-mirror/trunk
   return 1;
 }
 
@@ -1644,6 +1705,7 @@ omp_get_team_num (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* Hardcoded to 0 on host, MIC, HSAIL?  Maybe variable on PTX.  */
 >>>>>>> gcc-mirror/master
@@ -1653,12 +1715,16 @@ omp_get_team_num (void)
 =======
   /* Hardcoded to 0 on host, MIC, HSAIL?  Maybe variable on PTX.  */
 >>>>>>> master
+=======
+  /* Hardcoded to 0 on host, MIC, HSAIL?  Maybe variable on PTX.  */
+>>>>>>> gcc-mirror/trunk
   return 0;
 }
 
 int
 omp_is_initial_device (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1670,6 +1736,8 @@ omp_is_initial_device (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Hardcoded to 1 on host, should be 0 on MIC, HSAIL, PTX.  */
   return 1;
 }
@@ -1729,11 +1797,14 @@ omp_get_partition_place_nums (int *place_nums)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 ialias (omp_set_dynamic)
 ialias (omp_set_nested)
 ialias (omp_set_num_threads)
@@ -1756,11 +1827,14 @@ ialias (omp_is_initial_device)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 ialias (omp_get_initial_device)
 ialias (omp_get_max_task_priority)
 ialias (omp_get_num_places)
@@ -1769,8 +1843,11 @@ ialias (omp_get_partition_num_places)
 ialias (omp_get_partition_place_nums)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

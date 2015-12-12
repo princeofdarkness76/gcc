@@ -551,6 +551,7 @@ check_format (bool is_input)
   const char *nonneg_required	  = _("Nonnegative width required");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const char *unexpected_element  = _("Unexpected element %<%c%> in format "
 =======
   const char *unexpected_element  = _("Unexpected element %qc in format "
@@ -558,6 +559,9 @@ check_format (bool is_input)
 =======
   const char *unexpected_element  = _("Unexpected element %<%c%> in format "
 >>>>>>> master
+=======
+  const char *unexpected_element  = _("Unexpected element %qc in format "
+>>>>>>> gcc-mirror/trunk
 				      "string at %L");
   const char *unexpected_end	  = _("Unexpected end of format string");
   const char *zero_width	  = _("Zero width in format descriptor");
@@ -2016,6 +2020,7 @@ gfc_match_open (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (!is_char_type ("DELIM", open->delim))
 	  goto cleanup;
 =======
@@ -2026,6 +2031,10 @@ gfc_match_open (void)
 	if (!is_char_type ("DELIM", open->delim))
 	  goto cleanup;
 >>>>>>> master
+=======
+	  if (!is_char_type ("DELIM", open->delim))
+	    goto cleanup;
+>>>>>>> gcc-mirror/trunk
 
 	  if (!compare_to_allowed_values ("DELIM", delim, NULL, NULL,
 					  open->delim->value.character.string,

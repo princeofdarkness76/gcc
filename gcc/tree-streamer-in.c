@@ -363,6 +363,7 @@ unpack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
      no streaming.  */
   TYPE_NEEDS_CONSTRUCTING (expr) = (unsigned) bp_unpack_value (bp, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (RECORD_OR_UNION_TYPE_P (expr))
     {
       TYPE_TRANSPARENT_AGGR (expr) = (unsigned) bp_unpack_value (bp, 1);
@@ -372,6 +373,8 @@ unpack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
     TYPE_NONALIASED_COMPONENT (expr) = (unsigned) bp_unpack_value (bp, 1);
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   TYPE_PACKED (expr) = (unsigned) bp_unpack_value (bp, 1);
   TYPE_RESTRICT (expr) = (unsigned) bp_unpack_value (bp, 1);
   TYPE_USER_ALIGN (expr) = (unsigned) bp_unpack_value (bp, 1);
@@ -391,11 +394,14 @@ unpack_ts_type_common_value_fields (struct bitpack_d *bp, tree expr)
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   TYPE_ALIAS_SET (expr) = bp_unpack_var_len_int (bp);
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 

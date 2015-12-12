@@ -65,8 +65,11 @@ contains
    end subroutine roku
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 end module test
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
    subroutine nana
      !$acc parallel &
@@ -76,7 +79,10 @@ end module test
      !$acc loop ! { dg-error "Wrong OpenMP continuation" }
    end subroutine nana
 end module test
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 end module test
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

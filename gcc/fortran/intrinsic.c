@@ -4588,6 +4588,9 @@ gfc_intrinsic_sub_interface (gfc_code *c, int error_flag)
   if (gfc_do_concurrent_flag && !isym->pure)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
     {
       gfc_error ("Subroutine call to intrinsic %qs in DO CONCURRENT "
 		 "block at %L is not PURE", name, &c->loc);
@@ -4595,6 +4598,7 @@ gfc_intrinsic_sub_interface (gfc_code *c, int error_flag)
     }
 
   if (!isym->pure && gfc_pure (NULL))
+<<<<<<< HEAD
     {
 =======
     {
@@ -4616,6 +4620,9 @@ gfc_intrinsic_sub_interface (gfc_code *c, int error_flag)
   if (!isym->pure && gfc_pure (NULL))
     {
 >>>>>>> master
+=======
+    {
+>>>>>>> gcc-mirror/trunk
       gfc_error ("Subroutine call to intrinsic %qs at %L is not PURE", name,
 		 &c->loc);
       return MATCH_ERROR;

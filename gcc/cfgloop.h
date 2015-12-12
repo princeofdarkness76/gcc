@@ -188,6 +188,7 @@ struct GTY ((chain_next ("%h.next"))) loop {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* True if we should try harder to vectorize this loop.  */
   bool force_vect;
 =======
@@ -195,6 +196,8 @@ struct GTY ((chain_next ("%h.next"))) loop {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* True if this loop should never be vectorized.  */
   bool dont_vectorize;
 
@@ -205,11 +208,14 @@ struct GTY ((chain_next ("%h.next"))) loop {
   bool in_oacc_kernels_region;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* For SIMD loops, this is a unique identifier of the loop, referenced
      by IFN_GOMP_SIMD_VF, IFN_GOMP_SIMD_LANE and IFN_GOMP_SIMD_LAST_LANE
@@ -687,6 +693,7 @@ loop_iterator::loop_iterator (function *fn, loop_p *loop, unsigned flags)
 
   *loop = this->next ();
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 inline
@@ -705,6 +712,16 @@ loop_iterator::~loop_iterator ()
 }
 
 >>>>>>> master
+=======
+}
+
+inline
+loop_iterator::~loop_iterator ()
+{
+  this->to_visit.release ();
+}
+
+>>>>>>> gcc-mirror/trunk
 #define FOR_EACH_LOOP(LOOP, FLAGS) \
   for (loop_iterator li(cfun, &(LOOP), FLAGS); \
        (LOOP); \
@@ -796,6 +813,7 @@ extern bool get_estimated_loop_iterations (struct loop *loop, widest_int *nit);
 extern bool get_max_loop_iterations (struct loop *loop, widest_int *nit);
 extern int bb_loop_depth (const_basic_block);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Converts VAL to widest_int.  */
 
@@ -815,6 +833,11 @@ gcov_type_to_wide_int (gcov_type val)
 
 /* Converts VAL to widest_int.  */
 
+=======
+
+/* Converts VAL to widest_int.  */
+
+>>>>>>> gcc-mirror/trunk
 static inline widest_int
 gcov_type_to_wide_int (gcov_type val)
 {
@@ -827,7 +850,10 @@ gcov_type_to_wide_int (gcov_type val)
   val >>= 1;
   a[1] = (unsigned HOST_WIDE_INT) val;
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return widest_int::from_array (a, 2);
 }
 #endif /* GCC_CFGLOOP_H */

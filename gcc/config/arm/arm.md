@@ -382,6 +382,7 @@
                                 cortexa53,cortexa57,cortexm4,cortexm7,\
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				marvell_pj4,xgene1")
 =======
 				exynosm1,marvell_pj4,xgene1")
@@ -389,6 +390,9 @@
 =======
 				marvell_pj4,xgene1")
 >>>>>>> master
+=======
+				exynosm1,marvell_pj4,xgene1")
+>>>>>>> gcc-mirror/trunk
 	       (eq_attr "tune_cortexr4" "yes"))
           (const_string "no")
           (const_string "yes"))))
@@ -7672,6 +7676,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;; Note: not used for armv5+ because the sequence used (ldr pc, ...) is not
 ;; considered a function call by the branch predictor of some cores (PR40887).
 ;; Falls back to blx rN (*call_reg_armv5).
@@ -7694,6 +7699,8 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 (define_expand "call_value"
   [(parallel [(set (match_operand       0 "" "")
 	           (call (match_operand 1 "memory_operand" "")
@@ -7758,6 +7765,7 @@
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;; Note: see *call_mem
 
 (define_insn "*call_value_mem"
@@ -7780,6 +7788,8 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 ;; Allow calls to SYMBOL_REFs specially as they are not valid general addresses
 ;; The 'a' causes the operand to be treated as an address, i.e. no '#' output.
 
@@ -8206,6 +8216,7 @@
 			     (match_operand:SI 2 "register_operand" "r")]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			     UNSPEC_PROBE_STACK_RANGE))]
 =======
 			     VUNSPEC_PROBE_STACK_RANGE))]
@@ -8213,6 +8224,9 @@
 =======
 			     UNSPEC_PROBE_STACK_RANGE))]
 >>>>>>> master
+=======
+			     VUNSPEC_PROBE_STACK_RANGE))]
+>>>>>>> gcc-mirror/trunk
   "TARGET_32BIT"
 {
   return output_probe_stack_range (operands[0], operands[2]);

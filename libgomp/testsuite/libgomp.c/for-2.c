@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-std=gnu99 -fopenmp" } */
 =======
 /* { dg-additional-options "-std=gnu99" } */
@@ -11,6 +12,9 @@
 =======
 /* { dg-additional-options "-std=gnu99" } */
 >>>>>>> master
+=======
+/* { dg-additional-options "-std=gnu99" } */
+>>>>>>> gcc-mirror/trunk
 
 extern void abort (void);
 
@@ -36,6 +40,7 @@ extern void abort (void);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef SC
 #define SC static
@@ -48,6 +53,10 @@ extern void abort (void);
 #undef SC
 #define SC static
 >>>>>>> master
+=======
+#undef SC
+#define SC static
+>>>>>>> gcc-mirror/trunk
 #define F for simd
 #define G f_simd
 #include "for-1.h"
@@ -56,6 +65,7 @@ extern void abort (void);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef SC
 >>>>>>> gcc-mirror/master
@@ -65,6 +75,9 @@ extern void abort (void);
 =======
 #undef SC
 >>>>>>> master
+=======
+#undef SC
+>>>>>>> gcc-mirror/trunk
 
 int
 main ()

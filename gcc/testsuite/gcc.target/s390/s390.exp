@@ -26,7 +26,10 @@ load_lib gcc-dg.exp
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 # Return 1 if the the assembler understands .machine and .machinemode.  The
 # target attribute needs that feature to work.
 proc check_effective_target_target_attribute { } {
@@ -42,9 +45,12 @@ proc check_effective_target_target_attribute { } {
     }] "" ] } { return 0 } else { return 1 }
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 # Return 1 if htm (etnd - extract nesting depth) instructions are
 # understood by the assembler and can be executed.
 proc check_effective_target_htm { } {
@@ -84,22 +90,29 @@ dg-init
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 set hotpatch_tests $srcdir/$subdir/hotpatch-\[0-9\]*.c
 
 # Main loop.
 dg-runtest [lsort [prune [glob -nocomplain $srcdir/$subdir/*.\[cS\]] \
 			 $hotpatch_tests]] "" $DEFAULT_CFLAGS
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 set md_tests $srcdir/$subdir/md/*.c
 
 # Main loop.
 dg-runtest [lsort [prune [glob -nocomplain $srcdir/$subdir/*.\[cS\]] \
 			 $md_tests]] "" $DEFAULT_CFLAGS
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
 dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/*vector*/*.\[cS\]]] \
 	"" $DEFAULT_CFLAGS
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 # Additional hotpatch torture tests.
 torture-init
@@ -107,6 +120,8 @@ set HOTPATCH_TEST_OPTS [list -Os -O0 -O1 -O2 -O3]
 set-torture-options $HOTPATCH_TEST_OPTS
 gcc-dg-runtest [lsort [glob -nocomplain $hotpatch_tests]] "" $DEFAULT_CFLAGS
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/target-attribute/*.\[cS\]]] \
 	"" $DEFAULT_CFLAGS
 
@@ -117,6 +132,7 @@ dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/md/*.\[cS\]]] \
 torture-init
 set-torture-options [list -Os -O0 -O1 -O2 -O3]
 gcc-dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/hotpatch-\[0-9\]*.c]] \
+<<<<<<< HEAD
 =======
 set hotpatch_tests $srcdir/$subdir/hotpatch-\[0-9\]*.c
 
@@ -126,6 +142,8 @@ dg-runtest [lsort [prune [glob -nocomplain $srcdir/$subdir/*.\[cS\]] \
 
 dg-runtest [lsort [glob -nocomplain $srcdir/$subdir/*vector*/*.\[cS\]]] \
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	"" $DEFAULT_CFLAGS
 torture-finish
 
@@ -139,6 +157,7 @@ set MD_TEST_OPTS [list \
 	{-O3 -march=z900} {-O3 -march=z13}]
 set-torture-options $MD_TEST_OPTS
 gcc-dg-runtest [lsort [glob -nocomplain $md_tests]] "" $DEFAULT_CFLAGS
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 torture-finish
 
@@ -147,6 +166,8 @@ torture-init
 set HOTPATCH_TEST_OPTS [list -Os -O0 -O1 -O2 -O3]
 set-torture-options $HOTPATCH_TEST_OPTS
 gcc-dg-runtest [lsort [glob -nocomplain $hotpatch_tests]] "" $DEFAULT_CFLAGS
+=======
+>>>>>>> gcc-mirror/trunk
 torture-finish
 
 # All done.

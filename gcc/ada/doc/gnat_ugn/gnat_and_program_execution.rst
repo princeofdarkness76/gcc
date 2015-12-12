@@ -3872,6 +3872,7 @@ execution of this erroneous program:
   platforms (currently, it is supported on AIX, HP-UX, GNU/Linux, Solaris and
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   Windows.
 =======
   Windows).
@@ -3879,6 +3880,9 @@ execution of this erroneous program:
 =======
   Windows.
 >>>>>>> master
+=======
+  Windows).
+>>>>>>> gcc-mirror/trunk
 
   The `gnatmem` command has the form
 

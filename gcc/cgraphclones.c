@@ -435,6 +435,7 @@ cgraph_node::create_clone (tree new_decl, gcov_type gcov_count, int freq,
   new_node->icf_merged = icf_merged;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   new_node->merged = merged;
 =======
   new_node->merged_comdat = merged_comdat;
@@ -442,6 +443,9 @@ cgraph_node::create_clone (tree new_decl, gcov_type gcov_count, int freq,
 =======
   new_node->merged = merged;
 >>>>>>> master
+=======
+  new_node->merged_comdat = merged_comdat;
+>>>>>>> gcc-mirror/trunk
 
   new_node->clone.tree_map = NULL;
   new_node->clone.args_to_skip = args_to_skip;

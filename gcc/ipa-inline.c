@@ -468,6 +468,7 @@ can_inline_edge_p (struct cgraph_edge *e, bool report,
 	 DECL_DISREGARD_INLINE_LIMITS is set.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       else if ((callee->merged
 =======
       else if ((callee->merged_comdat
@@ -475,6 +476,9 @@ can_inline_edge_p (struct cgraph_edge *e, bool report,
 =======
       else if ((callee->merged
 >>>>>>> master
+=======
+      else if ((callee->merged_comdat
+>>>>>>> gcc-mirror/trunk
 	        && !lookup_attribute ("optimize",
 				      DECL_ATTRIBUTES (caller->decl)))
 	       || DECL_DISREGARD_INLINE_LIMITS (callee->decl))

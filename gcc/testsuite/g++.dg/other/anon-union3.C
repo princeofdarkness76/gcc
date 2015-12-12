@@ -5,12 +5,16 @@ class C
   auto union      // { dg-error "storage class" "" { target { ! c++11 } } }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     {
 =======
     {		  // { dg-error "auto" "" { target c++11 } 5 }
 >>>>>>> gcc-mirror/master
+=======
+    {		  // { dg-error "auto" "" { target c++11 } 5 }
+>>>>>>> gcc-mirror/trunk
       int a;
     };            // { dg-error "multiple types" "" { target c++11 } }
   register union  // { dg-error "storage class" }

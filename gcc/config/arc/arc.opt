@@ -416,6 +416,7 @@ Target Joined
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 matomic
 Target Report Mask(ATOMIC)
@@ -423,3 +424,8 @@ Enable atomic instructions.
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+matomic
+Target Report Mask(ATOMIC)
+Enable atomic instructions.
+>>>>>>> gcc-mirror/trunk

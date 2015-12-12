@@ -45,11 +45,15 @@ along with GCC; see the file COPYING3.  If not see
 #include "gimple-fold.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "tree-scalar-evolution.h"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "tree-scalar-evolution.h"
+>>>>>>> gcc-mirror/trunk
 
 /* TODO:  Support for predicated code motion.  I.e.
 
@@ -880,10 +884,14 @@ rewrite_bittest (gimple_stmt_iterator *bsi)
       || !single_imm_use (lhs, &use, &use_stmt))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
     return stmt;
   cond_stmt = dyn_cast <gcond *> (use_stmt);
   if (!cond_stmt)
     return stmt;
+<<<<<<< HEAD
 =======
     return stmt;
   cond_stmt = dyn_cast <gcond *> (use_stmt);
@@ -896,6 +904,8 @@ rewrite_bittest (gimple_stmt_iterator *bsi)
   if (!cond_stmt)
     return stmt;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (gimple_cond_lhs (cond_stmt) != lhs
       || (gimple_cond_code (cond_stmt) != NE_EXPR
 	  && gimple_cond_code (cond_stmt) != EQ_EXPR)
@@ -980,6 +990,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -987,12 +998,16 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
 };
 
 /* Determine the outermost loops in that statements in basic block BB are
    invariant, and record them to the LIM_DATA associated with the statements.
    Callback for dom_walker.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 void
@@ -1002,6 +1017,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 invariantness_dom_walker::before_dom_children (basic_block bb)
 {
   enum move_pos pos;
@@ -1141,6 +1159,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -1148,6 +1167,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
 
   unsigned int todo_;
 };
@@ -1158,6 +1180,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -1165,6 +1188,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 move_computations_dom_walker::before_dom_children (basic_block bb)
 {
   struct loop *level;
@@ -2617,6 +2643,7 @@ pass_lim::execute (function *fun)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   if (number_of_loops (fun) <= 1)
@@ -2625,6 +2652,8 @@ pass_lim::execute (function *fun)
   return tree_ssa_lim ();
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   bool in_loop_pipeline = scev_initialized_p ();
   if (!in_loop_pipeline)
     loop_optimizer_init (LOOPS_NORMAL | LOOPS_HAVE_RECORDED_EXITS);
@@ -2636,9 +2665,12 @@ pass_lim::execute (function *fun)
   if (!in_loop_pipeline)
     loop_optimizer_finalize ();
   return todo;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 } // anon namespace

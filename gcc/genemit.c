@@ -288,7 +288,10 @@ gen_emit_seq (rtvec vec, char *used)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Emit the given C code to the output file.  The code is allowed to
    fail if CAN_FAIL_P.  NAME describes what we're generating,
@@ -311,9 +314,12 @@ emit_c_code (const char *code, bool can_fail_p, const char *name)
   printf ("#undef DONE\n");
   printf ("#undef FAIL\n");
 }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Generate the `gen_...' function for a DEFINE_INSN.  */
 

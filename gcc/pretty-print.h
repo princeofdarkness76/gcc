@@ -39,6 +39,7 @@ struct text_info
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   inline void set_location (unsigned int idx, location_t loc, bool caret_p)
@@ -55,6 +56,9 @@ struct text_info
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  void set_location (unsigned int idx, location_t loc, bool caret_p);
+>>>>>>> gcc-mirror/trunk
   location_t get_location (unsigned int index_of_location) const;
 };
 

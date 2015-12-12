@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Test storage classes in the initialization of a <#pragma simd> for
 // loop.
 
@@ -13,11 +14,14 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 int *a, *b;
 
 void foo()
 {
 #pragma simd
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -83,5 +87,8 @@ void foo()
 =======
   for (const int ci=0; ci<1000; ++ci) /* { dg-error "increment of read-only var\|invalid controlling\|invalid increment\|assignment of read" } */
 >>>>>>> master
+=======
+  for (const int ci=0; ci<1000; ++ci) /* { dg-error "increment of read-only var\|invalid controlling\|invalid increment\|assignment of read" } */
+>>>>>>> gcc-mirror/trunk
     a[ci] = b[ci];
 }

@@ -141,7 +141,10 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #elif defined (__x86_64__)
 
 /* These are the cfi colunm numbers */
@@ -168,9 +171,12 @@
 
 #define FUNCTION "@function"
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #else
 Not_implemented;
 #endif /* REGNO constants */
@@ -208,15 +214,21 @@ Not_implemented;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #elif defined (__x86_64__)
 
 /* R15 register */
 #define CFA_REG 15
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #else
 Not_implemented;
 #endif /* CFA setup block */
@@ -411,7 +423,10 @@ TCR("ret")
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #elif defined (__x86_64__)
 
 #define COMMON_CFI(REG) \
@@ -459,9 +474,12 @@ TCR("# This part should never be executed") \
 TCR("addq	$8, %rsp") \
 TCR("ret")
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #else
 Not_implemented;
 #endif /* CFI_COMMON_REGS and SIGTRAMP_BODY */

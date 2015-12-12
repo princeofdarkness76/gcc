@@ -1173,11 +1173,15 @@ check_redeclaration_exception_specification (tree new_decl,
   tree old_exceptions = TYPE_RAISES_EXCEPTIONS (TREE_TYPE (old_decl));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Two default specs are equivalent, don't force evaluation.  */
   if (UNEVALUATED_NOEXCEPT_SPEC_P (new_exceptions)
       && UNEVALUATED_NOEXCEPT_SPEC_P (old_exceptions))
     return;
+<<<<<<< HEAD
 
 =======
 
@@ -1195,6 +1199,9 @@ check_redeclaration_exception_specification (tree new_decl,
     return;
 
 >>>>>>> master
+=======
+
+>>>>>>> gcc-mirror/trunk
   maybe_instantiate_noexcept (new_decl);
   maybe_instantiate_noexcept (old_decl);
   new_exceptions = TYPE_RAISES_EXCEPTIONS (TREE_TYPE (new_decl));
@@ -8116,6 +8123,7 @@ grokfndecl (tree ctype,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (omp_declare_simd_clauses)
     finish_omp_declare_simd (decl, omp_declare_simd_clauses);
 =======
@@ -8123,6 +8131,8 @@ grokfndecl (tree ctype,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (flag_openmp || flag_openmp_simd || flag_cilkplus)
     {
       /* Adjust "omp declare simd" attributes.  */
@@ -8151,11 +8161,14 @@ grokfndecl (tree ctype,
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Caller will do the rest of this.  */
   if (check < 0)

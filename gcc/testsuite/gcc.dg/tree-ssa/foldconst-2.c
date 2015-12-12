@@ -57,6 +57,7 @@ emit_support_tinfos (void)
 /* We should copy loop header to fundamentals[0] and then fold it way into
    known value.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "fundamentals.0" "ch"} } */
 <<<<<<< HEAD
 =======
@@ -64,3 +65,6 @@ emit_support_tinfos (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-not "fundamentals.0" "ch2"} } */
+>>>>>>> gcc-mirror/trunk

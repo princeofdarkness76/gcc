@@ -432,6 +432,7 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 		       unsigned nops, unsigned int *max_nunits,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		       unsigned int vectorization_factor, bool *matches,
 		       bool *two_operators)
 =======
@@ -441,6 +442,9 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 		       unsigned int vectorization_factor, bool *matches,
 		       bool *two_operators)
 >>>>>>> master
+=======
+		       bool *matches, bool *two_operators)
+>>>>>>> gcc-mirror/trunk
 {
   unsigned int i;
   gimple *first_stmt = stmts[0], *stmt = stmts[0];
@@ -533,6 +537,7 @@ vect_build_slp_tree_1 (vec_info *vinfo,
       /* In case of multiple types we need to detect the smallest type.  */
       if (*max_nunits < TYPE_VECTOR_SUBPARTS (vectype))
 <<<<<<< HEAD
+<<<<<<< HEAD
         {
           *max_nunits = TYPE_VECTOR_SUBPARTS (vectype);
           if (is_a <bb_vec_info> (vinfo))
@@ -541,6 +546,9 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 =======
 	*max_nunits = TYPE_VECTOR_SUBPARTS (vectype);
 >>>>>>> gcc-mirror/master
+=======
+	*max_nunits = TYPE_VECTOR_SUBPARTS (vectype);
+>>>>>>> gcc-mirror/trunk
 
       if (gcall *call_stmt = dyn_cast <gcall *> (stmt))
 	{
@@ -715,6 +723,7 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 	      /* Load.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
               /* Check that the size of interleaved loads group is not
@@ -747,6 +756,8 @@ vect_build_slp_tree_1 (vec_info *vinfo,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
               first_load = GROUP_FIRST_ELEMENT (vinfo_for_stmt (stmt));
               if (prev_first_load)
                 {
@@ -894,12 +905,15 @@ vect_build_slp_tree (vec_info *vinfo,
                      unsigned int *max_nunits,
                      vec<slp_tree> *loads,
 <<<<<<< HEAD
+<<<<<<< HEAD
                      unsigned int vectorization_factor,
 <<<<<<< HEAD
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 		     bool *matches, unsigned *npermutes, unsigned *tree_size,
 		     unsigned max_tree_size)
 {
@@ -925,6 +939,7 @@ vect_build_slp_tree (vec_info *vinfo,
 			      SLP_TREE_SCALAR_STMTS (*node), group_size, nops,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      max_nunits, vectorization_factor, matches,
 			      &two_operators))
 =======
@@ -934,6 +949,9 @@ vect_build_slp_tree (vec_info *vinfo,
 			      max_nunits, vectorization_factor, matches,
 			      &two_operators))
 >>>>>>> master
+=======
+			      max_nunits, matches, &two_operators))
+>>>>>>> gcc-mirror/trunk
     return false;
   SLP_TREE_TWO_OPERATORS (*node) = two_operators;
 
@@ -998,6 +1016,7 @@ vect_build_slp_tree (vec_info *vinfo,
       if (vect_build_slp_tree (vinfo, &child,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			       group_size, max_nunits, loads,
 			       vectorization_factor, matches,
 =======
@@ -1007,6 +1026,9 @@ vect_build_slp_tree (vec_info *vinfo,
 			       group_size, max_nunits, loads,
 			       vectorization_factor, matches,
 >>>>>>> master
+=======
+			       group_size, max_nunits, loads, matches,
+>>>>>>> gcc-mirror/trunk
 			       npermutes, &this_tree_size, max_tree_size))
 	{
 	  /* If we have all children of child built up from scalars then just
@@ -1121,6 +1143,7 @@ vect_build_slp_tree (vec_info *vinfo,
 	  if (vect_build_slp_tree (vinfo, &child,
 				   group_size, max_nunits, loads,
 <<<<<<< HEAD
+<<<<<<< HEAD
 				   vectorization_factor,
 				   tem, npermutes, &this_tree_size,
 				   max_tree_size))
@@ -1130,6 +1153,11 @@ vect_build_slp_tree (vec_info *vinfo,
 				   tem, npermutes, &this_tree_size,
 				   max_tree_size))
 	    {
+=======
+				   tem, npermutes, &this_tree_size,
+				   max_tree_size))
+	    {
+>>>>>>> gcc-mirror/trunk
 	      /* If we have all children of child built up from scalars then
 		 just throw that away and build it up this node from scalars.  */
 	      if (!SLP_TREE_CHILDREN (child).is_empty ())
@@ -1159,10 +1187,13 @@ vect_build_slp_tree (vec_info *vinfo,
 		    }
 		}
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	    {
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	      /* ... so if successful we can apply the operand swapping
 		 to the GIMPLE IL.  This is necessary because for example
 		 vect_get_slp_defs uses operand indexes and thus expects
@@ -1329,12 +1360,17 @@ vect_attempt_slp_rearrange_stmts (slp_instance slp_instn)
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (lidx >= group_size)
 	return false;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if (lidx >= group_size)
+	return false;
+>>>>>>> gcc-mirror/trunk
       if (bitmap_bit_p (load_index, lidx))
 	{
 	  sbitmap_free (load_index);
@@ -1722,12 +1758,15 @@ vect_analyze_slp_instance (vec_info *vinfo,
   gimple *next;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   unsigned int vectorization_factor = 0;
 =======
 >>>>>>> gcc-mirror/master
 =======
   unsigned int vectorization_factor = 0;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   unsigned int i;
   unsigned int max_nunits = 0;
   vec<slp_tree> loads;
@@ -1771,6 +1810,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
   nunits = TYPE_VECTOR_SUBPARTS (vectype);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   if (is_a <loop_vec_info> (vinfo))
@@ -1779,6 +1819,8 @@ vect_analyze_slp_instance (vec_info *vinfo,
     vectorization_factor = nunits;
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Calculate the unrolling factor.  */
   unrolling_factor = least_common_multiple (nunits, group_size) / group_size;
@@ -1833,6 +1875,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
 			   &max_nunits, &loads,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   vectorization_factor, matches, &npermutes, NULL,
 			   max_tree_size))
 =======
@@ -1842,6 +1885,9 @@ vect_analyze_slp_instance (vec_info *vinfo,
 			   vectorization_factor, matches, &npermutes, NULL,
 			   max_tree_size))
 >>>>>>> master
+=======
+			   matches, &npermutes, NULL, max_tree_size))
+>>>>>>> gcc-mirror/trunk
     {
       /* Calculate the unrolling factor based on the smallest type.  */
       if (max_nunits > nunits)
@@ -1939,6 +1985,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
   /* For basic block SLP, try to break the group up into multiples of the
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      vectorization factor.  */
 =======
      vector size.  */
@@ -1946,6 +1993,9 @@ vect_analyze_slp_instance (vec_info *vinfo,
 =======
      vectorization factor.  */
 >>>>>>> master
+=======
+     vector size.  */
+>>>>>>> gcc-mirror/trunk
   if (is_a <bb_vec_info> (vinfo)
       && GROUP_FIRST_ELEMENT (vinfo_for_stmt (stmt))
       && STMT_VINFO_GROUPED_ACCESS (vinfo_for_stmt (stmt)))
@@ -1957,6 +2007,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (i >= vectorization_factor && i < group_size)
@@ -1966,14 +2017,19 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	  unsigned group1_size = i & ~(vectorization_factor - 1);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (i >= nunits && i < group_size)
 	{
 	  /* Split into two groups at the first vector boundary before i.  */
 	  gcc_assert ((nunits & (nunits - 1)) == 0);
 	  unsigned group1_size = i & ~(nunits - 1);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 	  gimple *rest = vect_split_slp_store_group (stmt, group1_size);
 	  bool res = vect_analyze_slp_instance (vinfo, stmt, max_tree_size);
@@ -1981,6 +2037,7 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	     skip the rest of that vector.  */
 	  if (group1_size < i)
 	    {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	      i = group1_size + vectorization_factor;
@@ -1996,6 +2053,11 @@ vect_analyze_slp_instance (vec_info *vinfo,
 	      if (i < group_size)
 		rest = vect_split_slp_store_group (rest, vectorization_factor);
 >>>>>>> master
+=======
+	      i = group1_size + nunits;
+	      if (i < group_size)
+		rest = vect_split_slp_store_group (rest, nunits);
+>>>>>>> gcc-mirror/trunk
 	    }
 	  if (i < group_size)
 	    res |= vect_analyze_slp_instance (vinfo, rest, max_tree_size);
@@ -2040,6 +2102,7 @@ vect_analyze_slp (vec_info *vinfo, unsigned max_tree_size)
 		return false;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	  /* Don't try to vectorize SLP reductions if reduction chain was
 	     detected.  */
@@ -2070,6 +2133,21 @@ vect_analyze_slp (vec_info *vinfo, unsigned max_tree_size)
     }
 
 >>>>>>> gcc-mirror/master
+=======
+
+	  /* Don't try to vectorize SLP reductions if reduction chain was
+	     detected.  */
+	  return ok;
+	}
+
+      /* Find SLP sequences starting from groups of reductions.  */
+      if (loop_vinfo->reductions.length () > 1
+	  && vect_analyze_slp_instance (vinfo, loop_vinfo->reductions[0],
+					max_tree_size))
+	ok = true;
+    }
+
+>>>>>>> gcc-mirror/trunk
   return true;
 }
 
@@ -2239,6 +2317,7 @@ vect_detect_hybrid_slp (loop_vec_info loop_vinfo)
     dump_printf_loc (MSG_NOTE, vect_location, "=== vect_detect_hybrid_slp ==="
                      "\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /* First walk all pattern stmt in the loop and mark defs of uses as
      hybrid because immediate uses in them are not recorded.  */
@@ -2267,6 +2346,8 @@ vect_detect_hybrid_slp (loop_vec_info loop_vinfo)
     }
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* First walk all pattern stmt in the loop and mark defs of uses as
      hybrid because immediate uses in them are not recorded.  */
@@ -2294,7 +2375,10 @@ vect_detect_hybrid_slp (loop_vec_info loop_vinfo)
 	}
     }
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Then walk the SLP instance trees marking stmts with uses in
      non-SLP stmts as hybrid, also propagating hybrid down the
      SLP tree, collecting the above info on-the-fly.  */
@@ -2891,6 +2975,7 @@ vect_mask_constant_operand_p (gimple *stmt, int opnum)
   if (code == COND_EXPR)
     {
       tree cond = gimple_assign_rhs1 (stmt);
+<<<<<<< HEAD
 
       if (TREE_CODE (cond) == SSA_NAME)
 	return false;
@@ -2900,6 +2985,17 @@ vect_mask_constant_operand_p (gimple *stmt, int opnum)
       else
 	op = TREE_OPERAND (cond, 0);
 
+=======
+
+      if (TREE_CODE (cond) == SSA_NAME)
+	return false;
+
+      if (opnum)
+	op = TREE_OPERAND (cond, 1);
+      else
+	op = TREE_OPERAND (cond, 0);
+
+>>>>>>> gcc-mirror/trunk
       if (!vect_is_simple_use (op, stmt_vinfo->vinfo, &def_stmt,
 			       &dt, &vectype))
 	gcc_unreachable ();
@@ -3393,6 +3489,7 @@ vect_create_mask_and_perm (gimple *stmt,
       second_vec = dr_chain[second_vec_indx];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* Generate the permute statement.  */
       perm_stmt = gimple_build_assign (perm_dest, VEC_PERM_EXPR,
 				       first_vec, second_vec, mask);
@@ -3400,6 +3497,8 @@ vect_create_mask_and_perm (gimple *stmt,
       gimple_set_lhs (perm_stmt, data_ref);
       vect_finish_stmt_generation (stmt, perm_stmt, gsi);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* Generate the permute statement if necessary.  */
       if (mask)
 	{
@@ -3412,11 +3511,15 @@ vect_create_mask_and_perm (gimple *stmt,
       else
 	/* If mask was NULL_TREE generate the requested identity transform.  */
 	perm_stmt = SSA_NAME_DEF_STMT (first_vec);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
       /* Store the vector statement in NODE.  */
       SLP_TREE_VEC_STMTS (node)[stride_out * i + vect_stmts_counter]
 	= perm_stmt;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3513,6 +3616,8 @@ vect_get_mask_element (gimple *stmt, int first_mask_element, int m,
   *need_next_vector = *mask_fixed;
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
       first_vec_indx += stride_in;
       second_vec_indx += stride_in;
@@ -3535,6 +3640,7 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
   tree mask_element_type = NULL_TREE, mask_type;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   int i, j, k, nunits, vec_index = 0;
 =======
   int nunits, vec_index = 0;
@@ -3542,10 +3648,14 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 =======
   int i, j, k, nunits, vec_index = 0;
 >>>>>>> master
+=======
+  int nunits, vec_index = 0;
+>>>>>>> gcc-mirror/trunk
   tree vectype = STMT_VINFO_VECTYPE (stmt_info);
   int group_size = SLP_INSTANCE_GROUP_SIZE (slp_node_instance);
   int unroll_factor, mask_element, ncopies;
   unsigned char *mask;
+<<<<<<< HEAD
 <<<<<<< HEAD
   bool only_one_vec = false, need_next_vector = false;
   int first_vec_index, second_vec_index, orig_vec_stmts_num, vect_stmts_counter;
@@ -3590,6 +3700,16 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 
   mode = TYPE_MODE (vectype);
 >>>>>>> gcc-mirror/master
+=======
+  machine_mode mode;
+
+  if (!STMT_VINFO_GROUPED_ACCESS (stmt_info))
+    return false;
+
+  stmt_info = vinfo_for_stmt (GROUP_FIRST_ELEMENT (stmt_info));
+
+  mode = TYPE_MODE (vectype);
+>>>>>>> gcc-mirror/trunk
 
   /* The generic VEC_PERM_EXPR code always uses an integral type of the
      same size as the vector element being permuted.  */
@@ -3600,6 +3720,7 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
   mask = XALLOCAVEC (unsigned char, nunits);
   unroll_factor = SLP_INSTANCE_UNROLLING_FACTOR (slp_node_instance);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   /* The number of vector stmts to generate based only on SLP_NODE_INSTANCE
      unrolling factor.  */
@@ -3612,6 +3733,8 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Number of copies is determined by the final vectorization factor
      relatively to SLP_NODE_INSTANCE unrolling factor.  */
   ncopies = vf / SLP_INSTANCE_UNROLLING_FACTOR (slp_node_instance);
@@ -3634,6 +3757,7 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
      we need the second and the third vectors: {b1,c1,a2,b2} and
      {c2,a3,b3,c3}.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3711,6 +3835,53 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 	  mask[index++] = mask_element;
 >>>>>>> gcc-mirror/master
 
+=======
+  int vect_stmts_counter = 0;
+  int index = 0;
+  int first_vec_index = -1;
+  int second_vec_index = -1;
+  bool noop_p = true;
+
+  for (int j = 0; j < unroll_factor; j++)
+    {
+      for (int k = 0; k < group_size; k++)
+	{
+	  int i = (SLP_TREE_LOAD_PERMUTATION (node)[k]
+		   + j * STMT_VINFO_GROUP_SIZE (stmt_info));
+	  vec_index = i / nunits;
+	  mask_element = i % nunits;
+	  if (vec_index == first_vec_index
+	      || first_vec_index == -1)
+	    {
+	      first_vec_index = vec_index;
+	    }
+	  else if (vec_index == second_vec_index
+		   || second_vec_index == -1)
+	    {
+	      second_vec_index = vec_index;
+	      mask_element += nunits;
+	    }
+	  else
+	    {
+	      if (dump_enabled_p ())
+		{
+		  dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+				   "permutation requires at "
+				   "least three vectors ");
+		  dump_gimple_stmt (MSG_MISSED_OPTIMIZATION, TDF_SLIM,
+				    stmt, 0);
+		  dump_printf (MSG_MISSED_OPTIMIZATION, "\n");
+		}
+	      return false;
+	    }
+
+	  gcc_assert (mask_element >= 0
+		      && mask_element < 2 * nunits);
+	  if (mask_element != index)
+	    noop_p = false;
+	  mask[index++] = mask_element;
+
+>>>>>>> gcc-mirror/trunk
 	  if (index == nunits)
 	    {
 	      if (! noop_p
@@ -3742,6 +3913,7 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 		    }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		      if (need_next_vector)
                         {
                           first_vec_index = second_vec_index;
@@ -3757,6 +3929,8 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
             }
         }
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 		  if (second_vec_index == -1)
 		    second_vec_index = first_vec_index;
 		  vect_create_mask_and_perm (stmt, mask_vec, first_vec_index,
@@ -3771,7 +3945,10 @@ vect_transform_slp_perm_load (slp_tree node, vec<tree> dr_chain,
 	      noop_p = true;
 	    }
 	}
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   return true;

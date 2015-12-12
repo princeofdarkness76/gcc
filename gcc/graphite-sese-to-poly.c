@@ -49,8 +49,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "tree-ssa-propagate.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 #include <isl/constraint.h>
 #include <isl/set.h>
@@ -60,6 +63,7 @@ along with GCC; see the file COPYING3.  If not see
 #include <isl/aff.h>
 #include <isl/val.h>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -74,6 +78,8 @@ along with GCC; see the file COPYING3.  If not see
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Since ISL-0.13, the extern is in val_gmp.h.  */
 #if !defined(HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE) && defined(__cplusplus)
 extern "C" {
@@ -85,6 +91,7 @@ extern "C" {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 =======
 #include "graphite.h"
@@ -92,6 +99,9 @@ extern "C" {
 =======
 #include "graphite-poly.h"
 >>>>>>> master
+=======
+#include "graphite.h"
+>>>>>>> gcc-mirror/trunk
 
 /* Assigns to RES the value of the INTEGER_CST T.  */
 
@@ -195,9 +205,15 @@ build_pbb_scattering_polyhedrons (isl_aff *static_sched,
 				  poly_bb_p pbb)
 {
   isl_val *val;
+<<<<<<< HEAD
 
   int scattering_dimensions = isl_set_dim (pbb->domain, isl_dim_set) * 2 + 1;
 
+=======
+
+  int scattering_dimensions = isl_set_dim (pbb->domain, isl_dim_set) * 2 + 1;
+
+>>>>>>> gcc-mirror/trunk
   isl_space *dc = isl_set_get_space (pbb->domain);
   isl_space *dm = isl_space_add_dims (isl_space_from_domain (dc),
 				      isl_dim_out, scattering_dimensions);
@@ -242,6 +258,7 @@ build_pbb_scattering_polyhedrons (isl_aff *static_sched,
 	sequence_and_loop_dims[i + j] = true;
     }
 
+<<<<<<< HEAD
   int scattering_dimensions = local_dim + actual_nb_dim;
   isl_space *dc = isl_set_get_space (pbb->domain);
   isl_space *dm = isl_space_add_dims (isl_space_from_domain (dc), isl_dim_out,
@@ -283,6 +300,8 @@ build_pbb_scattering_polyhedrons (isl_aff *static_sched,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   pbb->transformed = isl_map_copy (pbb->schedule);
 }
 
@@ -326,10 +345,13 @@ build_scop_minimal_scattering (scop_p scop)
   gimple_poly_bb_p previous_gbb = NULL;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   int *temp_for_sequence_dims = NULL;
   int i;
   poly_bb_p pbb;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   isl_space *dc = isl_set_get_space (scop->param_context);
   isl_aff *static_sched;
 >>>>>>> gcc-mirror/master
@@ -348,18 +370,33 @@ build_scop_minimal_scattering (scop_p scop)
   nb_dims++;
   temp_for_sequence_dims = XCNEWVEC (int, nb_dims);
 
+<<<<<<< HEAD
   /* Record the number of common loops for each dimension.  */
+=======
+  int i;
+  poly_bb_p pbb;
+>>>>>>> gcc-mirror/trunk
   FOR_EACH_VEC_ELT (scop->pbbs, i, pbb)
     {
       gimple_poly_bb_p gbb = PBB_BLACK_BOX (pbb);
       int prefix = 0;
 
       if (previous_gbb)
+<<<<<<< HEAD
 	{
 	  prefix = nb_common_loops (scop->scop_info->region, previous_gbb, gbb);
 	  temp_for_sequence_dims[prefix] += 1;
 	}
       previous_gbb = gbb;
+=======
+	prefix = nb_common_loops (scop->scop_info->region, previous_gbb, gbb);
+
+      previous_gbb = gbb;
+
+      static_sched = isl_aff_add_coefficient_si (static_sched, isl_dim_in,
+						 prefix, 1);
+      build_pbb_scattering_polyhedrons (static_sched, pbb);
+>>>>>>> gcc-mirror/trunk
     }
 
   /* Analyze the info in temp_for_sequence_dim and determine the minimal number
@@ -385,10 +422,23 @@ build_scop_minimal_scattering (scop_p scop)
 
   XDELETEVEC (temp_for_sequence_dims);
 
+<<<<<<< HEAD
 =======
   int *temp_for_sequence_dims = NULL;
   int i;
   poly_bb_p pbb;
+=======
+static isl_pw_aff *
+extract_affine_chrec (scop_p s, tree e, __isl_take isl_space *space)
+{
+  isl_pw_aff *lhs = extract_affine (s, CHREC_LEFT (e), isl_space_copy (space));
+  isl_pw_aff *rhs = extract_affine (s, CHREC_RIGHT (e), isl_space_copy (space));
+  isl_local_space *ls = isl_local_space_from_space (space);
+  unsigned pos = sese_loop_depth (s->scop_info->region, get_chrec_loop (e)) - 1;
+  isl_aff *loop = isl_aff_set_coefficient_si
+    (isl_aff_zero_on_domain (ls), isl_dim_in, pos, 1);
+  isl_pw_aff *l = isl_pw_aff_from_aff (loop);
+>>>>>>> gcc-mirror/trunk
 
   /* Go through the pbbs to determine the minimum number of dimensions needed to
      build the static schedule.  */
@@ -584,6 +634,7 @@ static isl_id *
 isl_id_for_ssa_name (scop_p s, tree e)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const char *name = get_name (e);
   isl_id *id;
 
@@ -602,6 +653,11 @@ isl_id_for_ssa_name (scop_p s, tree e)
   snprintf (name1, sizeof (name1), "P_%d", SSA_NAME_VERSION (e));
   return isl_id_alloc (s->isl_context, name1, e);
 >>>>>>> gcc-mirror/master
+=======
+  char name1[10];
+  snprintf (name1, sizeof (name1), "P_%d", SSA_NAME_VERSION (e));
+  return isl_id_alloc (s->isl_context, name1, e);
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Return an ISL identifier for the data reference DR.  Data references and
@@ -764,6 +820,9 @@ extract_affine (scop_p s, tree e, __isl_take isl_space *space)
 /* Assign dimension for each parameter in SCOP.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
 static void
 set_scop_parameter_dim (scop_p scop)
@@ -811,6 +870,7 @@ build_loop_iteration_domains (scop_p scop, struct loop *loop,
 
   mpz_init (g);
 
+<<<<<<< HEAD
 =======
 
 static void
@@ -882,6 +942,8 @@ build_loop_iteration_domains (scop_p scop, struct loop *loop,
   mpz_init (g);
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   inner = isl_set_add_dims (inner, isl_dim_set, 1);
   isl_space *space = isl_set_get_space (inner);
 
@@ -1252,10 +1314,14 @@ pdr_add_alias_set (isl_map *acc, dr_info &dri)
   c = isl_constraint_set_coefficient_si (c, isl_dim_out, 0, 1);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
   return isl_map_add_constraint (acc, c);
 }
 
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> master
@@ -1267,6 +1333,8 @@ pdr_add_alias_set (isl_map *acc, dr_info &dri)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Add a constrain to the ACCESSES polyhedron for the alias set of
    data reference DR.  ACCESSP_NB_DIMS is the dimension of the
    ACCESSES polyhedron, DOM_NB_DIMS is the dimension of the iteration
@@ -1386,6 +1454,7 @@ pdr_add_data_dimensions (isl_set *subscript_sizes, scop_p scop,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (tree_fits_shwi_p (low)
@@ -1427,6 +1496,8 @@ pdr_add_data_dimensions (isl_set *subscript_sizes, scop_p scop,
 	  subscript_sizes = isl_set_intersect (subscript_sizes, ubs);
 	}
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       isl_space *space = isl_set_get_space (subscript_sizes);
       isl_pw_aff *lb = extract_affine_int (low, isl_space_copy (space));
       isl_pw_aff *ub = extract_affine_int (high, isl_space_copy (space));
@@ -1453,7 +1524,10 @@ pdr_add_data_dimensions (isl_set *subscript_sizes, scop_p scop,
       isl_set *ubs = isl_pw_aff_le_set (index, ub);
       subscript_sizes = isl_set_intersect (subscript_sizes, lbs);
       subscript_sizes = isl_set_intersect (subscript_sizes, ubs);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   return subscript_sizes;
@@ -1499,6 +1573,7 @@ build_poly_dr (dr_info &dri)
 	       acc, subscript_sizes);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 static void
@@ -1604,6 +1679,10 @@ build_poly_sr_1 (poly_bb_p pbb, gimple *stmt, tree var, enum poly_dr_type kind,
 }
 
 <<<<<<< HEAD
+=======
+}
+
+>>>>>>> gcc-mirror/trunk
 static void
 build_poly_sr_1 (poly_bb_p pbb, gimple *stmt, tree var, enum poly_dr_type kind,
 		 isl_map *acc, isl_set *subscript_sizes)
@@ -1623,6 +1702,7 @@ build_poly_sr_1 (poly_bb_p pbb, gimple *stmt, tree var, enum poly_dr_type kind,
 static void
 build_poly_sr (poly_bb_p pbb)
 {
+<<<<<<< HEAD
 =======
 /* Record all cross basic block scalar variables in PBB.  */
 
@@ -1630,6 +1710,8 @@ static void
 build_poly_sr (poly_bb_p pbb)
 {
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   scop_p scop = PBB_SCOP (pbb);
   gimple_poly_bb_p gbb = PBB_BLACK_BOX (pbb);
   vec<scalar_use> reads = gbb->read_scalar_refs;
@@ -1645,6 +1727,9 @@ build_poly_sr (poly_bb_p pbb)
   acc = isl_map_set_tuple_id (acc, isl_dim_out, id);
   isl_set *subscript_sizes = isl_set_nat_universe (space);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
   int i;
   tree var;
@@ -1661,6 +1746,7 @@ build_poly_sr (poly_bb_p pbb)
   isl_set_free (subscript_sizes);
 }
 
+<<<<<<< HEAD
 =======
 
   int i;
@@ -1679,6 +1765,8 @@ build_poly_sr (poly_bb_p pbb)
 }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Build data references in SCOP.  */
 
 static void
@@ -1709,6 +1797,7 @@ build_poly_scop (scop_p scop)
     return false;
 
   build_scop_drs (scop);
+<<<<<<< HEAD
 <<<<<<< HEAD
   build_scop_scattering (scop);
   return true;
@@ -1720,4 +1809,9 @@ build_poly_scop (scop_p scop)
   return true;
 }
 >>>>>>> master
+=======
+  build_scop_scattering (scop);
+  return true;
+}
+>>>>>>> gcc-mirror/trunk
 #endif  /* HAVE_isl */

@@ -210,6 +210,7 @@ public:
     : dom_walker (direction) {}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   virtual void before_dom_children (basic_block);
@@ -227,6 +228,13 @@ edge
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+  virtual void after_dom_children (basic_block);
+};
+
+edge
+>>>>>>> gcc-mirror/trunk
 single_def_use_dom_walker::before_dom_children (basic_block bb)
 {
   int bb_index = bb->index;

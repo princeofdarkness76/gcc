@@ -555,6 +555,9 @@ aarch64_simd_builtin_type (enum machine_mode mode,
 }
  
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 static void
 aarch64_init_simd_builtin_types (void)
 {
@@ -642,6 +645,7 @@ aarch64_init_simd_builtin_types (void)
 static void
 aarch64_init_simd_builtin_scalar_types (void)
 {
+<<<<<<< HEAD
 =======
 static void
 aarch64_init_simd_builtin_types (void)
@@ -731,6 +735,8 @@ static void
 aarch64_init_simd_builtin_scalar_types (void)
 {
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Define typedefs for all the standard scalar types.  */
   (*lang_hooks.types.register_builtin_type) (intQI_type_node,
 					     "__builtin_aarch64_simd_qi");
@@ -1105,6 +1111,7 @@ constant_arg:
       break;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     case 2:
       pat = GEN_FCN (icode) (op[0], op[1]);
@@ -1172,6 +1179,29 @@ constant_arg:
       break;
 
 >>>>>>> master
+=======
+
+    case 2:
+      pat = GEN_FCN (icode) (op[0], op[1]);
+      break;
+
+    case 3:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2]);
+      break;
+
+    case 4:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3]);
+      break;
+
+    case 5:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3], op[4]);
+      break;
+
+    case 6:
+      pat = GEN_FCN (icode) (op[0], op[1], op[2], op[3], op[4], op[5]);
+      break;
+
+>>>>>>> gcc-mirror/trunk
     default:
       gcc_unreachable ();
     }
@@ -1220,6 +1250,7 @@ aarch64_simd_expand_builtin (int fcode, tree exp, rtx target)
 
   is_void = !!(d->qualifiers[0] & qualifier_void);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   num_args += is_void;
 
@@ -1228,6 +1259,11 @@ aarch64_simd_expand_builtin (int fcode, tree exp, rtx target)
   num_args += is_void;
 
 >>>>>>> master
+=======
+
+  num_args += is_void;
+
+>>>>>>> gcc-mirror/trunk
   for (k = 1; k < num_args; k++)
     {
       /* We have four arrays of data, each indexed in a different fashion.
@@ -1322,6 +1358,7 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
       case AARCH64_BUILTIN_RSQRT_DF:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	gen = gen_aarch64_rsqrt_df2;
@@ -1339,6 +1376,8 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
 	gen = gen_aarch64_rsqrt_v4sf2;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	gen = gen_rsqrtdf2;
 	break;
       case AARCH64_BUILTIN_RSQRT_SF:
@@ -1352,9 +1391,12 @@ aarch64_expand_builtin_rsqrt (int fcode, tree exp, rtx target)
 	break;
       case AARCH64_BUILTIN_RSQRT_V4SF:
 	gen = gen_rsqrtv4sf2;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	break;
       default: gcc_unreachable ();
     }
@@ -1381,6 +1423,7 @@ aarch64_expand_builtin (tree exp,
   int icode;
   rtx pat, op0;
   tree arg0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -1461,6 +1504,41 @@ aarch64_expand_builtin (tree exp,
 
 =======
 
+=======
+
+  switch (fcode)
+    {
+    case AARCH64_BUILTIN_GET_FPCR:
+    case AARCH64_BUILTIN_SET_FPCR:
+    case AARCH64_BUILTIN_GET_FPSR:
+    case AARCH64_BUILTIN_SET_FPSR:
+      if ((fcode == AARCH64_BUILTIN_GET_FPCR)
+	  || (fcode == AARCH64_BUILTIN_GET_FPSR))
+	{
+	  icode = (fcode == AARCH64_BUILTIN_GET_FPSR) ?
+	    CODE_FOR_get_fpsr : CODE_FOR_get_fpcr;
+	  target = gen_reg_rtx (SImode);
+	  pat = GEN_FCN (icode) (target);
+	}
+      else
+	{
+	  target = NULL_RTX;
+	  icode = (fcode == AARCH64_BUILTIN_SET_FPSR) ?
+	    CODE_FOR_set_fpsr : CODE_FOR_set_fpcr;
+	  arg0 = CALL_EXPR_ARG (exp, 0);
+	  op0 = force_reg (SImode, expand_normal (arg0));
+	  pat = GEN_FCN (icode) (op0);
+	}
+      emit_insn (pat);
+      return target;
+    }
+
+  if (fcode >= AARCH64_SIMD_BUILTIN_BASE && fcode <= AARCH64_SIMD_BUILTIN_MAX)
+    return aarch64_simd_expand_builtin (fcode, exp, target);
+  else if (fcode >= AARCH64_CRC32_BUILTIN_BASE && fcode <= AARCH64_CRC32_BUILTIN_MAX)
+    return aarch64_crc32_expand_builtin (fcode, exp, target);
+
+>>>>>>> gcc-mirror/trunk
   if (fcode == AARCH64_BUILTIN_RSQRT_DF
       || fcode == AARCH64_BUILTIN_RSQRT_SF
       || fcode == AARCH64_BUILTIN_RSQRT_V2DF
@@ -1468,7 +1546,10 @@ aarch64_expand_builtin (tree exp,
       || fcode == AARCH64_BUILTIN_RSQRT_V4SF)
     return aarch64_expand_builtin_rsqrt (fcode, exp, target);
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   gcc_unreachable ();
 }
 
@@ -1552,7 +1633,10 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	else
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  return NULL_TREE;
 
 	return aarch64_builtin_decls[builtin];
@@ -1585,6 +1669,7 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	else if (AARCH64_CHECK_BUILTIN_MODE (2, S))
 	  builtin =	AARCH64_SIMD_BUILTIN_UNOP_lroundv2sfv2si;
 	else
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 	  return NULL_TREE;
 
@@ -1641,10 +1726,13 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	else if (AARCH64_CHECK_BUILTIN_MODE (2, S))
 	  builtin = AARCH64_SIMD_BUILTIN_UNOP_lceilv2sfv2si;
 	else
+=======
+>>>>>>> gcc-mirror/trunk
 	  return NULL_TREE;
 
 	return aarch64_builtin_decls[builtin];
       }
+<<<<<<< HEAD
     CASE_CFN_IROUND:
     CASE_CFN_LROUND:
     CASE_CFN_LLROUND:
@@ -1662,6 +1750,8 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 	return aarch64_builtin_decls[builtin];
       }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     case CFN_BUILT_IN_BSWAP16:
 #undef AARCH64_CHECK_BUILTIN_MODE
 #define AARCH64_CHECK_BUILTIN_MODE(C, N) \
@@ -1697,6 +1787,7 @@ aarch64_builtin_vectorized_function (unsigned int fn, tree type_out,
 tree
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 aarch64_builtin_rsqrt (unsigned int fn, bool md_fn)
@@ -1719,6 +1810,8 @@ aarch64_builtin_rsqrt (unsigned int fn, bool md_fn)
     }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 aarch64_builtin_rsqrt (unsigned int fn)
 {
   if (fn == AARCH64_SIMD_BUILTIN_UNOP_sqrtv2df)
@@ -1727,9 +1820,12 @@ aarch64_builtin_rsqrt (unsigned int fn)
     return aarch64_builtin_decls[AARCH64_BUILTIN_RSQRT_V2SF];
   if (fn == AARCH64_SIMD_BUILTIN_UNOP_sqrtv4sf)
     return aarch64_builtin_decls[AARCH64_BUILTIN_RSQRT_V4SF];
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return NULL_TREE;
 }
 

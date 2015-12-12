@@ -1,6 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-02  Ian Lance Taylor  <iant@google.com>
 
 	PR go/66147
@@ -19,9 +22,12 @@
 	* m4/libtool.m4 (export_symbols_cmds) [AIX]: Add global TLS "L"
 	symbols.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-11-20  Tristan Gingold  <gingold@adacore.com>
 
 	Sync with binutils-gdb:
@@ -385,6 +391,7 @@
 2015-02-06  Diego Novillo  <dnovillo@google.com>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 1
@@ -392,6 +399,9 @@
 =======
 
 >>>>>>> master
+=======
+1
+>>>>>>> gcc-mirror/trunk
 	* MAINTAINERS (Global Reviewers, Plugin, LTO, tree-ssa,
 	middle-end, docstring): Remove myself.
 	(Write After Approval): Add myself.

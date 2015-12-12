@@ -226,11 +226,15 @@ HOST_EXPORTS = \
 	LIBELFINC="$(HOST_LIBELFINC)"; export LIBELFINC; \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	XGCC_FLAGS_FOR_TARGET="$(XGCC_FLAGS_FOR_TARGET)"; export XGCC_FLAGS_FOR_TARGET; \
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	XGCC_FLAGS_FOR_TARGET="$(XGCC_FLAGS_FOR_TARGET)"; export XGCC_FLAGS_FOR_TARGET; \
+>>>>>>> gcc-mirror/trunk
 @if gcc-bootstrap
 	$(RPATH_ENVVAR)=`echo "$(TARGET_LIB_PATH)$$$(RPATH_ENVVAR)" | sed 's,::*,:,g;s,^:*,,;s,:*$$,,'`; export $(RPATH_ENVVAR); \
 @endif gcc-bootstrap
@@ -24190,6 +24194,7 @@ configure-libiconv:
 	  --target=${target_alias} --disable-shared \
 	  || exit 1
 @endif libiconv
+<<<<<<< HEAD
 
 
 
@@ -24397,6 +24402,537 @@ configure-stagefeedback-libiconv:
 @endif libiconv-bootstrap
 
 
+
+
+
+.PHONY: all-libiconv maybe-all-libiconv
+maybe-all-libiconv:
+@if gcc-bootstrap
+all-libiconv: stage_current
+@endif gcc-bootstrap
+@if libiconv
+TARGET-libiconv=all
+maybe-all-libiconv: all-libiconv
+all-libiconv: configure-libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS)  \
+	(cd $(HOST_SUBDIR)/libiconv && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(STAGE1_FLAGS_TO_PASS)  \
+		$(TARGET-libiconv))
+@endif libiconv
+
+
+=======
+>>>>>>> gcc-mirror/trunk
+
+.PHONY: all-stage1-libiconv maybe-all-stage1-libiconv
+.PHONY: clean-stage1-libiconv maybe-clean-stage1-libiconv
+maybe-all-stage1-libiconv:
+maybe-clean-stage1-libiconv:
+@if libiconv-bootstrap
+maybe-all-stage1-libiconv: all-stage1-libiconv
+all-stage1: all-stage1-libiconv
+TARGET-stage1-libiconv = $(TARGET-libiconv)
+all-stage1-libiconv: configure-stage1-libiconv
+	@[ $(current_stage) = stage1 ] || $(MAKE) stage1-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE1_TFLAGS)"; \
+	$(HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGE1_CFLAGS)" \
+		CXXFLAGS="$(STAGE1_CXXFLAGS)" \
+		LIBCFLAGS="$(LIBCFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS)  \
+		$(STAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGE1_TFLAGS)" \
+		$(TARGET-stage1-libiconv)
+
+<<<<<<< HEAD
+maybe-clean-stage1-libiconv: clean-stage1-libiconv
+clean-stage1: clean-stage1-libiconv
+clean-stage1-libiconv:
+	@if [ $(current_stage) = stage1 ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stage1-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stage1-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS)  \
+	$(STAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+.PHONY: all-stage2-libiconv maybe-all-stage2-libiconv
+.PHONY: clean-stage2-libiconv maybe-clean-stage2-libiconv
+maybe-all-stage2-libiconv:
+maybe-clean-stage2-libiconv:
+@if libiconv-bootstrap
+maybe-all-stage2-libiconv: all-stage2-libiconv
+all-stage2: all-stage2-libiconv
+TARGET-stage2-libiconv = $(TARGET-libiconv)
+all-stage2-libiconv: configure-stage2-libiconv
+	@[ $(current_stage) = stage2 ] || $(MAKE) stage2-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE2_TFLAGS)"; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGE2_CFLAGS)" \
+		CXXFLAGS="$(STAGE2_CXXFLAGS)" \
+		LIBCFLAGS="$(STAGE2_CFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGE2_TFLAGS)" \
+		$(TARGET-stage2-libiconv)
+
+maybe-clean-stage2-libiconv: clean-stage2-libiconv
+clean-stage2: clean-stage2-libiconv
+clean-stage2-libiconv:
+	@if [ $(current_stage) = stage2 ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stage2-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stage2-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+.PHONY: all-stage3-libiconv maybe-all-stage3-libiconv
+.PHONY: clean-stage3-libiconv maybe-clean-stage3-libiconv
+maybe-all-stage3-libiconv:
+maybe-clean-stage3-libiconv:
+@if libiconv-bootstrap
+maybe-all-stage3-libiconv: all-stage3-libiconv
+all-stage3: all-stage3-libiconv
+TARGET-stage3-libiconv = $(TARGET-libiconv)
+all-stage3-libiconv: configure-stage3-libiconv
+	@[ $(current_stage) = stage3 ] || $(MAKE) stage3-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE3_TFLAGS)"; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGE3_CFLAGS)" \
+		CXXFLAGS="$(STAGE3_CXXFLAGS)" \
+		LIBCFLAGS="$(STAGE3_CFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGE3_TFLAGS)" \
+		$(TARGET-stage3-libiconv)
+
+maybe-clean-stage3-libiconv: clean-stage3-libiconv
+clean-stage3: clean-stage3-libiconv
+clean-stage3-libiconv:
+	@if [ $(current_stage) = stage3 ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stage3-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stage3-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+.PHONY: all-stage4-libiconv maybe-all-stage4-libiconv
+.PHONY: clean-stage4-libiconv maybe-clean-stage4-libiconv
+maybe-all-stage4-libiconv:
+maybe-clean-stage4-libiconv:
+@if libiconv-bootstrap
+maybe-all-stage4-libiconv: all-stage4-libiconv
+all-stage4: all-stage4-libiconv
+TARGET-stage4-libiconv = $(TARGET-libiconv)
+all-stage4-libiconv: configure-stage4-libiconv
+	@[ $(current_stage) = stage4 ] || $(MAKE) stage4-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE4_TFLAGS)"; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGE4_CFLAGS)" \
+		CXXFLAGS="$(STAGE4_CXXFLAGS)" \
+		LIBCFLAGS="$(STAGE4_CFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGE4_TFLAGS)" \
+		$(TARGET-stage4-libiconv)
+
+maybe-clean-stage4-libiconv: clean-stage4-libiconv
+clean-stage4: clean-stage4-libiconv
+clean-stage4-libiconv:
+	@if [ $(current_stage) = stage4 ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stage4-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stage4-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+.PHONY: all-stageprofile-libiconv maybe-all-stageprofile-libiconv
+.PHONY: clean-stageprofile-libiconv maybe-clean-stageprofile-libiconv
+maybe-all-stageprofile-libiconv:
+maybe-clean-stageprofile-libiconv:
+@if libiconv-bootstrap
+maybe-all-stageprofile-libiconv: all-stageprofile-libiconv
+all-stageprofile: all-stageprofile-libiconv
+TARGET-stageprofile-libiconv = $(TARGET-libiconv)
+all-stageprofile-libiconv: configure-stageprofile-libiconv
+	@[ $(current_stage) = stageprofile ] || $(MAKE) stageprofile-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEprofile_TFLAGS)"; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGEprofile_CFLAGS)" \
+		CXXFLAGS="$(STAGEprofile_CXXFLAGS)" \
+		LIBCFLAGS="$(STAGEprofile_CFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGEprofile_TFLAGS)" \
+		$(TARGET-stageprofile-libiconv)
+
+maybe-clean-stageprofile-libiconv: clean-stageprofile-libiconv
+clean-stageprofile: clean-stageprofile-libiconv
+clean-stageprofile-libiconv:
+	@if [ $(current_stage) = stageprofile ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stageprofile-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stageprofile-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+.PHONY: all-stagefeedback-libiconv maybe-all-stagefeedback-libiconv
+.PHONY: clean-stagefeedback-libiconv maybe-clean-stagefeedback-libiconv
+maybe-all-stagefeedback-libiconv:
+maybe-clean-stagefeedback-libiconv:
+@if libiconv-bootstrap
+maybe-all-stagefeedback-libiconv: all-stagefeedback-libiconv
+all-stagefeedback: all-stagefeedback-libiconv
+TARGET-stagefeedback-libiconv = $(TARGET-libiconv)
+all-stagefeedback-libiconv: configure-stagefeedback-libiconv
+	@[ $(current_stage) = stagefeedback ] || $(MAKE) stagefeedback-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEfeedback_TFLAGS)"; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS)  \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(STAGEfeedback_CFLAGS)" \
+		CXXFLAGS="$(STAGEfeedback_CXXFLAGS)" \
+		LIBCFLAGS="$(STAGEfeedback_CFLAGS)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  \
+		TFLAGS="$(STAGEfeedback_TFLAGS)" \
+		$(TARGET-stagefeedback-libiconv)
+
+maybe-clean-stagefeedback-libiconv: clean-stagefeedback-libiconv
+clean-stagefeedback: clean-stagefeedback-libiconv
+clean-stagefeedback-libiconv:
+	@if [ $(current_stage) = stagefeedback ]; then \
+	  [ -f $(HOST_SUBDIR)/libiconv/Makefile ] || exit 0; \
+	else \
+	  [ -f $(HOST_SUBDIR)/stagefeedback-libiconv/Makefile ] || exit 0; \
+	  $(MAKE) stagefeedback-start; \
+	fi; \
+	cd $(HOST_SUBDIR)/libiconv && \
+	$(MAKE) $(EXTRA_HOST_FLAGS) $(POSTSTAGE1_FLAGS_TO_PASS)  clean
+@endif libiconv-bootstrap
+
+
+
+
+
+.PHONY: check-libiconv maybe-check-libiconv
+maybe-check-libiconv:
+@if libiconv
+maybe-check-libiconv: check-libiconv
+
+check-libiconv:
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) $(EXTRA_HOST_EXPORTS) \
+	(cd $(HOST_SUBDIR)/libiconv && \
+	  $(MAKE) $(FLAGS_TO_PASS)  $(EXTRA_BOOTSTRAP_FLAGS) check)
+
+@endif libiconv
+
+.PHONY: install-libiconv maybe-install-libiconv
+maybe-install-libiconv:
+@if libiconv
+maybe-install-libiconv: install-libiconv
+
+install-libiconv:
+
+@endif libiconv
+
+.PHONY: install-strip-libiconv maybe-install-strip-libiconv
+maybe-install-strip-libiconv:
+@if libiconv
+maybe-install-strip-libiconv: install-strip-libiconv
+
+install-strip-libiconv:
+
+@endif libiconv
+=======
+
+.PHONY: configure-stage1-libiconv maybe-configure-stage1-libiconv
+maybe-configure-stage1-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stage1-libiconv: configure-stage1-libiconv
+configure-stage1-libiconv:
+	@[ $(current_stage) = stage1 ] || $(MAKE) stage1-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE1_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	CFLAGS="$(STAGE1_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGE1_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(LIBCFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage 1 in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	   \
+	  $(STAGE1_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+
+.PHONY: configure-stage2-libiconv maybe-configure-stage2-libiconv
+maybe-configure-stage2-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stage2-libiconv: configure-stage2-libiconv
+configure-stage2-libiconv:
+	@[ $(current_stage) = stage2 ] || $(MAKE) stage2-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE2_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS) \
+	CFLAGS="$(STAGE2_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGE2_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(STAGE2_CFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage 2 in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	  --with-build-libsubdir=$(HOST_SUBDIR) \
+	  $(STAGE2_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+
+.PHONY: configure-stage3-libiconv maybe-configure-stage3-libiconv
+maybe-configure-stage3-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stage3-libiconv: configure-stage3-libiconv
+configure-stage3-libiconv:
+	@[ $(current_stage) = stage3 ] || $(MAKE) stage3-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE3_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS) \
+	CFLAGS="$(STAGE3_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGE3_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(STAGE3_CFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage 3 in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	  --with-build-libsubdir=$(HOST_SUBDIR) \
+	  $(STAGE3_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+
+.PHONY: configure-stage4-libiconv maybe-configure-stage4-libiconv
+maybe-configure-stage4-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stage4-libiconv: configure-stage4-libiconv
+configure-stage4-libiconv:
+	@[ $(current_stage) = stage4 ] || $(MAKE) stage4-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE4_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS) \
+	CFLAGS="$(STAGE4_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGE4_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(STAGE4_CFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage 4 in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	  --with-build-libsubdir=$(HOST_SUBDIR) \
+	  $(STAGE4_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+
+.PHONY: configure-stageprofile-libiconv maybe-configure-stageprofile-libiconv
+maybe-configure-stageprofile-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stageprofile-libiconv: configure-stageprofile-libiconv
+configure-stageprofile-libiconv:
+	@[ $(current_stage) = stageprofile ] || $(MAKE) stageprofile-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEprofile_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS) \
+	CFLAGS="$(STAGEprofile_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGEprofile_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(STAGEprofile_CFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage profile in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	  --with-build-libsubdir=$(HOST_SUBDIR) \
+	  $(STAGEprofile_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+
+.PHONY: configure-stagefeedback-libiconv maybe-configure-stagefeedback-libiconv
+maybe-configure-stagefeedback-libiconv:
+@if libiconv-bootstrap
+maybe-configure-stagefeedback-libiconv: configure-stagefeedback-libiconv
+configure-stagefeedback-libiconv:
+	@[ $(current_stage) = stagefeedback ] || $(MAKE) stagefeedback-start
+	@$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEfeedback_TFLAGS)"; \
+	test ! -f $(HOST_SUBDIR)/libiconv/Makefile || exit 0; \
+	$(HOST_EXPORTS) \
+	$(POSTSTAGE1_HOST_EXPORTS) \
+	CFLAGS="$(STAGEfeedback_CFLAGS)"; export CFLAGS; \
+	CXXFLAGS="$(STAGEfeedback_CXXFLAGS)"; export CXXFLAGS; \
+	LIBCFLAGS="$(STAGEfeedback_CFLAGS)"; export LIBCFLAGS;  \
+	echo Configuring stage feedback in $(HOST_SUBDIR)/libiconv; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/libiconv; \
+	cd $(HOST_SUBDIR)/libiconv || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/libiconv/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=libiconv; \
+	$(SHELL) $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias} \
+	  --with-build-libsubdir=$(HOST_SUBDIR) \
+	  $(STAGEfeedback_CONFIGURE_FLAGS) \
+	  --disable-shared
+@endif libiconv-bootstrap
+>>>>>>> gcc-mirror/trunk
+
+
+<<<<<<< HEAD
+.PHONY: maybe-info-libiconv info-libiconv
+maybe-info-libiconv:
+@if libiconv
+maybe-info-libiconv: info-libiconv
+
+# libiconv doesn't support info.
+info-libiconv:
+
+@endif libiconv
+
+.PHONY: maybe-dvi-libiconv dvi-libiconv
+maybe-dvi-libiconv:
+@if libiconv
+maybe-dvi-libiconv: dvi-libiconv
+
+=======
 
 
 
@@ -24719,6 +25255,7 @@ maybe-dvi-libiconv:
 @if libiconv
 maybe-dvi-libiconv: dvi-libiconv
 
+>>>>>>> gcc-mirror/trunk
 dvi-libiconv: \
     configure-libiconv 
 	@[ -f ./libiconv/Makefile ] || exit 0; \
@@ -24934,6 +25471,8 @@ maintainer-clean-libiconv:
 	  || exit 1
 
 @endif libiconv
+<<<<<<< HEAD
+=======
 
 
 
@@ -25249,6 +25788,323 @@ install-html-m4: \
 	  || exit 1
 
 @endif m4
+>>>>>>> gcc-mirror/trunk
+
+
+
+.PHONY: configure-m4 maybe-configure-m4
+maybe-configure-m4:
+@if gcc-bootstrap
+configure-m4: stage_current
+@endif gcc-bootstrap
+@if m4
+maybe-configure-m4: configure-m4
+configure-m4: 
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	test ! -f $(HOST_SUBDIR)/m4/Makefile || exit 0; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(HOST_SUBDIR)/m4; \
+	$(HOST_EXPORTS)  \
+	echo Configuring in $(HOST_SUBDIR)/m4; \
+	cd "$(HOST_SUBDIR)/m4" || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(HOST_SUBDIR)/m4/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=m4; \
+	$(SHELL) \
+	  $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+	  --target=${target_alias}  \
+	  || exit 1
+@endif m4
+
+
+
+
+
+.PHONY: all-m4 maybe-all-m4
+maybe-all-m4:
+@if gcc-bootstrap
+all-m4: stage_current
+@endif gcc-bootstrap
+@if m4
+TARGET-m4=all
+maybe-all-m4: all-m4
+all-m4: configure-m4
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS)  \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(STAGE1_FLAGS_TO_PASS)  \
+		$(TARGET-m4))
+@endif m4
+
+
+
+
+.PHONY: check-m4 maybe-check-m4
+maybe-check-m4:
+@if m4
+maybe-check-m4: check-m4
+
+check-m4:
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS)  \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(FLAGS_TO_PASS)  check)
+
+@endif m4
+
+.PHONY: install-m4 maybe-install-m4
+maybe-install-m4:
+@if m4
+maybe-install-m4: install-m4
+
+install-m4: installdirs
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(FLAGS_TO_PASS)  install)
+
+@endif m4
+
+.PHONY: install-strip-m4 maybe-install-strip-m4
+maybe-install-strip-m4:
+@if m4
+maybe-install-strip-m4: install-strip-m4
+
+install-strip-m4: installdirs
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(FLAGS_TO_PASS)  install-strip)
+
+@endif m4
+
+# Other targets (info, dvi, pdf, etc.)
+
+.PHONY: maybe-info-m4 info-m4
+maybe-info-m4:
+@if m4
+maybe-info-m4: info-m4
+
+info-m4: \
+    configure-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing info in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          info) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-dvi-m4 dvi-m4
+maybe-dvi-m4:
+@if m4
+maybe-dvi-m4: dvi-m4
+
+dvi-m4: \
+    configure-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+<<<<<<< HEAD
+	echo "Doing dvi in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          dvi) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-pdf-m4 pdf-m4
+maybe-pdf-m4:
+@if m4
+maybe-pdf-m4: pdf-m4
+
+pdf-m4: \
+    configure-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing pdf in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          pdf) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-html-m4 html-m4
+maybe-html-m4:
+@if m4
+maybe-html-m4: html-m4
+
+html-m4: \
+    configure-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing html in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          html) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-TAGS-m4 TAGS-m4
+maybe-TAGS-m4:
+@if m4
+maybe-TAGS-m4: TAGS-m4
+
+TAGS-m4: \
+    configure-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing TAGS in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          TAGS) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-install-info-m4 install-info-m4
+maybe-install-info-m4:
+@if m4
+maybe-install-info-m4: install-info-m4
+
+install-info-m4: \
+    configure-m4 \
+    info-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing install-info in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          install-info) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-install-pdf-m4 install-pdf-m4
+maybe-install-pdf-m4:
+@if m4
+maybe-install-pdf-m4: install-pdf-m4
+
+install-pdf-m4: \
+    configure-m4 \
+    pdf-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing install-pdf in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          install-pdf) \
+	  || exit 1
+
+@endif m4
+
+.PHONY: maybe-install-html-m4 install-html-m4
+maybe-install-html-m4:
+@if m4
+maybe-install-html-m4: install-html-m4
+
+install-html-m4: \
+    configure-m4 \
+    html-m4 
+	@: $(MAKE); $(unstage)
+	@[ -f ./m4/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(HOST_EXPORTS) \
+	for flag in $(EXTRA_HOST_FLAGS) ; do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	echo "Doing install-html in m4"; \
+	(cd $(HOST_SUBDIR)/m4 && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	          install-html) \
+	  || exit 1
+
+@endif m4
 
 .PHONY: maybe-installcheck-m4 installcheck-m4
 maybe-installcheck-m4:
@@ -25265,6 +26121,8 @@ installcheck-m4: \
 	for flag in $(EXTRA_HOST_FLAGS) ; do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
+=======
+>>>>>>> gcc-mirror/trunk
 	echo "Doing installcheck in m4"; \
 	(cd $(HOST_SUBDIR)/m4 && \
 	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
@@ -34130,6 +34988,22 @@ clean-stage1-target-libsanitizer:
 	  clean
 @endif target-libsanitizer-bootstrap
 
+<<<<<<< HEAD
+
+.PHONY: all-stage2-target-libsanitizer maybe-all-stage2-target-libsanitizer
+.PHONY: clean-stage2-target-libsanitizer maybe-clean-stage2-target-libsanitizer
+maybe-all-stage2-target-libsanitizer:
+maybe-clean-stage2-target-libsanitizer:
+@if target-libsanitizer-bootstrap
+maybe-all-stage2-target-libsanitizer: all-stage2-target-libsanitizer
+all-stage2: all-stage2-target-libsanitizer
+TARGET-stage2-target-libsanitizer = $(TARGET-target-libsanitizer)
+all-stage2-target-libsanitizer: configure-stage2-target-libsanitizer
+	@[ $(current_stage) = stage2 ] || $(MAKE) stage2-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE2_TFLAGS)"; \
+=======
 
 .PHONY: all-stage2-target-libsanitizer maybe-all-stage2-target-libsanitizer
 .PHONY: clean-stage2-target-libsanitizer maybe-clean-stage2-target-libsanitizer
@@ -34185,6 +35059,7 @@ all-stage3-target-libsanitizer: configure-stage3-target-libsanitizer
 	@r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	TFLAGS="$(STAGE3_TFLAGS)"; \
+>>>>>>> gcc-mirror/trunk
 	$(RAW_CXX_TARGET_EXPORTS) \
 	  \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
@@ -34196,6 +35071,19 @@ all-stage3-target-libsanitizer: configure-stage3-target-libsanitizer
 		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
 		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
 		$(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   \
+<<<<<<< HEAD
+		TFLAGS="$(STAGE2_TFLAGS)" \
+		$(TARGET-stage2-target-libsanitizer)
+
+maybe-clean-stage2-target-libsanitizer: clean-stage2-target-libsanitizer
+clean-stage2: clean-stage2-target-libsanitizer
+clean-stage2-target-libsanitizer:
+	@if [ $(current_stage) = stage2 ]; then \
+	  [ -f $(TARGET_SUBDIR)/libsanitizer/Makefile ] || exit 0; \
+	else \
+	  [ -f $(TARGET_SUBDIR)/stage2-libsanitizer/Makefile ] || exit 0; \
+	  $(MAKE) stage2-start; \
+=======
 		TFLAGS="$(STAGE3_TFLAGS)" \
 		$(TARGET-stage3-target-libsanitizer)
 
@@ -34207,12 +35095,28 @@ clean-stage3-target-libsanitizer:
 	else \
 	  [ -f $(TARGET_SUBDIR)/stage3-libsanitizer/Makefile ] || exit 0; \
 	  $(MAKE) stage3-start; \
+>>>>>>> gcc-mirror/trunk
 	fi; \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
 	$(MAKE) $(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   clean
 @endif target-libsanitizer-bootstrap
 
 
+<<<<<<< HEAD
+.PHONY: all-stage3-target-libsanitizer maybe-all-stage3-target-libsanitizer
+.PHONY: clean-stage3-target-libsanitizer maybe-clean-stage3-target-libsanitizer
+maybe-all-stage3-target-libsanitizer:
+maybe-clean-stage3-target-libsanitizer:
+@if target-libsanitizer-bootstrap
+maybe-all-stage3-target-libsanitizer: all-stage3-target-libsanitizer
+all-stage3: all-stage3-target-libsanitizer
+TARGET-stage3-target-libsanitizer = $(TARGET-target-libsanitizer)
+all-stage3-target-libsanitizer: configure-stage3-target-libsanitizer
+	@[ $(current_stage) = stage3 ] || $(MAKE) stage3-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE3_TFLAGS)"; \
+=======
 .PHONY: all-stage4-target-libsanitizer maybe-all-stage4-target-libsanitizer
 .PHONY: clean-stage4-target-libsanitizer maybe-clean-stage4-target-libsanitizer
 maybe-all-stage4-target-libsanitizer:
@@ -34226,6 +35130,7 @@ all-stage4-target-libsanitizer: configure-stage4-target-libsanitizer
 	@r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	TFLAGS="$(STAGE4_TFLAGS)"; \
+>>>>>>> gcc-mirror/trunk
 	$(RAW_CXX_TARGET_EXPORTS) \
 	  \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
@@ -34237,6 +35142,19 @@ all-stage4-target-libsanitizer: configure-stage4-target-libsanitizer
 		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
 		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
 		$(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   \
+<<<<<<< HEAD
+		TFLAGS="$(STAGE3_TFLAGS)" \
+		$(TARGET-stage3-target-libsanitizer)
+
+maybe-clean-stage3-target-libsanitizer: clean-stage3-target-libsanitizer
+clean-stage3: clean-stage3-target-libsanitizer
+clean-stage3-target-libsanitizer:
+	@if [ $(current_stage) = stage3 ]; then \
+	  [ -f $(TARGET_SUBDIR)/libsanitizer/Makefile ] || exit 0; \
+	else \
+	  [ -f $(TARGET_SUBDIR)/stage3-libsanitizer/Makefile ] || exit 0; \
+	  $(MAKE) stage3-start; \
+=======
 		TFLAGS="$(STAGE4_TFLAGS)" \
 		$(TARGET-stage4-target-libsanitizer)
 
@@ -34248,12 +35166,28 @@ clean-stage4-target-libsanitizer:
 	else \
 	  [ -f $(TARGET_SUBDIR)/stage4-libsanitizer/Makefile ] || exit 0; \
 	  $(MAKE) stage4-start; \
+>>>>>>> gcc-mirror/trunk
 	fi; \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
 	$(MAKE) $(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   clean
 @endif target-libsanitizer-bootstrap
 
 
+<<<<<<< HEAD
+.PHONY: all-stage4-target-libsanitizer maybe-all-stage4-target-libsanitizer
+.PHONY: clean-stage4-target-libsanitizer maybe-clean-stage4-target-libsanitizer
+maybe-all-stage4-target-libsanitizer:
+maybe-clean-stage4-target-libsanitizer:
+@if target-libsanitizer-bootstrap
+maybe-all-stage4-target-libsanitizer: all-stage4-target-libsanitizer
+all-stage4: all-stage4-target-libsanitizer
+TARGET-stage4-target-libsanitizer = $(TARGET-target-libsanitizer)
+all-stage4-target-libsanitizer: configure-stage4-target-libsanitizer
+	@[ $(current_stage) = stage4 ] || $(MAKE) stage4-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGE4_TFLAGS)"; \
+=======
 .PHONY: all-stageprofile-target-libsanitizer maybe-all-stageprofile-target-libsanitizer
 .PHONY: clean-stageprofile-target-libsanitizer maybe-clean-stageprofile-target-libsanitizer
 maybe-all-stageprofile-target-libsanitizer:
@@ -34267,6 +35201,7 @@ all-stageprofile-target-libsanitizer: configure-stageprofile-target-libsanitizer
 	@r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	TFLAGS="$(STAGEprofile_TFLAGS)"; \
+>>>>>>> gcc-mirror/trunk
 	$(RAW_CXX_TARGET_EXPORTS) \
 	  \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
@@ -34278,6 +35213,19 @@ all-stageprofile-target-libsanitizer: configure-stageprofile-target-libsanitizer
 		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
 		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
 		$(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   \
+<<<<<<< HEAD
+		TFLAGS="$(STAGE4_TFLAGS)" \
+		$(TARGET-stage4-target-libsanitizer)
+
+maybe-clean-stage4-target-libsanitizer: clean-stage4-target-libsanitizer
+clean-stage4: clean-stage4-target-libsanitizer
+clean-stage4-target-libsanitizer:
+	@if [ $(current_stage) = stage4 ]; then \
+	  [ -f $(TARGET_SUBDIR)/libsanitizer/Makefile ] || exit 0; \
+	else \
+	  [ -f $(TARGET_SUBDIR)/stage4-libsanitizer/Makefile ] || exit 0; \
+	  $(MAKE) stage4-start; \
+=======
 		TFLAGS="$(STAGEprofile_TFLAGS)" \
 		$(TARGET-stageprofile-target-libsanitizer)
 
@@ -34289,12 +35237,85 @@ clean-stageprofile-target-libsanitizer:
 	else \
 	  [ -f $(TARGET_SUBDIR)/stageprofile-libsanitizer/Makefile ] || exit 0; \
 	  $(MAKE) stageprofile-start; \
+>>>>>>> gcc-mirror/trunk
 	fi; \
 	cd $(TARGET_SUBDIR)/libsanitizer && \
 	$(MAKE) $(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   clean
 @endif target-libsanitizer-bootstrap
 
 
+<<<<<<< HEAD
+.PHONY: all-stageprofile-target-libsanitizer maybe-all-stageprofile-target-libsanitizer
+.PHONY: clean-stageprofile-target-libsanitizer maybe-clean-stageprofile-target-libsanitizer
+maybe-all-stageprofile-target-libsanitizer:
+maybe-clean-stageprofile-target-libsanitizer:
+@if target-libsanitizer-bootstrap
+maybe-all-stageprofile-target-libsanitizer: all-stageprofile-target-libsanitizer
+all-stageprofile: all-stageprofile-target-libsanitizer
+TARGET-stageprofile-target-libsanitizer = $(TARGET-target-libsanitizer)
+all-stageprofile-target-libsanitizer: configure-stageprofile-target-libsanitizer
+	@[ $(current_stage) = stageprofile ] || $(MAKE) stageprofile-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEprofile_TFLAGS)"; \
+=======
+.PHONY: all-stagefeedback-target-libsanitizer maybe-all-stagefeedback-target-libsanitizer
+.PHONY: clean-stagefeedback-target-libsanitizer maybe-clean-stagefeedback-target-libsanitizer
+maybe-all-stagefeedback-target-libsanitizer:
+maybe-clean-stagefeedback-target-libsanitizer:
+@if target-libsanitizer-bootstrap
+maybe-all-stagefeedback-target-libsanitizer: all-stagefeedback-target-libsanitizer
+all-stagefeedback: all-stagefeedback-target-libsanitizer
+TARGET-stagefeedback-target-libsanitizer = $(TARGET-target-libsanitizer)
+all-stagefeedback-target-libsanitizer: configure-stagefeedback-target-libsanitizer
+	@[ $(current_stage) = stagefeedback ] || $(MAKE) stagefeedback-start
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	TFLAGS="$(STAGEfeedback_TFLAGS)"; \
+>>>>>>> gcc-mirror/trunk
+	$(RAW_CXX_TARGET_EXPORTS) \
+	  \
+	cd $(TARGET_SUBDIR)/libsanitizer && \
+	$(MAKE) $(BASE_FLAGS_TO_PASS) \
+		CFLAGS="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS="$(LIBCFLAGS_FOR_TARGET)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET)" \
+		LIBCFLAGS_FOR_TARGET="$(LIBCFLAGS_FOR_TARGET)" \
+		$(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   \
+<<<<<<< HEAD
+		TFLAGS="$(STAGEprofile_TFLAGS)" \
+		$(TARGET-stageprofile-target-libsanitizer)
+
+maybe-clean-stageprofile-target-libsanitizer: clean-stageprofile-target-libsanitizer
+clean-stageprofile: clean-stageprofile-target-libsanitizer
+clean-stageprofile-target-libsanitizer:
+	@if [ $(current_stage) = stageprofile ]; then \
+	  [ -f $(TARGET_SUBDIR)/libsanitizer/Makefile ] || exit 0; \
+	else \
+	  [ -f $(TARGET_SUBDIR)/stageprofile-libsanitizer/Makefile ] || exit 0; \
+	  $(MAKE) stageprofile-start; \
+=======
+		TFLAGS="$(STAGEfeedback_TFLAGS)" \
+		$(TARGET-stagefeedback-target-libsanitizer)
+
+maybe-clean-stagefeedback-target-libsanitizer: clean-stagefeedback-target-libsanitizer
+clean-stagefeedback: clean-stagefeedback-target-libsanitizer
+clean-stagefeedback-target-libsanitizer:
+	@if [ $(current_stage) = stagefeedback ]; then \
+	  [ -f $(TARGET_SUBDIR)/libsanitizer/Makefile ] || exit 0; \
+	else \
+	  [ -f $(TARGET_SUBDIR)/stagefeedback-libsanitizer/Makefile ] || exit 0; \
+	  $(MAKE) stagefeedback-start; \
+>>>>>>> gcc-mirror/trunk
+	fi; \
+	cd $(TARGET_SUBDIR)/libsanitizer && \
+	$(MAKE) $(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   clean
+@endif target-libsanitizer-bootstrap
+
+
+<<<<<<< HEAD
 .PHONY: all-stagefeedback-target-libsanitizer maybe-all-stagefeedback-target-libsanitizer
 .PHONY: clean-stagefeedback-target-libsanitizer maybe-clean-stagefeedback-target-libsanitizer
 maybe-all-stagefeedback-target-libsanitizer:
@@ -34321,6 +35342,8 @@ all-stagefeedback-target-libsanitizer: configure-stagefeedback-target-libsanitiz
 		$(EXTRA_TARGET_FLAGS) 'CXX=$$(RAW_CXX_FOR_TARGET)' 'CXX_FOR_TARGET=$$(RAW_CXX_FOR_TARGET)'   \
 		TFLAGS="$(STAGEfeedback_TFLAGS)" \
 		$(TARGET-stagefeedback-target-libsanitizer)
+=======
+>>>>>>> gcc-mirror/trunk
 
 maybe-clean-stagefeedback-target-libsanitizer: clean-stagefeedback-target-libsanitizer
 clean-stagefeedback: clean-stagefeedback-target-libsanitizer
@@ -34337,6 +35360,7 @@ clean-stagefeedback-target-libsanitizer:
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -34345,6 +35369,13 @@ maybe-check-target-libsanitizer:
 @if target-libsanitizer
 maybe-check-target-libsanitizer: check-target-libsanitizer
 
+=======
+.PHONY: check-target-libsanitizer maybe-check-target-libsanitizer
+maybe-check-target-libsanitizer:
+@if target-libsanitizer
+maybe-check-target-libsanitizer: check-target-libsanitizer
+
+>>>>>>> gcc-mirror/trunk
 check-target-libsanitizer:
 	@: $(MAKE); $(unstage)
 	@r=`${PWD_COMMAND}`; export r; \
@@ -37083,6 +38114,33 @@ clean-target-libcilkrts:
 	  || exit 1
 
 @endif target-libcilkrts
+<<<<<<< HEAD
+
+.PHONY: maybe-distclean-target-libcilkrts distclean-target-libcilkrts
+maybe-distclean-target-libcilkrts:
+@if target-libcilkrts
+maybe-distclean-target-libcilkrts: distclean-target-libcilkrts
+
+distclean-target-libcilkrts: 
+	@: $(MAKE); $(unstage)
+	@[ -f $(TARGET_SUBDIR)/libcilkrts/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing distclean in $(TARGET_SUBDIR)/libcilkrts"; \
+	for flag in $(EXTRA_TARGET_FLAGS); do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	(cd $(TARGET_SUBDIR)/libcilkrts && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	           distclean) \
+	  || exit 1
+
+@endif target-libcilkrts
+=======
 
 .PHONY: maybe-distclean-target-libcilkrts distclean-target-libcilkrts
 maybe-distclean-target-libcilkrts:
@@ -37114,6 +38172,35 @@ maybe-maintainer-clean-target-libcilkrts:
 @if target-libcilkrts
 maybe-maintainer-clean-target-libcilkrts: maintainer-clean-target-libcilkrts
 
+maintainer-clean-target-libcilkrts: 
+	@: $(MAKE); $(unstage)
+	@[ -f $(TARGET_SUBDIR)/libcilkrts/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libcilkrts"; \
+	for flag in $(EXTRA_TARGET_FLAGS); do \
+	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
+	done; \
+	(cd $(TARGET_SUBDIR)/libcilkrts && \
+	  $(MAKE) $(BASE_FLAGS_TO_PASS) "AR=$${AR}" "AS=$${AS}" \
+	          "CC=$${CC}" "CXX=$${CXX}" "LD=$${LD}" "NM=$${NM}" \
+	          "RANLIB=$${RANLIB}" \
+	          "DLLTOOL=$${DLLTOOL}" "WINDRES=$${WINDRES}" "WINDMC=$${WINDMC}" \
+	           maintainer-clean) \
+	  || exit 1
+
+@endif target-libcilkrts
+
+
+>>>>>>> gcc-mirror/trunk
+
+.PHONY: maybe-maintainer-clean-target-libcilkrts maintainer-clean-target-libcilkrts
+maybe-maintainer-clean-target-libcilkrts:
+@if target-libcilkrts
+maybe-maintainer-clean-target-libcilkrts: maintainer-clean-target-libcilkrts
+
+<<<<<<< HEAD
 maintainer-clean-target-libcilkrts: 
 	@: $(MAKE); $(unstage)
 	@[ -f $(TARGET_SUBDIR)/libcilkrts/Makefile ] || exit 0; \
@@ -37184,6 +38271,55 @@ configure-target-liboffloadmic:
 
 
 
+=======
+
+.PHONY: configure-target-liboffloadmic maybe-configure-target-liboffloadmic
+maybe-configure-target-liboffloadmic:
+@if gcc-bootstrap
+configure-target-liboffloadmic: stage_current
+@endif gcc-bootstrap
+@if target-liboffloadmic
+maybe-configure-target-liboffloadmic: configure-target-liboffloadmic
+configure-target-liboffloadmic: 
+	@: $(MAKE); $(unstage)
+	@r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	echo "Checking multilib configuration for liboffloadmic..."; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/liboffloadmic; \
+	$(CC_FOR_TARGET) --print-multi-lib > $(TARGET_SUBDIR)/liboffloadmic/multilib.tmp 2> /dev/null; \
+	if test -r $(TARGET_SUBDIR)/liboffloadmic/multilib.out; then \
+	  if cmp -s $(TARGET_SUBDIR)/liboffloadmic/multilib.tmp $(TARGET_SUBDIR)/liboffloadmic/multilib.out; then \
+	    rm -f $(TARGET_SUBDIR)/liboffloadmic/multilib.tmp; \
+	  else \
+	    rm -f $(TARGET_SUBDIR)/liboffloadmic/Makefile; \
+	    mv $(TARGET_SUBDIR)/liboffloadmic/multilib.tmp $(TARGET_SUBDIR)/liboffloadmic/multilib.out; \
+	  fi; \
+	else \
+	  mv $(TARGET_SUBDIR)/liboffloadmic/multilib.tmp $(TARGET_SUBDIR)/liboffloadmic/multilib.out; \
+	fi; \
+	test ! -f $(TARGET_SUBDIR)/liboffloadmic/Makefile || exit 0; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/liboffloadmic; \
+	$(NORMAL_TARGET_EXPORTS)  \
+	echo Configuring in $(TARGET_SUBDIR)/liboffloadmic; \
+	cd "$(TARGET_SUBDIR)/liboffloadmic" || exit 1; \
+	case $(srcdir) in \
+	  /* | [A-Za-z]:[\\/]*) topdir=$(srcdir) ;; \
+	  *) topdir=`echo $(TARGET_SUBDIR)/liboffloadmic/ | \
+		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
+	esac; \
+	module_srcdir=liboffloadmic; \
+	rm -f no-such-file || : ; \
+	CONFIG_SITE=no-such-file $(SHELL) \
+	  $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
+	  $(TARGET_CONFIGARGS) --build=${build_alias} --host=${target_alias} \
+	  --target=${target_alias} @extra_liboffloadmic_configure_flags@ \
+	  || exit 1
+@endif target-liboffloadmic
+
+
+
+>>>>>>> gcc-mirror/trunk
 
 
 .PHONY: all-target-liboffloadmic maybe-all-target-liboffloadmic
@@ -37203,16 +38339,28 @@ all-target-liboffloadmic: configure-target-liboffloadmic
 	  $(MAKE) $(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS)   \
 		$(TARGET-target-liboffloadmic))
 @endif target-liboffloadmic
+<<<<<<< HEAD
+=======
+
+>>>>>>> gcc-mirror/trunk
 
 
 
 
+<<<<<<< HEAD
 
 .PHONY: check-target-liboffloadmic maybe-check-target-liboffloadmic
 maybe-check-target-liboffloadmic:
 @if target-liboffloadmic
 maybe-check-target-liboffloadmic: check-target-liboffloadmic
 
+=======
+.PHONY: check-target-liboffloadmic maybe-check-target-liboffloadmic
+maybe-check-target-liboffloadmic:
+@if target-liboffloadmic
+maybe-check-target-liboffloadmic: check-target-liboffloadmic
+
+>>>>>>> gcc-mirror/trunk
 check-target-liboffloadmic:
 	@: $(MAKE); $(unstage)
 	@r=`${PWD_COMMAND}`; export r; \
@@ -40224,11 +41372,19 @@ install-pdf-target-libquadmath: \
     configure-target-libquadmath \
     pdf-target-libquadmath 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing install-pdf in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing install-pdf in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40251,11 +41407,19 @@ install-html-target-libquadmath: \
     configure-target-libquadmath \
     html-target-libquadmath 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing install-html in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing install-html in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40277,11 +41441,19 @@ maybe-installcheck-target-libquadmath: installcheck-target-libquadmath
 installcheck-target-libquadmath: \
     configure-target-libquadmath 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing installcheck in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing installcheck in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40302,11 +41474,19 @@ maybe-mostlyclean-target-libquadmath: mostlyclean-target-libquadmath
 
 mostlyclean-target-libquadmath: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing mostlyclean in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing mostlyclean in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40327,11 +41507,19 @@ maybe-clean-target-libquadmath: clean-target-libquadmath
 
 clean-target-libquadmath: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing clean in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing clean in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40352,11 +41540,19 @@ maybe-distclean-target-libquadmath: distclean-target-libquadmath
 
 distclean-target-libquadmath: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing distclean in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing distclean in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40377,11 +41573,19 @@ maybe-maintainer-clean-target-libquadmath: maintainer-clean-target-libquadmath
 
 maintainer-clean-target-libquadmath: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libquadmath"; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libbacktrace/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libbacktrace"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40414,12 +41618,21 @@ configure-target-libgpython:
 	@: $(MAKE); $(unstage)
 	@r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+<<<<<<< HEAD
 	echo "Checking multilib configuration for libgpython..."; \
 	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libgpython ; \
 	$(CC_FOR_TARGET) --print-multi-lib > $(TARGET_SUBDIR)/libgpython/multilib.tmp 2> /dev/null ; \
 	if test -r $(TARGET_SUBDIR)/libgpython/multilib.out; then \
 	  if cmp -s $(TARGET_SUBDIR)/libgpython/multilib.tmp $(TARGET_SUBDIR)/libgpython/multilib.out; then \
 	    rm -f $(TARGET_SUBDIR)/libgpython/multilib.tmp; \
+=======
+	echo "Checking multilib configuration for libquadmath..."; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libquadmath; \
+	$(CC_FOR_TARGET) --print-multi-lib > $(TARGET_SUBDIR)/libquadmath/multilib.tmp 2> /dev/null; \
+	if test -r $(TARGET_SUBDIR)/libquadmath/multilib.out; then \
+	  if cmp -s $(TARGET_SUBDIR)/libquadmath/multilib.tmp $(TARGET_SUBDIR)/libquadmath/multilib.out; then \
+	    rm -f $(TARGET_SUBDIR)/libquadmath/multilib.tmp; \
+>>>>>>> gcc-mirror/trunk
 	  else \
 	    rm -f $(TARGET_SUBDIR)/libgpython/Makefile; \
 	    mv $(TARGET_SUBDIR)/libgpython/multilib.tmp $(TARGET_SUBDIR)/libgpython/multilib.out; \
@@ -40427,8 +41640,13 @@ configure-target-libgpython:
 	else \
 	  mv $(TARGET_SUBDIR)/libgpython/multilib.tmp $(TARGET_SUBDIR)/libgpython/multilib.out; \
 	fi; \
+<<<<<<< HEAD
 	test ! -f $(TARGET_SUBDIR)/libgpython/Makefile || exit 0; \
 	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libgpython ; \
+=======
+	test ! -f $(TARGET_SUBDIR)/libquadmath/Makefile || exit 0; \
+	$(SHELL) $(srcdir)/mkinstalldirs $(TARGET_SUBDIR)/libquadmath; \
+>>>>>>> gcc-mirror/trunk
 	$(NORMAL_TARGET_EXPORTS)  \
 	echo Configuring in $(TARGET_SUBDIR)/libgpython; \
 	cd "$(TARGET_SUBDIR)/libgpython" || exit 1; \
@@ -40437,12 +41655,18 @@ configure-target-libgpython:
 	  *) topdir=`echo $(TARGET_SUBDIR)/libgpython/ | \
 		sed -e 's,\./,,g' -e 's,[^/]*/,../,g' `$(srcdir) ;; \
 	esac; \
+<<<<<<< HEAD
 	srcdiroption="--srcdir=$${topdir}/libgpython"; \
 	libsrcdir="$$s/libgpython"; \
+=======
+	module_srcdir=libquadmath; \
+>>>>>>> gcc-mirror/trunk
 	rm -f no-such-file || : ; \
-	CONFIG_SITE=no-such-file $(SHELL) $${libsrcdir}/configure \
+	CONFIG_SITE=no-such-file $(SHELL) \
+	  $$s/$$module_srcdir/configure \
+	  --srcdir=$${topdir}/$$module_srcdir \
 	  $(TARGET_CONFIGARGS) --build=${build_alias} --host=${target_alias} \
-	  --target=${target_alias} $${srcdiroption}  \
+	  --target=${target_alias}  \
 	  || exit 1
 @endif target-libgpython
 
@@ -40527,11 +41751,19 @@ maybe-info-target-libgpython: info-target-libgpython
 info-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing info in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing info in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40553,11 +41785,19 @@ maybe-dvi-target-libgpython: dvi-target-libgpython
 dvi-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing dvi in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing dvi in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40579,11 +41819,19 @@ maybe-pdf-target-libgpython: pdf-target-libgpython
 pdf-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing pdf in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing pdf in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40605,11 +41853,19 @@ maybe-html-target-libgpython: html-target-libgpython
 html-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing html in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing html in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40631,11 +41887,19 @@ maybe-TAGS-target-libgpython: TAGS-target-libgpython
 TAGS-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing TAGS in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing TAGS in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40658,11 +41922,19 @@ install-info-target-libgpython: \
     configure-target-libgpython \
     info-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing install-info in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing install-info in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40685,11 +41957,19 @@ install-pdf-target-libgpython: \
     configure-target-libgpython \
     pdf-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing install-pdf in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing install-pdf in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40712,11 +41992,19 @@ install-html-target-libgpython: \
     configure-target-libgpython \
     html-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing install-html in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing install-html in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40738,11 +42026,19 @@ maybe-installcheck-target-libgpython: installcheck-target-libgpython
 installcheck-target-libgpython: \
     configure-target-libgpython 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing installcheck in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing installcheck in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40763,11 +42059,19 @@ maybe-mostlyclean-target-libgpython: mostlyclean-target-libgpython
 
 mostlyclean-target-libgpython: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing mostlyclean in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing mostlyclean in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40788,11 +42092,19 @@ maybe-clean-target-libgpython: clean-target-libgpython
 
 clean-target-libgpython: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing clean in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing clean in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40813,11 +42125,19 @@ maybe-distclean-target-libgpython: distclean-target-libgpython
 
 distclean-target-libgpython: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing distclean in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing distclean in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \
@@ -40838,11 +42158,19 @@ maybe-maintainer-clean-target-libgpython: maintainer-clean-target-libgpython
 
 maintainer-clean-target-libgpython: 
 	@: $(MAKE); $(unstage)
+<<<<<<< HEAD
 	@[ -f $(TARGET_SUBDIR)/libgpython/Makefile ] || exit 0 ; \
 	r=`${PWD_COMMAND}`; export r; \
 	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
 	$(NORMAL_TARGET_EXPORTS) \
 	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libgpython" ; \
+=======
+	@[ -f $(TARGET_SUBDIR)/libquadmath/Makefile ] || exit 0; \
+	r=`${PWD_COMMAND}`; export r; \
+	s=`cd $(srcdir); ${PWD_COMMAND}`; export s; \
+	$(NORMAL_TARGET_EXPORTS) \
+	echo "Doing maintainer-clean in $(TARGET_SUBDIR)/libquadmath"; \
+>>>>>>> gcc-mirror/trunk
 	for flag in $(EXTRA_TARGET_FLAGS); do \
 	  eval `echo "$$flag" | sed -e "s|^\([^=]*\)=\(.*\)|\1='\2'; export \1|"`; \
 	done; \

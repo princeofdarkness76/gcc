@@ -26,11 +26,15 @@ along with GCC; see the file COPYING3.  If not see
 #include "domwalk.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "dumpfile.h"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "dumpfile.h"
+>>>>>>> gcc-mirror/trunk
 
 /* This file implements a generic walker for dominator trees.
 
@@ -151,7 +155,10 @@ cmp_bb_postorder (const void *a, const void *b)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Constructor for a dom walker.
 
    If SKIP_UNREACHBLE_BLOCKS is true, then we need to set
@@ -237,9 +244,12 @@ dom_walker::propagate_unreachable_to_edges (basic_block bb,
     m_unreachable_dom = bb;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Recursively walk the dominator tree.
    BB is the basic block we are currently visiting.  */
 
@@ -271,10 +281,13 @@ dom_walker::walk (basic_block bb)
 	{
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
 	  before_dom_children (bb);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
@@ -292,12 +305,15 @@ dom_walker::walk (basic_block bb)
 	    }
 	  else
 	    propagate_unreachable_to_edges (bb, dump_file, dump_flags);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  /* Callback for subclasses to do custom things before we have walked
 	     the dominator children, but before we walk statements.  */
 	  before_dom_children (bb);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 	  /* Mark the current BB to be popped out of the recursion stack
 	     once children are processed.  */
@@ -329,16 +345,22 @@ dom_walker::walk (basic_block bb)
 	     walked dominator children, but before we walk statements.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  after_dom_children (bb);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  if (bb_reachable (cfun, bb))
 	    after_dom_children (bb);
 	  else if (m_unreachable_dom == bb)
 	    m_unreachable_dom = NULL;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  after_dom_children (bb);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	}
       if (sp)
 	bb = worklist[--sp];

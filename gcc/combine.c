@@ -2514,6 +2514,7 @@ is_parallel_of_n_reg_sets (rtx pat, int n)
   for ( ; i < len; i++)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER)
 =======
     if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER
@@ -2522,6 +2523,10 @@ is_parallel_of_n_reg_sets (rtx pat, int n)
 =======
     if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER)
 >>>>>>> master
+=======
+    if (GET_CODE (XVECEXP (pat, 0, i)) != CLOBBER
+	|| XEXP (XVECEXP (pat, 0, i), 0) == const0_rtx)
+>>>>>>> gcc-mirror/trunk
       return false;
 
   return true;
@@ -2933,6 +2938,9 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
 			 -1, NULL_RTX);
       INSN_UID (i1) = INSN_UID (i2);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
       SUBST (PATTERN (i2), XVECEXP (PATTERN (i2), 0, 0));
       SUBST (XEXP (SET_SRC (PATTERN (i2)), 0),
@@ -2954,6 +2962,7 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
       /* If there is no I1, there is no I0 either.  */
       i0 = i1;
 
+<<<<<<< HEAD
 =======
 
       SUBST (PATTERN (i2), XVECEXP (PATTERN (i2), 0, 0));
@@ -2977,6 +2986,8 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
       i0 = i1;
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       /* We make I1 with the same INSN_UID as I2.  This gives it
 	 the same DF_INSN_LUID for value tracking.  Our fake I1 will
 	 never appear in the insn stream so giving it the same INSN_UID
@@ -3470,6 +3481,7 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
   /* We have recognized nothing yet.  */
   insn_code_number = -1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /* See if this is a PARALLEL of two SETs where one SET's destination is
      a register that is unused and this isn't marked as an instruction that
@@ -3478,12 +3490,18 @@ try_combine (rtx_insn *i3, rtx_insn *i2, rtx_insn *i1, rtx_insn *i0,
 
 =======
 
+=======
+
+>>>>>>> gcc-mirror/trunk
   /* See if this is a PARALLEL of two SETs where one SET's destination is
      a register that is unused and this isn't marked as an instruction that
      might trap in an EH region.  In that case, we just need the other SET.
      We prefer this over the PARALLEL.
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
      This can occur when simplifying a divmod insn.  We *must* test for this
      case here because the code below that splits two independent SETs doesn't
      handle this case correctly when it updates the register status.
@@ -5328,6 +5346,7 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* Substituting into the operands of a widening MULT is not likely
 =======
       /* Trying to simplify the operands of a widening MULT is not likely
@@ -5335,6 +5354,9 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 =======
       /* Substituting into the operands of a widening MULT is not likely
 >>>>>>> master
+=======
+      /* Trying to simplify the operands of a widening MULT is not likely
+>>>>>>> gcc-mirror/trunk
 	 to create RTL matching a machine insn.  */
       if (code == MULT
 	  && (GET_CODE (XEXP (x, 0)) == ZERO_EXTEND
@@ -5342,6 +5364,7 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 	  && (GET_CODE (XEXP (x, 1)) == ZERO_EXTEND
 	      || GET_CODE (XEXP (x, 1)) == SIGN_EXTEND)
 	  && REG_P (XEXP (XEXP (x, 0), 0))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -5355,13 +5378,18 @@ subst (rtx x, rtx from, rtx to, int in_dest, int in_cond, int unique_copy)
 	}
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  && REG_P (XEXP (XEXP (x, 1), 0))
 	  && from == to)
 	return x;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
       /* Get the mode of operand 0 in case X is now a SIGN_EXTEND of a
 	 constant.  */

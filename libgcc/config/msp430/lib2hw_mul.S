@@ -22,6 +22,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 .macro start_func name
@@ -32,6 +33,8 @@
 \name:
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	;;  Macro to start a multiply function.  Each function has three
 	;; names, and hence three entry points - although they all go
 	;; through the same code.  The first name is the version generated
@@ -61,14 +64,18 @@
 	.global \gcc_name
 	.type \gcc_name , @function
 \gcc_name:
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	PUSH.W	sr			; Save current interrupt state
 	DINT				; Disable interrupts
 	NOP				; Account for latency
 .endm
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -77,6 +84,10 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+	;; End a function started with the start_func macro.
+>>>>>>> gcc-mirror/trunk
 .macro end_func name
 #ifdef __MSP430X_LARGE__
 	POP.W  sr
@@ -90,7 +101,10 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 	;; Like the start_func macro except that it is used to
 	;; create a false entry point that just jumps to the
@@ -114,9 +128,12 @@
 .endm
 
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 .macro mult16 OP1, OP2, RESULT
 ;* * 16-bit hardware multiply:  int16 = int16 * int16
 ;*  
@@ -237,8 +254,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;;  First generation MSP430 hardware multiplies ....
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 ;; EABI mandated names:
 ;; 
 ;; int16 __mspabi_mpyi (int16 x, int16 y)
@@ -299,10 +319,13 @@
 ;;            Multiply unsigned long by unsigned long; result is unsigned long long. Uses hardware MPY32 (F5xx devices and up)
 
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 ;;  First generation MSP430 hardware multiplies ....
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 .set MPY_OP1,   0x0130
 .set MPY_OP1_S, 0x0132
@@ -311,6 +334,7 @@
 .set MAC_OP2, 	0x0138
 .set RESULT_LO, 0x013A
 .set RESULT_HI, 0x013C
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -372,6 +396,8 @@
 	end_func __umuldisi2_f5
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 #if defined MUL_16
 ;;  First generation MSP430 hardware multiplies ...
@@ -463,6 +489,9 @@
 #else
 #error MUL type not defined
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

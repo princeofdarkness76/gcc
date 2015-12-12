@@ -545,11 +545,15 @@ symbol_table::remove_unreachable_nodes (FILE *file)
 	      node->alias = false;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      node->transparent_alias = false;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	      node->transparent_alias = false;
+>>>>>>> gcc-mirror/trunk
 	      node->thunk.thunk_p = false;
 	      node->weakref = false;
 	      /* After early inlining we drop always_inline attributes on

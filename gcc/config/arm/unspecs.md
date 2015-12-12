@@ -86,12 +86,15 @@
   UNSPEC_PROBE_STACK    ; Probe stack memory reference
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   UNSPEC_PROBE_STACK_RANGE ; Probe stack range
 =======
 >>>>>>> gcc-mirror/master
 =======
   UNSPEC_PROBE_STACK_RANGE ; Probe stack range
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 ])
 
 (define_c_enum "unspec" [
@@ -156,11 +159,15 @@
   VUNSPEC_SET_FPSCR	; Represent assign of FPSCR content.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  VUNSPEC_PROBE_STACK_RANGE ; Represent stack range probing.
+>>>>>>> gcc-mirror/trunk
 ])
 
 ;; Enumerators for NEON unspecs.

@@ -1265,6 +1265,7 @@ package body Checks is
          --  If our parent is a conversion node then there is no point in
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          --  generating a conversion to Result_Type, we will let the parent
 =======
          --  generating a conversion to Result_Type. Instead, we let the parent
@@ -1272,6 +1273,9 @@ package body Checks is
 =======
          --  generating a conversion to Result_Type, we will let the parent
 >>>>>>> master
+=======
+         --  generating a conversion to Result_Type. Instead, we let the parent
+>>>>>>> gcc-mirror/trunk
          --  handle this. Note that this special case is not just about
          --  optimization. Consider
 
@@ -2384,6 +2388,9 @@ package body Checks is
          --  another actual.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
          if Nkind (Original_Actual (Actual_1)) = N_Aggregate
            or else
@@ -2393,6 +2400,7 @@ package body Checks is
          then
             null;
 
+<<<<<<< HEAD
 =======
 
 =======
@@ -2410,6 +2418,8 @@ package body Checks is
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
          elsif Is_Object_Reference (Original_Actual (Actual_1))
            and then not Is_Elementary_Type (Etype (Original_Actual (Actual_1)))
          then
@@ -2935,6 +2945,7 @@ package body Checks is
          then
             --  If the expression is a literal and the bounds of the type are
             --  static constants it may be possible to optimize the check.
+<<<<<<< HEAD
 
             if Nkind (Expr) = N_Real_Literal then
                declare
@@ -2953,6 +2964,26 @@ package body Checks is
                   end if;
                end;
 
+=======
+
+            if Nkind (Expr) = N_Real_Literal then
+               declare
+                  Tlo : constant Node_Id := Type_Low_Bound  (Target_Typ);
+                  Thi : constant Node_Id := Type_High_Bound (Target_Typ);
+
+               begin
+                  if Compile_Time_Known_Value (Tlo)
+                    and then Compile_Time_Known_Value (Thi)
+                    and then Expr_Value_R (Expr) >= Expr_Value_R (Tlo)
+                    and then Expr_Value_R (Expr) <= Expr_Value_R (Thi)
+                  then
+                     return;
+                  else
+                     Enable_Range_Check (Expr);
+                  end if;
+               end;
+
+>>>>>>> gcc-mirror/trunk
             else
                Enable_Range_Check (Expr);
             end if;

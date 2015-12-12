@@ -1830,6 +1830,7 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
    floating-point, we can only do some of these simplifications.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 (simplify
@@ -1843,6 +1844,8 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
   (eq @0 @0)))
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 (for cmp (eq ge le)
  (simplify
   (cmp @0 @0)
@@ -1851,9 +1854,12 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
    { constant_boolean_node (true, type); }
    (if (cmp != EQ_EXPR)
     (eq @0 @0)))))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 (for cmp (ne gt lt)
  (simplify
   (cmp @0 @0)
@@ -1875,6 +1881,7 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
  (simplify
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   (cmp (bit_not @0) (bit_not @1))
   (cmp @1 @0)))
 =======
@@ -1886,11 +1893,17 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
   (cmp (bit_not @0) (bit_not @1))
   (cmp @1 @0)))
 >>>>>>> master
+=======
+  (cmp (bit_not@2 @0) (bit_not@3 @1))
+  (if (single_use (@2) && single_use (@3))
+   (cmp @1 @0))))
+>>>>>>> gcc-mirror/trunk
 
 /* Fold ~X op C as X op' ~C, where op' is the swapped comparison.  */
 (for cmp (simple_comparison)
      scmp (swapped_simple_comparison)
  (simplify
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   (cmp (bit_not @0) CONSTANT_CLASS_P@1)
@@ -1904,6 +1917,11 @@ DEFINE_INT_AND_FLOAT_ROUND_FN (RINT)
   (cmp (bit_not @0) CONSTANT_CLASS_P@1)
   (if (TREE_CODE (@1) == INTEGER_CST || TREE_CODE (@1) == VECTOR_CST)
 >>>>>>> master
+=======
+  (cmp (bit_not@2 @0) CONSTANT_CLASS_P@1)
+  (if (single_use (@2)
+       && (TREE_CODE (@1) == INTEGER_CST || TREE_CODE (@1) == VECTOR_CST))
+>>>>>>> gcc-mirror/trunk
    (scmp @0 (bit_not @1)))))
 
 (for cmp (simple_comparison)

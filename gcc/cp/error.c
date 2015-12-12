@@ -955,6 +955,7 @@ dump_global_iord (cxx_pretty_printer *pp, tree t)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   pp_printf (pp, p, LOCATION_FILE (input_location));
 =======
   pp_printf (pp, p, DECL_SOURCE_FILE (t));
@@ -962,6 +963,9 @@ dump_global_iord (cxx_pretty_printer *pp, tree t)
 =======
   pp_printf (pp, p, LOCATION_FILE (input_location));
 >>>>>>> master
+=======
+  pp_printf (pp, p, DECL_SOURCE_FILE (t));
+>>>>>>> gcc-mirror/trunk
 }
 
 static void

@@ -151,13 +151,19 @@ Target Report Var(rx_allow_string_insns) Init(1)
 Enables or disables the use of the SMOVF, SMOVB, SMOVU, SUNTIL, SWHILE and RMPA instructions.  Enabled by default.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 ;---------------------------------------------------
 
 mjsr
 Target Report Mask(JSR)
 Always use JSR, never BSR, for calls.
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

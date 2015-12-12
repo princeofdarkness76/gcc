@@ -366,12 +366,16 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 (define_memory_constraint "Wfr"
 =======
 (define_constraint "Wfr"
 >>>>>>> gcc-mirror/master
+=======
+(define_constraint "Wfr"
+>>>>>>> gcc-mirror/trunk
   "ES/CS far pointer"
   (and (match_code "mem")
        (match_test "rl78_far_p (op)"))

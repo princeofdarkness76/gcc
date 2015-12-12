@@ -11,11 +11,14 @@ noreturn (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #ifndef SC
 #define SC
 #endif
@@ -30,11 +33,14 @@ noreturn (void)
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 __attribute__((noinline, noclone)) void
 N(f0) (void)
@@ -43,6 +49,7 @@ N(f0) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -52,6 +59,9 @@ N(f0) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = 0; i < 1500; i++)
     a[i] += 2;
@@ -63,6 +73,7 @@ N(f1) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -72,6 +83,9 @@ N(f1) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (unsigned int i = __INT_MAX__; i < 3000U + __INT_MAX__; i += 2)
     a[(i - __INT_MAX__) >> 1] -= 2;
@@ -84,6 +98,7 @@ N(f2) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -93,6 +108,9 @@ N(f2) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = __LONG_LONG_MAX__ + 4500ULL - 27;
        i > __LONG_LONG_MAX__ - 27ULL; i -= 3)
@@ -105,6 +123,7 @@ N(f3) (long long n1, long long n2, long long s3)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -114,6 +133,9 @@ N(f3) (long long n1, long long n2, long long s3)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (long long i = n1 + 23; i > n2 - 25; i -= s3)
     a[i + 48] += 7;
@@ -126,6 +148,7 @@ N(f4) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -135,6 +158,9 @@ N(f4) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = 30; i < 20; i += 2)
     a[i] += 10;
@@ -144,6 +170,7 @@ __attribute__((noinline, noclone)) void
 N(f5) (int n11, int n12, int n21, int n22, int n31, int n32,
        int s1, int s2, int s3)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -160,6 +187,10 @@ N(f5) (int n11, int n12, int n21, int n22, int n31, int n32,
   SC int v1, v2, v3;
   OMPTGT
 >>>>>>> master
+=======
+  SC int v1, v2, v3;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (v1 = n11; v1 < n12; v1 += s1)
     for (v2 = n21; v2 < n22; v2 += s2)
@@ -171,6 +202,7 @@ __attribute__((noinline, noclone)) void
 N(f6) (int n11, int n12, int n21, int n22, long long n31, long long n32,
        int s1, int s2, long long int s3)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -191,6 +223,11 @@ N(f6) (int n11, int n12, int n21, int n22, long long n31, long long n32,
   SC long long v3;
   OMPTGT
 >>>>>>> master
+=======
+  SC int v1, v2;
+  SC long long v3;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (v1 = n11; v1 > n12; v1 += s1)
     for (v2 = n21; v2 > n22; v2 += s2)
@@ -201,6 +238,7 @@ N(f6) (int n11, int n12, int n21, int n22, long long n31, long long n32,
 __attribute__((noinline, noclone)) void
 N(f7) (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -221,6 +259,11 @@ N(f7) (void)
   SC unsigned long long v2;
   OMPTGT
 >>>>>>> master
+=======
+  SC unsigned int v1, v3;
+  SC unsigned long long v2;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (v1 = 0; v1 < 20; v1 += 2)
     for (v2 = __LONG_LONG_MAX__ + 16ULL;
@@ -232,6 +275,7 @@ N(f7) (void)
 __attribute__((noinline, noclone)) void
 N(f8) (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -248,6 +292,10 @@ N(f8) (void)
   SC long long v1, v2, v3;
   OMPTGT
 >>>>>>> master
+=======
+  SC long long v1, v2, v3;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (v1 = 0; v1 < 20; v1 += 2)
     for (v2 = 30; v2 < 20; v2++)
@@ -262,6 +310,7 @@ N(f9) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -271,6 +320,9 @@ N(f9) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = 20; i < 10; i++)
     {
@@ -286,6 +338,7 @@ N(f10) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   int i;
 =======
   SC int i;
@@ -299,6 +352,10 @@ N(f10) (void)
   SC int i;
   OMPTGT
 >>>>>>> master
+=======
+  SC int i;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (i = 0; i < 10; i++)
     for (int j = 10; j < 8; j++)
@@ -317,6 +374,7 @@ N(f11) (int n)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -326,6 +384,9 @@ N(f11) (int n)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = 20; i < n; i++)
     {
@@ -338,6 +399,7 @@ N(f11) (int n)
 __attribute__((noinline, noclone)) void
 N(f12) (int n)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -354,6 +416,10 @@ N(f12) (int n)
   SC int i;
   OMPTGT
 >>>>>>> master
+=======
+  SC int i;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (i = 0; i < 10; i++)
     for (int j = n; j < 8; j++)
@@ -372,6 +438,7 @@ N(f13) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPTGT
 >>>>>>> gcc-mirror/master
@@ -381,6 +448,9 @@ N(f13) (void)
 =======
   OMPTGT
 >>>>>>> master
+=======
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S
   for (i = a; i < &a[1500]; i++)
     i[0] += 2;
@@ -389,6 +459,7 @@ N(f13) (void)
 __attribute__((noinline, noclone)) void
 N(f14) (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -405,6 +476,10 @@ N(f14) (void)
   SC float *i;
   OMPTGT
 >>>>>>> master
+=======
+  SC float *i;
+  OMPTGT
+>>>>>>> gcc-mirror/trunk
 #pragma omp F S collapse(3)
   for (i = &b[0][0][0]; i < &b[0][0][10]; i++)
     for (float *j = &b[0][15][0]; j > &b[0][0][0]; j -= 10)
@@ -422,6 +497,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   N(f0) ();
 =======
   OMPTO (a);
@@ -438,6 +514,11 @@ N(test) (void)
   N(f0) ();
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPTO (a);
+  N(f0) ();
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 23)
       return 1;
@@ -445,6 +526,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -454,6 +536,9 @@ N(test) (void)
 =======
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 25)
       return 1;
@@ -461,6 +546,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -470,6 +556,9 @@ N(test) (void)
 =======
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 29)
       return 1;
@@ -477,6 +566,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -486,6 +576,9 @@ N(test) (void)
 =======
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 22)
       return 1;
@@ -493,6 +586,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -502,6 +596,9 @@ N(test) (void)
 =======
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 22)
       return 1;
@@ -509,6 +606,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
 >>>>>>> gcc-mirror/master
@@ -518,6 +616,9 @@ N(test) (void)
 =======
   OMPFROM (a);
 >>>>>>> master
+=======
+  OMPFROM (a);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 22)
       return 1;
@@ -528,6 +629,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
 =======
   OMPTO (b);
@@ -544,6 +646,11 @@ N(test) (void)
   N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPTO (b);
+  N(f5) (0, 10, 0, 15, 0, 10, 1, 1, 1);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 10; i++)
     for (j = 0; j < 15; j++)
       for (k = 0; k < 10; k++)
@@ -553,6 +660,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -562,6 +670,9 @@ N(test) (void)
 =======
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 10; i++)
     for (j = 0; j < 15; j++)
       for (k = 0; k < 10; k++)
@@ -571,6 +682,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -580,6 +692,9 @@ N(test) (void)
 =======
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 10; i++)
     for (j = 0; j < 15; j++)
       for (k = 0; k < 10; k++)
@@ -589,6 +704,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -598,6 +714,9 @@ N(test) (void)
 =======
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 10; i++)
     for (j = 0; j < 15; j++)
       for (k = 0; k < 10; k++)
@@ -607,6 +726,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (b);
 >>>>>>> gcc-mirror/master
@@ -616,6 +736,9 @@ N(test) (void)
 =======
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 10; i++)
     for (j = 0; j < 15; j++)
       for (k = 0; k < 10; k++)
@@ -628,6 +751,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
   OMPFROM (b);
@@ -640,6 +764,10 @@ N(test) (void)
   OMPFROM (a);
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (a);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 22)
       return 1;
@@ -653,6 +781,7 @@ N(test) (void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   OMPFROM (a);
   OMPFROM (b);
@@ -665,6 +794,10 @@ N(test) (void)
   OMPFROM (a);
   OMPFROM (b);
 >>>>>>> master
+=======
+  OMPFROM (a);
+  OMPFROM (b);
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 1500; i++)
     if (a[i] != i - 20)
       return 1;

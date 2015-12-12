@@ -4,11 +4,15 @@
 /* { dg-options "-O2 -fdump-tree-bswap" } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* { dg-additional-options "-mzarch" { target s390*-*-* } } */
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-additional-options "-mzarch" { target s390*-*-* } } */
+>>>>>>> gcc-mirror/trunk
 
 #include <stdint.h>
 

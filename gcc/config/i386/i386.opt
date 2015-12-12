@@ -753,6 +753,7 @@ Support CLFLUSHOPT instructions.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 mclzero
@@ -764,6 +765,8 @@ Support CLZERO instructions.
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 mclwb
 Target Report Mask(ISA_CLWB) Var(ix86_isa_flags) Save
 Support CLWB instruction.
@@ -886,14 +889,20 @@ Target Report Mask(ISA_MWAITX) Var(ix86_isa_flags) Save
 Support MWAITX and MONITORX built-in functions and code generation.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 mclzero
 Target Report Mask(ISA_CLZERO) Var(ix86_isa_flags) Save
 Support CLZERO built-in functions and code generation.
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 mstack-protector-guard=
 Target RejectNegative Joined Enum(stack_protector_guard) Var(ix86_stack_protector_guard) Init(SSP_TLS)

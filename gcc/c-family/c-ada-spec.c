@@ -1698,17 +1698,23 @@ dump_ada_array_type (pretty_printer *buffer, tree t, tree parent, int spc)
 	pp_string (buffer, "aliased ");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       dump_generic_ada_node
 	(buffer, TREE_TYPE (tmp), TREE_TYPE (t), spc, false, true);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (TYPE_NAME (tmp) || !RECORD_OR_UNION_TYPE_P (tmp))
 	dump_generic_ada_node (buffer, tmp, TREE_TYPE (t), spc, false, true);
       else
 	dump_ada_double_name (buffer, parent, get_underlying_decl (tmp));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 }
 
@@ -1773,6 +1779,7 @@ dump_ada_template (pretty_printer *buffer, tree t, int spc)
       if (RECORD_OR_UNION_TYPE_P (instance)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  && cpp_check && cpp_check (instance, HAS_DEPENDENT_TEMPLATE_ARGS))
 =======
 	  && cpp_check
@@ -1781,6 +1788,10 @@ dump_ada_template (pretty_printer *buffer, tree t, int spc)
 =======
 	  && cpp_check && cpp_check (instance, HAS_DEPENDENT_TEMPLATE_ARGS))
 >>>>>>> master
+=======
+	  && cpp_check
+	  && cpp_check (instance, HAS_DEPENDENT_TEMPLATE_ARGS))
+>>>>>>> gcc-mirror/trunk
 	continue;
 
       num_inst++;
@@ -1907,6 +1918,7 @@ dump_generic_ada_node (pretty_printer *buffer, tree node, tree type, int spc,
     case ENUMERAL_TYPE:
       if (name_only)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	dump_generic_ada_node
 	  (buffer, TYPE_NAME (node), node, spc, 0, true);
 <<<<<<< HEAD
@@ -1915,6 +1927,9 @@ dump_generic_ada_node (pretty_printer *buffer, tree node, tree type, int spc,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	dump_generic_ada_node (buffer, TYPE_NAME (node), node, spc, 0, true);
+>>>>>>> gcc-mirror/trunk
       else
 	{
 	  tree value = TYPE_VALUES (node);
@@ -2361,6 +2376,7 @@ print_ada_methods (pretty_printer *buffer, tree node, int spc)
     return 0;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   pp_semicolon (buffer);
 
@@ -2374,6 +2390,11 @@ print_ada_methods (pretty_printer *buffer, tree node, int spc)
   pp_semicolon (buffer);
 
 >>>>>>> master
+=======
+
+  pp_semicolon (buffer);
+
+>>>>>>> gcc-mirror/trunk
   /* First pass: the regular methods.  */
   res = 1;
   for (t = TYPE_METHODS (node); t; t = TREE_CHAIN (t))
@@ -2416,6 +2437,7 @@ print_ada_methods (pretty_printer *buffer, tree node, int spc)
 	  pp_newline (buffer);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	}
 
       res = print_ada_declaration (buffer, t, node, spc);
@@ -2519,6 +2541,56 @@ print_ada_methods (pretty_printer *buffer, tree node, int spc)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	}
+
+      res = print_ada_declaration (buffer, t, node, spc);
+    }
+
+  spc -= INDENT_INCR;
+  newline_and_indent (buffer, spc);
+  pp_string (buffer, "end;");
+
+  /* In order to save the clients from adding a second use clause for the
+     nested package, we generate renamings for the static member functions
+     in the package created for the class.  */
+  for (t = TYPE_METHODS (node); t; t = TREE_CHAIN (t))
+    {
+      bool is_function;
+
+      if (TREE_CODE (TREE_TYPE (t)) == METHOD_TYPE)
+	continue;
+
+      pp_newline (buffer);
+      newline_and_indent (buffer, spc);
+
+      if (VOID_TYPE_P (TREE_TYPE (TREE_TYPE (t))))
+	{
+	  pp_string (buffer, "procedure ");
+	  is_function = false;
+	}
+      else
+	{
+	  pp_string (buffer, "function ");
+	  is_function = true;
+	}
+
+      dump_ada_decl_name (buffer, t, false);
+      dump_ada_function_declaration (buffer, t, false, false, false, spc);
+
+      if (is_function)
+	{
+	  pp_string (buffer, " return ");
+	  dump_generic_ada_node (buffer, TREE_TYPE (TREE_TYPE (t)), node,
+				 spc, false, true);
+	}
+
+       pp_string (buffer, " renames Static.");
+       dump_ada_decl_name (buffer, t, false);
+       pp_semicolon (buffer);
+    }
+
+>>>>>>> gcc-mirror/trunk
   return 1;
 }
 
@@ -2529,8 +2601,11 @@ static void dump_nested_type (pretty_printer *, tree, tree, tree, int);
    FORWARD indicates whether a forward declaration of T should be generated.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    SPC is the indentation level.  */
 =======
+=======
+>>>>>>> gcc-mirror/trunk
    SPC is the indentation level.
 
    In C anonymous nested tagged types have no name whereas in C++ they have
@@ -2541,10 +2616,13 @@ static void dump_nested_type (pretty_printer *, tree, tree, tree, int);
    Therefore, in order to have a common processing for both languages, we
    disregard anonymous TYPE_DECLs at top level and here we make a first
    pass on the nested TYPE_DECLs and a second pass on the unnamed types.  */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
    SPC is the indentation level.  */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 static void
 dump_nested_types (pretty_printer *buffer, tree t, tree parent, bool forward,
@@ -2577,6 +2655,7 @@ dump_nested_types (pretty_printer *buffer, tree t, tree parent, bool forward,
       dump_nested_type (buffer, field, t, parent, spc);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		    pp_string (buffer, "type ");
 		    dump_generic_ada_node (buffer, decl, 0, spc, false, true);
 		    pp_semicolon (buffer);
@@ -2586,6 +2665,11 @@ dump_nested_types (pretty_printer *buffer, tree t, tree parent, bool forward,
     if (!TYPE_NAME (TREE_TYPE (field)))
       dump_nested_type (buffer, field, t, parent, spc);
 >>>>>>> gcc-mirror/master
+=======
+  for (field = TYPE_FIELDS (type); field; field = TREE_CHAIN (field))
+    if (!TYPE_NAME (TREE_TYPE (field)))
+      dump_nested_type (buffer, field, t, parent, spc);
+>>>>>>> gcc-mirror/trunk
 
   TREE_VISITED (t) = 1;
 }
@@ -2603,11 +2687,14 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
   tree decl, tmp;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      case UNION_TYPE:
 		TREE_VISITED (t) = 1;
 		dump_nested_types (buffer, field, t, false, spc);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   switch (TREE_CODE (field_type))
     {
     case POINTER_TYPE:
@@ -2637,9 +2724,12 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
 	  TREE_VISITED (decl) = 1;
 	}
       break;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
     case ARRAY_TYPE:
       tmp = TREE_TYPE (field_type);
@@ -2656,6 +2746,7 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
 	  TREE_VISITED (decl) = 1;
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		if (TYPE_NAME (TREE_TYPE (field)))
 		  {
@@ -2756,6 +2847,37 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
       if (TYPE_NAME (field_type))
 	{
 	  dump_generic_ada_node (buffer, field_type, 0, spc, false, true);
+=======
+      /* Special case char arrays.  */
+      if (is_char_array (field))
+	pp_string (buffer, "sub");
+
+      pp_string (buffer, "type ");
+      dump_ada_double_name (buffer, parent, field);
+      pp_string (buffer, " is ");
+      dump_ada_array_type (buffer, field, parent, spc);
+      pp_semicolon (buffer);
+      newline_and_indent (buffer, spc);
+      break;
+
+    case RECORD_TYPE:
+    case UNION_TYPE:
+      if (TYPE_NAME (TREE_TYPE (t)) && !TREE_VISITED (t))
+	{
+	  pp_string (buffer, "type ");
+	  dump_generic_ada_node (buffer, t, parent, spc, false, true);
+	  pp_semicolon (buffer);
+	  newline_and_indent (buffer, spc);
+	}
+
+      TREE_VISITED (t) = 1;
+      dump_nested_types (buffer, field, t, false, spc);
+
+      pp_string (buffer, "type ");
+
+      if (TYPE_NAME (field_type))
+	{
+	  dump_generic_ada_node (buffer, field_type, 0, spc, false, true);
 	  if (TREE_CODE (field_type) == UNION_TYPE)
 	    pp_string (buffer, " (discr : unsigned := 0)");
 	  pp_string (buffer, " is ");
@@ -2769,6 +2891,32 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
 	  if (TREE_CODE (field_type) == UNION_TYPE)
 	    {
 	      pp_string (buffer, "pragma Unchecked_Union (");
+	      dump_generic_ada_node (buffer, field_type, 0, spc, false, true);
+	      pp_string (buffer, ");");
+	    }
+	}
+      else
+	{
+	  dump_ada_double_name (buffer, parent, field);
+>>>>>>> gcc-mirror/trunk
+	  if (TREE_CODE (field_type) == UNION_TYPE)
+	    pp_string (buffer, " (discr : unsigned := 0)");
+	  pp_string (buffer, " is ");
+	  print_ada_struct_decl (buffer, field_type, t, spc, false);
+
+	  pp_string (buffer, "pragma Convention (C_Pass_By_Copy, ");
+<<<<<<< HEAD
+	  dump_generic_ada_node (buffer, field_type, 0, spc, false, true);
+=======
+	  dump_ada_double_name (buffer, parent, field);
+>>>>>>> gcc-mirror/trunk
+	  pp_string (buffer, ");");
+	  newline_and_indent (buffer, spc);
+
+	  if (TREE_CODE (field_type) == UNION_TYPE)
+	    {
+	      pp_string (buffer, "pragma Unchecked_Union (");
+<<<<<<< HEAD
 	      dump_generic_ada_node (buffer, field_type, 0, spc, false, true);
 	      pp_string (buffer, ");");
 	    }
@@ -2790,6 +2938,8 @@ dump_nested_type (pretty_printer *buffer, tree field, tree t, tree parent,
 	  if (TREE_CODE (field_type) == UNION_TYPE)
 	    {
 	      pp_string (buffer, "pragma Unchecked_Union (");
+=======
+>>>>>>> gcc-mirror/trunk
 	      dump_ada_double_name (buffer, parent, field);
 	      pp_string (buffer, ");");
 	    }
@@ -2809,6 +2959,7 @@ print_constructor (pretty_printer *buffer, tree t)
 
   pp_string (buffer, "New_");
   pp_ada_tree_identifier (buffer, decl_name, t, false);
+<<<<<<< HEAD
 }
 
 /* Dump in BUFFER constructor spec corresponding to T.  */
@@ -2831,6 +2982,8 @@ print_constructor (pretty_printer *buffer, tree t)
 
   pp_string (buffer, "New_");
   pp_ada_tree_identifier (buffer, decl_name, t, false);
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Dump in BUFFER destructor spec corresponding to T.  */
@@ -3048,16 +3201,22 @@ print_ada_declaration (pretty_printer *buffer, tree t, tree type, int spc)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      dump_generic_ada_node (buffer, tmp, type, spc, false, true);
 	    }
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  if (tmp)
 	    dump_generic_ada_node (buffer, tmp, type, spc, false, true);
 	  else if (type)
 	    dump_ada_double_name (buffer, type, t);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 	  else
 	    dump_ada_array_type (buffer, t, type, spc);
 	}
@@ -3096,6 +3255,7 @@ print_ada_declaration (pretty_printer *buffer, tree t, tree type, int spc)
 	  if (DECL_ARTIFICIAL (t))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	    return 0;
 
@@ -3117,12 +3277,22 @@ print_ada_declaration (pretty_printer *buffer, tree t, tree type, int spc)
 =======
 	  /* Only consider constructors/destructors for complete objects.  */
 	  if (strncmp (IDENTIFIER_POINTER (decl_name), "__comp", 6) != 0)
+=======
+>>>>>>> gcc-mirror/trunk
 	    return 0;
 	}
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	  /* Only consider constructors/destructors for complete objects.  */
+	  if (strncmp (IDENTIFIER_POINTER (decl_name), "__comp", 6) != 0)
+	    return 0;
+	}
+
+>>>>>>> gcc-mirror/trunk
       /* If this function has an entry in the vtable, we cannot omit it.  */
       else if (!DECL_VINDEX (t) && *IDENTIFIER_POINTER (decl_name) == '_')
 	{
@@ -3318,18 +3488,24 @@ print_ada_declaration (pretty_printer *buffer, tree t, tree type, int spc)
 	      pp_string (buffer, "aliased ");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      dump_generic_ada_node
 		(buffer, TREE_TYPE (t), t, spc, false, true);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	      if (TYPE_NAME (TREE_TYPE (t)))
 		dump_generic_ada_node
 		  (buffer, TREE_TYPE (t), t, spc, false, true);
 	      else
 		dump_ada_double_name (buffer, type, t);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    }
 	  else
 	    {
@@ -3384,6 +3560,7 @@ print_ada_struct_decl (pretty_printer *buffer, tree node, tree type, int spc,
   tree tmp;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const bool is_union
     = TREE_CODE (node) == UNION_TYPE || TREE_CODE (node) == QUAL_UNION_TYPE;
 =======
@@ -3393,6 +3570,9 @@ print_ada_struct_decl (pretty_printer *buffer, tree node, tree type, int spc,
   const bool is_union
     = TREE_CODE (node) == UNION_TYPE || TREE_CODE (node) == QUAL_UNION_TYPE;
 >>>>>>> master
+=======
+  const bool is_union = (TREE_CODE (node) == UNION_TYPE);
+>>>>>>> gcc-mirror/trunk
   char buf[32];
   int field_num = 0;
   int field_spc = spc + INDENT_INCR;

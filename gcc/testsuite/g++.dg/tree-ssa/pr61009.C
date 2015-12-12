@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom1" } */
 =======
 /* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom2" } */
@@ -8,6 +9,9 @@
 =======
 /* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom1" } */
 >>>>>>> master
+=======
+/* { dg-options "-O2 -fno-tree-vrp -std=c++11 -fno-strict-aliasing -fdump-tree-dom2" } */
+>>>>>>> gcc-mirror/trunk
 
 #include <stdio.h>
 struct Field {
@@ -59,6 +63,7 @@ bool  Test(void) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-final { scan-tree-dump-times "== 0" 1 "dom1" } }
 =======
 // { dg-final { scan-tree-dump-times "== 0" 1 "dom2" } }
@@ -66,3 +71,6 @@ bool  Test(void) {
 =======
 // { dg-final { scan-tree-dump-times "== 0" 1 "dom1" } }
 >>>>>>> master
+=======
+// { dg-final { scan-tree-dump-times "== 0" 1 "dom2" } }
+>>>>>>> gcc-mirror/trunk

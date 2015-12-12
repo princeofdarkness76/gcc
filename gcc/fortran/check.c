@@ -1159,7 +1159,10 @@ gfc_check_atomic_cas (gfc_expr *atom, gfc_expr *old, gfc_expr *compare,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 bool
 gfc_check_event_query (gfc_expr *event, gfc_expr *count, gfc_expr *stat)
 {
@@ -1213,9 +1216,12 @@ gfc_check_event_query (gfc_expr *event, gfc_expr *count, gfc_expr *stat)
   return true;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 bool
 gfc_check_atomic_fetch_op (gfc_expr *atom, gfc_expr *value, gfc_expr *old,
@@ -1555,7 +1561,10 @@ check_co_collective (gfc_expr *a, gfc_expr *image_idx, gfc_expr *stat,
       return false;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   return true;
 }
@@ -1737,6 +1746,7 @@ gfc_check_co_reduce (gfc_expr *a, gfc_expr *op, gfc_expr *result_image,
 	  return false;
 	}
     }
+<<<<<<< HEAD
 >>>>>>> master
 
   return true;
@@ -1920,14 +1930,19 @@ gfc_check_co_reduce (gfc_expr *a, gfc_expr *op, gfc_expr *result_image,
 	  return false;
 	}
     }
+=======
+>>>>>>> gcc-mirror/trunk
 
   return true;
 }
 
 
 bool
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 gfc_check_co_minmax (gfc_expr *a, gfc_expr *result_image, gfc_expr *stat,
 		     gfc_expr *errmsg)
 {
@@ -5185,6 +5200,9 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
   if (distance)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
     {
       if (!type_check (distance, 0, BT_INTEGER))
 	return false;
@@ -5201,6 +5219,7 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
     }
 
    if (failed)
+<<<<<<< HEAD
     {
 =======
     {
@@ -5240,6 +5259,9 @@ gfc_check_num_images (gfc_expr *distance, gfc_expr *failed)
    if (failed)
     {
 >>>>>>> master
+=======
+    {
+>>>>>>> gcc-mirror/trunk
       if (!type_check (failed, 1, BT_LOGICAL))
 	return false;
 

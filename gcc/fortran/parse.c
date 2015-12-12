@@ -1352,11 +1352,15 @@ next_statement (void)
   case ST_SYNC_IMAGES: case ST_SYNC_MEMORY: case ST_LOCK: case ST_UNLOCK: \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   case ST_EVENT_POST: case ST_EVENT_WAIT: \
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  case ST_EVENT_POST: case ST_EVENT_WAIT: \
+>>>>>>> gcc-mirror/trunk
   case ST_OACC_UPDATE: case ST_OACC_WAIT: case ST_OACC_CACHE: \
   case ST_OACC_ENTER_DATA: case ST_OACC_EXIT_DATA
 
@@ -5857,11 +5861,15 @@ is_oacc (gfc_state_data *sd)
     case EXEC_OACC_ATOMIC:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     case EXEC_OACC_ROUTINE:
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+    case EXEC_OACC_ROUTINE:
+>>>>>>> gcc-mirror/trunk
       return true;
 
     default:

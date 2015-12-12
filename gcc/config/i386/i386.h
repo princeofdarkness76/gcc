@@ -1459,6 +1459,7 @@ enum reg_class
        { 0x0,       0x0, 0x1fe0 },       /* MASK_REGS */                 \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 { 0xffffffff,0xffffffff, 0x1fff }                                        \
 =======
 { 0xffffffff,0xffffffff,0x1ffff }                                        \
@@ -1466,6 +1467,9 @@ enum reg_class
 =======
 { 0xffffffff,0xffffffff, 0x1fff }                                        \
 >>>>>>> master
+=======
+{ 0xffffffff,0xffffffff,0x1ffff }                                        \
+>>>>>>> gcc-mirror/trunk
 }
 
 /* The same information, inverted:

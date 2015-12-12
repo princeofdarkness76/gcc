@@ -130,16 +130,22 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
    (UNSPEC_ARC_MEMBAR 30)
    (VUNSPEC_ARC_CAS 31)
    (VUNSPEC_ARC_LL 32)
    (VUNSPEC_ARC_SC 33)
    (VUNSPEC_ARC_EX 34)
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
    (R0_REG 0)
    (R1_REG 1)
    (R2_REG 2)
@@ -5545,6 +5551,7 @@
 (include "simdext.md")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ;; include atomic extensions
@@ -5552,3 +5559,8 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+;; include atomic extensions
+(include "atomic.md")
+>>>>>>> gcc-mirror/trunk

@@ -1,6 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-09  John David Anglin  <danglin@gcc.gnu.org>
 
 	PR 68115/libfortran
@@ -9,9 +12,12 @@
 	* elf.c (backtrace_initialize): Cast __sync_bool_compare_and_swap call
 	to void.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-09-17  Ian Lance Taylor  <iant@google.com>
 
 	* posix.c (backtrace_open): Cast second argument of open() to int.

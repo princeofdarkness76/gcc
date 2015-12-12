@@ -132,6 +132,7 @@ shext  =
 hyphen = -
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Define this as & to perform parallel make on a Sequent.
 # Note that this has some bugs, and it seems currently necessary
 # to compile all the gen* files first by hand to avoid erroneous results.
@@ -153,6 +154,8 @@ GCC_CFLAGS = $(INTERNAL_CFLAGS) $(T_CFLAGS) $(CFLAGS)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 # program_transform_name and objdir are set by configure.ac.
 program_transform_name =
 objdir = .
@@ -281,6 +284,7 @@ TOOLS_LIBS += @NO_PIE_FLAG@
 # subdirectory rather than in the source directory.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 INCLUDES = -I- -I. -I.. -I$(srcdir)/ada -I$(srcdir) -I$(ftop_srcdir)/include $(GMPINC)
 =======
 INCLUDES = -iquote . -iquote .. -iquote $(srcdir)/ada -iquote $(srcdir) \
@@ -289,6 +293,10 @@ INCLUDES = -iquote . -iquote .. -iquote $(srcdir)/ada -iquote $(srcdir) \
 =======
 INCLUDES = -I- -I. -I.. -I$(srcdir)/ada -I$(srcdir) -I$(ftop_srcdir)/include $(GMPINC)
 >>>>>>> master
+=======
+INCLUDES = -iquote . -iquote .. -iquote $(srcdir)/ada -iquote $(srcdir) \
+	   -I $(ftop_srcdir)/include $(GMPINC)
+>>>>>>> gcc-mirror/trunk
 
 ADA_INCLUDES = -I- -I. -I$(srcdir)/ada
 
@@ -1852,6 +1860,7 @@ ifeq ($(strip $(filter-out mips linux%,$(target_cpu) $(target_os))),)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Mips/el Linux
 ifeq ($(strip $(filter-out mipsel linux%,$(target_cpu) $(target_os))),)
   LIBGNAT_TARGET_PAIRS_COMMON = \
@@ -1904,6 +1913,10 @@ ifeq ($(strip $(filter-out mipsel mips64el linux%,$(target_cpu) $(target_os))),)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+# Mips/el and Mips64/el Linux
+ifeq ($(strip $(filter-out mipsel mips64el linux%,$(target_cpu) $(target_os))),)
+>>>>>>> gcc-mirror/trunk
   LIBGNAT_TARGET_PAIRS_COMMON = \
   a-intnam.ads<a-intnam-linux.ads \
   s-inmaop.adb<s-inmaop-posix.adb \
@@ -2538,6 +2551,7 @@ ADA_INCLUDE_SRCS =\
 # They will be removed from the run time if not used.
 ADA_EXCLUDE_SRCS =\
 <<<<<<< HEAD
+<<<<<<< HEAD
   s-bb.ads \
   s-bbbosu.ads s-bbcaco.ads s-bbcppr.ads s-bbexti.adb s-bbexti.ads \
   s-bbinte.adb s-bbinte.ads s-bbprot.adb s-bbprot.ads s-bbsle3.ads \
@@ -2557,6 +2571,11 @@ ADA_EXCLUDE_SRCS =\
   g-altive.ads g-alveop.adb g-alveop.ads g-alvety.ads g-alvevi.ads \
   g-intpri.ads g-regist.adb g-regist.ads g-sse.ads    g-ssvety.ads \
 >>>>>>> gcc-mirror/master
+=======
+  g-allein.ads g-alleve.adb g-alleve.ads g-altcon.adb g-altcon.ads \
+  g-altive.ads g-alveop.adb g-alveop.ads g-alvety.ads g-alvevi.ads \
+  g-intpri.ads g-regist.adb g-regist.ads g-sse.ads    g-ssvety.ads \
+>>>>>>> gcc-mirror/trunk
   i-vxwoio.adb i-vxwoio.ads i-vxwork.ads \
   s-bb.ads     s-bbbosu.ads s-bbcaco.ads s-bbcppr.ads s-bbexti.adb \
   s-bbexti.ads s-bbinte.adb s-bbinte.ads s-bbprot.adb s-bbprot.ads \

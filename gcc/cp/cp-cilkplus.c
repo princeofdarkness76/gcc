@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright (C) 2013  Free Software Foundation, Inc.
    Contributed by Balaji V. Iyer <balaji.v.iyer@intel.com>,
 		  Aldy Hernandez <aldyh@redhat.com>.
@@ -19,6 +20,10 @@
    Copyright (C) 2013-2015 Free Software Foundation, Inc.
    Contributed by Aldy Hernandez <aldyh@redhat.com>.
 >>>>>>> master
+=======
+   Copyright (C) 2013-2015 Free Software Foundation, Inc.
+   Contributed by Aldy Hernandez <aldyh@redhat.com>.
+>>>>>>> gcc-mirror/trunk
 
    This file is part of GCC.
 
@@ -43,6 +48,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "diagnostic-core.h"
 
 =======
@@ -57,6 +63,10 @@
 #include "tree-iterator.h"
 #include "cilk.h"
 >>>>>>> master
+=======
+#include "tree-iterator.h"
+#include "cilk.h"
+>>>>>>> gcc-mirror/trunk
 
 /* Callback for cp_walk_tree to validate the body of a pragma simd loop
    or _cilk_for loop.
@@ -73,6 +83,7 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   location_t loc = EXPR_HAS_LOCATION (*tp) ? EXPR_LOCATION (*tp) :
     UNKNOWN_LOCATION;
 =======
@@ -81,10 +92,13 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (!tp || !*tp)
     return NULL_TREE;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -97,6 +111,9 @@ cpp_validate_cilk_plus_loop_aux (tree *tp, int *walk_subtrees, void *data)
 =======
   location_t loc = EXPR_LOCATION (*tp);
 >>>>>>> master
+=======
+  location_t loc = EXPR_LOCATION (*tp);
+>>>>>>> gcc-mirror/trunk
   if (TREE_CODE (*tp) == THROW_EXPR)
     {
       error_at (loc, "throw expressions are not allowed inside loops "
@@ -130,11 +147,14 @@ cpp_validate_cilk_plus_loop (tree body)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Sets the EXCEPTION bit (0x10) in the FRAME.flags field.  */
 
@@ -201,8 +221,11 @@ cilk_install_body_with_frame_cleanup (tree fndecl, tree orig_body, void *wd)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

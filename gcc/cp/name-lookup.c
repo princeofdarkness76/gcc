@@ -5660,6 +5660,7 @@ arg_assoc (struct arg_lookup *k, tree n)
    are the functions found in normal lookup.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree
 <<<<<<< HEAD
 =======
@@ -5667,6 +5668,9 @@ static cp_expr
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+static cp_expr
+>>>>>>> gcc-mirror/trunk
 lookup_arg_dependent_1 (tree name, tree fns, vec<tree, va_gc> *args)
 {
   struct arg_lookup k;
@@ -5728,6 +5732,7 @@ lookup_arg_dependent_1 (tree name, tree fns, vec<tree, va_gc> *args)
 /* Wrapper for lookup_arg_dependent_1.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 tree
 <<<<<<< HEAD
 =======
@@ -5735,6 +5740,9 @@ cp_expr
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+cp_expr
+>>>>>>> gcc-mirror/trunk
 lookup_arg_dependent (tree name, tree fns, vec<tree, va_gc> *args)
 {
   cp_expr ret;

@@ -6508,6 +6508,7 @@ if test "$ac_cv_int64_t_type" = "long"; then
 $as_echo "#define INT64_T_IS_LONG 1" >>confdefs.h
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 else
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -6528,6 +6529,13 @@ else
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+=======
+
+else
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+>>>>>>> gcc-mirror/trunk
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
@@ -6536,9 +6544,12 @@ template <>
 struct X<long long> { typedef long long t; };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 int
 main ()
 {
@@ -9245,6 +9256,8 @@ fi
 done
 
 
+<<<<<<< HEAD
+=======
 # --------
 # Dependency checking.
 # --------
@@ -9351,6 +9364,145 @@ else
   rm -rf conftest.dir
 else
   am_cv_CXX_dependencies_compiler_type=none
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_CXX_dependencies_compiler_type" >&5
+$as_echo "$am_cv_CXX_dependencies_compiler_type" >&6; }
+if test x${am_cv_CXX_dependencies_compiler_type-none} = xnone
+then as_fn_error "no usable dependency style found" "$LINENO" 5
+else CXXDEPMODE=depmode=$am_cv_CXX_dependencies_compiler_type
+
+fi
+
+
+>>>>>>> gcc-mirror/trunk
+# --------
+# Dependency checking.
+# --------
+
+rm -rf .tst 2>/dev/null
+mkdir .tst 2>/dev/null
+if test -d .tst; then
+  am__leading_dot=.
+else
+  am__leading_dot=_
+fi
+rmdir .tst 2>/dev/null
+
+DEPDIR="${am__leading_dot}deps"
+
+ac_config_commands="$ac_config_commands depdir"
+
+
+ac_config_commands="$ac_config_commands gccdepdir"
+
+
+depcc="$CXX"  am_compiler_list=
+
+am_depcomp=$ac_aux_dir/depcomp
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking dependency style of $depcc" >&5
+$as_echo_n "checking dependency style of $depcc... " >&6; }
+if test "${am_cv_CXX_dependencies_compiler_type+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -f "$am_depcomp"; then
+  # We make a subdir and do the tests there.  Otherwise we can end up
+  # making bogus files that we don't know about and never remove.  For
+  # instance it was reported that on HP-UX the gcc test will end up
+  # making a dummy file named `D' -- because `-MD' means `put the output
+  # in D'.
+  mkdir conftest.dir
+  # Copy depcomp to subdir because otherwise we won't find it if we're
+  # using a relative directory.
+  cp "$am_depcomp" conftest.dir
+  cd conftest.dir
+  # We will build objects and dependencies in a subdirectory because
+  # it helps to detect inapplicable dependency modes.  For instance
+  # both Tru64's cc and ICC support -MD to output dependencies as a
+  # side effect of compilation, but ICC will put the dependencies in
+  # the current directory while Tru64 will put them in the object
+  # directory.
+  mkdir sub
+
+<<<<<<< HEAD
+  am_cv_CXX_dependencies_compiler_type=none
+  if test "$am_compiler_list" = ""; then
+     am_compiler_list=`sed -n 's/^\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
+  fi
+  for depmode in $am_compiler_list; do
+    if test $depmode = none; then break; fi
+
+    $as_echo "$as_me:$LINENO: trying $depmode" >&5
+    # Setup a source with many dependencies, because some compilers
+    # like to wrap large dependency lists on column 80 (with \), and
+    # we should not choose a depcomp mode which is confused by this.
+    #
+    # We need to recreate these files for each test, as the compiler may
+    # overwrite some of them when testing with obscure command lines.
+    # This happens at least with the AIX C compiler.
+    : > sub/conftest.c
+    for i in 1 2 3 4 5 6; do
+      echo '#include "conftst'$i'.h"' >> sub/conftest.c
+      # Using `: > sub/conftst$i.h' creates only sub/conftst1.h with
+      # Solaris 8's {/usr,}/bin/sh.
+      touch sub/conftst$i.h
+    done
+    echo "include sub/conftest.Po" > confmf
+
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.
+    depcmd="depmode=$depmode \
+       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
+       depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
+       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c"
+    echo "| $depcmd" | sed -e 's/  */ /g' >&5
+    if env $depcmd > conftest.err 2>&1 &&
+       grep sub/conftst6.h sub/conftest.Po >>conftest.err 2>&1 &&
+       grep sub/conftest.${OBJEXT-o} sub/conftest.Po >>conftest.err 2>&1 &&
+       ${MAKE-make} -s -f confmf >>conftest.err 2>&1; then
+      # icc doesn't choke on unknown options, it will just issue warnings
+      # or remarks (even with -Werror).  So we grep stderr for any message
+      # that says an option was ignored or not supported.
+      # When given -MP, icc 7.0 and 7.1 complain thusly:
+      #   icc: Command line warning: ignoring option '-M'; no argument required
+      # The diagnosis changed in icc 8.0:
+      #   icc: Command line remark: option '-MP' not supported
+      if (grep 'ignoring option' conftest.err ||
+          grep 'not supported' conftest.err) >/dev/null 2>&1; then :; else
+        am_cv_CXX_dependencies_compiler_type=$depmode
+	$as_echo "$as_me:$LINENO: success" >&5
+        break
+      fi
+    fi
+    $as_echo "$as_me:$LINENO: failure, diagnostics are:" >&5
+    sed -e 's/^/| /' < conftest.err >&5
+  done
+
+  cd ..
+  rm -rf conftest.dir
+else
+  am_cv_CXX_dependencies_compiler_type=none
+=======
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char ldopen ();
+int
+main ()
+{
+return ldopen ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  gcc_cv_collect2_libs="$libs"; break
+>>>>>>> gcc-mirror/trunk
 fi
 
 fi
@@ -22301,6 +22453,7 @@ $as_echo_n "checking gold linker with split stack support as non default... " >&
 #
 if test x$ld_is_gold = xno && which ${gcc_cv_ld}.gold >/dev/null 2>&1; then
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 # For platforms other than powerpc64*, enable as appropriate.
@@ -22336,6 +22489,8 @@ $as_echo "$gold_non_default" >&6; }
 
 ORIGINAL_LD_FOR_TARGET=$gcc_cv_ld
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 # For platforms other than powerpc64*, enable as appropriate.
 
@@ -24799,6 +24954,7 @@ fi
     ;;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 case "$target" in
   aarch64*-*-*)
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for -mabi option" >&5
@@ -25134,6 +25290,8 @@ fi
     ;;
 
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   # All TARGET_ABI_OSF targets.
   alpha*-*-linux* | alpha*-*-*bsd*)
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for explicit relocation support" >&5
@@ -25222,6 +25380,9 @@ fi
     ;;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
   avr-*-*)
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for --mlink-relax option" >&5
 $as_echo_n "checking assembler for --mlink-relax option... " >&6; }
@@ -25355,8 +25516,11 @@ $as_echo "#define HAVE_AS_REGISTER_PSEUDO_OP 1" >>confdefs.h
 
 fi
 
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for -relax option" >&5
 $as_echo_n "checking assembler for -relax option... " >&6; }
 if test "${gcc_cv_as_sparc_relax+set}" = set; then :
@@ -25643,6 +25807,43 @@ $as_echo "$gcc_cv_as_sparc_sparc4" >&6; }
 if test $gcc_cv_as_sparc_sparc4 = yes; then
 
 $as_echo "#define HAVE_AS_SPARC4 1" >>confdefs.h
+
+fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for LEON instructions" >&5
+$as_echo_n "checking assembler for LEON instructions... " >&6; }
+if test "${gcc_cv_as_sparc_leon+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gcc_cv_as_sparc_leon=no
+  if test x$gcc_cv_as != x; then
+    $as_echo '.text
+       .register %g2, #scratch
+       .register %g3, #scratch
+       .align 4
+       smac %g2, %g3, %g1
+       umac %g2, %g3, %g1
+       casa [%g2] 0xb, %g3, %g1' > conftest.s
+    if { ac_try='$gcc_cv_as $gcc_cv_as_flags -Aleon -o conftest.o conftest.s >&5'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+    then
+	gcc_cv_as_sparc_leon=yes
+    else
+      echo "configure: failed program was" >&5
+      cat conftest.s >&5
+    fi
+    rm -f conftest.o conftest.s
+  fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_sparc_leon" >&5
+$as_echo "$gcc_cv_as_sparc_leon" >&6; }
+if test $gcc_cv_as_sparc_leon = yes; then
+
+$as_echo "#define HAVE_AS_LEON 1" >>confdefs.h
 
 fi
 
@@ -26277,6 +26478,37 @@ $as_echo "$gcc_cv_as_ix86_rep_lock_prefix" >&6; }
 if test $gcc_cv_as_ix86_rep_lock_prefix = yes; then
 
 $as_echo "#define HAVE_AS_IX86_REP_LOCK_PREFIX 1" >>confdefs.h
+
+fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for ud2 mnemonic" >&5
+$as_echo_n "checking assembler for ud2 mnemonic... " >&6; }
+if test "${gcc_cv_as_ix86_ud2+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gcc_cv_as_ix86_ud2=no
+  if test x$gcc_cv_as != x; then
+    $as_echo 'ud2' > conftest.s
+    if { ac_try='$gcc_cv_as $gcc_cv_as_flags  -o conftest.o conftest.s >&5'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+    then
+	gcc_cv_as_ix86_ud2=yes
+    else
+      echo "configure: failed program was" >&5
+      cat conftest.s >&5
+    fi
+    rm -f conftest.o conftest.s
+  fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_ix86_ud2" >&5
+$as_echo "$gcc_cv_as_ix86_ud2" >&6; }
+if test $gcc_cv_as_ix86_ud2 = yes; then
+
+$as_echo "#define HAVE_AS_IX86_UD2 1" >>confdefs.h
 
 fi
 
@@ -27359,6 +27591,81 @@ fi
 	;;
     esac
 
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for prologue entry point marker support" >&5
+$as_echo_n "checking assembler for prologue entry point marker support... " >&6; }
+if test "${gcc_cv_as_powerpc_entry_markers+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gcc_cv_as_powerpc_entry_markers=no
+    if test $in_tree_gas = yes; then
+    if test $gcc_cv_gas_vers -ge `expr \( \( 2 \* 1000 \) + 26 \) \* 1000 + 0`
+  then gcc_cv_as_powerpc_entry_markers=yes
+fi
+  elif test x$gcc_cv_as != x; then
+    $as_echo ' .reloc .,R_PPC64_ENTRY; nop' > conftest.s
+    if { ac_try='$gcc_cv_as $gcc_cv_as_flags -a64 --fatal-warnings -o conftest.o conftest.s >&5'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+    then
+	gcc_cv_as_powerpc_entry_markers=yes
+    else
+      echo "configure: failed program was" >&5
+      cat conftest.s >&5
+    fi
+    rm -f conftest.o conftest.s
+  fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_powerpc_entry_markers" >&5
+$as_echo "$gcc_cv_as_powerpc_entry_markers" >&6; }
+if test $gcc_cv_as_powerpc_entry_markers = yes; then
+
+$as_echo "#define HAVE_AS_ENTRY_MARKERS 1" >>confdefs.h
+
+fi
+
+    case $target in
+      *-*-aix*)
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for dwarf location lists section support" >&5
+$as_echo_n "checking assembler for dwarf location lists section support... " >&6; }
+if test "${gcc_cv_as_aix_dwloc+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gcc_cv_as_aix_dwloc=no
+    if test $in_tree_gas = yes; then
+    if test $gcc_cv_gas_vers -ge `expr \( \( 2 \* 1000 \) + 21 \) \* 1000 + 0`
+  then gcc_cv_as_aix_dwloc=yes
+fi
+  elif test x$gcc_cv_as != x; then
+    $as_echo '	.dwsect 0xB0000
+	  ' > conftest.s
+    if { ac_try='$gcc_cv_as $gcc_cv_as_flags  -o conftest.o conftest.s >&5'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }
+    then
+	gcc_cv_as_aix_dwloc=yes
+    else
+      echo "configure: failed program was" >&5
+      cat conftest.s >&5
+    fi
+    rm -f conftest.o conftest.s
+  fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_aix_dwloc" >&5
+$as_echo "$gcc_cv_as_aix_dwloc" >&6; }
+if test $gcc_cv_as_aix_dwloc = yes; then
+
+$as_echo "#define HAVE_XCOFF_DWARF_EXTRAS 1" >>confdefs.h
+
+fi
+	;;
+    esac
+
     case $target in
       *-*-aix*)
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for dwarf location lists section support" >&5
@@ -27844,6 +28151,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_s390_machine_machinemode" >&5
 $as_echo "$gcc_cv_as_s390_machine_machinemode" >&6; }
 if test $gcc_cv_as_s390_machine_machinemode = yes; then
+<<<<<<< HEAD
 
 $as_echo "#define HAVE_AS_MACHINE_MACHINEMODE 1" >>confdefs.h
 
@@ -28007,6 +28315,24 @@ else
 fi
   elif test x$gcc_cv_as != x; then
     $as_echo '.gnu_attribute 8,1' > conftest.s
+=======
+
+$as_echo "#define HAVE_AS_MACHINE_MACHINEMODE 1" >>confdefs.h
+
+fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for architecture modifiers support" >&5
+$as_echo_n "checking assembler for architecture modifiers support... " >&6; }
+if test "${gcc_cv_as_s390_architecture_modifiers+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  gcc_cv_as_s390_architecture_modifiers=no
+    if test $in_tree_gas = yes; then
+    if test $gcc_cv_gas_vers -ge `expr \( \( 2 \* 1000 \) + 26 \) \* 1000 + 0`
+  then gcc_cv_as_s390_architecture_modifiers=yes
+fi
+  elif test x$gcc_cv_as != x; then
+    $as_echo '	.machine z13+vx ' > conftest.s
+>>>>>>> gcc-mirror/trunk
     if { ac_try='$gcc_cv_as $gcc_cv_as_flags  -o conftest.o conftest.s >&5'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
@@ -28014,7 +28340,11 @@ fi
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; }
     then
+<<<<<<< HEAD
 	gcc_cv_as_s390_gnu_attribute=yes
+=======
+	gcc_cv_as_s390_architecture_modifiers=yes
+>>>>>>> gcc-mirror/trunk
     else
       echo "configure: failed program was" >&5
       cat conftest.s >&5
@@ -28022,6 +28352,7 @@ fi
     rm -f conftest.o conftest.s
   fi
 fi
+<<<<<<< HEAD
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_s390_gnu_attribute" >&5
 $as_echo "$gcc_cv_as_s390_gnu_attribute" >&6; }
 if test $gcc_cv_as_s390_gnu_attribute = yes; then
@@ -28029,6 +28360,14 @@ if test $gcc_cv_as_s390_gnu_attribute = yes; then
 $as_echo "#define HAVE_AS_GNU_ATTRIBUTE 1" >>confdefs.h
 
 >>>>>>> master
+=======
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_s390_architecture_modifiers" >&5
+$as_echo "$gcc_cv_as_s390_architecture_modifiers" >&6; }
+if test $gcc_cv_as_s390_architecture_modifiers = yes; then
+
+$as_echo "#define HAVE_AS_ARCHITECTURE_MODIFIERS 1" >>confdefs.h
+
+>>>>>>> gcc-mirror/trunk
 fi
     ;;
 esac

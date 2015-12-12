@@ -53,6 +53,7 @@ Target Report RejectNegative Negative(m31) Mask(64BIT)
 
 march=
 <<<<<<< HEAD
+<<<<<<< HEAD
 Target RejectNegative Joined Enum(processor_type) Var(s390_arch) Init(PROCESSOR_max)
 <<<<<<< HEAD
 =======
@@ -60,6 +61,9 @@ Target RejectNegative Joined Enum(processor_type) Var(s390_arch) Init(PROCESSOR_
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+Target RejectNegative Joined Enum(processor_type) Var(s390_arch) Init(PROCESSOR_max) Save
+>>>>>>> gcc-mirror/trunk
 Generate code for given CPU.
 
 Enum
@@ -100,6 +104,7 @@ Enum(processor_type) String(native) Value(PROCESSOR_NATIVE) DriverOnly
 
 mbackchain
 <<<<<<< HEAD
+<<<<<<< HEAD
 Target Report Mask(BACKCHAIN)
 Maintain backchain pointer.
 
@@ -115,6 +120,13 @@ Target Report Mask(DEBUG_ARG) Save
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+Target Report Mask(BACKCHAIN) Save
+Maintain backchain pointer.
+
+mdebug
+Target Report Mask(DEBUG_ARG) Save
+>>>>>>> gcc-mirror/trunk
 Additional debug prints.
 
 mesa
@@ -122,6 +134,7 @@ Target Report RejectNegative Negative(mzarch) InverseMask(ZARCH)
 ESA/390 architecture.
 
 mhard-dfp
+<<<<<<< HEAD
 <<<<<<< HEAD
 Target Report Mask(HARD_DFP)
 Enable decimal floating point hardware support.
@@ -138,6 +151,13 @@ Target Report RejectNegative Negative(msoft-float) InverseMask(SOFT_FLOAT, HARD_
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+Target Report Mask(HARD_DFP) Save
+Enable decimal floating point hardware support.
+
+mhard-float
+Target Report RejectNegative Negative(msoft-float) InverseMask(SOFT_FLOAT, HARD_FLOAT) Save
+>>>>>>> gcc-mirror/trunk
 Enable hardware floating point.
 
 mhotpatch=
@@ -159,6 +179,7 @@ Target Report RejectNegative Negative(mlong-double-128) InverseMask(LONG_DOUBLE_
 Use 64-bit long double.
 
 mhtm
+<<<<<<< HEAD
 <<<<<<< HEAD
 Target Report Mask(OPT_HTM)
 Use hardware transactional execution instructions.
@@ -239,18 +260,64 @@ Target RejectNegative Joined Enum(processor_type) Var(s390_tune) Init(PROCESSOR_
 Schedule code for given CPU.
 
 mmvcle
+=======
+Target Report Mask(OPT_HTM) Save
+Use hardware transactional execution instructions.
+
+mvx
+Target Report Mask(OPT_VX) Save
+Use hardware vector facility instructions and enable the vector ABI.
+
+mpacked-stack
+Target Report Mask(PACKED_STACK) Save
+Use packed stack layout.
+
+msmall-exec
+Target Report Mask(SMALL_EXEC) Save
+Use bras for executable < 64k.
+
+msoft-float
+Target Report RejectNegative Negative(mhard-float) Mask(SOFT_FLOAT) Save
+Disable hardware floating point.
+
+mstack-guard=
+Target RejectNegative Negative(mno-stack-guard) Joined UInteger Var(s390_stack_guard) Save
+Set the max. number of bytes which has to be left to stack size before a trap instruction is triggered.
+
+mno-stack-guard
+Target RejectNegative Alias(mstack-guard=,0) Negative(mstack-guard=)
+Switches off the -mstack-guard= option.
+
+mstack-size=
+Target RejectNegative Joined UInteger Var(s390_stack_size) Save
+Emit extra code in the function prologue in order to trap if the stack size exceeds the given limit.
+
+mno-stack-size
+Target RejectNegative Alias(mstack-size=,0) Negative(mstack-size=)
+Switches off the -mstack-size= option.
+
+mtune=
+Target RejectNegative Joined Enum(processor_type) Var(s390_tune) Init(PROCESSOR_max) Save
+Schedule code for given CPU.
+
+mmvcle
+>>>>>>> gcc-mirror/trunk
 Target Report Mask(MVCLE) Save
 mvcle use.
 
 mzvector
 Target Report Mask(ZVECTOR) Save
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 Enable the z vector language extension providing the context-sensitive
 vector macro and enable the Altivec-style builtins in vecintrin.h
 
 mwarn-dynamicstack
+<<<<<<< HEAD
 <<<<<<< HEAD
 Target RejectNegative Var(s390_warn_dynamicstack_p)
 Warn if a function uses alloca or creates an array with dynamic size.
@@ -267,6 +334,13 @@ Target RejectNegative Joined UInteger Var(s390_warn_framesize) Save
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+Target Var(s390_warn_dynamicstack_p) Save
+Warn if a function uses alloca or creates an array with dynamic size.
+
+mwarn-framesize=
+Target RejectNegative Joined UInteger Var(s390_warn_framesize) Save
+>>>>>>> gcc-mirror/trunk
 Warn if a single function's framesize exceeds the given framesize.
 
 mzarch

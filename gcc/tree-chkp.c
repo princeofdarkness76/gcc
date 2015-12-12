@@ -2159,17 +2159,23 @@ chkp_call_returns_bounds_p (gcall *call)
   if (gimple_call_internal_p (call))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return false;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     {
       if (gimple_call_internal_fn (call) == IFN_VA_ARG)
 	return true;
       return false;
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     return false;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (gimple_call_builtin_p (call, BUILT_IN_CHKP_NARROW_PTR_BOUNDS)
       || chkp_gimple_call_builtin_p (call, BUILT_IN_CHKP_NARROW))
@@ -2504,7 +2510,10 @@ chkp_build_bndstx (tree addr, tree ptr, tree bounds,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* This function is called when call statement
    is inlined and therefore we can't use bndret
    for its LHS anymore.  Function fixes bndret
@@ -2568,9 +2577,12 @@ chkp_fixup_inlined_call (tree lhs, tree rhs)
   update_stmt (bndldx);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Compute bounds for pointer NODE which was assigned in
    assignment statement ASSIGN.  Return computed bounds.  */
 static tree
@@ -2993,12 +3005,17 @@ chkp_make_static_bounds (tree obj)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   free (bnd_var_name);
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  free (bnd_var_name);
+
+>>>>>>> gcc-mirror/trunk
   TREE_PUBLIC (bnd_var) = 0;
   TREE_USED (bnd_var) = 1;
   TREE_READONLY (bnd_var) = 0;

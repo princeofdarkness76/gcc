@@ -4566,7 +4566,10 @@ pointers into PC-relative form.])
 	  [Define if your assembler supports .gnu_attribute.])])
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     gcc_GAS_CHECK_FEATURE([.machine and .machinemode support],
       gcc_cv_as_s390_machine_machinemode, [2,24,0],,
       [	.machinemode push
@@ -4580,9 +4583,12 @@ pointers into PC-relative form.])
       [	.machine z13+vx ],,
       [AC_DEFINE(HAVE_AS_ARCHITECTURE_MODIFIERS, 1,
 	  [Define if your assembler supports architecture modifiers.])])
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     ;;
 esac
 

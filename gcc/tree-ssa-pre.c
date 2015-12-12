@@ -3908,6 +3908,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -3915,6 +3916,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
   virtual void after_dom_children (basic_block);
 
   bool do_pre;
@@ -3924,6 +3928,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -3931,6 +3936,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 eliminate_dom_walker::before_dom_children (basic_block b)
 {
   /* Mark new bb.  */

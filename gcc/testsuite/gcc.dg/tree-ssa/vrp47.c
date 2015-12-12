@@ -6,12 +6,16 @@
 /* { dg-do compile { target { ! { logical_op_short_circuit || { s390*-*-* mn10300-*-* hppa*-*-* } } } } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dom1 -fdump-tree-vrp2" } */
 =======
 /* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dom2 -fdump-tree-vrp2" } */
 >>>>>>> gcc-mirror/master
+=======
+/* { dg-options "-O2 -fdump-tree-vrp1 -fdump-tree-dom2 -fdump-tree-vrp2" } */
+>>>>>>> gcc-mirror/trunk
 /* { dg-additional-options "-march=i586" { target { { i?86-*-* x86_64-*-* } && ia32 } } } */
 
 int h(int x, int y)

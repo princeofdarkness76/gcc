@@ -64,16 +64,22 @@ set plugin_test_list [list \
     { decl_plugin.c decl-plugin-test.C } \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     { def_plugin.c def-plugin-test.C } ]
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     { def_plugin.c def-plugin-test.C } \
     { ../../gcc.dg/plugin/diagnostic_plugin_test_tree_expression_range.c \
 	  diagnostic-test-expressions-1.C } \
 ]
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     { def_plugin.c def-plugin-test.C } ]
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 foreach plugin_test $plugin_test_list {
     # Replace each source file with its full-path name

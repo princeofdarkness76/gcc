@@ -116,17 +116,22 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+>>>>>>> gcc-mirror/trunk
   if (bitpos)
     {
       if (TREE_CODE (type) == BOOLEAN_TYPE)
 	{
 	  tree itype
 	    = build_nonstandard_integer_type (tree_to_uhwi (bitsize), 0);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -142,6 +147,8 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
   else
     return gimplify_build1 (gsi, VIEW_CONVERT_EXPR, type, t);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  tree field = fold_build3 (BIT_FIELD_REF, itype, t, bitsize, bitpos);
 	  return fold_build2 (NE_EXPR, type, field, build_zero_cst (itype));
 	}
@@ -150,7 +157,10 @@ tree_vec_extract (tree type, tree t, tree bitsize, tree bitpos)
     }
 
   return fold_build1 (VIEW_CONVERT_EXPR, type, t);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 static tree
@@ -1471,6 +1481,7 @@ do_cond (gimple_stmt_iterator *gsi, tree inner_type, tree a, tree b,
   if (TREE_CODE (TREE_TYPE (a)) == VECTOR_TYPE)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     a = tree_vec_extract (gsi, inner_type, a, bitsize, bitpos);
   if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
     b = tree_vec_extract (gsi, inner_type, b, bitsize, bitpos);
@@ -1484,6 +1495,11 @@ do_cond (gimple_stmt_iterator *gsi, tree inner_type, tree a, tree b,
   if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
     b = tree_vec_extract (gsi, inner_type, b, bitsize, bitpos);
 >>>>>>> master
+=======
+    a = tree_vec_extract (inner_type, a, bitsize, bitpos);
+  if (TREE_CODE (TREE_TYPE (b)) == VECTOR_TYPE)
+    b = tree_vec_extract (inner_type, b, bitsize, bitpos);
+>>>>>>> gcc-mirror/trunk
   tree cond = gimple_assign_rhs1 (gsi_stmt (*gsi));
   return gimplify_build3 (gsi, code, inner_type, unshare_expr (cond), a, b);
 }
@@ -1830,6 +1846,7 @@ const pass_data pass_data_lower_vector =
 class pass_lower_vector : public gimple_opt_pass
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 {
@@ -1866,6 +1883,9 @@ const pass_data pass_data_lower_vector_ssa =
 {
 =======
 {
+=======
+{
+>>>>>>> gcc-mirror/trunk
 public:
   pass_lower_vector (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_lower_vector, ctxt)
@@ -1896,6 +1916,7 @@ namespace {
 
 const pass_data pass_data_lower_vector_ssa =
 {
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 {
@@ -1907,6 +1928,8 @@ namespace {
 const pass_data pass_data_lower_vector_ssa =
 {
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   GIMPLE_PASS, /* type */
   "veclower2", /* name */
   OPTGROUP_VEC, /* optinfo_flags */

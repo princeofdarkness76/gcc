@@ -82,6 +82,7 @@
   [(set (match_operand:GPF 0 "aarch64_mem_pair_operand" "")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	(match_operand:GPF 1 "register_operand" ""))
    (set (match_operand:GPF 2 "memory_operand" "")
 	(match_operand:GPF 3 "register_operand" ""))]
@@ -95,6 +96,11 @@
    (set (match_operand:GPF 2 "memory_operand" "")
 	(match_operand:GPF 3 "register_operand" ""))]
 >>>>>>> master
+=======
+	(match_operand:GPF 1 "aarch64_reg_or_fp_zero" ""))
+   (set (match_operand:GPF 2 "memory_operand" "")
+	(match_operand:GPF 3 "aarch64_reg_or_fp_zero" ""))]
+>>>>>>> gcc-mirror/trunk
   "aarch64_operands_ok_for_ldpstp (operands, false, <MODE>mode)"
   [(parallel [(set (match_dup 0) (match_dup 1))
 	      (set (match_dup 2) (match_dup 3))])]
@@ -363,6 +369,7 @@
    (set (match_operand:GPF 0 "memory_operand" "")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	(match_operand:GPF 1 "aarch64_reg_or_zero" ""))
@@ -374,6 +381,8 @@
 	(match_operand:GPF 7 "aarch64_reg_or_zero" ""))
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	(match_operand:GPF 1 "aarch64_reg_or_fp_zero" ""))
    (set (match_operand:GPF 2 "memory_operand" "")
 	(match_operand:GPF 3 "aarch64_reg_or_fp_zero" ""))
@@ -381,9 +390,12 @@
 	(match_operand:GPF 5 "aarch64_reg_or_fp_zero" ""))
    (set (match_operand:GPF 6 "memory_operand" "")
 	(match_operand:GPF 7 "aarch64_reg_or_fp_zero" ""))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
    (match_dup 8)]
   "aarch64_operands_adjust_ok_for_ldpstp (operands, false, <MODE>mode)"
   [(const_int 0)]

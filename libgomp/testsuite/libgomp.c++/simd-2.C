@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-options "-O2" }
 =======
 >>>>>>> gcc-mirror/master
@@ -9,6 +10,8 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 // { dg-additional-options "-msse2" { target sse2_runtime } }
 // { dg-additional-options "-mavx" { target avx_runtime } }
 

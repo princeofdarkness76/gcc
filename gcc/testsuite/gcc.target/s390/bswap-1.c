@@ -23,9 +23,12 @@ foo64b ()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 uint32_t
 foo32 ()
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 void
 foo64c (uint64_t a)
 {
@@ -44,16 +47,20 @@ foo32a (uint32_t a)
 
 uint32_t
 foo32b ()
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 uint32_t
 foo32 ()
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 {
   return __builtin_bswap32 (u32);
 }
 /* { dg-final { scan-assembler-times "lrv\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -66,12 +73,17 @@ foo16 ()
 /* { dg-final { scan-assembler-times "lrvh\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 void
 foo32c (uint32_t a)
 {
   u32 = __builtin_bswap32 (a);
 }
 /* { dg-final { scan-assembler-times "strv\t%r2,0\\(%r\[0-9\]*\\)" 1 } } */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

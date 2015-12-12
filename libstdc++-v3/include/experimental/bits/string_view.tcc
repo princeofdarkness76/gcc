@@ -26,6 +26,7 @@
  *  This is an internal header file, included by other library headers.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  *  Do not attempt to use it directly. @headername{string_view}
 =======
  *  Do not attempt to use it directly. @headername{experimental/string_view}
@@ -33,6 +34,9 @@
 =======
  *  Do not attempt to use it directly. @headername{string_view}
 >>>>>>> master
+=======
+ *  Do not attempt to use it directly. @headername{experimental/string_view}
+>>>>>>> gcc-mirror/trunk
  */
 
 //

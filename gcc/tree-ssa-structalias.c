@@ -4804,6 +4804,7 @@ find_func_aliases (struct function *fn, gimple *origt)
 	make_escape_constraint (gimple_return_retval (return_stmt));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       else if (in_ipa_mode
@@ -4811,6 +4812,9 @@ find_func_aliases (struct function *fn, gimple *origt)
 =======
       else if (in_ipa_mode)
 >>>>>>> gcc-mirror/master
+=======
+      else if (in_ipa_mode)
+>>>>>>> gcc-mirror/trunk
 	{
 	  struct constraint_expr lhs ;
 	  struct constraint_expr *rhsp;
@@ -5647,15 +5651,21 @@ create_function_info_for (tree decl, const char *name, bool add_id,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (nonlocal_p
 	  && DECL_RESULT (decl)
 	  && DECL_BY_REFERENCE (DECL_RESULT (decl)))
 	make_constraint_from (resultvi, nonlocal_id);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       gcc_assert (prev_vi->offset < resultvi->offset);
       prev_vi->next = resultvi->id;
       prev_vi = resultvi;
@@ -6210,9 +6220,12 @@ set_uids_in_ptset (bitmap into, bitmap from, struct pt_solution *pt,
 	     set contains global variables.  */
 	  bitmap_set_bit (into, DECL_PT_UID (vi->decl));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (vi->is_global_var)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  if (vi->is_global_var
 	      /* In IPA mode the escaped_heap trick doesn't work as
 		 ESCAPED is escaped from the unit but
@@ -6226,9 +6239,12 @@ set_uids_in_ptset (bitmap into, bitmap from, struct pt_solution *pt,
 	      || (in_ipa_mode
 		  && fndecl
 		  && ! auto_var_in_fn_p (vi->decl, fndecl)))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    pt->vars_contains_nonlocal = true;
 	}
     }
@@ -7407,10 +7423,17 @@ public:
   pass_build_ealias (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_build_ealias, ctxt)
   {}
+<<<<<<< HEAD
 
   /* opt_pass methods: */
   virtual bool gate (function *) { return flag_tree_pta; }
 
+=======
+
+  /* opt_pass methods: */
+  virtual bool gate (function *) { return flag_tree_pta; }
+
+>>>>>>> gcc-mirror/trunk
 }; // class pass_build_ealias
 
 } // anon namespace
@@ -7478,7 +7501,10 @@ ipa_pta_execute (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* When parallelizing a code region, we split the region off into a
 	 separate function, to be run by several threads in parallel.  So for a
 	 function foo, we split off a region into a function
@@ -7491,9 +7517,12 @@ ipa_pta_execute (void)
       bool node_address_taken = (node->address_taken
 				 && !node->parallelized_function);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       /* For externally visible or attribute used annotated functions use
 	 local constraints for their arguments.
 	 For local functions we see all callers and thus do not need initial
@@ -7503,6 +7532,7 @@ ipa_pta_execute (void)
 			 || node->force_output
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			 || node->address_taken);
 =======
 			 || node_address_taken);
@@ -7510,6 +7540,9 @@ ipa_pta_execute (void)
 =======
 			 || node->address_taken);
 >>>>>>> master
+=======
+			 || node_address_taken);
+>>>>>>> gcc-mirror/trunk
 
       vi = create_function_info_for (node->decl,
 				     alias_get_name (node->decl), false,
@@ -7542,8 +7575,11 @@ ipa_pta_execute (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       get_vi_for_tree (var->decl);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       varinfo_t vi = get_vi_for_tree (var->decl);
 
       /* For the purpose of IPA PTA unit-local globals are not
@@ -7553,10 +7589,13 @@ ipa_pta_execute (void)
 			 || var->force_output);
       if (nonlocal_p)
 	vi->is_ipa_escape_point = true;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       get_vi_for_tree (var->decl);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   if (dump_file
@@ -7657,6 +7696,7 @@ ipa_pta_execute (void)
 	  if (ptr
 	      && POINTER_TYPE_P (TREE_TYPE (ptr)))
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    find_what_p_points_to (ptr);
 <<<<<<< HEAD
 =======
@@ -7664,6 +7704,9 @@ ipa_pta_execute (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	    find_what_p_points_to (node->decl, ptr);
+>>>>>>> gcc-mirror/trunk
 	}
 
       /* Compute the call-use and call-clobber sets for indirect calls
@@ -7686,10 +7729,13 @@ ipa_pta_execute (void)
 	      /* Handle direct calls to functions with body.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      decl = gimple_call_fndecl (stmt);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	      if (gimple_call_builtin_p (stmt, BUILT_IN_GOMP_PARALLEL))
 		decl = TREE_OPERAND (gimple_call_arg (stmt, 0), 0);
 	      else if (gimple_call_builtin_p (stmt, BUILT_IN_GOACC_PARALLEL))
@@ -7697,13 +7743,17 @@ ipa_pta_execute (void)
 	      else
 		decl = gimple_call_fndecl (stmt);
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 	      if (decl
 		  && (fi = lookup_vi_for_tree (decl))
 		  && fi->is_fn_info)
 		{
 		  *gimple_call_clobber_set (stmt)
 		     = find_what_var_points_to
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -7714,13 +7764,18 @@ ipa_pta_execute (void)
 		         (first_vi_for_offset (fi, fi_uses));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 		         (node->decl, first_vi_for_offset (fi, fi_clobbers));
 		  *gimple_call_use_set (stmt)
 		     = find_what_var_points_to
 		         (node->decl, first_vi_for_offset (fi, fi_uses));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 		}
 	      /* Handle direct calls to external functions.  */
 	      else if (decl)

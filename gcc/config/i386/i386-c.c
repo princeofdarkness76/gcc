@@ -441,12 +441,17 @@ ix86_target_macros_internal (HOST_WIDE_INT isa_flag,
     def_or_undef (parse_in, "__MWAITX__");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if (isa_flag & OPTION_MASK_ISA_CLZERO)
     def_or_undef (parse_in, "__CLZERO__");
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  if (isa_flag & OPTION_MASK_ISA_CLZERO)
+    def_or_undef (parse_in, "__CLZERO__");
+>>>>>>> gcc-mirror/trunk
   if (TARGET_IAMCU)
     {
       def_or_undef (parse_in, "__iamcu");

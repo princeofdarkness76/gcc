@@ -23,6 +23,7 @@ along with GCC; see the file COPYING3.  If not see
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef __VEC__
 
 =======
@@ -31,6 +32,8 @@ along with GCC; see the file COPYING3.  If not see
 #ifdef __VEC__
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define __VFTCI_ZERO           1<<11
 #define __VFTCI_ZERO_N         1<<10
 #define __VFTCI_NORMAL          1<<9
@@ -77,6 +80,7 @@ __lcbb(const void *ptr, int bndry)
 #define vec_genmasks_64 __builtin_s390_vgmg
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 #define vec_splat_u8 __builtin_s390_vlrepb
@@ -89,6 +93,8 @@ __lcbb(const void *ptr, int bndry)
 #define vec_splat_s64 __builtin_s390_vlrepg
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #define vec_splat_u8 __builtin_s390_vec_splat_u8
 #define vec_splat_s8 __builtin_s390_vec_splat_s8
 #define vec_splat_u16 __builtin_s390_vec_splat_u16
@@ -97,9 +103,12 @@ __lcbb(const void *ptr, int bndry)
 #define vec_splat_s32 __builtin_s390_vec_splat_s32
 #define vec_splat_u64 __builtin_s390_vec_splat_u64
 #define vec_splat_s64 __builtin_s390_vec_splat_s64
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define vec_add_u128 __builtin_s390_vaq
 #define vec_addc_u128 __builtin_s390_vaccq
 #define vec_adde_u128 __builtin_s390_vacq
@@ -121,6 +130,7 @@ __lcbb(const void *ptr, int bndry)
 #define vec_madd __builtin_s390_vfmadb
 #define vec_msub __builtin_s390_vfmsdb
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -174,6 +184,8 @@ vec_any_numeric (__vector double a)
 }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #define vec_all_nan(a)						\
   __extension__ ({						\
       int __cc;							\
@@ -218,9 +230,12 @@ vec_any_numeric (__vector double a)
       cc != 3 ? 1 : 0;						\
     })
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define vec_gather_element __builtin_s390_vec_gather_element
 #define vec_xld2 __builtin_s390_vec_xld2
 #define vec_xlw4 __builtin_s390_vec_xlw4
@@ -352,10 +367,13 @@ vec_any_numeric (__vector double a)
 #define vec_st2f __builtin_s390_vec_st2f
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif /* __VEC__ */
 =======
 >>>>>>> gcc-mirror/master
 =======
 #endif /* __VEC__ */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #endif /* _VECINTRIN_H */

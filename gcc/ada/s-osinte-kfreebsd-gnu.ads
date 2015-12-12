@@ -9,6 +9,7 @@
 --               Copyright (C) 1991-1994, Florida State University          --
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 --            Copyright (C) 1995-2014, Free Software Foundation, Inc.       --
 =======
 --            Copyright (C) 1995-2015, Free Software Foundation, Inc.       --
@@ -16,6 +17,9 @@
 =======
 --            Copyright (C) 1995-2014, Free Software Foundation, Inc.       --
 >>>>>>> master
+=======
+--            Copyright (C) 1995-2015, Free Software Foundation, Inc.       --
+>>>>>>> gcc-mirror/trunk
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --

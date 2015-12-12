@@ -446,6 +446,7 @@ tree_unswitch_outer_loop (struct loop *loop)
 		 " to iterate\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return false;
 =======
       return false;
@@ -453,6 +454,9 @@ tree_unswitch_outer_loop (struct loop *loop)
 =======
 	return false;
 >>>>>>> master
+=======
+      return false;
+>>>>>>> gcc-mirror/trunk
     }
 
   guard = find_loop_guard (loop);

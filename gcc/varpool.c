@@ -442,6 +442,7 @@ ctor_for_folding (tree decl)
 		  || DECL_INITIAL (decl) == error_mark_node);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (node->weakref)
 =======
       while (node->transparent_alias && node->analyzed)
@@ -449,6 +450,9 @@ ctor_for_folding (tree decl)
 =======
       if (node->weakref)
 >>>>>>> master
+=======
+      while (node->transparent_alias && node->analyzed)
+>>>>>>> gcc-mirror/trunk
 	{
 	  node = node->get_alias_target ();
 	  decl = node->decl;
@@ -496,15 +500,19 @@ varpool_node::get_availability (void)
   if (!TREE_PUBLIC (decl))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return AVAIL_AVAILABLE;
   if (DECL_IN_CONSTANT_POOL (decl)
       || DECL_VIRTUAL_P (decl))
     return AVAIL_AVAILABLE;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     return AVAIL_AVAILABLE;
   if (DECL_IN_CONSTANT_POOL (decl)
       || DECL_VIRTUAL_P (decl))
     return AVAIL_AVAILABLE;
+<<<<<<< HEAD
 >>>>>>> master
   if (alias && weakref)
     {
@@ -517,14 +525,19 @@ varpool_node::get_availability (void)
   if (DECL_IN_CONSTANT_POOL (decl)
       || DECL_VIRTUAL_P (decl))
     return AVAIL_AVAILABLE;
+=======
+>>>>>>> gcc-mirror/trunk
   if (transparent_alias && definition)
     {
       enum availability avail;
 
       ultimate_alias_target (&avail);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       return avail;
     }
   /* If the variable can be overwritten, return OVERWRITABLE.  Takes
@@ -568,6 +581,7 @@ varpool_node::assemble_aliases (void)
       varpool_node *alias = dyn_cast <varpool_node *> (ref->referring);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       do_assemble_alias (alias->decl,
 			 DECL_ASSEMBLER_NAME (decl));
 =======
@@ -579,6 +593,11 @@ varpool_node::assemble_aliases (void)
       do_assemble_alias (alias->decl,
 			 DECL_ASSEMBLER_NAME (decl));
 >>>>>>> master
+=======
+      if (!alias->transparent_alias)
+	do_assemble_alias (alias->decl,
+			   DECL_ASSEMBLER_NAME (decl));
+>>>>>>> gcc-mirror/trunk
       alias->assemble_aliases ();
     }
 }
@@ -708,8 +727,11 @@ symbol_table::remove_unreferenced_decls (void)
 	  else
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    referenced.add (node);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	    {
 	      referenced.add (vnode);
 	      while (vnode && vnode->alias && vnode->definition)
@@ -718,10 +740,13 @@ symbol_table::remove_unreferenced_decls (void)
 	          referenced.add (vnode);
 		}
 	    }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	    referenced.add (node);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	}
     }
   if (dump_file)
@@ -818,6 +843,7 @@ varpool_node::create_alias (tree alias, tree decl)
   if (lookup_attribute ("weakref", DECL_ATTRIBUTES (alias)) != NULL)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     alias_node->weakref = true;
 =======
     alias_node->weakref = alias_node->transparent_alias = true;
@@ -825,6 +851,9 @@ varpool_node::create_alias (tree alias, tree decl)
 =======
     alias_node->weakref = true;
 >>>>>>> master
+=======
+    alias_node->weakref = alias_node->transparent_alias = true;
+>>>>>>> gcc-mirror/trunk
   return alias_node;
 }
 

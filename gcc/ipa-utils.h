@@ -65,6 +65,7 @@ possible_polymorphic_call_targets (tree, HOST_WIDE_INT,
 odr_type get_odr_type (tree, bool insert = false);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool type_in_anonymous_namespace_p (const_tree);
 bool type_with_linkage_p (const_tree);
 =======
@@ -73,6 +74,8 @@ bool type_with_linkage_p (const_tree);
 bool type_in_anonymous_namespace_p (const_tree);
 bool type_with_linkage_p (const_tree);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 bool odr_type_p (const_tree);
 bool possible_polymorphic_call_target_p (tree ref, gimple *stmt, struct cgraph_node *n);
 void dump_possible_polymorphic_call_targets (FILE *, tree, HOST_WIDE_INT,
@@ -170,6 +173,7 @@ possible_polymorphic_call_target_p (struct cgraph_edge *e,
 /* Return true if BINFO corresponds to a type with virtual methods. 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
    Every type has several BINFOs.  One is the BINFO associated by the type
    while other represents bases of derived types.  The BINFOs representing
@@ -177,6 +181,8 @@ possible_polymorphic_call_target_p (struct cgraph_edge *e,
    inheritance (because vtables are shared).  Look up the BINFO of type
    and check presence of its vtable.  */
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
    Every type has several BINFOs.  One is the BINFO associated by the type
    while other represents bases of derived types.  The BINFOs representing
@@ -265,6 +271,7 @@ odr_type_p (const_tree t)
   /* To support -fno-lto-odr-type-merging consider types with vtables ODR.  */
   if (type_in_anonymous_namespace_p (t))
     return true;
+<<<<<<< HEAD
 
   if (TYPE_NAME (t) && TREE_CODE (TYPE_NAME (t)) == TYPE_DECL
       && DECL_ASSEMBLER_NAME_SET_P (TYPE_NAME (t)))
@@ -287,6 +294,21 @@ odr_type_p (const_tree t)
    inheritance (because vtables are shared).  Look up the BINFO of type
    and check presence of its vtable.  */
 >>>>>>> master
+=======
+
+  if (TYPE_NAME (t) && TREE_CODE (TYPE_NAME (t)) == TYPE_DECL
+      && DECL_ASSEMBLER_NAME_SET_P (TYPE_NAME (t)))
+    {
+      /* C++ FE uses magic <anon> as assembler names of anonymous types.
+ 	 verify that this match with type_in_anonymous_namespace_p.  */
+      gcc_checking_assert (strcmp ("<anon>",
+				      IDENTIFIER_POINTER
+					(DECL_ASSEMBLER_NAME (TYPE_NAME (t)))));
+      return true;
+    }
+  return false;
+}
+>>>>>>> gcc-mirror/trunk
 
 inline bool
 polymorphic_type_binfo_p (const_tree binfo)

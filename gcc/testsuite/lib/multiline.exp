@@ -56,6 +56,7 @@ set _multiline_last_beginning_line -1
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # A list of lists of strings.
 =======
 # A list of
@@ -65,6 +66,11 @@ set _multiline_last_beginning_line -1
 =======
 # A list of lists of strings.
 >>>>>>> master
+=======
+# A list of
+#   first-line-number, last-line-number, lines
+# where each "lines" is a list of strings.
+>>>>>>> gcc-mirror/trunk
 set _multiline_expected_outputs []
 
 ############################################################################
@@ -100,6 +106,7 @@ proc dg-end-multiline-output { args } {
     set lines [_get_lines $prog $_multiline_last_beginning_line $line]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     set _multiline_last_beginning_line -1
@@ -110,6 +117,8 @@ proc dg-end-multiline-output { args } {
     verbose "within dg-end-multiline-output: _multiline_expected_outputs: $_multiline_expected_outputs" 3
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
     verbose "lines: $lines" 3
     # Create an entry of the form:  first-line, last-line, lines
@@ -119,9 +128,12 @@ proc dg-end-multiline-output { args } {
     verbose "within dg-end-multiline-output: _multiline_expected_outputs: $_multiline_expected_outputs" 3
 
     set _multiline_last_beginning_line -1
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 # Hook to be called by prune.exp's prune_gcc_output to
@@ -137,10 +149,13 @@ proc handle-multiline-outputs { text } {
     global _multiline_expected_outputs
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     set index 0
     foreach multiline $_multiline_expected_outputs {
 	verbose "  multiline: $multiline" 4
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     global testname_with_flags
     set index 0
     foreach entry $_multiline_expected_outputs {
@@ -149,12 +164,15 @@ proc handle-multiline-outputs { text } {
 	set end_line   [lindex $entry 1]
 	set multiline  [lindex $entry 2]
 	verbose "  multiline: $multiline" 3
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     set index 0
     foreach multiline $_multiline_expected_outputs {
 	verbose "  multiline: $multiline" 4
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	set rexp [_build_multiline_regex $multiline $index]
 	verbose "rexp: ${rexp}" 4
 	# Escape newlines in $rexp so that we can print them in
@@ -162,6 +180,7 @@ proc handle-multiline-outputs { text } {
 	set escaped_regex [string map {"\n" "\\n"} $rexp]
 	verbose "escaped_regex: ${escaped_regex}" 4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -174,6 +193,8 @@ proc handle-multiline-outputs { text } {
 	    fail "expected multiline pattern $index not found: \"$escaped_regex\""
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	set title "$testname_with_flags expected multiline pattern lines $start_line-$end_line"
 
 	# Use "regsub" to attempt to prune the pattern from $text
@@ -182,9 +203,12 @@ proc handle-multiline-outputs { text } {
 	    pass "$title was found: \"$escaped_regex\""
 	} else {
 	    fail "$title not found: \"$escaped_regex\""
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	}
 
 	set index [expr $index + 1]

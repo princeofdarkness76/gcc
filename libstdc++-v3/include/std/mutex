@@ -89,12 +89,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   /// recursive_mutex
 =======
   /// The standard recursive mutex type.
 >>>>>>> gcc-mirror/master
+=======
+  /// The standard recursive mutex type.
+>>>>>>> gcc-mirror/trunk
   class recursive_mutex : private __recursive_mutex_base
   {
   public:

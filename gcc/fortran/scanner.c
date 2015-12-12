@@ -714,12 +714,16 @@ skip_gcc_attribute (locus start)
 static bool
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 skip_oacc_attribute (locus start, locus old_loc, bool continue_flag)
 =======
 skip_free_oacc_sentinel (locus start, locus old_loc)
 >>>>>>> gcc-mirror/master
 =======
 skip_oacc_attribute (locus start, locus old_loc, bool continue_flag)
+=======
+skip_free_oacc_sentinel (locus start, locus old_loc)
+>>>>>>> gcc-mirror/trunk
 {
   bool r = false;
   char c;
@@ -759,12 +763,17 @@ skip_oacc_attribute (locus start, locus old_loc, bool continue_flag)
 
 /* Return true if MP was matched.  */
 static bool
+<<<<<<< HEAD
 skip_omp_attribute (locus start, locus old_loc, bool continue_flag)
 >>>>>>> master
+=======
+skip_free_omp_sentinel (locus start, locus old_loc)
+>>>>>>> gcc-mirror/trunk
 {
   bool r = false;
   char c;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   if ((c = next_char ()) == 'c' || c == 'C')
     if ((c = next_char ()) == 'c' || c == 'C')
@@ -879,6 +888,38 @@ skip_free_omp_sentinel (locus start, locus old_loc)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  if ((c = next_char ()) == 'm' || c == 'M')
+    if ((c = next_char ()) == 'p' || c == 'P')
+      r = true;
+
+  if (r)
+   {
+      if ((c = next_char ()) == ' ' || c == '\t'
+	  || continue_flag)
+	{
+	  while (gfc_is_whitespace (c))
+	    c = next_char ();
+	  if (c != '\n' && c != '!')
+	    {
+	      openmp_flag = 1;
+	      openmp_locus = old_loc;
+	      gfc_current_locus = start;
+	    }
+	  else 
+	    r = false;
+	}
+      else
+	{
+	  gfc_warning_now (0, "!$OMP at %C starts a commented "
+			   "line as it neither is followed "
+			   "by a space nor is a "
+			   "continuation line");
+	  r = false;
+	}
+   }
+
+>>>>>>> gcc-mirror/trunk
   return r;
 }
 
@@ -935,6 +976,7 @@ skip_free_comments (void)
 		      {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			if (skip_omp_attribute (start, old_loc, continue_flag))
 =======
 			if (skip_free_omp_sentinel (start, old_loc))
@@ -942,6 +984,9 @@ skip_free_comments (void)
 =======
 			if (skip_omp_attribute (start, old_loc, continue_flag))
 >>>>>>> master
+=======
+			if (skip_free_omp_sentinel (start, old_loc))
+>>>>>>> gcc-mirror/trunk
 			  return false;
 			gfc_current_locus = old_loc;
 			next_char ();
@@ -951,6 +996,7 @@ skip_free_comments (void)
 		      {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			if (skip_oacc_attribute (start, old_loc, continue_flag))
 =======
 			if (skip_free_oacc_sentinel (start, old_loc))
@@ -958,6 +1004,9 @@ skip_free_comments (void)
 =======
 			if (skip_oacc_attribute (start, old_loc, continue_flag))
 >>>>>>> master
+=======
+			if (skip_free_oacc_sentinel (start, old_loc))
+>>>>>>> gcc-mirror/trunk
 			  return false;
 			gfc_current_locus = old_loc;
 			next_char ();
@@ -984,6 +1033,7 @@ skip_free_comments (void)
 		      {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			if (skip_omp_attribute (start, old_loc, continue_flag))
 =======
 			if (skip_free_omp_sentinel (start, old_loc))
@@ -991,6 +1041,9 @@ skip_free_comments (void)
 =======
 			if (skip_omp_attribute (start, old_loc, continue_flag))
 >>>>>>> master
+=======
+			if (skip_free_omp_sentinel (start, old_loc))
+>>>>>>> gcc-mirror/trunk
 			  return false;
 			gfc_current_locus = old_loc;
 			next_char ();
@@ -1017,6 +1070,7 @@ skip_free_comments (void)
 			{
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			  if (skip_oacc_attribute (start, old_loc, 
 						   continue_flag))
 =======
@@ -1026,6 +1080,9 @@ skip_free_comments (void)
 			  if (skip_oacc_attribute (start, old_loc, 
 						   continue_flag))
 >>>>>>> master
+=======
+			  if (skip_free_oacc_sentinel (start, old_loc))
+>>>>>>> gcc-mirror/trunk
 			    return false;
 			  gfc_current_locus = old_loc;
 			  next_char();
@@ -1187,6 +1244,7 @@ skip_fixed_comments (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (flag_openmp || flag_openmp_simd)
 =======
 	  if ((flag_openmp || flag_openmp_simd) && !flag_openacc)
@@ -1194,6 +1252,9 @@ skip_fixed_comments (void)
 =======
 	  if (flag_openmp || flag_openmp_simd)
 >>>>>>> master
+=======
+	  if ((flag_openmp || flag_openmp_simd) && !flag_openacc)
+>>>>>>> gcc-mirror/trunk
 	    {
 	      if (next_char () == '$')
 		{
@@ -1202,6 +1263,7 @@ skip_fixed_comments (void)
 		    {
 		      if (skip_fixed_omp_sentinel (&start))
 			return;
+<<<<<<< HEAD
 		    }
 		  else
 		    goto check_for_digits;
@@ -1275,40 +1337,57 @@ skip_fixed_comments (void)
 				}
 			    }
 			}
+=======
+>>>>>>> gcc-mirror/trunk
 		    }
 		  else
+		    goto check_for_digits;
+		}
+	      gfc_current_locus = start;
+	    }
+
+	  if (flag_openacc && !(flag_openmp || flag_openmp_simd))
+	    {
+	      if (next_char () == '$')
+		{
+		  c = next_char ();
+		  if (c == 'a' || c == 'A')
 		    {
-		      int digit_seen = 0;
-
-		      for (col = 3; col < 6; col++, c = next_char ())
-			if (c == ' ')
-			  continue;
-			else if (c == '\t')
-			  {
-			    col = 6;
-			    break;
-			  }
-			else if (c < '0' || c > '9')
-			  break;
-			else
-			  digit_seen = 1;
-
-		      if (col == 6 && c != '\n'
-			  && ((continue_flag && !digit_seen)
-			      || c == ' ' || c == '\t' || c == '0'))
-			{
-			  gfc_current_locus = start;
-			  start.nextc[0] = ' ';
-			  start.nextc[1] = ' ';
-			  continue;
-			}
+		      if (skip_fixed_oacc_sentinel (&start))
+			return;
 		    }
+		  else
+		    goto check_for_digits;
+		}
+	      gfc_current_locus = start;
+	    }
+
+	  if (flag_openacc || flag_openmp || flag_openmp_simd)
+	    {
+	      if (next_char () == '$')
+		{
+		  c = next_char ();
+		  if (c == 'a' || c == 'A')
+		    {
+		      if (skip_fixed_oacc_sentinel (&start))
+			return;
+		    }
+		  else if (c == 'o' || c == 'O')
+		    {
+		      if (skip_fixed_omp_sentinel (&start))
+			return;
+		    }
+		  else
+		    goto check_for_digits;
 		}
 	      gfc_current_locus = start;
 	    }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  skip_comment_line ();
 	  continue;
 
@@ -1340,6 +1419,7 @@ check_for_digits:
 		continue;
 	      }
 	    }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 	  if (flag_openacc)
@@ -1403,6 +1483,8 @@ check_for_digits:
 	    }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  skip_comment_line ();
 	  continue;
 	}
@@ -1603,6 +1685,7 @@ restart:
       if (flag_openmp)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (prev_openmp_flag != openmp_flag)
 =======
 	if (prev_openmp_flag != openmp_flag && !openacc_flag)
@@ -1610,6 +1693,9 @@ restart:
 =======
 	if (prev_openmp_flag != openmp_flag)
 >>>>>>> master
+=======
+	if (prev_openmp_flag != openmp_flag && !openacc_flag)
+>>>>>>> gcc-mirror/trunk
 	  {
 	    gfc_current_locus = old_loc;
 	    openmp_flag = prev_openmp_flag;
@@ -1620,6 +1706,7 @@ restart:
       if (flag_openacc)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (prev_openacc_flag != openacc_flag)
 =======
 	if (prev_openacc_flag != openacc_flag && !openmp_flag)
@@ -1627,6 +1714,9 @@ restart:
 =======
 	if (prev_openacc_flag != openacc_flag)
 >>>>>>> master
+=======
+	if (prev_openacc_flag != openacc_flag && !openmp_flag)
+>>>>>>> gcc-mirror/trunk
 	  {
 	    gfc_current_locus = old_loc;
 	    openacc_flag = prev_openacc_flag;
@@ -1658,6 +1748,7 @@ restart:
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (openacc_flag)
 =======
       if (openacc_flag && !openmp_flag)
@@ -1665,6 +1756,9 @@ restart:
 =======
       if (openacc_flag)
 >>>>>>> master
+=======
+      if (openacc_flag && !openmp_flag)
+>>>>>>> gcc-mirror/trunk
 	{
 	  for (i = 0; i < 5; i++, c = next_char ())
 	    {
@@ -1677,7 +1771,10 @@ restart:
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
       /* In case we have an OpenMP directive continued by OpenACC
 	 sentinel, or vice versa, we get both openmp_flag and
@@ -1698,9 +1795,12 @@ restart:
 		     : "Wrong OpenMP continuation at %C: "
 		     "expected !$OMP, got !$ACC");
 	}
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
       if (c != '&')
 	{
@@ -1768,6 +1868,7 @@ restart:
       /* See if this line is a continuation line.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (flag_openmp && openmp_flag != prev_openmp_flag)
 =======
       if (flag_openmp && openmp_flag != prev_openmp_flag && !openacc_flag)
@@ -1775,10 +1876,14 @@ restart:
 =======
       if (flag_openmp && openmp_flag != prev_openmp_flag)
 >>>>>>> master
+=======
+      if (flag_openmp && openmp_flag != prev_openmp_flag && !openacc_flag)
+>>>>>>> gcc-mirror/trunk
 	{
 	  openmp_flag = prev_openmp_flag;
 	  goto not_continuation;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       if (flag_openacc && openacc_flag != prev_openacc_flag)
@@ -1788,6 +1893,9 @@ restart:
 =======
       if (flag_openacc && openacc_flag != prev_openacc_flag)
 >>>>>>> master
+=======
+      if (flag_openacc && openacc_flag != prev_openacc_flag && !openmp_flag)
+>>>>>>> gcc-mirror/trunk
 	{
 	  openacc_flag = prev_openacc_flag;
 	  goto not_continuation;
@@ -1795,8 +1903,11 @@ restart:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (!openmp_flag && !openacc_flag)
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* In case we have an OpenMP directive continued by OpenACC
 	 sentinel, or vice versa, we get both openmp_flag and
 	 openacc_flag on.  */
@@ -1815,10 +1926,13 @@ restart:
 		     "expected !$OMP, got !$ACC");
 	}
       else if (!openmp_flag && !openacc_flag)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       if (!openmp_flag && !openacc_flag)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	for (i = 0; i < 5; i++)
 	  {
 	    c = next_char ();

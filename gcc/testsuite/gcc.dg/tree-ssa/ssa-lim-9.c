@@ -17,6 +17,7 @@ void foo (int n, int m)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim1"  } } */
 <<<<<<< HEAD
 =======
@@ -24,3 +25,6 @@ void foo (int n, int m)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Moving PHI node" 1 "lim2"  } } */
+>>>>>>> gcc-mirror/trunk

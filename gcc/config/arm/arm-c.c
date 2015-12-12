@@ -68,6 +68,7 @@ arm_cpu_builtins (struct cpp_reader* pfile)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (unaligned_access)
     builtin_define ("__ARM_FEATURE_UNALIGNED");
 =======
@@ -78,6 +79,10 @@ arm_cpu_builtins (struct cpp_reader* pfile)
   if (unaligned_access)
     builtin_define ("__ARM_FEATURE_UNALIGNED");
 >>>>>>> master
+=======
+  def_or_undef_macro (pfile, "__ARM_FEATURE_UNALIGNED", unaligned_access);
+
+>>>>>>> gcc-mirror/trunk
   if (TARGET_CRC32)
     builtin_define ("__ARM_FEATURE_CRC32");
 

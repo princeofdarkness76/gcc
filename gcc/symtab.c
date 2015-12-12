@@ -54,6 +54,7 @@ const char * const ld_plugin_symbol_resolution_names[]=
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Hash asmnames ignoring the user specified marks.  */
 
 hashval_t
@@ -146,6 +147,24 @@ ultimate_transparent_alias_target (tree alias)
   gcc_checking_assert (! IDENTIFIER_TRANSPARENT_ALIAS (target)
 		       && ! TREE_CHAIN (target));
 
+=======
+/* Follow the IDENTIFIER_TRANSPARENT_ALIAS chain starting at ALIAS
+   until we find an identifier that is not itself a transparent alias.  */
+
+static inline tree
+ultimate_transparent_alias_target (tree alias)
+{
+  tree target = alias;
+
+  while (IDENTIFIER_TRANSPARENT_ALIAS (target))
+    {
+      gcc_checking_assert (TREE_CHAIN (target));
+      target = TREE_CHAIN (target);
+    }
+  gcc_checking_assert (! IDENTIFIER_TRANSPARENT_ALIAS (target)
+		       && ! TREE_CHAIN (target));
+
+>>>>>>> gcc-mirror/trunk
   return target;
 }
 
@@ -211,6 +230,7 @@ symbol_table::assembler_names_equal_p (const char *name1, const char *name2)
 }
 
 /* Compare ASMNAME with the DECL_ASSEMBLER_NAME of DECL.  */
+<<<<<<< HEAD
 
 bool
 symbol_table::decl_assembler_name_equal (tree decl, const_tree asmname)
@@ -250,6 +270,8 @@ symbol_table::decl_assembler_name_hash (const_tree asmname)
 
 
 /* Compare ASMNAME with the DECL_ASSEMBLER_NAME of DECL.  */
+=======
+>>>>>>> gcc-mirror/trunk
 
 bool
 symbol_table::decl_assembler_name_equal (tree decl, const_tree asmname)
@@ -257,13 +279,17 @@ symbol_table::decl_assembler_name_equal (tree decl, const_tree asmname)
   tree decl_asmname = DECL_ASSEMBLER_NAME (decl);
   const char *decl_str;
   const char *asmname_str;
+<<<<<<< HEAD
   bool test = false;
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (decl_asmname == asmname)
     return true;
 
   decl_str = IDENTIFIER_POINTER (decl_asmname);
   asmname_str = IDENTIFIER_POINTER (asmname);
+<<<<<<< HEAD
 
 
   /* If the target assembler name was set by the user, things are trickier.
@@ -303,6 +329,9 @@ symbol_table::decl_assembler_name_equal (tree decl, const_tree asmname)
     return false;
   return strcmp (decl_str, asmname_str) == 0;
 >>>>>>> master
+=======
+  return assembler_names_equal_p (decl_str, asmname_str);
+>>>>>>> gcc-mirror/trunk
 }
 
 
@@ -324,6 +353,7 @@ symbol_table::insert_to_assembler_name_hash (symtab_node *node,
       cgraph_node *cnode;
       tree decl = node->decl;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       tree name = DECL_ASSEMBLER_NAME (node->decl);
 
@@ -342,6 +372,16 @@ symbol_table::insert_to_assembler_name_hash (symtab_node *node,
 	return;
 
 >>>>>>> master
+=======
+
+      tree name = DECL_ASSEMBLER_NAME (node->decl);
+
+      /* C++ FE can produce decls without associated assembler name and insert
+	 them to symtab to hold section or TLS information.  */
+      if (!name)
+	return;
+
+>>>>>>> gcc-mirror/trunk
       hashval_t hash = decl_assembler_name_hash (name);
       aslot = assembler_name_hash->find_slot_with_hash (name, hash, INSERT);
       gcc_assert (*aslot != node);
@@ -420,8 +460,11 @@ symbol_table::symtab_prevail_in_asm_name_hash (symtab_node *node)
 /* Initalize asm name hash unless.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 void
 symbol_table::symtab_initialize_asm_name_hash (void)
@@ -440,6 +483,9 @@ symbol_table::symtab_initialize_asm_name_hash (void)
 void
 symbol_table::change_decl_assembler_name (tree decl, tree name)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 {
   symtab_node *node = NULL;
 
@@ -459,6 +505,7 @@ symbol_table::change_decl_assembler_name (tree decl, tree name)
     {
       if (name == DECL_ASSEMBLER_NAME (decl))
 	return;
+<<<<<<< HEAD
 
       tree alias = (IDENTIFIER_TRANSPARENT_ALIAS (DECL_ASSEMBLER_NAME (decl))
 		    ? TREE_CHAIN (DECL_ASSEMBLER_NAME (decl))
@@ -482,10 +529,78 @@ symbol_table::change_decl_assembler_name (tree decl, tree name)
 
 /* Hash sections by their names.  */
 
+=======
+
+      tree alias = (IDENTIFIER_TRANSPARENT_ALIAS (DECL_ASSEMBLER_NAME (decl))
+		    ? TREE_CHAIN (DECL_ASSEMBLER_NAME (decl))
+		    : NULL);
+      if (node)
+	unlink_from_assembler_name_hash (node, true);
+
+      const char *old_name = IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl));
+      if (TREE_SYMBOL_REFERENCED (DECL_ASSEMBLER_NAME (decl))
+	  && DECL_RTL_SET_P (decl))
+	warning (0, "%D renamed after being referenced in assembly", decl);
+
+      SET_DECL_ASSEMBLER_NAME (decl, name);
+      if (alias)
+	{
+	  IDENTIFIER_TRANSPARENT_ALIAS (name) = 1;
+	  TREE_CHAIN (name) = alias;
+	}
+      /* If we change assembler name, also all transparent aliases must
+	 be updated.  There are three kinds - those having same assembler name,
+	 those being renamed in varasm.c and weakref being renamed by the
+	 assembler.  */
+      if (node)
+	{
+	  insert_to_assembler_name_hash (node, true);
+	  ipa_ref *ref;
+	  for (unsigned i = 0; node->iterate_direct_aliases (i, ref); i++)
+	    {
+	      struct symtab_node *alias = ref->referring;
+	      if (alias->transparent_alias && !alias->weakref
+		  && symbol_table::assembler_names_equal_p
+			 (old_name, IDENTIFIER_POINTER (
+				      DECL_ASSEMBLER_NAME (alias->decl))))
+		change_decl_assembler_name (alias->decl, name);
+	      else if (alias->transparent_alias
+		       && IDENTIFIER_TRANSPARENT_ALIAS (alias->decl))
+		{
+		  gcc_assert (TREE_CHAIN (DECL_ASSEMBLER_NAME (alias->decl))
+			      && IDENTIFIER_TRANSPARENT_ALIAS
+				     (DECL_ASSEMBLER_NAME (alias->decl)));
+
+		  TREE_CHAIN (DECL_ASSEMBLER_NAME (alias->decl)) = 
+		    ultimate_transparent_alias_target
+			 (DECL_ASSEMBLER_NAME (node->decl));
+		}
+#ifdef ASM_OUTPUT_WEAKREF
+	     else gcc_assert (!alias->transparent_alias || alias->weakref);
+#else
+	     else gcc_assert (!alias->transparent_alias);
+#endif
+	    }
+	  gcc_assert (!node->transparent_alias || !node->definition
+		      || node->weakref
+		      || TREE_CHAIN (DECL_ASSEMBLER_NAME (decl))
+		      || symbol_table::assembler_names_equal_p
+			  (IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl)),
+			   IDENTIFIER_POINTER
+			     (DECL_ASSEMBLER_NAME
+				 (node->get_alias_target ()->decl))));
+	}
+    }
+}
+
+/* Hash sections by their names.  */
+
+>>>>>>> gcc-mirror/trunk
 hashval_t
 section_name_hasher::hash (section_hash_entry *n)
 {
   return htab_hash_string (n->name);
+<<<<<<< HEAD
 }
 
 /* Return true if section P1 name equals to P2.  */
@@ -551,14 +666,7 @@ symtab_node::register_symbol (void)
       if (node)
 	insert_to_assembler_name_hash (node, true);
     }
-}
-
-/* Hash sections by their names.  */
-
-hashval_t
-section_name_hasher::hash (section_hash_entry *n)
-{
-  return htab_hash_string (n->name);
+=======
 }
 
 /* Return true if section P1 name equals to P2.  */
@@ -606,12 +714,134 @@ symtab_node::remove_from_same_comdat_group (void)
       same_comdat_group = NULL;
       set_comdat_group (NULL);
     }
+}
+
+/* Remove node from symbol table.  This function is not used directly, but via
+   cgraph/varpool node removal routines.  */
+
+void
+symtab_node::unregister (void)
+{
+  remove_all_references ();
+  remove_all_referring ();
+
+  /* Remove reference to section.  */
+  set_section_for_node (NULL);
+
+  remove_from_same_comdat_group ();
+
+  symtab->unregister (this);
+
+  /* During LTO symtab merging we temporarily corrupt decl to symtab node
+     hash.  */
+  gcc_assert (decl->decl_with_vis.symtab_node || in_lto_p);
+  if (decl->decl_with_vis.symtab_node == this)
+    {
+      symtab_node *replacement_node = NULL;
+      if (cgraph_node *cnode = dyn_cast <cgraph_node *> (this))
+	replacement_node = cnode->find_replacement ();
+      decl->decl_with_vis.symtab_node = replacement_node;
+    }
+  if (!is_a <varpool_node *> (this) || !DECL_HARD_REGISTER (decl))
+    symtab->unlink_from_assembler_name_hash (this, false);
+  if (in_init_priority_hash)
+    symtab->init_priority_hash->remove (this);
+}
+
+
+/* Remove symbol from symbol table.  */
+
+void
+symtab_node::remove (void)
+{
+  if (cgraph_node *cnode = dyn_cast <cgraph_node *> (this))
+    cnode->remove ();
+  else if (varpool_node *vnode = dyn_cast <varpool_node *> (this))
+    vnode->remove ();
+>>>>>>> gcc-mirror/trunk
+}
+
+/* Hash sections by their names.  */
+
+hashval_t
+section_name_hasher::hash (section_hash_entry *n)
+{
+  return htab_hash_string (n->name);
+}
+
+/* Return true if section P1 name equals to P2.  */
+
+bool
+section_name_hasher::equal (section_hash_entry *n1, const char *name)
+{
+  return n1->name == name || !strcmp (n1->name, name);
+}
+
+/* Add node into symbol table.  This function is not used directly, but via
+   cgraph/varpool node creation routines.  */
+
+void
+<<<<<<< HEAD
+symtab_node::register_symbol (void)
+{
+  symtab->register_symbol (this);
+
+  if (!decl->decl_with_vis.symtab_node)
+    decl->decl_with_vis.symtab_node = this;
+
+  ref_list.clear ();
+
+  /* Be sure to do this last; C++ FE might create new nodes via
+     DECL_ASSEMBLER_NAME langhook!  */
+  symtab->insert_to_assembler_name_hash (this, false);
+}
+
+/* Remove NODE from same comdat group.   */
+
+void
+symtab_node::remove_from_same_comdat_group (void)
+{
+  if (same_comdat_group)
+    {
+      symtab_node *prev;
+      for (prev = same_comdat_group;
+	   prev->same_comdat_group != this;
+	   prev = prev->same_comdat_group)
+	;
+      if (same_comdat_group == prev)
+	prev->same_comdat_group = NULL;
+      else
+	prev->same_comdat_group = same_comdat_group;
+      same_comdat_group = NULL;
+      set_comdat_group (NULL);
+=======
+symtab_node::add_to_same_comdat_group (symtab_node *old_node)
+{
+  gcc_assert (old_node->get_comdat_group ());
+  gcc_assert (!same_comdat_group);
+  gcc_assert (this != old_node);
+
+  set_comdat_group (old_node->get_comdat_group ());
+  same_comdat_group = old_node;
+  if (!old_node->same_comdat_group)
+    old_node->same_comdat_group = this;
+  else
+    {
+      symtab_node *n;
+      for (n = old_node->same_comdat_group;
+	   n->same_comdat_group != old_node;
+	   n = n->same_comdat_group)
+	;
+      n->same_comdat_group = this;
+>>>>>>> gcc-mirror/trunk
+    }
 >>>>>>> master
 }
 
 /* Remove NODE from same comdat group.   */
 
 void
+<<<<<<< HEAD
 <<<<<<< HEAD
 symtab_node::remove_from_same_comdat_group (void)
 {
@@ -641,20 +871,51 @@ symbol_table::symtab_initialize_asm_name_hash (void)
 	insert_to_assembler_name_hash (node, false);
 >>>>>>> gcc-mirror/master
     }
+=======
+symtab_node::dissolve_same_comdat_group_list (void)
+{
+  symtab_node *n = this;
+  symtab_node *next;
+
+  if (!same_comdat_group)
+    return;
+  do
+    {
+      next = n->same_comdat_group;
+      n->same_comdat_group = NULL;
+      /* Clear comdat_group for comdat locals, since
+         make_decl_local doesn't.  */
+      if (!TREE_PUBLIC (n->decl))
+	n->set_comdat_group (NULL);
+      n = next;
+    }
+  while (n != this);
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Set the DECL_ASSEMBLER_NAME and update symtab hashtables.  */
 
+<<<<<<< HEAD
 void
 <<<<<<< HEAD
 symtab_node::unregister (void)
 {
   remove_all_references ();
   remove_all_referring ();
+=======
+const char *
+symtab_node::asm_name () const
+{
+  if (!DECL_ASSEMBLER_NAME_SET_P (decl))
+    return lang_hooks.decl_printable_name (decl, 2);
+  return IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl));
+}
+>>>>>>> gcc-mirror/trunk
 
   /* Remove reference to section.  */
   set_section_for_node (NULL);
 
+<<<<<<< HEAD
   remove_from_same_comdat_group ();
 
   symtab->unregister (this);
@@ -1624,6 +1885,26 @@ void
 symtab_node::dump_base (FILE *f)
 =======
 
+=======
+const char *
+symtab_node::name () const
+{
+  return lang_hooks.decl_printable_name (decl, 2);
+}
+
+/* Return ipa reference from this symtab_node to
+   REFERED_NODE or REFERED_VARPOOL_NODE. USE_TYPE specify type
+   of the use.  */
+
+ipa_ref *
+symtab_node::create_reference (symtab_node *referred_node,
+			       enum ipa_ref_use use_type)
+{
+  return create_reference (referred_node, use_type, NULL);
+}
+
+
+>>>>>>> gcc-mirror/trunk
 /* Return ipa reference from this symtab_node to
    REFERED_NODE or REFERED_VARPOOL_NODE. USE_TYPE specify type
    of the use and STMT the statement (if it exists).  */
@@ -1631,6 +1912,7 @@ symtab_node::dump_base (FILE *f)
 ipa_ref *
 symtab_node::create_reference (symtab_node *referred_node,
 			       enum ipa_ref_use use_type, gimple *stmt)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 {
   ipa_ref *ref = NULL, *ref2 = NULL;
@@ -2291,6 +2573,423 @@ static const char * const symtab_type_names[] = {"symbol", "function", "variable
 
 void
 symtab_node::dump_base (FILE *f)
+=======
+>>>>>>> gcc-mirror/trunk
+{
+  ipa_ref *ref = NULL, *ref2 = NULL;
+  ipa_ref_list *list, *list2;
+  ipa_ref_t *old_references;
+
+<<<<<<< HEAD
+  fprintf (f, "%s/%i (%s)", asm_name (), order, name ());
+  dump_addr (f, " @", (void *)this);
+  fprintf (f, "\n  Type: %s", symtab_type_names[type]);
+
+  if (definition)
+    fprintf (f, " definition");
+  if (analyzed)
+    fprintf (f, " analyzed");
+  if (alias)
+    fprintf (f, " alias");
+  if (transparent_alias)
+    fprintf (f, " transparent_alias");
+  if (weakref)
+    fprintf (f, " weakref");
+  if (cpp_implicit_alias)
+    fprintf (f, " cpp_implicit_alias");
+  if (alias_target)
+    fprintf (f, " target:%s",
+	     DECL_P (alias_target)
+	     ? IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME
+				     (alias_target))
+	     : IDENTIFIER_POINTER (alias_target));
+  if (body_removed)
+    fprintf (f, "\n  Body removed by symtab_remove_unreachable_nodes");
+  fprintf (f, "\n  Visibility:");
+  if (in_other_partition)
+    fprintf (f, " in_other_partition");
+  if (used_from_other_partition)
+    fprintf (f, " used_from_other_partition");
+  if (force_output)
+    fprintf (f, " force_output");
+  if (forced_by_abi)
+    fprintf (f, " forced_by_abi");
+  if (externally_visible)
+    fprintf (f, " externally_visible");
+  if (no_reorder)
+    fprintf (f, " no_reorder");
+  if (resolution != LDPR_UNKNOWN)
+    fprintf (f, " %s",
+ 	     ld_plugin_symbol_resolution_names[(int)resolution]);
+  if (TREE_ASM_WRITTEN (decl))
+    fprintf (f, " asm_written");
+  if (DECL_EXTERNAL (decl))
+    fprintf (f, " external");
+  if (TREE_PUBLIC (decl))
+    fprintf (f, " public");
+  if (DECL_COMMON (decl))
+    fprintf (f, " common");
+  if (DECL_WEAK (decl))
+    fprintf (f, " weak");
+  if (DECL_DLLIMPORT_P (decl))
+    fprintf (f, " dll_import");
+  if (DECL_COMDAT (decl))
+    fprintf (f, " comdat");
+  if (get_comdat_group ())
+    fprintf (f, " comdat_group:%s",
+	     IDENTIFIER_POINTER (get_comdat_group_id ()));
+  if (DECL_ONE_ONLY (decl))
+    fprintf (f, " one_only");
+  if (get_section ())
+    fprintf (f, " section:%s",
+	     get_section ());
+  if (implicit_section)
+    fprintf (f," (implicit_section)");
+  if (DECL_VISIBILITY_SPECIFIED (decl))
+    fprintf (f, " visibility_specified");
+  if (DECL_VISIBILITY (decl))
+    fprintf (f, " visibility:%s",
+	     visibility_types [DECL_VISIBILITY (decl)]);
+  if (DECL_VIRTUAL_P (decl))
+    fprintf (f, " virtual");
+  if (DECL_ARTIFICIAL (decl))
+    fprintf (f, " artificial");
+  if (TREE_CODE (decl) == FUNCTION_DECL)
+    {
+      if (DECL_STATIC_CONSTRUCTOR (decl))
+	fprintf (f, " constructor");
+      if (DECL_STATIC_DESTRUCTOR (decl))
+	fprintf (f, " destructor");
+    }
+  fprintf (f, "\n");
+  
+  if (same_comdat_group)
+    fprintf (f, "  Same comdat group as: %s/%i\n",
+	     same_comdat_group->asm_name (),
+	     same_comdat_group->order);
+  if (next_sharing_asm_name)
+    fprintf (f, "  next sharing asm name: %i\n",
+	     next_sharing_asm_name->order);
+  if (previous_sharing_asm_name)
+    fprintf (f, "  previous sharing asm name: %i\n",
+	     previous_sharing_asm_name->order);
+
+  if (address_taken)
+    fprintf (f, "  Address is taken.\n");
+  if (aux)
+    {
+      fprintf (f, "  Aux:");
+      dump_addr (f, " @", (void *)aux);
+=======
+  gcc_checking_assert (!stmt || is_a <cgraph_node *> (this));
+  gcc_checking_assert (use_type != IPA_REF_ALIAS || !stmt);
+
+  list = &ref_list;
+  old_references = vec_safe_address (list->references);
+  vec_safe_grow (list->references, vec_safe_length (list->references) + 1);
+  ref = &list->references->last ();
+
+  list2 = &referred_node->ref_list;
+
+  /* IPA_REF_ALIAS is always inserted at the beginning of the list.   */
+  if(use_type == IPA_REF_ALIAS)
+    {
+      list2->referring.safe_insert (0, ref);
+      ref->referred_index = 0;
+
+      for (unsigned int i = 1; i < list2->referring.length (); i++)
+	list2->referring[i]->referred_index = i;
+    }
+  else
+    {
+      list2->referring.safe_push (ref);
+      ref->referred_index = list2->referring.length () - 1;
+    }
+
+  ref->referring = this;
+  ref->referred = referred_node;
+  ref->stmt = stmt;
+  ref->lto_stmt_uid = 0;
+  ref->use = use_type;
+  ref->speculative = 0;
+
+  /* If vector was moved in memory, update pointers.  */
+  if (old_references != list->references->address ())
+    {
+      int i;
+      for (i = 0; iterate_reference(i, ref2); i++)
+	ref2->referred_ref_list ()->referring[ref2->referred_index] = ref2;
+>>>>>>> gcc-mirror/trunk
+    }
+  return ref;
+}
+
+<<<<<<< HEAD
+  fprintf (f, "  References: ");
+  dump_references (f);
+  fprintf (f, "  Referring: ");
+  dump_referring (f);
+  if (lto_file_data)
+    fprintf (f, "  Read from file: %s\n",
+	     lto_file_data->file_name);
+}
+
+/* Dump symtab node to F.  */
+
+void
+symtab_node::dump (FILE *f)
+{
+  if (cgraph_node *cnode = dyn_cast <cgraph_node *> (this))
+    cnode->dump (f);
+  else if (varpool_node *vnode = dyn_cast <varpool_node *> (this))
+    vnode->dump (f);
+}
+
+/* Dump symbol table to F.  */
+
+void
+symtab_node::dump_table (FILE *f)
+{
+  symtab_node *node;
+  fprintf (f, "Symbol table:\n\n");
+  FOR_EACH_SYMBOL (node)
+    node->dump (f);
+}
+
+
+/* Return the cgraph node that has ASMNAME for its DECL_ASSEMBLER_NAME.
+   Return NULL if there's no such node.  */
+
+symtab_node *
+symtab_node::get_for_asmname (const_tree asmname)
+{
+  symtab_node *node;
+
+  symtab->symtab_initialize_asm_name_hash ();
+  hashval_t hash = symtab->decl_assembler_name_hash (asmname);
+  symtab_node **slot
+    = symtab->assembler_name_hash->find_slot_with_hash (asmname, hash,
+							NO_INSERT);
+
+  if (slot)
+    {
+      node = *slot;
+      return node;
+    }
+  return NULL;
+}
+
+/* Dump symtab node NODE to stderr.  */
+
+DEBUG_FUNCTION void
+symtab_node::debug (void)
+{
+  dump (stderr);
+=======
+/* If VAL is a reference to a function or a variable, add a reference from
+   this symtab_node to the corresponding symbol table node.  USE_TYPE specify
+   type of the use and STMT the statement (if it exists).  Return the new
+   reference or NULL if none was created.  */
+
+ipa_ref *
+symtab_node::maybe_create_reference (tree val, enum ipa_ref_use use_type,
+				     gimple *stmt)
+{
+  STRIP_NOPS (val);
+  if (TREE_CODE (val) != ADDR_EXPR)
+    return NULL;
+  val = get_base_var (val);
+  if (val && (TREE_CODE (val) == FUNCTION_DECL
+	       || TREE_CODE (val) == VAR_DECL))
+    {
+      symtab_node *referred = symtab_node::get (val);
+      gcc_checking_assert (referred);
+      return create_reference (referred, use_type, stmt);
+    }
+  return NULL;
+}
+
+/* Clone all references from symtab NODE to this symtab_node.  */
+
+void
+symtab_node::clone_references (symtab_node *node)
+{
+  ipa_ref *ref = NULL, *ref2 = NULL;
+  int i;
+  for (i = 0; node->iterate_reference (i, ref); i++)
+    {
+      bool speculative = ref->speculative;
+      unsigned int stmt_uid = ref->lto_stmt_uid;
+
+      ref2 = create_reference (ref->referred, ref->use, ref->stmt);
+      ref2->speculative = speculative;
+      ref2->lto_stmt_uid = stmt_uid;
+    }
+}
+
+/* Clone all referring from symtab NODE to this symtab_node.  */
+
+void
+symtab_node::clone_referring (symtab_node *node)
+{
+  ipa_ref *ref = NULL, *ref2 = NULL;
+  int i;
+  for (i = 0; node->iterate_referring(i, ref); i++)
+    {
+      bool speculative = ref->speculative;
+      unsigned int stmt_uid = ref->lto_stmt_uid;
+
+      ref2 = ref->referring->create_reference (this, ref->use, ref->stmt);
+      ref2->speculative = speculative;
+      ref2->lto_stmt_uid = stmt_uid;
+    }
+}
+
+/* Clone reference REF to this symtab_node and set its stmt to STMT.  */
+
+ipa_ref *
+symtab_node::clone_reference (ipa_ref *ref, gimple *stmt)
+{
+  bool speculative = ref->speculative;
+  unsigned int stmt_uid = ref->lto_stmt_uid;
+  ipa_ref *ref2;
+
+  ref2 = create_reference (ref->referred, ref->use, stmt);
+  ref2->speculative = speculative;
+  ref2->lto_stmt_uid = stmt_uid;
+  return ref2;
+}
+
+/* Find the structure describing a reference to REFERRED_NODE
+   and associated with statement STMT.  */
+
+ipa_ref *
+symtab_node::find_reference (symtab_node *referred_node,
+			     gimple *stmt, unsigned int lto_stmt_uid)
+{
+  ipa_ref *r = NULL;
+  int i;
+
+  for (i = 0; iterate_reference (i, r); i++)
+    if (r->referred == referred_node
+	&& !r->speculative
+	&& ((stmt && r->stmt == stmt)
+	    || (lto_stmt_uid && r->lto_stmt_uid == lto_stmt_uid)
+	    || (!stmt && !lto_stmt_uid && !r->stmt && !r->lto_stmt_uid)))
+      return r;
+  return NULL;
+>>>>>>> gcc-mirror/trunk
+}
+
+/* Remove all references that are associated with statement STMT.  */
+
+<<<<<<< HEAD
+DEBUG_FUNCTION bool
+symtab_node::verify_base (void)
+{
+  bool error_found = false;
+  symtab_node *hashed_node;
+
+  if (is_a <cgraph_node *> (this))
+    {
+>>>>>>> gcc-mirror/master
+=======
+void
+symtab_node::remove_stmt_references (gimple *stmt)
+{
+  ipa_ref *r = NULL;
+  int i = 0;
+
+  while (iterate_reference (i, r))
+    if (r->stmt == stmt)
+      r->remove_reference ();
+    else
+      i++;
+}
+
+/* Remove all stmt references in non-speculative references.
+   Those are not maintained during inlining & clonning.
+   The exception are speculative references that are updated along
+   with callgraph edges associated with them.  */
+
+void
+symtab_node::clear_stmts_in_references (void)
+{
+  ipa_ref *r = NULL;
+  int i;
+
+  for (i = 0; iterate_reference (i, r); i++)
+    if (!r->speculative)
+      {
+	r->stmt = NULL;
+	r->lto_stmt_uid = 0;
+      }
+}
+
+/* Remove all references in ref list.  */
+
+void
+symtab_node::remove_all_references (void)
+{
+  while (vec_safe_length (ref_list.references))
+    ref_list.references->last ().remove_reference ();
+  vec_free (ref_list.references);
+}
+
+/* Remove all referring items in ref list.  */
+
+void
+symtab_node::remove_all_referring (void)
+{
+  while (ref_list.referring.length ())
+    ref_list.referring.last ()->remove_reference ();
+  ref_list.referring.release ();
+}
+
+/* Dump references in ref list to FILE.  */
+
+void
+symtab_node::dump_references (FILE *file)
+{
+  ipa_ref *ref = NULL;
+  int i;
+  for (i = 0; iterate_reference (i, ref); i++)
+    {
+      fprintf (file, "%s/%i (%s)",
+               ref->referred->asm_name (),
+               ref->referred->order,
+	       ipa_ref_use_name [ref->use]);
+      if (ref->speculative)
+	fprintf (file, " (speculative)");
+    }
+  fprintf (file, "\n");
+}
+
+/* Dump referring in list to FILE.  */
+
+void
+symtab_node::dump_referring (FILE *file)
+{
+  ipa_ref *ref = NULL;
+  int i;
+  for (i = 0; iterate_referring(i, ref); i++)
+    {
+      fprintf (file, "%s/%i (%s)",
+               ref->referring->asm_name (),
+               ref->referring->order,
+	       ipa_ref_use_name [ref->use]);
+      if (ref->speculative)
+	fprintf (file, " (speculative)");
+    }
+  fprintf (file, "\n");
+}
+
+static const char * const symtab_type_names[] = {"symbol", "function", "variable"};
+
+/* Dump base fields of symtab nodes to F.  Not to be used directly.  */
+
+void
+symtab_node::dump_base (FILE *f)
 {
   static const char * const visibility_types[] = {
     "default", "protected", "hidden", "internal"
@@ -2469,7 +3168,7 @@ symtab_node::verify_base (void)
 
   if (is_a <cgraph_node *> (this))
     {
->>>>>>> gcc-mirror/master
+>>>>>>> gcc-mirror/trunk
       if (TREE_CODE (decl) != FUNCTION_DECL)
 	{
           error ("function symbol is not function");
@@ -2524,10 +3223,14 @@ symtab_node::verify_base (void)
       if (!hashed_node
 	  && !(is_a <varpool_node *> (this)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	       || DECL_HARD_REGISTER (decl)))
 =======
 	       && DECL_HARD_REGISTER (decl)))
 >>>>>>> gcc-mirror/master
+=======
+	       && DECL_HARD_REGISTER (decl)))
+>>>>>>> gcc-mirror/trunk
 	{
           error ("node not found in symtab assembler name hash");
           error_found = true;
@@ -2560,6 +3263,7 @@ symtab_node::verify_base (void)
       error_found = true;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (weakref && !alias)
 =======
   if (weakref && !transparent_alias)
@@ -2575,6 +3279,20 @@ symtab_node::verify_base (void)
     }
   if (same_comdat_group)
     {
+=======
+  if (weakref && !transparent_alias)
+    {
+      error ("node is weakref but not an transparent_alias");
+      error_found = true;
+    }
+  if (transparent_alias && !alias)
+    {
+      error ("node is transparent_alias but not an alias");
+      error_found = true;
+    }
+  if (same_comdat_group)
+    {
+>>>>>>> gcc-mirror/trunk
       symtab_node *n = same_comdat_group;
 
       if (!n->get_comdat_group ())
@@ -2622,6 +3340,7 @@ symtab_node::verify_base (void)
 		  error_found = true;
 		}
 	    }
+<<<<<<< HEAD
 	}
     }
   if (implicit_section && !get_section ())
@@ -2674,6 +3393,58 @@ symtab_node::verify_base (void)
 	  error_found = true;
 	}
     }
+=======
+	}
+    }
+  if (implicit_section && !get_section ())
+    {
+      error ("implicit_section flag is set but section isn't");
+      error_found = true;
+    }
+  if (get_section () && get_comdat_group ()
+      && !implicit_section
+      && !lookup_attribute ("section", DECL_ATTRIBUTES (decl)))
+    {
+      error ("Both section and comdat group is set");
+      error_found = true;
+    }
+  /* TODO: Add string table for sections, so we do not keep holding duplicated
+     strings.  */
+  if (alias && definition
+      && get_section () != get_alias_target ()->get_section ()
+      && (!get_section()
+	  || !get_alias_target ()->get_section ()
+	  || strcmp (get_section(),
+		     get_alias_target ()->get_section ())))
+    {
+      error ("Alias and target's section differs");
+      get_alias_target ()->dump (stderr);
+      error_found = true;
+    }
+  if (alias && definition
+      && get_comdat_group () != get_alias_target ()->get_comdat_group ())
+    {
+      error ("Alias and target's comdat groups differs");
+      get_alias_target ()->dump (stderr);
+      error_found = true;
+    }
+  if (transparent_alias && definition && !weakref)
+    {
+      symtab_node *to = get_alias_target ();
+      const char *name1
+	= IDENTIFIER_POINTER (
+	    ultimate_transparent_alias_target (DECL_ASSEMBLER_NAME (decl)));
+      const char *name2
+	= IDENTIFIER_POINTER (
+	    ultimate_transparent_alias_target (DECL_ASSEMBLER_NAME (to->decl)));
+      if (!symbol_table::assembler_names_equal_p (name1, name2))
+	{
+	  error ("Transparent alias and target's assembler names differs");
+	  get_alias_target ()->dump (stderr);
+	  error_found = true;
+	}
+    }
+>>>>>>> gcc-mirror/trunk
   if (transparent_alias && definition
       && get_alias_target()->transparent_alias && get_alias_target()->analyzed)
     {
@@ -2681,7 +3452,10 @@ symtab_node::verify_base (void)
       get_alias_target ()->dump (stderr);
       error_found = true;
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 
   return error_found;
 }
@@ -2710,6 +3484,7 @@ symtab_node::verify (void)
 
 DEBUG_FUNCTION void
 symtab_node::verify_symtab_nodes (void)
+<<<<<<< HEAD
 {
   symtab_node *node;
   hash_map<tree, symtab_node *> comdat_head_map (251);
@@ -2717,11 +3492,16 @@ symtab_node::verify_symtab_nodes (void)
 =======
 DEBUG_FUNCTION void
 symtab_node::verify_symtab_nodes (void)
+=======
+>>>>>>> gcc-mirror/trunk
 {
   symtab_node *node;
   hash_map<tree, symtab_node *> comdat_head_map (251);
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   FOR_EACH_SYMBOL (node)
     {
       node->verify ();
@@ -2752,6 +3532,9 @@ symtab_node::verify_symtab_nodes (void)
 	}
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Make DECL local.  FIXME: We shouldn't need to mess with rtl this early,
@@ -2763,11 +3546,14 @@ symtab_node::make_decl_local (void)
   rtx rtl, symbol;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Avoid clearing comdat_groups on comdat-local decls.  */
   if (TREE_PUBLIC (decl) == 0)
     return;
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (weakref)
     {
       weakref = false;
@@ -2781,6 +3567,7 @@ symtab_node::make_decl_local (void)
   /* Avoid clearing comdat_groups on comdat-local decls.  */
   else if (TREE_PUBLIC (decl) == 0)
     return;
+<<<<<<< HEAD
 
   /* Localizing a symbol also make all its transparent aliases local.  */
   ipa_ref *ref;
@@ -2792,15 +3579,31 @@ symtab_node::make_decl_local (void)
     }
 
 >>>>>>> gcc-mirror/master
+=======
+
+  /* Localizing a symbol also make all its transparent aliases local.  */
+  ipa_ref *ref;
+  for (unsigned i = 0; iterate_direct_aliases (i, ref); i++)
+    {
+      struct symtab_node *alias = ref->referring;
+      if (alias->transparent_alias)
+	alias->make_decl_local ();
+    }
+
+>>>>>>> gcc-mirror/trunk
   if (TREE_CODE (decl) == VAR_DECL)
     {
       DECL_COMMON (decl) = 0;
       /* ADDRESSABLE flag is not defined for public symbols.  */
       TREE_ADDRESSABLE (decl) = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       TREE_STATIC (decl) = 1;
 >>>>>>> gcc-mirror/master
+=======
+      TREE_STATIC (decl) = 1;
+>>>>>>> gcc-mirror/trunk
     }
   else gcc_assert (TREE_CODE (decl) == FUNCTION_DECL);
 
@@ -3224,6 +4027,7 @@ symtab_node::set_section (const char *section)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Return the initialization priority.  */
 
 priority_type
@@ -3241,12 +4045,15 @@ symtab_node::get_init_priority ()
 priority_type
 cgraph_node::get_fini_priority ()
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Walk the alias chain to return the symbol NODE is alias of.
    If NODE is not an alias, return NODE.
    Assumes NODE is known to be alias.  */
 
 symtab_node *
 symtab_node::ultimate_alias_target_1 (enum availability *availability)
+<<<<<<< HEAD
 >>>>>>> master
 {
   if (!this->in_init_priority_hash)
@@ -3275,6 +4082,10 @@ symtab_node::priority_info (void)
       h->fini = DEFAULT_INIT_PRIORITY;
       in_init_priority_hash = true;
     }
+=======
+{
+  bool transparent_p = false;
+>>>>>>> gcc-mirror/trunk
 
   return h;
 }
@@ -3285,7 +4096,14 @@ symtab_node::priority_info (void)
      weak definition is available.
 >>>>>>> master
 
+<<<<<<< HEAD
 /* Set initialization priority to PRIORITY.  */
+=======
+     Transaparent alias is just alternative anme of a given symbol used within
+     one compilation unit and is translated prior hitting the object file.  It
+     inherits the visibility of its target.
+     Weakref is a different animal (and noweak definition is weak).
+>>>>>>> gcc-mirror/trunk
 
 void
 symtab_node::set_init_priority (priority_type priority)
@@ -3303,11 +4121,16 @@ symtab_node::set_init_priority (priority_type priority)
 =======
   if (availability)
     {
+<<<<<<< HEAD
       weakref_p = weakref;
       if (!weakref_p)
+=======
+      transparent_p = transparent_alias;
+      if (!transparent_p)
+>>>>>>> gcc-mirror/trunk
 	*availability = get_availability ();
       else
-	*availability = AVAIL_LOCAL;
+	*availability = AVAIL_NOT_AVAILABLE;
     }
 
   symtab_node *node = this;
@@ -3317,8 +4140,9 @@ symtab_node::set_init_priority (priority_type priority)
 	node = node->get_alias_target ();
       else
 	{
-	  if (!availability)
+	  if (!availability || (!transparent_p && node->analyzed))
 	    ;
+<<<<<<< HEAD
 	  else if (node->analyzed)
 	    {
 	      if (weakref_p)
@@ -3328,16 +4152,26 @@ symtab_node::set_init_priority (priority_type priority)
 		    *availability = a;
 		}
 	    }
+=======
+	  else if (node->analyzed && !node->transparent_alias)
+	    *availability = node->get_availability ();
+>>>>>>> gcc-mirror/trunk
 	  else
 	    *availability = AVAIL_NOT_AVAILABLE;
 	  return node;
 	}
-      if (node && availability && weakref_p)
+      if (node && availability && transparent_p
+	  && node->transparent_alias)
 	{
+<<<<<<< HEAD
 	  enum availability a = node->get_availability ();
 	  if (a < *availability)
 	    *availability = a;
           weakref_p = node->weakref;
+=======
+	  *availability = node->get_availability ();
+	  transparent_p = false;
+>>>>>>> gcc-mirror/trunk
 	}
 >>>>>>> master
     }
@@ -3349,9 +4183,12 @@ symtab_node::set_init_priority (priority_type priority)
 
 void
 <<<<<<< HEAD
+<<<<<<< HEAD
 cgraph_node::set_fini_priority (priority_type priority)
 {
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 symtab_node::fixup_same_cpp_alias_visibility (symtab_node *target)
 {
   if (is_a <cgraph_node *> (this))
@@ -3368,6 +4205,7 @@ symtab_node::fixup_same_cpp_alias_visibility (symtab_node *target)
       DECL_WEAK (decl) = DECL_WEAK (target->decl);
       DECL_EXTERNAL (decl) = DECL_EXTERNAL (target->decl);
       DECL_VISIBILITY (decl) = DECL_VISIBILITY (target->decl);
+<<<<<<< HEAD
     }
   DECL_VIRTUAL_P (decl) = DECL_VIRTUAL_P (target->decl);
   if (TREE_PUBLIC (decl))
@@ -3563,11 +4401,192 @@ symtab_node::set_implicit_section (symtab_node *n,
 }
 
 >>>>>>> master
+=======
+    }
+  DECL_VIRTUAL_P (decl) = DECL_VIRTUAL_P (target->decl);
+  if (TREE_PUBLIC (decl))
+    {
+      tree group;
+
+      DECL_EXTERNAL (decl) = DECL_EXTERNAL (target->decl);
+      DECL_COMDAT (decl) = DECL_COMDAT (target->decl);
+      group = target->get_comdat_group ();
+      set_comdat_group (group);
+      if (group && !same_comdat_group)
+	add_to_same_comdat_group (target);
+    }
+  externally_visible = target->externally_visible;
+}
+
+/* Set section, do not recurse into aliases.
+   When one wants to change section of symbol and its aliases,
+   use set_section.  */
+
+void
+symtab_node::set_section_for_node (const char *section)
+{
+  const char *current = get_section ();
+  section_hash_entry **slot;
+
+  if (current == section
+      || (current && section
+	  && !strcmp (current, section)))
+    return;
+
+  if (current)
+    {
+      x_section->ref_count--;
+      if (!x_section->ref_count)
+	{
+	  hashval_t hash = htab_hash_string (x_section->name);
+	  slot = symtab->section_hash->find_slot_with_hash (x_section->name,
+							    hash, INSERT);
+	  ggc_free (x_section);
+	  symtab->section_hash->clear_slot (slot);
+	}
+      x_section = NULL;
+    }
+  if (!section)
+    {
+      implicit_section = false;
+      return;
+    }
+  if (!symtab->section_hash)
+    symtab->section_hash = hash_table<section_name_hasher>::create_ggc (10);
+  slot = symtab->section_hash->find_slot_with_hash (section,
+						    htab_hash_string (section),
+						    INSERT);
+  if (*slot)
+    x_section = (section_hash_entry *)*slot;
+  else
+    {
+      int len = strlen (section);
+      *slot = x_section = ggc_cleared_alloc<section_hash_entry> ();
+      x_section->name = ggc_vec_alloc<char> (len + 1);
+      memcpy (x_section->name, section, len + 1);
+    }
+  x_section->ref_count++;
+}
+
+/* Worker for set_section.  */
+
+bool
+symtab_node::set_section (symtab_node *n, void *s)
+{
+  n->set_section_for_node ((char *)s);
+  return false;
+}
+
+/* Set section of symbol and its aliases.  */
+
+void
+symtab_node::set_section (const char *section)
+{
+  gcc_assert (!this->alias);
+  call_for_symbol_and_aliases
+    (symtab_node::set_section, const_cast<char *>(section), true);
+}
+
+/* Return the initialization priority.  */
+
+priority_type
+symtab_node::get_init_priority ()
+{
+  if (!this->in_init_priority_hash)
+    return DEFAULT_INIT_PRIORITY;
+
+  symbol_priority_map *h = symtab->init_priority_hash->get (this);
+  return h ? h->init : DEFAULT_INIT_PRIORITY;
+}
+
+/* Return the finalization priority.  */
+
+priority_type
+cgraph_node::get_fini_priority ()
+{
+  if (!this->in_init_priority_hash)
+    return DEFAULT_INIT_PRIORITY;
+  symbol_priority_map *h = symtab->init_priority_hash->get (this);
+  return h ? h->fini : DEFAULT_INIT_PRIORITY;
+}
+
+/* Return the initialization and finalization priority information for
+   DECL.  If there is no previous priority information, a freshly
+   allocated structure is returned.  */
+
+symbol_priority_map *
+symtab_node::priority_info (void)
+{
+  if (!symtab->init_priority_hash)
+    symtab->init_priority_hash = hash_map<symtab_node *, symbol_priority_map>::create_ggc (13);
+
+  bool existed;
+  symbol_priority_map *h
+    = &symtab->init_priority_hash->get_or_insert (this, &existed);
+  if (!existed)
+    {
+      h->init = DEFAULT_INIT_PRIORITY;
+      h->fini = DEFAULT_INIT_PRIORITY;
+      in_init_priority_hash = true;
+    }
+
+  return h;
+}
+
+/* Set initialization priority to PRIORITY.  */
+
+void
+symtab_node::set_init_priority (priority_type priority)
+{
+  symbol_priority_map *h;
+
+  if (is_a <cgraph_node *> (this))
+    gcc_assert (DECL_STATIC_CONSTRUCTOR (this->decl));
+
+  if (priority == DEFAULT_INIT_PRIORITY)
+    {
+      gcc_assert (get_init_priority() == priority);
+      return;
+    }
+  h = priority_info ();
+  h->init = priority;
+}
+
+/* Set fialization priority to PRIORITY.  */
+
+void
+cgraph_node::set_fini_priority (priority_type priority)
+{
+  symbol_priority_map *h;
+
+  gcc_assert (DECL_STATIC_DESTRUCTOR (this->decl));
+
+  if (priority == DEFAULT_INIT_PRIORITY)
+    {
+      gcc_assert (get_fini_priority() == priority);
+      return;
+    }
+  h = priority_info ();
+  h->fini = priority;
+}
+
+/* Worker for symtab_resolve_alias.  */
+
+bool
+symtab_node::set_implicit_section (symtab_node *n,
+				   void *data ATTRIBUTE_UNUSED)
+{
+  n->implicit_section = true;
+  return false;
+}
+
+>>>>>>> gcc-mirror/trunk
 /* Add reference recording that symtab node is alias of TARGET.
    The function can fail in the case of aliasing cycles; in this case
    it returns false.  */
 
 bool
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 symtab_node::resolve_alias (symtab_node *target)
@@ -3577,6 +4596,9 @@ symtab_node::resolve_alias (symtab_node *target, bool transparent)
 =======
 symtab_node::resolve_alias (symtab_node *target)
 >>>>>>> master
+=======
+symtab_node::resolve_alias (symtab_node *target, bool transparent)
+>>>>>>> gcc-mirror/trunk
 {
   symtab_node *n;
 
@@ -3604,15 +4626,21 @@ symtab_node::resolve_alias (symtab_node *target)
   analyzed = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   transparent |= transparent_alias;
   transparent_alias = transparent;
   if (transparent)
     while (target->transparent_alias && target->analyzed)
       target = target->get_alias_target ();
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   create_reference (target, IPA_REF_ALIAS, NULL);
 
   /* Add alias into the comdat group of its target unless it is already there.  */
@@ -3639,6 +4667,7 @@ symtab_node::resolve_alias (symtab_node *target)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (cpp_implicit_alias && symtab->state >= CONSTRUCTION)
 =======
   if (!transparent && cpp_implicit_alias && symtab->state >= CONSTRUCTION)
@@ -3646,6 +4675,9 @@ symtab_node::resolve_alias (symtab_node *target)
 =======
   if (cpp_implicit_alias && symtab->state >= CONSTRUCTION)
 >>>>>>> master
+=======
+  if (!transparent && cpp_implicit_alias && symtab->state >= CONSTRUCTION)
+>>>>>>> gcc-mirror/trunk
     fixup_same_cpp_alias_visibility (target);
 
   /* If alias has address taken, so does the target.  */
@@ -3654,24 +4686,33 @@ symtab_node::resolve_alias (symtab_node *target)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* All non-weakref aliases of THIS are now in fact aliases of TARGET.  */
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* All non-transparent aliases of THIS are now in fact aliases of TARGET.
      If alias is transparent, also all transparent aliases of THIS are now
      aliases of TARGET.
      Also merge same comdat group lists.  */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   /* All non-weakref aliases of THIS are now in fact aliases of TARGET.  */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   ipa_ref *ref;
   for (unsigned i = 0; iterate_direct_aliases (i, ref);)
     {
       struct symtab_node *alias_alias = ref->referring;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (!alias_alias->weakref)
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (alias_alias->get_comdat_group ())
 	{
 	  alias_alias->remove_from_same_comdat_group ();
@@ -3680,10 +4721,13 @@ symtab_node::resolve_alias (symtab_node *target)
 	    alias_alias->add_to_same_comdat_group (target);
 	}
       if (!alias_alias->transparent_alias || transparent)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       if (!alias_alias->weakref)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	{
 	  alias_alias->remove_all_references ();
 	  alias_alias->create_reference (target, IPA_REF_ALIAS, NULL);
@@ -3700,6 +4744,7 @@ symtab_node::noninterposable_alias (symtab_node *node, void *data)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (decl_binds_to_current_def_p (node->decl))
 =======
   if (!node->transparent_alias && decl_binds_to_current_def_p (node->decl))
@@ -3707,6 +4752,9 @@ symtab_node::noninterposable_alias (symtab_node *node, void *data)
 =======
   if (decl_binds_to_current_def_p (node->decl))
 >>>>>>> master
+=======
+  if (!node->transparent_alias && decl_binds_to_current_def_p (node->decl))
+>>>>>>> gcc-mirror/trunk
     {
       symtab_node *fn = node->ultimate_alias_target ();
 
@@ -3837,6 +4885,7 @@ symtab_node::get_partitioning_class (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Weakref aliases are always duplicated.  */
   if (weakref)
     return SYMBOL_DUPLICATE;
@@ -3850,6 +4899,11 @@ symtab_node::get_partitioning_class (void)
   if (weakref)
     return SYMBOL_DUPLICATE;
 >>>>>>> master
+=======
+  /* Transparent aliases are always duplicated.  */
+  if (transparent_alias)
+    return definition ? SYMBOL_DUPLICATE : SYMBOL_EXTERNAL;
+>>>>>>> gcc-mirror/trunk
 
   /* External declarations are external.  */
   if (DECL_EXTERNAL (decl))
@@ -3914,11 +4968,15 @@ symtab_node::nonzero_address ()
 	      && target->resolution != LDPR_UNDEF
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	      && !target->can_be_discarded_p ()
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	      && !target->can_be_discarded_p ()
+>>>>>>> gcc-mirror/trunk
 	      && flag_delete_null_pointer_checks)
 	    return true;
 	  return false;
@@ -3959,11 +5017,15 @@ symtab_node::nonzero_address ()
       && resolution != LDPR_UNDEF
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       && !can_be_discarded_p ()
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      && !can_be_discarded_p ()
+>>>>>>> gcc-mirror/trunk
       && flag_delete_null_pointer_checks)
     return true;
   return false;
@@ -3973,10 +5035,13 @@ symtab_node::nonzero_address ()
    Return 1 if symbol is known to have same address as S2,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    return 2 otherwise.   */
 int
 symtab_node::equal_address_to (symtab_node *s2)
 =======
+=======
+>>>>>>> gcc-mirror/trunk
    return 2 otherwise.  
 
    If MEMORY_ACCESSED is true, assume that both memory pointer to THIS
@@ -3985,12 +5050,15 @@ symtab_node::equal_address_to (symtab_node *s2)
    about memory aliasing.  */
 int
 symtab_node::equal_address_to (symtab_node *s2, bool memory_accessed)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
    return 2 otherwise.   */
 int
 symtab_node::equal_address_to (symtab_node *s2)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 {
   enum availability avail1, avail2;
 
@@ -4000,7 +5068,10 @@ symtab_node::equal_address_to (symtab_node *s2)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* Unwind transparent aliases first; those are always equal to their
      target.  */
   if (this->transparent_alias && this->analyzed)
@@ -4011,9 +5082,12 @@ symtab_node::equal_address_to (symtab_node *s2)
   if (this == s2)
     return 1;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* For non-interposable aliases, lookup and compare their actual definitions.
      Also check if the symbol needs to bind to given definition.  */
   symtab_node *rs1 = ultimate_alias_target (&avail1);
@@ -4052,6 +5126,7 @@ symtab_node::equal_address_to (symtab_node *s2)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* If both symbols may resolve to NULL, we can not really prove them different.  */
   if (!nonzero_address () && !s2->nonzero_address ())
 =======
@@ -4063,6 +5138,11 @@ symtab_node::equal_address_to (symtab_node *s2)
   /* If both symbols may resolve to NULL, we can not really prove them different.  */
   if (!nonzero_address () && !s2->nonzero_address ())
 >>>>>>> master
+=======
+  /* If both symbols may resolve to NULL, we can not really prove them
+     different.  */
+  if (!memory_accessed && !nonzero_address () && !s2->nonzero_address ())
+>>>>>>> gcc-mirror/trunk
     return 2;
 
   /* Except for NULL, functions and variables never overlap.  */
@@ -4095,6 +5175,7 @@ symtab_node::equal_address_to (symtab_node *s2)
   /* TODO: Alias oracle basically assume that addresses of global variables
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
      are different unless they are declared as alias of one to another.
@@ -4104,15 +5185,20 @@ symtab_node::equal_address_to (symtab_node *s2)
   return 2;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
      are different unless they are declared as alias of one to another while
      the code folding comparsions doesn't.
      We probably should be consistent and use this fact here, too, but for
      the moment return false only when we are called from the alias oracle.  */
 
   return memory_accessed && rs1 != rs2 ? 0 : 2;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Worker for call_for_symbol_and_aliases.  */

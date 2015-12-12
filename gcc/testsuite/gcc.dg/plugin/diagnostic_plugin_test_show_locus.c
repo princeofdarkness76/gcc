@@ -226,21 +226,27 @@ test_show_locus (function *fun)
       src_range.m_finish = get_loc (line, 20);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       location_t combined_loc = COMBINE_LOCATION_DATA (line_table,
 						       caret,
 						       src_range,
 						       NULL);
       warning_at (combined_loc, 0, "test");
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   /* Example of a very wide line, where the information of interest
@@ -254,21 +260,27 @@ test_show_locus (function *fun)
       src_range.m_finish = get_loc (line, 98);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       location_t combined_loc = COMBINE_LOCATION_DATA (line_table,
 						       caret,
 						       src_range,
 						       NULL);
       warning_at (combined_loc, 0, "test");
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       rich_location richloc (line_table, caret);
       richloc.set_range (0, src_range, true, false);
       warning_at_rich_loc (&richloc, 0, "test");
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   /* Example of multiple carets.  */
@@ -343,7 +355,10 @@ test_show_locus (function *fun)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Example of using the "%q+D" format code, which as well as printing
      a quoted decl, overrides the given location to use the location of
@@ -355,9 +370,12 @@ test_show_locus (function *fun)
       warning_at (input_location, 0,
 		  "example of plus in format code for %q+D", local);
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 unsigned int

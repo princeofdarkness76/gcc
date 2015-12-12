@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-do compile { target c++14 } }
 // { dg-options "-I${srcdir}/g++.dg/cpp1y -I${srcdir}/g++.dg/cpp1y/testinc" }
 =======
@@ -9,6 +10,9 @@
 // { dg-do compile { target c++14 } }
 // { dg-options "-I${srcdir}/g++.dg/cpp1y -I${srcdir}/g++.dg/cpp1y/testinc" }
 >>>>>>> master
+=======
+// { dg-options "-std=c++14 -I${srcdir}/g++.dg/cpp1y -I${srcdir}/g++.dg/cpp1y/testinc" }
+>>>>>>> gcc-mirror/trunk
 
 //  C++98 features:
 

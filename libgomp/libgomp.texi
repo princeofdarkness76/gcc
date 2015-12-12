@@ -775,6 +775,8 @@ and @code{false} represent their language-specific counterparts.
 
 @item @emph{Reference}:
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 3.2.21.
+<<<<<<< HEAD
+=======
 @end table
 
 
@@ -799,10 +801,38 @@ their language-specific counterparts.
 
 @item @emph{Reference}:
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 3.2.34.
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
 
+<<<<<<< HEAD
+@node omp_is_initial_device
+@section @code{omp_is_initial_device} -- Whether executing on the host device
+@table @asis
+@item @emph{Description}:
+This function returns @code{true} if currently running on the host device,
+@code{false} otherwise.  Here, @code{true} and @code{false} represent
+their language-specific counterparts.
+
+@item @emph{C/C++}:
+@multitable @columnfractions .20 .80
+@item @emph{Prototype}: @tab @code{int omp_is_initial_device(void);}
+@end multitable
+
+@item @emph{Fortran}:
+@multitable @columnfractions .20 .80
+@item @emph{Interface}: @tab @code{logical function omp_is_initial_device()}
+@end multitable
+
+@item @emph{Reference}:
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 3.2.34.
+@end table
+
+
+
+=======
+>>>>>>> gcc-mirror/trunk
 @node omp_set_default_device
 @section @code{omp_set_default_device} -- Set the default device for target regions
 @table @asis
@@ -1327,6 +1357,7 @@ The environment variables which beginning with @env{OMP_} are defined by
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 section 4 of the OpenMP specification in version 4.0, while those
 beginning with @env{GOMP_} are GNU extensions.
 
@@ -1361,6 +1392,12 @@ beginning with @env{GOMP_} are GNU extensions.
 
 @menu
 >>>>>>> master
+=======
+section 4 of the OpenMP specification in version 4.5, while those
+beginning with @env{GOMP_} are GNU extensions.
+
+@menu
+>>>>>>> gcc-mirror/trunk
 * OMP_CANCELLATION::        Set whether cancellation is activated
 * OMP_DISPLAY_ENV::         Show OpenMP version and environment variables
 * OMP_DEFAULT_DEVICE::      Set the device used in target regions
@@ -1382,11 +1419,14 @@ beginning with @env{GOMP_} are GNU extensions.
 * GOMP_RTEMS_THREAD_POOLS:: Set the RTEMS specific thread pools
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @end menu
 
 
@@ -1463,6 +1503,7 @@ disabled by default.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, section 4.3
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.3
@@ -1473,6 +1514,9 @@ disabled by default.
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.3
 >>>>>>> master
+=======
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.3
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1493,12 +1537,15 @@ If undefined, the number of active levels is unlimited.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, section 4.9
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.9
 @end table
 
@@ -1522,11 +1569,14 @@ integer, and zero is allowed.  If undefined, the default priority is
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.14
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1549,6 +1599,7 @@ regions are disabled by default.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, section 4.6
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.6
@@ -1559,6 +1610,9 @@ regions are disabled by default.
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.6
 >>>>>>> master
+=======
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.6
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1581,6 +1635,7 @@ level.  If undefined one thread per CPU is used.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, section 4.2
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.2
@@ -1591,6 +1646,9 @@ level.  If undefined one thread per CPU is used.
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.2
 >>>>>>> master
+=======
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.2
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1619,6 +1677,7 @@ When undefined, @env{OMP_PROC_BIND} defaults to @code{TRUE} when
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @item @emph{Reference}: 
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, sections 2.7.1 and 4.1
 =======
@@ -1626,6 +1685,8 @@ When undefined, @env{OMP_PROC_BIND} defaults to @code{TRUE} when
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @item @emph{Reference}:
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.4
 @end table
@@ -1672,11 +1733,14 @@ between CPUs following no placement policy.
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.5
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1696,6 +1760,7 @@ stack size is left unchanged.  If undefined, the stack size is system
 dependent.
 
 @item @emph{Reference}: 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1738,10 +1803,14 @@ dynamic scheduling and a chunk size of 1 is used.
 =======
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Sections 2.7.1.1 and 4.1
 >>>>>>> master
+=======
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.7
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 @node OMP_SCHEDULE
 @section @env{OMP_SCHEDULE} -- How threads are scheduled
@@ -1749,10 +1818,15 @@ dynamic scheduling and a chunk size of 1 is used.
 @node OMP_THREAD_LIMIT
 @section @env{OMP_THREAD_LIMIT} -- Set the maximum number of threads
 >>>>>>> master
+=======
+@node OMP_SCHEDULE
+@section @env{OMP_SCHEDULE} -- How threads are scheduled
+>>>>>>> gcc-mirror/trunk
 @cindex Environment Variable
 @cindex Implementation specific setting
 @table @asis
 @item @emph{Description}:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1799,10 +1873,24 @@ dynamic scheduling and a chunk size of 1 is used.
 @item @emph{Reference}: 
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.10
 >>>>>>> master
+=======
+Allows to specify @code{schedule type} and @code{chunk size}. 
+The value of the variable shall have the form: @code{type[,chunk]} where
+@code{type} is one of @code{static}, @code{dynamic}, @code{guided} or @code{auto}
+The optional @code{chunk} size shall be a positive integer.  If undefined,
+dynamic scheduling and a chunk size of 1 is used.
+
+@item @emph{See also}:
+@ref{omp_set_schedule}
+
+@item @emph{Reference}: 
+@uref{http://www.openmp.org/, OpenMP specification v4.5}, Sections 2.7.1.1 and 4.1
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 @node OMP_THREAD_LIMIT
 @section @env{OMP_THREAD_LIMIT} -- Set the maximum number of threads
@@ -1837,6 +1925,13 @@ before waiting passively.
 <<<<<<< HEAD
 @uref{http://www.openmp.org/, OpenMP specifications v4.0}, section 4.4
 =======
+=======
+@node OMP_THREAD_LIMIT
+@section @env{OMP_THREAD_LIMIT} -- Set the maximum number of threads
+@cindex Environment Variable
+@table @asis
+@item @emph{Description}:
+>>>>>>> gcc-mirror/trunk
 Specifies the number of threads to use for the whole program.  The
 value of this variable shall be a positive integer.  If undefined,
 the number of threads is not limited.
@@ -1846,11 +1941,15 @@ the number of threads is not limited.
 
 @item @emph{Reference}: 
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.10
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 @node OMP_DISPLAY_ENV
 @section @env{OMP_DISPLAY_ENV} -- Show OpenMP version and environment variables
@@ -1875,6 +1974,13 @@ this information will not be shown.
 @cindex Environment Variable
 @table @asis
 @item @emph{Description}:
+=======
+@node OMP_WAIT_POLICY
+@section @env{OMP_WAIT_POLICY} -- How waiting threads are handled
+@cindex Environment Variable
+@table @asis
+@item @emph{Description}:
+>>>>>>> gcc-mirror/trunk
 Specifies whether waiting threads should be active or passive.  If
 the value is @code{PASSIVE}, waiting threads should not consume CPU
 power while waiting; while the value is @code{ACTIVE} specifies that
@@ -1886,6 +1992,7 @@ before waiting passively.
 
 @item @emph{Reference}: 
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.8
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
@@ -1895,6 +2002,8 @@ before waiting passively.
 @item @emph{Reference}: 
 @uref{http://www.openmp.org/, OpenMP specification v4.5}, Section 4.8
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @end table
 
 
@@ -1924,6 +2033,7 @@ or disabled during the runtime of the application.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 If this environment variable is omitted, the host system will handle the
 assignment of threads to CPUs. 
 =======
@@ -1931,10 +2041,13 @@ assignment of threads to CPUs.
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 If both @env{GOMP_CPU_AFFINITY} and @env{OMP_PROC_BIND} are set,
 @env{OMP_PROC_BIND} has a higher precedence.  If neither has been set and
 @env{OMP_PROC_BIND} is unset, or when @env{OMP_PROC_BIND} is set to
 @code{FALSE}, the host system will handle the assignment of threads to CPUs.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -1942,6 +2055,8 @@ If both @env{GOMP_CPU_AFFINITY} and @env{OMP_PROC_BIND} are set,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 @item @emph{See also}:
 @ref{OMP_PLACES}, @ref{OMP_PROC_BIND}
@@ -1997,6 +2112,7 @@ Determines how long a threads waits actively with consuming CPU power
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 before waiting passively without consuming CPU power. The value may be
 either @code{INFINITE}, @code{INFINITY} to always wait actively or an
 integer which gives the number of spins of the busy-wait loop. The
@@ -2015,6 +2131,11 @@ before waiting passively without consuming CPU power.  The value may be
 either @code{INFINITE}, @code{INFINITY} to always wait actively or an
 integer which gives the number of spins of the busy-wait loop.  The
 >>>>>>> master
+=======
+before waiting passively without consuming CPU power.  The value may be
+either @code{INFINITE}, @code{INFINITY} to always wait actively or an
+integer which gives the number of spins of the busy-wait loop.  The
+>>>>>>> gcc-mirror/trunk
 integer may optionally be followed by the following suffixes acting
 as multiplication factors: @code{k} (kilo, thousand), @code{M} (mega,
 million), @code{G} (giga, billion), or @code{T} (tera, trillion).
@@ -2035,11 +2156,14 @@ or @env{OMP_WAIT_POLICY} is @code{PASSIVE}.
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @node GOMP_RTEMS_THREAD_POOLS
 @section @env{GOMP_RTEMS_THREAD_POOLS} -- Set the RTEMS specific thread pools
 @cindex Environment Variable
@@ -2082,11 +2206,14 @@ pools available and their worker threads run at priority four.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 @c ---------------------------------------------------------------------
 @c The libgomp ABI
 @c ---------------------------------------------------------------------

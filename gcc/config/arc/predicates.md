@@ -815,11 +815,17 @@
        (match_test "satisfies_constraint_C16 (op)")))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 (define_predicate "mem_noofs_operand"
   (and (match_code "mem")
        (match_code "reg" "0")))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

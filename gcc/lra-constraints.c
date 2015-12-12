@@ -3385,6 +3385,7 @@ curr_insn_transform (bool check_only_p)
       {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	rtx op = *curr_id->operand_loc[i];
@@ -3393,6 +3394,8 @@ curr_insn_transform (bool check_only_p)
 	
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	rtx op, subst, old;
 	bool op_change_p = false;
 
@@ -3400,9 +3403,12 @@ curr_insn_transform (bool check_only_p)
 	  continue;
 	
 	old = op = *curr_id->operand_loc[i];
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	if (GET_CODE (old) == SUBREG)
 	  old = SUBREG_REG (old);
 	subst = get_equiv_with_elimination (old, curr_insn);

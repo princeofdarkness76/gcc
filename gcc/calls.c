@@ -504,6 +504,7 @@ special_function_p (const_tree fndecl, int flags)
 	 anything that does not understand its behavior.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (((IDENTIFIER_LENGTH (name_decl) == 6
@@ -517,6 +518,11 @@ special_function_p (const_tree fndecl, int flags)
 	  && name[0] == 'a'
 	  && ! strcmp (name, "alloca"))
 >>>>>>> gcc-mirror/master
+=======
+      if (IDENTIFIER_LENGTH (name_decl) == 6
+	  && name[0] == 'a'
+	  && ! strcmp (name, "alloca"))
+>>>>>>> gcc-mirror/trunk
 	flags |= ECF_MAY_BE_ALLOCA;
 
       /* Disregard prefix _, __, __x or __builtin_.  */

@@ -19,6 +19,7 @@ float foobar () {
 /* The temporary structure should have been promoted to registers
    by FRE after the loops have been unrolled by the early unrolling pass.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-not "c\.array" "dce2" } } */
 <<<<<<< HEAD
 =======
@@ -26,3 +27,6 @@ float foobar () {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-not "c\.array" "dce3" } } */
+>>>>>>> gcc-mirror/trunk

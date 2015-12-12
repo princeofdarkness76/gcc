@@ -961,6 +961,7 @@ use_internal_fn (gcall *call)
   auto_vec<gimple *, 12> conds;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   gen_shrink_wrap_conditions (call, conds, &nconds);
 =======
   if (can_test_argument_range (call))
@@ -969,6 +970,10 @@ use_internal_fn (gcall *call)
 =======
   gen_shrink_wrap_conditions (call, conds, &nconds);
 >>>>>>> master
+=======
+  if (can_test_argument_range (call))
+    gen_shrink_wrap_conditions (call, conds, &nconds);
+>>>>>>> gcc-mirror/trunk
   if (nconds == 0 && !edom_only_function (call))
     return false;
 

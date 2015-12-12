@@ -96,11 +96,15 @@ along with GCC; see the file COPYING3.  If not see
 #include "cfgexpand.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "gimplify.h"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "gimplify.h"
+>>>>>>> gcc-mirror/trunk
 
 /* Estimate runtime of function can easilly run into huge numbers with many
    nested loops.  Be sure we can compute time * INLINE_SIZE_SCALE * 2 in an
@@ -1782,6 +1786,7 @@ set_cond_stmt_execution_predicate (struct ipa_func_body_info *fbi,
 	    {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      struct predicate p = add_condition (summary, index, &aggpos,
 						  this_code,
 						  gimple_cond_rhs (last));
@@ -1795,6 +1800,11 @@ set_cond_stmt_execution_predicate (struct ipa_func_body_info *fbi,
 						  this_code,
 						  gimple_cond_rhs (last));
 >>>>>>> master
+=======
+	      struct predicate p = add_condition
+		 (summary, index, &aggpos, this_code,
+		  unshare_expr_without_location (gimple_cond_rhs (last)));
+>>>>>>> gcc-mirror/trunk
 	      e->aux = edge_predicate_pool.allocate ();
 	      *(struct predicate *) e->aux = p;
 	    }
@@ -3728,6 +3738,7 @@ simple_edge_hints (struct cgraph_edge *edge)
       && edge->caller->lto_file_data != callee->lto_file_data
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       && !callee->merged)
 =======
       && !callee->merged_comdat && !callee->icf_merged)
@@ -3735,6 +3746,9 @@ simple_edge_hints (struct cgraph_edge *edge)
 =======
       && !callee->merged)
 >>>>>>> master
+=======
+      && !callee->merged_comdat && !callee->icf_merged)
+>>>>>>> gcc-mirror/trunk
     hints |= INLINE_HINT_cross_module;
 
   return hints;

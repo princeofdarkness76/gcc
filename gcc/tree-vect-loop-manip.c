@@ -2286,6 +2286,7 @@ vect_create_cond_for_alias_checks (loop_vec_info loop_vinfo, tree * cond_expr)
 		     comp_alias_ddrs.length ());
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   comp_alias_ddrs.release ();
 =======
@@ -2294,6 +2295,8 @@ vect_create_cond_for_alias_checks (loop_vec_info loop_vinfo, tree * cond_expr)
 
   comp_alias_ddrs.release ();
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 

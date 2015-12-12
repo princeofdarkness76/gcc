@@ -88,6 +88,7 @@ f1 (int x)
   #pragma omp for collapse(2)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   for (i = 0; i < 16; i++) /* { dg-error "condition expression refers to iteration variable" } */
@@ -102,6 +103,8 @@ f1 (int x)
     for (j = 0; j < i + 4; j++)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   for (i = 0; i < 16; i++)
     for (j = 16; j > (i & x); j--) /* { dg-error "condition expression refers to iteration variable" } */
       ;
@@ -112,9 +115,12 @@ f1 (int x)
   #pragma omp for collapse(2)
   for (i = 0; i < 16; i++)
     for (j = 0; j < i + 4; j++) /* { dg-error "condition expression refers to iteration variable" } */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       ;
   #pragma omp for collapse(2)
   for (i = 0; i < j + 4; i++) /* { dg-error "condition expression refers to iteration variable" } */
@@ -131,6 +137,7 @@ f1 (int x)
   #pragma omp for collapse(2)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   for (i = 0; i < 16; i++) /* { dg-error "condition expression refers to iteration variable" } */
     for (j = 0; j < baz (&i); j++)
 =======
@@ -141,6 +148,10 @@ f1 (int x)
   for (i = 0; i < 16; i++) /* { dg-error "condition expression refers to iteration variable" } */
     for (j = 0; j < baz (&i); j++)
 >>>>>>> master
+=======
+  for (i = 0; i < 16; i++)
+    for (j = 0; j < baz (&i); j++) /* { dg-error "condition expression refers to iteration variable" } */
+>>>>>>> gcc-mirror/trunk
       ;
   #pragma omp for collapse(2)
   for (i = 0; i < 16; i += j) /* { dg-error "increment expression refers to iteration variable" } */
@@ -250,6 +261,7 @@ f2 (int x)
   #pragma omp for collapse(2)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   for (int i = 0; i < 16; i++) /* { dg-error "condition expression refers to iteration variable" } */
@@ -268,6 +280,8 @@ f2 (int x)
     for (int j = 0; j < baz (&i); j++)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   for (int i = 0; i < 16; i++)
     for (int j = 16; j > (i & x); j--) /* { dg-error "condition expression refers to iteration variable" } */
       ;
@@ -282,9 +296,12 @@ f2 (int x)
   #pragma omp for collapse(2)
   for (int i = 0; i < 16; i++)
     for (int j = 0; j < baz (&i); j++) /* { dg-error "condition expression refers to iteration variable" } */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       ;
   #pragma omp for collapse(2)
   for (int i = 0; i < 16; i++) /* { dg-error "increment expression refers to iteration variable" } */

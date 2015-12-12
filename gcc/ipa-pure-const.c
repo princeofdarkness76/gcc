@@ -1166,7 +1166,10 @@ cdtor_p (cgraph_node *n, void *)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* We only propagate across edges with non-interposable callee.  */
 
 static bool
@@ -1178,9 +1181,12 @@ ignore_edge_for_pure_const (struct cgraph_edge *e)
 }
 
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Produce transitive closure over the callgraph and compute pure/const
    attributes.  */
 
@@ -1245,6 +1251,7 @@ propagate_pure_const (void)
 	    break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  /* For overwritable nodes we can not assume anything.  */
 <<<<<<< HEAD
 =======
@@ -1252,6 +1259,9 @@ propagate_pure_const (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	  /* For interposable nodes we can not assume anything.  */
+>>>>>>> gcc-mirror/trunk
 	  if (w->get_availability () == AVAIL_INTERPOSABLE)
 	    {
 	      worse_state (&pure_const_state, &looping,
@@ -1361,6 +1371,7 @@ propagate_pure_const (void)
 	  /* And finally all loads and stores.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  for (i = 0; w->iterate_reference (i, ref); i++)
 =======
 	  for (i = 0; w->iterate_reference (i, ref)
@@ -1369,6 +1380,10 @@ propagate_pure_const (void)
 =======
 	  for (i = 0; w->iterate_reference (i, ref); i++)
 >>>>>>> master
+=======
+	  for (i = 0; w->iterate_reference (i, ref)
+	       && pure_const_state != IPA_NEITHER; i++)
+>>>>>>> gcc-mirror/trunk
 	    {
 	      enum pure_const_state_e ref_state = IPA_CONST;
 	      bool ref_looping = false;
@@ -1557,6 +1572,7 @@ propagate_nothrow (void)
 	{
 	  struct cgraph_edge *e, *ie;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  funct_state w_l = get_function_state (w);
 
 	  if (w_l->can_throw
@@ -1575,11 +1591,17 @@ propagate_nothrow (void)
 
 	  if (!TREE_NOTHROW (w->decl))
 	    {
+=======
+
+	  if (!TREE_NOTHROW (w->decl))
+	    {
+>>>>>>> gcc-mirror/trunk
 	      funct_state w_l = get_function_state (w);
 
 	      if (w_l->can_throw
 		  || w->get_availability () == AVAIL_INTERPOSABLE)
 		can_throw = true;
+<<<<<<< HEAD
 
 	      for (e = w->callees; e && !can_throw; e = e->next_callee)
 >>>>>>> gcc-mirror/master
@@ -1628,6 +1650,32 @@ propagate_nothrow (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+	      for (e = w->callees; e && !can_throw; e = e->next_callee)
+		{
+		  enum availability avail;
+
+		  if (!e->can_throw_external || TREE_NOTHROW (e->callee->decl))
+		    continue;
+
+		  struct cgraph_node *y = e->callee->
+				    function_or_virtual_thunk_symbol (&avail);
+
+		  /* We can use info about the callee only if we know it can
+		     not be interposed.  */
+		  if (avail <= AVAIL_INTERPOSABLE
+		      || (!TREE_NOTHROW (y->decl)
+			  && get_function_state (y)->can_throw))
+		    can_throw = true;
+		}
+	      for (ie = w->indirect_calls; ie && !can_throw;
+		   ie = ie->next_callee)
+		if (ie->can_throw_external
+		    && !(ie->indirect_info->ecf_flags & ECF_NOTHROW))
+		  can_throw = true;
+	    }
+>>>>>>> gcc-mirror/trunk
 	  w_info = (struct ipa_dfs_info *) w->aux;
 	  w = w_info->next_cycle;
 	}
@@ -1900,12 +1948,16 @@ namespace {
 
 const pass_data pass_data_warn_function_noreturn =
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 {
   GIMPLE_PASS, /* type */
   "*warn_function_noreturn", /* name */
   OPTGROUP_NONE, /* optinfo_flags */
   TV_NONE, /* tv_id */
   PROP_cfg, /* properties_required */
+<<<<<<< HEAD
 =======
 {
   GIMPLE_PASS, /* type */
@@ -1960,6 +2012,8 @@ const pass_data pass_data_nothrow =
   TV_IPA_PURE_CONST, /* tv_id */
   0, /* properties_required */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   0, /* properties_provided */
   0, /* properties_destroyed */
   0, /* todo_flags_start */
@@ -1967,6 +2021,9 @@ const pass_data pass_data_nothrow =
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 class pass_warn_function_noreturn : public gimple_opt_pass
 {
 public:
@@ -2013,8 +2070,11 @@ const pass_data pass_data_nothrow =
   0, /* todo_flags_finish */
 };
 
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 class pass_nothrow : public gimple_opt_pass
 {
 public:

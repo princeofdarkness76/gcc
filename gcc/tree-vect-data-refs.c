@@ -251,6 +251,7 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  return false;
 	}
 
@@ -261,6 +262,8 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  LOOP_VINFO_NO_DATA_DEPENDENCIES (loop_vinfo) = false;
 	  return false;
 	}
@@ -269,11 +272,14 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 	  || STMT_VINFO_GATHER_SCATTER_P (stmtinfo_b))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	{
 	  if (dump_enabled_p ())
 	    {
@@ -319,6 +325,7 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  return false;
 	}
 
@@ -329,6 +336,8 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  LOOP_VINFO_NO_DATA_DEPENDENCIES (loop_vinfo) = false;
 	  return false;
 	}
@@ -337,11 +346,14 @@ vect_analyze_data_ref_dependence (struct data_dependence_relation *ddr,
 	  || STMT_VINFO_GATHER_SCATTER_P (stmtinfo_b))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	{
 	  if (dump_enabled_p ())
 	    {
@@ -1838,6 +1850,7 @@ vect_enhance_data_refs_alignment (loop_vec_info loop_vinfo)
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       /* Cost model #2 - if peeling may result in a remaining loop not
 	 iterating enough to be vectorized then do not peel.  */
@@ -1881,6 +1894,21 @@ vect_enhance_data_refs_alignment (loop_vec_info loop_vinfo)
 	}
 
 >>>>>>> master
+=======
+
+      /* Cost model #2 - if peeling may result in a remaining loop not
+	 iterating enough to be vectorized then do not peel.  */
+      if (do_peeling
+	  && LOOP_VINFO_NITERS_KNOWN_P (loop_vinfo))
+	{
+	  unsigned max_peel
+	    = npeel == 0 ? LOOP_VINFO_VECT_FACTOR (loop_vinfo) - 1 : npeel;
+	  if (LOOP_VINFO_INT_NITERS (loop_vinfo)
+	      < LOOP_VINFO_VECT_FACTOR (loop_vinfo) + max_peel)
+	    do_peeling = false;
+	}
+
+>>>>>>> gcc-mirror/trunk
       if (do_peeling)
         {
           /* (1.2) Update the DR_MISALIGNMENT of each data reference DR_i.
@@ -2136,6 +2164,7 @@ vect_analyze_data_refs_alignment (loop_vec_info vinfo)
 
   FOR_EACH_VEC_ELT (ddrs, i, ddr)
     vect_find_same_alignment_drs (ddr, vinfo);
+<<<<<<< HEAD
 
   vec<data_reference_p> datarefs = vinfo->datarefs;
   struct data_reference *dr;
@@ -2310,6 +2339,91 @@ vect_slp_analyze_and_verify_instance_alignment (slp_instance instance)
       && ! vect_slp_analyze_and_verify_node_alignment
 	     (SLP_INSTANCE_TREE (instance)))
     return false;
+=======
+
+  vec<data_reference_p> datarefs = vinfo->datarefs;
+  struct data_reference *dr;
+
+  FOR_EACH_VEC_ELT (datarefs, i, dr)
+    {
+      stmt_vec_info stmt_info = vinfo_for_stmt (DR_STMT (dr));
+      if (STMT_VINFO_VECTORIZABLE (stmt_info)
+	  && !vect_compute_data_ref_alignment (dr))
+	{
+	  /* Strided accesses perform only component accesses, misalignment
+	     information is irrelevant for them.  */
+	  if (STMT_VINFO_STRIDED_P (stmt_info)
+	      && !STMT_VINFO_GROUPED_ACCESS (stmt_info))
+	    continue;
+>>>>>>> gcc-mirror/trunk
+
+	  if (dump_enabled_p ())
+	    dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			     "not vectorized: can't calculate alignment "
+			     "for data ref.\n");
+
+	  return false;
+	}
+    }
+
+  return true;
+}
+
+
+/* Analyze alignment of DRs of stmts in NODE.  */
+
+static bool
+vect_slp_analyze_and_verify_node_alignment (slp_tree node)
+{
+  /* We vectorize from the first scalar stmt in the node unless
+     the node is permuted in which case we start from the first
+     element in the group.  */
+  gimple *first_stmt = SLP_TREE_SCALAR_STMTS (node)[0];
+  data_reference_p first_dr = STMT_VINFO_DATA_REF (vinfo_for_stmt (first_stmt));
+  if (SLP_TREE_LOAD_PERMUTATION (node).exists ())
+    first_stmt = GROUP_FIRST_ELEMENT (vinfo_for_stmt (first_stmt));
+
+  data_reference_p dr = STMT_VINFO_DATA_REF (vinfo_for_stmt (first_stmt));
+  if (! vect_compute_data_ref_alignment (dr)
+      /* For creating the data-ref pointer we need alignment of the
+	 first element anyway.  */
+      || (dr != first_dr
+	  && ! vect_compute_data_ref_alignment (first_dr))
+      || ! verify_data_ref_alignment (dr))
+    {
+      if (dump_enabled_p ())
+	dump_printf_loc (MSG_MISSED_OPTIMIZATION, vect_location,
+			 "not vectorized: bad data alignment in basic "
+			 "block.\n");
+      return false;
+    }
+
+  return true;
+}
+
+/* Function vect_slp_analyze_instance_alignment
+
+   Analyze the alignment of the data-references in the SLP instance.
+   Return FALSE if a data reference is found that cannot be vectorized.  */
+
+bool
+vect_slp_analyze_and_verify_instance_alignment (slp_instance instance)
+{
+  if (dump_enabled_p ())
+    dump_printf_loc (MSG_NOTE, vect_location,
+                     "=== vect_slp_analyze_and_verify_instance_alignment ===\n");
+
+  slp_tree node;
+  unsigned i;
+  FOR_EACH_VEC_ELT (SLP_INSTANCE_LOADS (instance), i, node)
+    if (! vect_slp_analyze_and_verify_node_alignment (node))
+      return false;
+
+  node = SLP_INSTANCE_TREE (instance);
+  if (STMT_VINFO_DATA_REF (vinfo_for_stmt (SLP_TREE_SCALAR_STMTS (node)[0]))
+      && ! vect_slp_analyze_and_verify_node_alignment
+	     (SLP_INSTANCE_TREE (instance)))
+    return false;
 
   return true;
 }
@@ -2342,7 +2456,10 @@ vect_analyze_group_access_1 (struct data_reference *dr)
       dr_step = tree_to_shwi (step);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* Check that STEP is a multiple of type size.  Otherwise there is
          a non-element-sized gap at the end of the group which we
 	 cannot represent in GROUP_GAP or GROUP_SIZE.
@@ -2364,9 +2481,12 @@ vect_analyze_group_access_1 (struct data_reference *dr)
 	    }
 	  return false;
 	}
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       groupsize = absu_hwi (dr_step) / type_size;
     }
   else
@@ -2397,6 +2517,7 @@ vect_analyze_group_access_1 (struct data_reference *dr)
 	      dump_printf (MSG_NOTE, "\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	    }
@@ -2419,6 +2540,8 @@ vect_analyze_group_access_1 (struct data_reference *dr)
               LOOP_VINFO_PEELING_FOR_GAPS (loop_vinfo) = true;
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 	    }
 
 	  return true;
@@ -2578,6 +2701,7 @@ vect_analyze_group_access_1 (struct data_reference *dr)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       /* If there is a gap in the end of the group or the group size cannot
          be made a multiple of the vector element count then we access excess
 	 elements in the last iteration and thus need to peel that off.  */
@@ -2617,6 +2741,16 @@ vect_analyze_group_access_1 (struct data_reference *dr)
    interleaving, and other special cases. Set grouped access info.
    Collect groups of strided stores for further use in SLP analysis.  */
 
+=======
+  return true;
+}
+
+/* Analyze groups of accesses: check that DR belongs to a group of
+   accesses of legal size, step, etc.  Detect gaps, single element
+   interleaving, and other special cases. Set grouped access info.
+   Collect groups of strided stores for further use in SLP analysis.  */
+
+>>>>>>> gcc-mirror/trunk
 static bool
 vect_analyze_group_access (struct data_reference *dr)
 {
@@ -2638,6 +2772,7 @@ vect_analyze_group_access (struct data_reference *dr)
   return true;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2670,6 +2805,8 @@ vect_analyze_group_access (struct data_reference *dr)
 
 =======
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Analyze the access pattern of the data-reference DR.
    In case of non-consecutive accesses call vect_analyze_group_access() to
    analyze groups of accesses.  */
@@ -3000,6 +3137,7 @@ vect_analyze_data_ref_accesses (vec_info *vinfo)
 	  HOST_WIDE_INT type_size_a = tree_to_uhwi (sza);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  if ((init_b - init_a) % type_size_a != 0)
@@ -3007,6 +3145,10 @@ vect_analyze_data_ref_accesses (vec_info *vinfo)
 	  if (type_size_a == 0
 	      || (init_b - init_a) % type_size_a != 0)
 >>>>>>> gcc-mirror/master
+=======
+	  if (type_size_a == 0
+	      || (init_b - init_a) % type_size_a != 0)
+>>>>>>> gcc-mirror/trunk
 	    break;
 
 	  /* If we have a store, the accesses are adjacent.  This splits
@@ -3214,6 +3356,7 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 
      load_ptr_0 < load_ptr_1  &&
      load_ptr_1 - load_ptr_0 - load_segment_length_0 < store_segment_length_0
+<<<<<<< HEAD
 
      (this condition means, in each iteration of vectorized loop,
      the accessed memory of store_ptr_0 cannot be between the memory
@@ -3223,12 +3366,20 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 =======
 >>>>>>> master
 
+=======
+
+     (this condition means, in each iteration of vectorized loop,
+     the accessed memory of store_ptr_0 cannot be between the memory
+     of load_ptr_0 and load_ptr_1.)
+
+>>>>>>> gcc-mirror/trunk
      we then can use only the following expression to finish the
      alising checks between store_ptr_0 & load_ptr_0 and
      store_ptr_0 & load_ptr_1:
 
      ((store_ptr_0 + store_segment_length_0) <= load_ptr_0)
      || (load_ptr_1 + load_segment_length_1 <= store_ptr_0))
+<<<<<<< HEAD
 <<<<<<< HEAD
 
      Note that we only consider that load_ptr_0 and load_ptr_1 have the
@@ -3248,15 +3399,21 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 =======
 
 >>>>>>> master
+=======
+
+>>>>>>> gcc-mirror/trunk
      Note that we only consider that load_ptr_0 and load_ptr_1 have the
      same basic address.  */
 
   comp_alias_ddrs.create (may_alias_ddrs.length ());
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* First, we collect all data ref pairs for aliasing checks.  */
   FOR_EACH_VEC_ELT (may_alias_ddrs, i, ddr)
     {
@@ -3274,6 +3431,9 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 	  dr_a = STMT_VINFO_DATA_REF (vinfo_for_stmt (stmt_a));
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
       dr_b = DDR_B (ddr);
       stmt_b = DR_STMT (DDR_B (ddr));
@@ -3283,6 +3443,7 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 	  stmt_b = dr_group_first_b;
 	  dr_b = STMT_VINFO_DATA_REF (vinfo_for_stmt (stmt_b));
 	}
+<<<<<<< HEAD
 
       if (!operand_equal_p (DR_STEP (dr_a), DR_STEP (dr_b), 0))
 	length_factor = scalar_loop_iters;
@@ -3417,6 +3578,86 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 				- tree_to_shwi (dr_a1->offset));
 
 
+=======
+
+      if (!operand_equal_p (DR_STEP (dr_a), DR_STEP (dr_b), 0))
+	length_factor = scalar_loop_iters;
+      else
+	length_factor = size_int (vect_factor);
+      segment_length_a = vect_vfa_segment_size (dr_a, length_factor);
+      segment_length_b = vect_vfa_segment_size (dr_b, length_factor);
+
+      dr_with_seg_len_pair_t dr_with_seg_len_pair
+	  (dr_with_seg_len (dr_a, segment_length_a),
+	   dr_with_seg_len (dr_b, segment_length_b));
+
+      if (compare_tree (DR_BASE_ADDRESS (dr_a), DR_BASE_ADDRESS (dr_b)) > 0)
+	std::swap (dr_with_seg_len_pair.first, dr_with_seg_len_pair.second);
+
+      comp_alias_ddrs.safe_push (dr_with_seg_len_pair);
+    }
+
+  /* Second, we sort the collected data ref pairs so that we can scan
+     them once to combine all possible aliasing checks.  */
+  comp_alias_ddrs.qsort (comp_dr_with_seg_len_pair);
+
+  /* Third, we scan the sorted dr pairs and check if we can combine
+     alias checks of two neighbouring dr pairs.  */
+  for (size_t i = 1; i < comp_alias_ddrs.length (); ++i)
+    {
+      /* Deal with two ddrs (dr_a1, dr_b1) and (dr_a2, dr_b2).  */
+      dr_with_seg_len *dr_a1 = &comp_alias_ddrs[i-1].first,
+		      *dr_b1 = &comp_alias_ddrs[i-1].second,
+		      *dr_a2 = &comp_alias_ddrs[i].first,
+		      *dr_b2 = &comp_alias_ddrs[i].second;
+
+      /* Remove duplicate data ref pairs.  */
+      if (*dr_a1 == *dr_a2 && *dr_b1 == *dr_b2)
+	{
+	  if (dump_enabled_p ())
+	    {
+	      dump_printf_loc (MSG_NOTE, vect_location,
+			       "found equal ranges ");
+	      dump_generic_expr (MSG_NOTE, TDF_SLIM,
+				 DR_REF (dr_a1->dr));
+	      dump_printf (MSG_NOTE,  ", ");
+	      dump_generic_expr (MSG_NOTE, TDF_SLIM,
+				 DR_REF (dr_b1->dr));
+	      dump_printf (MSG_NOTE,  " and ");
+	      dump_generic_expr (MSG_NOTE, TDF_SLIM,
+				 DR_REF (dr_a2->dr));
+	      dump_printf (MSG_NOTE,  ", ");
+	      dump_generic_expr (MSG_NOTE, TDF_SLIM,
+				 DR_REF (dr_b2->dr));
+	      dump_printf (MSG_NOTE, "\n");
+	    }
+
+	  comp_alias_ddrs.ordered_remove (i--);
+	  continue;
+	}
+
+      if (*dr_a1 == *dr_a2 || *dr_b1 == *dr_b2)
+	{
+	  /* We consider the case that DR_B1 and DR_B2 are same memrefs,
+	     and DR_A1 and DR_A2 are two consecutive memrefs.  */
+	  if (*dr_a1 == *dr_a2)
+	    {
+	      std::swap (dr_a1, dr_b1);
+	      std::swap (dr_a2, dr_b2);
+	    }
+
+	  if (!operand_equal_p (DR_BASE_ADDRESS (dr_a1->dr),
+				DR_BASE_ADDRESS (dr_a2->dr),
+				0)
+	      || !tree_fits_shwi_p (dr_a1->offset)
+	      || !tree_fits_shwi_p (dr_a2->offset))
+	    continue;
+
+	  HOST_WIDE_INT diff = (tree_to_shwi (dr_a2->offset)
+				- tree_to_shwi (dr_a1->offset));
+
+
+>>>>>>> gcc-mirror/trunk
 	  /* Now we check if the following condition is satisfied:
 
 	     DIFF - SEGMENT_LENGTH_A < SEGMENT_LENGTH_B
@@ -3462,12 +3703,16 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
 	      dr_a1->seg_len = size_binop (PLUS_EXPR,
 					   dr_a2->seg_len, size_int (diff));
 	      comp_alias_ddrs.ordered_remove (i--);
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    }
 
 	  comp_alias_ddrs.ordered_remove (i--);
 	  continue;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -3598,6 +3843,10 @@ vect_prune_runtime_alias_test_list (loop_vec_info loop_vinfo)
     return false;
 >>>>>>> master
 
+=======
+    }
+
+>>>>>>> gcc-mirror/trunk
   dump_printf_loc (MSG_NOTE, vect_location,
 		   "improved number of alias checks from %d to %d\n",
 		   may_alias_ddrs.length (), comp_alias_ddrs.length ());
@@ -3866,6 +4115,7 @@ vect_analyze_data_refs (vec_info *vinfo, int *min_vf)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       bool gather = false;
 =======
       enum { SG_NONE, GATHER, SCATTER } gatherscatter = SG_NONE;
@@ -3876,6 +4126,9 @@ vect_analyze_data_refs (vec_info *vinfo, int *min_vf)
 =======
       enum { SG_NONE, GATHER, SCATTER } gatherscatter = SG_NONE;
 >>>>>>> master
+=======
+      enum { SG_NONE, GATHER, SCATTER } gatherscatter = SG_NONE;
+>>>>>>> gcc-mirror/trunk
       bool simd_lane_access = false;
       int vf;
 
@@ -3915,6 +4168,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	      && !TREE_THIS_VOLATILE (DR_REF (dr))
 	      && targetm.vectorize.builtin_gather != NULL;
 	  bool maybe_simd_lane_access
@@ -3933,15 +4187,20 @@ again:
 =======
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	      && !TREE_THIS_VOLATILE (DR_REF (dr))
 	      && targetm.vectorize.builtin_gather != NULL;
 	  bool maybe_scatter
 	    = DR_IS_WRITE (dr)
 	      && !TREE_THIS_VOLATILE (DR_REF (dr))
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	      && targetm.vectorize.builtin_scatter != NULL;
 	  bool maybe_simd_lane_access
 	    = is_a <loop_vec_info> (vinfo) && loop->simduid;
@@ -3952,11 +4211,14 @@ again:
 	      && (maybe_gather || maybe_scatter || maybe_simd_lane_access)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	      && !nested_in_vect_loop_p (loop, stmt))
 	    {
 	      struct data_reference *newdr
@@ -3978,6 +4240,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			  && host_integerp (TREE_OPERAND (off, 1), 1))
 =======
 			  && tree_fits_uhwi_p (TREE_OPERAND (off, 1)))
@@ -3988,6 +4251,9 @@ again:
 =======
 			  && tree_fits_uhwi_p (TREE_OPERAND (off, 1)))
 >>>>>>> master
+=======
+			  && tree_fits_uhwi_p (TREE_OPERAND (off, 1)))
+>>>>>>> gcc-mirror/trunk
 			{
 			  tree step = TREE_OPERAND (off, 1);
 			  off = TREE_OPERAND (off, 0);
@@ -4002,6 +4268,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			      gimple def = SSA_NAME_DEF_STMT (off);
 			      tree reft = TREE_TYPE (DR_REF (newdr));
 			      if (gimple_call_internal_p (def)
@@ -4012,6 +4279,8 @@ again:
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 			      gimple *def = SSA_NAME_DEF_STMT (off);
 			      tree reft = TREE_TYPE (DR_REF (newdr));
 			      if (is_gimple_call (def)
@@ -4020,11 +4289,14 @@ again:
 				      == IFN_GOMP_SIMD_LANE))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 				{
 				  tree arg = gimple_call_arg (def, 0);
 				  gcc_assert (TREE_CODE (arg) == SSA_NAME);
@@ -4040,6 +4312,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 				      DR_ALIGNED_TO (newdr)
 					= size_int (BIGGEST_ALIGNMENT);
@@ -4052,6 +4325,10 @@ again:
 				      DR_ALIGNED_TO (newdr)
 					= size_int (BIGGEST_ALIGNMENT);
 >>>>>>> master
+=======
+				      DR_ALIGNED_TO (newdr)
+					= size_int (BIGGEST_ALIGNMENT);
+>>>>>>> gcc-mirror/trunk
 				      dr = newdr;
 				      simd_lane_access = true;
 				    }
@@ -4059,6 +4336,7 @@ again:
 			    }
 			}
 		    }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4115,12 +4393,26 @@ again:
 			gatherscatter = SCATTER;
 		    }
 		}
+=======
+		  if (!simd_lane_access && (maybe_gather || maybe_scatter))
+		    {
+		      dr = newdr;
+		      if (maybe_gather)
+			gatherscatter = GATHER;
+		      else
+			gatherscatter = SCATTER;
+		    }
+		}
+>>>>>>> gcc-mirror/trunk
 	      if (gatherscatter == SG_NONE && !simd_lane_access)
 		free_data_ref (newdr);
 	    }
 
 	  if (gatherscatter == SG_NONE && !simd_lane_access)
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    {
 	      if (dump_enabled_p ())
 		{
@@ -4151,6 +4443,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4161,6 +4454,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    free_data_ref (dr);
 	  return false;
         }
@@ -4198,6 +4494,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4208,6 +4505,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    free_data_ref (dr);
           return false;
         }
@@ -4230,6 +4530,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4240,6 +4541,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    free_data_ref (dr);
           return false;
 	}
@@ -4267,6 +4571,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4277,6 +4582,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    free_data_ref (dr);
 	  return false;
 	}
@@ -4426,6 +4734,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4436,6 +4745,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    free_data_ref (dr);
           return false;
         }
@@ -4447,6 +4759,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  free_data_ref (datarefs[i]);
 >>>>>>> gcc-mirror/master
@@ -4456,6 +4769,9 @@ again:
 =======
 	  free_data_ref (datarefs[i]);
 >>>>>>> master
+=======
+	  free_data_ref (datarefs[i]);
+>>>>>>> gcc-mirror/trunk
 	  datarefs[i] = dr;
 	}
 
@@ -4487,6 +4803,7 @@ again:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  if (gather || simd_lane_access)
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
@@ -4497,6 +4814,9 @@ again:
 =======
 	  if (gatherscatter != SG_NONE || simd_lane_access)
 >>>>>>> master
+=======
+	  if (gatherscatter != SG_NONE || simd_lane_access)
+>>>>>>> gcc-mirror/trunk
 	    {
 	      STMT_VINFO_DATA_REF (stmt_info) = NULL;
 	      if (gatherscatter != SG_NONE)

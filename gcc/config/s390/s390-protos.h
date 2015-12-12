@@ -54,7 +54,10 @@ extern int s390_cannot_change_mode_class (machine_mode, machine_mode,
 extern bool s390_function_arg_vector (machine_mode, const_tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #if S390_USE_TARGET_ATTRIBUTE
 extern tree s390_valid_target_attribute_tree (tree args,
 					      struct gcc_options *opts,
@@ -68,9 +71,12 @@ extern void
 s390_asm_declare_function_size (FILE *asm_out_file,
 				const char *fnname ATTRIBUTE_UNUSED, tree decl);
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 #ifdef RTX_CODE
 extern int s390_extra_constraint_str (rtx, int, const char *);

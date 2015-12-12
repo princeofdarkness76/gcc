@@ -20,6 +20,7 @@ load_lib g++-dg.exp
 load_lib cilk-plus-dg.exp
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 dg-init
@@ -59,6 +60,12 @@ if { ![check_effective_target_cilkplus] } {
     return;
 }
 >>>>>>> master
+=======
+
+if { ![check_effective_target_cilkplus] } {
+    return;
+}
+>>>>>>> gcc-mirror/trunk
 
 dg-init
 if [cilkplus_init] {

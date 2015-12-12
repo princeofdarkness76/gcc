@@ -2638,6 +2638,7 @@ package body Osint is
       --  want to print non-Source files, like GNAT-TEMP-000001.TMP used to
       --  pass information from gprbuild to gcc. We don't want to save runtime
       --  file names, because we don't want users to send them in bug reports.
+<<<<<<< HEAD
 
       if T = Source then
          declare
@@ -2648,10 +2649,19 @@ package body Osint is
 =======
 >>>>>>> master
 
+=======
+
+      if T = Source then
+         declare
+            Name : String renames Name_Buffer (1 .. Name_Len);
+            Inc  : String renames Include_Dir_Default_Prefix.all;
+
+>>>>>>> gcc-mirror/trunk
             Part_Of_Runtimes : constant Boolean :=
               Inc /= ""
                 and then Inc'Length < Name_Len
                 and then Name_Buffer (1 .. Inc'Length) = Inc;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -2668,12 +2678,18 @@ package body Osint is
             end if;
 
 =======
+=======
+
+>>>>>>> gcc-mirror/trunk
          begin
             if Debug.Debug_Flag_Dot_N then
                Write_Line (Name);
             end if;
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
             if not Part_Of_Runtimes then
                File_Name_Chars.Append_All (File_Name_Chars.Table_Type (Name));
                File_Name_Chars.Append (ASCII.LF);

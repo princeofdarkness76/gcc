@@ -314,6 +314,7 @@ vect_recog_dot_prod_pattern (vec<gimple *> *stmts, tree *type_in,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
 	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
@@ -321,6 +322,11 @@ vect_recog_dot_prod_pattern (vec<gimple *> *stmts, tree *type_in,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
+	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
+	return NULL;
+>>>>>>> gcc-mirror/trunk
       oprnd0 = gimple_assign_rhs1 (last_stmt);
       oprnd1 = gimple_assign_rhs2 (last_stmt);
       if (!types_compatible_p (TREE_TYPE (oprnd0), type)
@@ -542,6 +548,7 @@ vect_recog_sad_pattern (vec<gimple *> *stmts, tree *type_in,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
 	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
@@ -549,6 +556,11 @@ vect_recog_sad_pattern (vec<gimple *> *stmts, tree *type_in,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
+	  && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
+	return NULL;
+>>>>>>> gcc-mirror/trunk
       plus_oprnd0 = gimple_assign_rhs1 (last_stmt);
       plus_oprnd1 = gimple_assign_rhs2 (last_stmt);
       if (!types_compatible_p (TREE_TYPE (plus_oprnd0), sum_type)
@@ -1076,6 +1088,7 @@ vect_recog_pow_pattern (vec<gimple *> *stmts, tree *type_in,
       *type_in = get_vectype_for_scalar_type (TREE_TYPE (base));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (*type_in && direct_internal_fn_supported_p (IFN_SQRT, *type_in))
 =======
       if (*type_in
@@ -1085,6 +1098,11 @@ vect_recog_pow_pattern (vec<gimple *> *stmts, tree *type_in,
 =======
       if (*type_in && direct_internal_fn_supported_p (IFN_SQRT, *type_in))
 >>>>>>> master
+=======
+      if (*type_in
+	  && direct_internal_fn_supported_p (IFN_SQRT, *type_in,
+					     OPTIMIZE_FOR_SPEED))
+>>>>>>> gcc-mirror/trunk
 	{
 	  gcall *stmt = gimple_build_call_internal (IFN_SQRT, 1, base);
 	  var = vect_recog_temp_ssa_var (TREE_TYPE (base), stmt);
@@ -1180,7 +1198,10 @@ vect_recog_widen_sum_pattern (vec<gimple *> *stmts, tree *type_in,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (STMT_VINFO_DEF_TYPE (stmt_vinfo) != vect_reduction_def
       && ! STMT_VINFO_GROUP_FIRST_ELEMENT (stmt_vinfo))
     return NULL;

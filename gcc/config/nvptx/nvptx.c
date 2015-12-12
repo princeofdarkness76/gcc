@@ -72,6 +72,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 #define SHUFFLE_UP 0
@@ -80,6 +81,8 @@
 #define SHUFFLE_IDX 3
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* The kind of shuffe instruction.  */
 enum nvptx_shuffle_kind
 {
@@ -108,9 +111,12 @@ enum nvptx_data_area
 		    & 7)
 #define SET_SYMBOL_DATA_AREA(SYM,AREA) \
   (SYMBOL_REF_FLAGS (SYM) |= (AREA) << SYMBOL_FLAG_MACH_DEP_SHIFT)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Record the function decls we've written, and the libfuncs and function
    decls corresponding to them.  */
@@ -188,6 +194,7 @@ nvptx_option_override (void)
   worker_bcast_sym = gen_rtx_SYMBOL_REF (Pmode, worker_bcast_name);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   worker_bcast_align = GET_MODE_ALIGNMENT (SImode) / BITS_PER_UNIT;
@@ -215,6 +222,8 @@ nvptx_underlying_object_mode (rtx obj)
 
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   SET_SYMBOL_DATA_AREA (worker_bcast_sym, DATA_AREA_SHARED);
   worker_bcast_align = GET_MODE_ALIGNMENT (SImode) / BITS_PER_UNIT;
 
@@ -223,9 +232,12 @@ nvptx_underlying_object_mode (rtx obj)
   worker_red_align = GET_MODE_ALIGNMENT (SImode) / BITS_PER_UNIT;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Return a ptx type for MODE.  If PROMOTE, then use .u32 for QImode to
    deal with ptx ideosyncracies.  */
 
@@ -260,6 +272,7 @@ nvptx_ptx_type_from_mode (machine_mode mode, bool promote)
     }
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -297,6 +310,8 @@ nvptx_split_reg_p (machine_mode mode)
   return false;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Encode the PTX data area that DECL (which might not actually be a
    _DECL) should reside in.  */
 
@@ -404,9 +419,12 @@ output_reg (FILE *file, unsigned regno, machine_mode inner_mode,
       if (subreg_offset == -1)
 	fprintf (file, "}");
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Emit forking instructions for MASK.  */
@@ -474,6 +492,7 @@ arg_promotion (machine_mode mode)
   return mode;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -762,6 +781,8 @@ nvptx_record_needed_fndecl (tree decl)
 }
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Implement TARGET_FUNCTION_ARG.  */
 
 static rtx
@@ -1260,6 +1281,7 @@ nvptx_record_libfunc (rtx callee, rtx retval, rtx pat)
 /* DECL is an external FUNCTION_DECL, that we're referencing.  If it
    is prototyped, record it now.  Otherwise record it as needed at end
    of compilation, when we might have more information about it.  */
+<<<<<<< HEAD
 =======
   tree *slot = declared_fndecls_htab->find_slot (decl, INSERT);
   if (*slot == NULL)
@@ -1276,11 +1298,16 @@ nvptx_record_libfunc (rtx callee, rtx retval, rtx pat)
    record it for later in case we have no argument information at this
    point.  */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 void
 nvptx_record_needed_fndecl (tree decl)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
   if (TYPE_ARG_TYPES (TREE_TYPE (decl)) == NULL_TREE)
     {
       tree *slot = needed_fndecls_htab->find_slot (decl, INSERT);
@@ -1303,6 +1330,7 @@ nvptx_maybe_record_fnsym (rtx sym)
     nvptx_record_needed_fndecl (decl);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   if (nvptx_record_fndecl (decl))
@@ -1314,6 +1342,8 @@ nvptx_maybe_record_fnsym (rtx sym)
 }
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Emit code to initialize the REGNO predicate register to indicate
    whether we are not lane zero on the NAME axis.  */
 
@@ -1336,6 +1366,7 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 {
   tree fntype = TREE_TYPE (decl);
   tree result_type = TREE_TYPE (fntype);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1389,6 +1420,8 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   int argno = 0;
 
   /* We construct the initial part of the function into a string
@@ -1429,9 +1462,12 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
   fprintf (file, "\t.reg.u%d %s;\n", GET_MODE_BITSIZE (Pmode),
 	   reg_names[OUTGOING_STATIC_CHAIN_REGNUM]);
   
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Declare the pseudos we have as ptx registers.  */
   int maxregs = max_reg_num ();
   for (int i = LAST_VIRTUAL_REGISTER + 1; i < maxregs; i++)
@@ -1439,6 +1475,7 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
       if (regno_reg_rtx[i] != const0_rtx)
 	{
 	  machine_mode mode = PSEUDO_REGNO_MODE (i);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1457,6 +1494,8 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 		     i);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  machine_mode split = maybe_split_mode (mode);
 
 	  if (split != VOIDmode)
@@ -1464,9 +1503,12 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 	  fprintf (file, "\t.reg%s ", nvptx_ptx_type_from_mode (mode, true));
 	  output_reg (file, i, split, -2);
 	  fprintf (file, ";\n");
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	}
     }
 
@@ -1480,6 +1522,7 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
   if (cfun->machine->has_call_with_varargs)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     fprintf (file, "\t.reg.u%d %%outargs;\n"
@@ -1491,6 +1534,8 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 	     BITS_PER_WORD, cfun->machine->punning_buffer_size);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     {
       fprintf (file, "\t.reg.u%d %%outargs;\n"
 	       "\t.local.align 8 .b8 %%outargs_ar["
@@ -1499,9 +1544,12 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
       fprintf (file, "\tcvta.local.u%d %%outargs, %%outargs_ar;\n",
 	       BITS_PER_WORD);
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Declare a local variable for the frame.  */
   sz = get_frame_size ();
@@ -1516,6 +1564,7 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 	       BITS_PER_WORD);
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1542,6 +1591,8 @@ nvptx_declare_function_name (FILE *file, const char *name, const_tree decl)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* Emit axis predicates. */
   if (cfun->machine->axis_predicate[0])
     nvptx_init_axis_predicate (file,
@@ -1569,6 +1620,7 @@ nvptx_output_return (void)
   return "ret;";
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2028,6 +2080,88 @@ nvptx_static_chain (const_tree fndecl, bool incoming_p)
 
 <<<<<<< HEAD
 =======
+=======
+/* Terminate a function by writing a closing brace to FILE.  */
+
+void
+nvptx_function_end (FILE *file)
+{
+  fprintf (file, "}\n");
+}
+
+/* Decide whether we can make a sibling call to a function.  For ptx, we
+   can't.  */
+
+static bool
+nvptx_function_ok_for_sibcall (tree, tree)
+{
+  return false;
+}
+
+/* Return Dynamic ReAlignment Pointer RTX.  For PTX there isn't any.  */
+
+static rtx
+nvptx_get_drap_rtx (void)
+{
+  return NULL_RTX;
+}
+
+/* Implement the TARGET_CALL_ARGS hook.  Record information about one
+   argument to the next call.  */
+
+static void
+nvptx_call_args (rtx arg, tree funtype)
+{
+  if (cfun->machine->start_call == NULL_RTX)
+    {
+      cfun->machine->call_args = NULL;
+      cfun->machine->funtype = funtype;
+      cfun->machine->start_call = const0_rtx;
+    }
+  if (arg == pc_rtx)
+    return;
+
+  rtx_expr_list *args_so_far = cfun->machine->call_args;
+  if (REG_P (arg))
+    cfun->machine->call_args = alloc_EXPR_LIST (VOIDmode, arg, args_so_far);
+}
+
+/* Implement the corresponding END_CALL_ARGS hook.  Clear and free the
+   information we recorded.  */
+
+static void
+nvptx_end_call_args (void)
+{
+  cfun->machine->start_call = NULL_RTX;
+  free_EXPR_LIST_list (&cfun->machine->call_args);
+}
+
+/* Emit the sequence for a call to ADDRESS, setting RETVAL.  Keep
+   track of whether calls involving static chains or varargs were seen
+   in the current function.
+   For libcalls, maintain a hash table of decls we have seen, and
+   record a function decl for later when encountering a new one.  */
+
+void
+nvptx_expand_call (rtx retval, rtx address)
+{
+  int nargs = 0;
+  rtx callee = XEXP (address, 0);
+  rtx pat, t;
+  rtvec vec;
+  rtx varargs = NULL_RTX;
+  unsigned parallel = 0;
+
+  for (t = cfun->machine->call_args; t; t = XEXP (t, 1))
+    nargs++;
+
+  if (!call_insn_operand (callee, Pmode))
+    {
+      callee = force_reg (Pmode, callee);
+      address = change_address (address, QImode, callee);
+    }
+
+>>>>>>> gcc-mirror/trunk
   if (GET_CODE (callee) == SYMBOL_REF)
     {
       tree decl = SYMBOL_REF_DECL (callee);
@@ -2102,9 +2236,12 @@ nvptx_static_chain (const_tree fndecl, bool incoming_p)
   if (tmp_retval != retval)
     emit_move_insn (retval, tmp_retval);
 }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Emit a comparison COMPARE, and return the new test to be used in the
    jump.  */
 
@@ -2180,6 +2317,7 @@ nvptx_gen_pack (rtx dst, rtx src0, rtx src1)
 static rtx
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 nvptx_gen_shuffle (rtx dst, rtx src, rtx idx, unsigned kind)
 =======
 nvptx_gen_shuffle (rtx dst, rtx src, rtx idx, nvptx_shuffle_kind kind)
@@ -2187,6 +2325,9 @@ nvptx_gen_shuffle (rtx dst, rtx src, rtx idx, nvptx_shuffle_kind kind)
 =======
 nvptx_gen_shuffle (rtx dst, rtx src, rtx idx, unsigned kind)
 >>>>>>> master
+=======
+nvptx_gen_shuffle (rtx dst, rtx src, rtx idx, nvptx_shuffle_kind kind)
+>>>>>>> gcc-mirror/trunk
 {
   rtx res;
 
@@ -2337,6 +2478,7 @@ nvptx_gen_wcast (rtx reg, propagate_mask pm, unsigned rep, wcast_data_t *data)
 /* When loading an operand ORIG_OP, verify whether an address space
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
    conversion to generic is required, and if so, perform it.  Also
@@ -2378,6 +2520,8 @@ nvptx_maybe_convert_symbolic_operand (rtx orig_op)
 						code)));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
    conversion to generic is required, and if so, perform it.  Check
    for SYMBOL_REFs and record them if needed.  Return either the
    original operand, or the converted one.  */
@@ -2407,9 +2551,12 @@ nvptx_maybe_convert_symbolic_operand (rtx op)
   emit_insn (gen_rtx_SET (dest,
 			  gen_rtx_UNSPEC (Pmode, gen_rtvec (1, op),
 					  UNSPEC_TO_GENERIC)));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return dest;
 }
 
@@ -2452,6 +2599,7 @@ nvptx_hard_regno_mode_ok (int regno, machine_mode mode)
   return mode == cfun->machine->ret_reg_mode;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2587,6 +2735,8 @@ nvptx_assemble_value (HOST_WIDE_INT val, unsigned int size)
       chunk_offset = 0;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Machinery to output constant initializers.  When beginning an
    initializer, we decide on a fragment size (which is visible in ptx
    in the type used), and then all initializer data is buffered until
@@ -2651,9 +2801,12 @@ nvptx_assemble_value (unsigned HOST_WIDE_INT val, unsigned size)
 
       if (init_frag.offset == init_frag.size)
 	output_init_frag (NULL);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 }
 
@@ -2662,6 +2815,7 @@ nvptx_assemble_value (unsigned HOST_WIDE_INT val, unsigned size)
 static bool
 nvptx_assemble_integer (rtx x, unsigned int size, int ARG_UNUSED (aligned_p))
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2710,6 +2864,8 @@ nvptx_assemble_integer (rtx x, unsigned int size, int ARG_UNUSED (aligned_p))
   nvptx_assemble_value (val, size);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   HOST_WIDE_INT val = 0;
 
   switch (GET_CODE (x))
@@ -2742,9 +2898,12 @@ nvptx_assemble_integer (rtx x, unsigned int size, int ARG_UNUSED (aligned_p))
       break;
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return true;
 }
 
@@ -2755,6 +2914,7 @@ nvptx_assemble_integer (rtx x, unsigned int size, int ARG_UNUSED (aligned_p))
 void
 nvptx_output_skip (FILE *, unsigned HOST_WIDE_INT size)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2776,6 +2936,8 @@ nvptx_output_skip (FILE *, unsigned HOST_WIDE_INT size)
     nvptx_assemble_value (0, 1);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* Finish the current fragment, if it's started.  */
   if (init_frag.offset)
     {
@@ -2798,9 +2960,12 @@ nvptx_output_skip (FILE *, unsigned HOST_WIDE_INT size)
       if (size)
 	nvptx_assemble_value (0, size);
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Output a string STR with length SIZE.  As in nvptx_output_skip we
@@ -2815,7 +2980,10 @@ nvptx_output_ascii (FILE *, const char *str, unsigned HOST_WIDE_INT size)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 /* Emit a PTX variable decl and prepare for emission of its
    initializer.  NAME is the symbol name and SETION the PTX data
    area. The type is TYPE, object size SIZE and alignment is ALIGN.
@@ -2869,15 +3037,19 @@ nvptx_assemble_decl_begin (FILE *file, const char *name, const char *section,
     fprintf (file, "[" HOST_WIDE_INT_PRINT_DEC "]", init_frag.remaining);
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Called when the initializer for a decl has been completely output through
    combinations of the three functions above.  */
 
 static void
 nvptx_assemble_decl_end (void)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2921,6 +3093,8 @@ init_output_initializer (FILE *file, const char *name, const_tree type,
   object_finished = false;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (init_frag.offset)
     /* This can happen with a packed struct with trailing array member.  */
     nvptx_assemble_value (0, init_frag.size - init_frag.offset);
@@ -2942,9 +3116,12 @@ nvptx_output_aligned_decl (FILE *file, const char *name,
   nvptx_assemble_decl_begin (file, name, section_for_decl (decl),
 			     TREE_TYPE (decl), size, align);
   nvptx_assemble_decl_end ();
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Implement TARGET_ASM_DECLARE_CONSTANT_NAME.  Begin the process of
@@ -2953,6 +3130,7 @@ nvptx_output_aligned_decl (FILE *file, const char *name,
 
 static void
 nvptx_asm_declare_constant_name (FILE *file, const char *name,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2970,6 +3148,8 @@ nvptx_asm_declare_constant_name (FILE *file, const char *name,
   object_size = size;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 				 const_tree exp, HOST_WIDE_INT obj_size)
 {
   write_var_marker (file, true, false, name);
@@ -2979,9 +3159,12 @@ nvptx_asm_declare_constant_name (FILE *file, const char *name,
   tree type = TREE_TYPE (exp);
   nvptx_assemble_decl_begin (file, name, ".const", type, obj_size,
 			     TYPE_ALIGN (type));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Implement the ASM_DECLARE_OBJECT_NAME macro.  Used to start writing
@@ -2990,6 +3173,7 @@ nvptx_asm_declare_constant_name (FILE *file, const char *name,
 void
 nvptx_declare_object_name (FILE *file, const char *name, const_tree decl)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3017,6 +3201,8 @@ nvptx_declare_object_name (FILE *file, const char *name, const_tree decl)
     }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   write_var_marker (file, true, TREE_PUBLIC (decl), name);
 
   fprintf (file, "\t%s", (!TREE_PUBLIC (decl) ? ""
@@ -3026,9 +3212,12 @@ nvptx_declare_object_name (FILE *file, const char *name, const_tree decl)
   HOST_WIDE_INT obj_size = tree_to_shwi (DECL_SIZE_UNIT (decl));
   nvptx_assemble_decl_begin (file, name, section_for_decl (decl),
 			     type, obj_size, DECL_ALIGN (decl));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Implement TARGET_ASM_GLOBALIZE_LABEL by doing nothing.  */
@@ -3040,6 +3229,7 @@ nvptx_globalize_label (FILE *, const char *)
 
 /* Implement TARGET_ASM_ASSEMBLE_UNDEFINED_DECL.  Write an extern
    declaration only for variable DECL with NAME to FILE.  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3062,6 +3252,8 @@ nvptx_assemble_undefined_decl (FILE *file, const char *name, const_tree decl)
   fprintf (file, ";\n\n");
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 static void
 nvptx_assemble_undefined_decl (FILE *file, const char *name, const_tree decl)
@@ -3105,9 +3297,12 @@ nvptx_output_mov_insn (rtx dst, rtx src)
     return "%.\tmov.b%T0\t%0, %1;";
 
   return "%.\tcvt%t0%t1\t%0, %1;";
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Output INSN, which is a call to CALLEE with result RESULT.  For ptx, this
@@ -3119,6 +3314,7 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   char buf[256];
 =======
   char buf[16];
@@ -3126,6 +3322,9 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
 =======
   char buf[256];
 >>>>>>> master
+=======
+  char buf[16];
+>>>>>>> gcc-mirror/trunk
   static int labelno;
   bool needs_tgt = register_operand (callee, Pmode);
   rtx pat = PATTERN (insn);
@@ -3144,16 +3343,22 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
       decl = SYMBOL_REF_DECL (callee);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (decl && DECL_EXTERNAL (decl))
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (!decl
 	  || (DECL_EXTERNAL (decl) && !TYPE_ARG_TYPES (TREE_TYPE (decl))))
 	nvptx_record_libfunc (callee, result, pat);
       else if (DECL_EXTERNAL (decl))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       if (decl && DECL_EXTERNAL (decl))
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	nvptx_record_fndecl (decl);
     }
 
@@ -3163,6 +3368,7 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
       labelno++;
       ASM_OUTPUT_LABEL (asm_out_file, buf);
       std::stringstream s;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3203,6 +3409,8 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
 	}
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       write_fn_proto_from_insn (s, NULL, result, pat);
       fputs (s.str().c_str(), asm_out_file);
     }
@@ -3219,9 +3427,12 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
       fprintf (asm_out_file, "\t\tst.param%s [%%out_arg%d], %%r%d;\n",
 	       nvptx_ptx_type_from_mode (mode, false), argno,
 	       REGNO (t));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   fprintf (asm_out_file, "\t\tcall ");
@@ -3237,6 +3448,7 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
   else
     output_address (VOIDmode, callee);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3266,6 +3478,8 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
     }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   const char *open = "(";
   for (int argno = 1; argno < arg_end; argno++)
     {
@@ -3280,9 +3494,12 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
     }
   if (!open[0])
     fprintf (asm_out_file, ")");
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (needs_tgt)
     {
@@ -3290,6 +3507,7 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
       assemble_name (asm_out_file, buf);
     }
   fprintf (asm_out_file, ";\n");
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3300,6 +3518,8 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
   return "}";
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (find_reg_note (insn, REG_NORETURN, NULL))
     /* No return functions confuse the PTX JIT, as it doesn't realize
@@ -3309,9 +3529,12 @@ nvptx_output_call_insn (rtx_insn *insn, rtx result, rtx callee)
     fprintf (asm_out_file, "\t\ttrap; // (noreturn)\n");
 
   return result != NULL_RTX ? "\tld.param%t0\t%0, [%%retval_in];\n\t}" : "}";
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Implement TARGET_PRINT_OPERAND_PUNCT_VALID_P.  */
@@ -3370,6 +3593,7 @@ nvptx_print_operand_address (FILE *file, machine_mode mode, rtx addr)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    A -- print an address space identifier for a MEM
    c -- print an opcode suffix for a comparison operator, including a type code
    f -- print a full reg even for something that must always be split
@@ -3383,6 +3607,11 @@ nvptx_print_operand_address (FILE *file, machine_mode mode, rtx addr)
    c -- print an opcode suffix for a comparison operator, including a type code
    f -- print a full reg even for something that must always be split
 >>>>>>> master
+=======
+   A -- print a data area for a MEM
+   c -- print an opcode suffix for a comparison operator, including a type code
+   D -- print a data area for a MEM operand
+>>>>>>> gcc-mirror/trunk
    S -- print a shuffle kind specified by CONST_INT
    t -- print a type opcode suffix, promoting QImode to 32 bits
    T -- print a type size in bits
@@ -3391,6 +3620,7 @@ nvptx_print_operand_address (FILE *file, machine_mode mode, rtx addr)
 static void
 nvptx_print_operand (FILE *file, rtx x, int code)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   rtx orig_x = x;
@@ -3403,6 +3633,8 @@ nvptx_print_operand (FILE *file, rtx x, int code)
   machine_mode op_mode;
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   if (code == '.')
     {
       x = current_insn_predicate;
@@ -3426,15 +3658,20 @@ nvptx_print_operand (FILE *file, rtx x, int code)
   enum rtx_code x_code = GET_CODE (x);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   machine_mode mode = GET_MODE (x);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  machine_mode mode = GET_MODE (x);
+>>>>>>> gcc-mirror/trunk
 
   switch (code)
     {
     case 'A':
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3455,6 +3692,8 @@ nvptx_print_operand (FILE *file, rtx x, int code)
       fprintf (file, "%s", nvptx_ptx_type_from_mode (op_mode, false));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       x = XEXP (x, 0);
       /* FALLTHROUGH.  */
 
@@ -3479,13 +3718,17 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	    mode = GET_MODE_INNER (mode);
 	}
       fprintf (file, "%s", nvptx_ptx_type_from_mode (mode, code == 't'));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       break;
 
     case 'S':
       {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3496,18 +3739,24 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	fprintf (file, ".%s", kinds[kind]);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	nvptx_shuffle_kind kind = (nvptx_shuffle_kind) UINTVAL (x);
 	/* Same order as nvptx_shuffle_kind.  */
 	static const char *const kinds[] = 
 	  {".up", ".down", ".bfly", ".idx"};
 	fputs (kinds[kind], file);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       }
       break;
 
     case 'T':
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       fprintf (file, "%d", GET_MODE_BITSIZE (GET_MODE (x)));
@@ -3517,6 +3766,9 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 =======
       fprintf (file, "%d", GET_MODE_BITSIZE (GET_MODE (x)));
 >>>>>>> master
+=======
+      fprintf (file, "%d", GET_MODE_BITSIZE (mode));
+>>>>>>> gcc-mirror/trunk
       break;
 
     case 'j':
@@ -3530,6 +3782,7 @@ nvptx_print_operand (FILE *file, rtx x, int code)
     case 'c':
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       op_mode = GET_MODE (XEXP (x, 0));
 =======
       mode = GET_MODE (XEXP (x, 0));
@@ -3537,12 +3790,16 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 =======
       op_mode = GET_MODE (XEXP (x, 0));
 >>>>>>> master
+=======
+      mode = GET_MODE (XEXP (x, 0));
+>>>>>>> gcc-mirror/trunk
       switch (x_code)
 	{
 	case EQ:
 	  fputs (".eq", file);
 	  break;
 	case NE:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	  if (FLOAT_MODE_P (op_mode))
@@ -3552,6 +3809,9 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 =======
 	  if (FLOAT_MODE_P (op_mode))
 >>>>>>> master
+=======
+	  if (FLOAT_MODE_P (mode))
+>>>>>>> gcc-mirror/trunk
 	    fputs (".neu", file);
 	  else
 	    fputs (".ne", file);
@@ -3609,6 +3869,7 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (FLOAT_MODE_P (op_mode)
@@ -3620,6 +3881,8 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	fprintf (file, ".s%d", GET_MODE_BITSIZE (op_mode));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       if (FLOAT_MODE_P (mode)
 	  || x_code == EQ || x_code == NE
 	  || x_code == GEU || x_code == GTU
@@ -3627,15 +3890,19 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	fputs (nvptx_ptx_type_from_mode (mode, true), file);
       else
 	fprintf (file, ".s%d", GET_MODE_BITSIZE (mode));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       break;
     default:
     common:
       switch (x_code)
 	{
 	case SUBREG:
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -3656,6 +3923,8 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	    }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  {
 	    rtx inner_x = SUBREG_REG (x);
 	    machine_mode inner_mode = GET_MODE (inner_x);
@@ -3671,13 +3940,17 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 
 	case REG:
 	  output_reg (file, REGNO (x), maybe_split_mode (mode));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  break;
 
 	case MEM:
 	  fputc ('[', file);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	  nvptx_print_address_operand (file, XEXP (x, 0), GET_MODE (x));
@@ -3687,6 +3960,9 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 =======
 	  nvptx_print_address_operand (file, XEXP (x, 0), GET_MODE (x));
 >>>>>>> master
+=======
+	  nvptx_print_address_operand (file, XEXP (x, 0), mode);
+>>>>>>> gcc-mirror/trunk
 	  fputc (']', file);
 	  break;
 
@@ -3707,6 +3983,7 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	  long vals[2];
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  real_to_target (vals, CONST_DOUBLE_REAL_VALUE (x), GET_MODE (x));
@@ -3715,13 +3992,18 @@ nvptx_print_operand (FILE *file, rtx x, int code)
 	  if (GET_MODE (x) == SFmode)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  real_to_target (vals, CONST_DOUBLE_REAL_VALUE (x), mode);
 	  vals[0] &= 0xffffffff;
 	  vals[1] &= 0xffffffff;
 	  if (mode == SFmode)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    fprintf (file, "0f%08lx", vals[0]);
 	  else
 	    fprintf (file, "0d%08lx%08lx", vals[1], vals[0]);
@@ -5384,6 +5666,7 @@ nvptx_handle_kernel_attribute (tree *node, tree name, tree ARG_UNUSED (args),
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   else if (TREE_TYPE (TREE_TYPE (decl)) != void_type_node)
 =======
@@ -5393,6 +5676,9 @@ nvptx_handle_kernel_attribute (tree *node, tree name, tree ARG_UNUSED (args),
 
   else if (TREE_TYPE (TREE_TYPE (decl)) != void_type_node)
 >>>>>>> master
+=======
+  else if (!VOID_TYPE_P (TREE_TYPE (TREE_TYPE (decl))))
+>>>>>>> gcc-mirror/trunk
     {
       error ("%qE attribute requires a void return type", name);
       *no_add_attrs = true;
@@ -5515,6 +5801,7 @@ nvptx_file_end (void)
   FOR_EACH_HASH_TABLE_ELEMENT (*needed_fndecls_htab, decl, tree, iter)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     nvptx_record_fndecl (decl, true);
 =======
     nvptx_record_fndecl (decl);
@@ -5522,6 +5809,9 @@ nvptx_file_end (void)
 =======
     nvptx_record_fndecl (decl, true);
 >>>>>>> master
+=======
+    nvptx_record_fndecl (decl);
+>>>>>>> gcc-mirror/trunk
   fputs (func_decls.str().c_str(), asm_out_file);
 
   if (worker_bcast_size)
@@ -5533,6 +5823,7 @@ nvptx_file_end (void)
       
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fprintf (asm_out_file, "\n// BEGIN VAR DEF: %s\n", worker_bcast_name);
 =======
       write_var_marker (asm_out_file, true, false, worker_bcast_name);
@@ -5540,6 +5831,9 @@ nvptx_file_end (void)
 =======
       fprintf (asm_out_file, "\n// BEGIN VAR DEF: %s\n", worker_bcast_name);
 >>>>>>> master
+=======
+      write_var_marker (asm_out_file, true, false, worker_bcast_name);
+>>>>>>> gcc-mirror/trunk
       fprintf (asm_out_file, ".shared .align %d .u8 %s[%d];\n",
 	       worker_bcast_align,
 	       worker_bcast_name, worker_bcast_size);
@@ -5553,6 +5847,7 @@ nvptx_file_end (void)
 			 & ~(worker_red_align - 1));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       
       fprintf (asm_out_file, "\n// BEGIN VAR DEF: %s\n", worker_red_name);
 =======
@@ -5563,6 +5858,10 @@ nvptx_file_end (void)
       
       fprintf (asm_out_file, "\n// BEGIN VAR DEF: %s\n", worker_red_name);
 >>>>>>> master
+=======
+
+      write_var_marker (asm_out_file, true, false, worker_red_name);
+>>>>>>> gcc-mirror/trunk
       fprintf (asm_out_file, ".shared .align %d .u8 %s[%d];\n",
 	       worker_red_align,
 	       worker_red_name, worker_red_size);
@@ -5592,6 +5891,7 @@ nvptx_expand_shuffle (tree exp, rtx target, machine_mode mode, int ignore)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   rtx pat = nvptx_gen_shuffle (target, src, idx, INTVAL (op));
 =======
   rtx pat = nvptx_gen_shuffle (target, src, idx,
@@ -5600,6 +5900,10 @@ nvptx_expand_shuffle (tree exp, rtx target, machine_mode mode, int ignore)
 =======
   rtx pat = nvptx_gen_shuffle (target, src, idx, INTVAL (op));
 >>>>>>> master
+=======
+  rtx pat = nvptx_gen_shuffle (target, src, idx,
+			       (nvptx_shuffle_kind) INTVAL (op));
+>>>>>>> gcc-mirror/trunk
   if (pat)
     emit_insn (pat);
 
@@ -5626,6 +5930,7 @@ nvptx_expand_worker_addr (tree exp, rtx target,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   emit_insn (gen_rtx_SET (target, worker_red_sym));
@@ -5639,6 +5944,8 @@ nvptx_expand_worker_addr (tree exp, rtx target,
 					  UNSPEC_FROM_SHARED)));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   rtx addr = worker_red_sym;
   if (offset)
     {
@@ -5647,9 +5954,12 @@ nvptx_expand_worker_addr (tree exp, rtx target,
     }
 
   emit_move_insn (target, addr);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   return target;
 }
@@ -6516,12 +6826,17 @@ nvptx_goacc_reduction (gcall *call)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef TARGET_ENCODE_SECTION_INFO
 #define TARGET_ENCODE_SECTION_INFO nvptx_encode_section_info
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#undef TARGET_ENCODE_SECTION_INFO
+#define TARGET_ENCODE_SECTION_INFO nvptx_encode_section_info
+>>>>>>> gcc-mirror/trunk
 #undef TARGET_RECORD_OFFLOAD_SYMBOL
 #define TARGET_RECORD_OFFLOAD_SYMBOL nvptx_record_offload_symbol
 

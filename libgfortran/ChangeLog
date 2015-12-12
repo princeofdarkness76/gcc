@@ -1,6 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-05  Juoko Orava <jouko.orava@iki.fi>
 
 	PR fortran/50201
@@ -15,9 +18,12 @@
         * caf/single.c (_gfortran_caf_event_post,
 	_gfortran_caf_event_wait,_gfortran_caf_event_query): Implement.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-11-22  Jerry DeLisle  <jvdelisle@gcc.gnu.org>
 
 	PR libfortran/52251

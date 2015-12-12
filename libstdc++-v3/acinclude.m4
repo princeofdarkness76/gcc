@@ -2630,14 +2630,20 @@ AC_DEFUN([GLIBCXX_ENABLE_VTABLE_VERIFY], [
         ;;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       solaris2*)
         VTV_CXXFLAGS="-fvtable-verify=std -Wl,-u_vtable_map_vars_start,-u_vtable_map_vars_end"
         VTV_CXXLINKFLAGS="-L${toplevel_builddir}/libvtv/.libs -Wl,-R -Wl,${toplevel_builddir}/libvtv/.libs"
         ;;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       *)
         VTV_CXXFLAGS="-fvtable-verify=std -Wl,-u_vtable_map_vars_start,-u_vtable_map_vars_end"
         VTV_CXXLINKFLAGS="-L${toplevel_builddir}/libvtv/.libs -Wl,--rpath -Wl,${toplevel_builddir}/libvtv/.libs"

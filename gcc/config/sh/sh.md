@@ -13746,6 +13746,7 @@ label:
   [(set (match_operand:SF 0 "fp_arith_reg_operand" "=f")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	(div:SF (match_operand:SF 1 "immediate_operand" "i")
@@ -13755,12 +13756,17 @@ label:
   "TARGET_FPU_ANY && TARGET_FSRRA
    && operands[1] == CONST1_RTX (SFmode)"
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	(unspec:SF [(match_operand:SF 1 "fp_arith_reg_operand" "0")]
 		   UNSPEC_FSRRA))
    (clobber (reg:SI FPSCR_STAT_REG))
    (use (reg:SI FPSCR_MODES_REG))]
   "TARGET_FPU_ANY && TARGET_FSRRA"
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
   "fsrra	%0"
   [(set_attr "type" "fsrra")
    (set_attr "fp_mode" "single")])

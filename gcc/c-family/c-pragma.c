@@ -816,17 +816,23 @@ handle_pragma_diagnostic(cpp_reader *ARG_UNUSED(dummy))
   set_default_handlers (&handlers);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   control_warning_option (option_index, (int) kind, kind != DK_IGNORED,
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   const char *arg = NULL;
   if (cl_options[option_index].flags & CL_JOINED)
     arg = option_string + 1 + cl_options[option_index].opt_len;
   control_warning_option (option_index, (int) kind,
 			  arg, kind != DK_IGNORED,
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   control_warning_option (option_index, (int) kind, kind != DK_IGNORED,
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 			  loc, lang_mask, &handlers,
 			  &global_options, &global_options_set,
 			  global_dc);
@@ -1265,11 +1271,15 @@ static const struct omp_pragma_def oacc_pragmas[] = {
   { "exit", PRAGMA_OACC_EXIT_DATA },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   { "host_data", PRAGMA_OACC_HOST_DATA },
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  { "host_data", PRAGMA_OACC_HOST_DATA },
+>>>>>>> gcc-mirror/trunk
   { "kernels", PRAGMA_OACC_KERNELS },
   { "loop", PRAGMA_OACC_LOOP },
   { "parallel", PRAGMA_OACC_PARALLEL },
@@ -1286,6 +1296,7 @@ static const struct omp_pragma_def omp_pragmas[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "declare", PRAGMA_OMP_DECLARE_REDUCTION },
   { "distribute", PRAGMA_OMP_DISTRIBUTE },
 =======
@@ -1294,6 +1305,8 @@ static const struct omp_pragma_def omp_pragmas[] = {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   { "end", PRAGMA_OMP_END_DECLARE_TARGET },
   { "flush", PRAGMA_OMP_FLUSH },
   { "master", PRAGMA_OMP_MASTER },
@@ -1540,6 +1553,7 @@ init_pragma (void)
 				  true, false);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (flag_enable_cilkplus && !flag_preprocess_only)
     {
@@ -1550,6 +1564,8 @@ init_pragma (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (!flag_preprocess_only)
     cpp_register_deferred_pragma (parse_in, "GCC", "pch_preprocess",

@@ -859,11 +859,15 @@ gimplify_cilk_spawn (tree *spawn_p)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   free (arg_array);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  free (arg_array);
+>>>>>>> gcc-mirror/trunk
   return GS_OK;
 }
 

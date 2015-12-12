@@ -324,7 +324,10 @@ inline_call (struct cgraph_edge *e, bool update_original,
       = DECL_FUNCTION_PERSONALITY (callee->decl);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (!opt_for_fn (callee->decl, flag_strict_aliasing)
       && opt_for_fn (to->decl, flag_strict_aliasing))
     {
@@ -340,9 +343,12 @@ inline_call (struct cgraph_edge *e, bool update_original,
       DECL_FUNCTION_SPECIFIC_OPTIMIZATION (to->decl)
 	 = build_optimization_node (&opts);
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* If aliases are involved, redirect edge to the actual destination and
      possibly remove the aliases.  */

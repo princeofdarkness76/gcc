@@ -2,6 +2,7 @@
    which showed jump threading profile insanities.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-Ofast -fdump-tree-dom1-all" } */
 =======
 /* { dg-options "-Ofast -fdump-tree-dom2-all" } */
@@ -9,6 +10,9 @@
 =======
 /* { dg-options "-Ofast -fdump-tree-dom1-all" } */
 >>>>>>> master
+=======
+/* { dg-options "-Ofast -fdump-tree-dom2-all" } */
+>>>>>>> gcc-mirror/trunk
 
 struct rtattr
 {
@@ -82,6 +86,7 @@ main (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom1"} } */
 =======
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
@@ -89,3 +94,6 @@ main (void)
 =======
 /* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom1"} } */
 >>>>>>> master
+=======
+/* { dg-final-use { scan-tree-dump-not "Invalid sum" "dom2"} } */
+>>>>>>> gcc-mirror/trunk

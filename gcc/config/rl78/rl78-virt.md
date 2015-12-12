@@ -43,6 +43,7 @@
 
 (define_insn "*movqi_virt"
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(set (match_operand:QI 0 "nonimmediate_operand" "=vY,v,Wfr")
 	(match_operand    1 "general_operand" "vInt8J,YWfr,vInt8J"))]
 <<<<<<< HEAD
@@ -52,6 +53,10 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  [(set (match_operand:QI 0 "nonimmediate_operand" "=vY,v,*Wfr,Y,*Wfr,*Wfr")
+	(match_operand    1 "general_operand" "vInt8JY,*Wfr,vInt8J,*Wfr,Y,*Wfr"))]
+>>>>>>> gcc-mirror/trunk
   "rl78_virt_insns_ok ()"
   "v.mov %0, %1"
   [(set_attr "valloc" "op1")]
@@ -68,6 +73,7 @@
 (define_insn "*movhi_virt"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(set (match_operand:HI 0 "nonimmediate_operand" "=vS,  Y,   v,   Wfr")
 	(match_operand:HI 1 "general_operand"      "viYS, viS, Wfr, vi"))]
 =======
@@ -78,6 +84,10 @@
   [(set (match_operand:HI 0 "nonimmediate_operand" "=vS,  Y,   v,   Wfr")
 	(match_operand:HI 1 "general_operand"      "viYS, viS, Wfr, vi"))]
 >>>>>>> master
+=======
+  [(set (match_operand:HI 0 "nonimmediate_operand" "=vS,  Y,   v,   *Wfr")
+	(match_operand:HI 1 "general_operand"      "viYS, viS, *Wfr, vi"))]
+>>>>>>> gcc-mirror/trunk
   "rl78_virt_insns_ok ()"
   "v.movw %0, %1"
   [(set_attr "valloc" "op1")]
@@ -109,6 +119,7 @@
 		  (match_operand:QHI 2 "rl78_1_2_operand" "KLNO")))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
    ]
@@ -125,6 +136,8 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
    ]
   "rl78_virt_insns_ok ()"
   "v.inc\t%0, %1, %2"
@@ -141,6 +154,7 @@
 
 (define_insn "*sub<mode>3_virt"
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(set (match_operand:QHI            0 "rl78_nonfar_nonimm_operand" "=vm,S")
 	(minus:QHI (match_operand:QHI 1 "rl78_nonfar_operand" "vim,0")
 		   (match_operand:QHI 2 "rl78_general_operand" "vim,i")))
@@ -152,6 +166,11 @@
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  [(set (match_operand:QHI            0 "rl78_nonimmediate_operand" "=vY, S, *Wfr,  vY")
+	(minus:QHI (match_operand:QHI 1 "rl78_general_operand"      "viY, 0, 0viY, *Wfr")
+		   (match_operand:QHI 2 "rl78_general_operand"      "vim, i, viY,  viY")))
+>>>>>>> gcc-mirror/trunk
    ]
   "rl78_virt_insns_ok () && rl78_one_far_p (operands, 3)"
   "v.sub\t%0, %1, %2"
@@ -178,6 +197,7 @@
 (define_insn "*andqi3_virt"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   [(set (match_operand:QI         0 "rl78_nonimmediate_operand" "=vm")
 	(and:QI (match_operand:QI 1 "rl78_general_operand" "vim")
 		(match_operand:QI 2 "rl78_general_operand" "vim")))
@@ -191,12 +211,18 @@
 	(and:QI (match_operand:QI 1 "rl78_general_operand" "vim")
 		(match_operand:QI 2 "rl78_general_operand" "vim")))
 >>>>>>> master
+=======
+  [(set (match_operand:QI         0 "rl78_nonimmediate_operand" "=vm,  *Wfr,  vY")
+	(and:QI (match_operand:QI 1 "rl78_general_operand"      "%vim, 0viY, *Wfr")
+		(match_operand:QI 2 "rl78_general_operand"      "vim,  viY,  viY")))
+>>>>>>> gcc-mirror/trunk
    ]
   "rl78_virt_insns_ok () && rl78_one_far_p (operands, 3)"
   "v.and\t%0, %1, %2"
 )
 
 (define_insn "*iorqi3_virt"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   [(set (match_operand:QI         0 "rl78_nonimmediate_operand" "=vm")
@@ -212,12 +238,18 @@
 	(ior:QI (match_operand:QI 1 "rl78_general_operand" "vim")
 		(match_operand:QI 2 "rl78_general_operand" "vim")))
 >>>>>>> master
+=======
+  [(set (match_operand:QI         0 "rl78_nonimmediate_operand" "=vm,  *Wfr,  vY")
+	(ior:QI (match_operand:QI 1 "rl78_general_operand"      "%vim, 0viY, *Wfr")
+		(match_operand:QI 2 "rl78_general_operand"      "vim,  viY,  viY")))
+>>>>>>> gcc-mirror/trunk
    ]
   "rl78_virt_insns_ok () && rl78_one_far_p (operands, 3)"
   "v.or\t%0, %1, %2"
 )
 
 (define_insn "*xorqi3_virt"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   [(set (match_operand:QI         0 "rl78_nonfar_nonimm_operand" "=v,vm,m")
@@ -233,6 +265,11 @@
 	(xor:QI (match_operand:QI 1 "rl78_nonfar_operand" "%0,vm,vm")
 		(match_operand    2 "rl78_general_operand" "i,vm,vim")))
 >>>>>>> master
+=======
+  [(set (match_operand:QI         0 "rl78_nonimmediate_operand" "=vm,  *Wfr,  vY")
+	(xor:QI (match_operand:QI 1 "rl78_general_operand"      "%vim, 0viY, *Wfr")
+		(match_operand    2 "rl78_general_operand"      "vim,  viY,  viY")))
+>>>>>>> gcc-mirror/trunk
    ]
   "rl78_virt_insns_ok () && rl78_one_far_p (operands, 3)"
   "v.xor\t%0, %1, %2"

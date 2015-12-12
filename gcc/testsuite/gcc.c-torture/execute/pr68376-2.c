@@ -28,7 +28,10 @@ f4 (int x)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 __attribute__((noinline, noclone)) int
 f5 (int x)
 {
@@ -53,9 +56,12 @@ f8 (int x)
   return x > 0 ? x : ~x;
 }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 int
 main ()
 {
@@ -69,7 +75,10 @@ main ()
     abort ();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (f5 (5) != -6 || f5 (-5) != -5 || f5 (0) != -1)
     abort ();
   if (f6 (5) != 5 || f6 (-5) != 4 || f6 (0) != 0)
@@ -78,8 +87,11 @@ main ()
     abort ();
   if (f8 (5) != 5 || f8 (-5) != 4 || f8 (0) != -1)
     abort ();
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   return 0;
 }

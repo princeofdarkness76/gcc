@@ -60,6 +60,7 @@ procedure GNATCmd is
    Gprbuild : constant String := "gprbuild";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
    Gnatmake : constant String := "gnatmake";
@@ -73,6 +74,10 @@ procedure GNATCmd is
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+   Gprclean : constant String := "gprclean";
+   Gprname  : constant String := "gprname";
+>>>>>>> gcc-mirror/trunk
 
    Normal_Exit : exception;
    --  Raise this exception for normal program termination
@@ -1197,9 +1202,12 @@ begin
          --  instead of gnatmake/gnatclean.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
          if Program.all = Gnatmake or else Program.all = Gnatclean then
 =======
+=======
+>>>>>>> gcc-mirror/trunk
          --  Ditto for gnatname -> gprname.
 
          if The_Command = Make
@@ -1207,11 +1215,14 @@ begin
             or else The_Command = Clean
             or else The_Command = Name
          then
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
          if Program.all = Gnatmake or else Program.all = Gnatclean then
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
             declare
                Project_File_Used : Boolean := False;
                Switch            : String_Access;
@@ -1230,6 +1241,7 @@ begin
                if Project_File_Used then
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
                   if Program.all = Gnatmake
@@ -1242,6 +1254,8 @@ begin
                      Program := new String'(Gprclean);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
                   case The_Command is
                      when Make | Compile =>
                         if Locate_Exec_On_Path (Gprbuild) /= null  then
@@ -1273,9 +1287,12 @@ begin
                           (new String'
                              ("--target=" & Name_Buffer (1 .. Name_Len - 5)));
                      end if;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
                   end if;
                end if;
             end;

@@ -39,11 +39,15 @@ along with GCC; see the file COPYING3.  If not see
 #include "rtl-iter.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "cgraph.h"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "cgraph.h"
+>>>>>>> gcc-mirror/trunk
 
 /* The aliasing API provided here solves related but different problems:
 
@@ -413,14 +417,20 @@ alias_set_subset_of (alias_set_type set1, alias_set_type set2)
   alias_set_entry *ase2;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Disable TBAA oracle with !flag_strict_aliasing.  */
   if (!flag_strict_aliasing)
     return true;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Everything is a subset of the "aliases everything" set.  */
   if (set2 == 0)
@@ -556,6 +566,7 @@ alias_sets_must_conflict_p (alias_set_type set1, alias_set_type set2)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* Disable TBAA oracle with !flag_strict_aliasing.  */
   if (!flag_strict_aliasing)
@@ -563,6 +574,11 @@ alias_sets_must_conflict_p (alias_set_type set1, alias_set_type set2)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  /* Disable TBAA oracle with !flag_strict_aliasing.  */
+  if (!flag_strict_aliasing)
+    return 1;
+>>>>>>> gcc-mirror/trunk
   if (set1 == 0 || set2 == 0)
     {
       ++alias_stats.num_alias_zero;
@@ -899,6 +915,7 @@ get_alias_set (tree t)
 	return set;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       /* Handle structure type equality for pointer types.  This is easy
@@ -908,14 +925,19 @@ get_alias_set (tree t)
       if (!POINTER_TYPE_P (t))
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* Handle structure type equality for pointer types, arrays and vectors.
 	 This is easy to do, because the code bellow ignore canonical types on
 	 these anyway.  This is important for LTO, where TYPE_CANONICAL for
 	 pointers can not be meaningfuly computed by the frotnend.  */
       if (canonical_type_used_p (t))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	{
 	  /* In LTO we set canonical types for all types where it makes
 	     sense to do so.  Double check we did not miss some type.  */
@@ -1018,6 +1040,7 @@ get_alias_set (tree t)
       for (p = t; POINTER_TYPE_P (p)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	   || (TREE_CODE (p) == ARRAY_TYPE && !TYPE_NONALIASED_COMPONENT (p))
@@ -1026,6 +1049,8 @@ get_alias_set (tree t)
 	{
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	   || (TREE_CODE (p) == ARRAY_TYPE
 	       && (!TYPE_NONALIASED_COMPONENT (p)
 		   || !COMPLETE_TYPE_P (p)
@@ -1041,9 +1066,12 @@ get_alias_set (tree t)
 	      p = ptr_type_node;
 	      break;
 	    }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  if (TREE_CODE (p) == REFERENCE_TYPE)
 	    /* In LTO we want languages that use references to be compatible
  	       with languages that use pointers.  */
@@ -1096,11 +1124,15 @@ get_alias_set (tree t)
 	     trigger unnecesary legwork of rebuilding the pointer again.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	  gcc_checking_assert (p == TYPE_MAIN_VARIANT (p));
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	  gcc_checking_assert (p == TYPE_MAIN_VARIANT (p));
+>>>>>>> gcc-mirror/trunk
 	  if (TYPE_ALIAS_SET_KNOWN_P (p))
 	    set = TYPE_ALIAS_SET (p);
 	  else
@@ -1155,6 +1187,7 @@ alias_set_type
 new_alias_set (void)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (flag_strict_aliasing)
     {
       if (alias_sets == 0)
@@ -1165,11 +1198,16 @@ new_alias_set (void)
   else
     return 0;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (alias_sets == 0)
     vec_safe_push (alias_sets, (alias_set_entry *) NULL);
   vec_safe_push (alias_sets, (alias_set_entry *) NULL);
   return alias_sets->length () - 1;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Indicate that things in SUBSET can alias things in SUPERSET, but that
@@ -1285,6 +1323,7 @@ record_component_aliases (tree type)
 		   too, in the case it is a pointer. */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		while ((TREE_CODE (t) == ARRAY_TYPE
@@ -1298,6 +1337,8 @@ record_component_aliases (tree type)
 	   
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 		while (!canonical_type_used_p (t) && !POINTER_TYPE_P (t))
 		  {
 		    gcc_checking_assert (TYPE_STRUCTURAL_EQUALITY_P (t));
@@ -1310,9 +1351,12 @@ record_component_aliases (tree type)
 				       == get_alias_set (TREE_TYPE (field)));
 	      }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	    record_alias_subset (superset, get_alias_set (t));
 	  }
       break;

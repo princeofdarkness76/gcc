@@ -78,6 +78,7 @@ main ()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // FIXME: distribute construct must be closely nested
 // in teams region, but we don't handle target expansions
 // yet.  Enable when it works.
@@ -91,6 +92,9 @@ main ()
 =======
   #pragma omp target teams reduction(|:err)
 >>>>>>> master
+=======
+  #pragma omp target teams reduction(|:err)
+>>>>>>> gcc-mirror/trunk
     {
       err |= test_d_normal ();
       err |= test_d_ds128_normal ();

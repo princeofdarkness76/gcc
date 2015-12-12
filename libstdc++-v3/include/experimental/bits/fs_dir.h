@@ -24,6 +24,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/fs_dir.h
 =======
 /** @file experimental/bits/fs_dir.h
@@ -31,6 +32,9 @@
 =======
 /** @file experimental/fs_dir.h
 >>>>>>> master
+=======
+/** @file experimental/bits/fs_dir.h
+>>>>>>> gcc-mirror/trunk
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
  */

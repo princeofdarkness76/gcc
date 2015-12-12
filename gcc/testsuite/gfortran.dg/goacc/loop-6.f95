@@ -51,6 +51,7 @@ program test
     ENDDO
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
     !$acc loop vector(5) ! { dg-error "argument not permitted" }
@@ -59,13 +60,18 @@ program test
     !$acc loop vector(length:5) ! { dg-error "argument not permitted" }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     !$acc loop vector(5) ! { dg-error "length arguments" }
     DO i = 1,10
     ENDDO
     !$acc loop vector(length:5) ! { dg-error "length arguments" }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     DO i = 1,10
     ENDDO
     !$acc loop vector
@@ -88,6 +94,7 @@ program test
   ENDDO
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   !$acc parallel loop vector(5) ! { dg-error "argument not permitted" }
@@ -96,13 +103,18 @@ program test
   !$acc parallel loop vector(length:5) ! { dg-error "argument not permitted" }
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   !$acc parallel loop vector(5) ! { dg-error "length arguments" }
   DO i = 1,10
   ENDDO
   !$acc parallel loop vector(length:5) ! { dg-error "length arguments" }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   DO i = 1,10
   ENDDO
 end

@@ -1734,6 +1734,7 @@ __gnat_inum_to_ivec (int num)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   return (int) INUM_TO_IVEC (num);
 =======
   return (int) ((long) INUM_TO_IVEC ((long) num));
@@ -1741,6 +1742,9 @@ __gnat_inum_to_ivec (int num)
 =======
   return (int) INUM_TO_IVEC (num);
 >>>>>>> master
+=======
+  return (int) ((long) INUM_TO_IVEC ((long) num));
+>>>>>>> gcc-mirror/trunk
 }
 #endif
 
@@ -1984,6 +1988,7 @@ __gnat_error_handler (int sig, siginfo_t *si, void *sc)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if defined (__ARMEL__) || defined (__PPC__) || (defined (__i386__) && _WRS_VXWORKS_MAJOR < 7)
 =======
 #if defined (__ARMEL__) || defined (__PPC__) || defined (__i386__) || defined (__x86_64__)
@@ -1991,6 +1996,9 @@ __gnat_error_handler (int sig, siginfo_t *si, void *sc)
 =======
 #if defined (__ARMEL__) || defined (__PPC__) || (defined (__i386__) && _WRS_VXWORKS_MAJOR < 7)
 >>>>>>> master
+=======
+#if defined (__ARMEL__) || defined (__PPC__) || defined (__i386__) || defined (__x86_64__)
+>>>>>>> gcc-mirror/trunk
   /* On certain targets, kernel mode, we process signals through a Call Frame
      Info trampoline, voiding the need for myriads of fallback_frame_state
      variants in the ZCX runtime.  We have no simple way to distinguish ZCX
@@ -2000,10 +2008,13 @@ __gnat_error_handler (int sig, siginfo_t *si, void *sc)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if defined (__i386__) && !defined (VTHREADS)
    /* On x86, the vxsim signal context is subtly different and is processeed
       by a handler compiled especially for vxsim.  */
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #ifdef HAVE_GNAT_ADJUST_CONTEXT_FOR_RAISE
   /* We need to sometimes to adjust the PC in case of signals so that it
      doesn't reference the exception that actually raised the signal but the
@@ -2015,17 +2026,21 @@ __gnat_error_handler (int sig, siginfo_t *si, void *sc)
    /* On x86, the vxsim signal context is subtly different and is processeed
       by a handler compiled especially for vxsim.
       Vxsim is not supported anymore on our vxworks-7 port.  */
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 #if defined (__i386__) && !defined (VTHREADS)
    /* On x86, the vxsim signal context is subtly different and is processeed
       by a handler compiled especially for vxsim.  */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   if (is_vxsim)
     __gnat_vxsim_error_handler (sig, si, sc);
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -2041,6 +2056,9 @@ __gnat_error_handler (int sig, siginfo_t *si, void *sc)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+# include "sigtramp.h"
+>>>>>>> gcc-mirror/trunk
 
   __gnat_sigtramp (sig, (void *)si, (void *)sc,
 		   (__sigtramphandler_t *)&__gnat_map_signal);
@@ -2159,6 +2177,7 @@ __gnat_init_float (void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if defined (__i386__) && !defined (VTHREADS)
 =======
 #if (defined (__i386__) && !defined (VTHREADS))
@@ -2166,6 +2185,9 @@ __gnat_init_float (void)
 =======
 #if defined (__i386__) && !defined (VTHREADS)
 >>>>>>> master
+=======
+#if (defined (__i386__) && !defined (VTHREADS))
+>>>>>>> gcc-mirror/trunk
   /* This is used to properly initialize the FPU on an x86 for each
      process thread. Is this needed for x86_64 ???  */
   asm ("finit");
@@ -2345,6 +2367,7 @@ char __gnat_alternate_stack[32 * 1024]; /* 1 * MINSIGSTKSZ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if !(defined (__arm__) || defined (__arm64__))
 =======
 #if !(defined (__arm__) || defined (__arm64__) || TARGET_IPHONE_SIMULATOR)
@@ -2352,6 +2375,9 @@ char __gnat_alternate_stack[32 * 1024]; /* 1 * MINSIGSTKSZ */
 =======
 #if !(defined (__arm__) || defined (__arm64__))
 >>>>>>> master
+=======
+#if !(defined (__arm__) || defined (__arm64__) || TARGET_IPHONE_SIMULATOR)
+>>>>>>> gcc-mirror/trunk
 #include <mach/mach_vm.h>
 #include <mach/mach_init.h>
 #include <mach/vm_statistics.h>
@@ -2368,6 +2394,7 @@ __gnat_is_stack_guard (mach_vm_address_t addr)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if !(defined (__arm__) || defined (__arm64__))
 =======
 #if !(defined (__arm__) || defined (__arm64__) || TARGET_IPHONE_SIMULATOR)
@@ -2375,6 +2402,9 @@ __gnat_is_stack_guard (mach_vm_address_t addr)
 =======
 #if !(defined (__arm__) || defined (__arm64__))
 >>>>>>> master
+=======
+#if !(defined (__arm__) || defined (__arm64__) || TARGET_IPHONE_SIMULATOR)
+>>>>>>> gcc-mirror/trunk
   kern_return_t kret;
   vm_region_submap_info_data_64_t info;
   mach_vm_address_t start;

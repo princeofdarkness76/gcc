@@ -4,17 +4,21 @@
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
 =======
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-skip-if "" { arm*-*-* } } */
 
 void
 f_vst4q_lane_s64 (int64_t * p, int64x2x4_t v)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 2 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
@@ -30,6 +34,11 @@ f_vst4q_lane_s64 (int64_t * p, int64x2x4_t v)
   vst4q_lane_s64 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
 >>>>>>> master
+=======
+  /* { dg-error "lane 2 out of range 0 - 1" "" { target *-*-* } 0 } */
+  vst4q_lane_s64 (p, v, 2);
+  /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/trunk
   vst4q_lane_s64 (p, v, -1);
   return;
 }

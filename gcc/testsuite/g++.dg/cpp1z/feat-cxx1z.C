@@ -1,8 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // { dg-do compile }
 // { dg-options "-std=c++1z" }
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 // { dg-options "-std=c++1z -I${srcdir}/g++.dg/cpp1y -I${srcdir}/g++.dg/cpp1y/testinc" }
 
 //  C++98 features:
@@ -306,11 +309,14 @@
 #elif __cpp_unicode_characters != 201411
 #  error "__cpp_unicode_characters != 201411"
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 // { dg-do compile }
 // { dg-options "-std=c++1z" }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 #ifndef __cpp_static_assert
 #  error "__cpp_static_assert"
@@ -326,16 +332,22 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #ifndef __cpp_enumerator_attributes
 #  error "__cpp_enumerator_attributes"
 #elif __cpp_enumerator_attributes != 201411
 #  error "__cpp_enumerator_attributes != 201411"
 #endif
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #ifndef __cpp_nested_namespace_definitions
 #  error "__cpp_nested_namespace_definitions"
 #elif __cpp_nested_namespace_definitions != 201411
@@ -343,7 +355,10 @@
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 #ifndef __cpp_fold_expressions
 #  error "__cpp_fold_expressions"
@@ -356,6 +371,9 @@
 #elif __cpp_nontype_template_args != 201411
 #  error "__cpp_nontype_template_args != 201411"
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

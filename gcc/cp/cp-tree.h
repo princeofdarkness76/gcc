@@ -123,6 +123,7 @@ operator == (const cp_expr &lhs, tree rhs)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       OMP_FOR_GIMPLIFYING_P (in OMP_FOR, OMP_SIMD and OMP_DISTRIBUTE)
 =======
       OMP_FOR_GIMPLIFYING_P (in OMP_FOR, OMP_SIMD, OMP_DISTRIBUTE,
@@ -136,6 +137,10 @@ operator == (const cp_expr &lhs, tree rhs)
       OMP_FOR_GIMPLIFYING_P (in OMP_FOR, OMP_SIMD, OMP_DISTRIBUTE,
 			     and OMP_TASKLOOP)
 >>>>>>> master
+=======
+      OMP_FOR_GIMPLIFYING_P (in OMP_FOR, OMP_SIMD, OMP_DISTRIBUTE,
+			     and OMP_TASKLOOP)
+>>>>>>> gcc-mirror/trunk
       BASELINK_QUALIFIED_P (in BASELINK)
       TARGET_EXPR_IMPLICIT_P (in TARGET_EXPR)
       TEMPLATE_PARM_PARAMETER_PACK (in TEMPLATE_PARM_INDEX)
@@ -1401,6 +1406,7 @@ struct warning_sentinel
    presently being instantiated to the corresponding instantiated
    local variables.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #define local_specializations scope_chain->x_local_specializations
 <<<<<<< HEAD
@@ -1431,6 +1437,17 @@ struct warning_sentinel
 /* A list of private types mentioned, for deferred access checking.  */
 
 >>>>>>> master
+=======
+
+#define local_specializations scope_chain->x_local_specializations
+
+/* Nonzero if we are parsing the operand of a noexcept operator.  */
+
+#define cp_noexcept_operand scope_chain->noexcept_operand
+
+/* A list of private types mentioned, for deferred access checking.  */
+
+>>>>>>> gcc-mirror/trunk
 struct GTY((for_user)) cxx_int_tree_map {
   unsigned int uid;
   tree to;
@@ -4947,6 +4964,7 @@ extern int at_eof;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* If non-zero, implicit "omp declare target" attribute is added into the
    attribute lists.  */
 extern GTY(()) int current_omp_declare_target_attribute;
@@ -4955,10 +4973,13 @@ extern GTY(()) int current_omp_declare_target_attribute;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* True if note_mangling_alias should enqueue mangling aliases for
    later generation, rather than emitting them right away.  */
 
 extern bool defer_mangling_aliases;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -4966,6 +4987,8 @@ extern bool defer_mangling_aliases;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* A list of namespace-scope objects which have constructors or
    destructors which reside in the global scope.  The decl is stored
@@ -5953,6 +5976,7 @@ extern int parm_index                           (tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern tree vtv_start_verification_constructor_init_function (void);
 extern tree vtv_finish_verification_constructor_init_function (tree);
@@ -5965,6 +5989,10 @@ extern tree vtv_finish_verification_constructor_init_function (tree);
 extern tree vtv_start_verification_constructor_init_function (void);
 extern tree vtv_finish_verification_constructor_init_function (tree);
 >>>>>>> master
+=======
+extern tree vtv_start_verification_constructor_init_function (void);
+extern tree vtv_finish_verification_constructor_init_function (tree);
+>>>>>>> gcc-mirror/trunk
 extern bool cp_omp_mappable_type		(tree);
 
 /* in error.c */
@@ -6434,6 +6462,7 @@ extern tree stmt_expr_value_expr		(tree);
 bool empty_expr_stmt_p				(tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern tree perform_koenig_lookup		(tree, vec<tree, va_gc> *,
 =======
 extern cp_expr perform_koenig_lookup		(cp_expr, vec<tree, va_gc> *,
@@ -6441,10 +6470,14 @@ extern cp_expr perform_koenig_lookup		(cp_expr, vec<tree, va_gc> *,
 =======
 extern tree perform_koenig_lookup		(tree, vec<tree, va_gc> *,
 >>>>>>> master
+=======
+extern cp_expr perform_koenig_lookup		(cp_expr, vec<tree, va_gc> *,
+>>>>>>> gcc-mirror/trunk
 						 tsubst_flags_t);
 extern tree finish_call_expr			(tree, vec<tree, va_gc> **, bool,
 						 bool, tsubst_flags_t);
 extern tree finish_template_variable		(tree, tsubst_flags_t = tf_warning_or_error);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -6459,6 +6492,12 @@ extern tree finish_this_expr			(void);
 extern tree finish_pseudo_destructor_expr       (tree, tree, tree, location_t);
 extern cp_expr finish_unary_op_expr		(location_t, enum tree_code, cp_expr,
 >>>>>>> gcc-mirror/master
+=======
+extern cp_expr finish_increment_expr		(cp_expr, enum tree_code);
+extern tree finish_this_expr			(void);
+extern tree finish_pseudo_destructor_expr       (tree, tree, tree, location_t);
+extern cp_expr finish_unary_op_expr		(location_t, enum tree_code, cp_expr,
+>>>>>>> gcc-mirror/trunk
 						 tsubst_flags_t);
 extern tree finish_compound_literal		(tree, tree, tsubst_flags_t);
 extern tree finish_fname			(tree);
@@ -6474,12 +6513,16 @@ extern bool outer_automatic_var_p		(tree);
 extern tree process_outer_var_ref		(tree, tsubst_flags_t);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 extern tree finish_id_expression		(tree, tree, tree,
 =======
 extern cp_expr finish_id_expression		(tree, tree, tree,
 >>>>>>> gcc-mirror/master
+=======
+extern cp_expr finish_id_expression		(tree, tree, tree,
+>>>>>>> gcc-mirror/trunk
 						 cp_id_kind *,
 						 bool, bool, bool *,
 						 bool, bool, bool, bool,
@@ -6508,6 +6551,7 @@ extern void finalize_nrv			(tree *, tree, tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern void note_decl_for_pch			(tree);
 extern tree finish_omp_clauses			(tree);
 extern void finish_omp_declare_simd		(tree, vec<tree, va_gc> *);
@@ -6516,6 +6560,8 @@ extern void finish_omp_declare_simd		(tree, vec<tree, va_gc> *);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 extern tree omp_reduction_id			(enum tree_code, tree, tree);
 extern tree cp_remove_omp_priv_cleanup_stmt	(tree *, int *, void *);
 extern void cp_check_omp_declare_reduction	(tree);
@@ -6527,15 +6573,19 @@ extern void save_omp_privatization_clauses	(vec<tree> &);
 extern void restore_omp_privatization_clauses	(vec<tree> &);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 extern void finish_omp_threadprivate		(tree);
 extern tree begin_omp_structured_block		(void);
 extern tree finish_omp_structured_block		(tree);
 extern tree finish_oacc_data			(tree, tree);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -6543,6 +6593,9 @@ extern tree finish_oacc_host_data		(tree, tree);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+extern tree finish_oacc_host_data		(tree, tree);
+>>>>>>> gcc-mirror/trunk
 extern tree finish_omp_construct		(enum tree_code, tree, tree);
 extern tree begin_omp_parallel			(void);
 extern tree finish_omp_parallel			(tree, tree);
@@ -6550,6 +6603,7 @@ extern tree begin_omp_task			(void);
 extern tree finish_omp_task			(tree, tree);
 extern tree finish_omp_for			(location_t, enum tree_code,
 						 tree, tree, tree, tree, tree,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6563,6 +6617,9 @@ extern tree finish_omp_for			(location_t, enum tree_code,
 =======
 						 tree, tree, vec<tree> *, tree);
 >>>>>>> master
+=======
+						 tree, tree, vec<tree> *, tree);
+>>>>>>> gcc-mirror/trunk
 extern void finish_omp_atomic			(enum tree_code, enum tree_code,
 						 tree, tree, tree, tree, tree,
 						 bool);
@@ -6570,6 +6627,7 @@ extern void finish_omp_barrier			(void);
 extern void finish_omp_flush			(void);
 extern void finish_omp_taskwait			(void);
 extern void finish_omp_taskyield		(void);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6611,6 +6669,16 @@ extern tree build_transaction_expr		(location_t, tree, int, tree);
 extern bool cxx_omp_create_clause_info		(tree, tree, bool, bool,
 						 bool, bool);
 >>>>>>> master
+=======
+extern void finish_omp_cancel			(tree);
+extern void finish_omp_cancellation_point	(tree);
+extern tree omp_privatize_field			(tree, bool);
+extern tree begin_transaction_stmt		(location_t, tree *, int);
+extern void finish_transaction_stmt		(tree, tree, int, tree);
+extern tree build_transaction_expr		(location_t, tree, int, tree);
+extern bool cxx_omp_create_clause_info		(tree, tree, bool, bool,
+						 bool, bool);
+>>>>>>> gcc-mirror/trunk
 extern tree baselink_for_fns                    (tree);
 extern void finish_static_assert                (tree, tree, location_t,
                                                  bool);
@@ -6793,12 +6861,16 @@ extern tree decay_conversion			(tree,
                                                  bool = true);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 extern tree build_class_member_access_expr      (tree, tree, tree, bool,
 =======
 extern tree build_class_member_access_expr      (cp_expr, tree, tree, bool,
 >>>>>>> gcc-mirror/master
+=======
+extern tree build_class_member_access_expr      (cp_expr, tree, tree, bool,
+>>>>>>> gcc-mirror/trunk
 						 tsubst_flags_t);
 extern tree finish_class_member_access_expr     (cp_expr, tree, bool,
 						 tsubst_flags_t);
@@ -6986,11 +7058,15 @@ extern bool cxx_omp_privatize_by_reference	(const_tree);
 extern bool cxx_omp_disregard_value_expr	(tree, bool);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern void cp_fold_function			(tree);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+extern void cp_fold_function			(tree);
+>>>>>>> gcc-mirror/trunk
 extern tree cp_fully_fold			(tree);
 
 /* in name-lookup.c */
@@ -7000,11 +7076,14 @@ extern tree strip_using_decl                    (tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* in constraint.cc */
 extern void init_constraint_processing          ();
 extern bool constraint_p                        (tree);
@@ -7055,11 +7134,15 @@ extern bool equivalently_constrained            (tree, tree);
 extern bool subsumes_constraints                (tree, tree);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern bool strictly_subsumes			(tree, tree);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+extern bool strictly_subsumes			(tree, tree);
+>>>>>>> gcc-mirror/trunk
 extern int more_constrained                     (tree, tree);
 
 extern void diagnose_constraints                (location_t, tree, tree);
@@ -7078,11 +7161,14 @@ extern void vtv_build_vtable_verify_fndecl      (void);
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* In cp-cilkplus.c.  */
 extern bool cpp_validate_cilk_plus_loop		(tree);
 
@@ -7122,6 +7208,7 @@ extern void cp_ubsan_maybe_instrument_member_call (tree);
 extern void cp_ubsan_instrument_member_accesses (tree *);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern tree cp_ubsan_maybe_instrument_downcast	(location_t, tree, tree);
 =======
 extern tree cp_ubsan_maybe_instrument_downcast	(location_t, tree, tree, tree);
@@ -7129,6 +7216,9 @@ extern tree cp_ubsan_maybe_instrument_downcast	(location_t, tree, tree, tree);
 =======
 extern tree cp_ubsan_maybe_instrument_downcast	(location_t, tree, tree);
 >>>>>>> master
+=======
+extern tree cp_ubsan_maybe_instrument_downcast	(location_t, tree, tree, tree);
+>>>>>>> gcc-mirror/trunk
 extern tree cp_ubsan_maybe_instrument_cast_to_vbase (location_t, tree, tree);
 
 /* -- end of C++ */

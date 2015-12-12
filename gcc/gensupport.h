@@ -41,7 +41,10 @@ struct md_rtx_info {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 #define OPTAB_CL(name, pat, c, b, l)		name,
 #define OPTAB_CX(name, pat)
 #define OPTAB_CD(name, pat)			name,
@@ -127,9 +130,12 @@ struct optab_pattern
   unsigned int sort_num;
 };
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 extern rtx add_implicit_parallel (rtvec);
 extern bool init_rtx_reader_args_cb (int, char **, bool (*)(const char *));
 extern bool init_rtx_reader_args (int, char **);
@@ -228,10 +234,14 @@ extern const char *get_emit_function (rtx);
 extern bool needs_barrier_p (rtx);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 extern bool find_optab (optab_pattern *, const char *);
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+extern bool find_optab (optab_pattern *, const char *);
+>>>>>>> gcc-mirror/trunk
 
 #endif /* GCC_GENSUPPORT_H */

@@ -34,6 +34,7 @@ cp_ubsan_instrument_vptr_p (tree type)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (current_function_decl
       && lookup_attribute ("no_sanitize_undefined",
 			   DECL_ATTRIBUTES (current_function_decl)))
@@ -45,6 +46,9 @@ cp_ubsan_instrument_vptr_p (tree type)
       && lookup_attribute ("no_sanitize_undefined",
 			   DECL_ATTRIBUTES (current_function_decl)))
 >>>>>>> master
+=======
+  if (!do_ubsan_in_current_function ())
+>>>>>>> gcc-mirror/trunk
     return false;
 
   if (type)
@@ -257,6 +261,7 @@ cp_ubsan_instrument_member_accesses (tree *t_p)
 tree
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 cp_ubsan_maybe_instrument_downcast (location_t loc, tree type, tree op)
@@ -268,6 +273,8 @@ cp_ubsan_maybe_instrument_downcast (location_t loc, tree type, tree op)
       || !DERIVED_FROM_P (TREE_TYPE (TREE_TYPE (op)), TREE_TYPE (type)))
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 cp_ubsan_maybe_instrument_downcast (location_t loc, tree type,
 				    tree intype, tree op)
 {
@@ -276,9 +283,12 @@ cp_ubsan_maybe_instrument_downcast (location_t loc, tree type,
       || !POINTER_TYPE_P (TREE_TYPE (op))
       || !CLASS_TYPE_P (TREE_TYPE (TREE_TYPE (op)))
       || !is_properly_derived_from (TREE_TYPE (type), TREE_TYPE (intype)))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     return NULL_TREE;
 
   return cp_ubsan_maybe_instrument_vptr (loc, op, TREE_TYPE (type), true,

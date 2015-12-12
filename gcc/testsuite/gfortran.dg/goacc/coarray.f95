@@ -2,6 +2,7 @@
 ! { dg-additional-options "-fcoarray=single" }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 ! TODO: These cases must fail
 =======
@@ -12,6 +13,10 @@
 
 ! TODO: These cases must fail
 >>>>>>> master
+=======
+!
+! PR fortran/63861
+>>>>>>> gcc-mirror/trunk
 
 module test
 contains
@@ -21,12 +26,15 @@ contains
     integer, codimension[*] :: a
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 =======
 >>>>>>> gcc-mirror/master
 =======
     ! { dg-excess-errors "sorry, unimplemented: directive not yet implemented" }
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     !$acc declare device_resident (a)
     !$acc data copy (a)
     !$acc end data
@@ -34,6 +42,7 @@ contains
     !$acc end data
     !$acc parallel private (a)
     !$acc end parallel
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -50,6 +59,11 @@ contains
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+    !$acc host_data use_device (a)
+    !$acc end host_data
+    !$acc parallel loop reduction(+:a) ! { dg-error "Array 'a' is not permitted in reduction" }
+>>>>>>> gcc-mirror/trunk
     do i = 1,5
     enddo
     !$acc end parallel loop

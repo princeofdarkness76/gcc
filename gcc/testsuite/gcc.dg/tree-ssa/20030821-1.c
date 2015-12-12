@@ -2,10 +2,13 @@
 /* { dg-options "-O1 -fdump-tree-dom2 -fdump-tree-optimized" } */
 
 void dont_remove (void);
+<<<<<<< HEAD
 
 void dont_remove (void);
 
 void dont_remove (void);
+=======
+>>>>>>> gcc-mirror/trunk
 
 void foo(int k)
 {

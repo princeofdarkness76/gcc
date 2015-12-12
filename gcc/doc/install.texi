@@ -385,6 +385,7 @@ installed but it is not in your default library search path, the
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 @item ISL Library version 0.15, 0.14, 0.13, or 0.12.2
 =======
 @item ISL Library version 0.15 or 0.14.
@@ -392,6 +393,9 @@ installed but it is not in your default library search path, the
 =======
 @item ISL Library version 0.15, 0.14, 0.13, or 0.12.2
 >>>>>>> master
+=======
+@item ISL Library version 0.15 or 0.14.
+>>>>>>> gcc-mirror/trunk
 
 Necessary to build GCC with the Graphite loop optimizations.
 It can be downloaded from @uref{ftp://gcc.gnu.org/pub/gcc/infrastructure/}.
@@ -4308,7 +4312,10 @@ This configuration is intended for embedded systems.
 Andes NDS32 target in little endian mode.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 @html
 <hr />
@@ -4316,6 +4323,7 @@ Andes NDS32 target in little endian mode.
 @anchor{nds32be-x-elf}
 @heading nds32be-*-elf
 Andes NDS32 target in big endian mode.
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 
 @html
@@ -4347,6 +4355,16 @@ Andes NDS32 target in big endian mode.
 @heading nvptx-*-none
 Nvidia PTX target.
 
+=======
+
+@html
+<hr />
+@end html
+@anchor{nvptx-x-none}
+@heading nvptx-*-none
+Nvidia PTX target.
+
+>>>>>>> gcc-mirror/trunk
 Instead of GNU binutils, you will need to install
 @uref{https://github.com/MentorEmbedded/nvptx-tools/,,nvptx-tools}.
 Tell GCC where to find it:

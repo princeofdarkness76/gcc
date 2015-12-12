@@ -1,6 +1,7 @@
 /* { dg-do compile } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-options "-O1 -fdump-tree-lim1-details --param allow-store-data-races=1" } */
 =======
 /* { dg-options "-O1 -fdump-tree-lim2-details --param allow-store-data-races=1" } */
@@ -8,6 +9,9 @@
 =======
 /* { dg-options "-O1 -fdump-tree-lim1-details --param allow-store-data-races=1" } */
 >>>>>>> master
+=======
+/* { dg-options "-O1 -fdump-tree-lim2-details --param allow-store-data-races=1" } */
+>>>>>>> gcc-mirror/trunk
 
 float a[100];
 
@@ -26,6 +30,7 @@ void xxx (void)
    cannot read nor write the memory.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 1 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -33,3 +38,6 @@ void xxx (void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Moving statement" 1 "lim2" } } */
+>>>>>>> gcc-mirror/trunk

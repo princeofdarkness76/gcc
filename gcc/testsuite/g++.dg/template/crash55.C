@@ -6,6 +6,7 @@ struct A {};
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 template<int> void foo(A<int>);	// { dg-error "cast|argument" "" { target c++98_only } }
 =======
 template<int> void foo(A<int>);	// { dg-error "template argument 2" "" { target c++98_only } }
@@ -13,3 +14,6 @@ template<int> void foo(A<int>);	// { dg-error "template argument 2" "" { target 
 =======
 template<int> void foo(A<int>);	// { dg-error "cast|argument" "" { target c++98_only } }
 >>>>>>> master
+=======
+template<int> void foo(A<int>);	// { dg-error "template argument 2" "" { target c++98_only } }
+>>>>>>> gcc-mirror/trunk

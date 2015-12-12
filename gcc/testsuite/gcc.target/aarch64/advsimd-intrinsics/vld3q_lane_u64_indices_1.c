@@ -4,18 +4,22 @@
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
 =======
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-skip-if "" { arm*-*-* } } */
 
 uint64x2x3_t
 f_vld3q_lane_u64 (uint64_t * p, uint64x2x3_t v)
 {
   uint64x2x3_t res;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 2 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
@@ -31,6 +35,11 @@ f_vld3q_lane_u64 (uint64_t * p, uint64x2x3_t v)
   res = vld3q_lane_u64 (p, v, 2);
   /* { dg-error "lane -1 out of range 0 - 1" "" { xfail arm*-*-* } 0 } */
 >>>>>>> master
+=======
+  /* { dg-error "lane 2 out of range 0 - 1" "" { target *-*-* } 0 } */
+  res = vld3q_lane_u64 (p, v, 2);
+  /* { dg-error "lane -1 out of range 0 - 1" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/trunk
   res = vld3q_lane_u64 (p, v, -1);
   return res;
 }

@@ -2019,6 +2019,7 @@ fold_convert_const_fixed_from_int (tree type, const_tree arg1)
   bool overflow_p;
   double_int di;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   gcc_assert (TREE_INT_CST_NUNITS (arg1) <= 2);
 
@@ -2029,6 +2030,8 @@ fold_convert_const_fixed_from_int (tree type, const_tree arg1)
     di.high = TREE_INT_CST_ELT (arg1, 1);
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   gcc_assert (TREE_INT_CST_NUNITS (arg1) <= 2);
 
@@ -2038,7 +2041,10 @@ fold_convert_const_fixed_from_int (tree type, const_tree arg1)
   else
     di.high = TREE_INT_CST_ELT (arg1, 1);
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   overflow_p = fixed_convert_from_int (&value, TYPE_MODE (type), di,
 				       TYPE_UNSIGNED (TREE_TYPE (arg1)),
 				       TYPE_SATURATING (type));
@@ -3001,6 +3007,7 @@ operand_equal_p (const_tree arg0, const_tree arg1, unsigned int flags)
 	      /* Verify that accesses are TBAA compatible.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	      if (flag_strict_aliasing
@@ -3013,6 +3020,8 @@ operand_equal_p (const_tree arg0, const_tree arg1, unsigned int flags)
 			  != MR_DEPENDENCE_BASE (arg1))))
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	      if (!alias_ptr_types_compatible_p
 		    (TREE_TYPE (TREE_OPERAND (arg0, 1)),
 		     TREE_TYPE (TREE_OPERAND (arg1, 1)))
@@ -3020,9 +3029,12 @@ operand_equal_p (const_tree arg0, const_tree arg1, unsigned int flags)
 		      != MR_DEPENDENCE_CLIQUE (arg1))
 		  || (MR_DEPENDENCE_BASE (arg0)
 		      != MR_DEPENDENCE_BASE (arg1)))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 		return 0;
 	     /* Verify that alignment is compatible.  */
 	     if (TYPE_ALIGN (TREE_TYPE (arg0))
@@ -9711,6 +9723,7 @@ fold_binary_loc (location_t loc,
       if (TREE_CODE (arg0) == NEGATE_EXPR
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 	  && negate_expr_p (arg1)
@@ -9722,15 +9735,20 @@ fold_binary_loc (location_t loc,
 					      TREE_OPERAND (arg0, 0)));
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	  && negate_expr_p (op1)
 	  && reorder_operands_p (arg0, arg1))
 	return fold_build2_loc (loc, MINUS_EXPR, type,
 				negate_expr (op1),
 				fold_convert_loc (loc, type,
 						  TREE_OPERAND (arg0, 0)));
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
       /* Fold __complex__ ( x, 0 ) - __complex__ ( 0, y ) to
 	 __complex__ ( x, -y ).  This is not the same for SNaNs or if
@@ -9771,6 +9789,7 @@ fold_binary_loc (location_t loc,
 
       /* A - B -> A + (-B) if B is easily negatable.  */
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (negate_expr_p (arg1)
 	  && !TYPE_OVERFLOW_SANITIZED (type)
 <<<<<<< HEAD
@@ -9780,12 +9799,17 @@ fold_binary_loc (location_t loc,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if (negate_expr_p (op1)
+	  && ! TYPE_OVERFLOW_SANITIZED (type)
+>>>>>>> gcc-mirror/trunk
 	  && ((FLOAT_TYPE_P (type)
                /* Avoid this transformation if B is a positive REAL_CST.  */
 	       && (TREE_CODE (op1) != REAL_CST
 		   || REAL_VALUE_NEGATIVE (TREE_REAL_CST (op1))))
 	      || INTEGRAL_TYPE_P (type)))
 	return fold_build2_loc (loc, PLUS_EXPR, type,
+<<<<<<< HEAD
 <<<<<<< HEAD
 			    fold_convert_loc (loc, type, arg0),
 			    fold_convert_loc (loc, type,
@@ -9797,6 +9821,10 @@ fold_binary_loc (location_t loc,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+				fold_convert_loc (loc, type, arg0),
+				negate_expr (op1));
+>>>>>>> gcc-mirror/trunk
 
       /* Fold &a[i] - &a[j] to i-j.  */
       if (TREE_CODE (arg0) == ADDR_EXPR
@@ -9847,6 +9875,7 @@ fold_binary_loc (location_t loc,
 	      && ! TREE_OVERFLOW (tem))
 	    return fold_build2_loc (loc, MULT_EXPR, type,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    			fold_convert_loc (loc, type,
 						  negate_expr (arg0)),
 				tem);
@@ -9857,6 +9886,10 @@ fold_binary_loc (location_t loc,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+				    fold_convert_loc (loc, type,
+						      negate_expr (op0)), tem);
+>>>>>>> gcc-mirror/trunk
 
 	  /* (A + A) * C -> A * 2 * C  */
 	  if (TREE_CODE (arg0) == PLUS_EXPR
@@ -10250,6 +10283,7 @@ fold_binary_loc (location_t loc,
 		}
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 	}
 
       /* Simplify ((int)c & 0377) into (int)c, if c is unsigned char.  */
@@ -10274,6 +10308,20 @@ fold_binary_loc (location_t loc,
 	  prec = element_precision (TREE_TYPE (TREE_OPERAND (arg0, 0)));
 =======
 >>>>>>> master
+
+	  wide_int mask = wide_int::from (arg1, prec, UNSIGNED);
+	  if (mask == -1)
+	    return
+	      fold_convert_loc (loc, type, TREE_OPERAND (arg0, 0));
+=======
+>>>>>>> gcc-mirror/trunk
+	}
+
+      /* Simplify ((int)c & 0377) into (int)c, if c is unsigned char.  */
+      if (TREE_CODE (arg1) == INTEGER_CST && TREE_CODE (arg0) == NOP_EXPR
+	  && TYPE_UNSIGNED (TREE_TYPE (TREE_OPERAND (arg0, 0))))
+	{
+	  prec = element_precision (TREE_TYPE (TREE_OPERAND (arg0, 0)));
 
 	  wide_int mask = wide_int::from (arg1, prec, UNSIGNED);
 	  if (mask == -1)

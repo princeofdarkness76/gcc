@@ -60,6 +60,7 @@ along with GCC; see the file COPYING3.  If not see
 #include <isl/union_map.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "graphite-poly.h"
 #include "graphite-scop-detection.h"
 #include "graphite-isl-ast-to-gimple.h"
@@ -69,6 +70,9 @@ along with GCC; see the file COPYING3.  If not see
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "graphite.h"
+>>>>>>> gcc-mirror/trunk
 
 /* Print global statistics to FILE.  */
 
@@ -383,6 +387,7 @@ gate_graphite_transforms (void)
       || flag_loop_parallelize_all
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       || flag_loop_optimize_isl)
 =======
       || flag_loop_nest_optimize)
@@ -390,6 +395,9 @@ gate_graphite_transforms (void)
 =======
       || flag_loop_optimize_isl)
 >>>>>>> master
+=======
+      || flag_loop_nest_optimize)
+>>>>>>> gcc-mirror/trunk
     flag_graphite = 1;
 
   return flag_graphite != 0;

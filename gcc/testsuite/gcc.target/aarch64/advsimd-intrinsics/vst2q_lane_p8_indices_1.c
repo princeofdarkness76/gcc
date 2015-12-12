@@ -4,17 +4,21 @@
 /* { dg-skip-if "" { *-*-* } { "-fno-fat-lto-objects" } } */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 =======
 >>>>>>> gcc-mirror/master
 =======
 /* { dg-excess-errors "" { xfail arm*-*-* } } */
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* { dg-skip-if "" { arm*-*-* } } */
 
 void
 f_vst2q_lane_p8 (poly8_t * p, poly8x16x2_t v)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   /* { dg-error "lane 16 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
@@ -30,6 +34,11 @@ f_vst2q_lane_p8 (poly8_t * p, poly8x16x2_t v)
   vst2q_lane_p8 (p, v, 16);
   /* { dg-error "lane -1 out of range 0 - 15" "" { xfail arm*-*-* } 0 } */
 >>>>>>> master
+=======
+  /* { dg-error "lane 16 out of range 0 - 15" "" { target *-*-* } 0 } */
+  vst2q_lane_p8 (p, v, 16);
+  /* { dg-error "lane -1 out of range 0 - 15" "" { target *-*-* } 0 } */
+>>>>>>> gcc-mirror/trunk
   vst2q_lane_p8 (p, v, -1);
   return;
 }

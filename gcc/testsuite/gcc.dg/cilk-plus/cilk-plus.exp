@@ -29,6 +29,7 @@ dg-init
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # Run the tests that are shared with C++.
 dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/PS/*.c]] " -ftree-vectorize -fcilkplus -std=c99" " "
@@ -63,6 +64,8 @@ dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/AN/*.c]] " -O
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 if [cilkplus_init] {
     # Run the tests that are shared with C++.
     dg-runtest [lsort [glob -nocomplain $srcdir/c-c++-common/cilk-plus/PS/*.c]] " -ftree-vectorize -fcilkplus -std=c99" " "
@@ -99,9 +102,12 @@ if [cilkplus_init] {
 cilkplus_finish
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 dg-finish

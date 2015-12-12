@@ -1128,9 +1128,12 @@ steal_delay_list_from_target (rtx_insn *insn, rtx condition, rtx_sequence *seq,
 	{
 	  if (must_annul)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    used_annul = 1;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	    {
 	      /* Frame related instructions cannot go into annulled delay
 		 slots, it messes up the dwarf info.  */
@@ -1138,9 +1141,12 @@ steal_delay_list_from_target (rtx_insn *insn, rtx condition, rtx_sequence *seq,
 		return;
 	      used_annul = 1;
 	    }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	  rtx_insn *temp = copy_delay_slot_insn (trial);
 	  INSN_FROM_TARGET_P (temp) = 1;
 	  add_to_delay_list (temp, &new_delay_list);
@@ -1679,15 +1685,19 @@ own_thread_p (rtx thread, rtx label, int allow_fallthrough)
   rtx_insn *thread_insn = as_a <rtx_insn *> (thread);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /* Get the first active insn, or THREAD_INSN, if it is an active insn.  */
   active_insn = next_active_insn (PREV_INSN (thread_insn));
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* Get the first active insn, or THREAD_INSN, if it is an active insn.  */
   active_insn = next_active_insn (PREV_INSN (thread_insn));
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
@@ -1695,6 +1705,8 @@ own_thread_p (rtx thread, rtx label, int allow_fallthrough)
   active_insn = next_active_insn (PREV_INSN (thread_insn));
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   for (insn = thread_insn; insn != active_insn; insn = NEXT_INSN (insn))
     if (LABEL_P (insn)
 	&& (insn != label || LABEL_NUSES (insn) != 1))
@@ -2493,6 +2505,7 @@ fill_slots_from_thread (rtx_jump_insn *insn, rtx condition,
 		goto winner;
 	    }
 <<<<<<< HEAD
+<<<<<<< HEAD
 	  else if (0
 		   || (ANNUL_IFTRUE_SLOTS && ! thread_if_true)
 		   || (ANNUL_IFFALSE_SLOTS && thread_if_true))
@@ -2504,6 +2517,11 @@ fill_slots_from_thread (rtx_jump_insn *insn, rtx condition,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+	  else if (!RTX_FRAME_RELATED_P (trial)
+		   && ((ANNUL_IFTRUE_SLOTS && ! thread_if_true)
+		        || (ANNUL_IFFALSE_SLOTS && thread_if_true)))
+>>>>>>> gcc-mirror/trunk
 	    {
 	      old_trial = trial;
 	      trial = try_split (pat, trial, 0);
@@ -3572,6 +3590,7 @@ make_return_insns (rtx_insn *first)
 
       if (GET_CODE (PATTERN (insn)) != SEQUENCE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	continue;
 
       rtx_sequence *pat = as_a <rtx_sequence *> (PATTERN (insn));
@@ -3588,6 +3607,15 @@ make_return_insns (rtx_insn *first)
 	continue;
 
 >>>>>>> master
+=======
+	continue;
+
+      rtx_sequence *pat = as_a <rtx_sequence *> (PATTERN (insn));
+
+      if (!jump_to_label_p (pat->insn (0)))
+	continue;
+
+>>>>>>> gcc-mirror/trunk
       if (JUMP_LABEL (pat->insn (0)) == function_return_label)
 	{
 	  kind = ret_rtx;
@@ -3926,6 +3954,7 @@ const pass_data pass_data_delay_slots =
 class pass_delay_slots : public rtl_opt_pass
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
 public:
   pass_delay_slots (gcc::context *ctxt)
@@ -3966,6 +3995,9 @@ pass_delay_slots::gate (function *)
 >>>>>>> gcc-mirror/master
 =======
 {
+=======
+{
+>>>>>>> gcc-mirror/trunk
 public:
   pass_delay_slots (gcc::context *ctxt)
     : rtl_opt_pass (pass_data_delay_slots, ctxt)
@@ -3983,7 +4015,10 @@ public:
 bool
 pass_delay_slots::gate (function *)
 {
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* At -O0 dataflow info isn't updated after RA.  */
   if (DELAY_SLOTS)
     return optimize > 0 && flag_delayed_branch && !crtl->dbr_scheduled_p;

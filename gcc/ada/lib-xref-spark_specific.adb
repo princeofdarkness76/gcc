@@ -262,11 +262,15 @@ package body SPARK_Specific is
          when E_Entry
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
             | E_Entry_Family
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+            | E_Entry_Family
+>>>>>>> gcc-mirror/trunk
             | E_Function
             | E_Generic_Function
             | E_Generic_Package
@@ -278,6 +282,7 @@ package body SPARK_Specific is
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
          when E_Package_Body | E_Subprogram_Body =>
 =======
          when E_Package_Body | E_Subprogram_Body | E_Task_Body =>
@@ -285,6 +290,9 @@ package body SPARK_Specific is
 =======
          when E_Package_Body | E_Subprogram_Body =>
 >>>>>>> master
+=======
+         when E_Package_Body | E_Subprogram_Body | E_Task_Body =>
+>>>>>>> gcc-mirror/trunk
             Typ := Xref_Entity_Letters (Ekind (Unique_Entity (E)));
 
          when E_Void =>
@@ -346,6 +354,7 @@ package body SPARK_Specific is
       function Is_SPARK_Scope (E : Entity_Id) return Boolean;
       --  Return whether the entity or reference scope meets requirements for
 <<<<<<< HEAD
+<<<<<<< HEAD
       --  being an SPARK scope.
 <<<<<<< HEAD
 =======
@@ -353,6 +362,9 @@ package body SPARK_Specific is
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      --  being a SPARK scope.
+>>>>>>> gcc-mirror/trunk
 
       function Lt (Op1 : Natural; Op2 : Natural) return Boolean;
       --  Comparison function for Sort call
@@ -452,6 +464,7 @@ package body SPARK_Specific is
       begin
          case Ekind (E) is
 <<<<<<< HEAD
+<<<<<<< HEAD
 
             --  A constant is known to have no variable input if its
             --  initializing expression is static (a value which is
@@ -460,6 +473,8 @@ package body SPARK_Specific is
             --  have variable input.
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
             --  A constant is known to have no variable input if its
             --  initializing expression is static (a value which is
@@ -467,7 +482,10 @@ package body SPARK_Specific is
             --  as defined in the SPARK RM). Otherwise, the constant may or not
             --  have variable input.
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
             when E_Constant =>
                declare
                   Decl : Node_Id;
@@ -1041,6 +1059,7 @@ package body SPARK_Specific is
    begin
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if Nkind_In (N, N_Entry_Body,
@@ -1069,6 +1088,21 @@ package body SPARK_Specific is
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      if Nkind_In (N, N_Entry_Body,             --  entries
+                      N_Entry_Declaration)
+           or else
+         Nkind_In (N, N_Package_Body,           --  packages
+                      N_Package_Body_Stub,
+                      N_Package_Declaration)
+           or else
+         Nkind_In (N, N_Subprogram_Body,        --  subprograms
+                      N_Subprogram_Body_Stub,
+                      N_Subprogram_Declaration)
+           or else
+         Nkind_In (N, N_Task_Body,              --  tasks
+                      N_Task_Body_Stub)
+>>>>>>> gcc-mirror/trunk
       then
          Add_SPARK_Scope (N);
       end if;
@@ -1162,14 +1196,20 @@ package body SPARK_Specific is
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
             when N_Task_Body =>
                Result := Defining_Identifier (Result);
                exit;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
             when others =>
                Result := Parent (Result);
          end case;

@@ -1,15 +1,21 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-06  Eric Botcazou  <ebotcazou@adacore.com>
 
 	PR ada/50048
 	* Makefile.in (ftop_srcdir): New variable.
 	(INCLUDES_FOR_SUBDIR): Use -iquote and $(ftop_srcdir).
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-06-08  John Marino  <gnugcc@marino.st>
 
 	* configure.ac (*-*-dragonfly*): New configuration.

@@ -46,18 +46,24 @@ package body Opt is
    begin
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Back_End_ZCX;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       return
         Exception_Mechanism = Back_End_SJLJ
           or else
         Exception_Mechanism = Back_End_ZCX;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Back_End_ZCX;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
    end Back_End_Exceptions;
 
    -------------------------
@@ -77,18 +83,24 @@ package body Opt is
    begin
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Front_End_SJLJ;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       return
         Exception_Mechanism = Back_End_SJLJ
           or else
         Exception_Mechanism = Front_End_SJLJ;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       return Exception_Mechanism = Back_End_SJLJ
         or else Exception_Mechanism = Front_End_SJLJ;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
    end SJLJ_Exceptions;
 
    --------------------

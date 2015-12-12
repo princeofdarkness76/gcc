@@ -36,12 +36,17 @@
 ;;         jyy: constant consisting of byte chunks being either 0 or 0xff
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ;;         jKK: constant vector with all elements having the same value and
 ;;              matching K constraint
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+;;         jKK: constant vector with all elements having the same value and
+;;              matching K constraint
+>>>>>>> gcc-mirror/trunk
 ;;    t -- Access registers 36 and 37.
 ;;    v -- Vector registers v0-v31.
 ;;    C -- A signed 8-bit constant (-128..127)

@@ -2464,6 +2464,7 @@ DEFHOOK
 (builtin_reciprocal,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
  "This hook should return the DECL of a function that implements reciprocal of\n\
@@ -2475,11 +2476,16 @@ of a square root function are performed, and only reciprocals of @code{sqrt}\n\
 function are valid.",
  tree, (unsigned fn, bool md_fn, bool sqrt),
 =======
+=======
+>>>>>>> gcc-mirror/trunk
  "This hook should return the DECL of a function that implements the\n\
 reciprocal of the machine-specific builtin function @var{fndecl}, or\n\
 @code{NULL_TREE} if such a function is not available.",
  tree, (tree fndecl),
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
  default_builtin_reciprocal)
 
 /* For a vendor-specific TYPE, return a pointer to a statically-allocated
@@ -3450,7 +3456,10 @@ move would be greater than that of a library call.",
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 DEFHOOK
 (optab_supported_p,
  "Return true if the optimizers should use optab @var{op} with\n\
@@ -3468,9 +3477,12 @@ The default hook returns true for all inputs.",
 	optimization_type opt_type),
  default_optab_supported_p)
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* True for MODE if the target expects that registers in this mode will
    be allocated to registers in a small register class.  The compiler is
    allowed to use registers explicitly used in the rtl as spill registers

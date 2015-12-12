@@ -109,6 +109,7 @@ public:
   explicit hash_map (size_t n = 13, bool ggc = false,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 		     bool gather_mem_stats = true CXX_MEM_STAT_INFO)
@@ -118,6 +119,8 @@ public:
   static hash_map *create_ggc (size_t size, bool gather_mem_stats = true
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 		     bool gather_mem_stats = GATHER_STATISTICS
 		     CXX_MEM_STAT_INFO)
     : m_table (n, ggc, gather_mem_stats, HASH_MAP_ORIGIN PASS_MEM_STAT) {}
@@ -125,9 +128,12 @@ public:
   /* Create a hash_map in ggc memory.  */
   static hash_map *create_ggc (size_t size,
 			       bool gather_mem_stats = GATHER_STATISTICS
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 			       CXX_MEM_STAT_INFO)
     {
       hash_map *map = ggc_alloc<hash_map> ();

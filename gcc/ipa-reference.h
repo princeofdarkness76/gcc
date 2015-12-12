@@ -27,16 +27,22 @@ bitmap ipa_reference_get_not_written_global (struct cgraph_node *fn);
 void ipa_reference_c_finalize (void);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 inline int
 ipa_reference_var_uid (tree t)
 {
   return DECL_UID (symtab_node::get (t)->ultimate_alias_target (NULL)->decl);
 }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 #endif  /* GCC_IPA_REFERENCE_H  */
 

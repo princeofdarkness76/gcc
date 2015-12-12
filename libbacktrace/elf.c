@@ -957,6 +957,7 @@ backtrace_initialize (struct backtrace_state *state, int descriptor,
       else
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__sync_bool_compare_and_swap (&state->syminfo_fn, NULL, elf_nosyms);
 =======
 	(void) __sync_bool_compare_and_swap (&state->syminfo_fn, NULL,
@@ -965,6 +966,10 @@ backtrace_initialize (struct backtrace_state *state, int descriptor,
 =======
 	__sync_bool_compare_and_swap (&state->syminfo_fn, NULL, elf_nosyms);
 >>>>>>> master
+=======
+	(void) __sync_bool_compare_and_swap (&state->syminfo_fn, NULL,
+					     elf_nosyms);
+>>>>>>> gcc-mirror/trunk
     }
 
   if (!state->threaded)

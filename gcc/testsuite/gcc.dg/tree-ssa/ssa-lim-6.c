@@ -11,6 +11,7 @@ void foo(void)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump "Executing store motion of y" "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -18,3 +19,6 @@ void foo(void)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump "Executing store motion of y" "lim2" } } */
+>>>>>>> gcc-mirror/trunk

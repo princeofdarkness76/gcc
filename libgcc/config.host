@@ -296,6 +296,7 @@ case ${host} in
   fi
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   if test x$enable_vtable_verify = xyes; then
     extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
@@ -303,6 +304,11 @@ case ${host} in
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  if test x$enable_vtable_verify = xyes; then
+    extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
+  fi
+>>>>>>> gcc-mirror/trunk
   ;;
 *-*-uclinux*)
   extra_parts="crtbegin.o crtend.o"
@@ -950,11 +956,15 @@ msp430*-*-elf)
 	tmake_file="$tm_file t-crtstuff t-fdpbit msp430/t-msp430"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         extra_parts="$extra_parts libmul_none.a libmul_16.a libmul_32.a libmul_f5.a"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+        extra_parts="$extra_parts libmul_none.a libmul_16.a libmul_32.a libmul_f5.a"
+>>>>>>> gcc-mirror/trunk
 	;;
 nds32*-elf*)
 	# Basic makefile fragment and extra_parts for crt stuff.

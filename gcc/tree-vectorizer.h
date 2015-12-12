@@ -167,13 +167,23 @@ struct dr_with_seg_len_pair_t
   dr_with_seg_len_pair_t (const dr_with_seg_len& d1,
 			       const dr_with_seg_len& d2)
     : first (d1), second (d2) {}
+<<<<<<< HEAD
+=======
+
+  dr_with_seg_len first;
+  dr_with_seg_len second;
+};
+>>>>>>> gcc-mirror/trunk
 
   dr_with_seg_len first;
   dr_with_seg_len second;
 };
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> gcc-mirror/trunk
 /* Vectorizer state common between loop and basic-block vectorization.  */
 struct vec_info {
   enum { bb, loop } kind;
@@ -589,6 +599,7 @@ typedef struct _stmt_vec_info {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* For loads only, true if this is a gather load.  */
   bool gather_p;
   bool stride_load_p;
@@ -600,6 +611,8 @@ typedef struct _stmt_vec_info {
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   /* For loads if this is a gather, for stores if this is a scatter.  */
   bool gather_scatter_p;
 
@@ -614,11 +627,14 @@ typedef struct _stmt_vec_info {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 } *stmt_vec_info;
 
 /* Access Functions.  */
@@ -647,6 +663,7 @@ STMT_VINFO_BB_VINFO (stmt_vec_info stmt_vinfo)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define STMT_VINFO_GATHER_P(S)		   (S)->gather_p
 #define STMT_VINFO_STRIDE_LOAD_P(S)	   (S)->stride_load_p
 #define STMT_VINFO_SIMD_LANE_ACCESS_P(S)   (S)->simd_lane_access_p
@@ -655,10 +672,13 @@ STMT_VINFO_BB_VINFO (stmt_vec_info stmt_vinfo)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define STMT_VINFO_GATHER_SCATTER_P(S)	   (S)->gather_scatter_p
 #define STMT_VINFO_STRIDED_P(S)	   	   (S)->strided_p
 #define STMT_VINFO_SIMD_LANE_ACCESS_P(S)   (S)->simd_lane_access_p
 #define STMT_VINFO_VEC_REDUCTION_TYPE(S)   (S)->v_reduc_type
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
@@ -666,6 +686,8 @@ STMT_VINFO_BB_VINFO (stmt_vec_info stmt_vinfo)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 #define STMT_VINFO_DR_BASE_ADDRESS(S)      (S)->dr_base_address
 #define STMT_VINFO_DR_INIT(S)              (S)->dr_init
@@ -756,16 +778,22 @@ set_vinfo_for_stmt (gimple *stmt, stmt_vec_info info)
   else
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     stmt_vec_info_vec[uid - 1] = info;
 =======
+=======
+>>>>>>> gcc-mirror/trunk
     {
       gcc_checking_assert (info == NULL);
       stmt_vec_info_vec[uid - 1] = info;
     }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
     stmt_vec_info_vec[uid - 1] = info;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Return the earlier statement between STMT1 and STMT2.  */

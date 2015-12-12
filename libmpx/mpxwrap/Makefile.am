@@ -1,11 +1,15 @@
 ALCLOCAL_AMFLAGS = -I .. -I ../config
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AM_CPPFLAGS = -I $(top_srcdir)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+AM_CPPFLAGS = -I $(top_srcdir)
+>>>>>>> gcc-mirror/trunk
 
 # May be used by toolexeclibdir.
 gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
@@ -13,6 +17,7 @@ gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
 libmpxwrappers_la_CFLAGS = -fcheck-pointer-bounds -mmpx -fno-chkp-check-read \
 			   -fno-chkp-check-write -fno-chkp-use-wrappers -fPIC
 libmpxwrappers_la_DEPENDENCIES = libmpxwrappers.map
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 libmpxwrappers_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpxwrappers.map
@@ -23,6 +28,10 @@ libmpxwrappers_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpxwrappers.map \
 =======
 libmpxwrappers_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpxwrappers.map
 >>>>>>> master
+=======
+libmpxwrappers_la_LDFLAGS = -Wl,--version-script=$(srcdir)/libmpxwrappers.map \
+               -version-info `grep -v '^\#' $(srcdir)/libtool-version`
+>>>>>>> gcc-mirror/trunk
 
 toolexeclib_LTLIBRARIES = libmpxwrappers.la
 

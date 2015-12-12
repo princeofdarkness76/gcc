@@ -711,6 +711,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
        *  @param __end      End of string to parse.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
        *  @param __io       Source of the locale.
 =======
        *  @param __f        Source of the locale.
@@ -718,6 +719,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 =======
        *  @param __io       Source of the locale.
 >>>>>>> master
+=======
+       *  @param __f        Source of the locale.
+>>>>>>> gcc-mirror/trunk
        *  @param __err      Error flags to set.
        *  @param __tm       Pointer to struct tm to fill in.
        *  @param __format   Format specifier.

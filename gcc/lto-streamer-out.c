@@ -1115,6 +1115,7 @@ hash_tree (struct streamer_tree_cache_d *cache, hash_map<tree, hashval_t> *map, 
       hstate.add_int (TYPE_ALIGN (t));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       hstate.add_int ((TYPE_ALIAS_SET (t) == 0
@@ -1126,6 +1127,8 @@ hash_tree (struct streamer_tree_cache_d *cache, hash_map<tree, hashval_t> *map, 
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
 
   if (CODE_CONTAINS_STRUCT (code, TS_TRANSLATION_UNIT_DECL))
@@ -2251,6 +2254,7 @@ wrap_refs (tree *tp, int *ws, void *)
   if (handled_component_p (t)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL)
 =======
       && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL
@@ -2259,6 +2263,10 @@ wrap_refs (tree *tp, int *ws, void *)
 =======
       && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL)
 >>>>>>> master
+=======
+      && TREE_CODE (TREE_OPERAND (t, 0)) == VAR_DECL
+      && TREE_PUBLIC (TREE_OPERAND (t, 0)))
+>>>>>>> gcc-mirror/trunk
     {
       tree decl = TREE_OPERAND (t, 0);
       tree ptrtype = build_pointer_type (TREE_TYPE (decl));

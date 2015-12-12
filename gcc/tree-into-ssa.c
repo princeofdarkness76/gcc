@@ -1393,6 +1393,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -1400,6 +1401,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
   virtual void after_dom_children (basic_block);
 };
 
@@ -1410,6 +1414,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -1417,6 +1422,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 rewrite_dom_walker::before_dom_children (basic_block bb)
 {
   if (dump_file && (dump_flags & TDF_DETAILS))
@@ -2075,6 +2083,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -2082,6 +2091,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
   virtual void after_dom_children (basic_block);
 };
 
@@ -2092,6 +2104,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -2099,6 +2112,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 rewrite_update_dom_walker::before_dom_children (basic_block bb)
 {
   bool is_abnormal_phi;
@@ -2248,6 +2264,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -2255,6 +2272,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
 
 private:
   /* Notice that this bitmap is indexed using variable UIDs, so it must be
@@ -2278,6 +2298,7 @@ mark_def_dom_walker::~mark_def_dom_walker ()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -2285,6 +2306,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 mark_def_dom_walker::before_dom_children (basic_block bb)
 {
   gimple_stmt_iterator gsi;
@@ -2294,11 +2318,15 @@ mark_def_dom_walker::before_dom_children (basic_block bb)
     mark_def_sites (bb, gsi_stmt (gsi), m_kills);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  return NULL;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Initialize internal data needed during renaming.  */

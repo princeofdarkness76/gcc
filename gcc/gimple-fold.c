@@ -55,11 +55,15 @@ along with GCC; see the file COPYING3.  If not see
 #include "omp-low.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "ipa-chkp.h"
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+#include "ipa-chkp.h"
+>>>>>>> gcc-mirror/trunk
 
 
 /* Return true when DECL can be referenced from current unit.
@@ -673,7 +677,10 @@ gimple_fold_builtin_memory_op (gimple_stmt_iterator *gsi,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       /* Inlining of memcpy/memmove may cause bounds lost (if we copy
 	 pointers as wide integer) and also may result in huge function
 	 size because of inlined bounds copy.  Thus don't inline for
@@ -686,9 +693,12 @@ gimple_fold_builtin_memory_op (gimple_stmt_iterator *gsi,
 	      || compare_tree_int (len, POINTER_SIZE_UNITS) >= 0))
 	return false;
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       /* Build accesses at offset zero with a ref-all character type.  */
       off0 = build_int_cst (build_pointer_type_for_mode (char_type_node,
 							 ptr_mode, true), 0);
@@ -1303,6 +1313,9 @@ get_maxval_strlen (tree arg, int type)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> gcc-mirror/trunk
 
 
 /* Fold function call to builtin strcpy with arguments DEST and SRC.
@@ -1315,6 +1328,7 @@ gimple_fold_builtin_strcpy (gimple_stmt_iterator *gsi,
 {
   location_t loc = gimple_location (gsi_stmt (*gsi));
   tree fn;
+<<<<<<< HEAD
 
 =======
 
@@ -1336,8 +1350,181 @@ gimple_fold_builtin_strcpy (gimple_stmt_iterator *gsi,
     {
       replace_call_with_value (gsi, dest);
       return true;
+=======
+
+  /* If SRC and DEST are the same (and not volatile), return DEST.  */
+  if (operand_equal_p (src, dest, 0))
+    {
+      replace_call_with_value (gsi, dest);
+      return true;
     }
 
+  if (optimize_function_for_size_p (cfun))
+    return false;
+
+  fn = builtin_decl_implicit (BUILT_IN_MEMCPY);
+  if (!fn)
+    return false;
+
+  tree len = get_maxval_strlen (src, 0);
+  if (!len)
+    return false;
+
+  len = fold_convert_loc (loc, size_type_node, len);
+  len = size_binop_loc (loc, PLUS_EXPR, len, build_int_cst (size_type_node, 1));
+  len = force_gimple_operand_gsi (gsi, len, true,
+				  NULL_TREE, true, GSI_SAME_STMT);
+  gimple *repl = gimple_build_call (fn, 3, dest, src, len);
+  replace_call_with_call_and_fold (gsi, repl);
+  return true;
+}
+
+/* Fold function call to builtin strncpy with arguments DEST, SRC, and LEN.
+   If SLEN is not NULL, it represents the length of the source string.
+   Return NULL_TREE if no simplification can be made.  */
+
+static bool
+gimple_fold_builtin_strncpy (gimple_stmt_iterator *gsi,
+			     tree dest, tree src, tree len)
+{
+  location_t loc = gimple_location (gsi_stmt (*gsi));
+  tree fn;
+
+  /* If the LEN parameter is zero, return DEST.  */
+  if (integer_zerop (len))
+    {
+      replace_call_with_value (gsi, dest);
+      return true;
+    }
+
+  /* We can't compare slen with len as constants below if len is not a
+     constant.  */
+  if (TREE_CODE (len) != INTEGER_CST)
+    return false;
+
+  /* Now, we must be passed a constant src ptr parameter.  */
+  tree slen = get_maxval_strlen (src, 0);
+  if (!slen || TREE_CODE (slen) != INTEGER_CST)
+    return false;
+
+  slen = size_binop_loc (loc, PLUS_EXPR, slen, ssize_int (1));
+
+  /* We do not support simplification of this case, though we do
+     support it when expanding trees into RTL.  */
+  /* FIXME: generate a call to __builtin_memset.  */
+  if (tree_int_cst_lt (slen, len))
+    return false;
+
+  /* OK transform into builtin memcpy.  */
+  fn = builtin_decl_implicit (BUILT_IN_MEMCPY);
+  if (!fn)
+    return false;
+
+  len = fold_convert_loc (loc, size_type_node, len);
+  len = force_gimple_operand_gsi (gsi, len, true,
+				  NULL_TREE, true, GSI_SAME_STMT);
+  gimple *repl = gimple_build_call (fn, 3, dest, src, len);
+  replace_call_with_call_and_fold (gsi, repl);
+  return true;
+}
+
+/* Simplify a call to the strcat builtin.  DST and SRC are the arguments
+   to the call.
+
+   Return NULL_TREE if no simplification was possible, otherwise return the
+   simplified form of the call as a tree.
+
+   The simplified form may be a constant or other expression which
+   computes the same value, but in a more efficient manner (including
+   calls to other builtin functions).
+
+   The call may contain arguments which need to be evaluated, but
+   which are not useful to determine the result of the call.  In
+   this case we return a chain of COMPOUND_EXPRs.  The LHS of each
+   COMPOUND_EXPR will be an argument which must be evaluated.
+   COMPOUND_EXPRs are chained through their RHS.  The RHS of the last
+   COMPOUND_EXPR in the chain will contain the tree for the simplified
+   form of the builtin function call.  */
+
+static bool
+gimple_fold_builtin_strcat (gimple_stmt_iterator *gsi, tree dst, tree src)
+{
+  gimple *stmt = gsi_stmt (*gsi);
+  location_t loc = gimple_location (stmt);
+
+  const char *p = c_getstr (src);
+
+  /* If the string length is zero, return the dst parameter.  */
+  if (p && *p == '\0')
+    {
+      replace_call_with_value (gsi, dst);
+      return true;
+    }
+
+  if (!optimize_bb_for_speed_p (gimple_bb (stmt)))
+    return false;
+
+  /* See if we can store by pieces into (dst + strlen(dst)).  */
+  tree newdst;
+  tree strlen_fn = builtin_decl_implicit (BUILT_IN_STRLEN);
+  tree memcpy_fn = builtin_decl_implicit (BUILT_IN_MEMCPY);
+
+  if (!strlen_fn || !memcpy_fn)
+    return false;
+
+  /* If the length of the source string isn't computable don't
+     split strcat into strlen and memcpy.  */
+  tree len = get_maxval_strlen (src, 0);
+  if (! len)
+    return false;
+
+  /* Create strlen (dst).  */
+  gimple_seq stmts = NULL, stmts2;
+  gimple *repl = gimple_build_call (strlen_fn, 1, dst);
+  gimple_set_location (repl, loc);
+  if (gimple_in_ssa_p (cfun))
+    newdst = make_ssa_name (size_type_node);
+  else
+    newdst = create_tmp_reg (size_type_node);
+  gimple_call_set_lhs (repl, newdst);
+  gimple_seq_add_stmt_without_update (&stmts, repl);
+
+  /* Create (dst p+ strlen (dst)).  */
+  newdst = fold_build_pointer_plus_loc (loc, dst, newdst);
+  newdst = force_gimple_operand (newdst, &stmts2, true, NULL_TREE);
+  gimple_seq_add_seq_without_update (&stmts, stmts2);
+
+  len = fold_convert_loc (loc, size_type_node, len);
+  len = size_binop_loc (loc, PLUS_EXPR, len,
+			build_int_cst (size_type_node, 1));
+  len = force_gimple_operand (len, &stmts2, true, NULL_TREE);
+  gimple_seq_add_seq_without_update (&stmts, stmts2);
+
+  repl = gimple_build_call (memcpy_fn, 3, newdst, src, len);
+  gimple_seq_add_stmt_without_update (&stmts, repl);
+  if (gimple_call_lhs (stmt))
+    {
+      repl = gimple_build_assign (gimple_call_lhs (stmt), dst);
+      gimple_seq_add_stmt_without_update (&stmts, repl);
+      gsi_replace_with_seq_vops (gsi, stmts);
+      /* gsi now points at the assignment to the lhs, get a
+         stmt iterator to the memcpy call.
+	 ???  We can't use gsi_for_stmt as that doesn't work when the
+	 CFG isn't built yet.  */
+      gimple_stmt_iterator gsi2 = *gsi;
+      gsi_prev (&gsi2);
+      fold_stmt (&gsi2);
+    }
+  else
+    {
+      gsi_replace_with_seq_vops (gsi, stmts);
+      fold_stmt (gsi);
+>>>>>>> gcc-mirror/trunk
+    }
+  return true;
+}
+
+<<<<<<< HEAD
   if (optimize_function_for_size_p (cfun))
     return false;
 
@@ -1791,6 +1978,28 @@ gimple_fold_builtin_strcat_chk (gimple_stmt_iterator *gsi)
 >>>>>>> master
       replace_call_with_value (gsi, dest);
       return true;
+=======
+/* Fold a call to the __strcat_chk builtin FNDECL.  DEST, SRC, and SIZE
+   are the arguments to the call.  */
+
+static bool
+gimple_fold_builtin_strcat_chk (gimple_stmt_iterator *gsi)
+{
+  gimple *stmt = gsi_stmt (*gsi);
+  tree dest = gimple_call_arg (stmt, 0);
+  tree src = gimple_call_arg (stmt, 1);
+  tree size = gimple_call_arg (stmt, 2);
+  tree fn;
+  const char *p;
+
+
+  p = c_getstr (src);
+  /* If the SRC parameter is "", return DEST.  */
+  if (p && *p == '\0')
+    {
+      replace_call_with_value (gsi, dest);
+      return true;
+>>>>>>> gcc-mirror/trunk
     }
 
   if (! tree_fits_uhwi_p (size) || ! integer_all_onesp (size))
@@ -2068,6 +2277,7 @@ gimple_fold_builtin_memory_chk (gimple_stmt_iterator *gsi,
       fn = builtin_decl_explicit (BUILT_IN_MEMSET);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       break;
     default:
       break;
@@ -3173,6 +3383,8 @@ gimple_fold_builtin (gimple_stmt_iterator *gsi)
 =======
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
       break;
     default:
       break;
@@ -4276,9 +4488,12 @@ gimple_fold_builtin (gimple_stmt_iterator *gsi)
 					    fcode);
       break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     case BUILT_IN_FPRINTF_CHK:
     case BUILT_IN_VFPRINTF_CHK:
       if (n == 3 || n == 4)
@@ -6906,20 +7121,26 @@ fold_ctor_reference (tree type, tree ctor, unsigned HOST_WIDE_INT offset,
       unsigned char buf[MAX_BITSIZE_MODE_ANY_MODE / BITS_PER_UNIT];
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (native_encode_expr (ctor, buf, size / BITS_PER_UNIT,
 			      offset / BITS_PER_UNIT) > 0)
 	return native_interpret_expr (type, buf, size / BITS_PER_UNIT);
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       int len = native_encode_expr (ctor, buf, size / BITS_PER_UNIT,
 				    offset / BITS_PER_UNIT);
       if (len > 0)
 	return native_interpret_expr (type, buf, len);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
       if (native_encode_expr (ctor, buf, size / BITS_PER_UNIT,
 			      offset / BITS_PER_UNIT) > 0)
 	return native_interpret_expr (type, buf, size / BITS_PER_UNIT);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     }
   if (TREE_CODE (ctor) == CONSTRUCTOR)
     {

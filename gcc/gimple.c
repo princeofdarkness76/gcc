@@ -858,6 +858,7 @@ gimple_build_omp_critical (gimple_seq body, tree name, tree clauses)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 gimple
 =======
 gomp_for *
@@ -868,6 +869,9 @@ gomp_for *
 =======
 gomp_for *
 >>>>>>> master
+=======
+gomp_for *
+>>>>>>> gcc-mirror/trunk
 gimple_build_omp_for (gimple_seq body, int kind, tree clauses, size_t collapse,
 		      gimple_seq pre_body)
 {
@@ -876,6 +880,7 @@ gimple_build_omp_for (gimple_seq body, int kind, tree clauses, size_t collapse,
     gimple_omp_set_body (p, body);
   gimple_omp_for_set_clauses (p, clauses);
   gimple_omp_for_set_kind (p, kind);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -897,6 +902,11 @@ gimple_build_omp_for (gimple_seq body, int kind, tree clauses, size_t collapse,
   p->iter =  ggc_cleared_vec_alloc<gimple_omp_for_iter> (collapse);
 
 >>>>>>> master
+=======
+  p->collapse = collapse;
+  p->iter =  ggc_cleared_vec_alloc<gimple_omp_for_iter> (collapse);
+
+>>>>>>> gcc-mirror/trunk
   if (pre_body)
     gimple_omp_for_set_pre_body (p, pre_body);
 
@@ -1102,6 +1112,7 @@ gimple_build_omp_single (gimple_seq body, tree clauses)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    CLAUSES are any of the OMP target construct's clauses.  */
 
 gimple
@@ -1211,6 +1222,44 @@ gimple_build_omp_teams (gimple_seq body, tree clauses)
 /* Build a GIMPLE_OMP_ATOMIC_LOAD statement.  */
 
 >>>>>>> master
+=======
+   KIND is the kind of the region.
+   CLAUSES are any of the construct's clauses.  */
+
+gomp_target *
+gimple_build_omp_target (gimple_seq body, int kind, tree clauses)
+{
+  gomp_target *p
+    = as_a <gomp_target *> (gimple_alloc (GIMPLE_OMP_TARGET, 0));
+  if (body)
+    gimple_omp_set_body (p, body);
+  gimple_omp_target_set_clauses (p, clauses);
+  gimple_omp_target_set_kind (p, kind);
+
+  return p;
+}
+
+
+/* Build a GIMPLE_OMP_TEAMS statement.
+
+   BODY is the sequence of statements that will be executed.
+   CLAUSES are any of the OMP teams construct's clauses.  */
+
+gomp_teams *
+gimple_build_omp_teams (gimple_seq body, tree clauses)
+{
+  gomp_teams *p = as_a <gomp_teams *> (gimple_alloc (GIMPLE_OMP_TEAMS, 0));
+  if (body)
+    gimple_omp_set_body (p, body);
+  gimple_omp_teams_set_clauses (p, clauses);
+
+  return p;
+}
+
+
+/* Build a GIMPLE_OMP_ATOMIC_LOAD statement.  */
+
+>>>>>>> gcc-mirror/trunk
 gomp_atomic_load *
 gimple_build_omp_atomic_load (tree lhs, tree rhs)
 {
@@ -1574,6 +1623,7 @@ gimple_assign_copy_p (gimple *gs)
 
 /* Return true if GS is a SSA_NAME copy assignment.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2142,6 +2192,10 @@ gimple_assign_ssa_name_copy_p (gimple *gs)
 bool
 gimple_assign_ssa_name_copy_p (gimple *gs)
 >>>>>>> master
+=======
+bool
+gimple_assign_ssa_name_copy_p (gimple *gs)
+>>>>>>> gcc-mirror/trunk
 {
   return (gimple_assign_single_p (gs)
 	  && TREE_CODE (gimple_assign_lhs (gs)) == SSA_NAME
@@ -2313,6 +2367,7 @@ gimple_set_lhs (gimple *stmt, tree lhs)
     gcc_unreachable ();
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -2320,6 +2375,9 @@ gimple_set_lhs (gimple *stmt, tree lhs)
 
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
+
 
 /* Return a deep copy of statement STMT.  All the operands from STMT
    are reallocated and copied using unshare_expr.  The DEF, USE, VDEF
@@ -3250,6 +3308,7 @@ gimple_asm_clobbers_memory_p (const gasm *stmt)
 }
 
 /* Dump bitmap SET (assumed to contain VAR_DECLs) to FILE.  */
+<<<<<<< HEAD
 
 void
 dump_decl_set (FILE *file, bitmap set)
@@ -3428,6 +3487,83 @@ nonfreeing_call_p (gimple *call)
     return false;
   return n->nonfreeing_fn;
 >>>>>>> master
+=======
+
+void
+dump_decl_set (FILE *file, bitmap set)
+{
+  if (set)
+    {
+      bitmap_iterator bi;
+      unsigned i;
+
+      fprintf (file, "{ ");
+
+      EXECUTE_IF_SET_IN_BITMAP (set, 0, i, bi)
+	{
+	  fprintf (file, "D.%u", i);
+	  fprintf (file, " ");
+	}
+
+      fprintf (file, "}");
+    }
+  else
+    fprintf (file, "NIL");
+}
+
+/* Return true when CALL is a call stmt that definitely doesn't
+   free any memory or makes it unavailable otherwise.  */
+bool
+nonfreeing_call_p (gimple *call)
+{
+  if (gimple_call_builtin_p (call, BUILT_IN_NORMAL)
+      && gimple_call_flags (call) & ECF_LEAF)
+    switch (DECL_FUNCTION_CODE (gimple_call_fndecl (call)))
+      {
+	/* Just in case these become ECF_LEAF in the future.  */
+	case BUILT_IN_FREE:
+	case BUILT_IN_TM_FREE:
+	case BUILT_IN_REALLOC:
+	case BUILT_IN_STACK_RESTORE:
+	  return false;
+	default:
+	  return true;
+      }
+  else if (gimple_call_internal_p (call))
+    switch (gimple_call_internal_fn (call))
+      {
+      case IFN_ABNORMAL_DISPATCHER:
+        return true;
+      default:
+	if (gimple_call_flags (call) & ECF_LEAF)
+	  return true;
+	return false;
+      }
+
+  tree fndecl = gimple_call_fndecl (call);
+  if (!fndecl)
+    return false;
+  struct cgraph_node *n = cgraph_node::get (fndecl);
+  if (!n)
+    return false;
+  enum availability availability;
+  n = n->function_symbol (&availability);
+  if (!n || availability <= AVAIL_INTERPOSABLE)
+    return false;
+  return n->nonfreeing_fn;
+}
+
+/* Return true when CALL is a call stmt that definitely need not
+   be considered to be a memory barrier.  */
+bool
+nonbarrier_call_p (gimple *call)
+{
+  if (gimple_call_flags (call) & (ECF_PURE | ECF_CONST))
+    return true;
+  /* Should extend this to have a nonbarrier_fn flag, just as above in
+     the nonfreeing case.  */
+  return false;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Callback for walk_stmt_load_store_ops.
@@ -3575,6 +3711,7 @@ sort_case_labels (vec<tree> label_vec)
 /* Prepare a vector of case labels to be used in a GIMPLE_SWITCH statement.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
    LABELS is a vector that contains all case labels to look at.
 
@@ -3621,6 +3758,22 @@ sort_case_labels (vec<tree> label_vec)
    Otherwise DEFAULT_CASEP is set to NULL_TREE.
 
 >>>>>>> master
+=======
+
+   LABELS is a vector that contains all case labels to look at.
+
+   INDEX_TYPE is the type of the switch index expression.  Case labels
+   in LABELS are discarded if their values are not in the value range
+   covered by INDEX_TYPE.  The remaining case label values are folded
+   to INDEX_TYPE.
+
+   If a default case exists in LABELS, it is removed from LABELS and
+   returned in DEFAULT_CASEP.  If no default case exists, but the
+   case labels already cover the whole range of INDEX_TYPE, a default
+   case is returned pointing to one of the existing case labels.
+   Otherwise DEFAULT_CASEP is set to NULL_TREE.
+
+>>>>>>> gcc-mirror/trunk
    DEFAULT_CASEP may be NULL, in which case the above comment doesn't
    apply and no action is taken regardless of whether a default case is
    found or not.  */
@@ -3635,8 +3788,11 @@ preprocess_case_label_vec_for_gimple (vec<tree> labels,
   size_t i, len;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   i = 0;
   min_value = TYPE_MIN_VALUE (index_type);
@@ -3776,6 +3932,7 @@ preprocess_case_label_vec_for_gimple (vec<tree> labels,
 	    }
 	}
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   if (default_casep)
@@ -3941,6 +4098,15 @@ preprocess_case_label_vec_for_gimple (vec<tree> labels,
 /* Set the location of all statements in SEQ to LOC.  */
 
 >>>>>>> master
+=======
+
+  if (default_casep)
+    *default_casep = default_case;
+}
+
+/* Set the location of all statements in SEQ to LOC.  */
+
+>>>>>>> gcc-mirror/trunk
 void
 gimple_seq_set_location (gimple_seq seq, location_t loc)
 {

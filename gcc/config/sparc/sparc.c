@@ -9488,6 +9488,7 @@ hypersparc_adjust_cost (rtx_insn *insn, rtx link, rtx_insn *dep_insn, int cost)
 static int
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 sparc_adjust_cost(rtx_insn *insn, rtx link, rtx_insn *dep, int cost)
 =======
 sparc_adjust_cost (rtx_insn *insn, rtx link, rtx_insn *dep, int cost)
@@ -9495,6 +9496,9 @@ sparc_adjust_cost (rtx_insn *insn, rtx link, rtx_insn *dep, int cost)
 =======
 sparc_adjust_cost(rtx_insn *insn, rtx link, rtx_insn *dep, int cost)
 >>>>>>> master
+=======
+sparc_adjust_cost (rtx_insn *insn, rtx link, rtx_insn *dep, int cost)
+>>>>>>> gcc-mirror/trunk
 {
   switch (sparc_cpu)
     {

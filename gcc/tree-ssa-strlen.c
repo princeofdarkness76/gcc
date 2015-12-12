@@ -2198,6 +2198,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -2205,12 +2206,16 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
   virtual void after_dom_children (basic_block);
 };
 
 /* Callback for walk_dominator_tree.  Attempt to optimize various
    string ops by remembering string lenths pointed by pointer SSA_NAMEs.  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 void
@@ -2220,6 +2225,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 strlen_dom_walker::before_dom_children (basic_block bb)
 {
   basic_block dombb = get_immediate_dominator (CDI_DOMINATORS, bb);
@@ -2301,11 +2309,15 @@ strlen_dom_walker::before_dom_children (basic_block bb)
     (*stridx_to_strinfo)[0] = (strinfo *) bb;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   return NULL;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  return NULL;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Callback for walk_dominator_tree.  Free strinfo vector if it is
@@ -2336,6 +2348,7 @@ strlen_dom_walker::after_dom_children (basic_block bb)
 namespace {
 
 const pass_data pass_data_strlen =
+<<<<<<< HEAD
 <<<<<<< HEAD
 {
   GIMPLE_PASS, /* type */
@@ -2373,6 +2386,20 @@ public:
   0, /* todo_flags_finish */
 };
 
+=======
+{
+  GIMPLE_PASS, /* type */
+  "strlen", /* name */
+  OPTGROUP_NONE, /* optinfo_flags */
+  TV_TREE_STRLEN, /* tv_id */
+  ( PROP_cfg | PROP_ssa ), /* properties_required */
+  0, /* properties_provided */
+  0, /* properties_destroyed */
+  0, /* todo_flags_start */
+  0, /* todo_flags_finish */
+};
+
+>>>>>>> gcc-mirror/trunk
 class pass_strlen : public gimple_opt_pass
 {
 public:
@@ -2384,7 +2411,10 @@ public:
   virtual bool gate (function *) { return flag_optimize_strlen != 0; }
   virtual unsigned int execute (function *);
 
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }; // class pass_strlen
 
 unsigned int

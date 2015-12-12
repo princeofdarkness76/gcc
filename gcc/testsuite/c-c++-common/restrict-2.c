@@ -11,6 +11,7 @@ void foo (float * __restrict__ a, float * __restrict__ b, int n, int j)
 /* We should move the RHS of the store out of the loop.  */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-final { scan-tree-dump-times "Moving statement" 11 "lim1" } } */
 <<<<<<< HEAD
 =======
@@ -18,3 +19,6 @@ void foo (float * __restrict__ a, float * __restrict__ b, int n, int j)
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+/* { dg-final { scan-tree-dump-times "Moving statement" 11 "lim2" } } */
+>>>>>>> gcc-mirror/trunk

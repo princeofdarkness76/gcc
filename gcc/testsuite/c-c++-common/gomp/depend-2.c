@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* { dg-do compile { target c++ } } */
 =======
 /* { dg-do compile } */
@@ -11,6 +12,9 @@
 =======
 /* { dg-do compile } */
 >>>>>>> master
+=======
+/* { dg-do compile } */
+>>>>>>> gcc-mirror/trunk
 /* { dg-options "-fopenmp" } */
 
 void bar (int a[10][10][10]);

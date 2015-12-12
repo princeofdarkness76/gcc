@@ -128,11 +128,14 @@ redirect_edge_var_map_empty (void)
 =======
   if (edge_var_maps)
     edge_var_maps->empty ();
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   delete edge_var_maps;
   edge_var_maps = NULL;
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 
@@ -1094,6 +1097,7 @@ public:
   pass_init_datastructures (gcc::context *ctxt)
     : gimple_opt_pass (pass_data_init_datastructures, ctxt)
   {}
+<<<<<<< HEAD
 
   /* opt_pass methods: */
   virtual bool gate (function *fun)
@@ -1114,6 +1118,11 @@ public:
 } // anon namespace
 
 =======
+=======
+
+  /* opt_pass methods: */
+  virtual bool gate (function *fun)
+>>>>>>> gcc-mirror/trunk
     {
       /* Do nothing for funcions that was produced already in SSA form.  */
       return !(fun->curr_properties & PROP_ssa);
@@ -1122,6 +1131,7 @@ public:
   virtual unsigned int execute (function *)
     {
       return execute_init_datastructures ();
+<<<<<<< HEAD
     }
 
 }; // class pass_init_datastructures
@@ -1145,6 +1155,14 @@ public:
 } // anon namespace
 
 >>>>>>> master
+=======
+    }
+
+}; // class pass_init_datastructures
+
+} // anon namespace
+
+>>>>>>> gcc-mirror/trunk
 gimple_opt_pass *
 make_pass_init_datastructures (gcc::context *ctxt)
 {
@@ -1174,6 +1192,7 @@ delete_tree_ssa (struct function *fn)
   /* We no longer need the edge variable maps.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   redirect_edge_var_map_destroy ();
 =======
   redirect_edge_var_map_empty ();
@@ -1181,6 +1200,9 @@ delete_tree_ssa (struct function *fn)
 =======
   redirect_edge_var_map_destroy ();
 >>>>>>> master
+=======
+  redirect_edge_var_map_empty ();
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Return true if EXPR is a useless type conversion, otherwise return

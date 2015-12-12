@@ -3063,7 +3063,10 @@ needs_barrier_p (rtx x)
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 #define NS "NULL"
 #define ZS "'\\0'"
@@ -3222,6 +3225,9 @@ find_optab (optab_pattern *p, const char *name)
     }
   return false;
 }
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk

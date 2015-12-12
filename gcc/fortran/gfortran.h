@@ -243,6 +243,7 @@ enum gfc_statement
   ST_PROCEDURE, ST_GENERIC, ST_CRITICAL, ST_END_CRITICAL,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ST_GET_FCN_CHARACTERISTICS, ST_LOCK, ST_UNLOCK, ST_NONE
 =======
   ST_GET_FCN_CHARACTERISTICS, ST_LOCK, ST_UNLOCK, ST_EVENT_POST,
@@ -251,6 +252,10 @@ enum gfc_statement
 =======
   ST_GET_FCN_CHARACTERISTICS, ST_LOCK, ST_UNLOCK, ST_NONE
 >>>>>>> master
+=======
+  ST_GET_FCN_CHARACTERISTICS, ST_LOCK, ST_UNLOCK, ST_EVENT_POST,
+  ST_EVENT_WAIT,ST_NONE
+>>>>>>> gcc-mirror/trunk
 };
 
 /* Types of interfaces that we can have.  Assignment interfaces are
@@ -860,6 +865,7 @@ typedef struct
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* This is an OpenACC acclerator function at level N - 1  */
   unsigned oacc_function:3;
@@ -867,6 +873,11 @@ typedef struct
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  /* This is an OpenACC acclerator function at level N - 1  */
+  unsigned oacc_function:3;
+
+>>>>>>> gcc-mirror/trunk
   /* Attributes set by compiler extensions (!GCC$ ATTRIBUTES).  */
   unsigned ext_attr:EXT_ATTR_NUM;
 
@@ -1247,6 +1258,7 @@ typedef struct gfc_omp_clauses
   struct gfc_expr *async_expr;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   struct gfc_expr *gang_expr;
 =======
   struct gfc_expr *gang_static_expr;
@@ -1255,6 +1267,10 @@ typedef struct gfc_omp_clauses
 =======
   struct gfc_expr *gang_expr;
 >>>>>>> master
+=======
+  struct gfc_expr *gang_static_expr;
+  struct gfc_expr *gang_num_expr;
+>>>>>>> gcc-mirror/trunk
   struct gfc_expr *worker_expr;
   struct gfc_expr *vector_expr;
   struct gfc_expr *num_gangs_expr;
@@ -1711,16 +1727,22 @@ typedef struct gfc_namespace
   gfc_oacc_declare *oacc_declare;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   /* !$ACC ROUTINE clauses.  */
   gfc_omp_clauses *oacc_routine_clauses;
 
   /* !$ACC ROUTINE names.  */
   gfc_oacc_routine_name *oacc_routine_names;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   gfc_charlen *cl_list, *old_cl_list;
 
@@ -1769,6 +1791,7 @@ typedef struct gfc_namespace
   unsigned omp_udr_ns:1;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   /* Set to 1 for !$ACC ROUTINE namespaces.  */
@@ -1776,6 +1799,11 @@ typedef struct gfc_namespace
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+  /* Set to 1 for !$ACC ROUTINE namespaces.  */
+  unsigned oacc_routine:1;
+>>>>>>> gcc-mirror/trunk
 }
 gfc_namespace;
 
@@ -2403,6 +2431,7 @@ enum gfc_exec_op
   EXEC_READ, EXEC_WRITE, EXEC_IOLENGTH, EXEC_TRANSFER, EXEC_DT_END,
   EXEC_BACKSPACE, EXEC_ENDFILE, EXEC_INQUIRE, EXEC_REWIND, EXEC_FLUSH,
 <<<<<<< HEAD
+<<<<<<< HEAD
   EXEC_LOCK, EXEC_UNLOCK,
   EXEC_OACC_KERNELS_LOOP, EXEC_OACC_PARALLEL_LOOP,
 <<<<<<< HEAD
@@ -2412,6 +2441,10 @@ enum gfc_exec_op
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  EXEC_LOCK, EXEC_UNLOCK, EXEC_EVENT_POST, EXEC_EVENT_WAIT,
+  EXEC_OACC_KERNELS_LOOP, EXEC_OACC_PARALLEL_LOOP, EXEC_OACC_ROUTINE,
+>>>>>>> gcc-mirror/trunk
   EXEC_OACC_PARALLEL, EXEC_OACC_KERNELS, EXEC_OACC_DATA, EXEC_OACC_HOST_DATA,
   EXEC_OACC_LOOP, EXEC_OACC_UPDATE, EXEC_OACC_WAIT, EXEC_OACC_CACHE,
   EXEC_OACC_ENTER_DATA, EXEC_OACC_EXIT_DATA, EXEC_OACC_ATOMIC,

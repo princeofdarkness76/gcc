@@ -1055,7 +1055,10 @@ maybe_add_lambda_conv_op (tree type)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   if (flag_sanitize & SANITIZE_NULL)
     {
       /* Don't UBsan this function; we're deliberately calling op() with a null
@@ -1065,9 +1068,12 @@ maybe_add_lambda_conv_op (tree type)
       cplus_decl_attributes (&fn, attrs, 0);
     }
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   add_method (type, fn, NULL_TREE);
 
   if (nested)

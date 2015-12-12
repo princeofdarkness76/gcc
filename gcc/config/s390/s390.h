@@ -82,6 +82,7 @@ enum processor_flags
 	(opts->x_s390_arch_flags & PF_ZEC12)
 #define TARGET_CPU_HTM \
 <<<<<<< HEAD
+<<<<<<< HEAD
  	(s390_arch_flags & PF_TX)
 #define TARGET_CPU_Z13 \
         (s390_arch_flags & PF_Z13)
@@ -89,6 +90,8 @@ enum processor_flags
         (s390_arch_flags & PF_VX)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	(s390_arch_flags & PF_TX)
 #define TARGET_CPU_HTM_P(opts) \
 	(opts->x_s390_arch_flags & PF_TX)
@@ -102,9 +105,12 @@ enum processor_flags
 	(opts->x_s390_arch_flags & PF_VX)
 
 #define TARGET_HARD_FLOAT_P(opts) (!TARGET_SOFT_FLOAT_P(opts))
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* These flags indicate that the generated code should run on a cpu
    providing the respective hardware facility when run in
@@ -134,6 +140,7 @@ enum processor_flags
 	(TARGET_ZARCH_P (opts->x_target_flags) && TARGET_CPU_Z196_P (opts))
 #define TARGET_ZEC12 \
 <<<<<<< HEAD
+<<<<<<< HEAD
        (TARGET_ZARCH && TARGET_CPU_ZEC12)
 #define TARGET_HTM (TARGET_OPT_HTM)
 #define TARGET_Z13 \
@@ -143,6 +150,8 @@ enum processor_flags
 <<<<<<< HEAD
 
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 	(TARGET_ZARCH && TARGET_CPU_ZEC12)
 #define TARGET_ZEC12_P(opts) \
 	(TARGET_ZARCH_P (opts->x_target_flags) && TARGET_CPU_ZEC12_P (opts))
@@ -178,10 +187,13 @@ enum processor_flags
 
 #define TARGET_SUPPORTS_WIDE_INT 1
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Use the ABI introduced with IBM z13:
    - pass vector arguments <= 16 bytes in VRs
    - align *all* vector types to 8 bytes  */
@@ -391,9 +403,15 @@ extern const char *s390_host_detect_local_cpu (int argc, const char **argv);
 
    Registers 36 and 37 are mapped to access registers
    0 and 1, used to implement thread-local storage.
+<<<<<<< HEAD
 
    Reg 38-53: Vector registers v16-v31  */
 
+=======
+
+   Reg 38-53: Vector registers v16-v31  */
+
+>>>>>>> gcc-mirror/trunk
 #define FIRST_PSEUDO_REGISTER 54
 
 /* Standard register usage.  */
@@ -1027,7 +1045,10 @@ do {									\
   s390_asm_output_function_label (FILE, NAME, DECL)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
 #if S390_USE_TARGET_ATTRIBUTE
 /* Hook to output .machine and .machinemode at start of function.  */
@@ -1038,9 +1059,12 @@ do {									\
 #undef ASM_DECLARE_FUNCTION_SIZE
 #define ASM_DECLARE_FUNCTION_SIZE s390_asm_declare_function_size
 #endif
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* Miscellaneous parameters.  */
 

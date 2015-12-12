@@ -834,7 +834,10 @@ gfc_omp_clause_assign_op (tree clause, tree dest, tree src)
     gfc_add_expr_to_block (&block, then_b);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 
   return gfc_finish_block (&block);
 }
@@ -912,6 +915,7 @@ gfc_omp_clause_linear_ctor (tree clause, tree dest, tree src, tree add)
       else
 	nelems = array_type_nelts (type);
       nelems = fold_convert (gfc_array_index_type, nelems);
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 
       gfc_omp_linear_clause_add_loop (&block, dest, src, add, nelems);
@@ -1178,6 +1182,9 @@ gfc_omp_clause_linear_ctor (tree clause, tree dest, tree src, tree add)
 	nelems = array_type_nelts (type);
       nelems = fold_convert (gfc_array_index_type, nelems);
 
+=======
+
+>>>>>>> gcc-mirror/trunk
       gfc_omp_linear_clause_add_loop (&block, dest, src, add, nelems);
       return gfc_finish_block (&block);
     }
@@ -1244,6 +1251,7 @@ gfc_omp_clause_dtor (tree clause, tree decl)
   tree type = TREE_TYPE (decl), tem;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if ((! GFC_DESCRIPTOR_TYPE_P (type)
        || GFC_TYPE_ARRAY_AKIND (type) != GFC_ARRAY_ALLOCATABLE)
@@ -1288,6 +1296,9 @@ gfc_omp_clause_dtor (tree clause, tree decl)
 >>>>>>> gcc-mirror/master
 =======
 
+=======
+
+>>>>>>> gcc-mirror/trunk
   if ((! GFC_DESCRIPTOR_TYPE_P (type)
        || GFC_TYPE_ARRAY_AKIND (type) != GFC_ARRAY_ALLOCATABLE)
       && !GFC_DECL_GET_SCALAR_ALLOCATABLE (OMP_CLAUSE_DECL (clause)))
@@ -1298,6 +1309,7 @@ gfc_omp_clause_dtor (tree clause, tree decl)
 				     WALK_ALLOC_COMPS_DTOR);
       return NULL_TREE;
     }
+<<<<<<< HEAD
 
   if (GFC_DESCRIPTOR_TYPE_P (type))
     /* Allocatable arrays in FIRSTPRIVATE/LASTPRIVATE etc. clauses need
@@ -1340,6 +1352,49 @@ gfc_omp_finish_clause (tree c, gimple_seq *pre_p)
   if (OMP_CLAUSE_CODE (c) != OMP_CLAUSE_MAP)
     return;
 
+=======
+
+  if (GFC_DESCRIPTOR_TYPE_P (type))
+    /* Allocatable arrays in FIRSTPRIVATE/LASTPRIVATE etc. clauses need
+       to be deallocated if they were allocated.  */
+    tem = gfc_trans_dealloc_allocated (decl, false, NULL);
+  else
+    tem = gfc_call_free (decl);
+  tem = gfc_omp_unshare_expr (tem);
+
+  if (gfc_has_alloc_comps (type, OMP_CLAUSE_DECL (clause)))
+    {
+      stmtblock_t block;
+      tree then_b;
+
+      gfc_init_block (&block);
+      gfc_add_expr_to_block (&block,
+			     gfc_walk_alloc_comps (decl, NULL_TREE,
+						   OMP_CLAUSE_DECL (clause),
+						   WALK_ALLOC_COMPS_DTOR));
+      gfc_add_expr_to_block (&block, tem);
+      then_b = gfc_finish_block (&block);
+
+      tem = fold_convert (pvoid_type_node,
+			  GFC_DESCRIPTOR_TYPE_P (type)
+			  ? gfc_conv_descriptor_data_get (decl) : decl);
+      tem = unshare_expr (tem);
+      tree cond = fold_build2_loc (input_location, NE_EXPR, boolean_type_node,
+				   tem, null_pointer_node);
+      tem = build3_loc (input_location, COND_EXPR, void_type_node, cond,
+			then_b, build_empty_stmt (input_location));
+    }
+  return tem;
+}
+
+
+void
+gfc_omp_finish_clause (tree c, gimple_seq *pre_p)
+{
+  if (OMP_CLAUSE_CODE (c) != OMP_CLAUSE_MAP)
+    return;
+
+>>>>>>> gcc-mirror/trunk
   tree decl = OMP_CLAUSE_DECL (c);
   tree c2 = NULL_TREE, c3 = NULL_TREE, c4 = NULL_TREE;
   if (POINTER_TYPE_P (TREE_TYPE (decl)))
@@ -2946,6 +3001,7 @@ gfc_trans_omp_clauses (stmtblock_t *block, gfc_omp_clauses *clauses,
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
       if (clauses->gang_expr)
@@ -2972,6 +3028,8 @@ gfc_trans_omp_clauses (stmtblock_t *block, gfc_omp_clauses *clauses,
 	  omp_clauses = gfc_trans_add_clause (c, omp_clauses);
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
       tree arg;
       c = build_omp_clause (where.lb->location, OMP_CLAUSE_GANG);
       omp_clauses = gfc_trans_add_clause (c, omp_clauses);
@@ -2986,9 +3044,12 @@ gfc_trans_omp_clauses (stmtblock_t *block, gfc_omp_clauses *clauses,
 	    ? gfc_convert_expr_to_tree (block, clauses->gang_static_expr)
 	    : integer_minus_one_node;
 	  OMP_CLAUSE_GANG_STATIC_EXPR (c) = arg;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 	}
     }
 
@@ -3815,6 +3876,7 @@ gfc_trans_oacc_combined_directive (gfc_code *code)
       loop_clauses.gang = construct_clauses.gang;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       loop_clauses.gang_expr = construct_clauses.gang_expr;
       loop_clauses.gang_static = construct_clauses.gang_static;
 =======
@@ -3826,6 +3888,11 @@ gfc_trans_oacc_combined_directive (gfc_code *code)
       loop_clauses.gang_expr = construct_clauses.gang_expr;
       loop_clauses.gang_static = construct_clauses.gang_static;
 >>>>>>> master
+=======
+      loop_clauses.gang_static = construct_clauses.gang_static;
+      loop_clauses.gang_num_expr = construct_clauses.gang_num_expr;
+      loop_clauses.gang_static_expr = construct_clauses.gang_static_expr;
+>>>>>>> gcc-mirror/trunk
       loop_clauses.vector = construct_clauses.vector;
       loop_clauses.vector_expr = construct_clauses.vector_expr;
       loop_clauses.worker = construct_clauses.worker;
@@ -3841,6 +3908,7 @@ gfc_trans_oacc_combined_directive (gfc_code *code)
       construct_clauses.gang = false;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       construct_clauses.gang_expr = NULL;
       construct_clauses.gang_static = false;
 =======
@@ -3852,6 +3920,11 @@ gfc_trans_oacc_combined_directive (gfc_code *code)
       construct_clauses.gang_expr = NULL;
       construct_clauses.gang_static = false;
 >>>>>>> master
+=======
+      construct_clauses.gang_static = false;
+      construct_clauses.gang_num_expr = NULL;
+      construct_clauses.gang_static_expr = NULL;
+>>>>>>> gcc-mirror/trunk
       construct_clauses.vector = false;
       construct_clauses.vector_expr = NULL;
       construct_clauses.worker = false;
@@ -3864,11 +3937,15 @@ gfc_trans_oacc_combined_directive (gfc_code *code)
       construct_clauses.lists[OMP_LIST_PRIVATE] = NULL;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       construct_clauses.lists[OMP_LIST_REDUCTION] = NULL;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+      construct_clauses.lists[OMP_LIST_REDUCTION] = NULL;
+>>>>>>> gcc-mirror/trunk
       oacc_clauses = gfc_trans_omp_clauses (&block, &construct_clauses,
 					    code->loc);
     }

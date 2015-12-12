@@ -32,6 +32,7 @@ if NATIVE
 # Use the compiler we just built.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 GOCOMPILER = $(GOC_FOR_TARGET)
 =======
 GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
@@ -39,6 +40,9 @@ GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
 =======
 GOCOMPILER = $(GOC_FOR_TARGET)
 >>>>>>> master
+=======
+GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
+>>>>>>> gcc-mirror/trunk
 else
 GOCOMPILER = $(GOC)
 endif

@@ -301,12 +301,15 @@ struct visibility_flags visibility_options;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree c_fully_fold_internal (tree expr, bool, bool *, bool *, bool);
 =======
 >>>>>>> gcc-mirror/master
 =======
 static tree c_fully_fold_internal (tree expr, bool, bool *, bool *, bool);
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 static tree check_case_value (location_t, tree);
 static bool check_case_bounds (location_t, tree, tree, tree *, tree *,
 			       bool *);
@@ -393,6 +396,7 @@ static tree handle_fnspec_attribute (tree *, tree, tree, int, bool *);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static tree handle_omp_declare_simd_attribute (tree *, tree, tree, int,
 					       bool *);
 static tree handle_omp_declare_target_attribute (tree *, tree, tree, int,
@@ -402,6 +406,8 @@ static tree handle_omp_declare_target_attribute (tree *, tree, tree, int,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 static tree handle_warn_unused_attribute (tree *, tree, tree, int, bool *);
 static tree handle_returns_nonnull_attribute (tree *, tree, tree, int, bool *);
 static tree handle_omp_declare_simd_attribute (tree *, tree, tree, int,
@@ -415,11 +421,14 @@ static tree handle_bnd_legacy (tree *, tree, tree, int, bool *);
 static tree handle_bnd_instrument (tree *, tree, tree, int, bool *);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 static void check_function_nonnull (tree, int, tree *);
 static void check_nonnull_arg (void *, tree, unsigned HOST_WIDE_INT);
@@ -839,6 +848,7 @@ const struct attribute_spec c_common_attribute_table[] =
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "omp declare simd",       0, -1, true,  false, false,
 			      handle_omp_declare_simd_attribute, false },
   { "omp declare target",     0, 0, true, false, false,
@@ -848,6 +858,8 @@ const struct attribute_spec c_common_attribute_table[] =
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   { "warn_unused",            0, 0, false, false, false,
 			      handle_warn_unused_attribute, false },
   { "returns_nonnull",        0, 0, false, true, true,
@@ -858,6 +870,7 @@ const struct attribute_spec c_common_attribute_table[] =
 			      handle_omp_declare_simd_attribute, false },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   { "simd",		      0, 0, true,  false, false,
 =======
   { "simd",		      0, 1, true,  false, false,
@@ -865,6 +878,9 @@ const struct attribute_spec c_common_attribute_table[] =
 =======
   { "simd",		      0, 0, true,  false, false,
 >>>>>>> master
+=======
+  { "simd",		      0, 1, true,  false, false,
+>>>>>>> gcc-mirror/trunk
 			      handle_simd_attribute, false },
   { "omp declare target",     0, 0, true, false, false,
 			      handle_omp_declare_target_attribute, false },
@@ -882,11 +898,14 @@ const struct attribute_spec c_common_attribute_table[] =
 			      handle_bnd_instrument, false },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   { NULL,                     0, 0, false, false, false, NULL, false }
 };
 
@@ -1148,6 +1167,7 @@ fix_string_type (tree value)
   return value;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /* If DISABLE is true, stop issuing warnings.  This is used when
    parsing code that we know will not be executed.  This function may
@@ -1728,11 +1748,23 @@ fold_for_warn (tree x)
     ret = unshare_expr (ret);
   return ret;
 =======
+=======
+/* Fold X for consideration by one of the warning functions when checking
+   whether an expression has a constant value.  */
+
+static tree
+fold_for_warn (tree x)
+{
+  if (c_dialect_cxx ())
+>>>>>>> gcc-mirror/trunk
     return c_fully_fold (x, /*for_init*/false, /*maybe_constp*/NULL);
   else
     /* The C front-end has already folded X appropriately.  */
     return x;
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Print a warning if a constant expression had overflow in folding.
@@ -1994,6 +2026,7 @@ warn_tautological_cmp (location_t loc, enum tree_code code, tree lhs, tree rhs)
      expansions that test for features, sizeof, and similar.  */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (CONSTANT_CLASS_P (fold (lhs)) || CONSTANT_CLASS_P (fold (rhs)))
 =======
   if (CONSTANT_CLASS_P (fold_for_warn (lhs))
@@ -2002,6 +2035,10 @@ warn_tautological_cmp (location_t loc, enum tree_code code, tree lhs, tree rhs)
 =======
   if (CONSTANT_CLASS_P (fold (lhs)) || CONSTANT_CLASS_P (fold (rhs)))
 >>>>>>> master
+=======
+  if (CONSTANT_CLASS_P (fold_for_warn (lhs))
+      || CONSTANT_CLASS_P (fold_for_warn (rhs)))
+>>>>>>> gcc-mirror/trunk
     return;
 
   /* Don't warn for e.g.
@@ -5635,6 +5672,7 @@ enum c_builtin_type
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) NAME,
 #define DEF_FUNCTION_TYPE_8(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) NAME,
@@ -5643,6 +5681,8 @@ enum c_builtin_type
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define DEF_FUNCTION_TYPE_6(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6) NAME,
 #define DEF_FUNCTION_TYPE_7(NAME, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
@@ -5657,11 +5697,14 @@ enum c_builtin_type
 			     ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) NAME,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define DEF_FUNCTION_TYPE_VAR_0(NAME, RETURN) NAME,
 #define DEF_FUNCTION_TYPE_VAR_1(NAME, RETURN, ARG1) NAME,
 #define DEF_FUNCTION_TYPE_VAR_2(NAME, RETURN, ARG1, ARG2) NAME,
@@ -5688,6 +5731,7 @@ enum c_builtin_type
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #undef DEF_FUNCTION_TYPE_9
 #undef DEF_FUNCTION_TYPE_10
@@ -5703,6 +5747,11 @@ enum c_builtin_type
 #undef DEF_FUNCTION_TYPE_10
 #undef DEF_FUNCTION_TYPE_11
 >>>>>>> master
+=======
+#undef DEF_FUNCTION_TYPE_9
+#undef DEF_FUNCTION_TYPE_10
+#undef DEF_FUNCTION_TYPE_11
+>>>>>>> gcc-mirror/trunk
 #undef DEF_FUNCTION_TYPE_VAR_0
 #undef DEF_FUNCTION_TYPE_VAR_1
 #undef DEF_FUNCTION_TYPE_VAR_2
@@ -5794,11 +5843,14 @@ c_define_builtins (tree va_list_ref_type_node, tree va_list_arg_type_node)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define DEF_FUNCTION_TYPE_9(ENUM, RETURN, ARG1, ARG2, ARG3, ARG4, ARG5, \
 			    ARG6, ARG7, ARG8, ARG9)			\
   def_fn_type (ENUM, RETURN, 0, 9, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,	\
@@ -5813,11 +5865,14 @@ c_define_builtins (tree va_list_ref_type_node, tree va_list_arg_type_node)
 	       ARG7, ARG8, ARG9, ARG10, ARG11);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 #define DEF_FUNCTION_TYPE_VAR_0(ENUM, RETURN) \
   def_fn_type (ENUM, RETURN, 1, 0);
 #define DEF_FUNCTION_TYPE_VAR_1(ENUM, RETURN, ARG1) \
@@ -7421,9 +7476,11 @@ handle_no_address_safety_analysis_attribute (tree *node, tree name, tree, int,
 /* Handle a "no_sanitize_undefined" attribute; arguments as in
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> master
+=======
    struct attribute_spec.handler.  */
 
 static tree
@@ -7459,8 +7516,81 @@ handle_stack_protect_attribute (tree *node, tree name, tree, int,
 }
 
 /* Handle a "noinline" attribute; arguments as in
+>>>>>>> gcc-mirror/trunk
+   struct attribute_spec.handler.  */
+
+static tree
+handle_no_sanitize_undefined_attribute (tree *node, tree name, tree, int,
+				      bool *no_add_attrs)
+{
+<<<<<<< HEAD
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+=======
+  if (TREE_CODE (*node) == FUNCTION_DECL)
+    {
+      if (lookup_attribute ("always_inline", DECL_ATTRIBUTES (*node)))
+	{
+	  warning (OPT_Wattributes, "%qE attribute ignored due to conflict "
+		   "with attribute %qs", name, "always_inline");
+	  *no_add_attrs = true;
+	}
+      else
+	DECL_UNINLINABLE (*node) = 1;
+    }
+  else
+>>>>>>> gcc-mirror/trunk
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "stack_protect" attribute; arguments as in
+   struct attribute_spec.handler.  */
+static tree
+handle_stack_protect_attribute (tree *node, tree name, tree, int,
+				bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+  else
+    DECL_ATTRIBUTES (*node) 
+      = tree_cons (get_identifier ("stack_protect"),
+		   NULL_TREE, DECL_ATTRIBUTES (*node));
+
+  return NULL_TREE;
+}
+
+<<<<<<< HEAD
+/* Handle a "noinline" attribute; arguments as in
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
+=======
+/* Handle a "no_icf" attribute; arguments as in
+   struct attribute_spec.handler.  */
+
+static tree
+handle_noicf_attribute (tree *node, tree name,
+			tree ARG_UNUSED (args),
+			int ARG_UNUSED (flags), bool *no_add_attrs)
+{
+  if (TREE_CODE (*node) != FUNCTION_DECL)
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+
+/* Handle a "always_inline" attribute; arguments as in
+>>>>>>> gcc-mirror/trunk
    struct attribute_spec.handler.  */
 
 static tree
@@ -7480,6 +7610,7 @@ handle_noinline_attribute (tree *node, tree name,
 =======
   if (TREE_CODE (*node) == FUNCTION_DECL)
     {
+<<<<<<< HEAD
       if (lookup_attribute ("always_inline", DECL_ATTRIBUTES (*node)))
 	{
 	  warning (OPT_Wattributes, "%qE attribute ignored due to conflict "
@@ -7709,6 +7840,8 @@ handle_always_inline_attribute (tree *node, tree name,
 {
   if (TREE_CODE (*node) == FUNCTION_DECL)
     {
+=======
+>>>>>>> gcc-mirror/trunk
       if (lookup_attribute ("noinline", DECL_ATTRIBUTES (*node)))
 	{
 	  warning (OPT_Wattributes, "%qE attribute ignored due to conflict "
@@ -8474,6 +8607,7 @@ handle_section_attribute (tree *node, tree ARG_UNUSED (name), tree args,
       goto fail;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
   if (VAR_P (decl)
@@ -8528,6 +8662,30 @@ handle_section_attribute (tree *node, tree ARG_UNUSED (name), tree args,
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+    }
+
+  if (VAR_P (decl)
+      && current_function_decl != NULL_TREE
+      && !TREE_STATIC (decl))
+    {
+      error_at (DECL_SOURCE_LOCATION (decl),
+                "section attribute cannot be specified for local variables");
+      goto fail;
+    }
+
+  /* The decl may have already been given a section attribute
+     from a previous declaration.  Ensure they match.  */
+  if (DECL_SECTION_NAME (decl) != NULL
+      && strcmp (DECL_SECTION_NAME (decl),
+                 TREE_STRING_POINTER (TREE_VALUE (args))) != 0)
+    {
+      error ("section of %q+D conflicts with previous declaration", *node);
+      goto fail;
+    }
+
+  if (VAR_P (decl)
+>>>>>>> gcc-mirror/trunk
       && !targetm.have_tls && targetm.emutls.tmpl_section
       && DECL_THREAD_LOCAL_P (decl))
     {
@@ -9339,7 +9497,10 @@ handle_bnd_instrument (tree *node, tree name, tree ARG_UNUSED (args),
       warning (OPT_Wattributes, "%qE attribute ignored", name);
       *no_add_attrs = true;
     }
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
   return NULL_TREE;
 }
@@ -9365,6 +9526,7 @@ handle_warn_unused_attribute (tree *node, tree name,
   return NULL_TREE;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /* Handle a "alloc_size" attribute; arguments as in
    struct attribute_spec.handler.  */
@@ -9746,12 +9908,15 @@ handle_omp_declare_simd_attribute (tree *, tree, tree, int, bool *)
 <<<<<<< HEAD
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 /* Handle an "omp declare simd" attribute; arguments as in
    struct attribute_spec.handler.  */
 
 static tree
 handle_omp_declare_simd_attribute (tree *, tree, tree, int, bool *)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 /* Handle a "simd" attribute.  */
@@ -9767,6 +9932,15 @@ handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs
 static tree
 handle_simd_attribute (tree *node, tree name, tree, int, bool *no_add_attrs)
 >>>>>>> master
+=======
+  return NULL_TREE;
+}
+
+/* Handle a "simd" attribute.  */
+
+static tree
+handle_simd_attribute (tree *node, tree name, tree args, int, bool *no_add_attrs)
+>>>>>>> gcc-mirror/trunk
 {
   if (TREE_CODE (*node) == FUNCTION_DECL)
     {
@@ -9777,6 +9951,45 @@ handle_simd_attribute (tree *node, tree name, tree, int, bool *no_add_attrs)
 		    "%<__simd__%> attribute cannot be used in the same "
 		    "function marked as a Cilk Plus SIMD-enabled function");
 	  *no_add_attrs = true;
+<<<<<<< HEAD
+=======
+	}
+      else
+	{
+	  tree t = get_identifier ("omp declare simd");
+	  tree attr = NULL_TREE;
+	  if (args)
+	    {
+	      tree id = TREE_VALUE (args);
+
+	      if (TREE_CODE (id) != STRING_CST)
+		{
+		  error ("attribute %qE argument not a string", name);
+		  *no_add_attrs = true;
+		  return NULL_TREE;
+		}
+
+	      if (strcmp (TREE_STRING_POINTER (id), "notinbranch") == 0)
+		attr = build_omp_clause (DECL_SOURCE_LOCATION (*node),
+					 OMP_CLAUSE_NOTINBRANCH);
+	      else
+		if (strcmp (TREE_STRING_POINTER (id), "inbranch") == 0)
+		  attr = build_omp_clause (DECL_SOURCE_LOCATION (*node),
+					   OMP_CLAUSE_INBRANCH);
+		else
+		{
+		  error ("only %<inbranch%> and %<notinbranch%> flags are "
+			 "allowed for %<__simd__%> attribute");
+		  *no_add_attrs = true;
+		  return NULL_TREE;
+		}
+	    }
+
+	  DECL_ATTRIBUTES (*node) = tree_cons (t,
+					       build_tree_list (NULL_TREE,
+								attr),
+					       DECL_ATTRIBUTES (*node));
+>>>>>>> gcc-mirror/trunk
 	}
       else
 <<<<<<< HEAD
@@ -9826,11 +10039,20 @@ handle_simd_attribute (tree *node, tree name, tree, int, bool *no_add_attrs)
       warning (OPT_Wattributes, "%qE attribute ignored", name);
       *no_add_attrs = true;
     }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+  else
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+>>>>>>> gcc-mirror/trunk
   return NULL_TREE;
 }
 
@@ -11466,6 +11688,7 @@ c_cpp_error (cpp_reader *pfile ATTRIBUTE_UNUSED, int level, int reason,
   if (done_lexing)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     richloc->set_range (0,
 			source_range::from_location (input_location),
 			true, true);
@@ -11477,6 +11700,9 @@ c_cpp_error (cpp_reader *pfile ATTRIBUTE_UNUSED, int level, int reason,
 			source_range::from_location (input_location),
 			true, true);
 >>>>>>> master
+=======
+    richloc->set_range (line_table, 0, input_location, true);
+>>>>>>> gcc-mirror/trunk
   diagnostic_set_info_translated (&diagnostic, msg, ap,
 				  richloc, dlevel);
   diagnostic_override_option_index (&diagnostic,
@@ -13352,10 +13578,13 @@ maybe_warn_bool_compare (location_t loc, enum tree_code code, tree op0,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   tree cst = (TREE_CODE (op0) == INTEGER_CST)
 	     ? op0 : (TREE_CODE (op1) == INTEGER_CST) ? op1 : NULL_TREE;
   if (!cst)
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   tree f, cst;
   if (f = fold_for_warn (op0),
       TREE_CODE (f) == INTEGER_CST)
@@ -13364,12 +13593,15 @@ maybe_warn_bool_compare (location_t loc, enum tree_code code, tree op0,
 	   TREE_CODE (f) == INTEGER_CST)
     cst = op1 = f;
   else
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   tree cst = (TREE_CODE (op0) == INTEGER_CST)
 	     ? op0 : (TREE_CODE (op1) == INTEGER_CST) ? op1 : NULL_TREE;
   if (!cst)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     return;
 
   if (!integer_zerop (cst) && !integer_onep (cst))
@@ -13434,19 +13666,25 @@ maybe_warn_shift_overflow (location_t loc, tree op0, tree op1)
 			   + TREE_INT_CST_LOW (op1));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Handle the left-shifting 1 into the sign bit case.  */
   if (min_prec == prec0 + 1)
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   /* Handle the case of left-shifting 1 into the sign bit.
    * However, shifting 1 _out_ of the sign bit, as in
    * INT_MIN << 1, is considered an overflow.
    */
   if (!tree_int_cst_sign_bit(op0) && min_prec == prec0 + 1)
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
   /* Handle the left-shifting 1 into the sign bit case.  */
   if (min_prec == prec0 + 1)
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
     {
       /* Never warn for C++14 onwards.  */
       if (cxx_dialect >= cxx14)

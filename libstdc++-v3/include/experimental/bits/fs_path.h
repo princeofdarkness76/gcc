@@ -24,6 +24,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** @file experimental/fs_path.h
 =======
 /** @file experimental/bits/fs_path.h
@@ -31,6 +32,9 @@
 =======
 /** @file experimental/fs_path.h
 >>>>>>> master
+=======
+/** @file experimental/bits/fs_path.h
+>>>>>>> gcc-mirror/trunk
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{experimental/filesystem}
  */
@@ -559,6 +563,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
   struct path::_Cmpt : path
@@ -576,6 +581,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   template<>
     struct path::__is_encoded_char<char> : std::true_type
     { using value_type = char; };
@@ -594,7 +601,10 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
   struct path::_Cmpt : path
   {
     _Cmpt(string_type __s, _Type __t, size_t __pos)
@@ -605,9 +615,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     size_t _M_pos;
   };
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
   // specialize _Cvt for degenerate 'noconv' case
   template<>
     struct path::_Cvt<path::value_type>

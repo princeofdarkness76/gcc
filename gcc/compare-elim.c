@@ -250,6 +250,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   virtual void before_dom_children (basic_block);
 =======
   virtual edge before_dom_children (basic_block);
@@ -257,6 +258,9 @@ public:
 =======
   virtual void before_dom_children (basic_block);
 >>>>>>> master
+=======
+  virtual edge before_dom_children (basic_block);
+>>>>>>> gcc-mirror/trunk
 };
 
 /* Return true if conforming COMPARE with EH_NOTE is redundant with comparison
@@ -304,6 +308,7 @@ can_eliminate_compare (rtx compare, rtx eh_note, struct comparison *cmp)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 void
 =======
 edge
@@ -311,6 +316,9 @@ edge
 =======
 void
 >>>>>>> master
+=======
+edge
+>>>>>>> gcc-mirror/trunk
 find_comparison_dom_walker::before_dom_children (basic_block bb)
 {
   struct comparison *last_cmp;
@@ -444,12 +452,17 @@ find_comparison_dom_walker::before_dom_children (basic_block bb)
     purge_dead_edges (bb);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
   return NULL;
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+
+  return NULL;
+>>>>>>> gcc-mirror/trunk
 }
 
 /* Find all comparisons in the function.  */

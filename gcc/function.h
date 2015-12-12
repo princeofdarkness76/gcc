@@ -372,6 +372,7 @@ struct GTY(()) function {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
      loop->force_vect set.  */
   unsigned int has_force_vect_loops : 1;
 =======
@@ -386,10 +387,15 @@ struct GTY(()) function {
      loop->force_vectorize set.  */
   unsigned int has_force_vectorize_loops : 1;
 >>>>>>> master
+=======
+     loop->force_vectorize set.  */
+  unsigned int has_force_vectorize_loops : 1;
+>>>>>>> gcc-mirror/trunk
 
   /* Nonzero if the current function contains any loops with
      nonzero value in loop->simduid.  */
   unsigned int has_simduid_loops : 1;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -408,6 +414,11 @@ struct GTY(()) function {
   /* Set when the tail call has been identified.  */
   unsigned int tail_call_marked : 1;
 >>>>>>> master
+=======
+
+  /* Set when the tail call has been identified.  */
+  unsigned int tail_call_marked : 1;
+>>>>>>> gcc-mirror/trunk
 };
 
 /* Add the decl D to the local_decls list of FUN.  */
@@ -611,6 +622,7 @@ extern rtx has_hard_reg_initial_val (machine_mode, unsigned int);
 /* Called from gimple_expand_cfg.  */
 extern unsigned int emit_initial_value_sets (void);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 extern bool initial_value_entry (int i, rtx *, rtx *);
 extern void instantiate_decl_rtl (rtx x);
@@ -651,6 +663,26 @@ extern void clear_block_marks (tree);
 extern tree blocks_nreverse (tree);
 extern tree block_chainon (tree, tree);
 
+=======
+
+extern bool initial_value_entry (int i, rtx *, rtx *);
+extern void instantiate_decl_rtl (rtx x);
+extern int aggregate_value_p (const_tree, const_tree);
+extern bool use_register_for_decl (const_tree);
+extern gimple_seq gimplify_parameters (void);
+extern void locate_and_pad_parm (machine_mode, tree, int, int, int,
+				 tree, struct args_size *,
+				 struct locate_and_pad_arg_data *);
+extern void generate_setjmp_warnings (void);
+
+/* Identify BLOCKs referenced by more than one NOTE_INSN_BLOCK_{BEG,END},
+   and create duplicate blocks.  */
+extern void reorder_blocks (void);
+extern void clear_block_marks (tree);
+extern tree blocks_nreverse (tree);
+extern tree block_chainon (tree, tree);
+
+>>>>>>> gcc-mirror/trunk
 /* Set BLOCK_NUMBER for all the blocks in FN.  */
 extern void number_blocks (tree);
 
@@ -686,13 +718,17 @@ extern vec<edge> convert_jumps_to_returns (basic_block last_bb, bool simple_p,
 extern basic_block emit_return_for_exit (edge exit_fallthru_edge,
 					 bool simple_p);
 extern void reposition_prologue_and_epilogue_notes (void);
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 
 /* cfun shouldn't be set directly; use one of these functions instead.  */
 extern void set_cfun (struct function *new_cfun);
 extern void push_cfun (struct function *new_cfun);
 extern void pop_cfun (void);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 
@@ -751,4 +787,8 @@ extern void used_types_insert (tree);
 extern void used_types_insert (tree);
 
 >>>>>>> master
+=======
+extern void used_types_insert (tree);
+
+>>>>>>> gcc-mirror/trunk
 #endif  /* GCC_FUNCTION_H */

@@ -887,6 +887,7 @@ keep:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (fdiagnostics_color_idx > 1)
 =======
   if (fdiagnostics_color_idx >= 1)
@@ -894,6 +895,9 @@ keep:
 =======
   if (fdiagnostics_color_idx > 1)
 >>>>>>> master
+=======
+  if (fdiagnostics_color_idx >= 1)
+>>>>>>> gcc-mirror/trunk
     {
       /* We put the last -fdiagnostics-color= at the first position
 	 after argv[0] so it can take effect immediately.  */

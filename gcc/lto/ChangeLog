@@ -1,6 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> gcc-mirror/trunk
 2015-12-11  Jan Hubicka  <hubicka@ucw.cz>
 
 	PR ipa/61886
@@ -86,9 +89,12 @@
 
 	* lto.c (unify_scc): Use free_node.
 
+<<<<<<< HEAD
 >>>>>>> gcc-mirror/master
 =======
 >>>>>>> master
+=======
+>>>>>>> gcc-mirror/trunk
 2015-11-21  Jan Hubicka  <hubicka@ucw.cz>
 
 	* lto.c (iterative_hash_canonical_type): Always recurse for pointers.
